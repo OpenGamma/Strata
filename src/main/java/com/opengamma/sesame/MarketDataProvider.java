@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame;
 
-import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.FinancialSecurity;
 
 public interface MarketDataProvider {
 
-  MarketDataFunctionResult retrieveMarketData(EquitySecurity security, String requiredData);
+  MarketDataFunctionResult retrieveMarketData(FinancialSecurity security, String requiredData);
 }

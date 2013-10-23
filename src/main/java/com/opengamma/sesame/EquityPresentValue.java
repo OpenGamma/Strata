@@ -11,15 +11,15 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 public class EquityPresentValue {
 
   private final MarketDataProvider _marketDataProvider;
-  private final FunctionContext _resultContext;
+  private final ResultGenerator _resultContext;
 
-  public EquityPresentValue(FunctionContext resultContext,
+  public EquityPresentValue(ResultGenerator resultContext,
                             MarketDataProvider marketDataProvider) {
     _marketDataProvider = marketDataProvider;
     _resultContext = resultContext;
   }
 
-  public FunctionResult<Double> calculateEquityPresentValue(FunctionContext context, EquitySecurity security) {
+  public FunctionResult<Double> calculateEquityPresentValue(EquitySecurity security) {
 
     MarketDataFunctionResult result = _marketDataProvider.retrieveMarketData(security, MarketDataRequirementNames.MARKET_VALUE);
 
