@@ -9,5 +9,5 @@ import com.opengamma.financial.security.FinancialSecurity;
 
 public interface MarketDataProvider {
 
-  MarketDataFunctionResult retrieveMarketData(FinancialSecurity security, String requiredData);
+  MarketDataFunctionResult retrieveMarketData(MarketDataContext marketDataContext, FinancialSecurity security, String requiredData);
 }

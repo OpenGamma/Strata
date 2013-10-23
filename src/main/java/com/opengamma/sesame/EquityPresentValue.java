@@ -19,9 +19,10 @@ public class EquityPresentValue {
     _resultContext = resultContext;
   }
 
-  public FunctionResult<Double> calculateEquityPresentValue(EquitySecurity security) {
+  public FunctionResult<Double> calculateEquityPresentValue(MarketDataContext marketDataContext, EquitySecurity security) {
 
-    MarketDataFunctionResult result = _marketDataProvider.retrieveMarketData(security, MarketDataRequirementNames.MARKET_VALUE);
+    MarketDataFunctionResult result = _marketDataProvider.retrieveMarketData(
+        marketDataContext, security, MarketDataRequirementNames.MARKET_VALUE);
 
     if (result.isFullyAvailable()) {
       MarketDataValue value = result.getSingleMarketDataValue();
