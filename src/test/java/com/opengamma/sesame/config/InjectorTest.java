@@ -128,13 +128,28 @@ public class InjectorTest {
   }
 }
 
-@EngineFunction(InjectorTest.VALUE_NAME)
 @DefaultImplementation(Default.class)
-/* package */ interface TestFunction { }
+/* package */ interface TestFunction {
 
-/* package */ class Default implements TestFunction { }
+  @EngineFunction(InjectorTest.VALUE_NAME)
+  Object foo();
+}
 
-/* package */ class Alternative implements TestFunction { }
+/* package */ class Default implements TestFunction {
+
+  @Override
+  public Object foo() {
+    return null;
+  }
+}
+
+/* package */ class Alternative implements TestFunction {
+
+  @Override
+  public Object foo() {
+    return null;
+  }
+}
 
 /* package */ class Infrastructure implements TestFunction {
 
@@ -142,6 +157,11 @@ public class InjectorTest {
 
   /* package */ Infrastructure(String infrastructureComponent) {
     _infrastructureComponent = infrastructureComponent;
+  }
+
+  @Override
+  public Object foo() {
+    return null;
   }
 }
 
@@ -155,6 +175,11 @@ public class InjectorTest {
     _i = i;
     _dateTime = dateTime;
   }
+
+  @Override
+  public Object foo() {
+    return null;
+  }
 }
 
 /* package */ class CallsOtherFunction implements TestFunction {
@@ -163,6 +188,11 @@ public class InjectorTest {
 
   /* package */ CallsOtherFunction(CollaboratorFunction collaborator) {
     _collaborator = collaborator;
+  }
+
+  @Override
+  public Object foo() {
+    return null;
   }
 }
 

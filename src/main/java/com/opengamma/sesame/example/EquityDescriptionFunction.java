@@ -13,7 +13,6 @@ import com.opengamma.sesame.config.Target;
 /**
  * Trivial example function that returns the description of an equity security.
  */
-@EngineFunction(EquityDescriptionFunction.VALUE_NAME)
 @DefaultImplementation(EquityDescription.class)
 public interface EquityDescriptionFunction {
 
@@ -25,5 +24,6 @@ public interface EquityDescriptionFunction {
    * @param security A security
    * @return A description of the security
    */
+  @EngineFunction(EquityDescriptionFunction.VALUE_NAME)
   String getDescription(@Target EquitySecurity security);
 }

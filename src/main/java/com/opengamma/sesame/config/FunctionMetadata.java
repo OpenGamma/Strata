@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.config;
 
+import java.lang.reflect.Method;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -39,12 +41,18 @@ import com.opengamma.util.ArgumentChecker;
     if (!functionInterface.isInterface()) {
       throw new IllegalArgumentException(functionInterface.getName() + " isn't an interface");
     }
-    EngineFunction engineFunctionAnnotation = functionInterface.getAnnotation(EngineFunction.class);
-    String valueName;
-    if (engineFunctionAnnotation == null) {
-      valueName = null;
-    } else {
-      valueName = engineFunctionAnnotation.value();
+    // TODO allow multiple engine functions with different value names on the same interface?
+    String valueName = null;
+    for (Method method : functionInterface.getMethods()) {
+      EngineFunction engineFunctionAnnotation = method.getAnnotation(EngineFunction.class);
+      if (engineFunctionAnnotation != null) {
+        if (valueName == null) {
+          valueName = engineFunctionAnnotation.value();
+        } else {
+          throw new IllegalArgumentException("Only one method should be annotated with @EngineFunction on " +
+                                                 functionInterface.getName());
+        }
+      }
     }
     DefaultImplementation defaultImplementationAnnotation = functionInterface.getAnnotation(DefaultImplementation.class);
     Class defaultImpl;
