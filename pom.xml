@@ -27,6 +27,35 @@
       <artifactId>og-financial-types</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.joda</groupId>
+      <artifactId>joda-beans</artifactId>
+      <version>0.8.5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.joda</groupId>
+      <artifactId>joda-convert</artifactId>
+      <version>1.5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>1.8.5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.8.5</version>
+    </dependency>
 
   </dependencies>
 </project>
