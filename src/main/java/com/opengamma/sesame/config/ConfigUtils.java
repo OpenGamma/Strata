@@ -63,23 +63,4 @@ import com.google.common.collect.Maps;
     }
     return parameters;
   }
-
-  /* package */ static FunctionMetadata getFunctionMetadata(Class<?> functionInterface) {
-    if (!functionInterface.isInterface()) {
-      throw new IllegalArgumentException(functionInterface.getName() + " isn't an interface");
-    }
-    EngineFunction engineFunctionAnnotation = functionInterface.getAnnotation(EngineFunction.class);
-    String valueName;
-    if (engineFunctionAnnotation == null) {
-      valueName = null;
-    } else {
-      valueName = engineFunctionAnnotation.value();
-    }
-    DefaultImplementation defaultImplementationAnnotation = functionInterface.getAnnotation(DefaultImplementation.class);
-    if (defaultImplementationAnnotation == null) {
-      throw new IllegalArgumentException(functionInterface.getName() + " isn't annotated with @DefaultImplementation");
-    }
-    Class defaultImpl = defaultImplementationAnnotation.value();
-    return new FunctionMetadata(valueName, defaultImpl);
-  }
 }

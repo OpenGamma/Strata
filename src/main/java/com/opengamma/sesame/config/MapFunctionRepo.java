@@ -51,7 +51,7 @@ import com.opengamma.util.tuple.Triple;
 
   // TODO this shares a lot of logic with Injector, most of it in ConfigUtils
   private void registerDefaultImplementation(Class<?> functionType) {
-    FunctionMetadata functionMeta = ConfigUtils.getFunctionMetadata(functionType);
+    FunctionMetadata functionMeta = FunctionMetadata.forFunctionInterface(functionType);
     Class<?> defaultImplementation = functionMeta.getDefaultImplementation();
     String valueName = functionMeta.getValueName();
     Constructor[] constructors = defaultImplementation.getConstructors();

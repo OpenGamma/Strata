@@ -68,8 +68,8 @@ public final class ColumnRequirement implements ImmutableBean {
     if (_functionImplementationOverrides.containsKey(functionInterface)) {
       return _functionImplementationOverrides.get(functionInterface);
     } else {
-      // TODO allow default impl to be specified without an annotation
-      return ConfigUtils.getFunctionMetadata(functionInterface).getDefaultImplementation();
+      // TODO allow default impl to be specified without an annotation?
+      return FunctionMetadata.forFunctionInterface(functionInterface).getDefaultImplementation();
     }
   }
 

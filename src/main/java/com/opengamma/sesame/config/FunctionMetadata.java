@@ -34,4 +34,26 @@ import com.opengamma.util.ArgumentChecker;
   public Class<?> getDefaultImplementation() {
     return _defaultImplementation;
   }
+
+  /* package */ static FunctionMetadata forFunctionInterface(Class<?> functionInterface) {
+    if (!functionInterface.isInterface()) {
+      throw new IllegalArgumentException(functionInterface.getName() + " isn't an interface");
+    }
+    EngineFunction engineFunctionAnnotation = functionInterface.getAnnotation(EngineFunction.class);
+    String valueName;
+    if (engineFunctionAnnotation == null) {
+      valueName = null;
+    } else {
+      valueName = engineFunctionAnnotation.value();
+    }
+    DefaultImplementation defaultImplementationAnnotation = functionInterface.getAnnotation(DefaultImplementation.class);
+    Class defaultImpl;
+    if (defaultImplementationAnnotation == null) {
+      defaultImpl = null;
+    } else {
+      defaultImpl = defaultImplementationAnnotation.value();
+
+    }
+    return new FunctionMetadata(valueName, defaultImpl);
+  }
 }
