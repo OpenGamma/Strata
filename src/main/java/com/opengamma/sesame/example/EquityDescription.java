@@ -9,18 +9,16 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.config.Target;
 
 /**
- *
+ * Returns the security name as the description.
  */
-public class HelloName implements HelloWorldFunction {
+public class EquityDescription implements EquityDescriptionFunction {
 
-  private final NameFunction _nameFunction;
-
-  public HelloName(NameFunction nameFunction) {
-    _nameFunction = nameFunction;
-  }
-
+  /**
+   * @param security A security
+   * @return The security name
+   */
   @Override
-  public String getGreeting(@Target EquitySecurity security) {
-    return "Hello " + _nameFunction.getName();
+  public String getDescription(@Target EquitySecurity security) {
+    return security.getName();
   }
 }

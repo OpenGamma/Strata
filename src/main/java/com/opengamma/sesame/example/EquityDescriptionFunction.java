@@ -11,12 +11,19 @@ import com.opengamma.sesame.config.EngineFunction;
 import com.opengamma.sesame.config.Target;
 
 /**
- *
+ * Trivial example function that returns the description of an equity security.
  */
-@EngineFunction("HelloWorld")
-@DefaultImplementation(HelloWorld.class)
-public interface HelloWorldFunction {
+@EngineFunction(EquityDescriptionFunction.VALUE_NAME)
+@DefaultImplementation(EquityDescription.class)
+public interface EquityDescriptionFunction {
+
+  public static final String VALUE_NAME = "EquityDescription";
 
   // TODO will this need an annotation so the graph builder knows where to look for the target?
-  String getGreeting(@Target EquitySecurity security);
+  /**
+   * Returns a description of the security
+   * @param security A security
+   * @return A description of the security
+   */
+  String getDescription(@Target EquitySecurity security);
 }

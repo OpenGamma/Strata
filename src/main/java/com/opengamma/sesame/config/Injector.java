@@ -20,23 +20,23 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class Injector {
+public class Injector {
 
   // TODO multiple instances per type?
   private final Map<Class<?>, Object> _infrastructure;
 
-  /* package */ Injector(Map<Class<?>, Object> infrastructure) {
+  public Injector(Map<Class<?>, Object> infrastructure) {
     ArgumentChecker.notNull(infrastructure, "infrastructure");
     _infrastructure = infrastructure;
   }
 
-  /* package */ Injector() {
+  public Injector() {
     this(Collections.<Class<?>, Object>emptyMap());
   }
 
   @SuppressWarnings("unchecked")
-  /* package */ <T> T create(Class<T> type, ColumnRequirement columnRequirement) {
-    Class<?> implType = columnRequirement.getImplementation(type);
+  public  <T> T create(Class<T> type, ColumnRequirement columnRequirement) {
+    Class<?> implType = columnRequirement.getFunctionImplementation(type);
     Constructor<?> constructor = ConfigUtils.getConstructor(implType);
     List<ConstructorParameter> parameters = ConfigUtils.getParameters(constructor);
     List<Object> arguments = Lists.newArrayListWithCapacity(parameters.size());
@@ -51,6 +51,7 @@ import com.opengamma.util.ArgumentChecker;
       if (argument != null) {
         arguments.add(argument);
       } else {
+        // TODO cyclic dependencies
         arguments.add(create(parameter.getType(), columnRequirement));
       }
     }
@@ -79,7 +80,6 @@ import com.opengamma.util.ArgumentChecker;
       if (functionArguments.hasArgument(paramName)) {
         return functionArguments.getArgument(paramName);
       } else {
-        // TODO check the default type is supported and throw more informative exception
         return StringConvert.INSTANCE.convertFromString(parameter.getType(), paramAnnotation.defaultValue());
       }
     } else {

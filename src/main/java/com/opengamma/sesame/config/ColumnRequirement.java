@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.config;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -64,7 +65,14 @@ public final class ColumnRequirement implements ImmutableBean {
     _functionArguments = ImmutableMap.copyOf(functionArguments);
   }
 
-  public Class<?> getImplementation(Class<?> functionInterface) {
+  public ColumnRequirement(String valueName, Class<?> targetType) {
+    this(valueName,
+        targetType,
+         Collections.<Class<?>, Class<?>>emptyMap(),
+         Collections.<Class<?>, FunctionArguments>emptyMap());
+  }
+
+  public Class<?> getFunctionImplementation(Class<?> functionInterface) {
     if (_functionImplementationOverrides.containsKey(functionInterface)) {
       return _functionImplementationOverrides.get(functionInterface);
     } else {

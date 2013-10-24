@@ -96,6 +96,7 @@ public final class FunctionArguments implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets user-specified function arguments keyed by parameter name.
+   * TODO should these be the real objects or the string representation?
    * @return the value of the property, not null
    */
   public ImmutableMap<String, Object> getArguments() {

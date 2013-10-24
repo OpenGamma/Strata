@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * TODO do we need different annotations for fns that can be outputs vs those that are used by other fns?
+ * TODO rename EngineOutput?
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

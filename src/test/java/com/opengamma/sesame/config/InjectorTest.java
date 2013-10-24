@@ -90,19 +90,37 @@ public class InjectorTest {
   }
 
   @Test
-  public void concreteType() {
+  public void concreteFunctionType() {
 
 
   }
 
   @Test
-  public void noConstructors() {
+  public void noVisibleConstructors() {
 
 
   }
 
   @Test
   public void multipleInjectableConstructors() {
+
+
+  }
+
+  @Test
+  public void infrastructureNotFound() {
+
+
+  }
+
+  @Test
+  public void noDefaultImpl() {
+
+
+  }
+
+  @Test
+  public void cyclicDependency() {
 
 
   }

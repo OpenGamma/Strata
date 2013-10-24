@@ -5,15 +5,17 @@
  */
 package com.opengamma.sesame.example;
 
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.sesame.config.DefaultImplementation;
-import com.opengamma.sesame.config.EngineFunction;
 
 /**
- *
+ * Returns an external ID scheme.
  */
-@EngineFunction("GreetingName")
-@DefaultImplementation(Name.class)
-public interface NameFunction {
+@DefaultImplementation(IdScheme.class)
+public interface IdSchemeFunction {
 
-  String getName();
+  /**
+   * @return An external ID scheme.
+   */
+  ExternalScheme getScheme();
 }
