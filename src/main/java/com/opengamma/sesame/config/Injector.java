@@ -33,33 +33,32 @@ public class Injector {
   public Injector() {
     this(Collections.<Class<?>, Object>emptyMap());
   }
+  public <T> T create(Class<T> type) {
+    return create(type, FunctionConfig.EMPTY);
+  }
 
+  // TODO only need half the contents of columnRequirement, it's a bit jarring ATM to create valueName and targetType
   @SuppressWarnings("unchecked")
-  public  <T> T create(Class<T> type, ColumnRequirement columnRequirement) {
-    Class<?> implType = columnRequirement.getFunctionImplementation(type);
+  public  <T> T create(Class<T> type, FunctionConfig config) {
+    Class<?> implType = config.getFunctionImplementation(type);
     Constructor<?> constructor = ConfigUtils.getConstructor(implType);
     List<ConstructorParameter> parameters = ConfigUtils.getParameters(constructor);
-    List<Object> arguments = Lists.newArrayListWithCapacity(parameters.size());
-    FunctionArguments functionArguments;
-    if (columnRequirement.getFunctionArguments().containsKey(implType)) {
-      functionArguments = columnRequirement.getFunctionArguments().get(implType);
-    } else {
-      functionArguments = FunctionArguments.EMPTY;
-    }
+    FunctionArguments functionArguments = config.getFunctionArguments(implType);
+    List<Object> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
     for (ConstructorParameter parameter : parameters) {
       Object argument = getArgument(parameter, functionArguments);
       if (argument != null) {
-        arguments.add(argument);
+        constructorArguments.add(argument);
       } else {
         // TODO cyclic dependencies
-        arguments.add(create(parameter.getType(), columnRequirement));
+        constructorArguments.add(create(parameter.getType(), config));
       }
     }
     try {
-      return (T) constructor.newInstance(arguments.toArray());
+      return (T) constructor.newInstance(constructorArguments.toArray());
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new OpenGammaRuntimeException("Failed to create object of type " + type.getName() +
-                                              " with requirement" + columnRequirement, e);
+                                              " with requirement" + config, e);
     }
   }
 

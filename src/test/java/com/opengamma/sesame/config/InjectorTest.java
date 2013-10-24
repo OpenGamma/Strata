@@ -15,7 +15,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -28,14 +27,14 @@ public class InjectorTest {
   @Test
   public void defaultImpl() {
     Injector injector = new Injector();
-    TestFunction fn = injector.create(TestFunction.class, requirement());
+    TestFunction fn = injector.create(TestFunction.class);
     assertTrue(fn instanceof Default);
   }
 
   @Test
   public void overriddenImpl() {
     Injector injector = new Injector();
-    ColumnRequirement requirement = requirement(TestFunction.class, Alternative.class);
+    FunctionConfig requirement = config(TestFunction.class, Alternative.class);
     TestFunction fn = injector.create(TestFunction.class, requirement);
     assertTrue(fn instanceof Alternative);
   }
@@ -43,7 +42,7 @@ public class InjectorTest {
   @Test
   public void infrastructure() {
     Injector injector = new Injector(ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
-    ColumnRequirement requirement = requirement(TestFunction.class, Infrastructure.class);
+    FunctionConfig requirement = config(TestFunction.class, Infrastructure.class);
     TestFunction fn = injector.create(TestFunction.class, requirement);
     assertTrue(fn instanceof Infrastructure);
     //noinspection ConstantConditions
@@ -53,7 +52,7 @@ public class InjectorTest {
   @Test
   public void defaultUserParams() {
     Injector injector = new Injector();
-    ColumnRequirement requirement = requirement(TestFunction.class, UserParameters.class);
+    FunctionConfig requirement = config(TestFunction.class, UserParameters.class);
     TestFunction fn = injector.create(TestFunction.class, requirement);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
@@ -66,11 +65,9 @@ public class InjectorTest {
   public void overriddenUserParam() {
     Injector injector = new Injector();
     FunctionArguments args = new FunctionArguments(ImmutableMap.<String, Object>of("i", 12));
-    ColumnRequirement requirement =
-        new ColumnRequirement(VALUE_NAME,
-                              EquitySecurity.class,
-                              ImmutableMap.<Class<?>, Class<?>>of(TestFunction.class, UserParameters.class),
-                              ImmutableMap.<Class<?>, FunctionArguments>of(UserParameters.class, args));
+    FunctionConfig requirement =
+        new FunctionConfig(ImmutableMap.<Class<?>, Class<?>>of(TestFunction.class, UserParameters.class),
+                           ImmutableMap.<Class<?>, FunctionArguments>of(UserParameters.class, args));
     TestFunction fn = injector.create(TestFunction.class, requirement);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
@@ -82,7 +79,7 @@ public class InjectorTest {
   @Test
   public void functionCallingOtherFunction() {
     Injector injector = new Injector();
-    ColumnRequirement requirement = requirement(TestFunction.class, CallsOtherFunction.class);
+    FunctionConfig requirement = config(TestFunction.class, CallsOtherFunction.class);
     TestFunction fn = injector.create(TestFunction.class, requirement);
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
@@ -125,18 +122,14 @@ public class InjectorTest {
 
   }
 
-  private static ColumnRequirement requirement() {
-    return new ColumnRequirement(VALUE_NAME,
-                                 EquitySecurity.class,
-                                 Collections.<Class<?>, Class<?>>emptyMap(),
-                                 Collections.<Class<?>, FunctionArguments>emptyMap());
+  // TODO inline
+  private static FunctionConfig config() {
+    return FunctionConfig.EMPTY;
   }
 
-  private static ColumnRequirement requirement(Class<?> fnType, Class<?> implType) {
-    return new ColumnRequirement(VALUE_NAME,
-                                 EquitySecurity.class,
-                                 ImmutableMap.<Class<?>, Class<?>>of(fnType, implType),
-                                 Collections.<Class<?>, FunctionArguments>emptyMap());
+  private static FunctionConfig config(Class<?> fnType, Class<?> implType) {
+    return new FunctionConfig(ImmutableMap.<Class<?>, Class<?>>of(fnType, implType),
+                              Collections.<Class<?>, FunctionArguments>emptyMap());
   }
 }
 

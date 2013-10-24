@@ -17,8 +17,8 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.config.ColumnRequirement;
 import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.Injector;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -42,8 +42,7 @@ public class EquityDescriptionTest {
   @Test
   public void defaultImpl() {
     Injector injector = new Injector();
-    ColumnRequirement requirement = new ColumnRequirement(EquityDescriptionFunction.VALUE_NAME, EquitySecurity.class);
-    EquityDescriptionFunction fn = injector.create(EquityDescriptionFunction.class, requirement);
+    EquityDescriptionFunction fn = injector.create(EquityDescriptionFunction.class);
     String description = fn.getDescription(SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
@@ -54,8 +53,8 @@ public class EquityDescriptionTest {
     Map<Class<?>, Class<?>> typeMap = ImmutableMap.<Class<?>, Class<?>>of(EquityDescriptionFunction.class,
                                                                           EquityIdDescription.class);
     Map<Class<?>, FunctionArguments> argsMap = Collections.emptyMap();
-    ColumnRequirement req = new ColumnRequirement(EquityDescriptionFunction.VALUE_NAME, EquitySecurity.class, typeMap, argsMap);
-    EquityDescriptionFunction fn = injector.create(EquityDescriptionFunction.class, req);
+    FunctionConfig config = new FunctionConfig(typeMap, argsMap);
+    EquityDescriptionFunction fn = injector.create(EquityDescriptionFunction.class, config);
     String description = fn.getDescription(SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
@@ -68,8 +67,8 @@ public class EquityDescriptionTest {
     Map<String, Object> argsMap = ImmutableMap.<String, Object>of("scheme", ExternalSchemes.ACTIVFEED_TICKER);
     FunctionArguments fnArgs = new FunctionArguments(argsMap);
     Map<Class<?>, FunctionArguments> args = ImmutableMap.<Class<?>, FunctionArguments>of(IdScheme.class, fnArgs);
-    ColumnRequirement req = new ColumnRequirement(EquityDescriptionFunction.VALUE_NAME, EquitySecurity.class, typeMap, args);
-    EquityDescriptionFunction fn = injector.create(EquityDescriptionFunction.class, req);
+    FunctionConfig config = new FunctionConfig(typeMap, args);
+    EquityDescriptionFunction fn = injector.create(EquityDescriptionFunction.class, config);
     String description = fn.getDescription(SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }
