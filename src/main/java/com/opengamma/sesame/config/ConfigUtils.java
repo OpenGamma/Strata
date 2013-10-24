@@ -23,16 +23,28 @@ import com.google.common.collect.Maps;
 
   /* package */
   static Constructor<?> getConstructor(Class<?> type) {
-    // TODO check there's exactly 1 or that it's correctly annotated. create @Inject annotation
-    // TODO what about classes with implicit no-args constructors?
     Constructor<?>[] constructors = type.getDeclaredConstructors();
     if (constructors.length == 0) {
       throw new IllegalArgumentException("No constructors found for " + type.getName());
     }
-    for (Constructor<?> constructor : constructors) {
-      // TODO check for exactly 1 @Inject annotation
+    if (constructors.length == 1) {
+      return constructors[0];
     }
-    return constructors[0];
+    Constructor<?> injectableConstructor = null;
+    for (Constructor<?> constructor : constructors) {
+      Inject annotation = constructor.getAnnotation(Inject.class);
+      if (annotation != null) {
+        if (injectableConstructor == null) {
+          injectableConstructor = constructor;
+        } else {
+          throw new IllegalArgumentException("Only one constructor should be annotated with @Inject in " + type.getName());
+        }
+      }
+    }
+    if (injectableConstructor == null) {
+      throw new IllegalArgumentException(type.getName() + " has multiple constructors but none have an @Inject annotation");
+    }
+    return injectableConstructor;
   }
 
   /* package */

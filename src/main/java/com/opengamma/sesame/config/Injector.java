@@ -67,7 +67,7 @@ import com.opengamma.util.ArgumentChecker;
     /*
     there are 4 types of argument:
       infrastructure components
-      other functions (need to recurse)
+      other functions (return null for these)
       user arguments
       user arguments with defaults generated from @UserParam
     */
