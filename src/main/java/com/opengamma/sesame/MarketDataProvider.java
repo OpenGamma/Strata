@@ -5,9 +5,17 @@
  */
 package com.opengamma.sesame;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.security.FinancialSecurity;
 
-public interface MarketDataProvider {
+public class MarketDataProvider implements MarketDataProviderFunction {
 
-  MarketDataFunctionResult retrieveMarketData(MarketDataContext marketDataContext, FinancialSecurity security, String requiredData);
+  @Override
+  public MarketDataFunctionResult retrieveMarketData(MarketDataContext marketDataContext, FinancialSecurity security, String requiredData) {
+
+    MarketDataRequirement requirement = new MarketDataRequirement() {
+      // Some implementation for how we specify the requirement
+    };
+    return marketDataContext.retrieveMarketData(ImmutableSet.of(requirement));
+  }
 }
