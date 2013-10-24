@@ -122,11 +122,6 @@ public class InjectorTest {
 
   }
 
-  // TODO inline
-  private static FunctionConfig config() {
-    return FunctionConfig.EMPTY;
-  }
-
   private static FunctionConfig config(Class<?> fnType, Class<?> implType) {
     return new FunctionConfig(ImmutableMap.<Class<?>, Class<?>>of(fnType, implType),
                               Collections.<Class<?>, FunctionArguments>emptyMap());
