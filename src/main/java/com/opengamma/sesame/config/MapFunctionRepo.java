@@ -19,6 +19,7 @@ import com.opengamma.util.tuple.Triple;
  */
 /* package */ class MapFunctionRepo implements FunctionRepo {
 
+  // TODO this isn't right, will need to use ClassMaps to handle inheritance
   /** The concrete class implementing a function keyed by value name and target type. */
   private final Map<Pair<String, Class<?>>, Class<?>> _defaultFunctionTypes = Maps.newHashMap();
 

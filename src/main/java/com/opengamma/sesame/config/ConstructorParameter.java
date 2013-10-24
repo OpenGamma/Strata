@@ -14,10 +14,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ final class ConstructorParameter {
+public final class ConstructorParameter {
 
   private final Class<?> _type;
-
   private final ImmutableMap<Class<?>, Annotation> _annotations;
 
   ConstructorParameter(Class<?> type, Map<Class<?>, Annotation> annotations) {

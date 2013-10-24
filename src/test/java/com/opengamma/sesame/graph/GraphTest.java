@@ -3,84 +3,92 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.config;
+package com.opengamma.sesame.graph;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
+import java.util.Map;
 
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.sesame.config.DefaultImplementation;
+import com.opengamma.sesame.config.EngineFunction;
+import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.UserParam;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class InjectorTest {
+public class GraphTest {
 
   /* package */ static final String VALUE_NAME = "ValueName";
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
+  private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
 
   @Test
   public void defaultImpl() {
-    Injector injector = new Injector();
-    TestFunction fn = injector.create(TestFunction.class);
-    assertTrue(fn instanceof Default);
+    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class);
+    TestFunction fn = graph.build(INFRASTRUCTURE);
+    assertTrue(fn instanceof DefaultImpl);
   }
 
   @Test
   public void overriddenImpl() {
-    Injector injector = new Injector();
-    FunctionConfig requirement = config(TestFunction.class, Alternative.class);
-    TestFunction fn = injector.create(TestFunction.class, requirement);
-    assertTrue(fn instanceof Alternative);
+    FunctionConfig config = config(TestFunction.class, AlternativeImpl.class);
+    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config);
+    TestFunction fn = graph.build(INFRASTRUCTURE);
+    assertTrue(fn instanceof AlternativeImpl);
   }
 
   @Test
   public void infrastructure() {
-    Injector injector = new Injector(ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
-    FunctionConfig requirement = config(TestFunction.class, Infrastructure.class);
-    TestFunction fn = injector.create(TestFunction.class, requirement);
-    assertTrue(fn instanceof Infrastructure);
+    ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
+    FunctionConfig config = config(TestFunction.class, InfrastructureImpl.class);
+    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config, infrastructure.keySet());
+    TestFunction fn = graph.build(infrastructure);
+    assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
-    assertEquals(INFRASTRUCTURE_COMPONENT, ((Infrastructure) fn)._infrastructureComponent);
+    AssertJUnit.assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
   }
 
   @Test
   public void defaultUserParams() {
-    Injector injector = new Injector();
-    FunctionConfig requirement = config(TestFunction.class, UserParameters.class);
-    TestFunction fn = injector.create(TestFunction.class, requirement);
+    FunctionConfig config = config(TestFunction.class, UserParameters.class);
+    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config);
+    TestFunction fn = graph.build(INFRASTRUCTURE);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
-    assertEquals(9, ((UserParameters) fn)._i);
+    AssertJUnit.assertEquals(9, ((UserParameters) fn)._i);
     //noinspection ConstantConditions
-    assertEquals(ZonedDateTime.of(2011, 3, 8, 2, 18, 0, 0, ZoneOffset.UTC), ((UserParameters) fn)._dateTime);
+    AssertJUnit.assertEquals(ZonedDateTime.of(2011, 3, 8, 2, 18, 0, 0, ZoneOffset.UTC), ((UserParameters) fn)._dateTime);
   }
 
   @Test
   public void overriddenUserParam() {
-    Injector injector = new Injector();
     FunctionArguments args = new FunctionArguments(ImmutableMap.<String, Object>of("i", 12));
-    FunctionConfig requirement =
+    FunctionConfig config =
         new FunctionConfig(ImmutableMap.<Class<?>, Class<?>>of(TestFunction.class, UserParameters.class),
                            ImmutableMap.<Class<?>, FunctionArguments>of(UserParameters.class, args));
-    TestFunction fn = injector.create(TestFunction.class, requirement);
+    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config);
+    TestFunction fn = graph.build(INFRASTRUCTURE);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
-    assertEquals(12, ((UserParameters) fn)._i);
+    AssertJUnit.assertEquals(12, ((UserParameters) fn)._i);
     //noinspection ConstantConditions
-    assertEquals(ZonedDateTime.of(2011, 3, 8, 2, 18, 0, 0, ZoneOffset.UTC), ((UserParameters) fn)._dateTime);
+    AssertJUnit.assertEquals(ZonedDateTime.of(2011, 3, 8, 2, 18, 0, 0, ZoneOffset.UTC), ((UserParameters) fn)._dateTime);
   }
 
   @Test
   public void functionCallingOtherFunction() {
-    Injector injector = new Injector();
-    FunctionConfig requirement = config(TestFunction.class, CallsOtherFunction.class);
-    TestFunction fn = injector.create(TestFunction.class, requirement);
+    FunctionConfig config = config(TestFunction.class, CallsOtherFunction.class);
+    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config);
+    TestFunction fn = graph.build(INFRASTRUCTURE);
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
     assertTrue(((CallsOtherFunction) fn)._collaborator instanceof Collaborator);
@@ -128,14 +136,14 @@ public class InjectorTest {
   }
 }
 
-@DefaultImplementation(Default.class)
+@DefaultImplementation(DefaultImpl.class)
 /* package */ interface TestFunction {
 
-  @EngineFunction(InjectorTest.VALUE_NAME)
+  @EngineFunction(GraphTest.VALUE_NAME)
   Object foo();
 }
 
-/* package */ class Default implements TestFunction {
+/* package */ class DefaultImpl implements TestFunction {
 
   @Override
   public Object foo() {
@@ -143,7 +151,7 @@ public class InjectorTest {
   }
 }
 
-/* package */ class Alternative implements TestFunction {
+/* package */ class AlternativeImpl implements TestFunction {
 
   @Override
   public Object foo() {
@@ -151,11 +159,11 @@ public class InjectorTest {
   }
 }
 
-/* package */ class Infrastructure implements TestFunction {
+/* package */ class InfrastructureImpl implements TestFunction {
 
   /* package */ final String _infrastructureComponent;
 
-  /* package */ Infrastructure(String infrastructureComponent) {
+  /* package */ InfrastructureImpl(String infrastructureComponent) {
     _infrastructureComponent = infrastructureComponent;
   }
 

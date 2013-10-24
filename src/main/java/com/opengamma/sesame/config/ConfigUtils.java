@@ -16,19 +16,19 @@ import com.google.common.collect.Maps;
 /**
  *
  */
-/* package */ final class ConfigUtils {
+public final class ConfigUtils {
 
   private ConfigUtils() {
   }
 
-  /* package */
-  static Constructor<?> getConstructor(Class<?> type) {
+  @SuppressWarnings("unchecked")
+  public static <T> Constructor<T> getConstructor(Class<T> type) {
     Constructor<?>[] constructors = type.getDeclaredConstructors();
     if (constructors.length == 0) {
       throw new IllegalArgumentException("No constructors found for " + type.getName());
     }
     if (constructors.length == 1) {
-      return constructors[0];
+      return (Constructor<T>) constructors[0];
     }
     Constructor<?> injectableConstructor = null;
     for (Constructor<?> constructor : constructors) {
@@ -44,11 +44,10 @@ import com.google.common.collect.Maps;
     if (injectableConstructor == null) {
       throw new IllegalArgumentException(type.getName() + " has multiple constructors but none have an @Inject annotation");
     }
-    return injectableConstructor;
+    return (Constructor<T>) injectableConstructor;
   }
 
-  /* package */
-  static List<ConstructorParameter> getParameters(Constructor<?> constructor) {
+  public static List<ConstructorParameter> getParameters(Constructor<?> constructor) {
     Class<?>[] parameterTypes = constructor.getParameterTypes();
     Annotation[][] allAnnotations = constructor.getParameterAnnotations();
     List<ConstructorParameter> parameters = Lists.newArrayList();
