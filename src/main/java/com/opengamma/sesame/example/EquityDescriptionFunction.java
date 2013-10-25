@@ -18,7 +18,6 @@ public interface EquityDescriptionFunction {
 
   public static final String VALUE_NAME = "EquityDescription";
 
-  // TODO will this need an annotation so the graph builder knows where to look for the target?
   /**
    * Returns a description of the security
    * @param security A security

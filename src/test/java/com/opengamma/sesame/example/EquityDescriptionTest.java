@@ -19,7 +19,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
-import com.opengamma.sesame.graph.Graph;
+import com.opengamma.sesame.graph.Tree;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -42,8 +42,8 @@ public class EquityDescriptionTest {
 
   @Test
   public void defaultImpl() {
-    Graph<EquityDescriptionFunction> graph = Graph.forFunction(EquityDescriptionFunction.class);
-    EquityDescriptionFunction fn = graph.build(INFRASTRUCTURE);
+    Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class);
+    EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
     String description = fn.getDescription(SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
@@ -54,8 +54,8 @@ public class EquityDescriptionTest {
                                                                           EquityIdDescription.class);
     Map<Class<?>, FunctionArguments> argsMap = Collections.emptyMap();
     FunctionConfig config = new FunctionConfig(typeMap, argsMap);
-    Graph<EquityDescriptionFunction> graph = Graph.forFunction(EquityDescriptionFunction.class, config);
-    EquityDescriptionFunction fn = graph.build(INFRASTRUCTURE);
+    Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
+    EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
     String description = fn.getDescription(SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
@@ -68,8 +68,8 @@ public class EquityDescriptionTest {
     FunctionArguments fnArgs = new FunctionArguments(argsMap);
     Map<Class<?>, FunctionArguments> args = ImmutableMap.<Class<?>, FunctionArguments>of(IdScheme.class, fnArgs);
     FunctionConfig config = new FunctionConfig(typeMap, args);
-    Graph<EquityDescriptionFunction> graph = Graph.forFunction(EquityDescriptionFunction.class, config);
-    EquityDescriptionFunction fn = graph.build(INFRASTRUCTURE);
+    Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
+    EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
     String description = fn.getDescription(SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }

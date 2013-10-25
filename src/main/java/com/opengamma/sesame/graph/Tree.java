@@ -21,14 +21,14 @@ import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.UserParam;
 
 /**
- * A lightweight representation of the dependency graph for a single function.
+ * A lightweight representation of the dependency tree for a single function.
  * TODO joda bean? needs to be serializable along with all Node subclasses
  */
-public final class Graph<T> {
+public final class Tree<T> {
 
   private final Function<T> _root;
 
-  /* package */ Graph(Function<T> root) {
+  /* package */ Tree(Function<T> root) {
     _root = root;
   }
 
@@ -36,16 +36,16 @@ public final class Graph<T> {
     return _root;
   }
 
-  public static <T> Graph<T> forFunction(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
-    return new Graph<>(createNode(functionType, config, infrastructure));
+  public static <T> Tree<T> forFunction(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
+    return new Tree<>(createNode(functionType, config, infrastructure));
   }
 
-  public static <T> Graph<T> forFunction(Class<T> functionType, FunctionConfig config) {
-    return new Graph<>(createNode(functionType, config, Collections.<Class<?>>emptySet()));
+  public static <T> Tree<T> forFunction(Class<T> functionType, FunctionConfig config) {
+    return new Tree<>(createNode(functionType, config, Collections.<Class<?>>emptySet()));
   }
 
-  public static <T> Graph<T> forFunction(Class<T> functionType) {
-    return new Graph<>(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
+  public static <T> Tree<T> forFunction(Class<T> functionType) {
+    return new Tree<>(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
   }
 
   @SuppressWarnings("unchecked")

@@ -24,7 +24,7 @@ import com.opengamma.sesame.config.UserParam;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class GraphTest {
+public class TreeTest {
 
   /* package */ static final String VALUE_NAME = "ValueName";
 
@@ -33,16 +33,16 @@ public class GraphTest {
 
   @Test
   public void defaultImpl() {
-    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class);
-    TestFunction fn = graph.build(INFRASTRUCTURE);
+    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class);
+    TestFunction fn = tree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof DefaultImpl);
   }
 
   @Test
   public void overriddenImpl() {
     FunctionConfig config = config(TestFunction.class, AlternativeImpl.class);
-    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config);
-    TestFunction fn = graph.build(INFRASTRUCTURE);
+    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
+    TestFunction fn = tree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof AlternativeImpl);
   }
 
@@ -50,8 +50,8 @@ public class GraphTest {
   public void infrastructure() {
     ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
     FunctionConfig config = config(TestFunction.class, InfrastructureImpl.class);
-    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config, infrastructure.keySet());
-    TestFunction fn = graph.build(infrastructure);
+    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config, infrastructure.keySet());
+    TestFunction fn = tree.build(infrastructure);
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     AssertJUnit.assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
@@ -60,8 +60,8 @@ public class GraphTest {
   @Test
   public void defaultUserParams() {
     FunctionConfig config = config(TestFunction.class, UserParameters.class);
-    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config);
-    TestFunction fn = graph.build(INFRASTRUCTURE);
+    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
+    TestFunction fn = tree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
     AssertJUnit.assertEquals(9, ((UserParameters) fn)._i);
@@ -75,8 +75,8 @@ public class GraphTest {
     FunctionConfig config =
         new FunctionConfig(ImmutableMap.<Class<?>, Class<?>>of(TestFunction.class, UserParameters.class),
                            ImmutableMap.<Class<?>, FunctionArguments>of(UserParameters.class, args));
-    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config);
-    TestFunction fn = graph.build(INFRASTRUCTURE);
+    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
+    TestFunction fn = tree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
     AssertJUnit.assertEquals(12, ((UserParameters) fn)._i);
@@ -87,8 +87,8 @@ public class GraphTest {
   @Test
   public void functionCallingOtherFunction() {
     FunctionConfig config = config(TestFunction.class, CallsOtherFunction.class);
-    Graph<TestFunction> graph = Graph.forFunction(TestFunction.class, config);
-    TestFunction fn = graph.build(INFRASTRUCTURE);
+    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
+    TestFunction fn = tree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
     assertTrue(((CallsOtherFunction) fn)._collaborator instanceof Collaborator);
@@ -139,7 +139,7 @@ public class GraphTest {
 @DefaultImplementation(DefaultImpl.class)
 /* package */ interface TestFunction {
 
-  @EngineFunction(GraphTest.VALUE_NAME)
+  @EngineFunction(TreeTest.VALUE_NAME)
   Object foo();
 }
 
