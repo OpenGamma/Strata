@@ -8,6 +8,8 @@ package com.opengamma.sesame.config;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public final class ConfigUtils {
 
@@ -104,6 +107,31 @@ public final class ConfigUtils {
                                              annotationType.getName());
     } else {
       return annotated;
+    }
+  }
+
+  public static Set<Class<?>> getSupertypes(Class<?> type) {
+    Set<Class<?>> supertypes = Sets.newLinkedHashSet();
+    Set<Class<?>> interfaces = Sets.newLinkedHashSet();
+    getSupertypes(type, supertypes, interfaces);
+    supertypes.addAll(interfaces);
+    s_supertypes.put(type, Collections.unmodifiableSet(supertypes));
+    return supertypes;
+  }
+
+  private static void getSupertypes(Class<?> type, Set<Class<?>> supertypeAccumulator, Set<Class<?>> interfaceAccumulator) {
+    supertypeAccumulator.add(type);
+    getInterfaces(type.getInterfaces(), interfaceAccumulator);
+    Class<?> superclass = type.getSuperclass();
+    if (superclass != null) {
+      getSupertypes(superclass, supertypeAccumulator, interfaceAccumulator);
+    }
+  }
+
+  private static void getInterfaces(Class<?>[] interfaces, Set<Class<?>> accumulator) {
+    accumulator.addAll(Arrays.asList(interfaces));
+    for (Class<?> iFace : interfaces) {
+      getInterfaces(iFace.getInterfaces(), accumulator);
     }
   }
 }
