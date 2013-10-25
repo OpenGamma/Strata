@@ -65,5 +65,11 @@
       <version>6.8.5</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>0.9.9-RC1</version>
+    </dependency>
+
   </dependencies>
 </project>

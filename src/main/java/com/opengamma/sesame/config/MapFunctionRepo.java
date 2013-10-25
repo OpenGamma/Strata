@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import org.reflections.ReflectionUtils;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -24,7 +26,7 @@ import com.google.common.collect.Sets;
 
   @Override
   public Set<String> getAvailableOutputs(Class<?> targetType) {
-    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(targetType);
+    Set<Class<?>> supertypes = ReflectionUtils.getAllSuperTypes(targetType);
     Set<String> outputs = Sets.newTreeSet();
     for (Class<?> supertype : supertypes) {
       if (_valueNamesByType.containsKey(supertype)) {
