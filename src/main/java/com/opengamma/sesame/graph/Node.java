@@ -12,8 +12,8 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 
 /**
-*
-*/
+ *
+ */
 public abstract class Node {
 
   private final ImmutableList<Node> _dependencies;

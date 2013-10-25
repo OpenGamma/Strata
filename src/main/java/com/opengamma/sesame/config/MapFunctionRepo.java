@@ -5,82 +5,74 @@
  */
 package com.opengamma.sesame.config;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
-import com.opengamma.util.tuple.Triple;
+import com.google.common.collect.Sets;
 
 /**
  * Extremely simple {@link FunctionRepo} backed by a map.
+ * It should be populated from a single thread but can safely be read from multiple threads after initialization.
+ * TODO wouldn't be hard to make it thread safe, fix race condition in registerInterface
  */
 /* package */ class MapFunctionRepo implements FunctionRepo {
 
-  // TODO this isn't right, will need to use ClassMaps to handle inheritance
-  /** The concrete class implementing a function keyed by value name and target type. */
-  private final Map<Pair<String, Class<?>>, Class<?>> _defaultFunctionTypes = Maps.newHashMap();
-
-  /** The concrete class implementing a function keyed by value name, target type and implementation name. */
-  private final Map<Triple<String, Class<?>, String>, Class<?>> _overrideFunctionTypes = Maps.newHashMap();
+  private final ConcurrentMap<Class<?>, Set<String>> _valueNamesByType = Maps.newConcurrentMap();
 
   @Override
-  public Class<?> getDefaultFunctionImplementation(String valueName, Class<?> targetType) {
-    return _defaultFunctionTypes.get(Pairs.<String, Class<?>>of(valueName, targetType));
-  }
-
-  @Override
-  public Class<?> getFunctionImplementation(String valueName, Class<?> targetType, String implName) {
-    return _overrideFunctionTypes.get(Triple.<String, Class<?>, String>of(valueName, targetType, implName));
-  }
-
-  /**
-   * If it's an EngineFunction interface register the default type
-   * If it's an impl register an override type
-   * @param functionType
-   * TODO this is only for functions with a target. what about other outputs?
-   */
-  /* package */ void register(Class<?> functionType) {
-    if (functionType.isInterface()) {
-      registerDefaultImplementation(functionType);
-    } else {
-      // TODO functionType must be an non-default implementation
-    }
-  }
-
-  // TODO this shares a lot of logic with Injector, most of it in ConfigUtils
-  private void registerDefaultImplementation(Class<?> functionType) {
-    FunctionMetadata functionMeta = FunctionMetadata.forFunctionInterface(functionType);
-    Class<?> defaultImplementation = functionMeta.getDefaultImplementation();
-    String valueName = functionMeta.getValueName();
-    Constructor[] constructors = defaultImplementation.getConstructors();
-    // TODO relax this constraint but insist exactly one constructor is annotated (@Inject?)
-    if (constructors.length != 1) {
-      throw new IllegalArgumentException("Engine function implementations must have one constructor, " +
-                                             defaultImplementation + " has " + constructors.length);
-    }
-    // find @Target on the constructor params
-    Constructor constructor = constructors[0];
-    Class[] parameterTypes = constructor.getParameterTypes();
-    Class<?> targetType = null;
-    for (int i = 0; i < constructor.getParameterAnnotations().length; i++) {
-      Annotation[] annotations = constructor.getParameterAnnotations()[i];
-      for (Annotation annotation : annotations) {
-        if (annotation.getClass().equals(Target.class)) {
-          if (targetType == null) {
-            targetType = parameterTypes[i];
-          } else {
-            throw new IllegalArgumentException("Only one constructor parameter should be annotated with @Target in " +
-                                                   defaultImplementation);
-          }
-        }
+  public Set<String> getAvailableOutputs(Class<?> targetType) {
+    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(targetType);
+    Set<String> outputs = Sets.newTreeSet();
+    for (Class<?> supertype : supertypes) {
+      if (_valueNamesByType.containsKey(supertype)) {
+        outputs.addAll(_valueNamesByType.get(supertype));
       }
     }
-    if (targetType == null) {
-      throw new IllegalArgumentException("No constructor parameter found with a @Target annotation in " + defaultImplementation);
+    return Collections.unmodifiableSet(outputs);
+  }
+
+  @Override
+  public Class<?> getFunctionType(String valueName, Class<?> targetType) {
+    // TODO implement getFunctionType()
+    throw new UnsupportedOperationException("getFunctionType not implemented");
+  }
+
+  @Override
+  public Set<Class<?>> getFunctionImplementations(Class<?> functionInterface) {
+    // TODO implement getFunctionImplementations()
+    throw new UnsupportedOperationException("getFunctionImplementations not implemented");
+  }
+
+  /* package */ void register(Class<?> type) {
+    if (type.isInterface()) {
+      registerInterface(type);
+    } else {
+      registerImplementation(type);
     }
-    _defaultFunctionTypes.put(Pairs.<String, Class<?>>of(valueName, targetType), defaultImplementation);
+  }
+
+  private void registerInterface(Class<?> type) {
+    FunctionMetadata functionMeta = FunctionMetadata.forFunctionInterface(type);
+    // TODO register the default impl?
+    //Class<?> defaultImplementation = functionMeta.getDefaultImplementation();
+    String valueName = functionMeta.getValueName();
+    Set<String> valueNames;
+    Class<?> targetType = functionMeta.getTargetType();
+    if (_valueNamesByType.containsKey(targetType)) {
+      // TODO this is a race condition. if anyone cares about multi-threaded registration it could be fixed
+      // with a loop and putIfAbsent / replace
+      valueNames = ImmutableSet.<String>builder().addAll(_valueNamesByType.get(targetType)).add(valueName).build();
+    } else {
+      valueNames = ImmutableSet.of(valueName);
+    }
+    _valueNamesByType.put(targetType, valueNames);
+  }
+
+  private void registerImplementation(Class<?> type) {
+    // TODO implement MapFunctionRepo.registerImplementation()
+    throw new UnsupportedOperationException("registerImplementation not implemented");
   }
 }

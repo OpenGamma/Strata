@@ -14,12 +14,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public final class ConstructorParameter {
+public final class Parameter {
 
   private final Class<?> _type;
   private final ImmutableMap<Class<?>, Annotation> _annotations;
 
-  ConstructorParameter(Class<?> type, Map<Class<?>, Annotation> annotations) {
+  Parameter(Class<?> type, Map<Class<?>, Annotation> annotations) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(annotations, "annotations");
     _type = type;

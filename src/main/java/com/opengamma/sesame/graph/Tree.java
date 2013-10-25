@@ -15,14 +15,16 @@ import org.joda.convert.StringConvert;
 
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.ConfigUtils;
-import com.opengamma.sesame.config.ConstructorParameter;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.Parameter;
 import com.opengamma.sesame.config.UserParam;
 
 /**
  * A lightweight representation of the dependency tree for a single function.
- * TODO joda bean? needs to be serializable along with all Node subclasses
+ * TODO joda bean? needs to be serializable along with all Node subclasses.
+ * need support for final fields or immutable inheritance
+ * in the mean time could make Node.getDependencies() abstract and put the field in every subclass
  */
 public final class Tree<T> {
 
@@ -52,10 +54,10 @@ public final class Tree<T> {
   private static <T> Function<T> createNode(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
     Class<? extends T> implType = (Class<? extends T>) config.getFunctionImplementation(functionType);
     Constructor<? extends T> constructor = ConfigUtils.getConstructor(implType);
-    List<ConstructorParameter> parameters = ConfigUtils.getParameters(constructor);
+    List<Parameter> parameters = ConfigUtils.getParameters(constructor);
     FunctionArguments functionArguments = config.getFunctionArguments(implType);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
-    for (ConstructorParameter parameter : parameters) {
+    for (Parameter parameter : parameters) {
       Node argument = getArgument(parameter, functionArguments, infrastructureTypes);
       if (argument != null) {
         constructorArguments.add(argument);
@@ -63,13 +65,14 @@ public final class Tree<T> {
         // TODO this assumes anything that isn't infrastructure or an argument is a parameter
         // is that right? do we need to create regular objects?
         // TODO cyclic dependencies
+        // TODO this is where proxies will be inserted
         constructorArguments.add(createNode(parameter.getType(), config, infrastructureTypes));
       }
     }
     return new Function<>(constructor, constructorArguments);
   }
 
-  private static Node getArgument(ConstructorParameter parameter,
+  private static Node getArgument(Parameter parameter,
                                   FunctionArguments functionArguments,
                                   Set<Class<?>> infrastructureTypes) {
       /*

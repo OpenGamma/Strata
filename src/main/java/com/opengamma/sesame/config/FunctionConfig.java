@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 
 /**
  * TODO better name - this is the config for one output (column/target type)
+ * TreeConfig? GraphConfig?
  */
 @BeanDefinition
 public final class FunctionConfig implements ImmutableBean {
