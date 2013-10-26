@@ -32,7 +32,7 @@ public interface FunctionRepo {
   // but there can be multiple implementations
   // would it be better to use the implementation directly? how would that work?
   // users selects output for a column/type, this gives the output function type
-  Class<? extends PortfolioOutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType);
+  Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType);
 
   // gives the available implementing types for function interfaces
   // these can be presented to the user when they're setting up the view and choosing implementation overrides

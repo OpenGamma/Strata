@@ -19,7 +19,7 @@ import com.opengamma.sesame.config.ConfigUtils;
  * It should be populated from a single thread but can safely be read from multiple threads after initialization.
  * TODO wouldn't be hard to make it thread safe, fix race condition in registerOutput
  */
-/* package */ class MapFunctionRepo implements FunctionRepo {
+public final class MapFunctionRepo implements FunctionRepo {
 
   // TODO use a synchronized multimap? this is unlikely to be a performance hot spot
   private final ConcurrentMap<Class<?>, Set<String>> _valueNamesByType = Maps.newConcurrentMap();
@@ -40,7 +40,7 @@ import com.opengamma.sesame.config.ConfigUtils;
   }
 
   @Override
-  public Class<? extends PortfolioOutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType) {
+  public Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType) {
     // TODO implement getFunctionType()
     // use getAvailableOutputs to build the result?
     throw new UnsupportedOperationException("getFunctionType not implemented");
@@ -53,9 +53,9 @@ import com.opengamma.sesame.config.ConfigUtils;
   }
 
   @SuppressWarnings("unchecked")
-  /* package */ void register(Class<?> type) {
-    if (PortfolioOutputFunction.class.isAssignableFrom(type) && type.isInterface()) {
-      registerOutput((Class<? extends PortfolioOutputFunction<?, ?>>) type);
+  public void register(Class<?> type) {
+    if (OutputFunction.class.isAssignableFrom(type) && type.isInterface()) {
+      registerOutput((Class<? extends OutputFunction<?, ?>>) type);
     } else if (type.isInterface()) {
       registerInterface(type);
     } else {
@@ -72,7 +72,7 @@ import com.opengamma.sesame.config.ConfigUtils;
     throw new UnsupportedOperationException("registerInterface not implemented");
   }
 
-  private void registerOutput(Class<? extends PortfolioOutputFunction<?, ?>> type) {
+  private void registerOutput(Class<? extends OutputFunction<?, ?>> type) {
     // TODO register the default impl?
     String outputName = EngineFunctionUtils.getOutputName(type);
     Set<String> outputNames;

@@ -11,7 +11,7 @@ package com.opengamma.sesame.function;
  * @param <TTarget> The type of the argument to {@link #execute}, a trade, position or security
  * @param <TResult> The return type of {@link #execute}
  */
-public interface PortfolioOutputFunction<TTarget, TResult> {
+public interface OutputFunction<TTarget, TResult> {
 
   /**
    * Executes the function

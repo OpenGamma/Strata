@@ -34,7 +34,7 @@ public class MapFunctionRepoTest {
 
   @OutputName(MapFunctionRepoTest.O1)
   @DefaultImplementation(F1Impl.class)
-  interface F1 extends PortfolioOutputFunction<Target1, Object> { }
+  interface F1 extends OutputFunction<Target1, Object> { }
 
   class F1Impl implements F1 {
 
@@ -46,7 +46,7 @@ public class MapFunctionRepoTest {
 
   @OutputName(MapFunctionRepoTest.O2)
   @DefaultImplementation(F2Impl.class)
-  interface F2 extends PortfolioOutputFunction<Target2, Object> { }
+  interface F2 extends OutputFunction<Target2, Object> { }
 
   class F2Impl implements F2 {
 

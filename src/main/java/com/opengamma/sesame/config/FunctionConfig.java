@@ -44,7 +44,7 @@ public final class FunctionConfig implements ImmutableBean {
   // TODO make the key a real class?
   /** Map of output name and target type to function type. */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final ImmutableMap<Pair<String, Class<?>>, Class<?>> _outputFunctions;
+  private final Map<Pair<String, Class<?>>, Class<?>> _outputFunctions;
 
   // TODO another set of mappings that are equivalent to these but qualified by the type of the object with the dependency?
   // would allow different impls of the same interface to be used at different points in the same tree
@@ -52,11 +52,11 @@ public final class FunctionConfig implements ImmutableBean {
 
   /** Map of function types to their implementing classes where the implementing class isn't the default. */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final ImmutableMap<Class<?>, Class<?>> _implementationOverrides;
+  private final Map<Class<?>, Class<?>> _implementationOverrides;
 
   /** User-specified function arguments, keyed by the function implementation type. */
   @PropertyDefinition(validate = "notNull", get = "private")
-  private final ImmutableMap<Class<?>, FunctionArguments> _arguments;
+  private final Map<Class<?>, FunctionArguments> _arguments;
 
   public Class<?> getFunctionImplementation(Class<?> functionInterface) {
     if (_implementationOverrides.containsKey(functionInterface)) {
@@ -131,7 +131,7 @@ public final class FunctionConfig implements ImmutableBean {
    * Gets map of output name and target type to function type.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Pair<String, Class<?>>, Class<?>> getOutputFunctions() {
+  private Map<Pair<String, Class<?>>, Class<?>> getOutputFunctions() {
     return _outputFunctions;
   }
 
@@ -140,7 +140,7 @@ public final class FunctionConfig implements ImmutableBean {
    * Gets map of function types to their implementing classes where the implementing class isn't the default.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Class<?>, Class<?>> getImplementationOverrides() {
+  private Map<Class<?>, Class<?>> getImplementationOverrides() {
     return _implementationOverrides;
   }
 
@@ -149,7 +149,7 @@ public final class FunctionConfig implements ImmutableBean {
    * Gets user-specified function arguments, keyed by the function implementation type.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Class<?>, FunctionArguments> getArguments() {
+  private Map<Class<?>, FunctionArguments> getArguments() {
     return _arguments;
   }
 
@@ -215,20 +215,20 @@ public final class FunctionConfig implements ImmutableBean {
      * The meta-property for the {@code outputFunctions} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Pair<String, Class<?>>, Class<?>>> _outputFunctions = DirectMetaProperty.ofImmutable(
-        this, "outputFunctions", FunctionConfig.class, (Class) ImmutableMap.class);
+    private final MetaProperty<Map<Pair<String, Class<?>>, Class<?>>> _outputFunctions = DirectMetaProperty.ofImmutable(
+        this, "outputFunctions", FunctionConfig.class, (Class) Map.class);
     /**
      * The meta-property for the {@code implementationOverrides} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Class<?>, Class<?>>> _implementationOverrides = DirectMetaProperty.ofImmutable(
-        this, "implementationOverrides", FunctionConfig.class, (Class) ImmutableMap.class);
+    private final MetaProperty<Map<Class<?>, Class<?>>> _implementationOverrides = DirectMetaProperty.ofImmutable(
+        this, "implementationOverrides", FunctionConfig.class, (Class) Map.class);
     /**
      * The meta-property for the {@code arguments} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<Class<?>, FunctionArguments>> _arguments = DirectMetaProperty.ofImmutable(
-        this, "arguments", FunctionConfig.class, (Class) ImmutableMap.class);
+    private final MetaProperty<Map<Class<?>, FunctionArguments>> _arguments = DirectMetaProperty.ofImmutable(
+        this, "arguments", FunctionConfig.class, (Class) Map.class);
     /**
      * The meta-properties.
      */
@@ -277,7 +277,7 @@ public final class FunctionConfig implements ImmutableBean {
      * The meta-property for the {@code outputFunctions} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Pair<String, Class<?>>, Class<?>>> outputFunctions() {
+    public MetaProperty<Map<Pair<String, Class<?>>, Class<?>>> outputFunctions() {
       return _outputFunctions;
     }
 
@@ -285,7 +285,7 @@ public final class FunctionConfig implements ImmutableBean {
      * The meta-property for the {@code implementationOverrides} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Class<?>, Class<?>>> implementationOverrides() {
+    public MetaProperty<Map<Class<?>, Class<?>>> implementationOverrides() {
       return _implementationOverrides;
     }
 
@@ -293,7 +293,7 @@ public final class FunctionConfig implements ImmutableBean {
      * The meta-property for the {@code arguments} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<Class<?>, FunctionArguments>> arguments() {
+    public MetaProperty<Map<Class<?>, FunctionArguments>> arguments() {
       return _arguments;
     }
 

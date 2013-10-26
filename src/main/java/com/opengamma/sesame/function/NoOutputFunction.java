@@ -10,7 +10,7 @@ import com.opengamma.core.position.PositionOrTrade;
 /**
  * Function that returns nothing for outputs where there is no requirement.
  */
-public final class NoPortfolioOutputFunction implements PortfolioOutputFunction<PositionOrTrade, Void> {
+public final class NoOutputFunction implements OutputFunction<PositionOrTrade, Void> {
 
   @Override
   public Void execute(PositionOrTrade positionOrTrade) {

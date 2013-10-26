@@ -16,7 +16,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.sesame.function.PortfolioOutputFunction;
+import com.opengamma.sesame.function.OutputFunction;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -34,11 +34,11 @@ public class SecurityFunctionDecoratorTest {
     securityLink.setTarget(security);
     trade.setSecurityLink(securityLink);
     @SuppressWarnings("unchecked")
-    Currency ccy = ((PortfolioOutputFunction<PositionOrTrade, Currency>) fn).execute(trade);
+    Currency ccy = ((OutputFunction<PositionOrTrade, Currency>) fn).execute(trade);
     assertEquals(Currency.AUD, ccy);
   }
 
-  public static class Fn implements PortfolioOutputFunction<EquitySecurity, Currency> {
+  public static class Fn implements OutputFunction<EquitySecurity, Currency> {
 
     @Override
     public Currency execute(EquitySecurity equitySecurity) {

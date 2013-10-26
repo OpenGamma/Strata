@@ -48,7 +48,7 @@ public class EquityDescriptionTest {
   public void defaultImpl() {
     Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class);
     EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
-    String description = fn.getDescription(SECURITY);
+    String description = fn.execute(SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
 
@@ -60,7 +60,7 @@ public class EquityDescriptionTest {
     FunctionConfig config = new FunctionConfig(OUTPUT_FUNCTIONS, typeMap, argsMap);
     Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
     EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
-    String description = fn.getDescription(SECURITY);
+    String description = fn.execute(SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
 
@@ -74,7 +74,7 @@ public class EquityDescriptionTest {
     FunctionConfig config = new FunctionConfig(OUTPUT_FUNCTIONS, typeMap, args);
     Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
     EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
-    String description = fn.getDescription(SECURITY);
+    String description = fn.execute(SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }
 }

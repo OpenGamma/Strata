@@ -60,7 +60,7 @@ public class FunctionMetadata {
    * @throws IllegalArgumentException If the interface doesn't have exactly 1 method annotated
    * with {@link OutputName}
    */
-  public static FunctionMetadata forOutput(Class<? extends PortfolioOutputFunction<?, ?>> functionInterface) {
+  public static FunctionMetadata forOutput(Class<? extends OutputFunction<?, ?>> functionInterface) {
     if (functionInterface.isInterface()) {
       throw new IllegalArgumentException(functionInterface.getName() + " is an interface");
     }

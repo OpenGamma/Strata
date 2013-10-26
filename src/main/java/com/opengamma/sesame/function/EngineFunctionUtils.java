@@ -17,7 +17,7 @@ public final class EngineFunctionUtils {
   private EngineFunctionUtils() {
   }
 
-  public static String getOutputName(Class<? extends PortfolioOutputFunction<?, ?>> type) {
+  public static String getOutputName(Class<? extends OutputFunction<?, ?>> type) {
     OutputName annotation = type.getAnnotation(OutputName.class);
     if (annotation == null) {
       throw new IllegalArgumentException("All OutputFunction implementations should be annotated with OutputName. " +
@@ -27,9 +27,9 @@ public final class EngineFunctionUtils {
   }
 
   // TODO this will fail if the class doesn't directly implement OutputFunction
-  public static Class<?> getTargetType(Class<? extends PortfolioOutputFunction<?, ?>> type) {
+  public static Class<?> getTargetType(Class<? extends OutputFunction<?, ?>> type) {
     for (Type anInterface : type.getGenericInterfaces()) {
-      if (anInterface instanceof ParameterizedType && ((ParameterizedType) anInterface).getRawType().equals(PortfolioOutputFunction.class)) {
+      if (anInterface instanceof ParameterizedType && ((ParameterizedType) anInterface).getRawType().equals(OutputFunction.class)) {
         Type targetType = ((ParameterizedType) anInterface).getActualTypeArguments()[0];
         return (Class<?>) targetType;
       }

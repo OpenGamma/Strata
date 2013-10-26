@@ -20,7 +20,7 @@ public class EngineFunctionUtilsTest {
   @DefaultImplementation(Long.class) interface I { }
 
   @OutputName(VALUE_NAME)
-  class C1 implements PortfolioOutputFunction<Double, Object> {
+  class C1 implements OutputFunction<Double, Object> {
 
     @Override
     public Object execute(Double target) {
@@ -29,7 +29,7 @@ public class EngineFunctionUtilsTest {
   }
 
   @OutputName(VALUE_NAME)
-  class C2<T> implements PortfolioOutputFunction<T, Object> {
+  class C2<T> implements OutputFunction<T, Object> {
 
     @Override
     public Object execute(T target) {
