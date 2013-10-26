@@ -20,7 +20,7 @@ import com.opengamma.sesame.function.PortfolioOutputFunction;
  * This allows all portfolio output functions in a graph to take {@link PositionOrTrade} as an input so the
  * engine doesn't have to check the target type of every function before invoking it.
  */
-/* package */ class SecurityFunctionDecorator<TResult> implements PortfolioOutputFunction<PositionOrTrade, TResult> {
+/* package */ final class SecurityFunctionDecorator<TResult> implements PortfolioOutputFunction<PositionOrTrade, TResult> {
 
   private final PortfolioOutputFunction<? super Security, TResult> _delegate;
 
@@ -55,12 +55,12 @@ import com.opengamma.sesame.function.PortfolioOutputFunction;
     Class<? extends PortfolioOutputFunction<?, ?>> rootType =
         (Class<? extends PortfolioOutputFunction<?, ?>>) rootFunction.getType();
     Class<?> targetType = EngineFunctionUtils.getTargetType(rootType);
-    if (!PositionOrTrade.class.isAssignableFrom(targetType)) {
+    if (!Security.class.isAssignableFrom(targetType)) {
       throw new IllegalArgumentException("The tree's root target type " + targetType.getName() + " isn't a " +
                                              "position or trade");
     }
     List<Node> args = Lists.<Node>newArrayList(rootFunction);
-    Constructor<?> constructor = SecurityFunctionDecorator.class.getConstructors()[0];
+    Constructor<?> constructor = SecurityFunctionDecorator.class.getDeclaredConstructors()[0];
     Function<?> decorator = new Function<>(constructor, args);
     return new Tree<>(decorator);
   }
