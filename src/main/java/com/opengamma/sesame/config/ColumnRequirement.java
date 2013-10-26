@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class ColumnRequirement implements ImmutableBean {
 
   @PropertyDefinition(validate = "notNull")
-  private final String _valueName;
+  private final String _outputName;
 
   @PropertyDefinition(validate = "notNull")
   private final Class<?> _targetType;
@@ -37,16 +37,15 @@ public final class ColumnRequirement implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final FunctionConfig _functionConfig;
 
-  public ColumnRequirement(String valueName, Class<?> targetType) {
-    this(valueName, targetType, FunctionConfig.EMPTY);
+  public ColumnRequirement(String outputName, Class<?> targetType) {
+    this(outputName, targetType, FunctionConfig.EMPTY);
   }
 
   @ImmutableConstructor
-  public ColumnRequirement(String valueName, Class<?> targetType, FunctionConfig functionConfig) {
-    JodaBeanUtils.notNull(valueName, "valueName");
+  public ColumnRequirement(String outputName, Class<?> targetType, FunctionConfig functionConfig) {
     JodaBeanUtils.notNull(targetType, "targetType");
     JodaBeanUtils.notNull(functionConfig, "functionConfig");
-    _valueName = valueName;
+    _outputName = outputName;
     _targetType = targetType;
     _functionConfig = functionConfig;
   }
@@ -91,11 +90,11 @@ public final class ColumnRequirement implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valueName.
+   * Gets the outputName.
    * @return the value of the property, not null
    */
-  public String getValueName() {
-    return _valueName;
+  public String getOutputName() {
+    return _outputName;
   }
 
   //-----------------------------------------------------------------------
@@ -137,7 +136,7 @@ public final class ColumnRequirement implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ColumnRequirement other = (ColumnRequirement) obj;
-      return JodaBeanUtils.equal(getValueName(), other.getValueName()) &&
+      return JodaBeanUtils.equal(getOutputName(), other.getOutputName()) &&
           JodaBeanUtils.equal(getTargetType(), other.getTargetType()) &&
           JodaBeanUtils.equal(getFunctionConfig(), other.getFunctionConfig());
     }
@@ -147,7 +146,7 @@ public final class ColumnRequirement implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValueName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOutputName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfig());
     return hash;
@@ -157,7 +156,7 @@ public final class ColumnRequirement implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ColumnRequirement{");
-    buf.append("valueName").append('=').append(getValueName()).append(',').append(' ');
+    buf.append("outputName").append('=').append(getOutputName()).append(',').append(' ');
     buf.append("targetType").append('=').append(getTargetType()).append(',').append(' ');
     buf.append("functionConfig").append('=').append(JodaBeanUtils.toString(getFunctionConfig()));
     buf.append('}');
@@ -175,10 +174,10 @@ public final class ColumnRequirement implements ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code valueName} property.
+     * The meta-property for the {@code outputName} property.
      */
-    private final MetaProperty<String> _valueName = DirectMetaProperty.ofImmutable(
-        this, "valueName", ColumnRequirement.class, String.class);
+    private final MetaProperty<String> _outputName = DirectMetaProperty.ofImmutable(
+        this, "outputName", ColumnRequirement.class, String.class);
     /**
      * The meta-property for the {@code targetType} property.
      */
@@ -195,7 +194,7 @@ public final class ColumnRequirement implements ImmutableBean {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "valueName",
+        "outputName",
         "targetType",
         "functionConfig");
 
@@ -208,8 +207,8 @@ public final class ColumnRequirement implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -765894756:  // valueName
-          return _valueName;
+        case -1274044628:  // outputName
+          return _outputName;
         case 486622315:  // targetType
           return _targetType;
         case -1567383238:  // functionConfig
@@ -235,11 +234,11 @@ public final class ColumnRequirement implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code valueName} property.
+     * The meta-property for the {@code outputName} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> valueName() {
-      return _valueName;
+    public MetaProperty<String> outputName() {
+      return _outputName;
     }
 
     /**
@@ -262,8 +261,8 @@ public final class ColumnRequirement implements ImmutableBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -765894756:  // valueName
-          return ((ColumnRequirement) bean).getValueName();
+        case -1274044628:  // outputName
+          return ((ColumnRequirement) bean).getOutputName();
         case 486622315:  // targetType
           return ((ColumnRequirement) bean).getTargetType();
         case -1567383238:  // functionConfig
@@ -289,7 +288,7 @@ public final class ColumnRequirement implements ImmutableBean {
    */
   public static final class Builder extends BasicImmutableBeanBuilder<ColumnRequirement> {
 
-    private String _valueName;
+    private String _outputName;
     private Class<?> _targetType;
     private FunctionConfig _functionConfig;
 
@@ -306,7 +305,7 @@ public final class ColumnRequirement implements ImmutableBean {
      */
     private Builder(ColumnRequirement beanToCopy) {
       super(ColumnRequirement.Meta.INSTANCE);
-      this._valueName = beanToCopy.getValueName();
+      this._outputName = beanToCopy.getOutputName();
       this._targetType = beanToCopy.getTargetType();
       this._functionConfig = beanToCopy.getFunctionConfig();
     }
@@ -315,8 +314,8 @@ public final class ColumnRequirement implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -765894756:  // valueName
-          this._valueName = (String) newValue;
+        case -1274044628:  // outputName
+          this._outputName = (String) newValue;
           break;
         case 486622315:  // targetType
           this._targetType = (Class<?>) newValue;
@@ -333,20 +332,20 @@ public final class ColumnRequirement implements ImmutableBean {
     @Override
     public ColumnRequirement build() {
       return new ColumnRequirement(
-          _valueName,
+          _outputName,
           _targetType,
           _functionConfig);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code valueName} property in the builder.
-     * @param valueName  the new value, not null
+     * Sets the {@code outputName} property in the builder.
+     * @param outputName  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder valueName(String valueName) {
-      JodaBeanUtils.notNull(valueName, "valueName");
-      this._valueName = valueName;
+    public Builder outputName(String outputName) {
+      JodaBeanUtils.notNull(outputName, "outputName");
+      this._outputName = outputName;
       return this;
     }
 
@@ -377,7 +376,7 @@ public final class ColumnRequirement implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("ColumnRequirement.Builder{");
-      buf.append("valueName").append('=').append(_valueName).append(',').append(' ');
+      buf.append("outputName").append('=').append(_outputName).append(',').append(' ');
       buf.append("targetType").append('=').append(_targetType).append(',').append(' ');
       buf.append("functionConfig").append('=').append(_functionConfig);
       buf.append('}');

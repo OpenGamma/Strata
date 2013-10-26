@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.config;
+package com.opengamma.sesame.function;
 
 import java.util.Set;
 
@@ -11,7 +11,6 @@ import java.util.Set;
  * Repository for engine functions. This returns the function type that can satisfy a value name for a target type.
  * The
  * TODO better name
- * TODO this is inadequate. need to handle subclassing. ClassMap *might* be adequate but I doubt it
  * 2 different functions
  *   1 - what outputs are available for a target type
  *   2 - what implementations are available for a function interface
@@ -28,10 +27,15 @@ public interface FunctionRepo {
   // for when the user is configuring a column
   Set<String> getAvailableOutputs(Class<?> targetType);
 
-  // users selects output for a column/type, this gives the output function type (probably interface)
-  Class<?> getFunctionType(String valueName, Class<?> targetType);
+  // TODO this assumes a single interface type provides an output for a target type
+  // and there can be no other interfaces providing the same output for that target type
+  // but there can be multiple implementations
+  // would it be better to use the implementation directly? how would that work?
+  // users selects output for a column/type, this gives the output function type
+  Class<? extends PortfolioOutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType);
 
-  // after selecting the output function, this gives the impl types for setting up FunctionConfig
+  // gives the available implementing types for function interfaces
+  // these can be presented to the user when they're setting up the view and choosing implementation overrides
   Set<Class<?>> getFunctionImplementations(Class<?> functionInterface);
 }
 

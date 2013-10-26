@@ -3,16 +3,22 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.config;
+package com.opengamma.sesame.function;
 
 import java.lang.reflect.Method;
 
+import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Metadata for engine function interfaces.
+ * TODO this is redundant
+ * need FunctionUtils with
+ * getTargetType for OutputFunction impls
+ * getDefaultImplementation for others
  */
-/* package */ class FunctionMetadata {
+@Deprecated
+public class FunctionMetadata {
 
   private final String _valueName;
   private final Class<?> _defaultImplementation;
@@ -48,34 +54,35 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * Returns the metadata for an interface annotated with {@link EngineFunction}.
+   * Returns the metadata for an interface annotated with {@link OutputName}.
    * @param functionInterface The interface
    * @return Its metadata
    * @throws IllegalArgumentException If the interface doesn't have exactly 1 method annotated
-   * with {@link EngineFunction}
+   * with {@link OutputName}
    */
-  /* package */ static FunctionMetadata forFunctionInterface(Class<?> functionInterface) {
-    if (!functionInterface.isInterface()) {
-      throw new IllegalArgumentException(functionInterface.getName() + " isn't an interface");
+  public static FunctionMetadata forOutput(Class<? extends PortfolioOutputFunction<?, ?>> functionInterface) {
+    if (functionInterface.isInterface()) {
+      throw new IllegalArgumentException(functionInterface.getName() + " is an interface");
     }
     // TODO allow multiple engine functions with different value names on the same interface?
     Method functionMethod = null;
     for (Method method : functionInterface.getMethods()) {
-      if (method.isAnnotationPresent(EngineFunction.class)) {
+      if (method.isAnnotationPresent(OutputName.class)) {
         if (functionMethod == null) {
           functionMethod = method;
         } else {
-          throw new IllegalArgumentException("Exactly one method should be annotated with @EngineFunction on " +
+          throw new IllegalArgumentException("Exactly one method should be annotated with @EngineOutput on " +
                                                  functionInterface.getName());
         }
       }
     }
     if (functionMethod == null) {
-      throw new IllegalArgumentException("Exactly one method should be annotated with @EngineFunction on " +
+      throw new IllegalArgumentException("Exactly one method should be annotated with @EngineOutput on " +
                                              functionInterface.getName());
     }
-    EngineFunction engineFunctionAnnotation = functionMethod.getAnnotation(EngineFunction.class);
-    String valueName = engineFunctionAnnotation.value();
+    OutputName outputNameAnnotation = functionMethod.getAnnotation(OutputName.class);
+    String valueName = outputNameAnnotation.value();
+    // TODO don't need this if all fns implement OutputFunction
     Parameter targetParam = ConfigUtils.getAnnotatedParameter(Target.class, functionMethod);
     Class<?> targetType = targetParam.getType();
     DefaultImplementation defaultImplementationAnnotation = functionInterface.getAnnotation(DefaultImplementation.class);

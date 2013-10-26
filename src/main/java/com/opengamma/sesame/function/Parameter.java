@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.config;
+package com.opengamma.sesame.function;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -19,7 +19,7 @@ public final class Parameter {
   private final Class<?> _type;
   private final ImmutableMap<Class<?>, Annotation> _annotations;
 
-  Parameter(Class<?> type, Map<Class<?>, Annotation> annotations) {
+  public Parameter(Class<?> type, Map<Class<?>, Annotation> annotations) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(annotations, "annotations");
     _type = type;

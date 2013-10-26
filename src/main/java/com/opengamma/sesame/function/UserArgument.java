@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.config;
+package com.opengamma.sesame.function;
 
 import java.util.Map;
 import java.util.NoSuchElementException;

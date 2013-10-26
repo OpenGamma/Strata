@@ -6,7 +6,7 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.sesame.config.UserParam;
+import com.opengamma.sesame.function.UserParam;
 
 /**
  * Returns an {@link ExternalScheme} configured by a user argument.

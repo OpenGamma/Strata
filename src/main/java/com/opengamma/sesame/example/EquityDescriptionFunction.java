@@ -6,14 +6,16 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.sesame.config.DefaultImplementation;
-import com.opengamma.sesame.config.EngineFunction;
-import com.opengamma.sesame.config.Target;
+import com.opengamma.sesame.function.DefaultImplementation;
+import com.opengamma.sesame.function.OutputName;
+import com.opengamma.sesame.function.Target;
 
 /**
  * Trivial example function that returns the description of an equity security.
+ * TODO convert to using PortfolioOutputFunction
  */
 @DefaultImplementation(EquityDescription.class)
+@OutputName(EquityDescriptionFunction.VALUE_NAME)
 public interface EquityDescriptionFunction {
 
   public static final String VALUE_NAME = "EquityDescription";
@@ -23,6 +25,5 @@ public interface EquityDescriptionFunction {
    * @param security A security
    * @return A description of the security
    */
-  @EngineFunction(EquityDescriptionFunction.VALUE_NAME)
   String getDescription(@Target EquitySecurity security);
 }

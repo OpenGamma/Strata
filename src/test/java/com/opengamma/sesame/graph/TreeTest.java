@@ -16,20 +16,21 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.sesame.config.DefaultImplementation;
-import com.opengamma.sesame.config.EngineFunction;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
-import com.opengamma.sesame.config.UserParam;
+import com.opengamma.sesame.function.DefaultImplementation;
+import com.opengamma.sesame.function.UserParam;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.tuple.Pair;
 
 @Test(groups = TestGroup.UNIT)
 public class TreeTest {
 
-  /* package */ static final String VALUE_NAME = "ValueName";
-
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
   private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
+  private static final Map<Pair<String, Class<?>>, Class<?>> OUTPUT_FUNCTIONS = Collections.emptyMap();
+
+  // TODO test PortfolioOutputFunction implementation
 
   @Test
   public void defaultImpl() {
@@ -73,7 +74,7 @@ public class TreeTest {
   public void overriddenUserParam() {
     FunctionArguments args = new FunctionArguments(ImmutableMap.<String, Object>of("i", 12));
     FunctionConfig config =
-        new FunctionConfig(ImmutableMap.<Class<?>, Class<?>>of(TestFunction.class, UserParameters.class),
+        new FunctionConfig(OUTPUT_FUNCTIONS, ImmutableMap.<Class<?>, Class<?>>of(TestFunction.class, UserParameters.class),
                            ImmutableMap.<Class<?>, FunctionArguments>of(UserParameters.class, args));
     Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
     TestFunction fn = tree.build(INFRASTRUCTURE);
@@ -131,15 +132,13 @@ public class TreeTest {
   }
 
   private static FunctionConfig config(Class<?> fnType, Class<?> implType) {
-    return new FunctionConfig(ImmutableMap.<Class<?>, Class<?>>of(fnType, implType),
-                              Collections.<Class<?>, FunctionArguments>emptyMap());
+    return new FunctionConfig(OUTPUT_FUNCTIONS, ImmutableMap.<Class<?>, Class<?>>of(fnType, implType), Collections.<Class<?>, FunctionArguments>emptyMap());
   }
 }
 
 @DefaultImplementation(DefaultImpl.class)
 /* package */ interface TestFunction {
 
-  @EngineFunction(TreeTest.VALUE_NAME)
   Object foo();
 }
 

@@ -20,9 +20,9 @@ import com.opengamma.OpenGammaRuntimeException;
 public final class Function<T> extends Node {
 
   private final Constructor<? extends T> _constructor;
-  private final ImmutableList<Node> _arguments;
+  private final List<Node> _arguments;
 
-  /* package */ Function(Constructor<? extends T> constructor, List<Node> arguments) {
+  public Function(Constructor<? extends T> constructor, List<Node> arguments) {
     _constructor = constructor;
     _arguments = ImmutableList.copyOf(arguments);
   }
@@ -44,7 +44,7 @@ public final class Function<T> extends Node {
     return _constructor.getDeclaringClass();
   }
 
-  public ImmutableList<Node> getArguments() {
+  public List<Node> getArguments() {
     return _arguments;
   }
 }

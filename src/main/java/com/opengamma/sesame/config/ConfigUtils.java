@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.sesame.function.Inject;
+import com.opengamma.sesame.function.Parameter;
 
 public final class ConfigUtils {
 
@@ -89,6 +91,7 @@ public final class ConfigUtils {
    * @param annotationType The annotation type
    * @param method The method
    * @return The method parameter with the specified annotation
+   * TODO this is probably redundant now
    */
   public static Parameter getAnnotatedParameter(Class<? extends Annotation> annotationType, Method method) {
     Parameter annotated = null;

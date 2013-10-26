@@ -6,7 +6,7 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.sesame.config.Target;
+import com.opengamma.sesame.function.Target;
 
 /**
  * {@link EquityDescriptionFunction} that returns the value of one of the security's external IDs as the description.

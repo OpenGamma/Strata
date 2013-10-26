@@ -6,7 +6,7 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.sesame.config.DefaultImplementation;
+import com.opengamma.sesame.function.DefaultImplementation;
 
 /**
  * Returns an external ID scheme.

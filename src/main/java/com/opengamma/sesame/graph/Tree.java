@@ -17,20 +17,22 @@ import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
-import com.opengamma.sesame.config.Parameter;
-import com.opengamma.sesame.config.UserParam;
+import com.opengamma.sesame.function.Parameter;
+import com.opengamma.sesame.function.UserParam;
 
 /**
  * A lightweight representation of the dependency tree for a single function.
  * TODO joda bean? needs to be serializable along with all Node subclasses.
  * need support for final fields or immutable inheritance
  * in the mean time could make Node.getDependencies() abstract and put the field in every subclass
+ * TODO name change? FunctionTree? DependencyTree?
  */
 public final class Tree<T> {
 
   private final Function<T> _root;
 
-  /* package */ Tree(Function<T> root) {
+  // TODO this shouldn't be public but is used by SecurityFunctionDecorator
+  public Tree(Function<T> root) {
     _root = root;
   }
 
@@ -52,7 +54,12 @@ public final class Tree<T> {
 
   @SuppressWarnings("unchecked")
   private static <T> Function<T> createNode(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
-    Class<? extends T> implType = (Class<? extends T>) config.getFunctionImplementation(functionType);
+    Class<? extends T> implType;
+    if (!functionType.isInterface()) {
+      implType = functionType;
+    } else {
+      implType = (Class<? extends T>) config.getFunctionImplementation(functionType);
+    }
     Constructor<? extends T> constructor = ConfigUtils.getConstructor(implType);
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
     FunctionArguments functionArguments = config.getFunctionArguments(implType);

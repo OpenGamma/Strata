@@ -3,17 +3,19 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.config;
+package com.opengamma.sesame.function;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@java.lang.annotation.Target(ElementType.PARAMETER)
-public @interface Target {
+@Target(ElementType.TYPE)
+public @interface OutputName {
 
+  String value();
 }
