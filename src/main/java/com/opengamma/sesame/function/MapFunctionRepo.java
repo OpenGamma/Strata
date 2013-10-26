@@ -12,7 +12,10 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Extremely simple {@link FunctionRepo} backed by a map.
@@ -23,6 +26,8 @@ public final class MapFunctionRepo implements FunctionRepo {
 
   // TODO use a synchronized multimap? this is unlikely to be a performance hot spot
   private final ConcurrentMap<Class<?>, Set<String>> _valueNamesByType = Maps.newConcurrentMap();
+
+  private final ConcurrentMap<Pair<String, Class<?>>, Class<?>> _functionTypesForOutputs = Maps.newConcurrentMap();
 
   @Override
   public Set<String> getAvailableOutputs(Class<?> targetType) {
@@ -40,10 +45,14 @@ public final class MapFunctionRepo implements FunctionRepo {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType) {
-    // TODO implement getFunctionType()
-    // use getAvailableOutputs to build the result?
-    throw new UnsupportedOperationException("getFunctionType not implemented");
+    Pair<String, Class<?>> key = (Pair<String, Class<?>>) Pairs.of(outputName, targetType);
+    if (_functionTypesForOutputs.containsKey(key)) {
+      return (Class<? extends OutputFunction<?, ?>>) _functionTypesForOutputs.get(key);
+    } else {
+      throw new DataNotFoundException("No function found for output " + outputName + " and targetType " + targetType.getName());
+    }
   }
 
   @Override
@@ -85,6 +94,8 @@ public final class MapFunctionRepo implements FunctionRepo {
       outputNames = ImmutableSet.of(outputName);
     }
     _valueNamesByType.put(targetType, outputNames);
+    // TODO this is completely inadequate ATM as it doesn't deal with subtyping
+    _functionTypesForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), type);
   }
 
   // needed for implementations of interfaces where type isn't named as @DefaultImplementation

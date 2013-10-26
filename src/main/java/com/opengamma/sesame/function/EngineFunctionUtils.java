@@ -8,6 +8,9 @@ package com.opengamma.sesame.function;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Set;
+
+import com.opengamma.sesame.config.ConfigUtils;
 
 /**
  *
@@ -28,6 +31,20 @@ public final class EngineFunctionUtils {
 
   // TODO this will fail if the class doesn't directly implement OutputFunction
   public static Class<?> getTargetType(Class<? extends OutputFunction<?, ?>> type) {
+    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(type);
+    for (Class<?> supertype : supertypes) {
+      for (Type anInterface : supertype.getGenericInterfaces()) {
+        if (anInterface instanceof ParameterizedType && ((ParameterizedType) anInterface).getRawType().equals(OutputFunction.class)) {
+          Type targetType = ((ParameterizedType) anInterface).getActualTypeArguments()[0];
+          return (Class<?>) targetType;
+        }
+      }
+    }
+    throw new IllegalArgumentException("execute method not found on " + type.getName()); // shouldn't happen
+  }
+
+  /*
+  public static Class<?> getTargetType(Class<? extends OutputFunction<?, ?>> type) {
     for (Type anInterface : type.getGenericInterfaces()) {
       if (anInterface instanceof ParameterizedType && ((ParameterizedType) anInterface).getRawType().equals(OutputFunction.class)) {
         Type targetType = ((ParameterizedType) anInterface).getActualTypeArguments()[0];
@@ -35,7 +52,7 @@ public final class EngineFunctionUtils {
       }
     }
     throw new IllegalArgumentException("execute method not found on " + type.getName()); // shouldn't happen
-  }
+  }*/
 
   public static Class<?> getDefaultImplementation(Class<?> type) {
     if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {

@@ -55,6 +55,7 @@ public final class Graph {
         } else {
           tree = Tree.forFunction(NoOutputFunction.class);
         }
+        // TODO how will this work for in-memory trades? assign an ID?
         columnBuilder.put(positionOrTrade.getUniqueId().getObjectId(), tree);
       }
       builder.put(column.getName(), columnBuilder.build());

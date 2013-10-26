@@ -21,6 +21,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.example.EquityDescriptionFunction;
 import com.opengamma.sesame.example.OutputNames;
@@ -49,10 +50,13 @@ public class EngineTest {
 
   private static List<Trade> createTrades() {
     EquitySecurity security = new EquitySecurity("exc", "exc", "compName", Currency.AUD);
+    security.setUniqueId(UniqueId.of("secId", "123"));
+    security.setName("My first security");
     SimpleTrade trade = new SimpleTrade();
-    SimpleSecurityLink securityLink = new SimpleSecurityLink(ExternalId.of("abc", "123"));
+    SimpleSecurityLink securityLink = new SimpleSecurityLink(ExternalId.of("extId", "123"));
     securityLink.setTarget(security);
     trade.setSecurityLink(securityLink);
+    trade.setUniqueId(UniqueId.of("trdId", "321"));
     return ImmutableList.<Trade>of(trade);
   }
 

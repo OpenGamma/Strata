@@ -37,6 +37,7 @@ public class Results {
         targetResults = _results.get(targetId);
       } else {
         targetResults = Maps.newHashMap();
+        _results.put(targetId, targetResults);
       }
       targetResults.put(columnName, result);
     }
