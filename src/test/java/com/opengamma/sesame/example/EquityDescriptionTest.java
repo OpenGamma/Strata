@@ -22,7 +22,6 @@ import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.graph.Tree;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 
 @Test(groups = TestGroup.UNIT)
 public class EquityDescriptionTest {
@@ -34,7 +33,6 @@ public class EquityDescriptionTest {
   private static final String SECURITY_NAME = "Apple Equity";
   private static final String BLOOMBERG_VALUE = "AAPL US Equity";
   private static final String ACTIV_VALUE = "AAPL.";
-  private static final Map<Pair<String, Class<?>>, Class<?>> OUTPUT_FUNCTIONS = Collections.emptyMap();
 
   static {
     SECURITY = new EquitySecurity("Exchange Name", "EXH", "Apple", Currency.USD);
@@ -57,7 +55,7 @@ public class EquityDescriptionTest {
     Map<Class<?>, Class<?>> typeMap = ImmutableMap.<Class<?>, Class<?>>of(EquityDescriptionFunction.class,
                                                                           EquityIdDescription.class);
     Map<Class<?>, FunctionArguments> argsMap = Collections.emptyMap();
-    FunctionConfig config = new FunctionConfig(OUTPUT_FUNCTIONS, typeMap, argsMap);
+    FunctionConfig config = new FunctionConfig(typeMap, argsMap);
     Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
     EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
     String description = fn.execute(SECURITY);
@@ -71,7 +69,7 @@ public class EquityDescriptionTest {
     Map<String, Object> argsMap = ImmutableMap.<String, Object>of("scheme", ExternalSchemes.ACTIVFEED_TICKER);
     FunctionArguments fnArgs = new FunctionArguments(argsMap);
     Map<Class<?>, FunctionArguments> args = ImmutableMap.<Class<?>, FunctionArguments>of(IdScheme.class, fnArgs);
-    FunctionConfig config = new FunctionConfig(OUTPUT_FUNCTIONS, typeMap, args);
+    FunctionConfig config = new FunctionConfig(typeMap, args);
     Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
     EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
     String description = fn.execute(SECURITY);

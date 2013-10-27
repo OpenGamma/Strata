@@ -27,7 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.function.EngineFunctionUtils;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * TODO better name - this is the config for one output (column/target type)
@@ -37,14 +36,8 @@ import com.opengamma.util.tuple.Pair;
 public final class FunctionConfig implements ImmutableBean {
 
   public static final FunctionConfig EMPTY =
-      new FunctionConfig(Collections.<Pair<String, Class<?>>, Class<?>>emptyMap(),
-                         Collections.<Class<?>, Class<?>>emptyMap(),
+      new FunctionConfig(Collections.<Class<?>, Class<?>>emptyMap(),
                          Collections.<Class<?>, FunctionArguments>emptyMap());
-
-  // TODO make the key a real class?
-  /** Map of output name and target type to function type. */
-  @PropertyDefinition(validate = "notNull", get = "private")
-  private final Map<Pair<String, Class<?>>, Class<?>> _outputFunctions;
 
   // TODO another set of mappings that are equivalent to these but qualified by the type of the object with the dependency?
   // would allow different impls of the same interface to be used at different points in the same tree
@@ -77,13 +70,9 @@ public final class FunctionConfig implements ImmutableBean {
   }
 
   @ImmutableConstructor
-  public FunctionConfig(Map<Pair<String, Class<?>>, Class<?>> outputFunctions,
-                        Map<Class<?>, Class<?>> implementationOverrides,
-                        Map<Class<?>, FunctionArguments> arguments) {
-    ArgumentChecker.notNull(outputFunctions, "outputFunctions");
+  public FunctionConfig(Map<Class<?>, Class<?>> implementationOverrides, Map<Class<?>, FunctionArguments> arguments) {
     ArgumentChecker.notNull(implementationOverrides, "implementationOverrides");
     ArgumentChecker.notNull(arguments, "arguments");
-    _outputFunctions = ImmutableMap.copyOf(outputFunctions);
     _implementationOverrides = ImmutableMap.copyOf(implementationOverrides);
     _arguments = ImmutableMap.copyOf(arguments);
   }
@@ -128,15 +117,6 @@ public final class FunctionConfig implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets map of output name and target type to function type.
-   * @return the value of the property, not null
-   */
-  private Map<Pair<String, Class<?>>, Class<?>> getOutputFunctions() {
-    return _outputFunctions;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets map of function types to their implementing classes where the implementing class isn't the default.
    * @return the value of the property, not null
    */
@@ -174,8 +154,7 @@ public final class FunctionConfig implements ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FunctionConfig other = (FunctionConfig) obj;
-      return JodaBeanUtils.equal(getOutputFunctions(), other.getOutputFunctions()) &&
-          JodaBeanUtils.equal(getImplementationOverrides(), other.getImplementationOverrides()) &&
+      return JodaBeanUtils.equal(getImplementationOverrides(), other.getImplementationOverrides()) &&
           JodaBeanUtils.equal(getArguments(), other.getArguments());
     }
     return false;
@@ -184,7 +163,6 @@ public final class FunctionConfig implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOutputFunctions());
     hash += hash * 31 + JodaBeanUtils.hashCode(getImplementationOverrides());
     hash += hash * 31 + JodaBeanUtils.hashCode(getArguments());
     return hash;
@@ -192,9 +170,8 @@ public final class FunctionConfig implements ImmutableBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("FunctionConfig{");
-    buf.append("outputFunctions").append('=').append(getOutputFunctions()).append(',').append(' ');
     buf.append("implementationOverrides").append('=').append(getImplementationOverrides()).append(',').append(' ');
     buf.append("arguments").append('=').append(JodaBeanUtils.toString(getArguments()));
     buf.append('}');
@@ -212,12 +189,6 @@ public final class FunctionConfig implements ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code outputFunctions} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Pair<String, Class<?>>, Class<?>>> _outputFunctions = DirectMetaProperty.ofImmutable(
-        this, "outputFunctions", FunctionConfig.class, (Class) Map.class);
-    /**
      * The meta-property for the {@code implementationOverrides} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -234,7 +205,6 @@ public final class FunctionConfig implements ImmutableBean {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "outputFunctions",
         "implementationOverrides",
         "arguments");
 
@@ -247,8 +217,6 @@ public final class FunctionConfig implements ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -831152230:  // outputFunctions
-          return _outputFunctions;
         case -542516587:  // implementationOverrides
           return _implementationOverrides;
         case -2035517098:  // arguments
@@ -274,14 +242,6 @@ public final class FunctionConfig implements ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code outputFunctions} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Map<Pair<String, Class<?>>, Class<?>>> outputFunctions() {
-      return _outputFunctions;
-    }
-
-    /**
      * The meta-property for the {@code implementationOverrides} property.
      * @return the meta-property, not null
      */
@@ -301,8 +261,6 @@ public final class FunctionConfig implements ImmutableBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -831152230:  // outputFunctions
-          return ((FunctionConfig) bean).getOutputFunctions();
         case -542516587:  // implementationOverrides
           return ((FunctionConfig) bean).getImplementationOverrides();
         case -2035517098:  // arguments
@@ -328,7 +286,6 @@ public final class FunctionConfig implements ImmutableBean {
    */
   public static final class Builder extends BasicImmutableBeanBuilder<FunctionConfig> {
 
-    private Map<Pair<String, Class<?>>, Class<?>> _outputFunctions = new HashMap<Pair<String, Class<?>>, Class<?>>();
     private Map<Class<?>, Class<?>> _implementationOverrides = new HashMap<Class<?>, Class<?>>();
     private Map<Class<?>, FunctionArguments> _arguments = new HashMap<Class<?>, FunctionArguments>();
 
@@ -345,7 +302,6 @@ public final class FunctionConfig implements ImmutableBean {
      */
     private Builder(FunctionConfig beanToCopy) {
       super(FunctionConfig.Meta.INSTANCE);
-      this._outputFunctions = new HashMap<Pair<String, Class<?>>, Class<?>>(beanToCopy.getOutputFunctions());
       this._implementationOverrides = new HashMap<Class<?>, Class<?>>(beanToCopy.getImplementationOverrides());
       this._arguments = new HashMap<Class<?>, FunctionArguments>(beanToCopy.getArguments());
     }
@@ -355,9 +311,6 @@ public final class FunctionConfig implements ImmutableBean {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -831152230:  // outputFunctions
-          this._outputFunctions = (Map<Pair<String, Class<?>>, Class<?>>) newValue;
-          break;
         case -542516587:  // implementationOverrides
           this._implementationOverrides = (Map<Class<?>, Class<?>>) newValue;
           break;
@@ -373,23 +326,11 @@ public final class FunctionConfig implements ImmutableBean {
     @Override
     public FunctionConfig build() {
       return new FunctionConfig(
-          _outputFunctions,
           _implementationOverrides,
           _arguments);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code outputFunctions} property in the builder.
-     * @param outputFunctions  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder outputFunctions(Map<Pair<String, Class<?>>, Class<?>> outputFunctions) {
-      JodaBeanUtils.notNull(outputFunctions, "outputFunctions");
-      this._outputFunctions = outputFunctions;
-      return this;
-    }
-
     /**
      * Sets the {@code implementationOverrides} property in the builder.
      * @param implementationOverrides  the new value, not null
@@ -415,9 +356,8 @@ public final class FunctionConfig implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("FunctionConfig.Builder{");
-      buf.append("outputFunctions").append('=').append(_outputFunctions).append(',').append(' ');
       buf.append("implementationOverrides").append('=').append(_implementationOverrides).append(',').append(' ');
       buf.append("arguments").append('=').append(_arguments);
       buf.append('}');

@@ -19,7 +19,7 @@ public class MapFunctionRepoTest {
   protected static final String O2 = "O2";
 
   @Test
-  public void availableOutputs() {
+  public void getAvailableOutputs() {
     MapFunctionRepo repo = new MapFunctionRepo();
     repo.register(F1.class);
     repo.register(F2.class);
@@ -56,4 +56,5 @@ public class MapFunctionRepoTest {
     }
   }
 
+  // TODO getFunctionType - including subtyping
 }

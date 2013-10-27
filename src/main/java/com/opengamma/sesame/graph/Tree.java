@@ -97,6 +97,7 @@ public final class Tree<T> {
       Object value;
       Object defaultValue = StringConvert.INSTANCE.convertFromString(parameter.getType(), paramAnnotation.defaultValue());
       if (functionArguments.hasArgument(paramName)) {
+        // TODO allow the value to be a string and convert if the expected type isn't?
         value = functionArguments.getArgument(paramName);
       } else {
         value = defaultValue;

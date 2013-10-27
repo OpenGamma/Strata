@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame.engine;
 
-import static com.opengamma.sesame.config.ViewDefBuilder.column;
-import static com.opengamma.sesame.config.ViewDefBuilder.output;
-import static com.opengamma.sesame.config.ViewDefBuilder.viewDef;
+import static com.opengamma.sesame.config.ConfigBuilder.column;
+import static com.opengamma.sesame.config.ConfigBuilder.output;
+import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
