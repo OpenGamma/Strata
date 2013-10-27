@@ -18,25 +18,32 @@ import com.opengamma.util.tuple.Pairs;
 
 /**
  * Extremely simple {@link FunctionRepo} backed by a map.
- * TODO if this turns out to be a point of contention make it non-synchronized
+ * TODO if this turns out to be a point of contention make it non-synchronized and more complicated
  * TODO can this be split into 2 interfaces, one for the engine and one to generate data to guide the user through configuration?
  */
 public final class MapFunctionRepo implements FunctionRepo {
 
-  private final Map<Class<?>, Set<String>> _valueNamesByType = Maps.newHashMap();
+  /** Output names registered for a target type. */
+  private final Map<Class<?>, Set<String>> _outputsByType = Maps.newHashMap();
+
+  /**
+   * All output names available for a target type. This is lazily populated by walking up the type hierarchy from
+   * the target type querying {@link #_outputsByType}.
+   */
+  private final Map<Class<?>, Set<String>> _allOutputsByType = Maps.newHashMap();
 
   /**
    * Map of output name / target type to the function type that provides it. Only one function type is allowed for
-   * each output/type pair but it must implement {@link OutputFunction} and is normally an interface so there
-   * can but multiple implementations configured using the normal override mechanism.
+   * each output/type pair. It must be an interface which extends {@link OutputFunction}.
    */
   private final Map<Pair<String, Class<?>>, Class<?>> _functionTypesForOutputs = Maps.newHashMap();
 
-  // TODO cache of function for an output/target pair calculated by climbing the type hierarchy and querying _functionTypesForOutputs
-
-  // TODO cache of available outputs for a target type (i.e. cache the result of getAvailableOutputs
-
-  // this is for telling the user how they can configure the view
+  /**
+   * The same as {@link #_functionTypesForOutputs} but includes the function types for the target type's supertypes.
+   * This is lazily populated by walking up the type hierarchy from the target type querying
+   * {@link #_functionTypesForOutputs}.
+   */
+  private final Map<Pair<String, Class<?>>, Class<?>> _allFunctionTypesForOutputs = Maps.newHashMap();
 
   /**
    * Returns the names of all outputs available for a target type
@@ -45,16 +52,17 @@ public final class MapFunctionRepo implements FunctionRepo {
    */
   @Override
   public synchronized Set<String> getAvailableOutputs(Class<?> targetType) {
+    if (_allOutputsByType.containsKey(targetType)) {
+      return _allOutputsByType.get(targetType);
+    }
     Set<Class<?>> supertypes = ConfigUtils.getSupertypes(targetType);
     Set<String> outputs = Sets.newTreeSet();
     for (Class<?> supertype : supertypes) {
-      if (_valueNamesByType.containsKey(supertype)) {
-        outputs.addAll(_valueNamesByType.get(supertype));
+      if (_outputsByType.containsKey(supertype)) {
+        outputs.addAll(_outputsByType.get(supertype));
       }
     }
-    // TODO cache in a different map for performance
-    // not in the same map because it's impossible to know the difference between the initial values that are only
-    // for the key type or the replacement values that include supertype outputs
+    _allOutputsByType.put(targetType, outputs);
     return Collections.unmodifiableSet(outputs);
   }
 
@@ -70,14 +78,21 @@ public final class MapFunctionRepo implements FunctionRepo {
   @Override
   @SuppressWarnings("unchecked")
   public synchronized Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType) {
-    // TODO if this is called frequently it might be better to use nested maps to avoid creating lots of Pairs
-    Pair<String, Class<?>> key = (Pair<String, Class<?>>) Pairs.of(outputName, targetType);
-    if (_functionTypesForOutputs.containsKey(key)) {
-      return (Class<? extends OutputFunction<?, ?>>) _functionTypesForOutputs.get(key);
-    } else {
-      // TODO walk up the type hierarchy and try each type, cache the result
-      throw new DataNotFoundException("No function found for output " + outputName + " and targetType " + targetType.getName());
+    Pair<String, Class<?>> targetKey = (Pair<String, Class<?>>) Pairs.of(outputName, targetType);
+    if (_allFunctionTypesForOutputs.containsKey(targetKey)) {
+      return (Class<? extends OutputFunction<?, ?>>) _allFunctionTypesForOutputs.get(targetKey);
     }
+    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(targetType);
+    for (Class<?> supertype : supertypes) {
+      Pair<String, Class<?>> key = (Pair<String, Class<?>>) Pairs.of(outputName, supertype);
+      if (_functionTypesForOutputs.containsKey(key)) {
+        Class<? extends OutputFunction<?, ?>> functionType =
+            (Class<? extends OutputFunction<?, ?>>) _functionTypesForOutputs.get(key);
+        _allFunctionTypesForOutputs.put(targetKey, functionType);
+        return functionType;
+      }
+    }
+    throw new DataNotFoundException("No function found for output " + outputName + " and targetType " + targetType.getName());
   }
 
   // this is to allow the user to choose different implementations of functions when constructing the graph
@@ -94,6 +109,9 @@ public final class MapFunctionRepo implements FunctionRepo {
 
   @SuppressWarnings("unchecked")
   public synchronized void register(Class<?> type) {
+    // clear the lazily populated caches which might be out of date after registering a new type
+    _allOutputsByType.clear();
+    _allFunctionTypesForOutputs.clear();
     if (OutputFunction.class.isAssignableFrom(type) && type.isInterface()) {
       registerOutput((Class<? extends OutputFunction<?, ?>>) type);
     } else {
@@ -107,11 +125,11 @@ public final class MapFunctionRepo implements FunctionRepo {
     String outputName = EngineFunctionUtils.getOutputName(type);
     Set<String> outputNames;
     Class<?> targetType = EngineFunctionUtils.getTargetType(type);
-    if (_valueNamesByType.containsKey(targetType)) {
-      _valueNamesByType.get(targetType).add(outputName);
+    if (_outputsByType.containsKey(targetType)) {
+      _outputsByType.get(targetType).add(outputName);
     } else {
       outputNames = Sets.newHashSet(outputName);
-      _valueNamesByType.put(targetType, outputNames);
+      _outputsByType.put(targetType, outputNames);
     }
     _functionTypesForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), type);
   }

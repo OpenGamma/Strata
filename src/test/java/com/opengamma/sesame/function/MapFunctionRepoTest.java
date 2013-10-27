@@ -7,6 +7,8 @@ package com.opengamma.sesame.function;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Collections;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSortedSet;
@@ -26,6 +28,7 @@ public class MapFunctionRepoTest {
     assertEquals(ImmutableSortedSet.of(O1, O2), repo.getAvailableOutputs(Target3.class));
     assertEquals(ImmutableSortedSet.of(O1, O2), repo.getAvailableOutputs(Target2.class));
     assertEquals(ImmutableSortedSet.of(O1), repo.getAvailableOutputs(Target1.class));
+    assertEquals(Collections.<String>emptySet(), repo.getAvailableOutputs(Object.class));
   }
 
   class Target1 { }
@@ -56,5 +59,15 @@ public class MapFunctionRepoTest {
     }
   }
 
-  // TODO getFunctionType - including subtyping
+  @Test
+  public void getFunctionType() {
+    MapFunctionRepo repo = new MapFunctionRepo();
+    repo.register(F1.class);
+    repo.register(F2.class);
+    assertEquals(F1.class, repo.getFunctionType(O1, Target1.class));
+    assertEquals(F1.class, repo.getFunctionType(O1, Target2.class));
+    assertEquals(F1.class, repo.getFunctionType(O1, Target3.class));
+    assertEquals(F2.class, repo.getFunctionType(O2, Target2.class));
+    assertEquals(F2.class, repo.getFunctionType(O2, Target3.class));
+  }
 }

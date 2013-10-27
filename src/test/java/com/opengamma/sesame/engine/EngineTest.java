@@ -18,6 +18,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
@@ -52,9 +53,9 @@ public class EngineTest {
   private static final UniqueId CASH_FLOW_TRADE_ID = UniqueId.of("trdId", "432");
   private static final String CASH_FLOW_NAME = "A cash flow security";
 
-  private static final String DESCRIPTION_HEADER = "Description";
-  private static final String BLOOMBERG_HEADER = "Bloomberg Ticker";
-  private static final String ACTIV_HEADER = "ACTIV Symbol";
+  private static final String DESCRIPTION_COLUMN = "Description";
+  private static final String BLOOMBERG_COLUMN = "Bloomberg Ticker";
+  private static final String ACTIV_COLUMN = "ACTIV Symbol";
   private static final String EQUITY_BLOOMBERG_TICKER = "ACME US Equity";
   private static final String EQUITY_ACTIV_SYMBOL = "ACME.";
   private static final String CASH_FLOW_BLOOMBERG_TICKER = "TEST US Cash Flow";
@@ -64,7 +65,7 @@ public class EngineTest {
   public void defaultFunctionImpls() {
     ViewDef viewDef =
         viewDef("Trivial Test View",
-                column(DESCRIPTION_HEADER,
+                column(DESCRIPTION_COLUMN,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class)));
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
@@ -75,8 +76,7 @@ public class EngineTest {
     view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
-    Object descriptionColumnResult = tradeResults.get(DESCRIPTION_HEADER);
-    assertEquals(EQUITY_NAME, descriptionColumnResult);
+    assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_COLUMN));
     System.out.println(results);
   }
 
@@ -84,17 +84,17 @@ public class EngineTest {
   public void overridesAndConfig() {
     ViewDef viewDef =
         viewDef("name",
-                column(DESCRIPTION_HEADER,
+                column(DESCRIPTION_COLUMN,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class)),
-                column(BLOOMBERG_HEADER,
+                column(BLOOMBERG_COLUMN,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   overrides(EquityDescriptionFunction.class, EquityIdDescription.class))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
                                   overrides(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
-                column(ACTIV_HEADER,
+                column(ACTIV_COLUMN,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
@@ -119,14 +119,14 @@ public class EngineTest {
     Results results = listener.getResults();
     
     Map<String, Object> equityResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
-    assertEquals(EQUITY_NAME, equityResults.get(DESCRIPTION_HEADER));
-    assertEquals(EQUITY_BLOOMBERG_TICKER, equityResults.get(BLOOMBERG_HEADER));
-    assertEquals(EQUITY_ACTIV_SYMBOL, equityResults.get(ACTIV_HEADER));
+    assertEquals(EQUITY_NAME, equityResults.get(DESCRIPTION_COLUMN));
+    assertEquals(EQUITY_BLOOMBERG_TICKER, equityResults.get(BLOOMBERG_COLUMN));
+    assertEquals(EQUITY_ACTIV_SYMBOL, equityResults.get(ACTIV_COLUMN));
     
     Map<String, Object> cashFlowResults = results.getTargetResults(CASH_FLOW_TRADE_ID.getObjectId());
-    assertEquals(CASH_FLOW_NAME, cashFlowResults.get(DESCRIPTION_HEADER));
-    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, cashFlowResults.get(BLOOMBERG_HEADER));
-    assertEquals(CASH_FLOW_ACTIV_SYMBOL, cashFlowResults.get(ACTIV_HEADER));
+    assertEquals(CASH_FLOW_NAME, cashFlowResults.get(DESCRIPTION_COLUMN));
+    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, cashFlowResults.get(BLOOMBERG_COLUMN));
+    assertEquals(CASH_FLOW_ACTIV_SYMBOL, cashFlowResults.get(ACTIV_COLUMN));
     
     System.out.println(results);
   }
@@ -159,6 +159,9 @@ public class EngineTest {
     return trade;
   }
 
+  /**
+   * Simple listener for tests that run the engine using a single thread
+   */
   private static class Listener implements Engine.Listener {
 
     private Results _results;
@@ -173,6 +176,9 @@ public class EngineTest {
     }
   }
 
+  /**
+   * {@link ExecutorService} that uses the calling thread to run all tasks. Nice and simple for unit tests.
+   */
   private static class DirectExecutorService extends AbstractExecutorService {
 
     @Override

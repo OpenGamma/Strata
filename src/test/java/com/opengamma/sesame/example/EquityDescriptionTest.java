@@ -5,6 +5,11 @@
  */
 package com.opengamma.sesame.example;
 
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
+import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
+import static com.opengamma.sesame.config.ConfigBuilder.overrides;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
@@ -12,12 +17,10 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.graph.Tree;
 import com.opengamma.util.money.Currency;
@@ -25,8 +28,6 @@ import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
 public class EquityDescriptionTest {
-
-  // TODO convert to using PortfolioOutputFunction
 
   private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
   private static final EquitySecurity SECURITY;
@@ -52,10 +53,7 @@ public class EquityDescriptionTest {
 
   @Test
   public void idImplDefaultArgs() {
-    Map<Class<?>, Class<?>> typeMap = ImmutableMap.<Class<?>, Class<?>>of(EquityDescriptionFunction.class,
-                                                                          CashFlowIdDescription.class);
-    Map<Class<?>, FunctionArguments> argsMap = Collections.emptyMap();
-    FunctionConfig config = new FunctionConfig(typeMap, argsMap);
+    FunctionConfig config = config(overrides(EquityDescriptionFunction.class, EquityIdDescription.class));
     Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
     EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
     String description = fn.execute(SECURITY);
@@ -64,12 +62,11 @@ public class EquityDescriptionTest {
 
   @Test
   public void idImplOverriddenArgs() {
-    Map<Class<?>, Class<?>> typeMap = ImmutableMap.<Class<?>, Class<?>>of(EquityDescriptionFunction.class,
-                                                                          CashFlowIdDescription.class);
-    Map<String, Object> argsMap = ImmutableMap.<String, Object>of("scheme", ExternalSchemes.ACTIVFEED_TICKER);
-    FunctionArguments fnArgs = new FunctionArguments(argsMap);
-    Map<Class<?>, FunctionArguments> args = ImmutableMap.<Class<?>, FunctionArguments>of(IdScheme.class, fnArgs);
-    FunctionConfig config = new FunctionConfig(typeMap, args);
+    FunctionConfig config =
+        config(overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
+               arguments(
+                   function(IdScheme.class,
+                            argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))));
     Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
     EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
     String description = fn.execute(SECURITY);

@@ -27,10 +27,7 @@ public interface FunctionRepo {
   // for when the user is configuring a column
   Set<String> getAvailableOutputs(Class<?> targetType);
 
-  // TODO this assumes a single interface type provides an output for a target type
-  // and there can be no other interfaces providing the same output for that target type
-  // but there can be multiple implementations
-  // would it be better to use the implementation directly? how would that work?
+  // this assumes a single interface type provides an output for a target type - this should be true, prohibit multiple
   // users selects output for a column/type, this gives the output function type
   Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType);
 
