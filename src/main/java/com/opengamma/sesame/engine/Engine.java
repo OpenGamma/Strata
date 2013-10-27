@@ -14,6 +14,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
@@ -28,6 +31,8 @@ import com.opengamma.sesame.graph.Graph;
  * TODO this is totally provisional, just enough to run some basic tests that stitch everything together
  */
 /* package */ class Engine {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(Engine.class);
 
   private final ExecutorService _executor;
   private final Map<Class<?>, Object> _infrastructure;
@@ -93,7 +98,7 @@ import com.opengamma.sesame.graph.Graph;
           TaskResult result = future.get();
           resultsBuilder.add(result._columnName, result._targetId, result._result);
         } catch (InterruptedException | ExecutionException e) {
-          e.printStackTrace();
+          s_logger.warn("Failed to get result from task", e);
         }
       }
       _listener.cycleComplete(resultsBuilder.build());
@@ -130,6 +135,7 @@ import com.opengamma.sesame.graph.Graph;
         try {
           result = _function.execute(_target);
         } catch (Exception e) {
+          s_logger.warn("Failed to execute function", e);
           result = e;
         }
         return new TaskResult(_target.getUniqueId().getObjectId(), _columnName, result);

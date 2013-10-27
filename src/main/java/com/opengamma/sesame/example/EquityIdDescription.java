@@ -6,6 +6,7 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.id.ExternalId;
 
 /**
  * {@link EquityDescriptionFunction} that returns the value of one of the security's external IDs as the description.
@@ -28,6 +29,11 @@ public class EquityIdDescription implements EquityDescriptionFunction {
    */
   @Override
   public String execute(EquitySecurity security) {
-    return security.getExternalIdBundle().getExternalId(_idSchemeFunction.getScheme()).getValue();
+    ExternalId externalId = security.getExternalIdBundle().getExternalId(_idSchemeFunction.getScheme());
+    if (externalId != null) {
+      return externalId.getValue();
+    } else {
+      return null;
+    }
   }
 }

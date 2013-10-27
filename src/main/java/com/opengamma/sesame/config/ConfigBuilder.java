@@ -13,8 +13,8 @@ import com.google.common.collect.Maps;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.sesame.example.CashFlowIdDescription;
 import com.opengamma.sesame.example.EquityDescriptionFunction;
-import com.opengamma.sesame.example.EquityIdDescription;
 import com.opengamma.sesame.example.IdScheme;
 import com.opengamma.sesame.example.OutputNames;
 
@@ -39,20 +39,20 @@ public final class ConfigBuilder {
                 column("Bloomberg Ticker",
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class)))),
+                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class)))),
                 column("ACTIV Symbol",
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
+                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
+                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));

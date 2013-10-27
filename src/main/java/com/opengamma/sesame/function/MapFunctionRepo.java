@@ -6,10 +6,9 @@
 package com.opengamma.sesame.function;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
@@ -19,23 +18,33 @@ import com.opengamma.util.tuple.Pairs;
 
 /**
  * Extremely simple {@link FunctionRepo} backed by a map.
- * It should be populated from a single thread but can safely be read from multiple threads after initialization.
- * TODO wouldn't be hard to make it thread safe, fix race condition in registerOutput
+ * TODO if this turns out to be a point of contention make it non-synchronized
+ * TODO can this be split into 2 interfaces, one for the engine and one to generate data to guide the user through configuration?
  */
 public final class MapFunctionRepo implements FunctionRepo {
 
-  // TODO use a synchronized multimap? this is unlikely to be a performance hot spot
-  private final ConcurrentMap<Class<?>, Set<String>> _valueNamesByType = Maps.newConcurrentMap();
+  private final Map<Class<?>, Set<String>> _valueNamesByType = Maps.newHashMap();
 
   /**
    * Map of output name / target type to the function type that provides it. Only one function type is allowed for
    * each output/type pair but it must implement {@link OutputFunction} and is normally an interface so there
    * can but multiple implementations configured using the normal override mechanism.
    */
-  private final ConcurrentMap<Pair<String, Class<?>>, Class<?>> _functionTypesForOutputs = Maps.newConcurrentMap();
+  private final Map<Pair<String, Class<?>>, Class<?>> _functionTypesForOutputs = Maps.newHashMap();
 
+  // TODO cache of function for an output/target pair calculated by climbing the type hierarchy and querying _functionTypesForOutputs
+
+  // TODO cache of available outputs for a target type (i.e. cache the result of getAvailableOutputs
+
+  // this is for telling the user how they can configure the view
+
+  /**
+   * Returns the names of all outputs available for a target type
+   * @param targetType The type of the target
+   * @return All outputs that can be calculated for the target type
+   */
   @Override
-  public Set<String> getAvailableOutputs(Class<?> targetType) {
+  public synchronized Set<String> getAvailableOutputs(Class<?> targetType) {
     Set<Class<?>> supertypes = ConfigUtils.getSupertypes(targetType);
     Set<String> outputs = Sets.newTreeSet();
     for (Class<?> supertype : supertypes) {
@@ -49,63 +58,67 @@ public final class MapFunctionRepo implements FunctionRepo {
     return Collections.unmodifiableSet(outputs);
   }
 
+  // this is used to build the graph
+  /**
+   * Returns the type of the {@link OutputFunction} subtype that provides an output for a target type.
+   * This must be an interface annotated with {@link OutputName}.
+   * @param outputName The output name
+   * @param targetType The type of the target
+   * @return The interface or class that can provide the output
+   * @throws DataNotFoundException If nothing can provide the requested output for the target type
+   */
   @Override
   @SuppressWarnings("unchecked")
-  public Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType) {
+  public synchronized Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType) {
+    // TODO if this is called frequently it might be better to use nested maps to avoid creating lots of Pairs
     Pair<String, Class<?>> key = (Pair<String, Class<?>>) Pairs.of(outputName, targetType);
     if (_functionTypesForOutputs.containsKey(key)) {
       return (Class<? extends OutputFunction<?, ?>>) _functionTypesForOutputs.get(key);
     } else {
+      // TODO walk up the type hierarchy and try each type, cache the result
       throw new DataNotFoundException("No function found for output " + outputName + " and targetType " + targetType.getName());
     }
   }
 
+  // this is to allow the user to choose different implementations of functions when constructing the graph
+  /**
+   * Returns all known classes that implement an interface
+   * @param functionInterface The interface
+   * @return A set of classes that implement it TODO empty set or DataNotFoundException if there are none?
+   */
   @Override
-  public Set<Class<?>> getFunctionImplementations(Class<?> functionInterface) {
+  public synchronized Set<Class<?>> getFunctionImplementations(Class<?> functionInterface) {
     // TODO implement getFunctionImplementations()
     throw new UnsupportedOperationException("getFunctionImplementations not implemented");
   }
 
   @SuppressWarnings("unchecked")
-  public void register(Class<?> type) {
+  public synchronized void register(Class<?> type) {
     if (OutputFunction.class.isAssignableFrom(type) && type.isInterface()) {
       registerOutput((Class<? extends OutputFunction<?, ?>>) type);
-    } else if (type.isInterface()) {
-      registerInterface(type);
     } else {
       registerImplementation(type);
     }
   }
 
-  // TODO is this actually necessary?
-  // interfaces are either output functions (in which case they use registerOutput)
-  // or they're direct dependencies of other classes in which case they don't need to be registered
-  // but what about output names on intermediate results? e.g. for additional outputs. might need to register for that
-  private void registerInterface(Class<?> type) {
-    // TODO implement MapFunctionRepo.registerInterface()
-    throw new UnsupportedOperationException("registerInterface not implemented");
-  }
-
   private void registerOutput(Class<? extends OutputFunction<?, ?>> type) {
-    // TODO register the default impl?
+    // TODO register the default impl? it will be found anyway from the annotation. is there any other reason?
+    // user will need to know all possible implementations for configuring the view
     String outputName = EngineFunctionUtils.getOutputName(type);
     Set<String> outputNames;
     Class<?> targetType = EngineFunctionUtils.getTargetType(type);
     if (_valueNamesByType.containsKey(targetType)) {
-      // TODO this is a race condition. if anyone cares about multi-threaded registration it could be fixed
-      // with a loop and putIfAbsent / replace
-      outputNames = ImmutableSet.<String>builder().addAll(_valueNamesByType.get(targetType)).add(outputName).build();
+      _valueNamesByType.get(targetType).add(outputName);
     } else {
-      outputNames = ImmutableSet.of(outputName);
+      outputNames = Sets.newHashSet(outputName);
+      _valueNamesByType.put(targetType, outputNames);
     }
-    _valueNamesByType.put(targetType, outputNames);
-    // TODO this is completely inadequate ATM as it doesn't deal with subtyping
     _functionTypesForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), type);
   }
 
   // needed for implementations of interfaces where type isn't named as @DefaultImplementation
   private void registerImplementation(Class<?> type) {
-    // TODO implement MapFunctionRepo.registerImplementation()
+    // TODO store an entry for this class against all interfaces it implements. what about dupes?
     throw new UnsupportedOperationException("registerImplementation not implemented");
   }
 }

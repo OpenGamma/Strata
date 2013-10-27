@@ -53,7 +53,7 @@ public class EquityDescriptionTest {
   @Test
   public void idImplDefaultArgs() {
     Map<Class<?>, Class<?>> typeMap = ImmutableMap.<Class<?>, Class<?>>of(EquityDescriptionFunction.class,
-                                                                          EquityIdDescription.class);
+                                                                          CashFlowIdDescription.class);
     Map<Class<?>, FunctionArguments> argsMap = Collections.emptyMap();
     FunctionConfig config = new FunctionConfig(typeMap, argsMap);
     Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
@@ -65,7 +65,7 @@ public class EquityDescriptionTest {
   @Test
   public void idImplOverriddenArgs() {
     Map<Class<?>, Class<?>> typeMap = ImmutableMap.<Class<?>, Class<?>>of(EquityDescriptionFunction.class,
-                                                                          EquityIdDescription.class);
+                                                                          CashFlowIdDescription.class);
     Map<String, Object> argsMap = ImmutableMap.<String, Object>of("scheme", ExternalSchemes.ACTIVFEED_TICKER);
     FunctionArguments fnArgs = new FunctionArguments(argsMap);
     Map<Class<?>, FunctionArguments> args = ImmutableMap.<Class<?>, FunctionArguments>of(IdScheme.class, fnArgs);
