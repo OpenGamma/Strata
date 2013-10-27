@@ -27,6 +27,11 @@ public final class MapFunctionRepo implements FunctionRepo {
   // TODO use a synchronized multimap? this is unlikely to be a performance hot spot
   private final ConcurrentMap<Class<?>, Set<String>> _valueNamesByType = Maps.newConcurrentMap();
 
+  /**
+   * Map of output name / target type to the function type that provides it. Only one function type is allowed for
+   * each output/type pair but it must implement {@link OutputFunction} and is normally an interface so there
+   * can but multiple implementations configured using the normal override mechanism.
+   */
   private final ConcurrentMap<Pair<String, Class<?>>, Class<?>> _functionTypesForOutputs = Maps.newConcurrentMap();
 
   @Override

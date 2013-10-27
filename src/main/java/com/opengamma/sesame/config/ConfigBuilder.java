@@ -30,6 +30,35 @@ public final class ConfigBuilder {
   private ConfigBuilder() {
   }
 
+  public static void main(String[] args) {
+    ViewDef viewDef =
+        viewDef("name",
+                column("Description",
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class),
+                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class)),
+                column("Bloomberg Ticker",
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                              config(
+                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                              config(
+                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class)))),
+                column("ACTIV Symbol",
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                              config(
+                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
+                                  arguments(
+                                      function(IdScheme.class,
+                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                              config(
+                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
+                                  arguments(
+                                      function(IdScheme.class,
+                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
+    System.out.println(viewDef);
+  }
+
   public static ViewDef viewDef(String name, ViewColumn... columns) {
     return new ViewDef(name, Arrays.asList(columns));
   }
@@ -129,34 +158,5 @@ public final class ConfigBuilder {
       _name = name;
       _value = value;
     }
-  }
-
-  public static void main(String[] args) {
-    ViewDef viewDef =
-        viewDef("name",
-                column("Description",
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class)),
-                column("Bloomberg Ticker",
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
-                              config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
-                              config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class)))),
-                column("ACTIV Symbol",
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
-                              config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
-                              config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
-    System.out.println(viewDef);
   }
 }

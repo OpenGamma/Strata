@@ -9,7 +9,9 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.collect.Maps;
 import com.opengamma.sesame.config.ConfigUtils;
 
 /**
@@ -20,6 +22,8 @@ public final class EngineFunctionUtils {
   private EngineFunctionUtils() {
   }
 
+  private static ConcurrentMap<Class<?>, Class<?>> s_targetTypes = Maps.newConcurrentMap();
+
   public static String getOutputName(Class<? extends OutputFunction<?, ?>> type) {
     OutputName annotation = type.getAnnotation(OutputName.class);
     if (annotation == null) {
@@ -29,30 +33,23 @@ public final class EngineFunctionUtils {
     return annotation.value();
   }
 
-  // TODO this will fail if the class doesn't directly implement OutputFunction
   public static Class<?> getTargetType(Class<? extends OutputFunction<?, ?>> type) {
+    if (s_targetTypes.containsKey(type)) {
+      return s_targetTypes.get(type);
+    }
     Set<Class<?>> supertypes = ConfigUtils.getSupertypes(type);
     for (Class<?> supertype : supertypes) {
       for (Type anInterface : supertype.getGenericInterfaces()) {
         if (anInterface instanceof ParameterizedType && ((ParameterizedType) anInterface).getRawType().equals(OutputFunction.class)) {
           Type targetType = ((ParameterizedType) anInterface).getActualTypeArguments()[0];
+          // cache the result, it won't change and it will save walking up the type hierarchy every time
+          s_targetTypes.put(type, (Class<?>) targetType);
           return (Class<?>) targetType;
         }
       }
     }
     throw new IllegalArgumentException("execute method not found on " + type.getName()); // shouldn't happen
   }
-
-  /*
-  public static Class<?> getTargetType(Class<? extends OutputFunction<?, ?>> type) {
-    for (Type anInterface : type.getGenericInterfaces()) {
-      if (anInterface instanceof ParameterizedType && ((ParameterizedType) anInterface).getRawType().equals(OutputFunction.class)) {
-        Type targetType = ((ParameterizedType) anInterface).getActualTypeArguments()[0];
-        return (Class<?>) targetType;
-      }
-    }
-    throw new IllegalArgumentException("execute method not found on " + type.getName()); // shouldn't happen
-  }*/
 
   public static Class<?> getDefaultImplementation(Class<?> type) {
     if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {

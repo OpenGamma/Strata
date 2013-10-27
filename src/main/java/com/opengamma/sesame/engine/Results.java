@@ -8,6 +8,7 @@ package com.opengamma.sesame.engine;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 
 /**
@@ -18,7 +19,15 @@ public class Results {
   private final Map<ObjectId, Map<String, Object>> _results;
 
   /* package */ Results(Map<ObjectId, Map<String, Object>> results) {
+    // TODO copy into immutable map so can be safely shared
     _results = results;
+  }
+
+  /* package */ Map<String, Object> getTargetResults(ObjectId targetId) {
+    if (!_results.containsKey(targetId)) {
+      throw new DataNotFoundException("No results for target ID " + targetId);
+    }
+    return _results.get(targetId);
   }
 
   @Override
