@@ -40,14 +40,14 @@ import com.opengamma.sesame.function.OutputFunction;
    * Decorates the root function of the tree with a {@link SecurityFunctionDecorator}.
    * The type signature doesn't constrain the types of tree and function required. It is possible to create a
    * signature that does but the generics are too hair-raising to be worth it.
-   * @param tree Tree whose root function is a {@link OutputFunction} that takes a security argument
+   * @param functionTree Tree whose root function is a {@link OutputFunction} that takes a security argument
    * @return A Tree whose root function is a {@link OutputFunction} that takes a {@link PositionOrTrade} argument
    * @throws IllegalArgumentException If the tree's root function isn't a {@link OutputFunction} that
    * takes a {@link PositionOrTrade} argument
    */
   @SuppressWarnings("unchecked")
-  /* package */ static <T> Tree<T> decorateRoot(Tree<T> tree) {
-    Function<?> rootFunction = tree.getRootFunction();
+  /* package */ static <T> FunctionTree<T> decorateRoot(FunctionTree<T> functionTree) {
+    Function<?> rootFunction = functionTree.getRootFunction();
     if (!OutputFunction.class.isAssignableFrom(rootFunction.getType())) {
       throw new IllegalArgumentException("The tree's root function type " + rootFunction.getType().getName() +
                                              "doesn't implement PortfolioOutputFunction");
@@ -62,6 +62,6 @@ import com.opengamma.sesame.function.OutputFunction;
     List<Node> args = Lists.<Node>newArrayList(rootFunction);
     Constructor<?> constructor = SecurityFunctionDecorator.class.getDeclaredConstructors()[0];
     Function<?> decorator = new Function<>(constructor, args);
-    return (Tree<T>) new Tree<>(decorator);
+    return (FunctionTree<T>) new FunctionTree<>(decorator);
   }
 }

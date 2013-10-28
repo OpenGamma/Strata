@@ -25,9 +25,9 @@ import com.opengamma.sesame.function.OutputFunction;
 public final class Graph {
 
   // this is actually Map<String, Map<ObjectId, PortfolioOutputFunction<?, ?>>> but even an unsafe cast won't work
-  private final Map<String, Map<ObjectId, Tree<?>>> _functionTrees;
+  private final Map<String, Map<ObjectId, FunctionTree<?>>> _functionTrees;
 
-  private Graph(Map<String, Map<ObjectId, Tree<?>>> functionTrees) {
+  private Graph(Map<String, Map<ObjectId, FunctionTree<?>>> functionTrees) {
     _functionTrees = functionTrees;
   }
 
@@ -35,28 +35,28 @@ public final class Graph {
                               Collection<? extends PositionOrTrade> targets,
                               Map<Class<?>, Object> infrastructure,
                               FunctionRepo functionRepo) {
-    ImmutableMap.Builder<String, Map<ObjectId, Tree<?>>> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Map<ObjectId, FunctionTree<?>>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
-      ImmutableMap.Builder<ObjectId, Tree<?>> columnBuilder = ImmutableMap.builder();
+      ImmutableMap.Builder<ObjectId, FunctionTree<?>> columnBuilder = ImmutableMap.builder();
       Map<Class<?>, ColumnOutput> requirements = column.getRequirements();
       for (PositionOrTrade positionOrTrade : targets) {
-        Tree<?> tree;
+        FunctionTree<?> functionTree;
         if (requirements.containsKey(positionOrTrade.getClass())) {
           ColumnOutput requirement = requirements.get(positionOrTrade.getClass());
           Class<?> outputFunctionType = functionRepo.getFunctionType(requirement.getOutputName(), positionOrTrade.getClass());
-          tree = Tree.forFunction(outputFunctionType, requirement.getFunctionConfig(), infrastructure.keySet());
-          columnBuilder.put(positionOrTrade.getUniqueId().getObjectId(), tree);
+          functionTree = FunctionTree.forFunction(outputFunctionType, requirement.getFunctionConfig(), infrastructure.keySet());
+          columnBuilder.put(positionOrTrade.getUniqueId().getObjectId(), functionTree);
         } else if (requirements.containsKey(positionOrTrade.getSecurity().getClass())) {
           Security security = positionOrTrade.getSecurity();
           ColumnOutput requirement = requirements.get(security.getClass());
           Class<?> outputFunctionType = functionRepo.getFunctionType(requirement.getOutputName(), security.getClass());
-          Tree<?> securityTree = Tree.forFunction(outputFunctionType, requirement.getFunctionConfig(), infrastructure.keySet());
-          tree = SecurityFunctionDecorator.decorateRoot(securityTree);
+          FunctionTree<?> securityTree = FunctionTree.forFunction(outputFunctionType, requirement.getFunctionConfig(), infrastructure.keySet());
+          functionTree = SecurityFunctionDecorator.decorateRoot(securityTree);
         } else {
-          tree = Tree.forFunction(NoOutputFunction.class);
+          functionTree = FunctionTree.forFunction(NoOutputFunction.class);
         }
         // TODO how will this work for in-memory trades? assign an ID?
-        columnBuilder.put(positionOrTrade.getUniqueId().getObjectId(), tree);
+        columnBuilder.put(positionOrTrade.getUniqueId().getObjectId(), functionTree);
       }
       builder.put(column.getName(), columnBuilder.build());
     }
@@ -69,13 +69,13 @@ public final class Graph {
    */
   public FunctionGraph build(Map<Class<?>, Object> infrastructure) {
     ImmutableMap.Builder<String, Map<ObjectId, OutputFunction<?, ?>>> builder = ImmutableMap.builder();
-    for (Map.Entry<String, Map<ObjectId, Tree<?>>> entry : _functionTrees.entrySet()) {
-      Map<ObjectId, Tree<?>> functionsByTargetId = entry.getValue();
+    for (Map.Entry<String, Map<ObjectId, FunctionTree<?>>> entry : _functionTrees.entrySet()) {
+      Map<ObjectId, FunctionTree<?>> functionsByTargetId = entry.getValue();
       ImmutableMap.Builder<ObjectId, OutputFunction<?, ?>> columnBuilder = ImmutableMap.builder();
-      for (Map.Entry<ObjectId, Tree<?>> columnEntry : functionsByTargetId.entrySet()) {
+      for (Map.Entry<ObjectId, FunctionTree<?>> columnEntry : functionsByTargetId.entrySet()) {
         ObjectId targetId = columnEntry.getKey();
-        Tree<?> tree = columnEntry.getValue();
-        columnBuilder.put(targetId, (OutputFunction<?, ?>) tree.build(infrastructure));
+        FunctionTree<?> functionTree = columnEntry.getValue();
+        columnBuilder.put(targetId, (OutputFunction<?, ?>) functionTree.build(infrastructure));
       }
       String columnName = entry.getKey();
       builder.put(columnName, columnBuilder.build());

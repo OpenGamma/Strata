@@ -53,9 +53,9 @@ public class EngineTest {
   private static final UniqueId CASH_FLOW_TRADE_ID = UniqueId.of("trdId", "432");
   private static final String CASH_FLOW_NAME = "A cash flow security";
 
-  private static final String DESCRIPTION_COLUMN = "Description";
-  private static final String BLOOMBERG_COLUMN = "Bloomberg Ticker";
-  private static final String ACTIV_COLUMN = "ACTIV Symbol";
+  private static final String DESCRIPTION_HEADER = "Description";
+  private static final String BLOOMBERG_HEADER = "Bloomberg Ticker";
+  private static final String ACTIV_HEADER = "ACTIV Symbol";
   private static final String EQUITY_BLOOMBERG_TICKER = "ACME US Equity";
   private static final String EQUITY_ACTIV_SYMBOL = "ACME.";
   private static final String CASH_FLOW_BLOOMBERG_TICKER = "TEST US Cash Flow";
@@ -65,7 +65,7 @@ public class EngineTest {
   public void defaultFunctionImpls() {
     ViewDef viewDef =
         viewDef("Trivial Test View",
-                column(DESCRIPTION_COLUMN,
+                column(DESCRIPTION_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class)));
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
@@ -76,7 +76,7 @@ public class EngineTest {
     view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
-    assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_COLUMN));
+    assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
     System.out.println(results);
   }
 
@@ -84,17 +84,17 @@ public class EngineTest {
   public void overridesAndConfig() {
     ViewDef viewDef =
         viewDef("name",
-                column(DESCRIPTION_COLUMN,
+                column(DESCRIPTION_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class)),
-                column(BLOOMBERG_COLUMN,
+                column(BLOOMBERG_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   overrides(EquityDescriptionFunction.class, EquityIdDescription.class))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
                                   overrides(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
-                column(ACTIV_COLUMN,
+                column(ACTIV_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
@@ -119,14 +119,14 @@ public class EngineTest {
     Results results = listener.getResults();
     
     Map<String, Object> equityResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
-    assertEquals(EQUITY_NAME, equityResults.get(DESCRIPTION_COLUMN));
-    assertEquals(EQUITY_BLOOMBERG_TICKER, equityResults.get(BLOOMBERG_COLUMN));
-    assertEquals(EQUITY_ACTIV_SYMBOL, equityResults.get(ACTIV_COLUMN));
+    assertEquals(EQUITY_NAME, equityResults.get(DESCRIPTION_HEADER));
+    assertEquals(EQUITY_BLOOMBERG_TICKER, equityResults.get(BLOOMBERG_HEADER));
+    assertEquals(EQUITY_ACTIV_SYMBOL, equityResults.get(ACTIV_HEADER));
     
     Map<String, Object> cashFlowResults = results.getTargetResults(CASH_FLOW_TRADE_ID.getObjectId());
-    assertEquals(CASH_FLOW_NAME, cashFlowResults.get(DESCRIPTION_COLUMN));
-    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, cashFlowResults.get(BLOOMBERG_COLUMN));
-    assertEquals(CASH_FLOW_ACTIV_SYMBOL, cashFlowResults.get(ACTIV_COLUMN));
+    assertEquals(CASH_FLOW_NAME, cashFlowResults.get(DESCRIPTION_HEADER));
+    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, cashFlowResults.get(BLOOMBERG_HEADER));
+    assertEquals(CASH_FLOW_ACTIV_SYMBOL, cashFlowResults.get(ACTIV_HEADER));
     
     System.out.println(results);
   }

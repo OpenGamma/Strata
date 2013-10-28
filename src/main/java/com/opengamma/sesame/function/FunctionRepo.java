@@ -24,6 +24,7 @@ import java.util.Set;
  */
 public interface FunctionRepo {
 
+  // TODO also need the reverse of this, show target types for an output
   // for when the user is configuring a column
   Set<String> getAvailableOutputs(Class<?> targetType);
 

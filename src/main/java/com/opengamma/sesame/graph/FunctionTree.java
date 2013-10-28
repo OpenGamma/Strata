@@ -25,14 +25,13 @@ import com.opengamma.sesame.function.UserParam;
  * TODO joda bean? needs to be serializable along with all Node subclasses.
  * need support for final fields or immutable inheritance
  * in the mean time could make Node.getDependencies() abstract and put the field in every subclass
- * TODO name change? FunctionTree? DependencyTree?
  */
-public final class Tree<T> {
+public final class FunctionTree<T> {
 
   private final Function<T> _root;
 
   // TODO this shouldn't be public but is used by SecurityFunctionDecorator
-  public Tree(Function<T> root) {
+  public FunctionTree(Function<T> root) {
     _root = root;
   }
 
@@ -40,16 +39,16 @@ public final class Tree<T> {
     return _root;
   }
 
-  public static <T> Tree<T> forFunction(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
-    return new Tree<>(createNode(functionType, config, infrastructure));
+  public static <T> FunctionTree<T> forFunction(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
+    return new FunctionTree<>(createNode(functionType, config, infrastructure));
   }
 
-  public static <T> Tree<T> forFunction(Class<T> functionType, FunctionConfig config) {
-    return new Tree<>(createNode(functionType, config, Collections.<Class<?>>emptySet()));
+  public static <T> FunctionTree<T> forFunction(Class<T> functionType, FunctionConfig config) {
+    return new FunctionTree<>(createNode(functionType, config, Collections.<Class<?>>emptySet()));
   }
 
-  public static <T> Tree<T> forFunction(Class<T> functionType) {
-    return new Tree<>(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
+  public static <T> FunctionTree<T> forFunction(Class<T> functionType) {
+    return new FunctionTree<>(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
   }
 
   @SuppressWarnings("unchecked")

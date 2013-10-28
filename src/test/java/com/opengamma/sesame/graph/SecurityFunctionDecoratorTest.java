@@ -25,8 +25,8 @@ public class SecurityFunctionDecoratorTest {
 
   @Test
   public void decorateRoot() {
-    Tree<Fn> tree = Tree.forFunction(Fn.class);
-    Tree<?> decoratedTree = SecurityFunctionDecorator.decorateRoot(tree);
+    FunctionTree<Fn> functionTree = FunctionTree.forFunction(Fn.class);
+    FunctionTree<?> decoratedTree = SecurityFunctionDecorator.decorateRoot(functionTree);
     Object fn = decoratedTree.build(Collections.<Class<?>, Object>emptyMap());
     EquitySecurity security = new EquitySecurity("exc", "exc", "compName", Currency.AUD);
     SimpleTrade trade = new SimpleTrade();

@@ -22,7 +22,7 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.config.FunctionConfig;
-import com.opengamma.sesame.graph.Tree;
+import com.opengamma.sesame.graph.FunctionTree;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -45,8 +45,8 @@ public class EquityDescriptionTest {
 
   @Test
   public void defaultImpl() {
-    Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class);
-    EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
+    FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class);
+    EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
     String description = fn.execute(SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
@@ -54,8 +54,9 @@ public class EquityDescriptionTest {
   @Test
   public void idImplDefaultArgs() {
     FunctionConfig config = config(overrides(EquityDescriptionFunction.class, EquityIdDescription.class));
-    Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
-    EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
+    FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class,
+                                                                                    config);
+    EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
     String description = fn.execute(SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
@@ -67,8 +68,9 @@ public class EquityDescriptionTest {
                arguments(
                    function(IdScheme.class,
                             argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))));
-    Tree<EquityDescriptionFunction> tree = Tree.forFunction(EquityDescriptionFunction.class, config);
-    EquityDescriptionFunction fn = tree.build(INFRASTRUCTURE);
+    FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class,
+                                                                                    config);
+    EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
     String description = fn.execute(SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }

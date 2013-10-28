@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
 public final class ViewColumn implements ImmutableBean {
 
   // TODO default value requirement name for types that don't specify one? but won't know if it's valid for all
+  // TODO default ColumnOutput/FunctionConfig applied to all target types that don't have overrides?
 
   /** Column name. */
   @PropertyDefinition(validate = "notEmpty")

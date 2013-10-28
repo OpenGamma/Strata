@@ -67,10 +67,16 @@ public final class ConfigBuilder {
     return new ViewColumn(name, Arrays.asList(requirements));
   }
 
+  public static ViewColumn column(String name, String outputName) {
+    //return new ViewColumn(name, Arrays.asList(requirements));
+    throw new UnsupportedOperationException();
+  }
+
   public static ColumnOutput output(String outputName, Class<?> targetType) {
     return new ColumnOutput(outputName, targetType);
   }
 
+  // TODO version that just takes config, the target type should be implicit
   public static ColumnOutput output(String outputName, Class<?> targetType, FunctionConfig config) {
     return new ColumnOutput(outputName, targetType, config);
   }

@@ -27,7 +27,7 @@ import com.opengamma.sesame.function.UserParam;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class TreeTest {
+public class FunctionTreeTest {
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
   private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
@@ -36,16 +36,16 @@ public class TreeTest {
 
   @Test
   public void defaultImpl() {
-    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class);
-    TestFunction fn = tree.build(INFRASTRUCTURE);
+    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class);
+    TestFunction fn = functionTree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof DefaultImpl);
   }
 
   @Test
   public void overriddenImpl() {
     FunctionConfig config = config(overrides(TestFunction.class, AlternativeImpl.class));
-    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
-    TestFunction fn = tree.build(INFRASTRUCTURE);
+    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config);
+    TestFunction fn = functionTree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof AlternativeImpl);
   }
 
@@ -53,8 +53,10 @@ public class TreeTest {
   public void infrastructure() {
     ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
     FunctionConfig config = config(overrides(TestFunction.class, InfrastructureImpl.class));
-    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config, infrastructure.keySet());
-    TestFunction fn = tree.build(infrastructure);
+    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class,
+                                                                       config,
+                                                                       infrastructure.keySet());
+    TestFunction fn = functionTree.build(infrastructure);
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
@@ -63,8 +65,8 @@ public class TreeTest {
   @Test
   public void defaultUserParams() {
     FunctionConfig config = config(overrides(TestFunction.class, UserParameters.class));
-    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
-    TestFunction fn = tree.build(INFRASTRUCTURE);
+    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config);
+    TestFunction fn = functionTree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
     assertEquals(9, ((UserParameters) fn)._i);
@@ -79,8 +81,8 @@ public class TreeTest {
                arguments(
                    function(UserParameters.class,
                             argument("i", 12))));
-    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
-    TestFunction fn = tree.build(INFRASTRUCTURE);
+    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config);
+    TestFunction fn = functionTree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
     assertEquals(12, ((UserParameters) fn)._i);
@@ -91,8 +93,8 @@ public class TreeTest {
   @Test
   public void functionCallingOtherFunction() {
     FunctionConfig config = config(overrides(TestFunction.class, CallsOtherFunction.class));
-    Tree<TestFunction> tree = Tree.forFunction(TestFunction.class, config);
-    TestFunction fn = tree.build(INFRASTRUCTURE);
+    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config);
+    TestFunction fn = functionTree.build(INFRASTRUCTURE);
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
     assertTrue(((CallsOtherFunction) fn)._collaborator instanceof Collaborator);

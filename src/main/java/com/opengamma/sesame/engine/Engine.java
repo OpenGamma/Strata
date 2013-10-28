@@ -95,6 +95,7 @@ import com.opengamma.sesame.graph.Graph;
       Results.Builder resultsBuilder = new Results.Builder();
       for (Future<TaskResult> future : futures) {
         try {
+          // TODO this won't do as a long term solution, it will block indefinitely if a function blocks
           TaskResult result = future.get();
           resultsBuilder.add(result._columnName, result._targetId, result._result);
         } catch (InterruptedException | ExecutionException e) {
