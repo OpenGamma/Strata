@@ -9,5 +9,5 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 
 public interface EquityPresentValueFunction {
 
-  FunctionResult<Double> calculateEquityPresentValue(MarketDataContext marketDataContext, EquitySecurity security);
+  FunctionResult<Double> calculateEquityPresentValue(MarketData marketData, EquitySecurity security);
 }

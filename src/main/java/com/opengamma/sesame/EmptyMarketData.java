@@ -10,20 +10,20 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * A MarketDataContext that contains no market data which can be used on
+ * A MarketData that contains no market data which can be used on
  * an initial request. As it has no market data, it simplifies the checks
  * to be done when market data is requested.
  */
-public class EmptyMarketDataContext implements MarketDataContext {
+public class EmptyMarketData implements MarketData {
 
   private final MarketDataResultGenerator _resultGenerator;
 
-  public EmptyMarketDataContext(MarketDataResultGenerator resultGenerator) {
+  public EmptyMarketData(MarketDataResultGenerator resultGenerator) {
     _resultGenerator = resultGenerator;
   }
 
   @Override
-  public MarketDataFunctionResult retrieveMarketData(Set<MarketDataRequirement> requiredMarketData) {
+  public MarketDataFunctionResult retrieveItems(Set<MarketDataRequirement> requiredMarketData) {
 
     // We can just flag everything as missing
     return _resultGenerator.marketDataResultBuilder()
@@ -32,7 +32,7 @@ public class EmptyMarketDataContext implements MarketDataContext {
   }
 
   @Override
-  public MarketDataFunctionResult retrieveMarketData(MarketDataRequirement requiredMarketData) {
-    return retrieveMarketData(ImmutableSet.of(requiredMarketData));
+  public MarketDataFunctionResult retrieveItem(MarketDataRequirement requiredMarketData) {
+    return retrieveItems(ImmutableSet.of(requiredMarketData));
   }
 }

@@ -25,20 +25,20 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.util.money.Currency;
 
-public class MarketDataContextTest {
+public class MarketDataTest {
 
-  private MarketDataContext _marketDataContext;
+  private MarketData _marketData;
 
   @BeforeTest
   public void setUp() {
-    _marketDataContext = createEmptyMarketDataContext();
+    _marketData = createEmptyMarketDataContext();
   }
 
   @Test
   public void testAskingForSingleMarketDataItemMeansRequestIsStored() {
 
     MarketDataRequirement requirement = createEquityRequirement();
-    MarketDataFunctionResult result = _marketDataContext.retrieveMarketData(ImmutableSet.of(requirement));
+    MarketDataFunctionResult result = _marketData.retrieveItems(ImmutableSet.of(requirement));
 
     assertThat(result.getStatus(), is(AWAITING_MARKET_DATA));
     assertThat(result.getRequiredMarketData().size(), is(1));
@@ -53,7 +53,7 @@ public class MarketDataContextTest {
     requirements.add(createEquityRequirement());
     requirements.add(createFraRequirement());
 
-    MarketDataFunctionResult result = _marketDataContext.retrieveMarketData(requirements);
+    MarketDataFunctionResult result = _marketData.retrieveItems(requirements);
 
     assertThat(result.getStatus(), is(AWAITING_MARKET_DATA));
 
@@ -66,10 +66,10 @@ public class MarketDataContextTest {
   public void testResultsCanBeCombined() {
 
     MarketDataRequirement eqtReqmt = createEquityRequirement();
-    MarketDataFunctionResult eqtResult = _marketDataContext.retrieveMarketData(ImmutableSet.of(eqtReqmt));
+    MarketDataFunctionResult eqtResult = _marketData.retrieveItems(ImmutableSet.of(eqtReqmt));
 
     MarketDataRequirement fraReqmt = createFraRequirement();
-    MarketDataFunctionResult fraResult = _marketDataContext.retrieveMarketData(ImmutableSet.of(fraReqmt));
+    MarketDataFunctionResult fraResult = _marketData.retrieveItems(ImmutableSet.of(fraReqmt));
 
     FunctionResult combined = eqtResult.combine(fraResult);
 
@@ -105,7 +105,7 @@ public class MarketDataContextTest {
     return security;
   }
 
-  private MarketDataContext createEmptyMarketDataContext() {
-    return new EmptyMarketDataContext(new StandardResultGenerator());
+  private MarketData createEmptyMarketDataContext() {
+    return new EmptyMarketData(new StandardResultGenerator());
   }
 }

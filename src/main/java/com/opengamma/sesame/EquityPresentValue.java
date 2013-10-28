@@ -11,10 +11,10 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 public class EquityPresentValue implements EquityPresentValueFunction {
 
   @Override
-  public FunctionResult<Double> calculateEquityPresentValue(MarketDataContext marketDataContext,
+  public FunctionResult<Double> calculateEquityPresentValue(MarketData marketData,
                                                             EquitySecurity security) {
 
-    MarketDataFunctionResult result = marketDataContext.retrieveMarketData(
+    MarketDataFunctionResult result = marketData.retrieveItem(
         StandardMarketDataRequirement.of(security, MarketDataRequirementNames.MARKET_VALUE));
 
     // todo remove the nasty cast

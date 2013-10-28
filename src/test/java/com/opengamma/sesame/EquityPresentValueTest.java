@@ -38,7 +38,7 @@ public class EquityPresentValueTest {
   @Test
   public void testMarketDataUnavailable() {
 
-    MarketDataContext marketData = new EmptyMarketDataContext(new StandardResultGenerator());
+    MarketData marketData = new EmptyMarketData(new StandardResultGenerator());
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
     FunctionResult<Double> result = _equityPresentValueFunction.calculateEquityPresentValue(marketData, security);
@@ -56,25 +56,25 @@ public class EquityPresentValueTest {
         StandardMarketDataRequirement.of(security, MarketDataRequirementNames.MARKET_VALUE),
         Pairs.of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
 
-    MarketDataContext context = new PopulatedMarketDataContext(new StandardResultGenerator(), marketData);
+    MarketData context = new PopulatedMarketData(new StandardResultGenerator(), marketData);
     FunctionResult<Double> result = _equityPresentValueFunction.calculateEquityPresentValue(context, security);
     assertThat(result.getStatus(), is(SUCCESS));
     assertThat(result.getResult(), is(123.45));
   }
 
-  private static class PopulatedMarketDataContext implements MarketDataContext {
+  private static class PopulatedMarketData implements MarketData {
 
     private final MarketDataResultGenerator _resultGenerator;
     private final Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> _requirementStatus;
 
-    private PopulatedMarketDataContext(MarketDataResultGenerator resultGenerator,
-                                       Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> requirementStatus) {
+    private PopulatedMarketData(MarketDataResultGenerator resultGenerator,
+                                Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> requirementStatus) {
       _resultGenerator = resultGenerator;
       _requirementStatus = requirementStatus;
     }
 
     @Override
-    public MarketDataFunctionResult retrieveMarketData(Set<MarketDataRequirement> requiredMarketData) {
+    public MarketDataFunctionResult retrieveItems(Set<MarketDataRequirement> requiredMarketData) {
 
       Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> result = new HashMap<>();
       Set<MarketDataRequirement> missing = new HashSet<>();
@@ -95,8 +95,8 @@ public class EquityPresentValueTest {
     }
 
     @Override
-    public MarketDataFunctionResult retrieveMarketData(MarketDataRequirement requiredMarketData) {
-      return retrieveMarketData(ImmutableSet.of(requiredMarketData));
+    public MarketDataFunctionResult retrieveItem(MarketDataRequirement requiredMarketData) {
+      return retrieveItems(ImmutableSet.of(requiredMarketData));
     }
   }
 }
