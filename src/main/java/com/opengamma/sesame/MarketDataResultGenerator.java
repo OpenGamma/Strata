@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame;
 
-public interface MarketDataValue<T> {
+public interface MarketDataResultGenerator extends ResultGenerator {
 
-  T getValue();
+  MarketDataResultBuilder marketDataResultBuilder();
 }

@@ -9,4 +9,5 @@ import java.util.Set;
 
 public interface MarketDataContext {
   MarketDataFunctionResult retrieveMarketData(Set<MarketDataRequirement> requiredMarketData);
+  MarketDataFunctionResult retrieveMarketData(MarketDataRequirement requiredMarketData);
 }

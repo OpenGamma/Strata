@@ -10,9 +10,7 @@ package com.opengamma.sesame;
  */
 public interface ResultGenerator {
 
-  <T> FunctionResult<T> generateFailureResult(FunctionResult<?> functionResult);
-
   <T> FunctionResult<T> generateSuccessResult(T resultValue);
 
-  <T> FunctionResult<T> generateFailureResult(ResultStatus missingData, String message, Object... messageParams);
+  <T> FunctionResult<T> generateFailureResult(ResultStatus status, String message, Object... messageParams);
 }

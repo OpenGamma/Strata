@@ -1,0 +1,47 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.sesame;
+
+import com.opengamma.financial.security.FinancialSecurity;
+
+public class StandardMarketDataRequirement implements MarketDataRequirement {
+
+
+  private final FinancialSecurity _security;
+  private final String _requirement;
+
+  public StandardMarketDataRequirement(FinancialSecurity security, String requirement) {
+    //To change body of created methods use File | Settings | File Templates.
+    _security = security;
+    _requirement = requirement;
+  }
+
+  public static MarketDataRequirement of(FinancialSecurity security, String marketValue) {
+
+    return new StandardMarketDataRequirement(security, marketValue);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    StandardMarketDataRequirement that = (StandardMarketDataRequirement) o;
+    return _requirement.equals(that._requirement) && _security.equals(that._security);
+
+  }
+
+  @Override
+  public int hashCode() {
+    int result = _security.hashCode();
+    result = 31 * result + _requirement.hashCode();
+    return result;
+  }
+}

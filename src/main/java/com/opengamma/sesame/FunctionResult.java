@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import java.util.Set;
+
 /**
  * The immutable result from a function containing an indication
  * of whether a value has been calculated. FunctionResults from
@@ -29,7 +31,7 @@ public interface FunctionResult<T> {
    *
    * @return
    */
-  RequiredMarketData getRequiredMarketData();
+  Set<MarketDataRequirement> getRequiredMarketData();
 
   /**
    * Indicates the status of this result. It is up to the client to decide
@@ -50,4 +52,18 @@ public interface FunctionResult<T> {
    */
   T getResult();
 
+  <N> FunctionResult<N> generateSuccessResult(N newResult);
+
+  <N> FunctionResult<N> generateFailureResult(ResultStatus status, String message, Object... args);
+
+  /**
+   * Generate a new failure result with the same details as this one but potentially
+   * with a new result type.
+   *
+   * @param <N> the result type
+   * @return a new failure result
+   */
+  <N> FunctionResult<N> generateFailureResult();
+
+  String getFailureMessage();
 }

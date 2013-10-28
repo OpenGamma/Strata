@@ -25,6 +25,11 @@
 
     <dependency>
       <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-financial</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-financial-types</artifactId>
       <version>${project.version}</version>
     </dependency>
