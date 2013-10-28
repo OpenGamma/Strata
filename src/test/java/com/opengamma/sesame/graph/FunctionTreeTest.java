@@ -53,9 +53,7 @@ public class FunctionTreeTest {
   public void infrastructure() {
     ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
     FunctionConfig config = config(overrides(TestFunction.class, InfrastructureImpl.class));
-    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class,
-                                                                       config,
-                                                                       infrastructure.keySet());
+    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config, infrastructure.keySet());
     TestFunction fn = functionTree.build(infrastructure);
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions

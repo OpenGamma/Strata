@@ -52,6 +52,8 @@ import com.opengamma.sesame.graph.Graph;
     void cycleComplete(Results results);
   }
 
+  // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
+  // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
   public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets, Listener listener) {
     Graph graph = Graph.forView(viewDef, targets, _infrastructure, _functionRepo);
     FunctionGraph functionGraph = graph.build(_infrastructure);

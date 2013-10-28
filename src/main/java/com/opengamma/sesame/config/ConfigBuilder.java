@@ -19,7 +19,7 @@ import com.opengamma.sesame.example.IdScheme;
 import com.opengamma.sesame.example.OutputNames;
 
 /**
- * Fluent API / mini DSL for building instances of {@link ViewDef} and related classes in code. See the
+ * Mini DSL for building instances of {@link ViewDef} and related classes in code. See the
  * {@link #main} method for an example.
  */
 public final class ConfigBuilder {
@@ -34,8 +34,14 @@ public final class ConfigBuilder {
     ViewDef viewDef =
         viewDef("name",
                 column("Description",
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class)),
+                       output(OutputNames.DESCRIPTION)),
+                column("Description",
+                       output(OutputNames.DESCRIPTION,
+                              config(
+                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                  arguments(
+                                      function(IdScheme.class,
+                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
                 column("Bloomberg Ticker",
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
@@ -63,22 +69,42 @@ public final class ConfigBuilder {
     return new ViewDef(name, Arrays.asList(columns));
   }
 
-  public static ViewColumn column(String name, ColumnOutput... requirements) {
-    return new ViewColumn(name, Arrays.asList(requirements));
+  private static Map<Class<?>, ColumnOutput> createTargetOutputs(TargetOutput... outputs) {
+    Map<Class<?>, ColumnOutput> targetOutputs = Maps.newHashMap();
+    for (TargetOutput output : outputs) {
+      targetOutputs.put(output._targetType, output._output);
+    }
+    return targetOutputs;
   }
 
-  public static ViewColumn column(String name, String outputName) {
-    //return new ViewColumn(name, Arrays.asList(requirements));
-    throw new UnsupportedOperationException();
+  public static ViewColumn column(String name, TargetOutput... outputs) {
+    return new ViewColumn(name, null, createTargetOutputs(outputs));
   }
 
-  public static ColumnOutput output(String outputName, Class<?> targetType) {
-    return new ColumnOutput(outputName, targetType);
+  public static ViewColumn column(String name, ColumnOutput defaultOutput) {
+    return new ViewColumn(name, defaultOutput, Collections.<Class<?>, ColumnOutput>emptyMap());
   }
 
-  // TODO version that just takes config, the target type should be implicit
-  public static ColumnOutput output(String outputName, Class<?> targetType, FunctionConfig config) {
-    return new ColumnOutput(outputName, targetType, config);
+  public static ViewColumn column(String name, ColumnOutput defaultOutput, TargetOutput... targetOutputs) {
+    return new ViewColumn(name, defaultOutput, createTargetOutputs(targetOutputs));
+  }
+
+  // for the default column output
+  public static ColumnOutput output(String outputName) {
+    return new ColumnOutput(outputName);
+  }
+
+  // for the default column output
+  public static ColumnOutput output(String outputName, FunctionConfig config) {
+    return new ColumnOutput(outputName, config);
+  }
+
+  public static TargetOutput output(String outputName, Class<?> targetType) {
+    return new TargetOutput(new ColumnOutput(outputName), targetType);
+  }
+
+  public static TargetOutput output(String outputName, Class<?> targetType, FunctionConfig config) {
+    return new TargetOutput(new ColumnOutput(outputName, config), targetType);
   }
 
   public static FunctionConfig config(Overrides overrides, Arguments arguments) {
@@ -163,6 +189,16 @@ public final class ConfigBuilder {
 
       _name = name;
       _value = value;
+    }
+  }
+
+  public static class TargetOutput {
+    private final ColumnOutput _output;
+    private final Class<?> _targetType;
+
+    public TargetOutput(ColumnOutput output, Class<?> targetType) {
+      _output = output;
+      _targetType = targetType;
     }
   }
 }

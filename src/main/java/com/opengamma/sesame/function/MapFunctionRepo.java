@@ -92,7 +92,7 @@ public final class MapFunctionRepo implements FunctionRepo {
         return functionType;
       }
     }
-    throw new DataNotFoundException("No function found for output " + outputName + " and targetType " + targetType.getName());
+    return null;
   }
 
   // this is to allow the user to choose different implementations of functions when constructing the graph

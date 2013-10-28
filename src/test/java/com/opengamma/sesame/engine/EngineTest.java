@@ -81,12 +81,30 @@ public class EngineTest {
   }
 
   @Test
+  public void defaultColumnOutput() {
+    ViewDef viewDef =
+        viewDef("Trivial Test View",
+                column(DESCRIPTION_HEADER,
+                       output(OutputNames.DESCRIPTION)));
+    MapFunctionRepo functionRepo = new MapFunctionRepo();
+    functionRepo.register(EquityDescriptionFunction.class);
+    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
+    Listener listener = new Listener();
+    List<Trade> trades = ImmutableList.of(createEquityTrade());
+    Engine.View view = engine.createView(viewDef, trades, listener);
+    view.run();
+    Results results = listener.getResults();
+    Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
+    assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
+    System.out.println(results);
+  }
+
+  @Test
   public void overridesAndConfig() {
     ViewDef viewDef =
         viewDef("name",
                 column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class)),
+                       output(OutputNames.DESCRIPTION)),
                 column(BLOOMBERG_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(

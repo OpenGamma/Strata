@@ -24,7 +24,6 @@ import com.opengamma.sesame.function.OutputFunction;
  */
 public final class Graph {
 
-  // this is actually Map<String, Map<ObjectId, PortfolioOutputFunction<?, ?>>> but even an unsafe cast won't work
   private final Map<String, Map<ObjectId, FunctionTree<?>>> _functionTrees;
 
   private Graph(Map<String, Map<ObjectId, FunctionTree<?>>> functionTrees) {
@@ -38,20 +37,35 @@ public final class Graph {
     ImmutableMap.Builder<String, Map<ObjectId, FunctionTree<?>>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
       ImmutableMap.Builder<ObjectId, FunctionTree<?>> columnBuilder = ImmutableMap.builder();
-      Map<Class<?>, ColumnOutput> requirements = column.getRequirements();
+      Map<Class<?>, ColumnOutput> outputs = column.getTargetOutputs();
       for (PositionOrTrade positionOrTrade : targets) {
         FunctionTree<?> functionTree;
-        if (requirements.containsKey(positionOrTrade.getClass())) {
-          ColumnOutput requirement = requirements.get(positionOrTrade.getClass());
-          Class<?> outputFunctionType = functionRepo.getFunctionType(requirement.getOutputName(), positionOrTrade.getClass());
-          functionTree = FunctionTree.forFunction(outputFunctionType, requirement.getFunctionConfig(), infrastructure.keySet());
-          columnBuilder.put(positionOrTrade.getUniqueId().getObjectId(), functionTree);
-        } else if (requirements.containsKey(positionOrTrade.getSecurity().getClass())) {
+        // TODO this is too much, support composition of ColumnOutputs and hide some of this logic
+        if (outputs.containsKey(positionOrTrade.getClass())) {
+          ColumnOutput output = outputs.get(positionOrTrade.getClass());
+          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), positionOrTrade.getClass());
+          functionTree = FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
+        } else if (outputs.containsKey(positionOrTrade.getSecurity().getClass())) {
           Security security = positionOrTrade.getSecurity();
-          ColumnOutput requirement = requirements.get(security.getClass());
-          Class<?> outputFunctionType = functionRepo.getFunctionType(requirement.getOutputName(), security.getClass());
-          FunctionTree<?> securityTree = FunctionTree.forFunction(outputFunctionType, requirement.getFunctionConfig(), infrastructure.keySet());
+          ColumnOutput output = outputs.get(security.getClass());
+          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), security.getClass());
+          FunctionTree<?> securityTree =
+              FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
           functionTree = SecurityFunctionDecorator.decorateRoot(securityTree);
+        } else if (column.getDefaultOutput() != null) {
+          ColumnOutput output = column.getDefaultOutput();
+          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), positionOrTrade.getClass());
+          if (functionType != null) {
+            functionTree = FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
+          } else {
+            functionType = functionRepo.getFunctionType(output.getOutputName(), positionOrTrade.getSecurity().getClass());
+            if (functionType != null) {
+              functionTree = SecurityFunctionDecorator.decorateRoot(
+                  FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet()));
+            } else {
+              functionTree = FunctionTree.forFunction(NoOutputFunction.class);
+            }
+          }
         } else {
           functionTree = FunctionTree.forFunction(NoOutputFunction.class);
         }

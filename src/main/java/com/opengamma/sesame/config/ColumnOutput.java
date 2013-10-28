@@ -23,30 +23,27 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- *
+ * TODO an interface over the top of this and FunctionConfig
  */
 @BeanDefinition
 public final class ColumnOutput implements ImmutableBean {
+
+  // TODO sentinel empty value
 
   @PropertyDefinition(validate = "notNull")
   private final String _outputName;
 
   @PropertyDefinition(validate = "notNull")
-  private final Class<?> _targetType;
-
-  @PropertyDefinition(validate = "notNull")
   private final FunctionConfig _functionConfig;
 
-  public ColumnOutput(String outputName, Class<?> targetType) {
-    this(outputName, targetType, FunctionConfig.EMPTY);
+  public ColumnOutput(String outputName) {
+    this(outputName, FunctionConfig.EMPTY);
   }
 
   @ImmutableConstructor
-  public ColumnOutput(String outputName, Class<?> targetType, FunctionConfig functionConfig) {
-    JodaBeanUtils.notNull(targetType, "targetType");
+  public ColumnOutput(String outputName, FunctionConfig functionConfig) {
     JodaBeanUtils.notNull(functionConfig, "functionConfig");
     _outputName = outputName;
-    _targetType = targetType;
     _functionConfig = functionConfig;
   }
 
@@ -99,15 +96,6 @@ public final class ColumnOutput implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the targetType.
-   * @return the value of the property, not null
-   */
-  public Class<?> getTargetType() {
-    return _targetType;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the functionConfig.
    * @return the value of the property, not null
    */
@@ -137,7 +125,6 @@ public final class ColumnOutput implements ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       ColumnOutput other = (ColumnOutput) obj;
       return JodaBeanUtils.equal(getOutputName(), other.getOutputName()) &&
-          JodaBeanUtils.equal(getTargetType(), other.getTargetType()) &&
           JodaBeanUtils.equal(getFunctionConfig(), other.getFunctionConfig());
     }
     return false;
@@ -147,17 +134,15 @@ public final class ColumnOutput implements ImmutableBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getOutputName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfig());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("ColumnOutput{");
     buf.append("outputName").append('=').append(getOutputName()).append(',').append(' ');
-    buf.append("targetType").append('=').append(getTargetType()).append(',').append(' ');
     buf.append("functionConfig").append('=').append(JodaBeanUtils.toString(getFunctionConfig()));
     buf.append('}');
     return buf.toString();
@@ -179,12 +164,6 @@ public final class ColumnOutput implements ImmutableBean {
     private final MetaProperty<String> _outputName = DirectMetaProperty.ofImmutable(
         this, "outputName", ColumnOutput.class, String.class);
     /**
-     * The meta-property for the {@code targetType} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<?>> _targetType = DirectMetaProperty.ofImmutable(
-        this, "targetType", ColumnOutput.class, (Class) Class.class);
-    /**
      * The meta-property for the {@code functionConfig} property.
      */
     private final MetaProperty<FunctionConfig> _functionConfig = DirectMetaProperty.ofImmutable(
@@ -195,7 +174,6 @@ public final class ColumnOutput implements ImmutableBean {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "outputName",
-        "targetType",
         "functionConfig");
 
     /**
@@ -209,8 +187,6 @@ public final class ColumnOutput implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case -1274044628:  // outputName
           return _outputName;
-        case 486622315:  // targetType
-          return _targetType;
         case -1567383238:  // functionConfig
           return _functionConfig;
       }
@@ -242,14 +218,6 @@ public final class ColumnOutput implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code targetType} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Class<?>> targetType() {
-      return _targetType;
-    }
-
-    /**
      * The meta-property for the {@code functionConfig} property.
      * @return the meta-property, not null
      */
@@ -263,8 +231,6 @@ public final class ColumnOutput implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case -1274044628:  // outputName
           return ((ColumnOutput) bean).getOutputName();
-        case 486622315:  // targetType
-          return ((ColumnOutput) bean).getTargetType();
         case -1567383238:  // functionConfig
           return ((ColumnOutput) bean).getFunctionConfig();
       }
@@ -289,7 +255,6 @@ public final class ColumnOutput implements ImmutableBean {
   public static final class Builder extends BasicImmutableBeanBuilder<ColumnOutput> {
 
     private String _outputName;
-    private Class<?> _targetType;
     private FunctionConfig _functionConfig;
 
     /**
@@ -306,7 +271,6 @@ public final class ColumnOutput implements ImmutableBean {
     private Builder(ColumnOutput beanToCopy) {
       super(ColumnOutput.Meta.INSTANCE);
       this._outputName = beanToCopy.getOutputName();
-      this._targetType = beanToCopy.getTargetType();
       this._functionConfig = beanToCopy.getFunctionConfig();
     }
 
@@ -316,9 +280,6 @@ public final class ColumnOutput implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case -1274044628:  // outputName
           this._outputName = (String) newValue;
-          break;
-        case 486622315:  // targetType
-          this._targetType = (Class<?>) newValue;
           break;
         case -1567383238:  // functionConfig
           this._functionConfig = (FunctionConfig) newValue;
@@ -333,7 +294,6 @@ public final class ColumnOutput implements ImmutableBean {
     public ColumnOutput build() {
       return new ColumnOutput(
           _outputName,
-          _targetType,
           _functionConfig);
     }
 
@@ -346,17 +306,6 @@ public final class ColumnOutput implements ImmutableBean {
     public Builder outputName(String outputName) {
       JodaBeanUtils.notNull(outputName, "outputName");
       this._outputName = outputName;
-      return this;
-    }
-
-    /**
-     * Sets the {@code targetType} property in the builder.
-     * @param targetType  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder targetType(Class<?> targetType) {
-      JodaBeanUtils.notNull(targetType, "targetType");
-      this._targetType = targetType;
       return this;
     }
 
@@ -374,10 +323,9 @@ public final class ColumnOutput implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("ColumnOutput.Builder{");
       buf.append("outputName").append('=').append(_outputName).append(',').append(' ');
-      buf.append("targetType").append('=').append(_targetType).append(',').append(' ');
       buf.append("functionConfig").append('=').append(_functionConfig);
       buf.append('}');
       return buf.toString();

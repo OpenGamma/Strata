@@ -41,12 +41,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-financial</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.joda</groupId>
       <artifactId>joda-beans</artifactId>
       <version>0.8.5</version>
