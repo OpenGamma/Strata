@@ -6,6 +6,7 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.sesame.MarketData;
 import com.opengamma.sesame.function.DefaultImplementation;
 import com.opengamma.sesame.function.OutputFunction;
 import com.opengamma.sesame.function.OutputName;
@@ -19,9 +20,12 @@ public interface EquityDescriptionFunction extends OutputFunction<EquitySecurity
 
   /**
    * Returns a description of the security
+   *
+   *
+   * @param marketData
    * @param security A security
    * @return A description of the security
    */
   @Override
-  String execute(EquitySecurity security);
+  String execute(MarketData marketData, EquitySecurity security);
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.function;
 
+import com.opengamma.sesame.MarketData;
+
 /**
  * Implemented by all functions that produce values for an item in a portfolio.
  * All implementations must be annotated with {@link OutputName}.
@@ -15,8 +17,12 @@ public interface OutputFunction<TTarget, TResult> {
 
   /**
    * Executes the function
+   *
+   *
+   * @param marketData
    * @param target The target of the function, a trade, position or security
    * @return The function result
    */
-  TResult execute(TTarget target);
+  // todo - would be nice if this was actually FunctionResult<TResult> execute(TTarget target)
+  TResult execute(MarketData marketData, TTarget target);
 }

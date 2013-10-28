@@ -21,6 +21,8 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.EmptyMarketData;
+import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.graph.FunctionTree;
 import com.opengamma.util.money.Currency;
@@ -47,7 +49,7 @@ public class EquityDescriptionTest {
   public void defaultImpl() {
     FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class);
     EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
-    String description = fn.execute(SECURITY);
+    String description = fn.execute(createEmptyMarketData(), SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
 
@@ -57,7 +59,7 @@ public class EquityDescriptionTest {
     FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class,
                                                                                     config);
     EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
-    String description = fn.execute(SECURITY);
+    String description = fn.execute(createEmptyMarketData(), SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
 
@@ -71,7 +73,11 @@ public class EquityDescriptionTest {
     FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class,
                                                                                     config);
     EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
-    String description = fn.execute(SECURITY);
+    String description = fn.execute(createEmptyMarketData(), SECURITY);
     assertEquals(description, ACTIV_VALUE);
+  }
+
+  private EmptyMarketData createEmptyMarketData() {
+    return new EmptyMarketData(new StandardResultGenerator());
   }
 }

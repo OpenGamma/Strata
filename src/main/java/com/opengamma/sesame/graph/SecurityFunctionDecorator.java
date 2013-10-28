@@ -11,6 +11,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
+import com.opengamma.sesame.MarketData;
 import com.opengamma.sesame.function.EngineFunctionUtils;
 import com.opengamma.sesame.function.OutputFunction;
 
@@ -32,8 +33,8 @@ import com.opengamma.sesame.function.OutputFunction;
   }
 
   @Override
-  public TResult execute(PositionOrTrade target) {
-    return _delegate.execute(target.getSecurity());
+  public TResult execute(MarketData marketData, PositionOrTrade target) {
+    return _delegate.execute(marketData, target.getSecurity());
   }
 
   /**

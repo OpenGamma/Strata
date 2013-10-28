@@ -15,6 +15,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.overrides;
 import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.AbstractExecutorService;
@@ -29,10 +30,23 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.sesame.EmptyMarketData;
+import com.opengamma.sesame.EquityPresentValueFunction;
+import com.opengamma.sesame.FunctionResult;
+import com.opengamma.sesame.MarketData;
+import com.opengamma.sesame.MarketDataRequirement;
+import com.opengamma.sesame.MarketDataStatus;
+import com.opengamma.sesame.MarketDataValue;
+import com.opengamma.sesame.SingleMarketDataValue;
+import com.opengamma.sesame.StandardMarketData;
+import com.opengamma.sesame.StandardMarketDataRequirement;
+import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.example.CashFlowDescriptionFunction;
 import com.opengamma.sesame.example.CashFlowIdDescription;
@@ -43,6 +57,8 @@ import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.MapFunctionRepo;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class EngineTest {
@@ -54,6 +70,7 @@ public class EngineTest {
   private static final String CASH_FLOW_NAME = "A cash flow security";
 
   private static final String DESCRIPTION_HEADER = "Description";
+  private static final String PRESENT_VALUE_HEADER = "PV";
   private static final String BLOOMBERG_HEADER = "Bloomberg Ticker";
   private static final String ACTIV_HEADER = "ACTIV Symbol";
   private static final String EQUITY_BLOOMBERG_TICKER = "ACME US Equity";
@@ -72,11 +89,45 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
+    Engine.View view = engine.createView(viewDef, createEmptyMarketData(), trades, listener);
     view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
+    System.out.println(results);
+  }
+
+  private EmptyMarketData createEmptyMarketData() {
+    return new EmptyMarketData(new StandardResultGenerator());
+  }
+
+  @Test
+  public void simpleFunctionWithMarketData() {
+    ViewDef viewDef =
+        viewDef("Equity PV",
+                column(PRESENT_VALUE_HEADER,
+                       output(OutputNames.PRESENT_VALUE, EquitySecurity.class)));
+
+    MapFunctionRepo functionRepo = new MapFunctionRepo();
+    functionRepo.register(EquityPresentValueFunction.class);
+    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
+    Listener listener = new Listener();
+    Trade trade = createEquityTrade();
+    List<Trade> trades = ImmutableList.of(trade);
+
+    Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> marketData = new HashMap<>();
+    marketData.put(
+        // todo - we shouldn't be casting here
+        StandardMarketDataRequirement.of((FinancialSecurity) trade.getSecurity(), MarketDataRequirementNames.MARKET_VALUE),
+        Pairs.of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+
+    MarketData context = new StandardMarketData(new StandardResultGenerator(), marketData);
+
+    Engine.View view = engine.createView(viewDef, context, trades, listener);
+    view.run();
+    Results results = listener.getResults();
+    Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
+    assertEquals(123.45, ((FunctionResult) tradeResults.get(PRESENT_VALUE_HEADER)).getResult());
     System.out.println(results);
   }
 
@@ -91,7 +142,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
+    Engine.View view = engine.createView(viewDef, createEmptyMarketData(), trades, listener);
     view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
@@ -132,7 +183,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
+    Engine.View view = engine.createView(viewDef, createEmptyMarketData(), trades, listener);
     view.run();
     Results results = listener.getResults();
     

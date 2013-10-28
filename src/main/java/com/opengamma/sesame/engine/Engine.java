@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.id.ObjectId;
+import com.opengamma.sesame.MarketData;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.OutputFunction;
@@ -54,23 +55,29 @@ import com.opengamma.sesame.graph.Graph;
 
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
-  public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets, Listener listener) {
+  public View createView(ViewDef viewDef,
+                         MarketData marketData,
+                         Collection<? extends PositionOrTrade> targets,
+                         Listener listener) {
     Graph graph = Graph.forView(viewDef, targets, _infrastructure, _functionRepo);
     FunctionGraph functionGraph = graph.build(_infrastructure);
-    return new View(functionGraph, targets, listener, _executor);
+    return new View(functionGraph, marketData, targets, listener, _executor);
   }
 
   public static class View {
 
     private final FunctionGraph _graph;
+    private final MarketData _marketData;
     private final Collection<? extends PositionOrTrade> _targets;
     private final Listener _listener;
     private final ExecutorService _executor;
 
     private View(FunctionGraph graph,
+                 MarketData marketData,
                  Collection<? extends PositionOrTrade> targets,
                  Listener listener,
                  ExecutorService executor) {
+      _marketData = marketData;
       _targets = targets;
       _listener = listener;
       _graph = graph;
@@ -85,7 +92,7 @@ import com.opengamma.sesame.graph.Graph;
         for (PositionOrTrade target : _targets) {
           ObjectId targetId = target.getUniqueId().getObjectId();
           OutputFunction<PositionOrTrade, ?> function = functionsByTargetId.get(targetId);
-          tasks.add(new Task(target, columnName, function));
+          tasks.add(new Task(_marketData, target, columnName, function));
         }
       }
       List<Future<TaskResult>> futures;
@@ -122,11 +129,16 @@ import com.opengamma.sesame.graph.Graph;
 
     private static class Task implements Callable<TaskResult> {
 
+      private final MarketData _marketData;
       private final PositionOrTrade _target;
       private final String _columnName;
       private final OutputFunction<PositionOrTrade, ?> _function;
 
-      private Task(PositionOrTrade target, String columnName, OutputFunction<PositionOrTrade, ?> function) {
+      private Task(MarketData marketData,
+                   PositionOrTrade target,
+                   String columnName,
+                   OutputFunction<PositionOrTrade, ?> function) {
+        _marketData = marketData;
         _target = target;
         _columnName = columnName;
         _function = function;
@@ -136,7 +148,7 @@ import com.opengamma.sesame.graph.Graph;
       public TaskResult call() throws Exception {
         Object result;
         try {
-          result = _function.execute(_target);
+          result = _function.execute(_marketData, _target);
         } catch (Exception e) {
           s_logger.warn("Failed to execute function", e);
           result = e;
