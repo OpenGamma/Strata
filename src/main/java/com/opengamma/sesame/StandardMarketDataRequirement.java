@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame;
 
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 
 public class StandardMarketDataRequirement implements MarketDataRequirement {
@@ -22,6 +23,10 @@ public class StandardMarketDataRequirement implements MarketDataRequirement {
   public static MarketDataRequirement of(FinancialSecurity security, String marketValue) {
 
     return new StandardMarketDataRequirement(security, marketValue);
+  }
+
+  public static MarketDataRequirement of(CurrencyPair currencyPair) {
+    return null;  //To change body of created methods use File | Settings | File Templates.
   }
 
   @Override
