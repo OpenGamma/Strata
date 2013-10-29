@@ -9,7 +9,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.sesame.config.ConfigUtils;
@@ -23,73 +25,84 @@ import com.opengamma.util.tuple.Pairs;
  */
 public final class MapFunctionRepo implements FunctionRepo {
 
-  /** Output names registered for a target type. */
-  private final Map<Class<?>, Set<String>> _outputsByType = Maps.newHashMap();
+  /** Output names registered for an input type. */
+  private final Map<Class<?>, Set<String>> _outputsByInputType = Maps.newHashMap();
 
   /**
    * All output names available for a target type. This is lazily populated by walking up the type hierarchy from
-   * the target type querying {@link #_outputsByType}.
+   * the target type querying {@link #_outputsByInputType}.
    */
-  private final Map<Class<?>, Set<String>> _allOutputsByType = Maps.newHashMap();
+  private final Map<Class<?>, Set<String>> _allOutputsByInputType = Maps.newHashMap();
 
   /**
-   * Map of output name / target type to the function type that provides it. Only one function type is allowed for
-   * each output/type pair. It must be an interface which extends {@link OutputFunction}.
+   * Map of output name / target type to the function type that provides it.
    */
-  // TODO the values need to be methods or some kind of invoker
-  private final Map<Pair<String, Class<?>>, Class<?>> _functionTypesForOutputs = Maps.newHashMap();
+  // TODO create OutputKey instead of Pair<String, Class>?
+  private final Map<Pair<String, Class<?>>, FunctionMetadata> _functionsForOutputs = Maps.newHashMap();
 
   /**
-   * The same as {@link #_functionTypesForOutputs} but includes the function types for the target type's supertypes.
+   * The same as {@link #_functionsForOutputs} but includes the function types for the target type's supertypes.
    * This is lazily populated by walking up the type hierarchy from the target type querying
-   * {@link #_functionTypesForOutputs}.
+   * {@link #_functionsForOutputs}.
    */
-  private final Map<Pair<String, Class<?>>, Class<?>> _allFunctionTypesForOutputs = Maps.newHashMap();
+  private final Map<Pair<String, Class<?>>, FunctionMetadata> _allFunctionsForOutputs = Maps.newHashMap();
+
+  /**
+   * Classes that implement registered function interfaces, keyed by the interface type.
+   */
+  private final SetMultimap<Class<?>, Class<?>> _implementationsByInterface = HashMultimap.create();
+
+  @Override
+  public Set<Class<?>> getInputTypes(String outputName) {
+    // TODO need the reverse of _outputsByInputType
+    throw new UnsupportedOperationException("getInputTypes not implemented");
+  }
 
   /**
    * Returns the names of all outputs available for a target type
-   * @param targetType The type of the target
+   * @param inputType The type of the target
    * @return All outputs that can be calculated for the target type
    */
   @Override
-  public synchronized Set<String> getAvailableOutputs(Class<?> targetType) {
-    if (_allOutputsByType.containsKey(targetType)) {
-      return _allOutputsByType.get(targetType);
+  public synchronized Set<String> getAvailableOutputs(Class<?> inputType) {
+    if (_allOutputsByInputType.containsKey(inputType)) {
+      return _allOutputsByInputType.get(inputType);
     }
-    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(targetType);
+    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(inputType);
     Set<String> outputs = Sets.newTreeSet();
     for (Class<?> supertype : supertypes) {
-      if (_outputsByType.containsKey(supertype)) {
-        outputs.addAll(_outputsByType.get(supertype));
+      if (_outputsByInputType.containsKey(supertype)) {
+        outputs.addAll(_outputsByInputType.get(supertype));
       }
     }
-    _allOutputsByType.put(targetType, outputs);
+    _allOutputsByInputType.put(inputType, outputs);
     return Collections.unmodifiableSet(outputs);
   }
 
   // this is used to build the graph
   /**
-   * Returns the type of the {@link OutputFunction} subtype that provides an output for a target type.
-   * This must be an interface annotated with {@link Output}.
+   * Returns metadata for the function that provides an output for an input type.
+   * An output is provided by a method annotated with {@link Output}.
+   *
    * @param outputName The output name
-   * @param targetType The type of the target
-   * @return The interface or class that can provide the output
+   * @param inputType The type of the input
+   * @return The function that can provide the output
    * @throws DataNotFoundException If nothing can provide the requested output for the target type
    */
   @Override
   @SuppressWarnings("unchecked")
-  public synchronized Class<?> getFunctionType(String outputName, Class<?> targetType) {
-    Pair<String, Class<?>> targetKey = (Pair<String, Class<?>>) Pairs.of(outputName, targetType);
-    if (_allFunctionTypesForOutputs.containsKey(targetKey)) {
-      return _allFunctionTypesForOutputs.get(targetKey);
+  public synchronized FunctionMetadata getOutputFunction(String outputName, Class<?> inputType) {
+    Pair<String, Class<?>> targetKey = (Pair<String, Class<?>>) Pairs.of(outputName, inputType);
+    if (_allFunctionsForOutputs.containsKey(targetKey)) {
+      return _allFunctionsForOutputs.get(targetKey);
     }
-    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(targetType);
+    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(inputType);
     for (Class<?> supertype : supertypes) {
       Pair<String, Class<?>> key = (Pair<String, Class<?>>) Pairs.of(outputName, supertype);
-      if (_functionTypesForOutputs.containsKey(key)) {
-        Class<?> functionType = _functionTypesForOutputs.get(key);
-        _allFunctionTypesForOutputs.put(targetKey, functionType);
-        return functionType;
+      if (_functionsForOutputs.containsKey(key)) {
+        FunctionMetadata function = _functionsForOutputs.get(key);
+        _allFunctionsForOutputs.put(targetKey, function);
+        return function;
       }
     }
     return null;
@@ -111,8 +124,8 @@ public final class MapFunctionRepo implements FunctionRepo {
   @SuppressWarnings("unchecked")
   public synchronized void register(Class<?> type) {
     // clear the lazily populated caches which might be out of date after registering a new type
-    _allOutputsByType.clear();
-    _allFunctionTypesForOutputs.clear();
+    _allOutputsByInputType.clear();
+    _allFunctionsForOutputs.clear();
     if (false/*has any methods with @Output annotations*/) {
       registerOutput(type);
     } else {
@@ -126,19 +139,20 @@ public final class MapFunctionRepo implements FunctionRepo {
     // user will need to know all possible implementations for configuring the view
     String outputName = EngineFunctionUtils.getOutputName(type);
     Set<String> outputNames;
-    Class<?> targetType = EngineFunctionUtils.getTargetType(type);
-    if (_outputsByType.containsKey(targetType)) {
-      _outputsByType.get(targetType).add(outputName);
+    Class<?> targetType = EngineFunctionUtils.getInputType(type);
+    if (_outputsByInputType.containsKey(targetType)) {
+      _outputsByInputType.get(targetType).add(outputName);
     } else {
       outputNames = Sets.newHashSet(outputName);
-      _outputsByType.put(targetType, outputNames);
+      _outputsByInputType.put(targetType, outputNames);
     }
-    _functionTypesForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), type);
+    _functionsForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), type);
   }
 
   // needed for implementations of interfaces where type isn't named as @DefaultImplementation
   private void registerImplementation(Class<?> type) {
     // TODO store an entry for this class against all interfaces it implements. what about dupes?
+    // need to create a map(interface -> set(implementation)) SetMultimap
     throw new UnsupportedOperationException("registerImplementation not implemented");
   }
 }

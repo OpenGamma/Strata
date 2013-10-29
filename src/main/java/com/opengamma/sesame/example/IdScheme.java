@@ -19,7 +19,7 @@ public class IdScheme implements IdSchemeFunction {
   /**
    * @param scheme The scheme to return from {@link #getScheme()}
    */
-  public IdScheme(@UserParam(name = "scheme", defaultValue = "BLOOMBERG_TICKER") ExternalScheme scheme) {
+  public IdScheme(@UserParam(name = "scheme", fallbackValue = "BLOOMBERG_TICKER") ExternalScheme scheme) {
     _scheme = scheme;
   }
 

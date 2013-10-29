@@ -71,10 +71,10 @@ public class MapFunctionRepoTest {
     MapFunctionRepo repo = new MapFunctionRepo();
     repo.register(F1.class);
     repo.register(F2.class);
-    assertEquals(F1.class, repo.getFunctionType(O1, Target1.class));
-    assertEquals(F1.class, repo.getFunctionType(O1, Target2.class));
-    assertEquals(F1.class, repo.getFunctionType(O1, Target3.class));
-    assertEquals(F2.class, repo.getFunctionType(O2, Target2.class));
-    assertEquals(F2.class, repo.getFunctionType(O2, Target3.class));
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target1.class));
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target2.class));
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target3.class));
+    assertEquals(F2.class, repo.getOutputFunction(O2, Target2.class));
+    assertEquals(F2.class, repo.getOutputFunction(O2, Target3.class));
   }
 }

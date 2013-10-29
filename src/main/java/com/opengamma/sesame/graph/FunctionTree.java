@@ -56,6 +56,8 @@ public final class FunctionTree<T> {
     return new FunctionTree<>(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
   }
 
+  // TODO does this need TypeMetadata? better to figure out the constructor and params here or there?
+  // will they ever get reused either way?
   @SuppressWarnings("unchecked")
   private static <T> Function<T> createNode(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
     Class<? extends T> implType;
@@ -99,14 +101,16 @@ public final class FunctionTree<T> {
       UserParam paramAnnotation = (UserParam) parameter.getAnnotations().get(UserParam.class);
       String paramName = paramAnnotation.name();
       Object value;
-      Object defaultValue = StringConvert.INSTANCE.convertFromString(parameter.getType(), paramAnnotation.defaultValue());
+      Object fallbackValue = StringConvert.INSTANCE.convertFromString(parameter.getType(), paramAnnotation.fallbackValue());
       if (functionArguments.hasArgument(paramName)) {
         // TODO allow the value to be a string and convert if the expected type isn't?
         value = functionArguments.getArgument(paramName);
+      } else if (fallbackValue != null) {
+        value = fallbackValue;
       } else {
-        value = defaultValue;
+        throw new IllegalArgumentException("No argument or fallback value available for parameter " + parameter);
       }
-      return new Argument(parameter.getType(), value, defaultValue);
+      return new Argument(parameter.getType(), value, fallbackValue);
     } else {
       return null;
     }

@@ -176,8 +176,8 @@ public class FunctionTreeTest {
   /* package */ final int _i;
   /* package */ final ZonedDateTime _dateTime;
 
-  /* package */ UserParameters(@UserParam(name = "i", defaultValue = "9") int i,
-                               @UserParam(name = "dateTime", defaultValue = "2011-03-08T02:18Z") ZonedDateTime dateTime) {
+  /* package */ UserParameters(@UserParam(name = "i", fallbackValue = "9") int i,
+                               @UserParam(name = "dateTime", fallbackValue = "2011-03-08T02:18Z") ZonedDateTime dateTime) {
     _i = i;
     _dateTime = dateTime;
   }

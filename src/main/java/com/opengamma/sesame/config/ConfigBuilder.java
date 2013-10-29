@@ -72,7 +72,7 @@ public final class ConfigBuilder {
   private static Map<Class<?>, ColumnOutput> createTargetOutputs(TargetOutput... outputs) {
     Map<Class<?>, ColumnOutput> targetOutputs = Maps.newHashMap();
     for (TargetOutput output : outputs) {
-      targetOutputs.put(output._targetType, output._output);
+      targetOutputs.put(output._inputType, output._output);
     }
     return targetOutputs;
   }
@@ -194,11 +194,11 @@ public final class ConfigBuilder {
 
   public static class TargetOutput {
     private final ColumnOutput _output;
-    private final Class<?> _targetType;
+    private final Class<?> _inputType;
 
-    public TargetOutput(ColumnOutput output, Class<?> targetType) {
+    public TargetOutput(ColumnOutput output, Class<?> inputType) {
       _output = output;
-      _targetType = targetType;
+      _inputType = inputType;
     }
   }
 }

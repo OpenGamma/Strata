@@ -57,7 +57,7 @@ import com.opengamma.sesame.function.OutputFunction;
     }
     Class<? extends OutputFunction<?, ?>> rootType =
         (Class<? extends OutputFunction<?, ?>>) rootFunction.getType();
-    Class<?> targetType = EngineFunctionUtils.getTargetType(rootType);
+    Class<?> targetType = EngineFunctionUtils.getInputType(rootType);
     if (!Security.class.isAssignableFrom(targetType)) {
       throw new IllegalArgumentException("The tree's root target type " + targetType.getName() + " isn't a " +
                                              "position or trade");

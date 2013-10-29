@@ -26,7 +26,7 @@ public final class EngineFunctionUtils {
   private EngineFunctionUtils() {
   }
 
-  private static ConcurrentMap<Class<?>, Class<?>> s_targetTypes = Maps.newConcurrentMap();
+  private static ConcurrentMap<Class<?>, Class<?>> s_inputTypes = Maps.newConcurrentMap();
 
   public static String getOutputName(Class<? extends OutputFunction<?, ?>> type) {
     Output annotation = type.getAnnotation(Output.class);
@@ -40,6 +40,7 @@ public final class EngineFunctionUtils {
   // TODO do I need a high level type (maybe FunctionMetadata) will metadata for a class, its constructor params
   // and each of its output methods and their params
 
+  // TODO does this logic belong in the constructor of FunctionMetadata? or TypeMetadata?
   // TODO this should return method metadata that can build an invoker
   // i.e. knows about the method and how to map the target and other args onto the parameters
   public static Set<Pair<String, Class<?>>> getOutputs(Class<?> functionType) {
@@ -56,10 +57,10 @@ public final class EngineFunctionUtils {
     return outputs;
   }
 
-  // TODO this needs to take a method
-  public static Class<?> getTargetType(Class<?> type) {
-    if (s_targetTypes.containsKey(type)) {
-      return s_targetTypes.get(type);
+  // TODO this needs to take a method or maybe FunctionMetadata
+  public static Class<?> getInputType(Class<?> type) {
+    if (s_inputTypes.containsKey(type)) {
+      return s_inputTypes.get(type);
     }
     Set<Class<?>> supertypes = ConfigUtils.getSupertypes(type);
     for (Class<?> supertype : supertypes) {
@@ -67,7 +68,7 @@ public final class EngineFunctionUtils {
         if (anInterface instanceof ParameterizedType && ((ParameterizedType) anInterface).getRawType().equals(OutputFunction.class)) {
           Type targetType = ((ParameterizedType) anInterface).getActualTypeArguments()[0];
           // cache the result, it won't change and it will save walking up the type hierarchy every time
-          s_targetTypes.put(type, (Class<?>) targetType);
+          s_inputTypes.put(type, (Class<?>) targetType);
           return (Class<?>) targetType;
         }
       }

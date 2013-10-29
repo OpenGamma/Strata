@@ -24,16 +24,20 @@ import java.util.Set;
  */
 public interface FunctionRepo {
 
-  // for when the user is configuring a column with a default output name. this shows which targets it can handle
-  Set<Class<?>> getTargetTypes(String outputName);
+  // for when the user is configuring a column with a default output name. this shows which types it can handle
+  Set<Class<?>> getInputTypes(String outputName);
 
   // for when the user is configuring a column
-  Set<String> getAvailableOutputs(Class<?> targetType);
+  Set<String> getAvailableOutputs(Class<?> inputType);
 
-  // TODO return function metadata. or method metadata which links to function metadata
-  // this assumes a single interface type provides an output for a target type - this should be true, prohibit multiple
-  // users selects output for a column/type, this gives the output function type
-  Class<?> getFunctionType(String outputName, Class<?> targetType);
+  // for when the user is configuring outputs that aren't derived from the portfolio
+  Set<String> getAvailableOutputs();
+
+  // function for outputs that take an input from the portfolio
+  FunctionMetadata getOutputFunction(String outputName, Class<?> inputType);
+
+  // function for outputs that have no parameters or only use configuration parameters
+  FunctionMetadata getOutputFunction(String outputName);
 
   // gives the available implementing types for function interfaces
   // these can be presented to the user when they're setting up the view and choosing implementation overrides
@@ -43,6 +47,6 @@ public interface FunctionRepo {
 /*
 sequence of events
   user chooses output for type -> function interface type. getOutputs
-  Tree is built for function using defaults. getFunctionType
+  Tree is built for function using defaults. getOutputFunction
   user can choose a different function impl at any point in the tree -> FunctionConfig update, tree rebuilt. getFunctionImplementations
 */

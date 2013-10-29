@@ -42,22 +42,22 @@ public final class Graph {
         // TODO this is too much, support composition of ColumnOutputs and hide some of this logic
         if (outputs.containsKey(target.getClass())) {
           ColumnOutput output = outputs.get(target.getClass());
-          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), target.getClass());
+          Class<?> functionType = functionRepo.getOutputFunction(output.getOutputName(), target.getClass());
           functionTree = FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
         } else if (outputs.containsKey(target.getSecurity().getClass())) {
           Security security = target.getSecurity();
           ColumnOutput output = outputs.get(security.getClass());
-          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), security.getClass());
+          Class<?> functionType = functionRepo.getOutputFunction(output.getOutputName(), security.getClass());
           FunctionTree<?> securityTree =
               FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
           functionTree = SecurityFunctionDecorator.decorateRoot(securityTree);
         } else if (column.getDefaultOutput() != null) {
           ColumnOutput output = column.getDefaultOutput();
-          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), target.getClass());
+          Class<?> functionType = functionRepo.getOutputFunction(output.getOutputName(), target.getClass());
           if (functionType != null) {
             functionTree = FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
           } else {
-            functionType = functionRepo.getFunctionType(output.getOutputName(), target.getSecurity().getClass());
+            functionType = functionRepo.getOutputFunction(output.getOutputName(), target.getSecurity().getClass());
             if (functionType != null) {
               functionTree = SecurityFunctionDecorator.decorateRoot(
                   FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet()));

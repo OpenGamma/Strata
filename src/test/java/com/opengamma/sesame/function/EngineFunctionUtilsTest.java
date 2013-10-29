@@ -44,8 +44,7 @@ public class EngineFunctionUtilsTest {
   }
 
   @Test
-  public void targetType() {
-    assertEquals(Double.class, EngineFunctionUtils.getTargetType(C1.class));
-    // TODO test class that indirectly implements OutputFunction
+  public void inputType() {
+    assertEquals(Double.class, EngineFunctionUtils.getInputType(C1.class));
   }
 }

@@ -19,5 +19,5 @@ public @interface UserParam {
 
   String name();
 
-  String defaultValue();
+  String fallbackValue() default "";
 }

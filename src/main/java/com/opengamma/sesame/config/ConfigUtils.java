@@ -6,6 +6,7 @@
 package com.opengamma.sesame.config;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -20,10 +21,17 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.function.Inject;
 import com.opengamma.sesame.function.Parameter;
+import com.thoughtworks.paranamer.AdaptiveParanamer;
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.CachingParanamer;
+import com.thoughtworks.paranamer.Paranamer;
+import com.thoughtworks.paranamer.PositionalParanamer;
 
 public final class ConfigUtils {
 
   private static ConcurrentMap<Class<?>, Set<Class<?>>> s_supertypes = Maps.newConcurrentMap();
+  private static Paranamer s_paranamer =
+      new CachingParanamer(new AdaptiveParanamer(new BytecodeReadingParanamer(), new PositionalParanamer()));
 
   private ConfigUtils() {
   }
@@ -64,14 +72,17 @@ public final class ConfigUtils {
   }
 
   public static List<Parameter> getParameters(Method method) {
-    return getParameters(method.getParameterTypes(), method.getParameterAnnotations());
+    return getParameters(method, method.getParameterTypes(), method.getParameterAnnotations());
   }
 
   public static List<Parameter> getParameters(Constructor<?> constructor) {
-    return getParameters(constructor.getParameterTypes(), constructor.getParameterAnnotations());
+    return getParameters(constructor, constructor.getParameterTypes(), constructor.getParameterAnnotations());
   }
 
-  private static List<Parameter> getParameters(Class<?>[] parameterTypes, Annotation[][] allAnnotations) {
+  private static List<Parameter> getParameters(AccessibleObject ctorOrMethod,
+                                               Class<?>[] parameterTypes,
+                                               Annotation[][] allAnnotations) {
+    String[] paramNames = s_paranamer.lookupParameterNames(ctorOrMethod);
     List<Parameter> parameters = Lists.newArrayList();
     for (int i = 0; i < parameterTypes.length; i++) {
       Map<Class<?>, Annotation> annotationMap = Maps.newHashMap();
@@ -80,7 +91,7 @@ public final class ConfigUtils {
       for (Annotation annotation : annotations) {
         annotationMap.put(annotation.annotationType(), annotation);
       }
-      parameters.add(new Parameter(name, type, ordinal, annotationMap));
+      parameters.add(new Parameter(paramNames[i], type, i, annotationMap));
     }
     return parameters;
   }

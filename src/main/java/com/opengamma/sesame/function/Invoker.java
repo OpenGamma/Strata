@@ -8,9 +8,9 @@ package com.opengamma.sesame.function;
 import java.util.Map;
 
 /**
- *
+ * TODO implementation that adapts function taking a security target into one which takes a position or trade
  */
 public interface Invoker {
 
-  Object invoke(Map<String, Object> args);
+  Object invoke(Object input, Map<String, Object> args);
 }
