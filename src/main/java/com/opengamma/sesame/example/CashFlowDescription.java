@@ -14,14 +14,13 @@ import com.opengamma.sesame.MarketData;
 public class CashFlowDescription implements CashFlowDescriptionFunction {
 
   /**
-   *
-   *
-   * @param marketData
+   * Returns a description of the security.
+   * @param marketData Not used
    * @param security A security
    * @return The security name
    */
   @Override
-  public String execute(MarketData marketData, CashFlowSecurity security) {
+  public String getDescription(MarketData marketData, CashFlowSecurity security) {
     return security.getName();
   }
 }

@@ -106,7 +106,7 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Equity PV",
                 column(PRESENT_VALUE_HEADER,
-                       output(OutputNames.PRESENT_VALUE, EquitySecurity.class)));
+                       output(OutputNames.PRESENT_VALUE)));
 
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);

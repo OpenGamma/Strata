@@ -24,14 +24,12 @@ public class CashFlowIdDescription implements CashFlowDescriptionFunction {
   }
 
   /**
-   *
-   *
-   * @param marketData
+   * @param marketData Not used
    * @param security A security
    * @return The value of one of the security's external IDs
    */
   @Override
-  public String execute(MarketData marketData, CashFlowSecurity security) {
+  public String getDescription(MarketData marketData, CashFlowSecurity security) {
     return security.getExternalIdBundle().getExternalId(_idSchemeFunction.getScheme()).getValue();
   }
 }

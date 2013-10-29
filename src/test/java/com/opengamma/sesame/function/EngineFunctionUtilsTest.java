@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Sets;
 import com.opengamma.sesame.MarketData;
 import com.opengamma.util.test.TestGroup;
 
@@ -18,29 +19,27 @@ public class EngineFunctionUtilsTest {
 
   /* package */ static final String VALUE_NAME = "ValueName";
 
-  @DefaultImplementation(Long.class) interface I { }
+  @FallbackImplementation(Long.class) interface I { }
 
-  @OutputName(VALUE_NAME)
-  class C1 implements OutputFunction<Double, Object> {
+  class C1 {
 
-    @Override
-    public Object execute(MarketData marketData, Double target) {
+    @Output(VALUE_NAME)
+    public Object execute(MarketData marketData, @Target Double target) {
       return null;
     }
   }
 
-  @OutputName(VALUE_NAME)
-  class C2<T> implements OutputFunction<T, Object> {
+  class C2 {
 
-    @Override
-    public Object execute(MarketData marketData, T target) {
+    @Output(VALUE_NAME)
+    public Object execute(MarketData marketData, @Target String target) {
       return null;
     }
   }
 
   @Test
   public void metadata() {
-    assertEquals(VALUE_NAME, EngineFunctionUtils.getOutputName(C1.class));
+    assertEquals(Sets.newHashSet(VALUE_NAME), EngineFunctionUtils.getOutputs(C1.class));
     assertEquals(Long.class, EngineFunctionUtils.getDefaultImplementation(I.class));
   }
 

@@ -36,6 +36,7 @@ public final class MapFunctionRepo implements FunctionRepo {
    * Map of output name / target type to the function type that provides it. Only one function type is allowed for
    * each output/type pair. It must be an interface which extends {@link OutputFunction}.
    */
+  // TODO the values need to be methods or some kind of invoker
   private final Map<Pair<String, Class<?>>, Class<?>> _functionTypesForOutputs = Maps.newHashMap();
 
   /**
@@ -69,7 +70,7 @@ public final class MapFunctionRepo implements FunctionRepo {
   // this is used to build the graph
   /**
    * Returns the type of the {@link OutputFunction} subtype that provides an output for a target type.
-   * This must be an interface annotated with {@link OutputName}.
+   * This must be an interface annotated with {@link Output}.
    * @param outputName The output name
    * @param targetType The type of the target
    * @return The interface or class that can provide the output
@@ -77,17 +78,16 @@ public final class MapFunctionRepo implements FunctionRepo {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public synchronized Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType) {
+  public synchronized Class<?> getFunctionType(String outputName, Class<?> targetType) {
     Pair<String, Class<?>> targetKey = (Pair<String, Class<?>>) Pairs.of(outputName, targetType);
     if (_allFunctionTypesForOutputs.containsKey(targetKey)) {
-      return (Class<? extends OutputFunction<?, ?>>) _allFunctionTypesForOutputs.get(targetKey);
+      return _allFunctionTypesForOutputs.get(targetKey);
     }
     Set<Class<?>> supertypes = ConfigUtils.getSupertypes(targetType);
     for (Class<?> supertype : supertypes) {
       Pair<String, Class<?>> key = (Pair<String, Class<?>>) Pairs.of(outputName, supertype);
       if (_functionTypesForOutputs.containsKey(key)) {
-        Class<? extends OutputFunction<?, ?>> functionType =
-            (Class<? extends OutputFunction<?, ?>>) _functionTypesForOutputs.get(key);
+        Class<?> functionType = _functionTypesForOutputs.get(key);
         _allFunctionTypesForOutputs.put(targetKey, functionType);
         return functionType;
       }
@@ -107,19 +107,21 @@ public final class MapFunctionRepo implements FunctionRepo {
     throw new UnsupportedOperationException("getFunctionImplementations not implemented");
   }
 
+  // type must have at least one method annotated with @Output with a parameter annotated with @Target
   @SuppressWarnings("unchecked")
   public synchronized void register(Class<?> type) {
     // clear the lazily populated caches which might be out of date after registering a new type
     _allOutputsByType.clear();
     _allFunctionTypesForOutputs.clear();
-    if (OutputFunction.class.isAssignableFrom(type) && type.isInterface()) {
-      registerOutput((Class<? extends OutputFunction<?, ?>>) type);
+    if (false/*has any methods with @Output annotations*/) {
+      registerOutput(type);
     } else {
       registerImplementation(type);
     }
   }
 
-  private void registerOutput(Class<? extends OutputFunction<?, ?>> type) {
+  // TODO this needs to process methods
+  private void registerOutput(Class<?> type) {
     // TODO register the default impl? it will be found anyway from the annotation. is there any other reason?
     // user will need to know all possible implementations for configuring the view
     String outputName = EngineFunctionUtils.getOutputName(type);

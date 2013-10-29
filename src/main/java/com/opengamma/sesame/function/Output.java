@@ -5,17 +5,17 @@
  */
 package com.opengamma.sesame.function;
 
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@java.lang.annotation.Target(ElementType.TYPE)
-public @interface DefaultImplementation {
+@Target(ElementType.METHOD)
+public @interface Output {
 
-  Class value();
+  String value();
 }

@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.config.ColumnOutput;
@@ -31,22 +30,22 @@ public final class Graph {
   }
 
   public static Graph forView(ViewDef viewDef,
-                              Collection<? extends PositionOrTrade> targets,
+                              Collection<?> targets,
                               Map<Class<?>, Object> infrastructure,
                               FunctionRepo functionRepo) {
     ImmutableMap.Builder<String, Map<ObjectId, FunctionTree<?>>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
       ImmutableMap.Builder<ObjectId, FunctionTree<?>> columnBuilder = ImmutableMap.builder();
       Map<Class<?>, ColumnOutput> outputs = column.getTargetOutputs();
-      for (PositionOrTrade positionOrTrade : targets) {
+      for (Object target : targets) {
         FunctionTree<?> functionTree;
         // TODO this is too much, support composition of ColumnOutputs and hide some of this logic
-        if (outputs.containsKey(positionOrTrade.getClass())) {
-          ColumnOutput output = outputs.get(positionOrTrade.getClass());
-          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), positionOrTrade.getClass());
+        if (outputs.containsKey(target.getClass())) {
+          ColumnOutput output = outputs.get(target.getClass());
+          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), target.getClass());
           functionTree = FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
-        } else if (outputs.containsKey(positionOrTrade.getSecurity().getClass())) {
-          Security security = positionOrTrade.getSecurity();
+        } else if (outputs.containsKey(target.getSecurity().getClass())) {
+          Security security = target.getSecurity();
           ColumnOutput output = outputs.get(security.getClass());
           Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), security.getClass());
           FunctionTree<?> securityTree =
@@ -54,11 +53,11 @@ public final class Graph {
           functionTree = SecurityFunctionDecorator.decorateRoot(securityTree);
         } else if (column.getDefaultOutput() != null) {
           ColumnOutput output = column.getDefaultOutput();
-          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), positionOrTrade.getClass());
+          Class<?> functionType = functionRepo.getFunctionType(output.getOutputName(), target.getClass());
           if (functionType != null) {
             functionTree = FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
           } else {
-            functionType = functionRepo.getFunctionType(output.getOutputName(), positionOrTrade.getSecurity().getClass());
+            functionType = functionRepo.getFunctionType(output.getOutputName(), target.getSecurity().getClass());
             if (functionType != null) {
               functionTree = SecurityFunctionDecorator.decorateRoot(
                   FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet()));
@@ -70,7 +69,7 @@ public final class Graph {
           functionTree = FunctionTree.forFunction(NoOutputFunction.class);
         }
         // TODO how will this work for in-memory trades? assign an ID?
-        columnBuilder.put(positionOrTrade.getUniqueId().getObjectId(), functionTree);
+        columnBuilder.put(target.getUniqueId().getObjectId(), functionTree);
       }
       builder.put(column.getName(), columnBuilder.build());
     }

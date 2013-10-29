@@ -9,9 +9,8 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.id.ObjectId;
-import com.opengamma.sesame.function.OutputFunction;
+import com.opengamma.sesame.function.Invoker;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -19,18 +18,19 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class FunctionGraph {
 
-  /** Map of column names -> map of target ID -> function. */
-  private final Map<String, Map<ObjectId, OutputFunction<PositionOrTrade, ?>>> _functions;
+  // TODO need a method (or invoker) for the root functions
 
-  /* package */ FunctionGraph(Map<String, Map<ObjectId, OutputFunction<?, ?>>> functions) {
-    ImmutableMap.Builder<String, Map<ObjectId, OutputFunction<PositionOrTrade, ?>>> builder = ImmutableMap.builder();
-    for (Map.Entry<String, Map<ObjectId, OutputFunction<?, ?>>> entry : functions.entrySet()) {
+  /** Map of column names -> map of target ID -> function. */
+  private final Map<String, Map<ObjectId, Object>> _functions;
+
+  /* package */ FunctionGraph(Map<String, Map<ObjectId, Object>> functions) {
+    ImmutableMap.Builder<String, Map<ObjectId, Object>> builder = ImmutableMap.builder();
+    for (Map.Entry<String, Map<ObjectId, Object>> entry : functions.entrySet()) {
       String columnName = entry.getKey();
-      ImmutableMap.Builder<ObjectId, OutputFunction<PositionOrTrade, ?>> targetBuilder = ImmutableMap.builder();
-      for (Map.Entry<ObjectId, OutputFunction<?, ?>> targetEntry : entry.getValue().entrySet()) {
+      ImmutableMap.Builder<ObjectId, Object> targetBuilder = ImmutableMap.builder();
+      for (Map.Entry<ObjectId, Object> targetEntry : entry.getValue().entrySet()) {
         ObjectId targetId = targetEntry.getKey();
-        @SuppressWarnings("unchecked")
-        OutputFunction<PositionOrTrade, ?> function = (OutputFunction<PositionOrTrade, ?>) targetEntry.getValue();
+        Object function = targetEntry.getValue();
         targetBuilder.put(targetId, function);
       }
       builder.put(columnName, targetBuilder.build());
@@ -38,7 +38,7 @@ public final class FunctionGraph {
     _functions = builder.build();
   }
 
-  public Map<ObjectId, OutputFunction<PositionOrTrade, ?>> getFunctionsForColumn(String columnName) {
+  public Map<ObjectId, Object> getFunctionsForColumn(String columnName) {
     ArgumentChecker.notEmpty(columnName, "columnName");
     if (!_functions.containsKey(columnName)) {
       throw new DataNotFoundException("Unknown column name " + columnName);
@@ -46,7 +46,7 @@ public final class FunctionGraph {
     return _functions.get(columnName);
   }
 
-  public Map<String, Map<ObjectId, OutputFunction<PositionOrTrade, ?>>> getFunctions() {
+  public Map<String, Map<ObjectId, Invoker>> getFunctions() {
     return _functions;
   }
 }

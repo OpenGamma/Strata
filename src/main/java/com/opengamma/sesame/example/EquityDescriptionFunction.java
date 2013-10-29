@@ -7,25 +7,21 @@ package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.MarketData;
-import com.opengamma.sesame.function.DefaultImplementation;
-import com.opengamma.sesame.function.OutputFunction;
-import com.opengamma.sesame.function.OutputName;
+import com.opengamma.sesame.function.FallbackImplementation;
+import com.opengamma.sesame.function.Output;
 
 /**
  * Trivial example function that returns the description of an equity security.
  */
-@DefaultImplementation(EquityDescription.class)
-@OutputName(OutputNames.DESCRIPTION)
-public interface EquityDescriptionFunction extends OutputFunction<EquitySecurity, String> {
+@FallbackImplementation(EquityDescription.class)
+public interface EquityDescriptionFunction {
 
   /**
    * Returns a description of the security
-   *
-   *
-   * @param marketData
+   * @param marketData Not used
    * @param security A security
    * @return A description of the security
    */
-  @Override
-  String execute(MarketData marketData, EquitySecurity security);
+  @Output(OutputNames.DESCRIPTION)
+  String getDescription(MarketData marketData, EquitySecurity security);
 }

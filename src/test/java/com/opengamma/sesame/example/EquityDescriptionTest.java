@@ -49,7 +49,7 @@ public class EquityDescriptionTest {
   public void defaultImpl() {
     FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class);
     EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
-    String description = fn.execute(createEmptyMarketData(), SECURITY);
+    String description = fn.getDescription(createEmptyMarketData(), SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
 
@@ -59,7 +59,7 @@ public class EquityDescriptionTest {
     FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class,
                                                                                     config);
     EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
-    String description = fn.execute(createEmptyMarketData(), SECURITY);
+    String description = fn.getDescription(createEmptyMarketData(), SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
 
@@ -73,7 +73,7 @@ public class EquityDescriptionTest {
     FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class,
                                                                                     config);
     EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
-    String description = fn.execute(createEmptyMarketData(), SECURITY);
+    String description = fn.getDescription(createEmptyMarketData(), SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }
 

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.function;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -12,7 +13,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -25,7 +29,7 @@ public final class EngineFunctionUtils {
   private static ConcurrentMap<Class<?>, Class<?>> s_targetTypes = Maps.newConcurrentMap();
 
   public static String getOutputName(Class<? extends OutputFunction<?, ?>> type) {
-    OutputName annotation = type.getAnnotation(OutputName.class);
+    Output annotation = type.getAnnotation(Output.class);
     if (annotation == null) {
       throw new IllegalArgumentException("All OutputFunction implementations should be annotated with OutputName. " +
                                              type.getName() + " isn't");
@@ -33,7 +37,27 @@ public final class EngineFunctionUtils {
     return annotation.value();
   }
 
-  public static Class<?> getTargetType(Class<? extends OutputFunction<?, ?>> type) {
+  // TODO do I need a high level type (maybe FunctionMetadata) will metadata for a class, its constructor params
+  // and each of its output methods and their params
+
+  // TODO this should return method metadata that can build an invoker
+  // i.e. knows about the method and how to map the target and other args onto the parameters
+  public static Set<Pair<String, Class<?>>> getOutputs(Class<?> functionType) {
+    Set<Pair<String, Class<?>>> outputs = Sets.newHashSet();
+    for (Method method : functionType.getMethods()) {
+      if (method.isAnnotationPresent(Output.class)) {
+        String outputName = method.getAnnotation(Output.class).value();
+        Parameter targetParam = ConfigUtils.getAnnotatedParameter(Target.class, method);
+        // TODO targetParam can be null for non-target outputs (where the fn has no params or they're in the args)
+        Class<?> targetType = targetParam.getType();
+        outputs.add(Pairs.<String, Class<?>>of(outputName, targetType));
+      }
+    }
+    return outputs;
+  }
+
+  // TODO this needs to take a method
+  public static Class<?> getTargetType(Class<?> type) {
     if (s_targetTypes.containsKey(type)) {
       return s_targetTypes.get(type);
     }
@@ -52,10 +76,11 @@ public final class EngineFunctionUtils {
   }
 
   public static Class<?> getDefaultImplementation(Class<?> type) {
+    // TODO override mechanism
     if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
-      DefaultImplementation annotation = type.getAnnotation(DefaultImplementation.class);
+      FallbackImplementation annotation = type.getAnnotation(FallbackImplementation.class);
       if (annotation == null) {
-        throw new IllegalArgumentException(type.getName() + " isn't annotated with @DefaultImplementation");
+        throw new IllegalArgumentException(type.getName() + " isn't annotated with @FallbackImplementation");
       }
       return annotation.value();
     } else {

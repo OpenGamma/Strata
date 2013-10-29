@@ -16,11 +16,13 @@ import com.opengamma.sesame.function.EngineFunctionUtils;
 import com.opengamma.sesame.function.OutputFunction;
 
 /**
+ * TODO this won't work with the demise of OutputFunction
  * Wraps a function taking a security argument in one that takes a position or trade argument.
  * It gets the security from the {@link PositionOrTrade} and calls the decorated function.
  * This allows all portfolio output functions in a graph to take {@link PositionOrTrade} as an input so the
  * engine doesn't have to check the target type of every function before invoking it.
  */
+@Deprecated
 /* package */ final class SecurityFunctionDecorator<TResult> implements OutputFunction<PositionOrTrade, TResult> {
 
   private final OutputFunction<? super Security, TResult> _delegate;

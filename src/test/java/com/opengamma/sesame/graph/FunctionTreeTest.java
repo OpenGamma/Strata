@@ -22,7 +22,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.config.FunctionConfig;
-import com.opengamma.sesame.function.DefaultImplementation;
+import com.opengamma.sesame.function.FallbackImplementation;
 import com.opengamma.sesame.function.UserParam;
 import com.opengamma.util.test.TestGroup;
 
@@ -135,7 +135,7 @@ public class FunctionTreeTest {
   }
 }
 
-@DefaultImplementation(DefaultImpl.class)
+@FallbackImplementation(DefaultImpl.class)
 /* package */ interface TestFunction {
 
   Object foo();
@@ -202,7 +202,7 @@ public class FunctionTreeTest {
   }
 }
 
-@DefaultImplementation(Collaborator.class)
+@FallbackImplementation(Collaborator.class)
 /* package */ interface CollaboratorFunction { }
 
 /* package */ class Collaborator implements CollaboratorFunction { }

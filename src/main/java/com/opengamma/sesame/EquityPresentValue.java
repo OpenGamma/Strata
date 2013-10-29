@@ -11,7 +11,7 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 public class EquityPresentValue implements EquityPresentValueFunction {
 
   @Override
-  public FunctionResult<Double> execute(MarketData marketData, EquitySecurity security) {
+  public FunctionResult<Double> presentValue(MarketData marketData, EquitySecurity security) {
 
     MarketDataFunctionResult result = marketData.retrieveItem(
         StandardMarketDataRequirement.of(security, MarketDataRequirementNames.MARKET_VALUE));

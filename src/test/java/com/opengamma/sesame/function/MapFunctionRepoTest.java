@@ -36,9 +36,12 @@ public class MapFunctionRepoTest {
   class Target2 extends Target1 { }
   class Target3 extends Target2 { }
 
-  @OutputName(MapFunctionRepoTest.O1)
-  @DefaultImplementation(F1Impl.class)
-  interface F1 extends OutputFunction<Target1, Object> { }
+  @FallbackImplementation(F1Impl.class)
+  interface F1 {
+
+    @Output(MapFunctionRepoTest.O1)
+    Object execute(MarketData marketData, @Target Target1 target);
+  }
 
   class F1Impl implements F1 {
 
@@ -48,9 +51,12 @@ public class MapFunctionRepoTest {
     }
   }
 
-  @OutputName(MapFunctionRepoTest.O2)
-  @DefaultImplementation(F2Impl.class)
-  interface F2 extends OutputFunction<Target2, Object> { }
+  @FallbackImplementation(F2Impl.class)
+  interface F2 {
+
+    @Output(MapFunctionRepoTest.O2)
+    Object execute(MarketData marketData, @Target Target2 target);
+  }
 
   class F2Impl implements F2 {
 

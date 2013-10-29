@@ -24,13 +24,16 @@ import java.util.Set;
  */
 public interface FunctionRepo {
 
-  // TODO also need the reverse of this, show target types for an output
+  // for when the user is configuring a column with a default output name. this shows which targets it can handle
+  Set<Class<?>> getTargetTypes(String outputName);
+
   // for when the user is configuring a column
   Set<String> getAvailableOutputs(Class<?> targetType);
 
+  // TODO return function metadata. or method metadata which links to function metadata
   // this assumes a single interface type provides an output for a target type - this should be true, prohibit multiple
   // users selects output for a column/type, this gives the output function type
-  Class<? extends OutputFunction<?, ?>> getFunctionType(String outputName, Class<?> targetType);
+  Class<?> getFunctionType(String outputName, Class<?> targetType);
 
   // gives the available implementing types for function interfaces
   // these can be presented to the user when they're setting up the view and choosing implementation overrides

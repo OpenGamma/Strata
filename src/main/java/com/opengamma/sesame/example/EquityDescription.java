@@ -14,14 +14,12 @@ import com.opengamma.sesame.MarketData;
 public class EquityDescription implements EquityDescriptionFunction {
 
   /**
-   *
-   *
-   * @param marketData
+   * @param marketData Not used
    * @param security A security
    * @return The security name
    */
   @Override
-  public String execute(MarketData marketData, EquitySecurity security) {
+  public String getDescription(MarketData marketData, EquitySecurity security) {
     return security.getName();
   }
 }

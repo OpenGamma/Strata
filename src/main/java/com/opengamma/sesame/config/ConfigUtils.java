@@ -80,17 +80,33 @@ public final class ConfigUtils {
       for (Annotation annotation : annotations) {
         annotationMap.put(annotation.annotationType(), annotation);
       }
-      parameters.add(new Parameter(type, annotationMap));
+      parameters.add(new Parameter(name, type, ordinal, annotationMap));
     }
     return parameters;
   }
 
   /**
-   * Returns a type's supertypes. Classes are returned first, going up the inheritance hierarchy to {@link Object},
-   * followed by interfaces in the order they are encountered going up the inheritance hierarchy.
-   * @param type A type
-   * @return All the type's supertypes
+   * Returns a parameter annotated with an annotation type.
+   * Throws {@link IllegalArgumentException} if there are multiple parameters with the annotation.
+   * @param annotationType The annotation type
+   * @param method The method
+   * @return The method parameter with the specified annotation, null if there isn't one
    */
+  public static Parameter getAnnotatedParameter(Class<? extends Annotation> annotationType, Method method) {
+    Parameter annotated = null;
+    for (Parameter parameter : getParameters(method)) {
+      if (parameter.getAnnotations().containsKey(annotationType)) {
+        if (annotated == null) {
+          annotated = parameter;
+        } else {
+          throw new IllegalArgumentException("Exactly one parameter in " + method + " must be annotated with " +
+                                                 annotationType.getName());
+        }
+      }
+    }
+    return annotated;
+  }
+
   public static Set<Class<?>> getSupertypes(Class<?> type) {
     Set<Class<?>> supertypes = Sets.newLinkedHashSet();
     Set<Class<?>> interfaces = Sets.newLinkedHashSet();

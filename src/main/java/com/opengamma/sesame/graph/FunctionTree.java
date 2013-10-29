@@ -28,6 +28,11 @@ import com.opengamma.sesame.function.UserParam;
  */
 public final class FunctionTree<T> {
 
+  // TODO need to know which method to call on the root function
+  // TODO if the Function knows about the function outputs and corresponding methods we can create invokers. but where?
+  // only need to do it at the root
+  // TODO need to know the actual output that this tree was built to satisfy
+  // TODO wrap the return value from createNode in forFunction in something that knows about the output
   private final Function<T> _root;
 
   // TODO this shouldn't be public but is used by SecurityFunctionDecorator

@@ -21,6 +21,8 @@ public final class Function<T> extends Node {
 
   private final Constructor<? extends T> _constructor;
   private final List<Node> _arguments;
+  // TODO map of ? -> Method for building invokers? what's the key? do we need OutputKey(outputName, targetType)?
+  // TODO how do we get the invokers out of the graph build process?
 
   public Function(Constructor<? extends T> constructor, List<Node> arguments) {
     _constructor = constructor;
