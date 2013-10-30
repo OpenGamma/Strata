@@ -12,7 +12,6 @@ import java.util.Collections;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSortedSet;
-import com.opengamma.sesame.MarketData;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -43,7 +42,7 @@ public class MapFunctionRepoTest {
   class F1Impl implements F1 {
 
     @Override
-    public Object execute(MarketData marketData, Target1 target) {
+    public Object execute(Target1 target) {
       return null;
     }
   }
@@ -55,7 +54,7 @@ public class MapFunctionRepoTest {
   class F2Impl implements F2 {
 
     @Override
-    public Object execute(MarketData marketData, Target2 target) {
+    public Object execute(Target2 target) {
       return null;
     }
   }

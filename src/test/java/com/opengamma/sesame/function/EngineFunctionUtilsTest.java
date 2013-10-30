@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.sesame.MarketData;
 import com.opengamma.util.test.TestGroup;
 
 @SuppressWarnings("ALL")
@@ -24,7 +23,7 @@ public class EngineFunctionUtilsTest {
   class C1 implements OutputFunction<Double, Object> {
 
     @Override
-    public Object execute(MarketData marketData, Double target) {
+    public Object execute(Double target) {
       return null;
     }
   }
@@ -33,7 +32,7 @@ public class EngineFunctionUtilsTest {
   class C2<T> implements OutputFunction<T, Object> {
 
     @Override
-    public Object execute(MarketData marketData, T target) {
+    public Object execute(T target) {
       return null;
     }
   }

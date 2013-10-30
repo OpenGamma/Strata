@@ -15,7 +15,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.overrides;
 import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.AbstractExecutorService;
@@ -26,6 +25,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -39,12 +39,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.EmptyMarketData;
 import com.opengamma.sesame.EquityPresentValueFunction;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.MarketData;
+import com.opengamma.sesame.MarketDataProvider;
+import com.opengamma.sesame.MarketDataProviderFunction;
 import com.opengamma.sesame.MarketDataRequirement;
 import com.opengamma.sesame.MarketDataStatus;
 import com.opengamma.sesame.MarketDataValue;
+import com.opengamma.sesame.ResettableMarketDataProviderFunction;
 import com.opengamma.sesame.SingleMarketDataValue;
-import com.opengamma.sesame.StandardMarketData;
 import com.opengamma.sesame.StandardMarketDataRequirement;
 import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.sesame.config.ViewDef;
@@ -110,20 +111,24 @@ public class EngineTest {
 
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);
-    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
+
+    // todo - is it correct that we don't need this line?
+    //    functionRepo.register(MarketDataProviderFunction.class);
+    ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider(new StandardResultGenerator());
+    Engine engine = new Engine(new DirectExecutorService(),
+                               ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class, marketDataProvider),
+                               functionRepo);
     Listener listener = new Listener();
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
-    Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> marketData = new HashMap<>();
-    marketData.put(
+    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData = ImmutableMap.of(
         // todo - we shouldn't be casting here
         StandardMarketDataRequirement.of((FinancialSecurity) trade.getSecurity(), MarketDataRequirementNames.MARKET_VALUE),
-        Pairs.of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+        Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+    marketDataProvider.resetMarketData(marketData);
 
-    MarketData context = new StandardMarketData(new StandardResultGenerator(), marketData);
-
-    Engine.View view = engine.createView(viewDef, context, trades, listener);
+    Engine.View view = engine.createView(viewDef, createEmptyMarketData() , trades, listener);
     view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());

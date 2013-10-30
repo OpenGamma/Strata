@@ -13,7 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
@@ -25,20 +25,21 @@ import com.opengamma.util.tuple.Pairs;
 
 public class EquityPresentValueTest {
 
-  EquityPresentValueFunction _equityPresentValueFunction;
+  private EquityPresentValueFunction _equityPresentValueFunction;
+  private ResettableMarketDataProviderFunction _marketDataProviderFunction;
 
-  @BeforeTest
+  @BeforeMethod
   public void setUp() {
-    _equityPresentValueFunction = new EquityPresentValue();
+    _marketDataProviderFunction = new MarketDataProvider(new StandardResultGenerator());
+    _equityPresentValueFunction = new EquityPresentValue(_marketDataProviderFunction);
   }
 
   @Test
   public void testMarketDataUnavailable() {
 
-    MarketData marketData = new EmptyMarketData(new StandardResultGenerator());
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
-    FunctionResult<Double> result = _equityPresentValueFunction.execute(marketData, security);
+    FunctionResult<Double> result = _equityPresentValueFunction.execute(security);
     assertThat(result.getStatus(), is(AWAITING_MARKET_DATA));
   }
 
@@ -48,13 +49,13 @@ public class EquityPresentValueTest {
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
 
-    Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> marketData = new HashMap<>();
+    Map<MarketDataRequirement, Pair<MarketDataStatus,MarketDataValue>> marketData = new HashMap<>();
     marketData.put(
         StandardMarketDataRequirement.of(security, MarketDataRequirementNames.MARKET_VALUE),
-        Pairs.of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+        Pairs.<MarketDataStatus,MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+    _marketDataProviderFunction.resetMarketData(marketData);
 
-    MarketData context = new StandardMarketData(new StandardResultGenerator(), marketData);
-    FunctionResult<Double> result = _equityPresentValueFunction.execute(context, security);
+    FunctionResult<Double> result = _equityPresentValueFunction.execute(security);
     assertThat(result.getStatus(), is(SUCCESS));
     assertThat(result.getResult(), is(123.45));
   }

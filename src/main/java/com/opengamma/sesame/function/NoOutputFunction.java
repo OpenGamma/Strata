@@ -6,7 +6,6 @@
 package com.opengamma.sesame.function;
 
 import com.opengamma.core.position.PositionOrTrade;
-import com.opengamma.sesame.MarketData;
 
 /**
  * Function that returns nothing for outputs where there is no requirement.
@@ -14,7 +13,7 @@ import com.opengamma.sesame.MarketData;
 public final class NoOutputFunction implements OutputFunction<PositionOrTrade, Void> {
 
   @Override
-  public Void execute(MarketData marketData, PositionOrTrade positionOrTrade) {
+  public Void execute(PositionOrTrade positionOrTrade) {
     // maybe this should return a sentinel value
     return null;
   }

@@ -6,7 +6,6 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
-import com.opengamma.sesame.MarketData;
 import com.opengamma.sesame.function.DefaultImplementation;
 import com.opengamma.sesame.function.OutputFunction;
 import com.opengamma.sesame.function.OutputName;
@@ -22,10 +21,10 @@ public interface CashFlowDescriptionFunction extends OutputFunction<CashFlowSecu
    * Returns a description of the security
    *
    *
-   * @param marketData
+   *
    * @param security A security
    * @return A description of the security
    */
   @Override
-  String execute(MarketData marketData, CashFlowSecurity security);
+  String execute(CashFlowSecurity security);
 }

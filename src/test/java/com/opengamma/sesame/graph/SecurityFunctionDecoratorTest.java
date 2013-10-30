@@ -16,9 +16,6 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.sesame.EmptyMarketData;
-import com.opengamma.sesame.MarketData;
-import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.sesame.function.OutputFunction;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -37,14 +34,14 @@ public class SecurityFunctionDecoratorTest {
     securityLink.setTarget(security);
     trade.setSecurityLink(securityLink);
     @SuppressWarnings("unchecked")
-    Currency ccy = ((OutputFunction<PositionOrTrade, Currency>) fn).execute(new EmptyMarketData(new StandardResultGenerator()), trade);
+    Currency ccy = ((OutputFunction<PositionOrTrade, Currency>) fn).execute(trade);
     assertEquals(Currency.AUD, ccy);
   }
 
   public static class Fn implements OutputFunction<EquitySecurity, Currency> {
 
     @Override
-    public Currency execute(MarketData marketData, EquitySecurity equitySecurity) {
+    public Currency execute(EquitySecurity equitySecurity) {
       return equitySecurity.getCurrency();
     }
   }

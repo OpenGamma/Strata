@@ -148,7 +148,7 @@ import com.opengamma.sesame.graph.Graph;
       public TaskResult call() throws Exception {
         Object result;
         try {
-          result = _function.execute(_marketData, _target);
+          result = _function.execute(_target);
         } catch (Exception e) {
           s_logger.warn("Failed to execute function", e);
           result = e;
