@@ -14,7 +14,6 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveNodeCurrencyVisitor;
 import com.opengamma.financial.analytics.curve.CurveUtils;
-import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
@@ -34,23 +33,28 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
 
   private final CurrencyPairsFunction _currencyPairsFunction;
 
+  private final MarketDataProviderFunction _marketDataProviderFunction;
+
   public FXMatrixProvider(ConfigSource configSource,
                           ConventionSource conventionSource,
                           ResultGenerator resultGenerator,
-                          CurrencyPairsFunction currencyPairsFunction) {
+                          CurrencyPairsFunction currencyPairsFunction,
+                          MarketDataProviderFunction marketDataProviderFunction) {
     ArgumentChecker.notNull(configSource, "configSource");
     ArgumentChecker.notNull(conventionSource, "conventionSource");
     ArgumentChecker.notNull(resultGenerator, "resultGenerator");
     ArgumentChecker.notNull(currencyPairsFunction, "currencyPairsFunction");
+    ArgumentChecker.notNull(marketDataProviderFunction, "marketDataProviderFunction");
     _configSource = configSource;
     _curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(_configSource);
     _conventionSource = conventionSource;
     _resultGenerator = resultGenerator;
     _currencyPairsFunction = currencyPairsFunction;
+    _marketDataProviderFunction = marketDataProviderFunction;
   }
 
   @Override
-  public FunctionResult<FXMatrix> getFXMatrix(MarketData marketData, String curveConfigurationName) {
+  public FunctionResult<FXMatrix> getFXMatrix(String curveConfigurationName) {
 
     final CurveConstructionConfiguration curveConstructionConfiguration =
         _curveConfigurationSource.getCurveConstructionConfiguration(curveConfigurationName);
@@ -67,12 +71,11 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
                                                               _conventionSource,
                                                               new CurveNodeCurrencyVisitor(_conventionSource));
 
-    return buildResult(marketData, currencies);
+    return buildResult(currencies);
   }
 
-  private FunctionResult<FXMatrix> buildResult(MarketData marketData, Set<Currency> currencies) {
+  private FunctionResult<FXMatrix> buildResult(Set<Currency> currencies) {
     // todo - if we don't have all the data, do we return a partial/empty fx matrix or an error, doing the latter
-    ResultBuilder builder = _resultGenerator.createBuilder();
 
     final FXMatrix matrix = new FXMatrix();
 
@@ -85,8 +88,7 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
       } else {
         MarketDataRequirement spotReqmt = StandardMarketDataRequirement.of(
             CurrencyPair.of(currency, refCurr));
-        MarketDataFunctionResult marketDataFunctionResult = marketData.retrieveItem(spotReqmt);
-        builder.addResult(marketDataFunctionResult);
+        MarketDataFunctionResult marketDataFunctionResult = _marketDataProviderFunction.requestData(spotReqmt);
 
         if (marketDataFunctionResult.getMarketDataState(spotReqmt) == MarketDataStatus.AVAILABLE) {
           double spotRate = (Double) marketDataFunctionResult.getMarketDataValue(spotReqmt).getValue();
@@ -99,6 +101,6 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
         }
       }
     }
-    return builder.success(matrix);
+    return _resultGenerator.generateSuccessResult(matrix);
   }
 }

@@ -12,5 +12,5 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
  */
 public interface FXMatrixProviderFunction {
 
-  FunctionResult<FXMatrix> getFXMatrix(MarketData marketData, String curveConfigurationName);
+  FunctionResult<FXMatrix> getFXMatrix(String curveConfigurationName);
 }
