@@ -15,4 +15,6 @@ public interface ResultGenerator {
   <T> FunctionResult<T> generateFailureResult(ResultStatus status, String message, Object... messageParams);
 
   ResultBuilder createBuilder();
+
+  MarketDataResultBuilder marketDataResultBuilder();
 }

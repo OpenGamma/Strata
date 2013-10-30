@@ -53,11 +53,23 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
       public MarketDataResultBuilder missingData(Set<MarketDataRequirement> missing) {
 
         for (MarketDataRequirement requirement : missing) {
-
-          _missing.add(requirement);
-          _requirementStatus.put(requirement, Pairs.of(MarketDataStatus.PENDING, (MarketDataValue) null));
+         missingData(requirement);
         }
 
+        return this;
+      }
+
+      @Override
+      public MarketDataResultBuilder missingData(MarketDataRequirement requirement) {
+        _missing.add(requirement);
+        _requirementStatus.put(requirement, Pairs.of(MarketDataStatus.PENDING, (MarketDataValue) null));
+        return this;
+      }
+
+      @Override
+      public MarketDataResultBuilder foundData(MarketDataRequirement requirement,
+                                               Pair<MarketDataStatus, ? extends MarketDataValue> state) {
+         _requirementStatus.put(requirement, state);
         return this;
       }
 
