@@ -47,6 +47,10 @@ public final class FunctionTree {
     return _root;
   }
 
+  public FunctionMetadata getRootMetadata() {
+    return _rootMetadata;
+  }
+
   public static FunctionTree forFunction(Class<?> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
     return new FunctionTree(createNode(functionType, config, infrastructure));
   }

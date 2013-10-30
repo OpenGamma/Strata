@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.Invoker;
@@ -63,12 +64,12 @@ import com.opengamma.sesame.graph.Graph;
   public static class View {
 
     private final FunctionGraph _graph;
-    private final Collection<? extends PositionOrTrade> _targets;
+    private final Collection<? extends PositionOrTrade> _inputs;
     private final Listener _listener;
     private final ExecutorService _executor;
 
-    private View(FunctionGraph graph, Collection<? extends PositionOrTrade> targets, Listener listener, ExecutorService executor) {
-      _targets = targets;
+    private View(FunctionGraph graph, Collection<? extends PositionOrTrade> inputs, Listener listener, ExecutorService executor) {
+      _inputs = inputs;
       _listener = listener;
       _graph = graph;
       _executor = executor;
@@ -76,12 +77,17 @@ import com.opengamma.sesame.graph.Graph;
 
     public void run() {
       List<Task> tasks = Lists.newArrayList();
-      for (Map.Entry<String, Map<ObjectId, OutputFunction<PositionOrTrade, ?>>> entry : _graph.getFunctions().entrySet()) {
+      for (Map.Entry<String, Map<ObjectId, Invoker>> entry : _graph.getFunctions().entrySet()) {
         String columnName = entry.getKey();
-        Map<ObjectId, OutputFunction<PositionOrTrade, ?>> functionsByTargetId = entry.getValue();
-        for (PositionOrTrade target : _targets) {
-          ObjectId targetId = target.getUniqueId().getObjectId();
-          tasks.add(new Task(targetId, columnName, new InvokerImpl(target)));
+        Map<ObjectId, Invoker> invokersByInputId = entry.getValue();
+        for (PositionOrTrade input : _inputs) {
+          ObjectId inputId = input.getUniqueId().getObjectId();
+          // args comes from columnOutput.functionConfig.functionArguments.arguments
+          // need to attach that to the graph
+          // probably the functionConfig at the root along with the function metadata
+          // will need to change the type of the map value from Invoker to something else
+          // something in FunctionGraph at each root? will need fields for the args and invoker
+          tasks.add(new Task(input, args, columnName, invokersByInputId.get(inputId)));
         }
       }
       List<Future<TaskResult>> futures;
@@ -118,13 +124,15 @@ import com.opengamma.sesame.graph.Graph;
 
     private static class Task implements Callable<TaskResult> {
 
-      private final ObjectId _targetId;
+      private final UniqueIdentifiable _input;
       private final String _columnName;
       private final Invoker _invoker;
+      private final Map<String, Object> _args;
       // TODO need the arguments for the class that provides the function implementation
 
-      private Task(ObjectId targetId, String columnName, Invoker invoker) {
-        _targetId = targetId;
+      private Task(UniqueIdentifiable input, Map<String, Object> args, String columnName, Invoker invoker) {
+        _input = input;
+        _args = args;
         _columnName = columnName;
         _invoker = invoker;
       }
@@ -133,12 +141,12 @@ import com.opengamma.sesame.graph.Graph;
       public TaskResult call() throws Exception {
         Object result;
         try {
-          result = _invoker.invoke();
+          result = _invoker.invoke(_input, _args);
         } catch (Exception e) {
           s_logger.warn("Failed to execute function", e);
           result = e;
         }
-        return new TaskResult(_targetId, _columnName, result);
+        return new TaskResult(_input.getUniqueId().getObjectId(), _columnName, result);
       }
     }
   }

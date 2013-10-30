@@ -58,6 +58,10 @@ public class FunctionMetadata {
   private final Constructor<?> _constructor;
   private final String _outputName;
 
+  /* package */ FunctionMetadata(FunctionMetadata copyFrom) {
+    this(copyFrom._method, copyFrom._constructor);
+  }
+
   /* package */ FunctionMetadata(Method method, Constructor<?> constructor) {
     _method = method;
     _constructor = constructor;
@@ -101,7 +105,38 @@ public class FunctionMetadata {
     }
   }
 
-  // TODO could replace with generating byte code on the fly if the reflection turns out to be a problem
+  @Override
+  public int hashCode() {
+    return Objects.hash(_method, _parameters, _inputParameter, _constructor);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final FunctionMetadata other = (FunctionMetadata) obj;
+    return
+        Objects.equals(this._method, other._method) &&
+        Objects.equals(this._parameters, other._parameters) &&
+        Objects.equals(this._inputParameter, other._inputParameter) &&
+        Objects.equals(this._constructor, other._constructor);
+  }
+
+  @Override
+  public String toString() {
+    return "FunctionMetadata [" +
+        "_method=" + _method +
+        ", _parameters=" + _parameters +
+        ", _inputParameter=" + _inputParameter +
+        ", _constructor=" + _constructor +
+        "]";
+  }
+
+  // TODO return value wrapped in metadata (output name, trade/security etc)? for scaling, aggregation, ccy conversion
   private class MethodInvoker implements Invoker {
 
     private final Object _receiver;
@@ -133,36 +168,5 @@ public class FunctionMetadata {
         throw new OpenGammaRuntimeException("Failed to invoke method", e);
       }
     }
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(_method, _parameters, _inputParameter, _constructor);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    final FunctionMetadata other = (FunctionMetadata) obj;
-    return
-        Objects.equals(this._method, other._method) &&
-        Objects.equals(this._parameters, other._parameters) &&
-        Objects.equals(this._inputParameter, other._inputParameter) &&
-        Objects.equals(this._constructor, other._constructor);
-  }
-
-  @Override
-  public String toString() {
-    return "FunctionMetadata [" +
-        "_method=" + _method +
-        ", _parameters=" + _parameters +
-        ", _inputParameter=" + _inputParameter +
-        ", _constructor=" + _constructor +
-        "]";
   }
 }
