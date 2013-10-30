@@ -113,7 +113,7 @@ public final class ViewColumn implements ImmutableBean {
    * Gets requirements keyed by target type.
    * @return the value of the property, not null
    */
-  public Map<Class<?>, ColumnOutput> getTargetOutputs() {
+  public Map<Class<?>, ColumnOutput> getOutputs() {
     return _targetOutputs;
   }
 
@@ -140,7 +140,7 @@ public final class ViewColumn implements ImmutableBean {
       ViewColumn other = (ViewColumn) obj;
       return JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getDefaultOutput(), other.getDefaultOutput()) &&
-          JodaBeanUtils.equal(getTargetOutputs(), other.getTargetOutputs());
+          JodaBeanUtils.equal(getOutputs(), other.getOutputs());
     }
     return false;
   }
@@ -150,7 +150,7 @@ public final class ViewColumn implements ImmutableBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultOutput());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetOutputs());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOutputs());
     return hash;
   }
 
@@ -160,7 +160,7 @@ public final class ViewColumn implements ImmutableBean {
     buf.append("ViewColumn{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("defaultOutput").append('=').append(getDefaultOutput()).append(',').append(' ');
-    buf.append("targetOutputs").append('=').append(JodaBeanUtils.toString(getTargetOutputs()));
+    buf.append("targetOutputs").append('=').append(JodaBeanUtils.toString(getOutputs()));
     buf.append('}');
     return buf.toString();
   }
@@ -268,7 +268,7 @@ public final class ViewColumn implements ImmutableBean {
         case 860251810:  // defaultOutput
           return ((ViewColumn) bean).getDefaultOutput();
         case 1197832385:  // targetOutputs
-          return ((ViewColumn) bean).getTargetOutputs();
+          return ((ViewColumn) bean).getOutputs();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -309,7 +309,7 @@ public final class ViewColumn implements ImmutableBean {
       super(ViewColumn.Meta.INSTANCE);
       this._name = beanToCopy.getName();
       this._defaultOutput = beanToCopy.getDefaultOutput();
-      this._targetOutputs = new HashMap<Class<?>, ColumnOutput>(beanToCopy.getTargetOutputs());
+      this._targetOutputs = new HashMap<Class<?>, ColumnOutput>(beanToCopy.getOutputs());
     }
 
     //-----------------------------------------------------------------------
