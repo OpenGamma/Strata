@@ -36,7 +36,6 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.sesame.EmptyMarketData;
 import com.opengamma.sesame.EquityPresentValueFunction;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.MarketDataProvider;
@@ -90,16 +89,12 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, createEmptyMarketData(), trades, listener);
+    Engine.View view = engine.createView(viewDef, trades, listener);
     view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
     System.out.println(results);
-  }
-
-  private EmptyMarketData createEmptyMarketData() {
-    return new EmptyMarketData(new StandardResultGenerator());
   }
 
   @Test
@@ -128,7 +123,7 @@ public class EngineTest {
         Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     marketDataProvider.resetMarketData(marketData);
 
-    Engine.View view = engine.createView(viewDef, createEmptyMarketData() , trades, listener);
+    Engine.View view = engine.createView(viewDef, trades, listener);
     view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
@@ -147,7 +142,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, createEmptyMarketData(), trades, listener);
+    Engine.View view = engine.createView(viewDef, trades, listener);
     view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
@@ -188,7 +183,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
-    Engine.View view = engine.createView(viewDef, createEmptyMarketData(), trades, listener);
+    Engine.View view = engine.createView(viewDef, trades, listener);
     view.run();
     Results results = listener.getResults();
     
