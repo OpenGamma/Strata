@@ -126,6 +126,10 @@ public final class Graph {
       for (Map.Entry<ObjectId, FunctionTree> columnEntry : functionsByTargetId.entrySet()) {
         ObjectId targetId = columnEntry.getKey();
         FunctionTree functionTree = columnEntry.getValue();
+        // TODO this is wrong, build returns the function impl, not an invoker
+        // will need to return more than that. need:
+        //   * fn type (or the fn itself) for extracting args from FunctionConfig
+        //   * invoker (this comes from the FunctionMetadata in the FunctionTree)
         columnBuilder.put(targetId, (Invoker) functionTree.build(infrastructure));
       }
       String columnName = entry.getKey();

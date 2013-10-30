@@ -61,6 +61,7 @@ import com.opengamma.sesame.graph.Graph;
     return new View(functionGraph, targets, listener, _executor);
   }
 
+  //----------------------------------------------------------
   public static class View {
 
     private final FunctionGraph _graph;
@@ -86,7 +87,7 @@ import com.opengamma.sesame.graph.Graph;
           // need to attach that to the graph
           // probably the functionConfig at the root along with the function metadata
           // will need to change the type of the map value from Invoker to something else
-          // something in FunctionGraph at each root? will need fields for the args and invoker
+          // something in FunctionGraph at each root? will need fields for the args, invoker and fn type
           tasks.add(new Task(input, args, columnName, invokersByInputId.get(inputId)));
         }
       }
@@ -109,6 +110,7 @@ import com.opengamma.sesame.graph.Graph;
       _listener.cycleComplete(resultsBuilder.build());
     }
 
+    //----------------------------------------------------------
     private static class TaskResult {
       
       private final ObjectId _targetId;
@@ -122,6 +124,7 @@ import com.opengamma.sesame.graph.Graph;
       }
     }
 
+    //----------------------------------------------------------
     private static class Task implements Callable<TaskResult> {
 
       private final UniqueIdentifiable _input;
