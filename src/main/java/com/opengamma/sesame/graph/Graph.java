@@ -14,18 +14,17 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.config.ColumnOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.FunctionRepo;
-import com.opengamma.sesame.function.NoOutputFunction;
-import com.opengamma.sesame.function.OutputFunction;
 
 /**
  * Lightweight model of the functions needed to generate the outputs for a view.
  */
 public final class Graph {
 
-  private final Map<String, Map<ObjectId, FunctionTree<?>>> _functionTrees;
+  private final Map<String, Map<ObjectId, FunctionTree>> _functionTrees;
 
-  private Graph(Map<String, Map<ObjectId, FunctionTree<?>>> functionTrees) {
+  private Graph(Map<String, Map<ObjectId, FunctionTree>> functionTrees) {
     _functionTrees = functionTrees;
   }
 
@@ -33,17 +32,18 @@ public final class Graph {
                               Collection<?> targets,
                               Map<Class<?>, Object> infrastructure,
                               FunctionRepo functionRepo) {
-    ImmutableMap.Builder<String, Map<ObjectId, FunctionTree<?>>> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Map<ObjectId, FunctionTree>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
-      ImmutableMap.Builder<ObjectId, FunctionTree<?>> columnBuilder = ImmutableMap.builder();
+      ImmutableMap.Builder<ObjectId, FunctionTree> columnBuilder = ImmutableMap.builder();
       Map<Class<?>, ColumnOutput> outputs = column.getTargetOutputs();
       for (Object target : targets) {
-        FunctionTree<?> functionTree;
+        // TODO no need to create a FunctionTree for every target, cache on outputName/inputType
+        FunctionTree functionTree;
         // TODO this is too much, support composition of ColumnOutputs and hide some of this logic
         if (outputs.containsKey(target.getClass())) {
           ColumnOutput output = outputs.get(target.getClass());
-          Class<?> functionType = functionRepo.getOutputFunction(output.getOutputName(), target.getClass());
-          functionTree = FunctionTree.forFunction(functionType, output.getFunctionConfig(), infrastructure.keySet());
+          FunctionMetadata function = functionRepo.getOutputFunction(output.getOutputName(), target.getClass());
+          functionTree = FunctionTree.forFunction(function, output.getFunctionConfig(), infrastructure.keySet());
         } else if (outputs.containsKey(target.getSecurity().getClass())) {
           Security security = target.getSecurity();
           ColumnOutput output = outputs.get(security.getClass());
@@ -77,6 +77,7 @@ public final class Graph {
   }
 
   /**
+   * TODO just return the map? function graph doesn't serve any purpose in its current form
    * @param infrastructure The engine infrastructure
    * @return A graph containing the built function instances
    */

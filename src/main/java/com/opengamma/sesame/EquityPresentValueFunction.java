@@ -7,12 +7,10 @@ package com.opengamma.sesame;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.example.OutputNames;
-import com.opengamma.sesame.function.FallbackImplementation;
 import com.opengamma.sesame.function.Output;
 
 // todo the FunctionResult<> bit is probably always there, would be nice if we could say OutputFunction<CashFlowSecurity, Double>
 
-@FallbackImplementation(EquityPresentValue.class)
 public interface EquityPresentValueFunction {
 
   @Output(OutputNames.PRESENT_VALUE)

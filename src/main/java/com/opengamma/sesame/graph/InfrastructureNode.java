@@ -10,33 +10,21 @@ import java.util.Map;
 /**
 *
 */
-public final class Argument extends Node {
+public final class InfrastructureNode extends Node {
 
   private final Class<?> _type;
-  private final Object _value;
-  private final Object _defaultValue;
 
-  /* package */ Argument(Class<?> type, Object value, Object defaultValue) {
+  /* package */ InfrastructureNode(Class<?> type) {
     _type = type;
-    _value = value;
-    _defaultValue = defaultValue;
   }
 
   @SuppressWarnings("unchecked")
   @Override
   Object create(Map<Class<?>, Object> infrastructure) {
-    return _value;
+    return infrastructure.get(_type);
   }
 
   public Class<?> getType() {
     return _type;
-  }
-
-  public Object getValue() {
-    return _value;
-  }
-
-  public Object getDefaultValue() {
-    return _defaultValue;
   }
 }

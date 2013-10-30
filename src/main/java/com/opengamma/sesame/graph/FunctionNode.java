@@ -15,22 +15,22 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
-*
-*/
-public final class Function<T> extends Node {
+ * TODO this needs a less ambiguous name
+ */
+public final class FunctionNode extends Node {
 
-  private final Constructor<? extends T> _constructor;
+  private final Constructor<?> _constructor;
   private final List<Node> _arguments;
   // TODO map of ? -> Method for building invokers? what's the key? do we need OutputKey(outputName, targetType)?
   // TODO how do we get the invokers out of the graph build process?
 
-  public Function(Constructor<? extends T> constructor, List<Node> arguments) {
+  public FunctionNode(Constructor<?> constructor, List<Node> arguments) {
     _constructor = constructor;
     _arguments = ImmutableList.copyOf(arguments);
   }
 
   @Override
-  T create(Map<Class<?>, Object> infrastructure) {
+  Object create(Map<Class<?>, Object> infrastructure) {
     try {
       List<Object> arguments = Lists.newArrayListWithCapacity(_arguments.size());
       for (Node argument : _arguments) {
@@ -42,7 +42,7 @@ public final class Function<T> extends Node {
     }
   }
 
-  public Class<? extends T> getType() {
+  public Class<?> getType() {
     return _constructor.getDeclaringClass();
   }
 

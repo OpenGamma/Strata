@@ -7,13 +7,11 @@ package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.MarketData;
-import com.opengamma.sesame.function.FallbackImplementation;
 import com.opengamma.sesame.function.Output;
 
 /**
  * Trivial example function that returns the description of an equity security.
  */
-@FallbackImplementation(EquityDescription.class)
 public interface EquityDescriptionFunction {
 
   /**

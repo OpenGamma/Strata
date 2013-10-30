@@ -6,12 +6,10 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.sesame.function.FallbackImplementation;
 
 /**
  * Returns an external ID scheme.
  */
-@FallbackImplementation(IdScheme.class)
 public interface IdSchemeFunction {
 
   /**

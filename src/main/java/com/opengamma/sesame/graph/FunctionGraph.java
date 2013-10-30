@@ -8,42 +8,33 @@ package com.opengamma.sesame.graph;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.function.Invoker;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO this class seems to be pointless and nothing but a wrapper for a map. maybe Graph.build should return the map of fns
  */
 public final class FunctionGraph {
 
   // TODO need a method (or invoker) for the root functions
 
   /** Map of column names -> map of target ID -> function. */
-  private final Map<String, Map<ObjectId, Object>> _functions;
+  private final Map<String, Map<ObjectId, Invoker>> _functions;
 
   /* package */ FunctionGraph(Map<String, Map<ObjectId, Object>> functions) {
-    ImmutableMap.Builder<String, Map<ObjectId, Object>> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Map<ObjectId, Invoker>> builder = ImmutableMap.builder();
     for (Map.Entry<String, Map<ObjectId, Object>> entry : functions.entrySet()) {
       String columnName = entry.getKey();
-      ImmutableMap.Builder<ObjectId, Object> targetBuilder = ImmutableMap.builder();
-      for (Map.Entry<ObjectId, Object> targetEntry : entry.getValue().entrySet()) {
-        ObjectId targetId = targetEntry.getKey();
-        Object function = targetEntry.getValue();
-        targetBuilder.put(targetId, function);
+      ImmutableMap.Builder<ObjectId, Invoker> columnBuilder = ImmutableMap.builder();
+      for (Map.Entry<ObjectId, Object> inputEntry : entry.getValue().entrySet()) {
+        ObjectId inputId = inputEntry.getKey();
+        Object function = inputEntry.getValue();
+        // TODO function needs to be wrapped in an invoker. need the FunctionMetadata
+        columnBuilder.put(inputId, function);
       }
-      builder.put(columnName, targetBuilder.build());
+      builder.put(columnName, columnBuilder.build());
     }
     _functions = builder.build();
-  }
-
-  public Map<ObjectId, Object> getFunctionsForColumn(String columnName) {
-    ArgumentChecker.notEmpty(columnName, "columnName");
-    if (!_functions.containsKey(columnName)) {
-      throw new DataNotFoundException("Unknown column name " + columnName);
-    }
-    return _functions.get(columnName);
   }
 
   public Map<String, Map<ObjectId, Invoker>> getFunctions() {

@@ -5,10 +5,12 @@
  */
 package com.opengamma.sesame.function;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.swing.text.Position;
@@ -23,9 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * TODO should this be called OutputMetadata?
- * TODO should there be 2 subtypes, one that takes an input from the engine and the other that only uses params?
- * if so move the constructor logic 2 a factory method that decides what to create
- * or just have a boolean flag and a different invoker type?
+ * TODO joda bean?
  */
 public class FunctionMetadata {
 
@@ -52,12 +52,16 @@ public class FunctionMetadata {
 
   /** The input parameter, null if there isn't one. */
   private final Parameter _inputParameter;
-  private final TypeMetadata _declaringType;
 
-  /* package */ FunctionMetadata(Method method, TypeMetadata declaringType) {
-    _declaringType = declaringType;
+  // TODO would it be better to just refer to the class and constructor from here?
+  // TODO and where TypeMetadata is constructed in the function repo just use a factory method returning fn meta
+  private final Constructor<?> _constructor;
+  private final String _outputName;
+
+  /* package */ FunctionMetadata(Method method, Constructor<?> constructor) {
     _method = method;
-    String outputName = method.getAnnotation(Output.class).value();
+    _constructor = constructor;
+    _outputName = method.getAnnotation(Output.class).value();
     List<Parameter> parameters = ConfigUtils.getParameters(method);
     Parameter inputParameter = null;
     for (Parameter parameter : parameters) {
@@ -67,7 +71,8 @@ public class FunctionMetadata {
           if (inputParameter == null) {
             inputParameter = parameter;
           } else {
-            throw new IllegalArgumentException("");
+            throw new IllegalArgumentException("Multiple parameters found with a type in the set of permitted input " +
+                                                   "types. Only one is allowed. Input types: " + s_inputTypes);
           }
         }
       }
@@ -78,6 +83,22 @@ public class FunctionMetadata {
   public Invoker getInvoker(Object receiver) {
     ArgumentChecker.notNull(receiver, "receiver");
     return new MethodInvoker(receiver);
+  }
+
+  public Class<?> getDeclaringType() {
+    return _constructor.getDeclaringClass();
+  }
+
+  public String getOutputName() {
+    return _outputName;
+  }
+
+  public Class<?> getInputType() {
+    if (_inputParameter == null) {
+      return null;
+    } else {
+      return _inputParameter.getType();
+    }
   }
 
   // TODO could replace with generating byte code on the fly if the reflection turns out to be a problem
@@ -103,12 +124,45 @@ public class FunctionMetadata {
       if (_inputParameter != null) {
         argArray[_inputParameter.getOrdinal()] = input;
       }
-      // TODO check for nulls provided fro non-nullable parameters, including target
+      // TODO check for nulls provided for non-nullable parameters, including target?
+      // TODO check for unexpected parameters?
+      // TODO use @Nullable / @NotNull / @Nonnull
       try {
-        _method.invoke(_receiver, argArray);
+        return _method.invoke(_receiver, argArray);
       } catch (IllegalAccessException | InvocationTargetException e) {
         throw new OpenGammaRuntimeException("Failed to invoke method", e);
       }
     }
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_method, _parameters, _inputParameter, _constructor);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final FunctionMetadata other = (FunctionMetadata) obj;
+    return
+        Objects.equals(this._method, other._method) &&
+        Objects.equals(this._parameters, other._parameters) &&
+        Objects.equals(this._inputParameter, other._inputParameter) &&
+        Objects.equals(this._constructor, other._constructor);
+  }
+
+  @Override
+  public String toString() {
+    return "FunctionMetadata [" +
+        "_method=" + _method +
+        ", _parameters=" + _parameters +
+        ", _inputParameter=" + _inputParameter +
+        ", _constructor=" + _constructor +
+        "]";
   }
 }

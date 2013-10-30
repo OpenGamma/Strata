@@ -24,7 +24,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.Invoker;
-import com.opengamma.sesame.function.InvokerImpl;
 import com.opengamma.sesame.graph.FunctionGraph;
 import com.opengamma.sesame.graph.Graph;
 
@@ -124,7 +123,7 @@ import com.opengamma.sesame.graph.Graph;
       private final Invoker _invoker;
       // TODO need the arguments for the class that provides the function implementation
 
-      private Task(ObjectId targetId, String columnName, InvokerImpl invoker) {
+      private Task(ObjectId targetId, String columnName, Invoker invoker) {
         _targetId = targetId;
         _columnName = columnName;
         _invoker = invoker;

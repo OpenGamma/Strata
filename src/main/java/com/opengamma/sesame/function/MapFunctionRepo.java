@@ -6,6 +6,7 @@
 package com.opengamma.sesame.function;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,6 +50,7 @@ public final class MapFunctionRepo implements FunctionRepo {
 
   /**
    * Classes that implement registered function interfaces, keyed by the interface type.
+   * This is needed to tell the user of the available options when they're configuring the view.
    */
   private final SetMultimap<Class<?>, Class<?>> _implementationsByInterface = HashMultimap.create();
 
@@ -77,6 +79,18 @@ public final class MapFunctionRepo implements FunctionRepo {
     }
     _allOutputsByInputType.put(inputType, outputs);
     return Collections.unmodifiableSet(outputs);
+  }
+
+  @Override
+  public Set<String> getAvailableOutputs() {
+    // TODO implement getAvailableOutputs()
+    throw new UnsupportedOperationException("getAvailableOutputs not implemented");
+  }
+
+  @Override
+  public FunctionMetadata getOutputFunction(String outputName) {
+    // TODO implement getOutputFunction()
+    throw new UnsupportedOperationException("getOutputFunction not implemented");
   }
 
   // this is used to build the graph
@@ -126,33 +140,31 @@ public final class MapFunctionRepo implements FunctionRepo {
     // clear the lazily populated caches which might be out of date after registering a new type
     _allOutputsByInputType.clear();
     _allFunctionsForOutputs.clear();
-    if (false/*has any methods with @Output annotations*/) {
-      registerOutput(type);
-    } else {
-      registerImplementation(type);
+    registerOutputs(type);
+    registerImplementation(type);
+  }
+
+  /**
+   * Registers the outputs that can be produced by a function type.
+   * @param type The
+   */
+  private void registerOutputs(Class<?> type) {
+    List<FunctionMetadata> outputs = EngineFunctionUtils.getOutputFunctions(type);
+    for (FunctionMetadata function : outputs) {
+      String outputName = function.getOutputName();
+      Set<String> outputNames;
+      Class<?> targetType = function.getInputType();
+      if (_outputsByInputType.containsKey(targetType)) {
+        _outputsByInputType.get(targetType).add(outputName);
+      } else {
+        outputNames = Sets.newHashSet(outputName);
+        _outputsByInputType.put(targetType, outputNames);
+      }
+      _functionsForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), function);
     }
   }
 
-  // TODO this needs to process methods
-  private void registerOutput(Class<?> type) {
-    // TODO register the default impl? it will be found anyway from the annotation. is there any other reason?
-    // user will need to know all possible implementations for configuring the view
-    String outputName = EngineFunctionUtils.getOutputName(type);
-    Set<String> outputNames;
-    Class<?> targetType = EngineFunctionUtils.getInputType(type);
-    if (_outputsByInputType.containsKey(targetType)) {
-      _outputsByInputType.get(targetType).add(outputName);
-    } else {
-      outputNames = Sets.newHashSet(outputName);
-      _outputsByInputType.put(targetType, outputNames);
-    }
-    _functionsForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), type);
-  }
-
-  // needed for implementations of interfaces where type isn't named as @DefaultImplementation
+  // TODO this is only necessary for informing the user of the options if they don't specify an implementation for an interface
   private void registerImplementation(Class<?> type) {
-    // TODO store an entry for this class against all interfaces it implements. what about dupes?
-    // need to create a map(interface -> set(implementation)) SetMultimap
-    throw new UnsupportedOperationException("registerImplementation not implemented");
   }
 }

@@ -43,7 +43,6 @@ public final class FunctionArguments implements ImmutableBean {
 
   @ImmutableConstructor
   public FunctionArguments(Map<String, Object> arguments) {
-
     JodaBeanUtils.notNull(arguments, "arguments");
     _arguments = ImmutableMap.copyOf(arguments);
   }

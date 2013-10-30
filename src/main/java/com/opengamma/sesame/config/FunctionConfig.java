@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.sesame.function.EngineFunctionUtils;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -55,8 +55,8 @@ public final class FunctionConfig implements ImmutableBean {
     if (_implementationOverrides.containsKey(functionInterface)) {
       return _implementationOverrides.get(functionInterface);
     } else {
-      // TODO allow default impl to be specified without an annotation? or to be overridden in config?
-      return EngineFunctionUtils.getDefaultImplementation(functionInterface);
+      throw new OpenGammaRuntimeException("No implementation was specified in the configuration for the interface " +
+                                              functionInterface.getName());
     }
   }
 

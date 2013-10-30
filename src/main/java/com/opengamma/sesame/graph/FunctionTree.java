@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.function.UserParam;
 
@@ -26,47 +27,59 @@ import com.opengamma.sesame.function.UserParam;
  * need support for final fields or immutable inheritance
  * in the mean time could make Node.getDependencies() abstract and put the field in every subclass
  */
-public final class FunctionTree<T> {
+public final class FunctionTree {
 
-  // TODO need to know which method to call on the root function
-  // TODO if the Function knows about the function outputs and corresponding methods we can create invokers. but where?
-  // only need to do it at the root
-  // TODO need to know the actual output that this tree was built to satisfy
-  // TODO wrap the return value from createNode in forFunction in something that knows about the output
-  private final Function<T> _root;
+  // TODO wrap the return value from createNode in forFunction in something that knows about the invoker
+  // TODO or have a different node/function subtype that contains the invoker and any other metadata about the fn
+  private final FunctionNode _root;
+  private final FunctionMetadata _rootMetadata;
 
-  // TODO this shouldn't be public but is used by SecurityFunctionDecorator
-  public FunctionTree(Function<T> root) {
+  /* package */ FunctionTree(FunctionNode root, FunctionMetadata rootMetadata) {
     _root = root;
+    _rootMetadata = rootMetadata;
   }
 
-  public Function<T> getRootFunction() {
+  /* package */ FunctionTree(FunctionNode root) {
+    this(root, null);
+  }
+
+  public FunctionNode getRootFunction() {
     return _root;
   }
 
-  public static <T> FunctionTree<T> forFunction(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
-    return new FunctionTree<>(createNode(functionType, config, infrastructure));
+  public static FunctionTree forFunction(Class<?> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
+    return new FunctionTree(createNode(functionType, config, infrastructure));
   }
 
-  public static <T> FunctionTree<T> forFunction(Class<T> functionType, FunctionConfig config) {
-    return new FunctionTree<>(createNode(functionType, config, Collections.<Class<?>>emptySet()));
+  public static FunctionTree forFunction(Class<?> functionType, FunctionConfig config) {
+    return new FunctionTree(createNode(functionType, config, Collections.<Class<?>>emptySet()));
   }
 
-  public static <T> FunctionTree<T> forFunction(Class<T> functionType) {
-    return new FunctionTree<>(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
+  public static FunctionTree forFunction(Class<?> functionType) {
+    return new FunctionTree(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
   }
 
-  // TODO does this need TypeMetadata? better to figure out the constructor and params here or there?
-  // will they ever get reused either way?
+  public static FunctionTree forFunction(FunctionMetadata function, FunctionConfig config, Set<Class<?>> infrastructure) {
+    return new FunctionTree(createNode(function.getDeclaringType(), config, infrastructure), function);
+  }
+
+/*  public static FunctionTree forFunction(FunctionMetadata function, FunctionConfig config) {
+    return new FunctionTree(createNode(function.getDeclaringType(), config, Collections.<Class<?>>emptySet()));
+  }
+
+  public static FunctionTree forFunction(FunctionMetadata function) {
+    return new FunctionTree(createNode(function.getDeclaringType(), FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
+  }*/
+
   @SuppressWarnings("unchecked")
-  private static <T> Function<T> createNode(Class<T> functionType, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
-    Class<? extends T> implType;
+  private static FunctionNode createNode(Class<?> functionType, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
+    Class<?> implType;
     if (!functionType.isInterface()) {
       implType = functionType;
     } else {
-      implType = (Class<? extends T>) config.getFunctionImplementation(functionType);
+      implType = config.getFunctionImplementation(functionType);
     }
-    Constructor<? extends T> constructor = ConfigUtils.getConstructor(implType);
+    Constructor<?> constructor = ConfigUtils.getConstructor(functionType);
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
     FunctionArguments functionArguments = config.getFunctionArguments(implType);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
@@ -82,7 +95,7 @@ public final class FunctionTree<T> {
         constructorArguments.add(createNode(parameter.getType(), config, infrastructureTypes));
       }
     }
-    return new Function<>(constructor, constructorArguments);
+    return new FunctionNode(constructor, constructorArguments);
   }
 
   private static Node getArgument(Parameter parameter,
@@ -96,8 +109,10 @@ public final class FunctionTree<T> {
         user arguments with defaults generated from @UserParam
       */
     if (infrastructureTypes.contains(parameter.getType())) {
-      return new Infrastructure(parameter.getType());
+      return new InfrastructureNode(parameter.getType());
     } else if (parameter.getAnnotations().containsKey(UserParam.class)) {
+      // TODO do we still want to use UserParam? NO - get defaults from somewhere else or not at all
+      // TODO replace UserParam with an optional @DefaultValue which will be helpful for the UI?
       UserParam paramAnnotation = (UserParam) parameter.getAnnotations().get(UserParam.class);
       String paramName = paramAnnotation.name();
       Object value;
@@ -110,13 +125,14 @@ public final class FunctionTree<T> {
       } else {
         throw new IllegalArgumentException("No argument or fallback value available for parameter " + parameter);
       }
-      return new Argument(parameter.getType(), value, fallbackValue);
+      return new ArgumentNode(parameter.getType(), value, fallbackValue);
     } else {
       return null;
     }
   }
 
-  public T build(Map<Class<?>, Object> infrastructure) {
+  // TODO what's the return type? the root function? or an invoker?
+  public Object build(Map<Class<?>, Object> infrastructure) {
     return _root.create(infrastructure);
   }
 
