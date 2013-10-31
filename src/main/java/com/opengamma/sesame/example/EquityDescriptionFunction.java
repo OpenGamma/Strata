@@ -6,7 +6,6 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.sesame.MarketData;
 import com.opengamma.sesame.function.Output;
 
 /**
@@ -16,10 +15,12 @@ public interface EquityDescriptionFunction {
 
   /**
    * Returns a description of the security
-   * @param marketData Not used
+   *
+   *
+   *
    * @param security A security
    * @return A description of the security
    */
   @Output(OutputNames.DESCRIPTION)
-  String getDescription(MarketData marketData, EquitySecurity security);
+  String getDescription(EquitySecurity security);
 }

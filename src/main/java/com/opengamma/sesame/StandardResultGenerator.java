@@ -37,6 +37,11 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
   }
 
   @Override
+  public ResultBuilder createBuilder() {
+    return new ResultBuilder();
+  }
+
+  @Override
   public MarketDataResultBuilder marketDataResultBuilder() {
     return new MarketDataResultBuilder() {
       private final Set<MarketDataRequirement> _missing = new HashSet<>();
@@ -48,11 +53,23 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
       public MarketDataResultBuilder missingData(Set<MarketDataRequirement> missing) {
 
         for (MarketDataRequirement requirement : missing) {
-
-          _missing.add(requirement);
-          _requirementStatus.put(requirement, Pairs.of(MarketDataStatus.PENDING, (MarketDataValue) null));
+         missingData(requirement);
         }
 
+        return this;
+      }
+
+      @Override
+      public MarketDataResultBuilder missingData(MarketDataRequirement requirement) {
+        _missing.add(requirement);
+        _requirementStatus.put(requirement, Pairs.of(MarketDataStatus.PENDING, (MarketDataValue) null));
+        return this;
+      }
+
+      @Override
+      public MarketDataResultBuilder foundData(MarketDataRequirement requirement,
+                                               Pair<MarketDataStatus, ? extends MarketDataValue> state) {
+         _requirementStatus.put(requirement, state);
         return this;
       }
 
@@ -161,6 +178,16 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
       return _marketDataResults.containsKey(requirement) ?
           _marketDataResults.get(requirement).getKey() :
           MarketDataStatus.NOT_REQUESTED;
+    }
+
+    @Override
+    public MarketDataValue getMarketDataValue(MarketDataRequirement requirement) {
+      if (_marketDataResults.containsKey(requirement) &&
+          _marketDataResults.get(requirement).getKey() == MarketDataStatus.AVAILABLE) {
+          return _marketDataResults.get(requirement).getValue();
+      } else {
+        throw new IllegalStateException("Market data value for requirement: " + requirement + " is not available");
+      }
     }
 
     @Override

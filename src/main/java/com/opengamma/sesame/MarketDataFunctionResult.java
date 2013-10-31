@@ -14,4 +14,6 @@ public interface MarketDataFunctionResult extends FunctionResult<Map<MarketDataR
   MarketDataValue getSingleMarketDataValue();
 
   MarketDataStatus getMarketDataState(MarketDataRequirement requirement);
+
+  MarketDataValue getMarketDataValue(MarketDataRequirement requirement);
 }

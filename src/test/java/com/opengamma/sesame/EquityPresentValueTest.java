@@ -35,10 +35,9 @@ public class EquityPresentValueTest {
   @Test
   public void testMarketDataUnavailable() {
 
-    MarketData marketData = new EmptyMarketData(new StandardResultGenerator());
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
-    FunctionResult<Double> result = _equityPresentValueFunction.presentValue(marketData, security);
+    FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);
     assertThat(result.getStatus(), is(AWAITING_MARKET_DATA));
   }
 
@@ -53,8 +52,7 @@ public class EquityPresentValueTest {
         StandardMarketDataRequirement.of(security, MarketDataRequirementNames.MARKET_VALUE),
         Pairs.of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
 
-    MarketData context = new StandardMarketData(new StandardResultGenerator(), marketData);
-    FunctionResult<Double> result = _equityPresentValueFunction.presentValue(context, security);
+    FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);
     assertThat(result.getStatus(), is(SUCCESS));
     assertThat(result.getResult(), is(123.45));
   }

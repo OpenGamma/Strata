@@ -6,7 +6,6 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
-import com.opengamma.sesame.MarketData;
 
 /**
  * {@link CashFlowDescriptionFunction} that returns the value of one of the security's external IDs as the description.
@@ -24,12 +23,14 @@ public class CashFlowIdDescription implements CashFlowDescriptionFunction {
   }
 
   /**
-   * @param marketData Not used
+   *
+   *
+   *
    * @param security A security
    * @return The value of one of the security's external IDs
    */
   @Override
-  public String getDescription(MarketData marketData, CashFlowSecurity security) {
+  public String getDescription(CashFlowSecurity security) {
     return security.getExternalIdBundle().getExternalId(_idSchemeFunction.getScheme()).getValue();
   }
 }
