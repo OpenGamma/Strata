@@ -11,6 +11,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
@@ -98,9 +99,11 @@ public class FunctionModelTest {
   }
 
   @Test
-  public void concreteFunctionType() {
-
-
+  public void concreteTypes() {
+    FunctionMetadata metadata = ConfigUtils.createMetadata(Concrete1.class, "foo");
+    FunctionModel functionModel = FunctionModel.forFunction(metadata);
+    Concrete1 fn = (Concrete1) functionModel.build(INFRASTRUCTURE).getReceiver();
+    assertNotNull(fn._concrete);
   }
 
   @Test
@@ -190,3 +193,18 @@ public class FunctionModelTest {
 /* package */ interface CollaboratorFunction { }
 
 /* package */ class Collaborator implements CollaboratorFunction { }
+
+/* package */ class Concrete1 {
+
+  /* package */ final Concrete2 _concrete;
+
+  /* package */ Concrete1(Concrete2 concrete) {
+    _concrete = concrete;
+  }
+
+  @Output("Foo")
+  public Object foo() {
+    return null;
+  }
+}
+/* package */ class Concrete2 { }

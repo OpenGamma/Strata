@@ -40,11 +40,6 @@ public final class FunctionModel {
     _rootMetadata = rootMetadata;
   }
 
-  @Deprecated
-  /* package */ FunctionModel(FunctionNode root) {
-    this(root, null);
-  }
-
   public FunctionNode getRootFunction() {
     return _root;
   }
@@ -53,27 +48,16 @@ public final class FunctionModel {
     return _rootMetadata;
   }
 
-  public static FunctionModel forFunction(Class<?> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
-    return new FunctionModel(createNode(functionType, config, infrastructure));
-  }
-
-  // TODO this is a problem because there's no metadata
-  public static FunctionModel forFunction(Class<?> functionType, FunctionConfig config) {
-    return new FunctionModel(createNode(functionType, config, Collections.<Class<?>>emptySet()));
-  }
-
-  // TODO this doesn't make sense any more, no default impls therefore always need config
-  @Deprecated
-  public static FunctionModel forFunction(Class<?> functionType) {
-    return new FunctionModel(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
-  }
-
   public static FunctionModel forFunction(FunctionMetadata function, FunctionConfig config, Set<Class<?>> infrastructure) {
     return new FunctionModel(createNode(function.getDeclaringType(), config, infrastructure), function);
   }
 
   public static FunctionModel forFunction(FunctionMetadata function, FunctionConfig config) {
     return new FunctionModel(createNode(function.getDeclaringType(), config, Collections.<Class<?>>emptySet()), function);
+  }
+
+  public static FunctionModel forFunction(FunctionMetadata function) {
+    return new FunctionModel(createNode(function.getDeclaringType(), FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()), function);
   }
 
   @SuppressWarnings("unchecked")
