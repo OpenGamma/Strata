@@ -7,18 +7,14 @@ package com.opengamma.sesame.function;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.swing.text.Position;
-
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.Trade;
-import com.opengamma.core.security.Security;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,39 +24,33 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FunctionMetadata {
 
-  private static final Set<Class<?>> s_inputTypes = ImmutableSet.of(Trade.class, Position.class, Security.class);
-
   // TODO if this class needs to be serializable this needs to be stored in a different way
+  /** The method that is the function implementation. */
   private final Method _method;
-  // TODO mapping from method args to params - how will this work?
-  // inputs are a target and map of param names to arg values
-  // need map of param name to index
 
-  // index of target param
-  // the invoker needs this
-  // set of valid input types - hard-code for now but will need to expand for vectorization
-  // search params for input types. zero (specific output) or one (portfolio output) are allowed
-  // decorate security functions with a function taking position or trade
-  // allow adapting from one input type (from the engine) to another (passed to the root function)
-  // hard-code adaptor for positionOrTrade -> security for now
-  // will probably have to expand that or make it configurable or smarter for vectorization
-
-  // need to present the required args to the user in the UI
-  // need to know the param names and types
-  private final Map<String, Parameter> _parameters = Maps.newHashMap();
-  // TODO invoker
+  /** Method parameters keyed by name. */
+  private final Map<String, Parameter> _parameters;
 
   /** The input parameter, null if there isn't one. */
   private final Parameter _inputParameter;
 
+  /** The name of the output produced by the function. */
   private final String _outputName;
 
   /* package */ FunctionMetadata(FunctionMetadata copyFrom) {
-    this(copyFrom._method);
+    _method = copyFrom._method;
+    _parameters = copyFrom._parameters;
+    _inputParameter = copyFrom._inputParameter;
+    _outputName = copyFrom._outputName;
   }
 
   public FunctionMetadata(Method method) {
+    this(method, Collections.<Class<?>>emptySet());
+  }
+
+  public FunctionMetadata(Method method, Set<Class<?>> inputTypes) {
     _method = method;
+    _parameters = Maps.newHashMap();
     Output annotation = method.getAnnotation(Output.class);
     if (annotation == null) {
       throw new IllegalArgumentException("method " + method + " isn't annotated with @Output");
@@ -68,15 +58,17 @@ public class FunctionMetadata {
     _outputName = annotation.value();
     List<Parameter> parameters = ConfigUtils.getParameters(method);
     Parameter inputParameter = null;
-    for (Parameter parameter : parameters) {
+    params: for (Parameter parameter : parameters) {
       _parameters.put(parameter.getName(), parameter);
-      for (Class<?> allowedInputType : s_inputTypes) {
+      // TODO this logic is broken
+      for (Class<?> allowedInputType : inputTypes) {
         if (allowedInputType.isAssignableFrom(parameter.getType())) {
           if (inputParameter == null) {
             inputParameter = parameter;
+            continue params;
           } else {
             throw new IllegalArgumentException("Multiple parameters found with a type in the set of permitted input " +
-                                                   "types. Only one is allowed. Input types: " + s_inputTypes);
+                                                   "types. Only one is allowed. Input types: " + inputTypes);
           }
         }
       }

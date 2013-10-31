@@ -22,7 +22,7 @@ public class MapFunctionRepoTest {
 
   @Test
   public void getAvailableOutputs() {
-    MapFunctionRepo repo = new MapFunctionRepo();
+    MapFunctionRepo repo = new MapFunctionRepo(Target1.class, Target2.class, Target3.class);
     repo.register(F1.class);
     repo.register(F2.class);
     assertEquals(ImmutableSortedSet.of(O1, O2), repo.getAvailableOutputs(Target3.class));
@@ -31,6 +31,7 @@ public class MapFunctionRepoTest {
     assertEquals(Collections.<String>emptySet(), repo.getAvailableOutputs(Object.class));
   }
 
+  // TODO target types are hard-coded ATM in FunctionMetadata
   class Target1 { }
   class Target2 extends Target1 { }
   class Target3 extends Target2 { }
@@ -38,7 +39,7 @@ public class MapFunctionRepoTest {
   interface F1 {
 
     @Output(MapFunctionRepoTest.O1)
-    Object execute(@Target Target1 target);
+    Object execute(Target1 target);
   }
 
   class F1Impl implements F1 {
@@ -52,7 +53,7 @@ public class MapFunctionRepoTest {
   interface F2 {
 
     @Output(MapFunctionRepoTest.O2)
-    Object execute(@Target Target2 target);
+    Object execute(Target2 target);
   }
 
   class F2Impl implements F2 {
@@ -65,13 +66,13 @@ public class MapFunctionRepoTest {
 
   @Test
   public void getFunctionType() {
-    MapFunctionRepo repo = new MapFunctionRepo();
+    MapFunctionRepo repo = new MapFunctionRepo(Target1.class, Target2.class, Target3.class);
     repo.register(F1.class);
     repo.register(F2.class);
-    assertEquals(F1.class, repo.getOutputFunction(O1, Target1.class));
-    assertEquals(F1.class, repo.getOutputFunction(O1, Target2.class));
-    assertEquals(F1.class, repo.getOutputFunction(O1, Target3.class));
-    assertEquals(F2.class, repo.getOutputFunction(O2, Target2.class));
-    assertEquals(F2.class, repo.getOutputFunction(O2, Target3.class));
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target1.class).getDeclaringType());
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target2.class).getDeclaringType());
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target3.class).getDeclaringType());
+    assertEquals(F2.class, repo.getOutputFunction(O2, Target2.class).getDeclaringType());
+    assertEquals(F2.class, repo.getOutputFunction(O2, Target3.class).getDeclaringType());
   }
 }

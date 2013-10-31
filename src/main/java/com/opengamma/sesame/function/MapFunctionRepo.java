@@ -5,17 +5,24 @@
  */
 package com.opengamma.sesame.function;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.Security;
 import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -25,6 +32,8 @@ import com.opengamma.util.tuple.Pairs;
  * TODO can this be split into 2 interfaces, one for the engine and one to generate data to guide the user through configuration?
  */
 public final class MapFunctionRepo implements FunctionRepo {
+
+  private final Set<Class<?>> _inputTypes;
 
   /** Output names registered for an input type. */
   private final Map<Class<?>, Set<String>> _outputsByInputType = Maps.newHashMap();
@@ -53,6 +62,15 @@ public final class MapFunctionRepo implements FunctionRepo {
    * This is needed to tell the user of the available options when they're configuring the view.
    */
   private final SetMultimap<Class<?>, Class<?>> _implementationsByInterface = HashMultimap.create();
+
+  public MapFunctionRepo(Class<?>... inputTypes) {
+    ArgumentChecker.notNull(inputTypes, "inputTypes");
+    _inputTypes = ImmutableSet.copyOf(inputTypes);
+  }
+
+  public MapFunctionRepo() {
+    this(Trade.class, Position.class, Security.class);
+  }
 
   @Override
   public Set<Class<?>> getInputTypes(String outputName) {
@@ -149,7 +167,7 @@ public final class MapFunctionRepo implements FunctionRepo {
    * @param type The
    */
   private void registerOutputs(Class<?> type) {
-    List<FunctionMetadata> outputs = EngineFunctionUtils.getOutputFunctions(type);
+    List<FunctionMetadata> outputs = getOutputFunctions(type);
     for (FunctionMetadata function : outputs) {
       String outputName = function.getOutputName();
       Set<String> outputNames;
@@ -166,5 +184,18 @@ public final class MapFunctionRepo implements FunctionRepo {
 
   // TODO this is only necessary for informing the user of the options if they don't specify an implementation for an interface
   private void registerImplementation(Class<?> type) {
+  }
+
+  private List<FunctionMetadata> getOutputFunctions(Class<?> type) {
+    List<FunctionMetadata> functions = Lists.newArrayList();
+    for (Method method : type.getMethods()) {
+      if (method.isAnnotationPresent(Output.class)) {
+        FunctionMetadata function = new FunctionMetadata(method, _inputTypes);
+        functions.add(function);
+      }
+    }
+    // TODO check that there aren't any clashes between constructor and method param names
+    // shouldn't matter if two methods have the same param names, the engine will only be calling one
+    return functions;
   }
 }
