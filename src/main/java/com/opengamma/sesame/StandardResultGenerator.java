@@ -5,9 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.ResultStatus.AWAITING_MARKET_DATA;
-import static com.opengamma.sesame.ResultStatus.SUCCESS;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,36 +13,17 @@ import java.util.Set;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
-public class StandardResultGenerator implements MarketDataResultGenerator {
+public class StandardResultGenerator {
 
-  @Override
-  public <T> FunctionResult<T> generateSuccessResult(final T resultValue) {
-    return new SuccessFunctionResult<>(ImmutableSet.<MarketDataRequirement>of(), resultValue);
-  }
+  public static MarketDataResultBuilder marketDataResultBuilder() {
 
-  @Override
-  public <T> FunctionResult<T> generateFailureResult(final ResultStatus failureStatus,
-                                                     String message,
-                                                     Object... messageParams) {
-    return new FailureFunctionResult<>(failureStatus, ImmutableSet.<MarketDataRequirement>of(), message, messageParams);
-  }
-
-  @Override
-  public ResultBuilder createBuilder() {
-    return new ResultBuilder();
-  }
-
-  @Override
-  public MarketDataResultBuilder marketDataResultBuilder() {
     return new MarketDataResultBuilder() {
       private final Set<MarketDataRequirement> _missing = new HashSet<>();
-      private ResultStatus _status = AWAITING_MARKET_DATA;
+      private SuccessStatus _status = SuccessStatus.AWAITING_MARKET_DATA;
 
       private final Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> _requirementStatus = new HashMap<>();
 
@@ -81,17 +59,42 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
 
       @Override
       public MarketDataFunctionResult build() {
-        return new StandardMarketDataFunctionResult(_missing.isEmpty() ? SUCCESS : _status, _missing, _requirementStatus);
+        return new MarketDataFunctionSuccessResult(_missing.isEmpty() ? SuccessStatus.SUCCESS : _status, _requirementStatus);
       }
     };
   }
 
-  private static final class SuccessFunctionResult<T> extends AbstractFunctionResult<T> {
+  public static <T> FunctionResult<T> propagateFailure(FunctionResult result) {
+    // todo remove the cast
+    return new FailureFunctionResult<>((FailureStatus) result.getStatus(), result.getFailureMessage());
+  }
+
+  public static <T> FunctionResult<T> failure(FailureStatus status, String message, Object... messageArgs) {
+    return new FailureFunctionResult<>(status, message, messageArgs);
+  }
+
+  public static <T> FunctionResult<T> success(T value) {
+    return new SuccessFunctionResult<>(value);
+  }
+
+  public static <T> FunctionResult<T> success(SuccessStatus status, T value) {
+    return new SuccessFunctionResult<>(status, value);
+  }
+
+  public static MarketDataFunctionResult marketDataFailure(FailureStatus status, String message, Object... messageArgs) {
+    return new MarketDataFunctionSuccessResult.MarketDataFunctionFailureResult(status, message, messageArgs);
+  }
+
+  private static class SuccessFunctionResult<T> extends AbstractFunctionResult<T> {
 
     private final T _result;
 
-    private SuccessFunctionResult(Set<MarketDataRequirement> requiredMarketData, T result) {
-      super(SUCCESS, requiredMarketData);
+    private SuccessFunctionResult(T result) {
+      this(SuccessStatus.SUCCESS, result);
+    }
+
+    public SuccessFunctionResult(SuccessStatus status, T result) {
+      super(status);
       this._result = result;
     }
 
@@ -111,24 +114,20 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
     }
   }
 
-  private static final class FailureFunctionResult<T> extends AbstractFunctionResult<T>  {
+  private static class FailureFunctionResult<T> extends AbstractFunctionResult<T>  {
 
     private final FormattingTuple _errorMessage;
 
-    private FailureFunctionResult(ResultStatus failureStatus,
-                                  Set<MarketDataRequirement> requiredMarketData,
+    private FailureFunctionResult(FailureStatus failureStatus,
                                   String message,
                                   Object... messageArgs) {
-      this(failureStatus, requiredMarketData, MessageFormatter.arrayFormat(message, messageArgs));
+      this(failureStatus, MessageFormatter.arrayFormat(message, messageArgs));
     }
 
-    public FailureFunctionResult(ResultStatus failureStatus,
-                                 Set<MarketDataRequirement> requiredMarketData,
+    public FailureFunctionResult(FailureStatus failureStatus,
                                  FormattingTuple errorMessage) {
 
-      super(failureStatus, requiredMarketData);
-
-      ArgumentChecker.isTrue(failureStatus != SUCCESS, "Failure result cannot have a SUCCESS status");
+      super(failureStatus);
       _errorMessage = errorMessage;
     }
 
@@ -145,64 +144,64 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
 
     @Override
     public <N> FunctionResult<N> generateFailureResult() {
-      return new FailureFunctionResult<>(getStatus(), getRequiredMarketData(), _errorMessage);
+      // todo - remove cast
+      return new FailureFunctionResult<>((FailureStatus) getStatus(), _errorMessage);
     }
   }
 
-  private static final class StandardMarketDataFunctionResult extends AbstractFunctionResult<Map<MarketDataRequirement, ? extends MarketDataValue>>
+  private static final class MarketDataFunctionSuccessResult extends SuccessFunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>>
       implements MarketDataFunctionResult {
 
-    private final Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> _marketDataResults;
-
-    private StandardMarketDataFunctionResult(ResultStatus status,
-                                             Set<MarketDataRequirement> missingMarketData,
+    private MarketDataFunctionSuccessResult(SuccessStatus status,
                                              Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> marketDataResults) {
-      super(status, missingMarketData);
-      _marketDataResults = marketDataResults;
-    }
-
-    @Override
-    public boolean isFullyAvailable() {
-      return getRequiredMarketData().isEmpty();
+      super(status, marketDataResults);
     }
 
     // todo this is probably not worth having?
     @Override
     public MarketDataValue getSingleMarketDataValue() {
-      return Iterables.getOnlyElement(_marketDataResults.values()).getValue();
+      return Iterables.getOnlyElement(getResult().values()).getValue();
     }
 
     @Override
     public MarketDataStatus getMarketDataState(MarketDataRequirement requirement) {
 
-      return _marketDataResults.containsKey(requirement) ?
-          _marketDataResults.get(requirement).getKey() :
+      return getResult().containsKey(requirement) ?
+          getResult().get(requirement).getKey() :
           MarketDataStatus.NOT_REQUESTED;
     }
 
     @Override
     public MarketDataValue getMarketDataValue(MarketDataRequirement requirement) {
-      if (_marketDataResults.containsKey(requirement) &&
-          _marketDataResults.get(requirement).getKey() == MarketDataStatus.AVAILABLE) {
-          return _marketDataResults.get(requirement).getValue();
+      if (getResult().containsKey(requirement) &&
+          getResult().get(requirement).getKey() == MarketDataStatus.AVAILABLE) {
+          return getResult().get(requirement).getValue();
       } else {
         throw new IllegalStateException("Market data value for requirement: " + requirement + " is not available");
       }
     }
 
-    @Override
-    public Map<MarketDataRequirement, MarketDataValue> getResult() {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+    private static final class MarketDataFunctionFailureResult extends FailureFunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>>
+        implements MarketDataFunctionResult {
 
-    @Override
-    public <N> FunctionResult<N> generateFailureResult() {
-      return new FailureFunctionResult<>(getStatus(), getRequiredMarketData(), "some error");
-    }
+      private MarketDataFunctionFailureResult(FailureStatus failureStatus, String message, Object... messageArgs) {
+        super(failureStatus, message, messageArgs);
+      }
 
-    @Override
-    public String getFailureMessage() {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      @Override
+      public MarketDataValue getSingleMarketDataValue() {
+        throw new IllegalStateException("Unable to get data from a failure result");
+      }
+
+      @Override
+      public MarketDataStatus getMarketDataState(MarketDataRequirement requirement) {
+        throw new IllegalStateException("Unable to get data from a failure result");
+      }
+
+      @Override
+      public MarketDataValue getMarketDataValue(MarketDataRequirement requirement) {
+        throw new IllegalStateException("Unable to get data from a failure result");
+      }
     }
   }
 
@@ -210,36 +209,9 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
   private abstract static class AbstractFunctionResult<T> implements FunctionResult<T> {
 
     private final ResultStatus _status;
-    private final Set<MarketDataRequirement> _requiredMarketData;
-    private final MarketDataResult _marketDataResult;
 
-    private AbstractFunctionResult(ResultStatus status,
-                                   Set<MarketDataRequirement> requiredMarketData) {
+    private AbstractFunctionResult(ResultStatus status) {
       _status = status;
-      _requiredMarketData = requiredMarketData;
-      _marketDataResult = EmptyMarketDataResult.INSTANCE;
-    }
-
-    @Override
-    public FunctionResult combine(FunctionResult... functionResults) {
-
-      Set<MarketDataRequirement> marketData = new HashSet<>(_requiredMarketData);
-      ResultStatus status = _status;
-
-      for (FunctionResult result : functionResults) {
-        marketData.addAll(result.getRequiredMarketData());
-        if (status == SUCCESS) {
-          status = result.getStatus();
-        }
-      }
-
-      return status == SUCCESS ?
-          new SuccessFunctionResult(marketData, getResult()) : new FailureFunctionResult(status, marketData, "something wrong");
-    }
-
-    @Override
-    public Set<MarketDataRequirement> getRequiredMarketData() {
-      return _requiredMarketData;
     }
 
     @Override
@@ -248,13 +220,13 @@ public class StandardResultGenerator implements MarketDataResultGenerator {
     }
 
     @Override
-    public <N> FunctionResult<N> generateSuccessResult(N newResult) {
-      return new SuccessFunctionResult<>(_requiredMarketData, newResult);
+    public <N> FunctionResult<N> generateSuccessResult(SuccessStatus status, N newResult) {
+      return new SuccessFunctionResult<>(newResult);
     }
 
     @Override
-    public <N> FunctionResult<N> generateFailureResult(ResultStatus status, String message, Object... args) {
-      return new FailureFunctionResult<>(status, _requiredMarketData, message, args);
+    public <N> FunctionResult<N> generateFailureResult(FailureStatus status, String message, Object... args) {
+      return new FailureFunctionResult<>(status, message, args);
     }
   }
 }

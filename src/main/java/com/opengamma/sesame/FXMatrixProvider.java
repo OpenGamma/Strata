@@ -5,6 +5,10 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
+import static com.opengamma.sesame.StandardResultGenerator.failure;
+import static com.opengamma.sesame.StandardResultGenerator.success;
+
 import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -28,7 +32,6 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
 
   private final ConventionSource _conventionSource;
 
-  private final ResultGenerator _resultGenerator;
   private final ConfigSource _configSource;
 
   private final CurrencyPairsFunction _currencyPairsFunction;
@@ -37,18 +40,15 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
 
   public FXMatrixProvider(ConfigSource configSource,
                           ConventionSource conventionSource,
-                          ResultGenerator resultGenerator,
                           CurrencyPairsFunction currencyPairsFunction,
                           MarketDataProviderFunction marketDataProviderFunction) {
     ArgumentChecker.notNull(configSource, "configSource");
     ArgumentChecker.notNull(conventionSource, "conventionSource");
-    ArgumentChecker.notNull(resultGenerator, "resultGenerator");
     ArgumentChecker.notNull(currencyPairsFunction, "currencyPairsFunction");
     ArgumentChecker.notNull(marketDataProviderFunction, "marketDataProviderFunction");
     _configSource = configSource;
     _curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(_configSource);
     _conventionSource = conventionSource;
-    _resultGenerator = resultGenerator;
     _currencyPairsFunction = currencyPairsFunction;
     _marketDataProviderFunction = marketDataProviderFunction;
   }
@@ -60,8 +60,7 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
         _curveConfigurationSource.getCurveConstructionConfiguration(curveConfigurationName);
 
     if (curveConstructionConfiguration == null) {
-      return _resultGenerator.generateFailureResult(
-          ResultStatus.MISSING_DATA, "Could not get curve construction configuration called: {}", curveConfigurationName);
+      return failure(MISSING_DATA, "Could not get curve construction configuration called: {}", curveConfigurationName);
     }
 
     // todo - should this actually be another function or set of functions
@@ -94,13 +93,13 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
           double spotRate = (Double) marketDataFunctionResult.getMarketDataValue(spotReqmt).getValue();
 
           FunctionResult<CurrencyPair> result = _currencyPairsFunction.getCurrencyPair(refCurr, currency);
-          if (result.getStatus() == ResultStatus.SUCCESS) {
+          if (result.getStatus() == SuccessStatus.SUCCESS) {
             boolean inversionRequired = result.getResult().getCounter().equals(refCurr);
             matrix.addCurrency(currency, refCurr, inversionRequired ? 1 / spotRate : spotRate);
           }
         }
       }
     }
-    return _resultGenerator.generateSuccessResult(matrix);
+    return success(SuccessStatus.SUCCESS, matrix);
   }
 }

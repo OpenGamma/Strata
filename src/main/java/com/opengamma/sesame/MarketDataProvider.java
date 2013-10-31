@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -40,21 +39,6 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
   private final Set<MarketDataRequirement> _marketDataRequests =
       Collections.newSetFromMap(new ConcurrentHashMap<MarketDataRequirement, Boolean>());
 
-  /**
-   * Result generator to create market data results.
-   */
-  private final ResultGenerator _resultGenerator;
-
-  /**
-   * Constructor for the function.
-   *
-   * @param resultGenerator the results generator, not null
-   */
-  public MarketDataProvider(ResultGenerator resultGenerator) {
-    ArgumentChecker.notNull(resultGenerator, "resultGenerator");
-    _resultGenerator = resultGenerator;
-  }
-
   @Override
   public MarketDataFunctionResult requestData(MarketDataRequirement requirement) {
     return requestData(ImmutableSet.of(requirement));
@@ -62,7 +46,7 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
 
   @Override
   public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements) {
-    MarketDataResultBuilder builder = _resultGenerator.marketDataResultBuilder();
+    MarketDataResultBuilder builder = StandardResultGenerator.marketDataResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       if (_availableMarketData.containsKey(requirement)) {
         builder.foundData(requirement, _availableMarketData.get(requirement));
