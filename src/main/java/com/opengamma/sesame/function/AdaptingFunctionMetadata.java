@@ -11,7 +11,7 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 
 /**
- * Wraps an {@link Invoker} that expects a {@link Security} input in one that expects a {@link PositionOrTrade}
+ * Wraps an {@link InvokableFunction} that expects a {@link Security} input in one that expects a {@link PositionOrTrade}
  * input. When the invoker is called it gets the security from the {@link PositionOrTrade} and uses it when
  * invoking the wrapped invoker.
  */
@@ -22,15 +22,15 @@ public class AdaptingFunctionMetadata extends FunctionMetadata {
   }
 
   @Override
-  public Invoker getInvoker(Object receiver) {
-    return new AdaptingInvoker(super.getInvoker(receiver));
+  public InvokableFunction getInvokableFunction(Object receiver) {
+    return new AdaptingInvokableFunction(super.getInvokableFunction(receiver));
   }
 
-  private static class AdaptingInvoker implements Invoker {
+  private static class AdaptingInvokableFunction implements InvokableFunction {
 
-    private final Invoker _delegate;
+    private final InvokableFunction _delegate;
 
-    private AdaptingInvoker(Invoker delegate) {
+    private AdaptingInvokableFunction(InvokableFunction delegate) {
       _delegate = delegate;
     }
 
@@ -38,6 +38,16 @@ public class AdaptingFunctionMetadata extends FunctionMetadata {
     public Object invoke(Object input, Map<String, Object> args) {
       Security security = ((PositionOrTrade) input).getSecurity();
       return _delegate.invoke(security, args);
+    }
+
+    @Override
+    public String getOutputName() {
+      return _delegate.getOutputName();
+    }
+
+    @Override
+    public Object getReceiver() {
+      return _delegate.getReceiver();
     }
   }
 }

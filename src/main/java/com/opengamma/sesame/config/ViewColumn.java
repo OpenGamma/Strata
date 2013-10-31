@@ -110,7 +110,7 @@ public final class ViewColumn implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets default output details for target types that don't specify any.
+   * Gets default output details for input types that don't specify any.
    * @return the value of the property
    */
   public ColumnOutput getDefaultOutput() {
@@ -169,10 +169,11 @@ public final class ViewColumn implements ImmutableBean {
     buf.append("ViewColumn{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("defaultOutput").append('=').append(getDefaultOutput()).append(',').append(' ');
-    buf.append("targetOutputs").append('=').append(JodaBeanUtils.toString(getOutputs()));
+    buf.append("outputs").append('=').append(JodaBeanUtils.toString(getOutputs()));
     buf.append('}');
     return buf.toString();
   }
+
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ViewColumn}.
@@ -194,11 +195,11 @@ public final class ViewColumn implements ImmutableBean {
     private final MetaProperty<ColumnOutput> _defaultOutput = DirectMetaProperty.ofImmutable(
         this, "defaultOutput", ViewColumn.class, ColumnOutput.class);
     /**
-     * The meta-property for the {@code targetOutputs} property.
+     * The meta-property for the {@code outputs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Class<?>, ColumnOutput>> _targetOutputs = DirectMetaProperty.ofImmutable(
-        this, "targetOutputs", ViewColumn.class, (Class) Map.class);
+    private final MetaProperty<Map<Class<?>, ColumnOutput>> _outputs = DirectMetaProperty.ofImmutable(
+        this, "outputs", ViewColumn.class, (Class) Map.class);
     /**
      * The meta-properties.
      */
@@ -206,7 +207,7 @@ public final class ViewColumn implements ImmutableBean {
         this, null,
         "name",
         "defaultOutput",
-        "targetOutputs");
+        "outputs");
 
     /**
      * Restricted constructor.
@@ -221,8 +222,8 @@ public final class ViewColumn implements ImmutableBean {
           return _name;
         case 860251810:  // defaultOutput
           return _defaultOutput;
-        case 1197832385:  // targetOutputs
-          return _targetOutputs;
+        case -1106114670:  // outputs
+          return _outputs;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -260,11 +261,11 @@ public final class ViewColumn implements ImmutableBean {
     }
 
     /**
-     * The meta-property for the {@code targetOutputs} property.
+     * The meta-property for the {@code outputs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<Class<?>, ColumnOutput>> targetOutputs() {
-      return _targetOutputs;
+    public MetaProperty<Map<Class<?>, ColumnOutput>> outputs() {
+      return _outputs;
     }
 
     //-----------------------------------------------------------------------
@@ -275,7 +276,7 @@ public final class ViewColumn implements ImmutableBean {
           return ((ViewColumn) bean).getName();
         case 860251810:  // defaultOutput
           return ((ViewColumn) bean).getDefaultOutput();
-        case 1197832385:  // targetOutputs
+        case -1106114670:  // outputs
           return ((ViewColumn) bean).getOutputs();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -300,7 +301,7 @@ public final class ViewColumn implements ImmutableBean {
 
     private String _name;
     private ColumnOutput _defaultOutput;
-    private Map<Class<?>, ColumnOutput> _targetOutputs = new HashMap<Class<?>, ColumnOutput>();
+    private Map<Class<?>, ColumnOutput> _outputs = new HashMap<Class<?>, ColumnOutput>();
 
     /**
      * Restricted constructor.
@@ -317,7 +318,7 @@ public final class ViewColumn implements ImmutableBean {
       super(ViewColumn.Meta.INSTANCE);
       this._name = beanToCopy.getName();
       this._defaultOutput = beanToCopy.getDefaultOutput();
-      this._targetOutputs = new HashMap<Class<?>, ColumnOutput>(beanToCopy.getOutputs());
+      this._outputs = new HashMap<Class<?>, ColumnOutput>(beanToCopy.getOutputs());
     }
 
     //-----------------------------------------------------------------------
@@ -331,8 +332,8 @@ public final class ViewColumn implements ImmutableBean {
         case 860251810:  // defaultOutput
           this._defaultOutput = (ColumnOutput) newValue;
           break;
-        case 1197832385:  // targetOutputs
-          this._targetOutputs = (Map<Class<?>, ColumnOutput>) newValue;
+        case -1106114670:  // outputs
+          this._outputs = (Map<Class<?>, ColumnOutput>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -345,7 +346,7 @@ public final class ViewColumn implements ImmutableBean {
       return new ViewColumn(
           _name,
           _defaultOutput,
-          _targetOutputs);
+          _outputs);
     }
 
     //-----------------------------------------------------------------------
@@ -371,13 +372,13 @@ public final class ViewColumn implements ImmutableBean {
     }
 
     /**
-     * Sets the {@code targetOutputs} property in the builder.
-     * @param targetOutputs  the new value, not null
+     * Sets the {@code outputs} property in the builder.
+     * @param outputs  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder targetOutputs(Map<Class<?>, ColumnOutput> targetOutputs) {
-      JodaBeanUtils.notNull(targetOutputs, "targetOutputs");
-      this._targetOutputs = targetOutputs;
+    public Builder outputs(Map<Class<?>, ColumnOutput> outputs) {
+      JodaBeanUtils.notNull(outputs, "outputs");
+      this._outputs = outputs;
       return this;
     }
 
@@ -388,7 +389,7 @@ public final class ViewColumn implements ImmutableBean {
       buf.append("ViewColumn.Builder{");
       buf.append("name").append('=').append(_name).append(',').append(' ');
       buf.append("defaultOutput").append('=').append(_defaultOutput).append(',').append(' ');
-      buf.append("targetOutputs").append('=').append(_targetOutputs);
+      buf.append("outputs").append('=').append(_outputs);
       buf.append('}');
       return buf.toString();
     }

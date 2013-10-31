@@ -31,6 +31,7 @@ public class FunctionMetadata {
 
   private static final Set<Class<?>> s_inputTypes = ImmutableSet.of(Trade.class, Position.class, Security.class);
 
+  // TODO if this class needs to be serializable this needs to be stored in a different way
   private final Method _method;
   // TODO mapping from method args to params - how will this work?
   // inputs are a target and map of param names to arg values
@@ -84,9 +85,9 @@ public class FunctionMetadata {
     _inputParameter = inputParameter;
   }
 
-  public Invoker getInvoker(Object receiver) {
+  public InvokableFunction getInvokableFunction(Object receiver) {
     ArgumentChecker.notNull(receiver, "receiver");
-    return new MethodInvoker(receiver);
+    return new MethodInvokableFunction(receiver);
   }
 
   public Class<?> getDeclaringType() {
@@ -137,13 +138,23 @@ public class FunctionMetadata {
   }
 
   // TODO return value wrapped in metadata (output name, trade/security etc)? for scaling, aggregation, ccy conversion
-  private class MethodInvoker implements Invoker {
+  private class MethodInvokableFunction implements InvokableFunction {
 
     private final Object _receiver;
 
-    private MethodInvoker(Object receiver) {
+    private MethodInvokableFunction(Object receiver) {
       // TODO check the receiver is compatible with _declaringType
       _receiver = receiver;
+    }
+
+    @Override
+    public Object getReceiver() {
+      return _receiver;
+    }
+
+    @Override
+    public String getOutputName() {
+      return _outputName;
     }
 
     @Override

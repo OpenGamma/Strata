@@ -24,7 +24,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.EmptyMarketData;
 import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.sesame.config.FunctionConfig;
-import com.opengamma.sesame.graph.FunctionTree;
+import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -47,8 +47,9 @@ public class EquityDescriptionTest {
 
   @Test
   public void defaultImpl() {
-    FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class);
-    EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class);
+    // TODO this return type will change soon
+    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
     String description = fn.getDescription(createEmptyMarketData(), SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
@@ -56,9 +57,9 @@ public class EquityDescriptionTest {
   @Test
   public void idImplDefaultArgs() {
     FunctionConfig config = config(overrides(EquityDescriptionFunction.class, EquityIdDescription.class));
-    FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class,
-                                                                                    config);
-    EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class, config);
+    // TODO this return type will change soon
+    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
     String description = fn.getDescription(createEmptyMarketData(), SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
@@ -70,9 +71,9 @@ public class EquityDescriptionTest {
                arguments(
                    function(IdScheme.class,
                             argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))));
-    FunctionTree<EquityDescriptionFunction> functionTree = FunctionTree.forFunction(EquityDescriptionFunction.class,
-                                                                                    config);
-    EquityDescriptionFunction fn = functionTree.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class, config);
+    // TODO this return type will change soon
+    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
     String description = fn.getDescription(createEmptyMarketData(), SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }

@@ -20,41 +20,48 @@ import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.AdaptingFunctionMetadata;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.FunctionRepo;
-import com.opengamma.sesame.function.Invoker;
+import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.NoOutputFunction;
 
 /**
  * Lightweight model of the functions needed to generate the outputs for a view.
  */
-public final class Graph {
+public final class GraphModel {
 
-  private final Map<String, Map<ObjectId, FunctionTree>> _functionTrees;
+  // TODO for this to be useful in the UI it needs to be map(column -> map((outputName,inputType) -> functionTree))
+  // TODO probably better to have a real class that a rats' nest of generics
+  private final Map<String, Map<ObjectId, FunctionModel>> _functionTrees;
 
-  private Graph(Map<String, Map<ObjectId, FunctionTree>> functionTrees) {
+  private GraphModel(Map<String, Map<ObjectId, FunctionModel>> functionTrees) {
     _functionTrees = functionTrees;
   }
 
   // TODO this method is ugly, find a neater way
-  public static Graph forView(ViewDef viewDef,
+  public static GraphModel forView(ViewDef viewDef,
                               Collection<? extends PositionOrTrade> inputs,
                               Map<Class<?>, Object> infrastructure,
                               FunctionRepo functionRepo) {
-    ImmutableMap.Builder<String, Map<ObjectId, FunctionTree>> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Map<ObjectId, FunctionModel>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
-      ImmutableMap.Builder<ObjectId, FunctionTree> columnBuilder = ImmutableMap.builder();
+      ImmutableMap.Builder<ObjectId, FunctionModel> columnBuilder = ImmutableMap.builder();
       for (PositionOrTrade posOrTrade : inputs) {
         // TODO no need to create a FunctionTree for every target, cache on outputName/inputType
 
         // TODO at the bare minimum this could be moved into 2 helper methods that return a function tree
         // one each for position and security. or one to create the function tree and one to wrap it for securities
 
+        // TODO better to do this in the ColumnOutput and pass in the repo? it knows about all the config
+        // maybe the logic would be less knarly if it was in there
+
         // look for an output for the position or trade
         ColumnOutput posOrTradeOutput = column.getOutput(posOrTrade.getClass());
         if (posOrTradeOutput != null) {
           FunctionMetadata function = functionRepo.getOutputFunction(posOrTradeOutput.getOutputName(), posOrTrade.getClass());
           if (function != null) {
-            FunctionTree functionTree = FunctionTree.forFunction(function, posOrTradeOutput.getFunctionConfig(), infrastructure.keySet());
-            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionTree);
+            FunctionModel functionModel = FunctionModel.forFunction(function,
+                                                                    posOrTradeOutput.getFunctionConfig(),
+                                                                    infrastructure.keySet());
+            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
         }
@@ -65,12 +72,12 @@ public final class Graph {
         if (securityOutput != null) {
           FunctionMetadata functionType = functionRepo.getOutputFunction(securityOutput.getOutputName(), security.getClass());
           if (functionType != null) {
-            FunctionTree securityTree = FunctionTree.forFunction(functionType,
-                                                                 securityOutput.getFunctionConfig(),
-                                                                 infrastructure.keySet());
-            FunctionTree functionTree = new FunctionTree(securityTree.getRootFunction(),
+            FunctionModel securityTree = FunctionModel.forFunction(functionType,
+                                                                   securityOutput.getFunctionConfig(),
+                                                                   infrastructure.keySet());
+            FunctionModel functionModel = new FunctionModel(securityTree.getRootFunction(),
                                                          new AdaptingFunctionMetadata(securityTree.getRootMetadata()));
-            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionTree);
+            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
         }
@@ -82,34 +89,34 @@ public final class Graph {
           FunctionMetadata defaultPosOrTradeFunction = functionRepo.getOutputFunction(defaultOutput.getOutputName(),
                                                                                       posOrTrade.getClass());
           if (defaultPosOrTradeFunction != null) {
-            FunctionTree functionTree = FunctionTree.forFunction(defaultPosOrTradeFunction,
-                                                                 defaultOutput.getFunctionConfig(),
-                                                                 infrastructure.keySet());
-            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionTree);
+            FunctionModel functionModel = FunctionModel.forFunction(defaultPosOrTradeFunction,
+                                                                    defaultOutput.getFunctionConfig(),
+                                                                    infrastructure.keySet());
+            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
           // is there a default output for the security
           FunctionMetadata defaultSecFunction = functionRepo.getOutputFunction(defaultOutput.getOutputName(),
                                                                                posOrTrade.getSecurity().getClass());
           if (defaultSecFunction != null) {
-            FunctionTree securityTree = FunctionTree.forFunction(defaultSecFunction,
-                                                                 defaultOutput.getFunctionConfig(),
-                                                                 infrastructure.keySet());
-            FunctionTree functionTree = new FunctionTree(securityTree.getRootFunction(),
+            FunctionModel securityTree = FunctionModel.forFunction(defaultSecFunction,
+                                                                   defaultOutput.getFunctionConfig(),
+                                                                   infrastructure.keySet());
+            FunctionModel functionModel = new FunctionModel(securityTree.getRootFunction(),
                                                          new AdaptingFunctionMetadata(securityTree.getRootMetadata()));
-            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionTree);
+            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
         }
-        FunctionTree functionTree = FunctionTree.forFunction(NoOutputFunction.METADATA,
-                                                             FunctionConfig.EMPTY,
-                                                             Collections.<Class<?>>emptySet());
+        FunctionModel functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA,
+                                                                FunctionConfig.EMPTY,
+                                                                Collections.<Class<?>>emptySet());
         // TODO how will this work for in-memory trades? assign an ID? use object identity?
-        columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionTree);
+        columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
       }
       builder.put(column.getName(), columnBuilder.build());
     }
-    return new Graph(builder.build());
+    return new GraphModel(builder.build());
   }
 
   /**
@@ -119,18 +126,14 @@ public final class Graph {
    * @return A graph containing the built function instances
    */
   public FunctionGraph build(Map<Class<?>, Object> infrastructure) {
-    ImmutableMap.Builder<String, Map<ObjectId, Invoker>> builder = ImmutableMap.builder();
-    for (Map.Entry<String, Map<ObjectId, FunctionTree>> entry : _functionTrees.entrySet()) {
-      Map<ObjectId, FunctionTree> functionsByTargetId = entry.getValue();
-      ImmutableMap.Builder<ObjectId, Invoker> columnBuilder = ImmutableMap.builder();
-      for (Map.Entry<ObjectId, FunctionTree> columnEntry : functionsByTargetId.entrySet()) {
+    ImmutableMap.Builder<String, Map<ObjectId, InvokableFunction>> builder = ImmutableMap.builder();
+    for (Map.Entry<String, Map<ObjectId, FunctionModel>> entry : _functionTrees.entrySet()) {
+      Map<ObjectId, FunctionModel> functionsByTargetId = entry.getValue();
+      ImmutableMap.Builder<ObjectId, InvokableFunction> columnBuilder = ImmutableMap.builder();
+      for (Map.Entry<ObjectId, FunctionModel> columnEntry : functionsByTargetId.entrySet()) {
         ObjectId targetId = columnEntry.getKey();
-        FunctionTree functionTree = columnEntry.getValue();
-        // TODO this is wrong, build returns the function impl, not an invoker
-        // will need to return more than that. need:
-        //   * fn type (or the fn itself) for extracting args from FunctionConfig
-        //   * invoker (this comes from the FunctionMetadata in the FunctionTree)
-        columnBuilder.put(targetId, (Invoker) functionTree.build(infrastructure));
+        FunctionModel functionModel = columnEntry.getValue();
+        columnBuilder.put(targetId, functionModel.build(infrastructure));
       }
       String columnName = entry.getKey();
       builder.put(columnName, columnBuilder.build());

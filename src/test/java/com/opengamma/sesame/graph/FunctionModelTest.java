@@ -22,12 +22,11 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.config.FunctionConfig;
-import com.opengamma.sesame.function.FallbackImplementation;
 import com.opengamma.sesame.function.UserParam;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class FunctionTreeTest {
+public class FunctionModelTest {
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
   private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
@@ -36,16 +35,18 @@ public class FunctionTreeTest {
 
   @Test
   public void defaultImpl() {
-    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class);
-    TestFunction fn = functionTree.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class);
+    // TODO this return type will change soon
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
     assertTrue(fn instanceof DefaultImpl);
   }
 
   @Test
   public void overriddenImpl() {
     FunctionConfig config = config(overrides(TestFunction.class, AlternativeImpl.class));
-    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config);
-    TestFunction fn = functionTree.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class, config);
+    // TODO this return type will change soon
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
     assertTrue(fn instanceof AlternativeImpl);
   }
 
@@ -53,8 +54,11 @@ public class FunctionTreeTest {
   public void infrastructure() {
     ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
     FunctionConfig config = config(overrides(TestFunction.class, InfrastructureImpl.class));
-    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config, infrastructure.keySet());
-    TestFunction fn = functionTree.build(infrastructure);
+    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class,
+                                                                          config,
+                                                                          infrastructure.keySet());
+    // TODO this return type will change soon
+    TestFunction fn = (TestFunction) functionModel.build(infrastructure);
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
@@ -63,8 +67,9 @@ public class FunctionTreeTest {
   @Test
   public void defaultUserParams() {
     FunctionConfig config = config(overrides(TestFunction.class, UserParameters.class));
-    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config);
-    TestFunction fn = functionTree.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class, config);
+    // TODO this return type will change soon
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
     assertEquals(9, ((UserParameters) fn)._i);
@@ -79,8 +84,8 @@ public class FunctionTreeTest {
                arguments(
                    function(UserParameters.class,
                             argument("i", 12))));
-    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config);
-    TestFunction fn = functionTree.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class, config);
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
     assertEquals(12, ((UserParameters) fn)._i);
@@ -91,8 +96,9 @@ public class FunctionTreeTest {
   @Test
   public void functionCallingOtherFunction() {
     FunctionConfig config = config(overrides(TestFunction.class, CallsOtherFunction.class));
-    FunctionTree<TestFunction> functionTree = FunctionTree.forFunction(TestFunction.class, config);
-    TestFunction fn = functionTree.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class, config);
+    // TODO this return type will change soon
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
     assertTrue(((CallsOtherFunction) fn)._collaborator instanceof Collaborator);
@@ -135,7 +141,6 @@ public class FunctionTreeTest {
   }
 }
 
-@FallbackImplementation(DefaultImpl.class)
 /* package */ interface TestFunction {
 
   Object foo();
@@ -202,7 +207,6 @@ public class FunctionTreeTest {
   }
 }
 
-@FallbackImplementation(Collaborator.class)
 /* package */ interface CollaboratorFunction { }
 
 /* package */ class Collaborator implements CollaboratorFunction { }

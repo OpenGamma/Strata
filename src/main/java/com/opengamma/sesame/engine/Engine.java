@@ -22,11 +22,15 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.sesame.config.ColumnOutput;
+import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.FunctionRepo;
-import com.opengamma.sesame.function.Invoker;
+import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.graph.FunctionGraph;
-import com.opengamma.sesame.graph.Graph;
+import com.opengamma.sesame.graph.GraphModel;
 
 /**
  * TODO this is totally provisional, just enough to run some basic tests that stitch everything together
@@ -56,8 +60,8 @@ import com.opengamma.sesame.graph.Graph;
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
   public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets, Listener listener) {
-    Graph graph = Graph.forView(viewDef, targets, _infrastructure, _functionRepo);
-    FunctionGraph functionGraph = graph.build(_infrastructure);
+    GraphModel graphModel = GraphModel.forView(viewDef, targets, _infrastructure, _functionRepo);
+    FunctionGraph functionGraph = graphModel.build(_infrastructure);
     return new View(functionGraph, targets, listener, _executor);
   }
 
@@ -76,19 +80,18 @@ import com.opengamma.sesame.graph.Graph;
       _executor = executor;
     }
 
-    public void run() {
+    public void run(List<ViewColumn> columns) {
       List<Task> tasks = Lists.newArrayList();
-      for (Map.Entry<String, Map<ObjectId, Invoker>> entry : _graph.getFunctions().entrySet()) {
-        String columnName = entry.getKey();
-        Map<ObjectId, Invoker> invokersByInputId = entry.getValue();
+      for (ViewColumn column : columns) {
+        String columnName = column.getName();
+        Map<ObjectId, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
         for (PositionOrTrade input : _inputs) {
           ObjectId inputId = input.getUniqueId().getObjectId();
-          // args comes from columnOutput.functionConfig.functionArguments.arguments
-          // need to attach that to the graph
-          // probably the functionConfig at the root along with the function metadata
-          // will need to change the type of the map value from Invoker to something else
-          // something in FunctionGraph at each root? will need fields for the args, invoker and fn type
-          tasks.add(new Task(input, args, columnName, invokersByInputId.get(inputId)));
+          ColumnOutput columnOutput = column.getOutput(input.getClass());
+          FunctionConfig functionConfig = columnOutput.getFunctionConfig();
+          InvokableFunction function = functions.get(inputId);
+          FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
+          tasks.add(new Task(input, args.getArguments(), columnName, function));
         }
       }
       List<Future<TaskResult>> futures;
@@ -129,22 +132,22 @@ import com.opengamma.sesame.graph.Graph;
 
       private final UniqueIdentifiable _input;
       private final String _columnName;
-      private final Invoker _invoker;
+      private final InvokableFunction _invokableFunction;
       private final Map<String, Object> _args;
       // TODO need the arguments for the class that provides the function implementation
 
-      private Task(UniqueIdentifiable input, Map<String, Object> args, String columnName, Invoker invoker) {
+      private Task(UniqueIdentifiable input, Map<String, Object> args, String columnName, InvokableFunction invokableFunction) {
         _input = input;
         _args = args;
         _columnName = columnName;
-        _invoker = invoker;
+        _invokableFunction = invokableFunction;
       }
 
       @Override
       public TaskResult call() throws Exception {
         Object result;
         try {
-          result = _invoker.invoke(_input, _args);
+          result = _invokableFunction.invoke(_input, _args);
         } catch (Exception e) {
           s_logger.warn("Failed to execute function", e);
           result = e;

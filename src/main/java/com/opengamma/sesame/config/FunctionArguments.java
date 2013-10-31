@@ -39,7 +39,7 @@ public final class FunctionArguments implements ImmutableBean {
    * TODO should these be the real objects or the string representation?
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<String, Object> _arguments;
+  private final Map<String, Object> _arguments;
 
   @ImmutableConstructor
   public FunctionArguments(Map<String, Object> arguments) {
@@ -99,7 +99,7 @@ public final class FunctionArguments implements ImmutableBean {
    * TODO should these be the real objects or the string representation?
    * @return the value of the property, not null
    */
-  public ImmutableMap<String, Object> getArguments() {
+  public Map<String, Object> getArguments() {
     return _arguments;
   }
 
@@ -159,8 +159,8 @@ public final class FunctionArguments implements ImmutableBean {
      * The meta-property for the {@code arguments} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<String, Object>> _arguments = DirectMetaProperty.ofImmutable(
-        this, "arguments", FunctionArguments.class, (Class) ImmutableMap.class);
+    private final MetaProperty<Map<String, Object>> _arguments = DirectMetaProperty.ofImmutable(
+        this, "arguments", FunctionArguments.class, (Class) Map.class);
     /**
      * The meta-properties.
      */
@@ -203,7 +203,7 @@ public final class FunctionArguments implements ImmutableBean {
      * The meta-property for the {@code arguments} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<String, Object>> arguments() {
+    public MetaProperty<Map<String, Object>> arguments() {
       return _arguments;
     }
 

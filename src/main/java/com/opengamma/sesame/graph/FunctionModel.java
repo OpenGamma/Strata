@@ -18,6 +18,7 @@ import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.function.FunctionMetadata;
+import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.function.UserParam;
 
@@ -27,19 +28,19 @@ import com.opengamma.sesame.function.UserParam;
  * need support for final fields or immutable inheritance
  * in the mean time could make Node.getDependencies() abstract and put the field in every subclass
  */
-public final class FunctionTree {
+public final class FunctionModel {
 
   // TODO wrap the return value from createNode in forFunction in something that knows about the invoker
   // TODO or have a different node/function subtype that contains the invoker and any other metadata about the fn
   private final FunctionNode _root;
   private final FunctionMetadata _rootMetadata;
 
-  /* package */ FunctionTree(FunctionNode root, FunctionMetadata rootMetadata) {
+  /* package */ FunctionModel(FunctionNode root, FunctionMetadata rootMetadata) {
     _root = root;
     _rootMetadata = rootMetadata;
   }
 
-  /* package */ FunctionTree(FunctionNode root) {
+  /* package */ FunctionModel(FunctionNode root) {
     this(root, null);
   }
 
@@ -51,20 +52,20 @@ public final class FunctionTree {
     return _rootMetadata;
   }
 
-  public static FunctionTree forFunction(Class<?> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
-    return new FunctionTree(createNode(functionType, config, infrastructure));
+  public static FunctionModel forFunction(Class<?> functionType, FunctionConfig config, Set<Class<?>> infrastructure) {
+    return new FunctionModel(createNode(functionType, config, infrastructure));
   }
 
-  public static FunctionTree forFunction(Class<?> functionType, FunctionConfig config) {
-    return new FunctionTree(createNode(functionType, config, Collections.<Class<?>>emptySet()));
+  public static FunctionModel forFunction(Class<?> functionType, FunctionConfig config) {
+    return new FunctionModel(createNode(functionType, config, Collections.<Class<?>>emptySet()));
   }
 
-  public static FunctionTree forFunction(Class<?> functionType) {
-    return new FunctionTree(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
+  public static FunctionModel forFunction(Class<?> functionType) {
+    return new FunctionModel(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
   }
 
-  public static FunctionTree forFunction(FunctionMetadata function, FunctionConfig config, Set<Class<?>> infrastructure) {
-    return new FunctionTree(createNode(function.getDeclaringType(), config, infrastructure), function);
+  public static FunctionModel forFunction(FunctionMetadata function, FunctionConfig config, Set<Class<?>> infrastructure) {
+    return new FunctionModel(createNode(function.getDeclaringType(), config, infrastructure), function);
   }
 
 /*  public static FunctionTree forFunction(FunctionMetadata function, FunctionConfig config) {
@@ -135,9 +136,9 @@ public final class FunctionTree {
     }
   }
 
-  // TODO what's the return type? the root function? or an invoker?
-  public Object build(Map<Class<?>, Object> infrastructure) {
-    return _root.create(infrastructure);
+  public InvokableFunction build(Map<Class<?>, Object> infrastructure) {
+    Object receiver = _root.create(infrastructure);
+    return _rootMetadata.getInvokableFunction(receiver);
   }
 
   // TODO pretty print method

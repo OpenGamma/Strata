@@ -36,7 +36,6 @@ public class MapFunctionRepoTest {
   class Target2 extends Target1 { }
   class Target3 extends Target2 { }
 
-  @FallbackImplementation(F1Impl.class)
   interface F1 {
 
     @Output(MapFunctionRepoTest.O1)
@@ -51,7 +50,6 @@ public class MapFunctionRepoTest {
     }
   }
 
-  @FallbackImplementation(F2Impl.class)
   interface F2 {
 
     @Output(MapFunctionRepoTest.O2)
