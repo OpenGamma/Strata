@@ -68,6 +68,8 @@ public final class MapFunctionRepo implements FunctionRepo {
     _inputTypes = ImmutableSet.copyOf(inputTypes);
   }
 
+  // TODO constructor with support for default implementations for function interfaces
+
   public MapFunctionRepo() {
     this(Trade.class, Position.class, Security.class);
   }

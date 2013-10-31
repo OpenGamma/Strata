@@ -9,7 +9,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.overrides;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
@@ -21,7 +21,9 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -34,6 +36,8 @@ public class EquityDescriptionTest {
   private static final String SECURITY_NAME = "Apple Equity";
   private static final String BLOOMBERG_VALUE = "AAPL US Equity";
   private static final String ACTIV_VALUE = "AAPL.";
+  private static final FunctionMetadata METADATA =
+      ConfigUtils.createMetadata(EquityDescriptionFunction.class, "getDescription");
 
   static {
     SECURITY = new EquitySecurity("Exchange Name", "EXH", "Apple", Currency.USD);
@@ -43,9 +47,11 @@ public class EquityDescriptionTest {
     SECURITY.setName(SECURITY_NAME);
   }
 
+
   @Test
   public void defaultImpl() {
-    FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class);
+    FunctionConfig config = config(implementations(EquityDescriptionFunction.class, EquityDescription.class));
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     String description = fn.getDescription(SECURITY);
     assertEquals(description, SECURITY_NAME);
@@ -53,8 +59,9 @@ public class EquityDescriptionTest {
 
   @Test
   public void idImplDefaultArgs() {
-    FunctionConfig config = config(overrides(EquityDescriptionFunction.class, EquityIdDescription.class));
-    FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class, config);
+    FunctionConfig config = config(implementations(EquityDescriptionFunction.class, EquityIdDescription.class,
+                                                   IdSchemeFunction.class, IdScheme.class));
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     String description = fn.getDescription(SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
@@ -63,11 +70,12 @@ public class EquityDescriptionTest {
   @Test
   public void idImplOverriddenArgs() {
     FunctionConfig config =
-        config(overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
+        config(implementations(EquityDescriptionFunction.class, EquityIdDescription.class,
+                               IdSchemeFunction.class, IdScheme.class),
                arguments(
                    function(IdScheme.class,
                             argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))));
-    FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class, config);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     String description = fn.getDescription(SECURITY);
     assertEquals(description, ACTIV_VALUE);

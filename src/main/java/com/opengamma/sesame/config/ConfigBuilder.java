@@ -38,27 +38,27 @@ public final class ConfigBuilder {
                 column("Description",
                        output(OutputNames.DESCRIPTION,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
                 column("Bloomberg Ticker",
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class))),
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class)))),
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class)))),
                 column("ACTIV Symbol",
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
@@ -124,7 +124,8 @@ public final class ConfigBuilder {
     return new FunctionConfig(overrides._overrides, arguments._arguments);
   }
 
-  public static Overrides overrides(Class<?>... overrides) {
+  // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
+  public static Overrides implementations(Class<?>... overrides) {
     return new Overrides(overrides);
   }
 
@@ -140,6 +141,7 @@ public final class ConfigBuilder {
     return new Arg(name, value);
   }
 
+  // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
   public static class Overrides {
 
     private final Map<Class<?>, Class<?>> _overrides = Maps.newHashMap();

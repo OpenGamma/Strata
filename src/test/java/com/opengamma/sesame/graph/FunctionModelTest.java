@@ -9,8 +9,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.overrides;
-import static com.opengamma.sesame.config.ConfigUtils.createMetadata;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -22,6 +21,7 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -35,12 +35,12 @@ public class FunctionModelTest {
   private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
 
   private FunctionMetadata functionMetadata() {
-    return createMetadata(TestFunction.class, "foo");
+    return ConfigUtils.createMetadata(TestFunction.class, "foo");
   }
 
   @Test
   public void basicImpl() {
-    FunctionConfig config = config(overrides(TestFunction.class, BasicImpl.class));
+    FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
     FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
     TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof BasicImpl);
@@ -49,7 +49,7 @@ public class FunctionModelTest {
   @Test
   public void infrastructure() {
     ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
-    FunctionConfig config = config(overrides(TestFunction.class, InfrastructureImpl.class));
+    FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
     FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config, infrastructure.keySet());
     TestFunction fn = (TestFunction) functionModel.build(infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
@@ -59,7 +59,7 @@ public class FunctionModelTest {
 
   @Test
   public void defaultUserParams() {
-    FunctionConfig config = config(overrides(TestFunction.class, UserParameters.class));
+    FunctionConfig config = config(implementations(TestFunction.class, UserParameters.class));
     FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
     TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof UserParameters);
@@ -72,7 +72,7 @@ public class FunctionModelTest {
   @Test
   public void overriddenUserParam() {
     FunctionConfig config =
-        config(overrides(TestFunction.class, UserParameters.class),
+        config(implementations(TestFunction.class, UserParameters.class),
                arguments(
                    function(UserParameters.class,
                             argument("i", 12))));
@@ -87,8 +87,8 @@ public class FunctionModelTest {
 
   @Test
   public void functionCallingOtherFunction() {
-    FunctionConfig config = config(overrides(TestFunction.class, CallsOtherFunction.class,
-                                             CollaboratorFunction.class, Collaborator.class));
+    FunctionConfig config = config(implementations(TestFunction.class, CallsOtherFunction.class,
+                                                   CollaboratorFunction.class, Collaborator.class));
     FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
     // TODO this return type will change soon
     TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();

@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableList;
 public final class ViewDef implements ImmutableBean {
 
   // TODO non-column outputs
+  // TODO default FunctionConfig for the whole view? would need to merge with column defaults and specific config
 
   @PropertyDefinition(validate = "notEmpty")
   private final String _name;

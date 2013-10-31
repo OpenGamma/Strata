@@ -28,8 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @BeanDefinition
 public final class ColumnOutput implements ImmutableBean {
 
-  // TODO sentinel empty value
-
   @PropertyDefinition(validate = "notNull")
   private final String _outputName;
 

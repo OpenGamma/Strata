@@ -87,11 +87,25 @@ import com.opengamma.sesame.graph.GraphModel;
         Map<ObjectId, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
         for (PositionOrTrade input : _inputs) {
           ObjectId inputId = input.getUniqueId().getObjectId();
-          ColumnOutput columnOutput = column.getOutput(input.getClass());
-          FunctionConfig functionConfig = columnOutput.getFunctionConfig();
           InvokableFunction function = functions.get(inputId);
-          FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
-          tasks.add(new Task(input, args.getArguments(), columnName, function));
+          // TODO this is a problem if the input is a trade but the column config is keyed by security
+          // TODO how will this behave with subtyping? probably not well
+          // TODO need to try input's supertypes, its security and all its supertypes
+          // TODO do column outputs needs to be in a ClassMap?
+          ColumnOutput columnOutput = column.getOutput(input.getClass());
+          if (columnOutput == null) {
+            // TODO this will do for now, won't handle subtyping
+            columnOutput = column.getOutput(input.getSecurity().getClass());
+          }
+          Map<String, Object> arguments;
+          if (columnOutput != null) {
+            FunctionConfig functionConfig = columnOutput.getFunctionConfig();
+            FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
+            arguments = args.getArguments();
+          } else {
+            arguments = Collections.emptyMap();
+          }
+          tasks.add(new Task(input, arguments, columnName, function));
         }
       }
       List<Future<TaskResult>> futures;

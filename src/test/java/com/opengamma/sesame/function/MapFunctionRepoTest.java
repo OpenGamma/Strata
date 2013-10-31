@@ -31,7 +31,6 @@ public class MapFunctionRepoTest {
     assertEquals(Collections.<String>emptySet(), repo.getAvailableOutputs(Object.class));
   }
 
-  // TODO target types are hard-coded ATM in FunctionMetadata
   class Target1 { }
   class Target2 extends Target1 { }
   class Target3 extends Target2 { }
@@ -75,4 +74,6 @@ public class MapFunctionRepoTest {
     assertEquals(F2.class, repo.getOutputFunction(O2, Target2.class).getDeclaringType());
     assertEquals(F2.class, repo.getOutputFunction(O2, Target3.class).getDeclaringType());
   }
+
+  // TODO default mappings for fn impls
 }

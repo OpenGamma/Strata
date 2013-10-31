@@ -10,8 +10,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.sesame.config.ConfigBuilder.overrides;
 import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -36,6 +36,7 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.sesame.EquityPresentValue;
 import com.opengamma.sesame.EquityPresentValueFunction;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.MarketDataProvider;
@@ -47,11 +48,14 @@ import com.opengamma.sesame.ResettableMarketDataProviderFunction;
 import com.opengamma.sesame.SingleMarketDataValue;
 import com.opengamma.sesame.StandardMarketDataRequirement;
 import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.example.CashFlowDescription;
 import com.opengamma.sesame.example.CashFlowDescriptionFunction;
 import com.opengamma.sesame.example.CashFlowIdDescription;
+import com.opengamma.sesame.example.EquityDescription;
 import com.opengamma.sesame.example.EquityDescriptionFunction;
 import com.opengamma.sesame.example.EquityIdDescription;
 import com.opengamma.sesame.example.IdScheme;
+import com.opengamma.sesame.example.IdSchemeFunction;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.MapFunctionRepo;
 import com.opengamma.util.money.Currency;
@@ -78,11 +82,13 @@ public class EngineTest {
   private static final String CASH_FLOW_ACTIV_SYMBOL = "CASHFLOW.";
 
   @Test
-  public void defaultFunctionImpls() {
+  public void basicFunction() {
     ViewDef viewDef =
         viewDef("Trivial Test View",
                 column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class)));
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                              config(
+                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
@@ -101,13 +107,13 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Equity PV",
                 column(PRESENT_VALUE_HEADER,
-                       output(OutputNames.PRESENT_VALUE)));
+                       output(OutputNames.PRESENT_VALUE,
+                              config(
+                                  implementations(EquityPresentValueFunction.class, EquityPresentValue.class)))));
 
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);
 
-    // todo - is it correct that we don't need this line?
-    //    functionRepo.register(MarketDataProviderFunction.class);
     ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
     Engine engine = new Engine(new DirectExecutorService(),
                                ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class, marketDataProvider),
@@ -135,7 +141,10 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Trivial Test View",
                 column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION)));
+                       output(OutputNames.DESCRIPTION,
+                              config(
+                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
+
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
@@ -151,27 +160,37 @@ public class EngineTest {
 
   @Test
   public void overridesAndConfig() {
+    // TODO specifying all the implementations in the config is tedious. support it in the fn repo
+    // TODO supporting merging of default params would go half way to solving it
+    // TODO also need better way that forcing some poor sap to set up defaults. default if only 1 impl?
     ViewDef viewDef =
         viewDef("name",
                 column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION)),
+                       output(OutputNames.DESCRIPTION,
+                              config(
+                                  implementations(EquityDescriptionFunction.class, EquityDescription.class,
+                                                  CashFlowDescriptionFunction.class, CashFlowDescription.class)))),
                 column(BLOOMBERG_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class,
+                                                  IdSchemeFunction.class, IdScheme.class))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
-                                  overrides(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class,
+                                                  IdSchemeFunction.class, IdScheme.class)))),
                 column(ACTIV_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class,
+                                                  IdSchemeFunction.class, IdScheme.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
-                                  overrides(CashFlowDescriptionFunction.class, CashFlowIdDescription.class),
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class,
+                                                  IdSchemeFunction.class, IdScheme.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
