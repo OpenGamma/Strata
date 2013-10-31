@@ -141,6 +141,7 @@ public class FunctionTreeTest {
   Object foo();
 }
 
+@Test(groups = TestGroup.UNIT)
 /* package */ class DefaultImpl implements TestFunction {
 
   @Override

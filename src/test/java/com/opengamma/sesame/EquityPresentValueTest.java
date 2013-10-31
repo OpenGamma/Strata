@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.ResultStatus.AWAITING_MARKET_DATA;
-import static com.opengamma.sesame.ResultStatus.SUCCESS;
+import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
+import static com.opengamma.sesame.SuccessStatus.SUCCESS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -30,7 +30,7 @@ public class EquityPresentValueTest {
 
   @BeforeMethod
   public void setUp() {
-    _marketDataProviderFunction = new MarketDataProvider(new StandardResultGenerator());
+    _marketDataProviderFunction = new MarketDataProvider();
     _equityPresentValueFunction = new EquityPresentValue(_marketDataProviderFunction);
   }
 
@@ -40,7 +40,7 @@ public class EquityPresentValueTest {
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
     FunctionResult<Double> result = _equityPresentValueFunction.execute(security);
-    assertThat(result.getStatus(), is(AWAITING_MARKET_DATA));
+    assertThat(result.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
   @Test
@@ -56,7 +56,7 @@ public class EquityPresentValueTest {
     _marketDataProviderFunction.resetMarketData(marketData);
 
     FunctionResult<Double> result = _equityPresentValueFunction.execute(security);
-    assertThat(result.getStatus(), is(SUCCESS));
+    assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
     assertThat(result.getResult(), is(123.45));
   }
 

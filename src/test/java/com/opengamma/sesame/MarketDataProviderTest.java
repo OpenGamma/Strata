@@ -18,9 +18,12 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
+
+@Test(groups = TestGroup.UNIT)
 public class MarketDataProviderTest {
 
   private ResettableMarketDataProviderFunction _resettableMarketDataProviderFunction;
@@ -28,11 +31,10 @@ public class MarketDataProviderTest {
   };
   private MarketDataRequirement _mdReqmt2 = new MarketDataRequirement() {
   };
-  private StandardResultGenerator _resultGenerator = new StandardResultGenerator();
 
   @BeforeMethod
   public void setUp() {
-    _resettableMarketDataProviderFunction = new MarketDataProvider(_resultGenerator);
+    _resettableMarketDataProviderFunction = new MarketDataProvider();
   }
 
   @Test

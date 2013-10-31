@@ -46,7 +46,6 @@ import com.opengamma.sesame.MarketDataValue;
 import com.opengamma.sesame.ResettableMarketDataProviderFunction;
 import com.opengamma.sesame.SingleMarketDataValue;
 import com.opengamma.sesame.StandardMarketDataRequirement;
-import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.example.CashFlowDescriptionFunction;
 import com.opengamma.sesame.example.CashFlowIdDescription;
@@ -109,7 +108,7 @@ public class EngineTest {
 
     // todo - is it correct that we don't need this line?
     //    functionRepo.register(MarketDataProviderFunction.class);
-    ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider(new StandardResultGenerator());
+    ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
     Engine engine = new Engine(new DirectExecutorService(),
                                ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class, marketDataProvider),
                                functionRepo);

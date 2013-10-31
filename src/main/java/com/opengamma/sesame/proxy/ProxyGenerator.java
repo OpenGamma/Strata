@@ -6,10 +6,17 @@
 package com.opengamma.sesame.proxy;
 
 
+import static com.opengamma.sesame.StandardResultGenerator.failure;
+import static com.opengamma.sesame.StandardResultGenerator.marketDataFailure;
+
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import com.opengamma.sesame.FailureStatus;
+import com.opengamma.sesame.FunctionResult;
+import com.opengamma.sesame.MarketDataFunctionResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,9 +34,24 @@ public class ProxyGenerator {
     Class<?> delegateClass = delegate.getClass();
 
     InvocationHandler handler = new InvocationHandler() {
+
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return method.invoke(delegate, args);
+        try {
+          return method.invoke(delegate, args);
+        } catch (InvocationTargetException e) {
+          // We got an exception from the underlying call but the proxy mechanism
+          // automatically wraps it, so pull it out
+          Throwable cause = e.getCause();
+
+          if (method.getReturnType() == FunctionResult.class) {
+            return failure(FailureStatus.ERROR, "Received exception: {}", cause);
+          } else if (method.getReturnType() == MarketDataFunctionResult.class) {
+            return marketDataFailure(FailureStatus.ERROR, "Received exception: {}", cause);
+          } else {
+            throw cause;
+          }
+        }
       }
     };
 

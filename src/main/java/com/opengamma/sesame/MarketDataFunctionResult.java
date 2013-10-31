@@ -7,9 +7,9 @@ package com.opengamma.sesame;
 
 import java.util.Map;
 
-public interface MarketDataFunctionResult extends FunctionResult<Map<MarketDataRequirement, ? extends MarketDataValue>> {
+import com.opengamma.util.tuple.Pair;
 
-  boolean isFullyAvailable();
+public interface MarketDataFunctionResult extends FunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>> {
 
   MarketDataValue getSingleMarketDataValue();
 

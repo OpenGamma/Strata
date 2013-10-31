@@ -5,6 +5,11 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.sesame.SuccessStatus.SUCCESS;
+import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
+import static com.opengamma.sesame.StandardResultGenerator.failure;
+import static com.opengamma.sesame.StandardResultGenerator.success;
+
 import java.util.Set;
 
 import com.opengamma.financial.currency.CurrencyPair;
@@ -15,12 +20,9 @@ public class CurrencyPairs implements CurrencyPairsFunction {
 
   private final Set<CurrencyPair> _currencyPairs;
 
-  private final ResultGenerator _resultGenerator;
-
-  public CurrencyPairs(ResultGenerator resultGenerator,
-                       Set<CurrencyPair> currencyPairs) {
+  public CurrencyPairs(Set<CurrencyPair> currencyPairs) {
+    ArgumentChecker.notNull(currencyPairs, "currencyPairs");
     _currencyPairs = currencyPairs;
-    _resultGenerator = resultGenerator;
   }
 
   @Override
@@ -32,10 +34,11 @@ public class CurrencyPairs implements CurrencyPairsFunction {
     CurrencyPair requestedPair = CurrencyPair.of(currency1, currency2);
     CurrencyPair matchingPair = findMatchingPair(requestedPair);
 
-    return matchingPair != null ?
-        _resultGenerator.generateSuccessResult(matchingPair) :
-        _resultGenerator.<CurrencyPair>generateFailureResult(
-            ResultStatus.MISSING_DATA, "No currency pair matching {} was found", requestedPair);
+    if (matchingPair != null) {
+      return success(SUCCESS, matchingPair);
+    } else {
+      return failure(MISSING_DATA, "No currency pair matching {} was found", requestedPair);
+    }
   }
 
   private CurrencyPair findMatchingPair(CurrencyPair pair) {
