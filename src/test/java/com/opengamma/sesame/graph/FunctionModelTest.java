@@ -34,14 +34,14 @@ public class FunctionModelTest {
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
   private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
 
-  private FunctionMetadata functionMetadata(FunctionConfig config) {
-    return createMetadata(TestFunction.class, "foo", config);
+  private FunctionMetadata functionMetadata() {
+    return createMetadata(TestFunction.class, "foo");
   }
 
   @Test
   public void basicImpl() {
     FunctionConfig config = config(overrides(TestFunction.class, BasicImpl.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config);
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
     TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof BasicImpl);
   }
@@ -50,7 +50,7 @@ public class FunctionModelTest {
   public void infrastructure() {
     ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
     FunctionConfig config = config(overrides(TestFunction.class, InfrastructureImpl.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config, infrastructure.keySet());
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config, infrastructure.keySet());
     TestFunction fn = (TestFunction) functionModel.build(infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
@@ -60,7 +60,7 @@ public class FunctionModelTest {
   @Test
   public void defaultUserParams() {
     FunctionConfig config = config(overrides(TestFunction.class, UserParameters.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config);
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
     TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
@@ -76,7 +76,7 @@ public class FunctionModelTest {
                arguments(
                    function(UserParameters.class,
                             argument("i", 12))));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config);
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
     TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
@@ -89,7 +89,7 @@ public class FunctionModelTest {
   public void functionCallingOtherFunction() {
     FunctionConfig config = config(overrides(TestFunction.class, CallsOtherFunction.class,
                                              CollaboratorFunction.class, Collaborator.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config);
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
     // TODO this return type will change soon
     TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof CallsOtherFunction);

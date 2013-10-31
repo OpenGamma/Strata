@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.function;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -54,18 +53,14 @@ public class FunctionMetadata {
   /** The input parameter, null if there isn't one. */
   private final Parameter _inputParameter;
 
-  // TODO would it be better to just refer to the class and constructor from here?
-  // TODO and where TypeMetadata is constructed in the function repo just use a factory method returning fn meta
-  private final Constructor<?> _constructor;
   private final String _outputName;
 
   /* package */ FunctionMetadata(FunctionMetadata copyFrom) {
-    this(copyFrom._method, copyFrom._constructor);
+    this(copyFrom._method);
   }
 
-  public FunctionMetadata(Method method, Constructor<?> constructor) {
+  public FunctionMetadata(Method method) {
     _method = method;
-    _constructor = constructor;
     Output annotation = method.getAnnotation(Output.class);
     if (annotation == null) {
       throw new IllegalArgumentException("method " + method + " isn't annotated with @Output");
@@ -95,7 +90,7 @@ public class FunctionMetadata {
   }
 
   public Class<?> getDeclaringType() {
-    return _constructor.getDeclaringClass();
+    return _method.getDeclaringClass();
   }
 
   public String getOutputName() {
@@ -112,7 +107,7 @@ public class FunctionMetadata {
 
   @Override
   public int hashCode() {
-    return Objects.hash(_method, _parameters, _inputParameter, _constructor);
+    return Objects.hash(_method, _parameters, _inputParameter, _outputName);
   }
 
   @Override
@@ -128,7 +123,7 @@ public class FunctionMetadata {
         Objects.equals(this._method, other._method) &&
         Objects.equals(this._parameters, other._parameters) &&
         Objects.equals(this._inputParameter, other._inputParameter) &&
-        Objects.equals(this._constructor, other._constructor);
+        Objects.equals(this._outputName, other._outputName);
   }
 
   @Override
@@ -137,7 +132,7 @@ public class FunctionMetadata {
         "_method=" + _method +
         ", _parameters=" + _parameters +
         ", _inputParameter=" + _inputParameter +
-        ", _constructor=" + _constructor +
+        ", _outputName='" + _outputName + "'" +
         "]";
   }
 

@@ -103,15 +103,12 @@ public final class ConfigUtils {
    * the first one will be used.
    * @param functionType The interface declaring the function method
    * @param methodName The name of the method
-   * @param config Config specifying which class should be used as the function implementation
    * @return Metadata for the function
    */
-  public static FunctionMetadata createMetadata(Class<?> functionType, String methodName, FunctionConfig config) {
-    Class<?> impl = config.getFunctionImplementation(functionType);
-    Constructor<?> constructor = getConstructor(impl);
+  public static FunctionMetadata createMetadata(Class<?> functionType, String methodName) {
     for (Method method : functionType.getMethods()) {
       if (methodName.equals(method.getName())) {
-        return new FunctionMetadata(method, constructor);
+        return new FunctionMetadata(method);
       }
     }
     throw new IllegalArgumentException("No method found named " + methodName);

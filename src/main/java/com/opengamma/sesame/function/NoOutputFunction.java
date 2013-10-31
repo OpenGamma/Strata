@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.function;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -22,8 +21,7 @@ public class NoOutputFunction {
   static {
     try {
       Method doNothing = NoOutputFunction.class.getMethod("doNothing", PositionOrTrade.class);
-      Constructor<NoOutputFunction> constructor = NoOutputFunction.class.getConstructor();
-      METADATA = new FunctionMetadata(doNothing, constructor);
+      METADATA = new FunctionMetadata(doNothing);
     } catch (NoSuchMethodException e) {
       // won't happen but need to throw the exception to convince the compiler
       throw new OpenGammaRuntimeException("Unexpected problem", e);
