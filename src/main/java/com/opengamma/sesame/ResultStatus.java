@@ -41,6 +41,9 @@ public enum ResultStatus {
    */
   ERROR(false);
 
+  /**
+   * Indicates if a FunctionResult with this status will have a result available.
+   */
   private final boolean _isResultAvailable;
 
   private ResultStatus(boolean resultAvailable) {
