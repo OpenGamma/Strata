@@ -29,8 +29,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO better name - this is the config for one output (column/target type)
- * TreeConfig? GraphConfig?
+ *
  */
 @BeanDefinition
 public final class FunctionConfig implements ImmutableBean {

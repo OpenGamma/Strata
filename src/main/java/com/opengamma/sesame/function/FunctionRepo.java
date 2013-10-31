@@ -42,6 +42,9 @@ public interface FunctionRepo {
   // gives the available implementing types for function interfaces
   // these can be presented to the user when they're setting up the view and choosing implementation overrides
   Set<Class<?>> getFunctionImplementations(Class<?> functionInterface);
+
+  // return the default (if there is one configured) or the only implementation
+  Class<?> getDefaultFunctionImplementation(Class<?> functionInterface);
 }
 
 /*

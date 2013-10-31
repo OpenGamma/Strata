@@ -160,9 +160,33 @@ public class EngineTest {
 
   @Test
   public void overridesAndConfig() {
-    // TODO specifying all the implementations in the config is tedious. support it in the fn repo
-    // TODO supporting merging of default params would go half way to solving it
-    // TODO also need better way that forcing some poor sap to set up defaults. default if only 1 impl?
+/*
+    ViewDef viewDef =
+        viewDef("name",
+                column(DESCRIPTION_HEADER,
+                       output(OutputNames.DESCRIPTION)),
+                column(BLOOMBERG_HEADER,
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                              config(
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                              config(
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
+                column(ACTIV_HEADER,
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                              config(
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class),
+                                  arguments(
+                                      function(IdScheme.class,
+                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                              config(
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class),
+                                  arguments(
+                                      function(IdScheme.class,
+                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
+*/
+
     ViewDef viewDef =
         viewDef("name",
                 column(DESCRIPTION_HEADER,
@@ -195,7 +219,11 @@ public class EngineTest {
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
 
-    MapFunctionRepo functionRepo = new MapFunctionRepo();
+    Map<Class<?>, Class<?>> defaultImpls = ImmutableMap.of(
+        EquityDescriptionFunction.class, EquityDescription.class,
+        CashFlowDescriptionFunction.class, CashFlowDescription.class,
+        IdSchemeFunction.class, IdScheme.class);
+    MapFunctionRepo functionRepo = new MapFunctionRepo(defaultImpls);
     functionRepo.register(EquityDescriptionFunction.class);
     functionRepo.register(CashFlowDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);

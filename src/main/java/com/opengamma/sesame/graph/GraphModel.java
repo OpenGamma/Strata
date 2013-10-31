@@ -38,9 +38,9 @@ public final class GraphModel {
 
   // TODO this method is ugly, find a neater way
   public static GraphModel forView(ViewDef viewDef,
-                              Collection<? extends PositionOrTrade> inputs,
-                              Map<Class<?>, Object> infrastructure,
-                              FunctionRepo functionRepo) {
+                                   Collection<? extends PositionOrTrade> inputs,
+                                   Map<Class<?>, Object> infrastructure,
+                                   FunctionRepo functionRepo) {
     ImmutableMap.Builder<String, Map<ObjectId, FunctionModel>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
       ImmutableMap.Builder<ObjectId, FunctionModel> columnBuilder = ImmutableMap.builder();

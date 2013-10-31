@@ -33,6 +33,9 @@ import com.opengamma.util.tuple.Pairs;
  */
 public final class MapFunctionRepo implements FunctionRepo {
 
+  private static final Set<Class<?>> s_defaultInputTypes =
+      ImmutableSet.<Class<?>>of(Trade.class, Position.class, Security.class);
+
   private final Set<Class<?>> _inputTypes;
 
   /** Output names registered for an input type. */
@@ -63,15 +66,24 @@ public final class MapFunctionRepo implements FunctionRepo {
    */
   private final SetMultimap<Class<?>, Class<?>> _implementationsByInterface = HashMultimap.create();
 
-  public MapFunctionRepo(Class<?>... inputTypes) {
+  /**
+   * Default implementations for interfaces.
+   */
+  private final Map<Class<?>, Class<?>> _defaultImplementationsByInterface = Maps.newHashMap();
+
+  public MapFunctionRepo(Set<Class<?>> inputTypes, Map<Class<?>, Class<?>> defaultImplementations) {
     ArgumentChecker.notNull(inputTypes, "inputTypes");
+    ArgumentChecker.notNull(defaultImplementations, "defaultImplementations");
     _inputTypes = ImmutableSet.copyOf(inputTypes);
+    _defaultImplementationsByInterface.putAll(defaultImplementations);
   }
 
-  // TODO constructor with support for default implementations for function interfaces
+  public MapFunctionRepo(Map<Class<?>, Class<?>> defaultImplementations) {
+    this(s_defaultInputTypes, defaultImplementations);
+  }
 
   public MapFunctionRepo() {
-    this(Trade.class, Position.class, Security.class);
+    this(s_defaultInputTypes, Collections.<Class<?>, Class<?>>emptyMap());
   }
 
   @Override
@@ -152,6 +164,20 @@ public final class MapFunctionRepo implements FunctionRepo {
   public synchronized Set<Class<?>> getFunctionImplementations(Class<?> functionInterface) {
     // TODO implement getFunctionImplementations()
     throw new UnsupportedOperationException("getFunctionImplementations not implemented");
+  }
+
+  // if there's only 1 impl, return it, if there are defaults configured check those
+  @Override
+  public Class<?> getDefaultFunctionImplementation(Class<?> functionInterface) {
+    Class<?> defaultImpl = _defaultImplementationsByInterface.get(functionInterface);
+    if (defaultImpl != null) {
+      return defaultImpl;
+    }
+    Set<Class<?>> impls = _implementationsByInterface.get(functionInterface);
+    if (impls.size() == 1) {
+      return impls.iterator().next();
+    }
+    return null;
   }
 
   // type must have at least one method annotated with @Output with a parameter annotated with @Target
