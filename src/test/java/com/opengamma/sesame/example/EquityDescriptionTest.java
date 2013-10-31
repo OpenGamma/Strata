@@ -46,8 +46,7 @@ public class EquityDescriptionTest {
   @Test
   public void defaultImpl() {
     FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class);
-    // TODO this return type will change soon
-    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
+    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     String description = fn.getDescription(SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
@@ -56,8 +55,7 @@ public class EquityDescriptionTest {
   public void idImplDefaultArgs() {
     FunctionConfig config = config(overrides(EquityDescriptionFunction.class, EquityIdDescription.class));
     FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class, config);
-    // TODO this return type will change soon
-    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
+    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     String description = fn.getDescription(SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
@@ -70,8 +68,7 @@ public class EquityDescriptionTest {
                    function(IdScheme.class,
                             argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))));
     FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class, config);
-    // TODO this return type will change soon
-    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
+    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     String description = fn.getDescription(SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }

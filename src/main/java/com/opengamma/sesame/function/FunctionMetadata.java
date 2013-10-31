@@ -63,10 +63,14 @@ public class FunctionMetadata {
     this(copyFrom._method, copyFrom._constructor);
   }
 
-  /* package */ FunctionMetadata(Method method, Constructor<?> constructor) {
+  public FunctionMetadata(Method method, Constructor<?> constructor) {
     _method = method;
     _constructor = constructor;
-    _outputName = method.getAnnotation(Output.class).value();
+    Output annotation = method.getAnnotation(Output.class);
+    if (annotation == null) {
+      throw new IllegalArgumentException("method " + method + " isn't annotated with @Output");
+    }
+    _outputName = annotation.value();
     List<Parameter> parameters = ConfigUtils.getParameters(method);
     Parameter inputParameter = null;
     for (Parameter parameter : parameters) {

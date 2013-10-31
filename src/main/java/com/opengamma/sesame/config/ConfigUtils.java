@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Inject;
 import com.opengamma.sesame.function.Parameter;
 import com.thoughtworks.paranamer.AdaptiveParanamer;
@@ -97,25 +98,23 @@ public final class ConfigUtils {
   }
 
   /**
-   * Returns a parameter annotated with an annotation type.
-   * Throws {@link IllegalArgumentException} if there are multiple parameters with the annotation.
-   * @param annotationType The annotation type
-   * @param method The method
-   * @return The method parameter with the specified annotation, null if there isn't one
+   * Creates function metadata for a named method on a class.
+   * This is for testing and isn't intended to be robust. e.g. If there are multiple methods with the same name
+   * the first one will be used.
+   * @param functionType The interface declaring the function method
+   * @param methodName The name of the method
+   * @param config Config specifying which class should be used as the function implementation
+   * @return Metadata for the function
    */
-  public static Parameter getAnnotatedParameter(Class<? extends Annotation> annotationType, Method method) {
-    Parameter annotated = null;
-    for (Parameter parameter : getParameters(method)) {
-      if (parameter.getAnnotations().containsKey(annotationType)) {
-        if (annotated == null) {
-          annotated = parameter;
-        } else {
-          throw new IllegalArgumentException("Exactly one parameter in " + method + " must be annotated with " +
-                                                 annotationType.getName());
-        }
+  public static FunctionMetadata createMetadata(Class<?> functionType, String methodName, FunctionConfig config) {
+    Class<?> impl = config.getFunctionImplementation(functionType);
+    Constructor<?> constructor = getConstructor(impl);
+    for (Method method : functionType.getMethods()) {
+      if (methodName.equals(method.getName())) {
+        return new FunctionMetadata(method, constructor);
       }
     }
-    return annotated;
+    throw new IllegalArgumentException("No method found named " + methodName);
   }
 
   public static Set<Class<?>> getSupertypes(Class<?> type) {

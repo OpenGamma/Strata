@@ -148,7 +148,7 @@ public final class ConfigBuilder {
       if ((overrides.length % 2) != 0) {
         throw new IllegalArgumentException("Overrides must be specified in pairs of interface implementation");
       }
-      for (int i = 0; i < overrides.length / 2; i += 2) {
+      for (int i = 0; i < overrides.length; i += 2) {
         _overrides.put(overrides[i], overrides[i + 1]);
       }
     }

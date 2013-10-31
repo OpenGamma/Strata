@@ -10,6 +10,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.overrides;
+import static com.opengamma.sesame.config.ConfigUtils.createMetadata;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -22,6 +23,8 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.function.FunctionMetadata;
+import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.UserParam;
 import com.opengamma.util.test.TestGroup;
 
@@ -31,34 +34,24 @@ public class FunctionModelTest {
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
   private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
 
-  // TODO test PortfolioOutputFunction implementation
-
-  @Test
-  public void defaultImpl() {
-    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class);
-    // TODO this return type will change soon
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
-    assertTrue(fn instanceof DefaultImpl);
+  private FunctionMetadata functionMetadata(FunctionConfig config) {
+    return createMetadata(TestFunction.class, "foo", config);
   }
 
   @Test
-  public void overriddenImpl() {
-    FunctionConfig config = config(overrides(TestFunction.class, AlternativeImpl.class));
-    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class, config);
-    // TODO this return type will change soon
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
-    assertTrue(fn instanceof AlternativeImpl);
+  public void basicImpl() {
+    FunctionConfig config = config(overrides(TestFunction.class, BasicImpl.class));
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config);
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
+    assertTrue(fn instanceof BasicImpl);
   }
 
   @Test
   public void infrastructure() {
     ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
     FunctionConfig config = config(overrides(TestFunction.class, InfrastructureImpl.class));
-    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class,
-                                                                          config,
-                                                                          infrastructure.keySet());
-    // TODO this return type will change soon
-    TestFunction fn = (TestFunction) functionModel.build(infrastructure);
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config, infrastructure.keySet());
+    TestFunction fn = (TestFunction) functionModel.build(infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
@@ -67,9 +60,8 @@ public class FunctionModelTest {
   @Test
   public void defaultUserParams() {
     FunctionConfig config = config(overrides(TestFunction.class, UserParameters.class));
-    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class, config);
-    // TODO this return type will change soon
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config);
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
     assertEquals(9, ((UserParameters) fn)._i);
@@ -84,8 +76,8 @@ public class FunctionModelTest {
                arguments(
                    function(UserParameters.class,
                             argument("i", 12))));
-    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class, config);
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config);
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof UserParameters);
     //noinspection ConstantConditions
     assertEquals(12, ((UserParameters) fn)._i);
@@ -95,10 +87,11 @@ public class FunctionModelTest {
 
   @Test
   public void functionCallingOtherFunction() {
-    FunctionConfig config = config(overrides(TestFunction.class, CallsOtherFunction.class));
-    FunctionModel functionModel = FunctionModel.forFunction(TestFunction.class, config);
+    FunctionConfig config = config(overrides(TestFunction.class, CallsOtherFunction.class,
+                                             CollaboratorFunction.class, Collaborator.class));
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(config), config);
     // TODO this return type will change soon
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE);
+    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
     assertTrue(((CallsOtherFunction) fn)._collaborator instanceof Collaborator);
@@ -129,12 +122,6 @@ public class FunctionModelTest {
   }
 
   @Test
-  public void noDefaultImpl() {
-
-
-  }
-
-  @Test
   public void cyclicDependency() {
 
 
@@ -143,19 +130,11 @@ public class FunctionModelTest {
 
 /* package */ interface TestFunction {
 
+  @Output("Foo")
   Object foo();
 }
 
-@Test(groups = TestGroup.UNIT)
-/* package */ class DefaultImpl implements TestFunction {
-
-  @Override
-  public Object foo() {
-    return null;
-  }
-}
-
-/* package */ class AlternativeImpl implements TestFunction {
+/* package */ class BasicImpl implements TestFunction {
 
   @Override
   public Object foo() {

@@ -5,10 +5,10 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.SuccessStatus.SUCCESS;
 import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
 import static com.opengamma.sesame.StandardResultGenerator.failure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
+import static com.opengamma.sesame.SuccessStatus.SUCCESS;
 
 import java.util.Set;
 

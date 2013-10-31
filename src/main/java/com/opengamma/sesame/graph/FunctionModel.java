@@ -40,6 +40,7 @@ public final class FunctionModel {
     _rootMetadata = rootMetadata;
   }
 
+  @Deprecated
   /* package */ FunctionModel(FunctionNode root) {
     this(root, null);
   }
@@ -56,10 +57,13 @@ public final class FunctionModel {
     return new FunctionModel(createNode(functionType, config, infrastructure));
   }
 
+  // TODO this is a problem because there's no metadata
   public static FunctionModel forFunction(Class<?> functionType, FunctionConfig config) {
     return new FunctionModel(createNode(functionType, config, Collections.<Class<?>>emptySet()));
   }
 
+  // TODO this doesn't make sense any more, no default impls therefore always need config
+  @Deprecated
   public static FunctionModel forFunction(Class<?> functionType) {
     return new FunctionModel(createNode(functionType, FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
   }
@@ -68,13 +72,9 @@ public final class FunctionModel {
     return new FunctionModel(createNode(function.getDeclaringType(), config, infrastructure), function);
   }
 
-/*  public static FunctionTree forFunction(FunctionMetadata function, FunctionConfig config) {
-    return new FunctionTree(createNode(function.getDeclaringType(), config, Collections.<Class<?>>emptySet()));
+  public static FunctionModel forFunction(FunctionMetadata function, FunctionConfig config) {
+    return new FunctionModel(createNode(function.getDeclaringType(), config, Collections.<Class<?>>emptySet()), function);
   }
-
-  public static FunctionTree forFunction(FunctionMetadata function) {
-    return new FunctionTree(createNode(function.getDeclaringType(), FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()));
-  }*/
 
   @SuppressWarnings("unchecked")
   private static FunctionNode createNode(Class<?> functionType, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
@@ -84,7 +84,7 @@ public final class FunctionModel {
     } else {
       implType = config.getFunctionImplementation(functionType);
     }
-    Constructor<?> constructor = ConfigUtils.getConstructor(functionType);
+    Constructor<?> constructor = ConfigUtils.getConstructor(implType);
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
     FunctionArguments functionArguments = config.getFunctionArguments(implType);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
