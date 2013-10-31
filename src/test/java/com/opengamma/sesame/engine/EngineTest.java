@@ -90,7 +90,7 @@ public class EngineTest {
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
+    view.run(viewDef.getColumns());
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
@@ -124,7 +124,7 @@ public class EngineTest {
     marketDataProvider.resetMarketData(marketData);
 
     Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
+    view.run(viewDef.getColumns());
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(123.45, ((FunctionResult) tradeResults.get(PRESENT_VALUE_HEADER)).getResult());
@@ -143,7 +143,7 @@ public class EngineTest {
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
+    view.run(viewDef.getColumns());
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
@@ -184,7 +184,7 @@ public class EngineTest {
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
+    view.run(viewDef.getColumns());
     Results results = listener.getResults();
     
     Map<String, Object> equityResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
