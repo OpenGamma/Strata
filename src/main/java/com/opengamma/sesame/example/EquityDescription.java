@@ -6,7 +6,6 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.sesame.MarketData;
 
 /**
  * Returns the security name as the description.
@@ -14,12 +13,11 @@ import com.opengamma.sesame.MarketData;
 public class EquityDescription implements EquityDescriptionFunction {
 
   /**
-   * @param marketData Not used
    * @param security A security
    * @return The security name
    */
   @Override
-  public String getDescription(MarketData marketData, EquitySecurity security) {
+  public String getDescription(EquitySecurity security) {
     return security.getName();
   }
 }

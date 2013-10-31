@@ -6,13 +6,12 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.analytics.curve.CurveDefinition;
-import com.opengamma.sesame.function.DefaultImplementation;
 
 /**
  * Function capable of creating a curve definition.
  */
-@DefaultImplementation(CurveDefinitionProvider.class)
 public interface CurveDefinitionProviderFunction {
 
+  // TODO @Output
   FunctionResult<CurveDefinition> getCurveDefinition(String curveName);
 }

@@ -14,5 +14,5 @@ import com.opengamma.sesame.function.Output;
 public interface EquityPresentValueFunction {
 
   @Output(OutputNames.PRESENT_VALUE)
-  FunctionResult<Double> presentValue(MarketData marketData, EquitySecurity security);
+  FunctionResult<Double> presentValue(EquitySecurity security);
 }

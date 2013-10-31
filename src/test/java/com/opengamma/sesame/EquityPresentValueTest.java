@@ -34,7 +34,6 @@ public class EquityPresentValueTest {
 
   @Test
   public void testMarketDataUnavailable() {
-
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
     FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);

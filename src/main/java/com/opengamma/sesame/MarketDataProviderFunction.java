@@ -7,13 +7,11 @@ package com.opengamma.sesame;
 
 import java.util.Set;
 
-import com.opengamma.sesame.function.DefaultImplementation;
-
 /**
  * Function providing market data to clients. When data is requested a {@link MarketDataFunctionResult}
  * is returned which contains status (and potentially value) for every item that has been requested.
+ * TODO blocking variant
  */
-@DefaultImplementation(MarketDataProvider.class)
 public interface MarketDataProviderFunction {
 
   /**

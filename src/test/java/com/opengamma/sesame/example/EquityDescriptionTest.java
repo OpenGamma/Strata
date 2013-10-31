@@ -48,7 +48,7 @@ public class EquityDescriptionTest {
     FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class);
     // TODO this return type will change soon
     EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
-    String description = fn.getDescription(createEmptyMarketData(), SECURITY);
+    String description = fn.getDescription(SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
 
@@ -58,7 +58,7 @@ public class EquityDescriptionTest {
     FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class, config);
     // TODO this return type will change soon
     EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
-    String description = fn.getDescription(createEmptyMarketData(), SECURITY);
+    String description = fn.getDescription(SECURITY);
     assertEquals(description, BLOOMBERG_VALUE);
   }
 
@@ -72,7 +72,7 @@ public class EquityDescriptionTest {
     FunctionModel functionModel = FunctionModel.forFunction(EquityDescriptionFunction.class, config);
     // TODO this return type will change soon
     EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE);
-    String description = fn.getDescription(createEmptyMarketData(), SECURITY);
+    String description = fn.getDescription(SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }
 }

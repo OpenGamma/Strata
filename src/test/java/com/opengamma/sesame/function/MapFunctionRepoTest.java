@@ -38,7 +38,7 @@ public class MapFunctionRepoTest {
   interface F1 {
 
     @Output(MapFunctionRepoTest.O1)
-    Object execute(MarketData marketData, @Target Target1 target);
+    Object execute(@Target Target1 target);
   }
 
   class F1Impl implements F1 {
@@ -52,7 +52,7 @@ public class MapFunctionRepoTest {
   interface F2 {
 
     @Output(MapFunctionRepoTest.O2)
-    Object execute(MarketData marketData, @Target Target2 target);
+    Object execute(@Target Target2 target);
   }
 
   class F2Impl implements F2 {
