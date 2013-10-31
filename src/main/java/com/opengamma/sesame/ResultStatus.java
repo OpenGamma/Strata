@@ -36,10 +36,10 @@ public enum ResultStatus {
    */
   ERROR(false);
 
-  private final boolean isResultAvailable;
+  private final boolean _isResultAvailable;
 
   private ResultStatus(boolean resultAvailable) {
-    isResultAvailable = resultAvailable;
+    _isResultAvailable = resultAvailable;
   }
 
   /**
@@ -48,6 +48,6 @@ public enum ResultStatus {
    * @return true if the FunctionResult has its return value populated
    */
   public boolean isResultAvailable() {
-    return isResultAvailable;
+    return _isResultAvailable;
   }
 }
