@@ -66,6 +66,7 @@ public final class MapFunctionRepo implements FunctionRepo {
    */
   private final SetMultimap<Class<?>, Class<?>> _implementationsByInterface = HashMultimap.create();
 
+  // TODO is this the right place for this?
   /**
    * Default implementations for interfaces.
    */
@@ -168,7 +169,7 @@ public final class MapFunctionRepo implements FunctionRepo {
 
   // if there's only 1 impl, return it, if there are defaults configured check those
   @Override
-  public Class<?> getDefaultFunctionImplementation(Class<?> functionInterface) {
+  public synchronized Class<?> getDefaultFunctionImplementation(Class<?> functionInterface) {
     Class<?> defaultImpl = _defaultImplementationsByInterface.get(functionInterface);
     if (defaultImpl != null) {
       return defaultImpl;

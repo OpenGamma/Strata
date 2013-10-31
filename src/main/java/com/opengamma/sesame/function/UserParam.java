@@ -15,6 +15,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
+@Deprecated // TODO maybe replace with an optional @Default annotation for params that have a sensible one
 public @interface UserParam {
 
   String name();

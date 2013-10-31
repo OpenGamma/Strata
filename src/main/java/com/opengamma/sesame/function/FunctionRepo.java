@@ -39,6 +39,11 @@ public interface FunctionRepo {
   // function for outputs that have no parameters or only use configuration parameters
   FunctionMetadata getOutputFunction(String outputName);
 
+  // TODO do these 2 methods really belong in the function repo?
+  // they're more about building than specifically about functions
+  // should they be somewhere else along with provider registration?
+  // wherever they go GraphConfig will need to be involved
+
   // gives the available implementing types for function interfaces
   // these can be presented to the user when they're setting up the view and choosing implementation overrides
   Set<Class<?>> getFunctionImplementations(Class<?> functionInterface);

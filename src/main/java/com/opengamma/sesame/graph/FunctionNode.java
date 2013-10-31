@@ -16,13 +16,13 @@ import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * TODO this needs a less ambiguous name
+ * TODO will this also work for providers? should be able to build anything with a suitable constructor. different name?
  */
 public final class FunctionNode extends Node {
 
+  // TODO if this needs to be serializable this might have to be stored as class + args. or just class
   private final Constructor<?> _constructor;
   private final List<Node> _arguments;
-  // TODO map of ? -> Method for building invokers? what's the key? do we need OutputKey(outputName, targetType)?
-  // TODO how do we get the invokers out of the graph build process?
 
   public FunctionNode(Constructor<?> constructor, List<Node> arguments) {
     _constructor = constructor;
@@ -36,17 +36,11 @@ public final class FunctionNode extends Node {
       for (Node argument : _arguments) {
         arguments.add(argument.create(infrastructure));
       }
+      // TODO provider support. what about singletons? need some hook into state shared across the build process
+      // if instance is a provider return get(), otherwise return the instance. or have separate ProviderNode?
       return _constructor.newInstance(arguments.toArray());
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new OpenGammaRuntimeException("Failed to create of " + _constructor.getDeclaringClass().getName(), e);
     }
-  }
-
-  public Class<?> getType() {
-    return _constructor.getDeclaringClass();
-  }
-
-  public List<Node> getArguments() {
-    return _arguments;
   }
 }

@@ -60,13 +60,26 @@ public final class FunctionModel {
     return new FunctionModel(createNode(function.getDeclaringType(), FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()), function);
   }
 
+  // TODO need to pass in config that merges default from system, view, (calc config), column, input type
+  // it needs to know about the view def, (calc config), column because this class doesn't
+  // it needs to merge arguments from everything going up the type hierarchy
+  // when searching for args should we go up the type hierarchy at each level of config or go up the levels of config
+  // for each type? do we only need to look for the implementation type and the function type?
+  // constructor args only apply to the impl and method args apply to the fn method which is on all subtypes of
+  // the fn interface. so only need to look at the superclasses that impl the fn interface
+  // so in this case we don't need to go up the hierarchy because we're only dealing with constructor args
+  // in the engine we'll need to go up the class hierarchy and check everything
+  // for implementation class it just needs to go up the set of defaults looking for the first one that matches
+
   @SuppressWarnings("unchecked")
-  private static FunctionNode createNode(Class<?> functionType, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
+  private static FunctionNode createNode(Class<?> type, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
     Class<?> implType;
-    if (!functionType.isInterface()) {
-      implType = functionType;
+    // TODO if there's a provider for type then implType is the provider type
+    // then the provider will be built and have its dependencies built and injected
+    if (!type.isInterface()) {
+      implType = type;
     } else {
-      implType = config.getFunctionImplementation(functionType);
+      implType = config.getFunctionImplementation(type);
     }
     Constructor<?> constructor = ConfigUtils.getConstructor(implType);
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
@@ -81,6 +94,7 @@ public final class FunctionModel {
         // is that right? do we need to create regular objects?
         // TODO cyclic dependencies
         // TODO this is where proxies will be inserted
+        // TODO providers
         constructorArguments.add(createNode(parameter.getType(), config, infrastructureTypes));
       }
     }
@@ -98,6 +112,7 @@ public final class FunctionModel {
         user arguments with defaults generated from @UserParam
       */
     if (infrastructureTypes.contains(parameter.getType())) {
+      // TODO providers
       return new InfrastructureNode(parameter.getType());
     } else if (parameter.getAnnotations().containsKey(UserParam.class)) {
       // TODO do we still want to use UserParam? NO - get defaults from somewhere else or not at all

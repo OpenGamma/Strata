@@ -72,11 +72,12 @@ public final class GraphModel {
         if (securityOutput != null) {
           FunctionMetadata functionType = functionRepo.getOutputFunction(securityOutput.getOutputName(), security.getClass());
           if (functionType != null) {
-            FunctionModel securityTree = FunctionModel.forFunction(functionType,
-                                                                   securityOutput.getFunctionConfig(),
-                                                                   infrastructure.keySet());
-            FunctionModel functionModel = new FunctionModel(securityTree.getRootFunction(),
-                                                         new AdaptingFunctionMetadata(securityTree.getRootMetadata()));
+            FunctionModel securityModel = FunctionModel.forFunction(functionType,
+                                                                    securityOutput.getFunctionConfig(),
+                                                                    infrastructure.keySet());
+            // TODO factory method on AdaptingFunctionMetadata?
+            FunctionModel functionModel = new FunctionModel(securityModel.getRootFunction(),
+                                                            new AdaptingFunctionMetadata(securityModel.getRootMetadata()));
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
@@ -99,11 +100,12 @@ public final class GraphModel {
           FunctionMetadata defaultSecFunction = functionRepo.getOutputFunction(defaultOutput.getOutputName(),
                                                                                posOrTrade.getSecurity().getClass());
           if (defaultSecFunction != null) {
-            FunctionModel securityTree = FunctionModel.forFunction(defaultSecFunction,
-                                                                   defaultOutput.getFunctionConfig(),
-                                                                   infrastructure.keySet());
-            FunctionModel functionModel = new FunctionModel(securityTree.getRootFunction(),
-                                                         new AdaptingFunctionMetadata(securityTree.getRootMetadata()));
+            FunctionModel securityModel = FunctionModel.forFunction(defaultSecFunction,
+                                                                    defaultOutput.getFunctionConfig(),
+                                                                    infrastructure.keySet());
+            // TODO factory method on AdaptingFunctionMetadata?
+            FunctionModel functionModel = new FunctionModel(securityModel.getRootFunction(),
+                                                            new AdaptingFunctionMetadata(securityModel.getRootMetadata()));
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
