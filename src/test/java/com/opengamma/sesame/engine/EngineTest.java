@@ -124,7 +124,8 @@ public class EngineTest {
 
     Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData = ImmutableMap.of(
         // todo - we shouldn't be casting here
-        StandardMarketDataRequirement.of((FinancialSecurity) trade.getSecurity(), MarketDataRequirementNames.MARKET_VALUE),
+        StandardMarketDataRequirement.of((FinancialSecurity) trade.getSecurity(),
+                                         MarketDataRequirementNames.MARKET_VALUE),
         Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     marketDataProvider.resetMarketData(marketData);
 
@@ -198,11 +199,17 @@ public class EngineTest {
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityIdDescription.class,
-                                                  IdSchemeFunction.class, IdScheme.class))),
+                                                  IdSchemeFunction.class, IdScheme.class),
+                                  arguments(
+                                      function(IdScheme.class,
+                                               argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
                                   implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class,
-                                                  IdSchemeFunction.class, IdScheme.class)))),
+                                                  IdSchemeFunction.class, IdScheme.class),
+                                  arguments(
+                                      function(IdScheme.class,
+                                               argument("scheme", ExternalSchemes.BLOOMBERG_TICKER)))))),
                 column(ACTIV_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
@@ -232,17 +239,17 @@ public class EngineTest {
     Engine.View view = engine.createView(viewDef, trades, listener);
     view.run(viewDef.getColumns());
     Results results = listener.getResults();
-    
+
     Map<String, Object> equityResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, equityResults.get(DESCRIPTION_HEADER));
     assertEquals(EQUITY_BLOOMBERG_TICKER, equityResults.get(BLOOMBERG_HEADER));
     assertEquals(EQUITY_ACTIV_SYMBOL, equityResults.get(ACTIV_HEADER));
-    
+
     Map<String, Object> cashFlowResults = results.getTargetResults(CASH_FLOW_TRADE_ID.getObjectId());
     assertEquals(CASH_FLOW_NAME, cashFlowResults.get(DESCRIPTION_HEADER));
     assertEquals(CASH_FLOW_BLOOMBERG_TICKER, cashFlowResults.get(BLOOMBERG_HEADER));
     assertEquals(CASH_FLOW_ACTIV_SYMBOL, cashFlowResults.get(ACTIV_HEADER));
-    
+
     System.out.println(results);
   }
 

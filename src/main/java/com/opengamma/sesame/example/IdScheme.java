@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.example;
 
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.sesame.function.UserParam;
 
 /**
  * Returns an {@link ExternalScheme} configured by a user argument.
@@ -19,8 +19,12 @@ public class IdScheme implements IdSchemeFunction {
   /**
    * @param scheme The scheme to return from {@link #getScheme()}
    */
-  public IdScheme(@UserParam(name = "scheme", fallbackValue = "BLOOMBERG_TICKER") ExternalScheme scheme) {
-    _scheme = scheme;
+  public IdScheme(ExternalScheme scheme) {
+    if (scheme == null) {
+      _scheme = ExternalSchemes.BLOOMBERG_TICKER;
+    } else {
+      _scheme = scheme;
+    }
   }
 
   /**

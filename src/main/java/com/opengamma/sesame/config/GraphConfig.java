@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.config;
 
-import com.opengamma.sesame.function.Provider;
+import javax.inject.Provider;
 
 /**
  * TODO interface?
@@ -55,4 +55,6 @@ public class GraphConfig {
   public Provider<?> getProvider(Class<?> type) {
     throw new UnsupportedOperationException();
   }
+
+  // TODO getSingleton? getInstance? getObject? what's currently referred to as infrastructure
 }

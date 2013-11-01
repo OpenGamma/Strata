@@ -10,21 +10,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Provider;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * TODO this needs a less ambiguous name
- * TODO will this also work for providers? should be able to build anything with a suitable constructor. different name?
+ * A node in the dependency model representing an object that must be created by the injection framework.
+ * TODO separate class ProviderNode? it would only differ by a line or two
  */
-public final class FunctionNode extends Node {
+public final class ClassNode extends Node {
 
   // TODO if this needs to be serializable this might have to be stored as class + args. or just class
   private final Constructor<?> _constructor;
   private final List<Node> _arguments;
 
-  public FunctionNode(Constructor<?> constructor, List<Node> arguments) {
+  public ClassNode(Constructor<?> constructor, List<Node> arguments) {
     _constructor = constructor;
     _arguments = ImmutableList.copyOf(arguments);
   }
@@ -36,9 +38,12 @@ public final class FunctionNode extends Node {
       for (Node argument : _arguments) {
         arguments.add(argument.create(infrastructure));
       }
-      // TODO provider support. what about singletons? need some hook into state shared across the build process
-      // if instance is a provider return get(), otherwise return the instance. or have separate ProviderNode?
-      return _constructor.newInstance(arguments.toArray());
+      Object instance = _constructor.newInstance(arguments.toArray());
+      if (instance instanceof Provider) {
+        return ((Provider) instance).get();
+      } else {
+        return instance;
+      }
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new OpenGammaRuntimeException("Failed to create of " + _constructor.getDeclaringClass().getName(), e);
     }

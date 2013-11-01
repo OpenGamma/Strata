@@ -8,13 +8,14 @@ package com.opengamma.sesame.graph;
 import java.util.Map;
 
 /**
-*
-*/
-public final class InfrastructureNode extends Node {
+ * A node in the dependency model representing an existing object instance (e.g. a piece of infrastructure provided
+ * by the engine or a singleton function).
+ */
+public final class InstanceNode extends Node {
 
   private final Class<?> _type;
 
-  /* package */ InfrastructureNode(Class<?> type) {
+  /* package */ InstanceNode(Class<?> type) {
     _type = type;
   }
 

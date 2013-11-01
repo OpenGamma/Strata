@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.joda.convert.StringConvert;
-
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionArguments;
@@ -20,7 +18,6 @@ import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Parameter;
-import com.opengamma.sesame.function.UserParam;
 
 /**
  * A lightweight representation of the dependency tree for a single function.
@@ -32,21 +29,24 @@ public final class FunctionModel {
 
   // TODO wrap the return value from createNode in forFunction in something that knows about the invoker
   // TODO or have a different node/function subtype that contains the invoker and any other metadata about the fn
-  private final FunctionNode _root;
+  private final ClassNode _root;
   private final FunctionMetadata _rootMetadata;
 
-  /* package */ FunctionModel(FunctionNode root, FunctionMetadata rootMetadata) {
+  /* package */ FunctionModel(ClassNode root, FunctionMetadata rootMetadata) {
     _root = root;
     _rootMetadata = rootMetadata;
   }
 
-  public FunctionNode getRootFunction() {
+  public ClassNode getRootFunction() {
     return _root;
   }
 
   public FunctionMetadata getRootMetadata() {
     return _rootMetadata;
   }
+
+  // TODO function config and infrastructure can probably come from the same thing
+  // they're both just a source of stuff required to build the tree. GraphConfig?
 
   public static FunctionModel forFunction(FunctionMetadata function, FunctionConfig config, Set<Class<?>> infrastructure) {
     return new FunctionModel(createNode(function.getDeclaringType(), config, infrastructure), function);
@@ -72,14 +72,13 @@ public final class FunctionModel {
   // for implementation class it just needs to go up the set of defaults looking for the first one that matches
 
   @SuppressWarnings("unchecked")
-  private static FunctionNode createNode(Class<?> type, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
-    Class<?> implType;
-    // TODO if there's a provider for type then implType is the provider type
-    // then the provider will be built and have its dependencies built and injected
-    if (!type.isInterface()) {
+  private static ClassNode createNode(Class<?> type, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
+    Class<?> implType = config.getFunctionImplementation(type);
+    if (implType == null && !type.isInterface()) {
       implType = type;
-    } else {
-      implType = config.getFunctionImplementation(type);
+    }
+    if (implType == null) {
+      throw new IllegalArgumentException("No implementation or provider available for " + type.getName());
     }
     Constructor<?> constructor = ConfigUtils.getConstructor(implType);
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
@@ -98,38 +97,27 @@ public final class FunctionModel {
         constructorArguments.add(createNode(parameter.getType(), config, infrastructureTypes));
       }
     }
-    return new FunctionNode(constructor, constructorArguments);
+    return new ClassNode(constructor, constructorArguments);
   }
 
   private static Node getArgument(Parameter parameter,
                                   FunctionArguments functionArguments,
                                   Set<Class<?>> infrastructureTypes) {
       /*
-      there are 4 types of argument:
+      there are 3 types of argument:
         infrastructure components
         other functions (return null for these)
         user arguments
-        user arguments with defaults generated from @UserParam
       */
     if (infrastructureTypes.contains(parameter.getType())) {
-      // TODO providers
-      return new InfrastructureNode(parameter.getType());
-    } else if (parameter.getAnnotations().containsKey(UserParam.class)) {
-      // TODO do we still want to use UserParam? NO - get defaults from somewhere else or not at all
-      // TODO replace UserParam with an optional @DefaultValue which will be helpful for the UI?
-      UserParam paramAnnotation = (UserParam) parameter.getAnnotations().get(UserParam.class);
-      String paramName = paramAnnotation.name();
-      Object value;
-      Object fallbackValue = StringConvert.INSTANCE.convertFromString(parameter.getType(), paramAnnotation.fallbackValue());
-      if (functionArguments.hasArgument(paramName)) {
-        // TODO allow the value to be a string and convert if the expected type isn't?
-        value = functionArguments.getArgument(paramName);
-      } else if (fallbackValue != null) {
-        value = fallbackValue;
-      } else {
-        throw new IllegalArgumentException("No argument or fallback value available for parameter " + parameter);
-      }
-      return new ArgumentNode(parameter.getType(), value, fallbackValue);
+      // TODO providers?
+      return new InstanceNode(parameter.getType());
+    // TODO can we handle missing nullable constructor parameters and return a null node instead of null?
+    // if this returns null the frameworks tries to build them
+    } else if (functionArguments.hasArgument(parameter.getName())) {
+      Object value = functionArguments.getArgument(parameter.getName());
+      // TODO check full a null value and nullability of the parameter
+      return new ArgumentNode(parameter.getType(), value);
     } else {
       return null;
     }

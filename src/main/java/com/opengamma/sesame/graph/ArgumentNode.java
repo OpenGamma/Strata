@@ -14,12 +14,10 @@ public final class ArgumentNode extends Node {
 
   private final Class<?> _type;
   private final Object _value;
-  private final Object _defaultValue;
 
-  /* package */ ArgumentNode(Class<?> type, Object value, Object defaultValue) {
+  /* package */ ArgumentNode(Class<?> type, Object value) {
     _type = type;
     _value = value;
-    _defaultValue = defaultValue;
   }
 
   @SuppressWarnings("unchecked")
@@ -34,9 +32,5 @@ public final class ArgumentNode extends Node {
 
   public Object getValue() {
     return _value;
-  }
-
-  public Object getDefaultValue() {
-    return _defaultValue;
   }
 }

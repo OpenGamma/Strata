@@ -17,8 +17,9 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.inject.Provider;
+
 import org.testng.annotations.Test;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
@@ -58,7 +59,8 @@ public class FunctionModelTest {
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
   }
 
-  @Test
+  // no more default params in code
+  /*@Test
   public void defaultUserParams() {
     FunctionConfig config = config(implementations(TestFunction.class, UserParameters.class));
     FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
@@ -84,7 +86,7 @@ public class FunctionModelTest {
     assertEquals(12, ((UserParameters) fn)._i);
     //noinspection ConstantConditions
     assertEquals(ZonedDateTime.of(2011, 3, 8, 2, 18, 0, 0, ZoneOffset.UTC), ((UserParameters) fn)._dateTime);
-  }
+  }*/
 
   @Test
   public void functionCallingOtherFunction() {
@@ -104,6 +106,18 @@ public class FunctionModelTest {
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
     Concrete1 fn = (Concrete1) functionModel.build(INFRASTRUCTURE).getReceiver();
     assertNotNull(fn._concrete);
+  }
+
+  public void provider() {
+    FunctionMetadata metadata = ConfigUtils.createMetadata(PrivateConstructor.class, "getName");
+    String providerName = "the provider name";
+    FunctionConfig config = config(implementations(PrivateConstructor.class, PrivateConstructorProvider.class),
+                                   arguments(
+                                       function(PrivateConstructorProvider.class,
+                                                argument("providerName", providerName))));
+    FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
+    PrivateConstructor fn = (PrivateConstructor) functionModel.build(INFRASTRUCTURE).getReceiver();
+    assertEquals(providerName, fn.getName());
   }
 
   @Test
@@ -208,3 +222,41 @@ public class FunctionModelTest {
   }
 }
 /* package */ class Concrete2 { }
+
+/**
+ * A class with a private constructor that can only be created via a factory method. Need to use a provider to build.
+ */
+/* package */ class PrivateConstructor {
+
+  private final String _name;
+
+  private PrivateConstructor(String name) {
+    _name = name;
+  }
+
+  /* package */ static PrivateConstructor build(String name) {
+    return new PrivateConstructor(name);
+  }
+
+  @Output("Name")
+  public String getName() {
+    return _name;
+  }
+}
+
+/**
+ * A provider that creates a class using a factory method. Has injectable parameters of its own.
+ */
+/* package */ class PrivateConstructorProvider implements Provider<PrivateConstructor> {
+
+  private final String _providerName;
+
+  /* package */ PrivateConstructorProvider(String providerName) {
+    _providerName = providerName;
+  }
+
+  @Override
+  public PrivateConstructor get() {
+    return PrivateConstructor.build(_providerName);
+  }
+}

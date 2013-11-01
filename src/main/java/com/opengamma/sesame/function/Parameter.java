@@ -20,6 +20,7 @@ public final class Parameter {
   private final Class<?> _type;
   private final int _ordinal;
   private final ImmutableMap<Class<?>, Annotation> _annotations;
+  // TODO nullability flag
 
   public Parameter(String name, Class<?> type, int ordinal, Map<Class<?>, Annotation> annotations) {
     _name = name;

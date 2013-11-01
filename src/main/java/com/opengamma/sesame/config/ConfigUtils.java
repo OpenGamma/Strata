@@ -16,13 +16,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.inject.Inject;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.function.FunctionMetadata;
-import com.opengamma.sesame.function.Inject;
 import com.opengamma.sesame.function.Parameter;
 import com.thoughtworks.paranamer.AdaptiveParanamer;
+import com.thoughtworks.paranamer.AnnotationParanamer;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
 import com.thoughtworks.paranamer.CachingParanamer;
 import com.thoughtworks.paranamer.Paranamer;
@@ -32,7 +34,9 @@ public final class ConfigUtils {
 
   private static ConcurrentMap<Class<?>, Set<Class<?>>> s_supertypes = Maps.newConcurrentMap();
   private static Paranamer s_paranamer =
-      new CachingParanamer(new AdaptiveParanamer(new BytecodeReadingParanamer(), new PositionalParanamer()));
+      new CachingParanamer(
+          new AdaptiveParanamer(
+              new BytecodeReadingParanamer(), new AnnotationParanamer(), new PositionalParanamer()));
 
   private ConfigUtils() {
   }

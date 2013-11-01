@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -51,12 +50,7 @@ public final class FunctionConfig implements ImmutableBean {
   private final Map<Class<?>, FunctionArguments> _arguments;
 
   public Class<?> getFunctionImplementation(Class<?> functionInterface) {
-    if (_implementationOverrides.containsKey(functionInterface)) {
-      return _implementationOverrides.get(functionInterface);
-    } else {
-      throw new OpenGammaRuntimeException("No implementation was specified in the configuration for the interface " +
-                                              functionInterface.getName());
-    }
+    return _implementationOverrides.get(functionInterface);
   }
 
   public FunctionArguments getFunctionArguments(Class<?> functionImplementationType) {
