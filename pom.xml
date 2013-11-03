@@ -17,6 +17,8 @@
 
   <dependencies>
 
+    <!-- OpenGamma dependencies -->
+
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-core</artifactId>
@@ -28,6 +30,7 @@
       <artifactId>og-financial</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-financial-types</artifactId>
@@ -39,6 +42,14 @@
       <artifactId>og-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-component</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- 3rd party dependencies -->
 
     <dependency>
       <groupId>org.joda</groupId>
@@ -70,7 +81,7 @@
       <version>1</version>
     </dependency>
 
-    <!-- test dependencies-->
+    <!-- test dependencies -->
 
     <dependency>
       <groupId>org.mockito</groupId>

@@ -189,7 +189,7 @@ public class EngineTest {
 */
 
     ViewDef viewDef =
-        viewDef("name",
+        viewDef("view name",
                 column(OutputNames.DESCRIPTION),
                 column(BLOOMBERG_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
