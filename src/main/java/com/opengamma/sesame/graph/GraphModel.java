@@ -6,15 +6,13 @@
 package com.opengamma.sesame.graph;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ObjectId;
-import com.opengamma.sesame.config.ColumnOutput;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.AdaptingFunctionMetadata;
@@ -36,31 +34,23 @@ public final class GraphModel {
     _functionTrees = functionTrees;
   }
 
-  // TODO this method is ugly, find a neater way
   public static GraphModel forView(ViewDef viewDef,
                                    Collection<? extends PositionOrTrade> inputs,
-                                   Map<Class<?>, Object> infrastructure,
-                                   FunctionRepo functionRepo) {
+                                   FunctionRepo functionRepo,
+                                   Map<Class<?>, Object> singletons) {
     ImmutableMap.Builder<String, Map<ObjectId, FunctionModel>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
       ImmutableMap.Builder<ObjectId, FunctionModel> columnBuilder = ImmutableMap.builder();
       for (PositionOrTrade posOrTrade : inputs) {
         // TODO no need to create a FunctionTree for every target, cache on outputName/inputType
 
-        // TODO at the bare minimum this could be moved into 2 helper methods that return a function tree
-        // one each for position and security. or one to create the function tree and one to wrap it for securities
-
-        // TODO better to do this in the ColumnOutput and pass in the repo? it knows about all the config
-        // maybe the logic would be less knarly if it was in there
-
         // look for an output for the position or trade
-        ColumnOutput posOrTradeOutput = column.getOutput(posOrTrade.getClass());
+        String posOrTradeOutput = column.getOutputName(posOrTrade.getClass());
         if (posOrTradeOutput != null) {
-          FunctionMetadata function = functionRepo.getOutputFunction(posOrTradeOutput.getOutputName(), posOrTrade.getClass());
+          FunctionMetadata function = functionRepo.getOutputFunction(posOrTradeOutput, posOrTrade.getClass());
           if (function != null) {
-            FunctionModel functionModel = FunctionModel.forFunction(function,
-                                                                    posOrTradeOutput.getFunctionConfig(),
-                                                                    infrastructure.keySet());
+            GraphConfig graphConfig = new GraphConfig(posOrTrade, column, functionRepo, singletons);
+            FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
@@ -68,13 +58,12 @@ public final class GraphModel {
 
         // look for an output for the security type
         Security security = posOrTrade.getSecurity();
-        ColumnOutput securityOutput = column.getOutput(security.getClass());
+        String securityOutput = column.getOutputName(security.getClass());
         if (securityOutput != null) {
-          FunctionMetadata functionType = functionRepo.getOutputFunction(securityOutput.getOutputName(), security.getClass());
+          FunctionMetadata functionType = functionRepo.getOutputFunction(securityOutput, security.getClass());
           if (functionType != null) {
-            FunctionModel securityModel = FunctionModel.forFunction(functionType,
-                                                                    securityOutput.getFunctionConfig(),
-                                                                    infrastructure.keySet());
+            GraphConfig graphConfig = new GraphConfig(security, column, functionRepo, singletons);
+            FunctionModel securityModel = FunctionModel.forFunction(functionType, graphConfig);
             // TODO factory method on AdaptingFunctionMetadata?
             FunctionModel functionModel = new FunctionModel(securityModel.getRootFunction(),
                                                             new AdaptingFunctionMetadata(securityModel.getRootMetadata()));
@@ -82,37 +71,7 @@ public final class GraphModel {
             continue;
           }
         }
-
-        // try the default output
-        ColumnOutput defaultOutput = column.getDefaultOutput();
-        if (defaultOutput != null) {
-          // is there a function providing the default output for a position / trade?
-          FunctionMetadata defaultPosOrTradeFunction = functionRepo.getOutputFunction(defaultOutput.getOutputName(),
-                                                                                      posOrTrade.getClass());
-          if (defaultPosOrTradeFunction != null) {
-            FunctionModel functionModel = FunctionModel.forFunction(defaultPosOrTradeFunction,
-                                                                    defaultOutput.getFunctionConfig(),
-                                                                    infrastructure.keySet());
-            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
-            continue;
-          }
-          // is there a default output for the security
-          FunctionMetadata defaultSecFunction = functionRepo.getOutputFunction(defaultOutput.getOutputName(),
-                                                                               posOrTrade.getSecurity().getClass());
-          if (defaultSecFunction != null) {
-            FunctionModel securityModel = FunctionModel.forFunction(defaultSecFunction,
-                                                                    defaultOutput.getFunctionConfig(),
-                                                                    infrastructure.keySet());
-            // TODO factory method on AdaptingFunctionMetadata?
-            FunctionModel functionModel = new FunctionModel(securityModel.getRootFunction(),
-                                                            new AdaptingFunctionMetadata(securityModel.getRootMetadata()));
-            columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
-            continue;
-          }
-        }
-        FunctionModel functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA,
-                                                                FunctionConfig.EMPTY,
-                                                                Collections.<Class<?>>emptySet());
+        FunctionModel functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);
         // TODO how will this work for in-memory trades? assign an ID? use object identity?
         columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
       }

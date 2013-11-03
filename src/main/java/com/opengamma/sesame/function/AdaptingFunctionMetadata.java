@@ -5,10 +5,9 @@
  */
 package com.opengamma.sesame.function;
 
-import java.util.Map;
-
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
+import com.opengamma.sesame.config.FunctionArguments;
 
 /**
  * Wraps an {@link InvokableFunction} that expects a {@link Security} input in one that expects a {@link PositionOrTrade}
@@ -35,7 +34,7 @@ public class AdaptingFunctionMetadata extends FunctionMetadata {
     }
 
     @Override
-    public Object invoke(Object input, Map<String, Object> args) {
+    public Object invoke(Object input, FunctionArguments args) {
       Security security = ((PositionOrTrade) input).getSecurity();
       return _delegate.invoke(security, args);
     }

@@ -95,7 +95,7 @@ public class EngineTest {
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run(viewDef.getColumns());
+    view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
@@ -130,7 +130,7 @@ public class EngineTest {
     marketDataProvider.resetMarketData(marketData);
 
     Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run(viewDef.getColumns());
+    view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(123.45, ((FunctionResult) tradeResults.get(PRESENT_VALUE_HEADER)).getResult());
@@ -152,7 +152,7 @@ public class EngineTest {
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run(viewDef.getColumns());
+    view.run();
     Results results = listener.getResults();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
@@ -162,10 +162,10 @@ public class EngineTest {
   @Test
   public void overridesAndConfig() {
 /*
+    TODO for this to work I'd need to set global defaults for arguments for IdSchemeFunction.scheme=BLOOMBERG_TICKER
     ViewDef viewDef =
         viewDef("name",
-                column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION)),
+                column(OutputNames.DESCRIPTION),
                 column(BLOOMBERG_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
@@ -190,38 +190,30 @@ public class EngineTest {
 
     ViewDef viewDef =
         viewDef("name",
-                column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION,
-                              config(
-                                  implementations(EquityDescriptionFunction.class, EquityDescription.class,
-                                                  CashFlowDescriptionFunction.class, CashFlowDescription.class)))),
+                column(OutputNames.DESCRIPTION),
                 column(BLOOMBERG_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class,
-                                                  IdSchemeFunction.class, IdScheme.class),
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
-                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class,
-                                                  IdSchemeFunction.class, IdScheme.class),
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.BLOOMBERG_TICKER)))))),
                 column(ACTIV_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class,
-                                                  IdSchemeFunction.class, IdScheme.class),
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
                        output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
                               config(
-                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class,
-                                                  IdSchemeFunction.class, IdScheme.class),
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
@@ -237,7 +229,7 @@ public class EngineTest {
     Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run(viewDef.getColumns());
+    view.run();
     Results results = listener.getResults();
 
     Map<String, Object> equityResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());

@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Repository for engine functions. This returns the function type that can satisfy a value name for a target type.
  */
-public interface FunctionRepo {
+public interface FunctionRepo extends DefaultImplementationProvider {
 
   // for when the user is configuring a column with a default output name. this shows which types it can handle
   Set<Class<?>> getInputTypes(String outputName);
@@ -34,8 +34,5 @@ public interface FunctionRepo {
 
   // gives the available implementing types for function interfaces
   // these can be presented to the user when they're setting up the view and choosing implementation overrides
-  Set<Class<?>> getFunctionImplementations(Class<?> functionInterface);
-
-  // return the default (if there is one configured) or the only implementation
-  Class<?> getDefaultFunctionImplementation(Class<?> functionInterface);
+  Set<Class<?>> getImplementationTypes(Class<?> interfaceType);
 }

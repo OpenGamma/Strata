@@ -22,7 +22,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.sesame.config.ColumnOutput;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewColumn;
@@ -60,52 +59,43 @@ import com.opengamma.sesame.graph.GraphModel;
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
   public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets, Listener listener) {
-    GraphModel graphModel = GraphModel.forView(viewDef, targets, _infrastructure, _functionRepo);
+    GraphModel graphModel = GraphModel.forView(viewDef, targets, _functionRepo, _infrastructure);
     FunctionGraph functionGraph = graphModel.build(_infrastructure);
-    return new View(functionGraph, targets, listener, _executor);
+    return new View(viewDef, functionGraph, targets, listener, _executor);
   }
 
   //----------------------------------------------------------
   public static class View {
 
     private final FunctionGraph _graph;
+    private final ViewDef _viewDef;
     private final Collection<? extends PositionOrTrade> _inputs;
     private final Listener _listener;
     private final ExecutorService _executor;
 
-    private View(FunctionGraph graph, Collection<? extends PositionOrTrade> inputs, Listener listener, ExecutorService executor) {
+    private View(ViewDef viewDef,
+                 FunctionGraph graph,
+                 Collection<? extends PositionOrTrade> inputs,
+                 Listener listener,
+                 ExecutorService executor) {
+      _viewDef = viewDef;
       _inputs = inputs;
       _listener = listener;
       _graph = graph;
       _executor = executor;
     }
 
-    public void run(List<ViewColumn> columns) {
+    public void run() {
       List<Task> tasks = Lists.newArrayList();
-      for (ViewColumn column : columns) {
+      for (ViewColumn column : _viewDef.getColumns()) {
         String columnName = column.getName();
         Map<ObjectId, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
         for (PositionOrTrade input : _inputs) {
           ObjectId inputId = input.getUniqueId().getObjectId();
           InvokableFunction function = functions.get(inputId);
-          // TODO this is a problem if the input is a trade but the column config is keyed by security
-          // TODO how will this behave with subtyping? probably not well
-          // TODO need to try input's supertypes, its security and all its supertypes
-          // TODO do column outputs needs to be in a ClassMap?
-          ColumnOutput columnOutput = column.getOutput(input.getClass());
-          if (columnOutput == null) {
-            // TODO this will do for now, won't handle subtyping
-            columnOutput = column.getOutput(input.getSecurity().getClass());
-          }
-          Map<String, Object> arguments;
-          if (columnOutput != null) {
-            FunctionConfig functionConfig = columnOutput.getFunctionConfig();
-            FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
-            arguments = args.getArguments();
-          } else {
-            arguments = Collections.emptyMap();
-          }
-          tasks.add(new Task(input, arguments, columnName, function));
+          FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
+          FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
+          tasks.add(new Task(input, args, columnName, function));
         }
       }
       List<Future<TaskResult>> futures;
@@ -147,10 +137,10 @@ import com.opengamma.sesame.graph.GraphModel;
       private final UniqueIdentifiable _input;
       private final String _columnName;
       private final InvokableFunction _invokableFunction;
-      private final Map<String, Object> _args;
+      private final FunctionArguments _args;
       // TODO need the arguments for the class that provides the function implementation
 
-      private Task(UniqueIdentifiable input, Map<String, Object> args, String columnName, InvokableFunction invokableFunction) {
+      private Task(UniqueIdentifiable input, FunctionArguments args, String columnName, InvokableFunction invokableFunction) {
         _input = input;
         _args = args;
         _columnName = columnName;

@@ -158,23 +158,23 @@ public final class MapFunctionRepo implements FunctionRepo {
   // this is to allow the user to choose different implementations of functions when constructing the graph
   /**
    * Returns all known classes that implement an interface
-   * @param functionInterface The interface
+   * @param interfaceType The interface
    * @return A set of classes that implement it TODO empty set or DataNotFoundException if there are none?
    */
   @Override
-  public synchronized Set<Class<?>> getFunctionImplementations(Class<?> functionInterface) {
-    // TODO implement getFunctionImplementations()
-    throw new UnsupportedOperationException("getFunctionImplementations not implemented");
+  public synchronized Set<Class<?>> getImplementationTypes(Class<?> interfaceType) {
+    // TODO implement getImplementationTypes()
+    throw new UnsupportedOperationException("getImplementationTypes not implemented");
   }
 
   // if there's only 1 impl, return it, if there are defaults configured check those
   @Override
-  public synchronized Class<?> getDefaultFunctionImplementation(Class<?> functionInterface) {
-    Class<?> defaultImpl = _defaultImplementationsByInterface.get(functionInterface);
+  public synchronized Class<?> getDefaultImplementationType(Class<?> interfaceType) {
+    Class<?> defaultImpl = _defaultImplementationsByInterface.get(interfaceType);
     if (defaultImpl != null) {
       return defaultImpl;
     }
-    Set<Class<?>> impls = _implementationsByInterface.get(functionInterface);
+    Set<Class<?>> impls = _implementationsByInterface.get(interfaceType);
     if (impls.size() == 1) {
       return impls.iterator().next();
     }

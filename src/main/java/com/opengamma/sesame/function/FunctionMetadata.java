@@ -16,6 +16,7 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -149,14 +150,10 @@ public class FunctionMetadata {
     }
 
     @Override
-    public Object invoke(Object input, Map<String, Object> args) {
+    public Object invoke(Object input, FunctionArguments args) {
       Object[] argArray = new Object[_parameters.size()];
-      for (Map.Entry<String, Object> entry : args.entrySet()) {
-        String arg = entry.getKey();
-        Parameter parameter = _parameters.get(arg);
-        if (parameter != null) {
-          argArray[parameter.getOrdinal()] = entry.getValue();
-        }
+      for (Parameter parameter : _parameters.values()) {
+        argArray[parameter.getOrdinal()] = args.getArgument(parameter.getName());
       }
       if (_inputParameter != null) {
         argArray[_inputParameter.getOrdinal()] = input;

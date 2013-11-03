@@ -32,16 +32,15 @@ public final class ConfigBuilder {
 
   public static void main(String[] args) {
     ViewDef viewDef =
-        viewDef("name",
-                column("Description",
-                       output(OutputNames.DESCRIPTION)),
-                column("Description",
-                       output(OutputNames.DESCRIPTION,
-                              config(
-                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
+        viewDef("view name",
+                column(OutputNames.DESCRIPTION),
+                column(
+                    output(OutputNames.DESCRIPTION,
+                           config(
+                               implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                               arguments(
+                                   function(IdScheme.class,
+                                            argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
                 column("Bloomberg Ticker",
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
@@ -85,6 +84,14 @@ public final class ConfigBuilder {
     return new ViewColumn(name, defaultOutput, Collections.<Class<?>, ColumnOutput>emptyMap());
   }
 
+  public static ViewColumn column(String name) {
+    return new ViewColumn(name, new ColumnOutput(name), Collections.<Class<?>, ColumnOutput>emptyMap());
+  }
+
+  public static ViewColumn column(ColumnOutput defaultOutput) {
+    return new ViewColumn(defaultOutput.getOutputName(), defaultOutput, Collections.<Class<?>, ColumnOutput>emptyMap());
+  }
+
   public static ViewColumn column(String name, ColumnOutput defaultOutput, TargetOutput... targetOutputs) {
     return new ViewColumn(name, defaultOutput, createTargetOutputs(targetOutputs));
   }
@@ -110,6 +117,11 @@ public final class ConfigBuilder {
   public static FunctionConfig config(Overrides overrides, Arguments arguments) {
     return new FunctionConfig(overrides._overrides, arguments._arguments);
   }
+
+  public static FunctionConfig config() {
+    return new FunctionConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
+  }
+
 
   public static FunctionConfig config(Overrides overrides) {
     return new FunctionConfig(overrides._overrides, EMPTY_ARGUMENTS);

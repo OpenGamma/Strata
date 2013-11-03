@@ -25,6 +25,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.GraphConfig;
+import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.UserParam;
@@ -50,43 +52,20 @@ public class FunctionModelTest {
 
   @Test
   public void infrastructure() {
-    ImmutableMap<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
+    final Map<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
     FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config, infrastructure.keySet());
+    DefaultImplementationProvider provider = new DefaultImplementationProvider() {
+      @Override
+      public Class<?> getDefaultImplementationType(Class<?> interfaceType) {
+        return null;
+      }
+    };
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), new GraphConfig(config, provider, infrastructure));
     TestFunction fn = (TestFunction) functionModel.build(infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
   }
-
-  // no more default params in code
-  /*@Test
-  public void defaultUserParams() {
-    FunctionConfig config = config(implementations(TestFunction.class, UserParameters.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
-    assertTrue(fn instanceof UserParameters);
-    //noinspection ConstantConditions
-    assertEquals(9, ((UserParameters) fn)._i);
-    //noinspection ConstantConditions
-    assertEquals(ZonedDateTime.of(2011, 3, 8, 2, 18, 0, 0, ZoneOffset.UTC), ((UserParameters) fn)._dateTime);
-  }
-
-  @Test
-  public void overriddenUserParam() {
-    FunctionConfig config =
-        config(implementations(TestFunction.class, UserParameters.class),
-               arguments(
-                   function(UserParameters.class,
-                            argument("i", 12))));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
-    assertTrue(fn instanceof UserParameters);
-    //noinspection ConstantConditions
-    assertEquals(12, ((UserParameters) fn)._i);
-    //noinspection ConstantConditions
-    assertEquals(ZonedDateTime.of(2011, 3, 8, 2, 18, 0, 0, ZoneOffset.UTC), ((UserParameters) fn)._dateTime);
-  }*/
 
   @Test
   public void functionCallingOtherFunction() {

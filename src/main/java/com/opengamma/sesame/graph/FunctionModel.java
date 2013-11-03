@@ -6,15 +6,13 @@
 package com.opengamma.sesame.graph;
 
 import java.lang.reflect.Constructor;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.ConfigUtils;
-import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Parameter;
@@ -45,19 +43,16 @@ public final class FunctionModel {
     return _rootMetadata;
   }
 
-  // TODO function config and infrastructure can probably come from the same thing
-  // they're both just a source of stuff required to build the tree. GraphConfig?
-
-  public static FunctionModel forFunction(FunctionMetadata function, FunctionConfig config, Set<Class<?>> infrastructure) {
-    return new FunctionModel(createNode(function.getDeclaringType(), config, infrastructure), function);
+  public static FunctionModel forFunction(FunctionMetadata function, GraphConfig config) {
+    return new FunctionModel(createNode(function.getDeclaringType(), config), function);
   }
 
   public static FunctionModel forFunction(FunctionMetadata function, FunctionConfig config) {
-    return new FunctionModel(createNode(function.getDeclaringType(), config, Collections.<Class<?>>emptySet()), function);
+    return new FunctionModel(createNode(function.getDeclaringType(), new GraphConfig(config)), function);
   }
 
   public static FunctionModel forFunction(FunctionMetadata function) {
-    return new FunctionModel(createNode(function.getDeclaringType(), FunctionConfig.EMPTY, Collections.<Class<?>>emptySet()), function);
+    return new FunctionModel(createNode(function.getDeclaringType(), GraphConfig.EMPTY), function);
   }
 
   // TODO need to pass in config that merges default from system, view, (calc config), column, input type
@@ -72,8 +67,8 @@ public final class FunctionModel {
   // for implementation class it just needs to go up the set of defaults looking for the first one that matches
 
   @SuppressWarnings("unchecked")
-  private static ClassNode createNode(Class<?> type, FunctionConfig config, Set<Class<?>> infrastructureTypes) {
-    Class<?> implType = config.getFunctionImplementation(type);
+  private static ClassNode createNode(Class<?> type, GraphConfig config) {
+    Class<?> implType = config.getImplementationType(type);
     if (implType == null && !type.isInterface()) {
       implType = type;
     }
@@ -82,10 +77,9 @@ public final class FunctionModel {
     }
     Constructor<?> constructor = ConfigUtils.getConstructor(implType);
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
-    FunctionArguments functionArguments = config.getFunctionArguments(implType);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
     for (Parameter parameter : parameters) {
-      Node argument = getArgument(parameter, functionArguments, infrastructureTypes);
+      Node argument = getArgument(implType, parameter, config);
       if (argument != null) {
         constructorArguments.add(argument);
       } else {
@@ -94,33 +88,30 @@ public final class FunctionModel {
         // TODO cyclic dependencies
         // TODO this is where proxies will be inserted
         // TODO providers
-        constructorArguments.add(createNode(parameter.getType(), config, infrastructureTypes));
+        constructorArguments.add(createNode(parameter.getType(), config));
       }
     }
     return new ClassNode(constructor, constructorArguments);
   }
 
-  private static Node getArgument(Parameter parameter,
-                                  FunctionArguments functionArguments,
-                                  Set<Class<?>> infrastructureTypes) {
+  private static Node getArgument(Class<?> implType, Parameter parameter, GraphConfig config) {
       /*
       there are 3 types of argument:
-        infrastructure components
-        other functions (return null for these)
+        existing instances
+        other objects that need to be created (return null for these)
         user arguments
       */
-    if (infrastructureTypes.contains(parameter.getType())) {
+    if (config.getObject(parameter.getType()) != null) {
       // TODO providers?
-      return new InstanceNode(parameter.getType());
-    // TODO can we handle missing nullable constructor parameters and return a null node instead of null?
-    // if this returns null the frameworks tries to build them
-    } else if (functionArguments.hasArgument(parameter.getName())) {
-      Object value = functionArguments.getArgument(parameter.getName());
-      // TODO check full a null value and nullability of the parameter
-      return new ArgumentNode(parameter.getType(), value);
-    } else {
-      return null;
+      return new ObjectNode(parameter.getType());
     }
+    // TODO can we handle missing nullable constructor parameters and return a null node instead of null?
+    Object argument = config.getConstructorArgument(implType, parameter.getType(), parameter.getName());
+    if (argument != null) {
+      // TODO check full a null value and nullability of the parameter
+      return new ArgumentNode(parameter.getType(), argument);
+    }
+    return null;
   }
 
   public InvokableFunction build(Map<Class<?>, Object> infrastructure) {

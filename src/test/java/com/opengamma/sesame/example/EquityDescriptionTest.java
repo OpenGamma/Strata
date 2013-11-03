@@ -57,16 +57,6 @@ public class EquityDescriptionTest {
     assertEquals(description, SECURITY_NAME);
   }
 
-  /*@Test
-  public void idImplDefaultArgs() {
-    FunctionConfig config = config(implementations(EquityDescriptionFunction.class, EquityIdDescription.class,
-                                                   IdSchemeFunction.class, IdScheme.class));
-    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
-    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
-    String description = fn.getDescription(SECURITY);
-    assertEquals(description, BLOOMBERG_VALUE);
-  }*/
-
   @Test
   public void idImplOverriddenArgs() {
     FunctionConfig config =

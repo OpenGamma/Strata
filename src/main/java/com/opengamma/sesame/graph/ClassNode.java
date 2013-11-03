@@ -32,11 +32,11 @@ public final class ClassNode extends Node {
   }
 
   @Override
-  Object create(Map<Class<?>, Object> infrastructure) {
+  Object create(Map<Class<?>, Object> singletons) {
     try {
       List<Object> arguments = Lists.newArrayListWithCapacity(_arguments.size());
       for (Node argument : _arguments) {
-        arguments.add(argument.create(infrastructure));
+        arguments.add(argument.create(singletons));
       }
       Object instance = _constructor.newInstance(arguments.toArray());
       if (instance instanceof Provider) {

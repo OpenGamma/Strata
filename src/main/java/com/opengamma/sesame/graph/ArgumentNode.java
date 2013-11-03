@@ -22,7 +22,7 @@ public final class ArgumentNode extends Node {
 
   @SuppressWarnings("unchecked")
   @Override
-  Object create(Map<Class<?>, Object> infrastructure) {
+  Object create(Map<Class<?>, Object> singletons) {
     return _value;
   }
 

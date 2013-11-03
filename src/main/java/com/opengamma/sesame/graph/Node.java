@@ -26,7 +26,7 @@ public abstract class Node {
     this(Collections.<Node>emptyList());
   }
 
-  /* package */ abstract Object create(Map<Class<?>, Object> infrastructure);
+  /* package */ abstract Object create(Map<Class<?>, Object> singletons);
 
   public ImmutableList<Node> getDependencies() {
     return _dependencies;
