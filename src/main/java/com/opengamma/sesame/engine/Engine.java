@@ -63,6 +63,15 @@ import com.opengamma.sesame.graph.GraphModel;
     return new View(viewDef, functionGraph, targets, listener, _executor);
   }
 
+  public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets) {
+    return createView(viewDef, targets, new Listener() {
+      @Override
+      public void cycleComplete(Results results) {
+        // do nothing
+      }
+    });
+  }
+
   //----------------------------------------------------------
   public static class View {
 
@@ -84,7 +93,7 @@ import com.opengamma.sesame.graph.GraphModel;
       _executor = executor;
     }
 
-    public void run() {
+    public Results run() {
       List<Task> tasks = Lists.newArrayList();
       for (ViewColumn column : _viewDef.getColumns()) {
         String columnName = column.getName();
@@ -113,7 +122,9 @@ import com.opengamma.sesame.graph.GraphModel;
           s_logger.warn("Failed to get result from task", e);
         }
       }
-      _listener.cycleComplete(resultsBuilder.build());
+      Results results = resultsBuilder.build();
+      _listener.cycleComplete(results);
+      return results;
     }
 
     //----------------------------------------------------------

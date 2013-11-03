@@ -92,11 +92,9 @@ public class EngineTest {
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
-    Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
-    Results results = listener.getResults();
+    Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
     System.out.println(results);
@@ -118,7 +116,6 @@ public class EngineTest {
     ComponentMap componentMap = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class,
                                                                                   marketDataProvider));
     Engine engine = new Engine(new DirectExecutorService(), componentMap, functionRepo);
-    Listener listener = new Listener();
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
@@ -129,9 +126,8 @@ public class EngineTest {
         Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     marketDataProvider.resetMarketData(marketData);
 
-    Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
-    Results results = listener.getResults();
+    Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(123.45, ((FunctionResult) tradeResults.get(PRESENT_VALUE_HEADER)).getResult());
     System.out.println(results);
@@ -149,11 +145,9 @@ public class EngineTest {
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
-    Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
-    Results results = listener.getResults();
+    Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
     System.out.println(results);
@@ -226,11 +220,9 @@ public class EngineTest {
     functionRepo.register(EquityDescriptionFunction.class);
     functionRepo.register(CashFlowDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
-    Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
-    Results results = listener.getResults();
+    Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run();
 
     Map<String, Object> equityResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, equityResults.get(DESCRIPTION_HEADER));
@@ -271,23 +263,6 @@ public class EngineTest {
     trade.setSecurityLink(securityLink);
     trade.setUniqueId(CASH_FLOW_TRADE_ID);
     return trade;
-  }
-
-  /**
-   * Simple listener for tests that run the engine using a single thread
-   */
-  private static class Listener implements Engine.Listener {
-
-    private Results _results;
-
-    @Override
-    public void cycleComplete(Results results) {
-      _results = results;
-    }
-
-    public Results getResults() {
-      return _results;
-    }
   }
 
   /**
