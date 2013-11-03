@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.graph;
 
-import java.util.Map;
+import com.opengamma.sesame.engine.ComponentMap;
 
 /**
  * A node in the dependency model representing an existing object instance (e.g. a piece of infrastructure provided
@@ -21,8 +21,8 @@ public final class ObjectNode extends Node {
 
   @SuppressWarnings("unchecked")
   @Override
-  Object create(Map<Class<?>, Object> singletons) {
-    return singletons.get(_type);
+  Object create(ComponentMap components) {
+    return components.getComponent(_type);
   }
 
   public Class<?> getType() {

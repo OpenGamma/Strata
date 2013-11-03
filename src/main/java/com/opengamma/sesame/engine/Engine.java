@@ -6,7 +6,6 @@
 package com.opengamma.sesame.engine;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -39,15 +38,15 @@ import com.opengamma.sesame.graph.GraphModel;
   private static final Logger s_logger = LoggerFactory.getLogger(Engine.class);
 
   private final ExecutorService _executor;
-  private final Map<Class<?>, Object> _infrastructure;
+  private final ComponentMap _components;
   private final FunctionRepo _functionRepo;
 
   /* package */ Engine(ExecutorService executor, FunctionRepo functionRepo) {
-    this(executor, Collections.<Class<?>, Object>emptyMap(), functionRepo);
+    this(executor, ComponentMap.EMPTY, functionRepo);
   }
-  /* package */ Engine(ExecutorService executor, Map<Class<?>, Object> infrastructure, FunctionRepo functionRepo) {
+  /* package */ Engine(ExecutorService executor, ComponentMap components, FunctionRepo functionRepo) {
     _executor = executor;
-    _infrastructure = infrastructure;
+    _components = components;
     _functionRepo = functionRepo;
   }
 
@@ -59,8 +58,8 @@ import com.opengamma.sesame.graph.GraphModel;
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
   public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets, Listener listener) {
-    GraphModel graphModel = GraphModel.forView(viewDef, targets, _functionRepo, _infrastructure);
-    FunctionGraph functionGraph = graphModel.build(_infrastructure);
+    GraphModel graphModel = GraphModel.forView(viewDef, targets, _functionRepo, _components);
+    FunctionGraph functionGraph = graphModel.build(_components);
     return new View(viewDef, functionGraph, targets, listener, _executor);
   }
 

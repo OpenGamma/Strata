@@ -14,9 +14,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.Collections;
-import java.util.Map;
-
 import javax.inject.Provider;
 
 import org.testng.annotations.Test;
@@ -26,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
+import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -36,7 +34,6 @@ import com.opengamma.util.test.TestGroup;
 public class FunctionModelTest {
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
-  private static final Map<Class<?>, Object> INFRASTRUCTURE = Collections.emptyMap();
 
   private FunctionMetadata functionMetadata() {
     return ConfigUtils.createMetadata(TestFunction.class, "foo");
@@ -46,13 +43,13 @@ public class FunctionModelTest {
   public void basicImpl() {
     FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
     FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
+    TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof BasicImpl);
   }
 
   @Test
   public void infrastructure() {
-    final Map<Class<?>, Object> infrastructure = ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT);
+    final ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
     FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
     DefaultImplementationProvider provider = new DefaultImplementationProvider() {
       @Override
@@ -73,7 +70,7 @@ public class FunctionModelTest {
                                                    CollaboratorFunction.class, Collaborator.class));
     FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
     // TODO this return type will change soon
-    TestFunction fn = (TestFunction) functionModel.build(INFRASTRUCTURE).getReceiver();
+    TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
     assertTrue(((CallsOtherFunction) fn)._collaborator instanceof Collaborator);
@@ -83,7 +80,7 @@ public class FunctionModelTest {
   public void concreteTypes() {
     FunctionMetadata metadata = ConfigUtils.createMetadata(Concrete1.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
-    Concrete1 fn = (Concrete1) functionModel.build(INFRASTRUCTURE).getReceiver();
+    Concrete1 fn = (Concrete1) functionModel.build(ComponentMap.EMPTY).getReceiver();
     assertNotNull(fn._concrete);
   }
 
@@ -95,7 +92,7 @@ public class FunctionModelTest {
                                        function(PrivateConstructorProvider.class,
                                                 argument("providerName", providerName))));
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
-    PrivateConstructor fn = (PrivateConstructor) functionModel.build(INFRASTRUCTURE).getReceiver();
+    PrivateConstructor fn = (PrivateConstructor) functionModel.build(ComponentMap.EMPTY).getReceiver();
     assertEquals(providerName, fn.getName());
   }
 

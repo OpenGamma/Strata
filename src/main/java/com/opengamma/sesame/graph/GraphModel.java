@@ -15,6 +15,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.AdaptingFunctionMetadata;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.FunctionRepo;
@@ -37,7 +38,7 @@ public final class GraphModel {
   public static GraphModel forView(ViewDef viewDef,
                                    Collection<? extends PositionOrTrade> inputs,
                                    FunctionRepo functionRepo,
-                                   Map<Class<?>, Object> singletons) {
+                                   ComponentMap components) {
     ImmutableMap.Builder<String, Map<ObjectId, FunctionModel>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
       ImmutableMap.Builder<ObjectId, FunctionModel> columnBuilder = ImmutableMap.builder();
@@ -49,7 +50,7 @@ public final class GraphModel {
         if (posOrTradeOutput != null) {
           FunctionMetadata function = functionRepo.getOutputFunction(posOrTradeOutput, posOrTrade.getClass());
           if (function != null) {
-            GraphConfig graphConfig = new GraphConfig(posOrTrade, column, functionRepo, singletons);
+            GraphConfig graphConfig = new GraphConfig(posOrTrade, column, functionRepo, components);
             FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
@@ -62,7 +63,7 @@ public final class GraphModel {
         if (securityOutput != null) {
           FunctionMetadata functionType = functionRepo.getOutputFunction(securityOutput, security.getClass());
           if (functionType != null) {
-            GraphConfig graphConfig = new GraphConfig(security, column, functionRepo, singletons);
+            GraphConfig graphConfig = new GraphConfig(security, column, functionRepo, components);
             FunctionModel securityModel = FunctionModel.forFunction(functionType, graphConfig);
             // TODO factory method on AdaptingFunctionMetadata?
             FunctionModel functionModel = new FunctionModel(securityModel.getRootFunction(),
@@ -83,10 +84,9 @@ public final class GraphModel {
   /**
    * TODO just return the map? function graph doesn't serve any purpose in its current form
    *
-   * @param infrastructure The engine infrastructure
    * @return A graph containing the built function instances
    */
-  public FunctionGraph build(Map<Class<?>, Object> infrastructure) {
+  public FunctionGraph build(ComponentMap components) {
     ImmutableMap.Builder<String, Map<ObjectId, InvokableFunction>> builder = ImmutableMap.builder();
     for (Map.Entry<String, Map<ObjectId, FunctionModel>> entry : _functionTrees.entrySet()) {
       Map<ObjectId, FunctionModel> functionsByTargetId = entry.getValue();
@@ -94,7 +94,7 @@ public final class GraphModel {
       for (Map.Entry<ObjectId, FunctionModel> columnEntry : functionsByTargetId.entrySet()) {
         ObjectId targetId = columnEntry.getKey();
         FunctionModel functionModel = columnEntry.getValue();
-        columnBuilder.put(targetId, functionModel.build(infrastructure));
+        columnBuilder.put(targetId, functionModel.build(components));
       }
       String columnName = entry.getKey();
       builder.put(columnName, columnBuilder.build());

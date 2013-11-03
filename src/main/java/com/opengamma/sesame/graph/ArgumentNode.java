@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.graph;
 
-import java.util.Map;
+import com.opengamma.sesame.engine.ComponentMap;
 
 /**
 *
@@ -22,7 +22,7 @@ public final class ArgumentNode extends Node {
 
   @SuppressWarnings("unchecked")
   @Override
-  Object create(Map<Class<?>, Object> singletons) {
+  Object create(ComponentMap components) {
     return _value;
   }
 

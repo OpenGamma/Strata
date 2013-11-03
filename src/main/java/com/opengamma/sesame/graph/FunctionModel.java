@@ -7,12 +7,12 @@ package com.opengamma.sesame.graph;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
+import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Parameter;
@@ -114,8 +114,8 @@ public final class FunctionModel {
     return null;
   }
 
-  public InvokableFunction build(Map<Class<?>, Object> infrastructure) {
-    Object receiver = _root.create(infrastructure);
+  public InvokableFunction build(ComponentMap components) {
+    Object receiver = _root.create(components);
     return _rootMetadata.getInvokableFunction(receiver);
   }
 

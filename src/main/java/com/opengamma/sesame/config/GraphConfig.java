@@ -5,9 +5,7 @@
  */
 package com.opengamma.sesame.config;
 
-import java.util.Collections;
-import java.util.Map;
-
+import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.DefaultImplementationProvider;
 
 /**
@@ -19,23 +17,23 @@ public class GraphConfig {
 
   private final FunctionConfig _functionConfig;
   private final DefaultImplementationProvider _defaultImplementationProvider;
-  private final Map<Class<?>, Object> _singletons;
+  private final ComponentMap _components;
 
   public GraphConfig(Object input,
                      ViewColumn column,
                      DefaultImplementationProvider defaultImplementationProvider,
-                     Map<Class<?>, Object> singletons) {
+                     ComponentMap components) {
     _defaultImplementationProvider = defaultImplementationProvider;
     _functionConfig = column.getFunctionConfig(input.getClass());
-    _singletons = singletons;
+    _components = components;
   }
 
   public GraphConfig(FunctionConfig functionConfig,
                      DefaultImplementationProvider defaultImplementationProvider,
-                     Map<Class<?>, Object> singletons) {
+                     ComponentMap components) {
     _defaultImplementationProvider = defaultImplementationProvider;
     _functionConfig = functionConfig;
-    _singletons = singletons;
+    _components = components;
   }
 
   public GraphConfig(FunctionConfig functionConfig) {
@@ -46,7 +44,7 @@ public class GraphConfig {
       }
     };
     _functionConfig = functionConfig;
-    _singletons = Collections.emptyMap();
+    _components = ComponentMap.EMPTY;
   }
 
   public Object getConstructorArgument(Class<?> objectType, Class<?> parameterType, String name) {
@@ -74,7 +72,7 @@ public class GraphConfig {
   }
 
   public Object getObject(Class<?> type) {
-    return _singletons.get(type);
+    return _components.getComponent(type);
   }
 
   // TODO should this be on a separate interface? the others are used in graph building, this is for execution

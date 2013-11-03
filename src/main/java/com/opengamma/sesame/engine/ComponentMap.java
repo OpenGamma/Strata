@@ -6,7 +6,10 @@
 package com.opengamma.sesame.engine;
 
 import java.security.CodeSource;
+import java.util.Collections;
 import java.util.Map;
+
+import javax.inject.Provider;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.component.tool.ToolContextUtils;
@@ -26,9 +29,13 @@ import com.opengamma.financial.tool.ToolContext;
  * Loads components using {@link ToolContext} configuration and puts them in a map.
  * This isn't a long-term solution but will do for the time being.
  */
-/* package */ class ComponentMap {
+public class ComponentMap {
 
-  private ComponentMap() {
+  public static final ComponentMap EMPTY = new ComponentMap(Collections.<Class<?>, Object>emptyMap());
+  private final ImmutableMap<Class<?>, Object> _components;
+
+  private ComponentMap(Map<Class<?>, Object> components) {
+    _components = ImmutableMap.copyOf(components);
   }
 
   /**
@@ -36,7 +43,7 @@ import com.opengamma.financial.tool.ToolContext;
    * server
    * @return The available components, keyed by type.
    */
-  /* package */ Map<Class<?>, Object> loadComponents(String location) {
+  public static ComponentMap loadComponents(String location) {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     ToolContext toolContext = ToolContextUtils.getToolContext(location, ToolContext.class);
 
@@ -52,6 +59,24 @@ import com.opengamma.financial.tool.ToolContext;
     builder.put(HistoricalTimeSeriesSource.class, toolContext.getHistoricalTimeSeriesSource());
     builder.put(MarketDataSnapshotSource.class, toolContext.getMarketDataSnapshotSource());
 
-    return builder.build();
+    return new ComponentMap(builder.build());
+  }
+
+  public Object getComponent(Class<?> type) {
+    Object component = _components.get(type);
+    if (component instanceof Provider) {
+      return ((Provider) component).get();
+    } else {
+      return component;
+    }
+  }
+
+  public ComponentMap with(Map<Class<?>, Object> components) {
+    ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
+    return new ComponentMap(builder.putAll(_components).putAll(components).build());
+  }
+
+  public static ComponentMap of(Map<Class<?>, Object> components) {
+    return new ComponentMap(ImmutableMap.copyOf(components));
   }
 }

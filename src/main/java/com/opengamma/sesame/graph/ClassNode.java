@@ -8,13 +8,13 @@ package com.opengamma.sesame.graph;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Provider;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.sesame.engine.ComponentMap;
 
 /**
  * A node in the dependency model representing an object that must be created by the injection framework.
@@ -32,11 +32,11 @@ public final class ClassNode extends Node {
   }
 
   @Override
-  Object create(Map<Class<?>, Object> singletons) {
+  Object create(ComponentMap components) {
     try {
       List<Object> arguments = Lists.newArrayListWithCapacity(_arguments.size());
       for (Node argument : _arguments) {
-        arguments.add(argument.create(singletons));
+        arguments.add(argument.create(components));
       }
       Object instance = _constructor.newInstance(arguments.toArray());
       if (instance instanceof Provider) {
