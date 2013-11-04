@@ -17,7 +17,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import javax.inject.Provider;
 
 import org.testng.annotations.Test;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.config.ConfigUtils;
@@ -26,7 +25,6 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.function.UserParam;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -135,23 +133,6 @@ public class FunctionModelTest {
 
   /* package */ InfrastructureImpl(String infrastructureComponent) {
     _infrastructureComponent = infrastructureComponent;
-  }
-
-  @Override
-  public Object foo() {
-    return null;
-  }
-}
-
-/* package */ class UserParameters implements TestFunction {
-
-  /* package */ final int _i;
-  /* package */ final ZonedDateTime _dateTime;
-
-  /* package */ UserParameters(@UserParam(name = "i", fallbackValue = "9") int i,
-                               @UserParam(name = "dateTime", fallbackValue = "2011-03-08T02:18Z") ZonedDateTime dateTime) {
-    _i = i;
-    _dateTime = dateTime;
   }
 
   @Override
