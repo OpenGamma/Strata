@@ -40,8 +40,7 @@ public final class GraphModel {
   }
 
   // TODO this is getting quite unwieldy and there are likely to be more parameters. create GraphBuilder with fields?
-  // defaultConfig, components, functionRepo, defaultImplementationProvider could all be fields of GraphBuilder
-  // also proxy providers (when they exist)
+  // defaultConfig, components, functionRepo, defaultImplementationProvider, nodeDecorator could all be fields of GraphBuilder
   // if we need shared state for (e.g. singleton providers) then GraphBuilder would be sensible place to put it
   public static GraphModel forView(ViewDef viewDef,
                                    Collection<? extends PositionOrTrade> inputs,

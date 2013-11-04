@@ -81,14 +81,17 @@ public final class FunctionModel {
       if (argument != null) {
         constructorArguments.add(argument);
       } else {
-        // TODO this assumes anything that isn't infrastructure or an argument is a parameter
-        // is that right? do we need to create regular objects?
-        // TODO cyclic dependencies
-        // TODO this is where proxies will be inserted
+        // TODO check for cyclic dependencies
         constructorArguments.add(createNode(parameter.getType(), config));
       }
     }
-    return config.decorateNode(new ClassNode(constructor, constructorArguments));
+    Node node;
+    if (type.isInterface()) {
+      node = new InterfaceNode(type, implType, constructorArguments);
+    } else {
+      node = new ClassNode(implType, constructorArguments);
+    }
+    return config.decorateNode(node);
   }
 
   private static Node getArgument(Class<?> implType, Parameter parameter, GraphConfig config) {

@@ -47,7 +47,7 @@ public final class ConfigUtils {
    * {@link Inject} it's returned. Otherwise an {@link IllegalArgumentException} is thrown.
    * @param type The type
    * @param <T> Tye type
-   * @return The constructor the engine should use for building instances
+   * @return The constructor the engine should use for building instances, not null
    * @throws IllegalArgumentException If there isn't a valid constructor
    */
   @SuppressWarnings("unchecked")

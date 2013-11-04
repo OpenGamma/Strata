@@ -19,6 +19,7 @@ import javax.inject.Provider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
@@ -88,8 +89,6 @@ public class FunctionModelTest {
 
   @Test
   public void decorators() {
-    final String decoratorValue = "DECORATOR VALUE: ";
-    // haha, like server-side JavaScript
     NodeDecorator decorator = new NodeDecorator() {
       @Override
       public Node decorateNode(final Node node) {
@@ -100,7 +99,7 @@ public class FunctionModelTest {
             return new TestFunction() {
               @Override
               public Object foo() {
-                return decoratorValue + fn.foo();
+                return Lists.newArrayList("decorated", fn.foo());
               }
             };
           }
@@ -111,7 +110,8 @@ public class FunctionModelTest {
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, decorator);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
     TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
-    assertEquals(decoratorValue + "foo", fn.foo());
+    // the basic method just returns "foo"
+    assertEquals(Lists.newArrayList("decorated", "foo"), fn.foo());
   }
 
   @Test
