@@ -37,4 +37,18 @@ public class CompositeFunctionConfig implements FunctionConfig {
     return new CompositeFunctionArguments(_config1.getFunctionArguments(functionType),
                                           _config2.getFunctionArguments(functionType));
   }
+
+  public static FunctionConfig compose(FunctionConfig... configs) {
+    if (configs.length == 0) {
+      return EMPTY;
+    }
+    if (configs.length == 1) {
+      return configs[0];
+    }
+    FunctionConfig config = configs[0];
+    for (int i = 1; i < configs.length; i++) {
+      config = new CompositeFunctionConfig(config, configs[i]);
+    }
+    return config;
+  }
 }

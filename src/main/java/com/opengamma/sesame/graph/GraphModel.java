@@ -96,8 +96,9 @@ public final class GraphModel {
                                                ViewColumn column,
                                                FunctionConfig defaultConfig,
                                                FunctionRepo functionRepo) {
-    CompositeFunctionConfig config = new CompositeFunctionConfig(column.getFunctionConfig(inputType), defaultConfig);
-    return new CompositeFunctionConfig(config, new DefaultImplementationProvider(functionRepo));
+    return CompositeFunctionConfig.compose(column.getFunctionConfig(inputType),
+                                           defaultConfig,
+                                           new DefaultImplementationProvider(functionRepo));
   }
 
   /**
