@@ -38,7 +38,7 @@ public class FunctionMetadata {
   /** The name of the output produced by the function. */
   private final String _outputName;
 
-  /* package */ FunctionMetadata(FunctionMetadata copyFrom) {
+  public FunctionMetadata(FunctionMetadata copyFrom) {
     _method = copyFrom._method;
     _parameters = copyFrom._parameters;
     _inputParameter = copyFrom._inputParameter;

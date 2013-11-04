@@ -18,12 +18,12 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.function.AdaptingFunctionMetadata;
 import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.NoOutputFunction;
+import com.opengamma.sesame.function.SecurityAdapter;
 
 /**
  * Lightweight model of the functions needed to generate the outputs for a view.
@@ -38,7 +38,10 @@ public final class GraphModel {
     _functionTrees = functionTrees;
   }
 
-  // TODO system default FunctionConfig with default impls and default args
+  // TODO this is getting quite unwieldy and there are likely to be more parameters. create GraphBuilder with fields?
+  // defaultConfig, components and functionRepo could all be fields of GraphBuilder
+  // also proxy providers (when they exist)
+  // if we need shared state for (e.g. singleton providers) then GraphBuilder would be sensible place to put it
   public static GraphModel forView(ViewDef viewDef,
                                    Collection<? extends PositionOrTrade> inputs,
                                    FunctionConfig defaultConfig,
@@ -76,9 +79,7 @@ public final class GraphModel {
             FunctionConfig config = configForInput(security.getClass(), column, defaultConfig, functionRepo);
             GraphConfig graphConfig = new GraphConfig(config, components);
             FunctionModel securityModel = FunctionModel.forFunction(functionType, graphConfig);
-            // TODO factory method on AdaptingFunctionMetadata?
-            FunctionModel functionModel = new FunctionModel(securityModel.getRootFunction(),
-                                                            new AdaptingFunctionMetadata(securityModel.getRootMetadata()));
+            FunctionModel functionModel = SecurityAdapter.adapt(securityModel);
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }

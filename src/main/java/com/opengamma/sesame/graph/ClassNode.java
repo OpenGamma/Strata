@@ -22,7 +22,7 @@ import com.opengamma.sesame.engine.ComponentMap;
  */
 public final class ClassNode extends Node {
 
-  // TODO if this needs to be serializable this might have to be stored as class + args. or just class
+  // TODO if this needs to be serializable this might have to be stored as class + arg types. or just class
   private final Constructor<?> _constructor;
   private final List<Node> _arguments;
 

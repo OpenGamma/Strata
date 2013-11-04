@@ -28,7 +28,7 @@ public final class FunctionModel {
   private final ClassNode _root;
   private final FunctionMetadata _rootMetadata;
 
-  /* package */ FunctionModel(ClassNode root, FunctionMetadata rootMetadata) {
+  public FunctionModel(ClassNode root, FunctionMetadata rootMetadata) {
     _root = root;
     _rootMetadata = rootMetadata;
   }

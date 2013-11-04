@@ -8,15 +8,16 @@ package com.opengamma.sesame.function;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.sesame.graph.FunctionModel;
 
 /**
  * Wraps an {@link InvokableFunction} that expects a {@link Security} input in one that expects a {@link PositionOrTrade}
  * input. When the invoker is called it gets the security from the {@link PositionOrTrade} and uses it when
  * invoking the wrapped invoker.
  */
-public class AdaptingFunctionMetadata extends FunctionMetadata {
+public class SecurityAdapter extends FunctionMetadata {
 
-  public AdaptingFunctionMetadata(FunctionMetadata function) {
+  public SecurityAdapter(FunctionMetadata function) {
     super(function);
   }
 
@@ -48,5 +49,10 @@ public class AdaptingFunctionMetadata extends FunctionMetadata {
     public Object getReceiver() {
       return _delegate.getReceiver();
     }
+  }
+
+  public static FunctionModel adapt(FunctionModel positionOrTradeFunction) {
+    return new FunctionModel(positionOrTradeFunction.getRootFunction(),
+                             new SecurityAdapter(positionOrTradeFunction.getRootMetadata()));
   }
 }
