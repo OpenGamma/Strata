@@ -12,11 +12,14 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ObjectId;
+import com.opengamma.sesame.config.CompositeFunctionConfig;
+import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.AdaptingFunctionMetadata;
+import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.InvokableFunction;
@@ -27,8 +30,8 @@ import com.opengamma.sesame.function.NoOutputFunction;
  */
 public final class GraphModel {
 
-  // TODO for this to be useful in the UI it needs to be map(column -> map((outputName,inputType) -> functionTree))
-  // TODO probably better to have a real class that a rats' nest of generics
+  // TODO for this to be useful in the UI it needs to be map(column -> map((outputName,inputType) -> functionModel))
+  // it will probably be better to have a real class than a rats' nest of generics
   private final Map<String, Map<ObjectId, FunctionModel>> _functionTrees;
 
   private GraphModel(Map<String, Map<ObjectId, FunctionModel>> functionTrees) {
@@ -45,12 +48,17 @@ public final class GraphModel {
       for (PositionOrTrade posOrTrade : inputs) {
         // TODO no need to create a FunctionTree for every target, cache on outputName/inputType
 
+        // if we need to support stateful functions this is the place to do it.
+        // the FunctionModel could flag if its tree contains any functions annotated as @Stateful and
+        // it wouldn't be eligible for sharing with other inputs
+
         // look for an output for the position or trade
         String posOrTradeOutput = column.getOutputName(posOrTrade.getClass());
         if (posOrTradeOutput != null) {
           FunctionMetadata function = functionRepo.getOutputFunction(posOrTradeOutput, posOrTrade.getClass());
           if (function != null) {
-            GraphConfig graphConfig = new GraphConfig(posOrTrade, column, functionRepo, components);
+            FunctionConfig config = configForInput(posOrTrade.getClass(), column, functionRepo);
+            GraphConfig graphConfig = new GraphConfig(config, components);
             FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
@@ -63,7 +71,8 @@ public final class GraphModel {
         if (securityOutput != null) {
           FunctionMetadata functionType = functionRepo.getOutputFunction(securityOutput, security.getClass());
           if (functionType != null) {
-            GraphConfig graphConfig = new GraphConfig(security, column, functionRepo, components);
+            FunctionConfig config = configForInput(security.getClass(), column, functionRepo);
+            GraphConfig graphConfig = new GraphConfig(config, components);
             FunctionModel securityModel = FunctionModel.forFunction(functionType, graphConfig);
             // TODO factory method on AdaptingFunctionMetadata?
             FunctionModel functionModel = new FunctionModel(securityModel.getRootFunction(),
@@ -79,6 +88,11 @@ public final class GraphModel {
       builder.put(column.getName(), columnBuilder.build());
     }
     return new GraphModel(builder.build());
+  }
+
+  private static FunctionConfig configForInput(Class<?> inputType, ViewColumn column, FunctionRepo functionRepo) {
+    return new CompositeFunctionConfig(column.getFunctionConfig(inputType),
+                                       new DefaultImplementationProvider(functionRepo));
   }
 
   /**

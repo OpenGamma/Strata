@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.config;
 
-import org.joda.beans.ImmutableConstructor;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,19 +20,24 @@ public final class ColumnOutput {
     this(outputName, FunctionConfig.EMPTY);
   }
 
-  @ImmutableConstructor
   public ColumnOutput(String outputName, FunctionConfig functionConfig) {
-    // TODO should this be nullable so you can specify the config for security type but inherit the output from the column?
-    ArgumentChecker.notNull(outputName, "outputName");
     ArgumentChecker.notNull(functionConfig, "functionConfig");
     _outputName = outputName;
     _functionConfig = functionConfig;
   }
 
+  /**
+   * Returns the output name.
+   * This can be null if this output applies to a specific input type and the output name is specified for the column.
+   * @return The output name, possibly null
+   */
   public String getOutputName() {
     return _outputName;
   }
 
+  /**
+   * @return The configuration for this output, not null
+   */
   public FunctionConfig getFunctionConfig() {
     return _functionConfig;
   }

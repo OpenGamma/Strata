@@ -24,7 +24,6 @@ import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.UserParam;
@@ -49,15 +48,10 @@ public class FunctionModelTest {
 
   @Test
   public void infrastructure() {
-    final ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
+    final ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class,
+                                                                                          INFRASTRUCTURE_COMPONENT));
     FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
-    DefaultImplementationProvider provider = new DefaultImplementationProvider() {
-      @Override
-      public Class<?> getDefaultImplementationType(Class<?> interfaceType) {
-        return null;
-      }
-    };
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), new GraphConfig(config, provider, infrastructure));
+    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), new GraphConfig(config, infrastructure));
     TestFunction fn = (TestFunction) functionModel.build(infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions

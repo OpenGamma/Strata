@@ -155,49 +155,21 @@ public class EngineTest {
 
   @Test
   public void overridesAndConfig() {
-/*
-    TODO for this to work I'd need to set global defaults for arguments for IdSchemeFunction.scheme=BLOOMBERG_TICKER
     ViewDef viewDef =
         viewDef("name",
                 column(OutputNames.DESCRIPTION),
                 column(BLOOMBERG_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                       output(OutputNames.DESCRIPTION,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
-                              config(
-                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
-                column(ACTIV_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
-                              config(
-                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
-*/
-
-    ViewDef viewDef =
-        viewDef("view name",
-                column(OutputNames.DESCRIPTION),
-                column(BLOOMBERG_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                       output(EquitySecurity.class,
                               config(
-                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.BLOOMBERG_TICKER)))))),
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                       output(CashFlowSecurity.class,
+                              config(
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
                 column(ACTIV_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(

@@ -37,7 +37,7 @@ public final class ViewColumn {
 
   public String getOutputName(Class<?> inputType) {
     ColumnOutput columnOutput = _outputs.get(inputType);
-    if (columnOutput != null) {
+    if (columnOutput != null && columnOutput.getOutputName() != null) {
       return columnOutput.getOutputName();
     } else if (_defaultOutput != null) {
       return _defaultOutput.getOutputName();
@@ -46,22 +46,30 @@ public final class ViewColumn {
     }
   }
 
-  // TODO do I actually want getFunctionConfig(inputType) here? could merge with the defaults later
   public FunctionConfig getFunctionConfig(Class<?> inputType) {
     ColumnOutput columnOutput = _outputs.get(inputType);
-    // TODO merge config so the override config can provide some data and the defaults can provide the rest
-    if (columnOutput != null) {
-      return columnOutput.getFunctionConfig();
-    } else {
-      if (_defaultOutput != null) {
-        return _defaultOutput.getFunctionConfig();
-      } else {
-        return FunctionConfig.EMPTY;
-      }
+    if (columnOutput == null && _defaultOutput == null) {
+      return FunctionConfig.EMPTY;
     }
+    if (columnOutput == null) {
+      return _defaultOutput.getFunctionConfig();
+    }
+    if (_defaultOutput == null) {
+      return columnOutput.getFunctionConfig();
+    }
+    return new CompositeFunctionConfig(columnOutput.getFunctionConfig(), _defaultOutput.getFunctionConfig());
   }
 
   public String getName() {
     return _name;
+  }
+
+  @Override
+  public String toString() {
+    return "ViewColumn [" +
+        "_name='" + _name + "'" +
+        ", _defaultOutput=" + _defaultOutput +
+        ", _outputs=" + _outputs +
+        "]";
   }
 }

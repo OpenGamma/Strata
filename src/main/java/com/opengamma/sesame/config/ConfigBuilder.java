@@ -114,26 +114,32 @@ public final class ConfigBuilder {
     return new TargetOutput(new ColumnOutput(outputName, config), targetType);
   }
 
+  // TODO this needs to inherit the output name from the column. not sure that's going to be easy
+  // maybe column output needs to allow a null output name
+  public static TargetOutput output(Class<?> targetType, FunctionConfig config) {
+    return new TargetOutput(new ColumnOutput(null, config), targetType);
+  }
+
   public static FunctionConfig config(Overrides overrides, Arguments arguments) {
-    return new FunctionConfig(overrides._overrides, arguments._arguments);
+    return new SimpleFunctionConfig(overrides._overrides, arguments._arguments);
   }
 
   public static FunctionConfig config() {
-    return new FunctionConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
+    return new SimpleFunctionConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
   }
 
 
   public static FunctionConfig config(Overrides overrides) {
-    return new FunctionConfig(overrides._overrides, EMPTY_ARGUMENTS);
+    return new SimpleFunctionConfig(overrides._overrides, EMPTY_ARGUMENTS);
   }
 
   public static FunctionConfig config(Arguments arguments) {
-    return new FunctionConfig(EMPTY_OVERRIDES, arguments._arguments);
+    return new SimpleFunctionConfig(EMPTY_OVERRIDES, arguments._arguments);
 
   }
 
   public static FunctionConfig config(Arguments arguments, Overrides overrides) {
-    return new FunctionConfig(overrides._overrides, arguments._arguments);
+    return new SimpleFunctionConfig(overrides._overrides, arguments._arguments);
   }
 
   // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
@@ -190,7 +196,7 @@ public final class ConfigBuilder {
       for (Arg arg : args) {
         argVals.put(arg._name, arg._value);
       }
-      _args = new FunctionArguments(argVals);
+      _args = new SimpleFunctionArguments(argVals);
     }
   }
 

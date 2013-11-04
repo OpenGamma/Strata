@@ -6,7 +6,6 @@
 package com.opengamma.sesame.config;
 
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.function.DefaultImplementationProvider;
 
 /**
  * TODO interface?
@@ -16,42 +15,27 @@ public class GraphConfig {
   public static final GraphConfig EMPTY = new GraphConfig(FunctionConfig.EMPTY);
 
   private final FunctionConfig _functionConfig;
-  private final DefaultImplementationProvider _defaultImplementationProvider;
   private final ComponentMap _components;
 
-  public GraphConfig(Object input,
+  /*public GraphConfig(Object input,
                      ViewColumn column,
-                     DefaultImplementationProvider defaultImplementationProvider,
                      ComponentMap components) {
-    _defaultImplementationProvider = defaultImplementationProvider;
     _functionConfig = column.getFunctionConfig(input.getClass());
     _components = components;
-  }
+  }*/
 
-  public GraphConfig(FunctionConfig functionConfig,
-                     DefaultImplementationProvider defaultImplementationProvider,
-                     ComponentMap components) {
-    _defaultImplementationProvider = defaultImplementationProvider;
+  public GraphConfig(FunctionConfig functionConfig, ComponentMap components) {
     _functionConfig = functionConfig;
     _components = components;
   }
 
   public GraphConfig(FunctionConfig functionConfig) {
-    _defaultImplementationProvider = new DefaultImplementationProvider() {
-      @Override
-      public Class<?> getDefaultImplementationType(Class<?> interfaceType) {
-        return null;
-      }
-    };
     _functionConfig = functionConfig;
     _components = ComponentMap.EMPTY;
   }
 
   public Object getConstructorArgument(Class<?> objectType, Class<?> parameterType, String name) {
     FunctionArguments args = _functionConfig.getFunctionArguments(objectType);
-    if (args == null) {
-      return null;
-    }
     Object arg = args.getArgument(name);
     if (arg == null) {
       return null;
@@ -63,12 +47,7 @@ public class GraphConfig {
   }
 
   public Class<?> getImplementationType(Class<?> interfaceType) {
-    Class<?> implType = _functionConfig.getFunctionImplementation(interfaceType);
-    if (implType != null) {
-      return implType;
-    } else {
-      return _defaultImplementationProvider.getDefaultImplementationType(interfaceType);
-    }
+    return _functionConfig.getFunctionImplementation(interfaceType);
   }
 
   public Object getObject(Class<?> type) {

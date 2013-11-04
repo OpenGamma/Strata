@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * Repository for engine functions. This returns the function type that can satisfy a value name for a target type.
  */
-public interface FunctionRepo extends DefaultImplementationProvider {
+public interface FunctionRepo {
 
   // for when the user is configuring a column with a default output name. this shows which types it can handle
   Set<Class<?>> getInputTypes(String outputName);
@@ -31,8 +31,10 @@ public interface FunctionRepo extends DefaultImplementationProvider {
   // they're more about building than specifically about functions
   // should they be somewhere else along with provider registration?
   // wherever they go GraphConfig will need to be involved
+  Class<?> getDefaultImplementation(Class<?> interfaceType);
 
   // gives the available implementing types for function interfaces
   // these can be presented to the user when they're setting up the view and choosing implementation overrides
   Set<Class<?>> getImplementationTypes(Class<?> interfaceType);
+
 }

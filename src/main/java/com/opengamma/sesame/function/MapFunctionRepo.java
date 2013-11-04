@@ -169,7 +169,7 @@ public final class MapFunctionRepo implements FunctionRepo {
 
   // if there's only 1 impl, return it, if there are defaults configured check those
   @Override
-  public synchronized Class<?> getDefaultImplementationType(Class<?> interfaceType) {
+  public synchronized Class<?> getDefaultImplementation(Class<?> interfaceType) {
     Class<?> defaultImpl = _defaultImplementationsByInterface.get(interfaceType);
     if (defaultImpl != null) {
       return defaultImpl;

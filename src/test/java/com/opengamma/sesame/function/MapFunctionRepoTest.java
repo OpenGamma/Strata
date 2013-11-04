@@ -92,7 +92,7 @@ public class MapFunctionRepoTest {
   public void specifyDefaultImplementations() {
     Map<Class<?>, Class<?>> defaultImpls = ImmutableMap.<Class<?>, Class<?>>of(F1.class, F1Impl2.class);
     MapFunctionRepo repo = new MapFunctionRepo(s_inputTypes, defaultImpls);
-    assertEquals(F1Impl2.class, repo.getDefaultImplementationType(F1.class));
+    assertEquals(F1Impl2.class, repo.getDefaultImplementation(F1.class));
   }
 
   /**
