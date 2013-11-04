@@ -8,6 +8,7 @@ package com.opengamma.sesame.engine;
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
+import static com.opengamma.sesame.config.ConfigBuilder.columnOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
@@ -106,9 +107,10 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Equity PV",
                 column(PRESENT_VALUE_HEADER,
-                       output(OutputNames.PRESENT_VALUE,
-                              config(
-                                  implementations(EquityPresentValueFunction.class, EquityPresentValue.class)))));
+                       columnOutput(OutputNames.PRESENT_VALUE,
+                                    config(
+                                        implementations(EquityPresentValueFunction.class,
+                                                        EquityPresentValue.class)))));
 
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);
@@ -139,9 +141,10 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Trivial Test View",
                 column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION,
-                              config(
-                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
+                       columnOutput(OutputNames.DESCRIPTION,
+                                    config(
+                                        implementations(EquityDescriptionFunction.class,
+                                                        EquityDescription.class)))));
 
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
@@ -160,11 +163,11 @@ public class EngineTest {
         viewDef("name",
                 column(OutputNames.DESCRIPTION),
                 column(BLOOMBERG_HEADER,
-                       output(OutputNames.DESCRIPTION,
-                              config(
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
+                       columnOutput(OutputNames.DESCRIPTION,
+                                    config(
+                                        arguments(
+                                            function(IdScheme.class,
+                                                     argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
@@ -172,18 +175,17 @@ public class EngineTest {
                               config(
                                   implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
                 column(ACTIV_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                       columnOutput(OutputNames.DESCRIPTION,
+                                    config(
+                                        arguments(
+                                            function(IdScheme.class,
+                                                     argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                       output(EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                       output(CashFlowSecurity.class,
                               config(
-                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))));
 
     FunctionConfig defaultConfig = config(implementations(
         EquityDescriptionFunction.class, EquityDescription.class,

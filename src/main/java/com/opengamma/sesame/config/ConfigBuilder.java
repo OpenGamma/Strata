@@ -35,27 +35,29 @@ public final class ConfigBuilder {
         viewDef("view name",
                 column(OutputNames.DESCRIPTION),
                 column(
-                    output(OutputNames.DESCRIPTION,
-                           config(
-                               implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
-                               arguments(
-                                   function(IdScheme.class,
-                                            argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
+                    columnOutput(OutputNames.DESCRIPTION,
+                                 config(
+                                     implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                     arguments(
+                                         function(IdScheme.class,
+                                                  argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
                 column("Bloomberg Ticker",
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                       columnOutput(OutputNames.DESCRIPTION),
+                       output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                       output(CashFlowSecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class)))),
                 column("ACTIV Symbol",
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                       columnOutput(OutputNames.DESCRIPTION),
+                       output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                       output(CashFlowSecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
@@ -97,12 +99,12 @@ public final class ConfigBuilder {
   }
 
   // for the default column output
-  public static ColumnOutput output(String outputName) {
+  public static ColumnOutput columnOutput(String outputName) {
     return new ColumnOutput(outputName);
   }
 
   // for the default column output
-  public static ColumnOutput output(String outputName, FunctionConfig config) {
+  public static ColumnOutput columnOutput(String outputName, FunctionConfig config) {
     return new ColumnOutput(outputName, config);
   }
 

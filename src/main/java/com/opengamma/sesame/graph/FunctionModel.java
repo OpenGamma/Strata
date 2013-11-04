@@ -25,8 +25,6 @@ import com.opengamma.sesame.function.Parameter;
  */
 public final class FunctionModel {
 
-  // TODO wrap the return value from createNode in forFunction in something that knows about the invoker
-  // TODO or have a different node/function subtype that contains the invoker and any other metadata about the fn
   private final ClassNode _root;
   private final FunctionMetadata _rootMetadata;
 
@@ -87,7 +85,6 @@ public final class FunctionModel {
         // is that right? do we need to create regular objects?
         // TODO cyclic dependencies
         // TODO this is where proxies will be inserted
-        // TODO providers
         constructorArguments.add(createNode(parameter.getType(), config));
       }
     }
@@ -95,14 +92,7 @@ public final class FunctionModel {
   }
 
   private static Node getArgument(Class<?> implType, Parameter parameter, GraphConfig config) {
-      /*
-      there are 3 types of argument:
-        existing instances
-        other objects that need to be created (return null for these)
-        user arguments
-      */
     if (config.getObject(parameter.getType()) != null) {
-      // TODO providers?
       return new ObjectNode(parameter.getType());
     }
     // TODO can we handle missing nullable constructor parameters and return a null node instead of null?

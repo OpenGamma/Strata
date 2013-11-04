@@ -17,13 +17,6 @@ public class GraphConfig {
   private final FunctionConfig _functionConfig;
   private final ComponentMap _components;
 
-  /*public GraphConfig(Object input,
-                     ViewColumn column,
-                     ComponentMap components) {
-    _functionConfig = column.getFunctionConfig(input.getClass());
-    _components = components;
-  }*/
-
   public GraphConfig(FunctionConfig functionConfig, ComponentMap components) {
     _functionConfig = functionConfig;
     _components = components;
