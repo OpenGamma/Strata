@@ -32,7 +32,7 @@ public final class ClassNode extends Node {
   }
 
   @Override
-  Object create(ComponentMap components) {
+  public Object create(ComponentMap components) {
     try {
       List<Object> arguments = Lists.newArrayListWithCapacity(_arguments.size());
       for (Node argument : _arguments) {
@@ -47,5 +47,14 @@ public final class ClassNode extends Node {
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new OpenGammaRuntimeException("Failed to create of " + _constructor.getDeclaringClass().getName(), e);
     }
+  }
+
+  @Override
+  public List<Node> getDependencies() {
+    return _arguments;
+  }
+
+  public Class<?> getType() {
+    return _constructor.getDeclaringClass();
   }
 }

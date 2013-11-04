@@ -29,6 +29,8 @@ import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.graph.FunctionGraph;
 import com.opengamma.sesame.graph.GraphModel;
+import com.opengamma.sesame.proxy.NodeDecorator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * TODO this is totally provisional, just enough to run some basic tests that stitch everything together
@@ -41,24 +43,27 @@ import com.opengamma.sesame.graph.GraphModel;
   private final ComponentMap _components;
   private final FunctionRepo _functionRepo;
   private final FunctionConfig _defaultConfig;
+  private final NodeDecorator _nodeDecorator;
 
   /* package */ Engine(ExecutorService executor, FunctionRepo functionRepo) {
-    this(executor, ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY);
+    this(executor, ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
   }
 
-  /* package */ Engine(ExecutorService executor, FunctionRepo functionRepo, FunctionConfig defaultConfig) {
-    this(executor, ComponentMap.EMPTY, functionRepo, defaultConfig);
-  }
-
-  /* package */ Engine(ExecutorService executor, ComponentMap components, FunctionRepo functionRepo) {
-    this(executor, components, functionRepo, FunctionConfig.EMPTY);
-  }
-
-  /* package */ Engine(ExecutorService executor, ComponentMap components, FunctionRepo functionRepo, FunctionConfig defaultConfig) {
+  /* package */ Engine(ExecutorService executor,
+                       ComponentMap components,
+                       FunctionRepo functionRepo,
+                       FunctionConfig defaultConfig,
+                       NodeDecorator nodeDecorator) {
+    ArgumentChecker.notNull(executor, "executor");
+    ArgumentChecker.notNull(components, "components");
+    ArgumentChecker.notNull(functionRepo, "functionRepo");
+    ArgumentChecker.notNull(defaultConfig, "defaultConfig");
+    ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
     _executor = executor;
     _components = components;
     _functionRepo = functionRepo;
     _defaultConfig = defaultConfig;
+    _nodeDecorator = nodeDecorator;
   }
 
   /*public interface Listener {
@@ -69,7 +74,7 @@ import com.opengamma.sesame.graph.GraphModel;
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
   public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets) {
-    GraphModel graphModel = GraphModel.forView(viewDef, targets, _defaultConfig, _functionRepo, _components);
+    GraphModel graphModel = GraphModel.forView(viewDef, targets, _defaultConfig, _functionRepo, _components, _nodeDecorator);
     FunctionGraph functionGraph = graphModel.build(_components);
     return new View(viewDef, functionGraph, targets, _executor);
   }

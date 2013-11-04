@@ -24,6 +24,7 @@ import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.NoOutputFunction;
 import com.opengamma.sesame.function.SecurityAdapter;
+import com.opengamma.sesame.proxy.NodeDecorator;
 
 /**
  * Lightweight model of the functions needed to generate the outputs for a view.
@@ -39,14 +40,15 @@ public final class GraphModel {
   }
 
   // TODO this is getting quite unwieldy and there are likely to be more parameters. create GraphBuilder with fields?
-  // defaultConfig, components and functionRepo could all be fields of GraphBuilder
+  // defaultConfig, components, functionRepo, defaultImplementationProvider could all be fields of GraphBuilder
   // also proxy providers (when they exist)
   // if we need shared state for (e.g. singleton providers) then GraphBuilder would be sensible place to put it
   public static GraphModel forView(ViewDef viewDef,
                                    Collection<? extends PositionOrTrade> inputs,
                                    FunctionConfig defaultConfig,
                                    FunctionRepo functionRepo,
-                                   ComponentMap components) {
+                                   ComponentMap components,
+                                   NodeDecorator nodeDecorator) {
     ImmutableMap.Builder<String, Map<ObjectId, FunctionModel>> builder = ImmutableMap.builder();
     for (ViewColumn column : viewDef.getColumns()) {
       ImmutableMap.Builder<ObjectId, FunctionModel> columnBuilder = ImmutableMap.builder();
@@ -63,7 +65,7 @@ public final class GraphModel {
           FunctionMetadata function = functionRepo.getOutputFunction(posOrTradeOutput, posOrTrade.getClass());
           if (function != null) {
             FunctionConfig config = configForInput(posOrTrade.getClass(), column, defaultConfig, functionRepo);
-            GraphConfig graphConfig = new GraphConfig(config, components);
+            GraphConfig graphConfig = new GraphConfig(config, components, nodeDecorator);
             FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
@@ -77,7 +79,7 @@ public final class GraphModel {
           FunctionMetadata functionType = functionRepo.getOutputFunction(securityOutput, security.getClass());
           if (functionType != null) {
             FunctionConfig config = configForInput(security.getClass(), column, defaultConfig, functionRepo);
-            GraphConfig graphConfig = new GraphConfig(config, components);
+            GraphConfig graphConfig = new GraphConfig(config, components, nodeDecorator);
             FunctionModel securityModel = FunctionModel.forFunction(functionType, graphConfig);
             FunctionModel functionModel = SecurityAdapter.adapt(securityModel);
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);

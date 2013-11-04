@@ -25,31 +25,30 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.proxy.NodeDecorator;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
 public class FunctionModelTest {
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
-
-  private FunctionMetadata functionMetadata() {
-    return ConfigUtils.createMetadata(TestFunction.class, "foo");
-  }
+  private static final FunctionMetadata METADATA = ConfigUtils.createMetadata(TestFunction.class, "foo");
 
   @Test
   public void basicImpl() {
     FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof BasicImpl);
   }
 
   @Test
   public void infrastructure() {
-    final ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class,
-                                                                                          INFRASTRUCTURE_COMPONENT));
+    final ComponentMap infrastructure = ComponentMap.of(
+        ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
     FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), new GraphConfig(config, infrastructure));
+    GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
     TestFunction fn = (TestFunction) functionModel.build(infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
@@ -60,8 +59,7 @@ public class FunctionModelTest {
   public void functionCallingOtherFunction() {
     FunctionConfig config = config(implementations(TestFunction.class, CallsOtherFunction.class,
                                                    CollaboratorFunction.class, Collaborator.class));
-    FunctionModel functionModel = FunctionModel.forFunction(functionMetadata(), config);
-    // TODO this return type will change soon
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
@@ -86,6 +84,34 @@ public class FunctionModelTest {
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
     PrivateConstructor fn = (PrivateConstructor) functionModel.build(ComponentMap.EMPTY).getReceiver();
     assertEquals(providerName, fn.getName());
+  }
+
+  @Test
+  public void decorators() {
+    final String decoratorValue = "DECORATOR VALUE: ";
+    // haha, like server-side JavaScript
+    NodeDecorator decorator = new NodeDecorator() {
+      @Override
+      public Node decorateNode(final Node node) {
+        return new Node() {
+          @Override
+          public Object create(ComponentMap components) {
+            final TestFunction fn = (TestFunction) node.create(components);
+            return new TestFunction() {
+              @Override
+              public Object foo() {
+                return decoratorValue + fn.foo();
+              }
+            };
+          }
+        };
+      }
+    };
+    FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, decorator);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
+    TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    assertEquals(decoratorValue + "foo", fn.foo());
   }
 
   @Test
@@ -123,7 +149,7 @@ public class FunctionModelTest {
 
   @Override
   public Object foo() {
-    return null;
+    return "foo";
   }
 }
 

@@ -8,7 +8,6 @@ package com.opengamma.sesame.graph;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.sesame.engine.ComponentMap;
 
 /**
@@ -16,19 +15,9 @@ import com.opengamma.sesame.engine.ComponentMap;
  */
 public abstract class Node {
 
-  private final ImmutableList<Node> _dependencies;
+  /* package */ public abstract Object create(ComponentMap components);
 
-  /* package */ Node(List<Node> dependencies) {
-    _dependencies = ImmutableList.copyOf(dependencies);
-  }
-
-  /* package */ Node() {
-    this(Collections.<Node>emptyList());
-  }
-
-  /* package */ abstract Object create(ComponentMap components);
-
-  public ImmutableList<Node> getDependencies() {
-    return _dependencies;
+  public List<Node> getDependencies() {
+    return Collections.emptyList();
   }
 }

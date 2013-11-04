@@ -22,7 +22,7 @@ public final class ArgumentNode extends Node {
 
   @SuppressWarnings("unchecked")
   @Override
-  Object create(ComponentMap components) {
+  public Object create(ComponentMap components) {
     return _value;
   }
 

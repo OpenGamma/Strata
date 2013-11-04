@@ -60,6 +60,7 @@ import com.opengamma.sesame.example.IdScheme;
 import com.opengamma.sesame.example.IdSchemeFunction;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.MapFunctionRepo;
+import com.opengamma.sesame.proxy.NodeDecorator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -118,7 +119,7 @@ public class EngineTest {
     ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
     ComponentMap componentMap = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class,
                                                                                   marketDataProvider));
-    Engine engine = new Engine(new DirectExecutorService(), componentMap, functionRepo);
+    Engine engine = new Engine(new DirectExecutorService(), componentMap, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
@@ -194,7 +195,7 @@ public class EngineTest {
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     functionRepo.register(CashFlowDescriptionFunction.class);
-    Engine engine = new Engine(new DirectExecutorService(), functionRepo, defaultConfig);
+    Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, defaultConfig, NodeDecorator.IDENTITY);
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();

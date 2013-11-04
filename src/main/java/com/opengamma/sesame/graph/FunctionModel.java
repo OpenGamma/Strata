@@ -25,15 +25,15 @@ import com.opengamma.sesame.function.Parameter;
  */
 public final class FunctionModel {
 
-  private final ClassNode _root;
+  private final Node _root;
   private final FunctionMetadata _rootMetadata;
 
-  public FunctionModel(ClassNode root, FunctionMetadata rootMetadata) {
+  public FunctionModel(Node root, FunctionMetadata rootMetadata) {
     _root = root;
     _rootMetadata = rootMetadata;
   }
 
-  public ClassNode getRootFunction() {
+  public Node getRootFunction() {
     return _root;
   }
 
@@ -65,7 +65,7 @@ public final class FunctionModel {
   // for implementation class it just needs to go up the set of defaults looking for the first one that matches
 
   @SuppressWarnings("unchecked")
-  private static ClassNode createNode(Class<?> type, GraphConfig config) {
+  private static Node createNode(Class<?> type, GraphConfig config) {
     Class<?> implType = config.getImplementationType(type);
     if (implType == null && !type.isInterface()) {
       implType = type;
@@ -77,7 +77,7 @@ public final class FunctionModel {
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
     for (Parameter parameter : parameters) {
-      Node argument = getArgument(implType, parameter, config);
+      Node argument = config.decorateNode(getArgument(implType, parameter, config));
       if (argument != null) {
         constructorArguments.add(argument);
       } else {
@@ -88,7 +88,7 @@ public final class FunctionModel {
         constructorArguments.add(createNode(parameter.getType(), config));
       }
     }
-    return new ClassNode(constructor, constructorArguments);
+    return config.decorateNode(new ClassNode(constructor, constructorArguments));
   }
 
   private static Node getArgument(Class<?> implType, Parameter parameter, GraphConfig config) {
