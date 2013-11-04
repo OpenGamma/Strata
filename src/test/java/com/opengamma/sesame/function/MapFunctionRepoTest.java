@@ -8,11 +8,9 @@ package com.opengamma.sesame.function;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.test.TestGroup;
@@ -27,7 +25,7 @@ public class MapFunctionRepoTest {
 
   @Test
   public void getAvailableOutputs() {
-    MapFunctionRepo repo = new MapFunctionRepo(s_inputTypes, Collections.<Class<?>, Class<?>>emptyMap());
+    MapFunctionRepo repo = new MapFunctionRepo(s_inputTypes);
     repo.register(F1.class);
     repo.register(F2.class);
     assertEquals(ImmutableSortedSet.of(O1, O2), repo.getAvailableOutputs(Target3.class));
@@ -78,7 +76,7 @@ public class MapFunctionRepoTest {
 
   @Test
   public void getFunctionType() {
-    MapFunctionRepo repo = new MapFunctionRepo(s_inputTypes, Collections.<Class<?>, Class<?>>emptyMap());
+    MapFunctionRepo repo = new MapFunctionRepo(s_inputTypes);
     repo.register(F1.class);
     repo.register(F2.class);
     assertEquals(F1.class, repo.getOutputFunction(O1, Target1.class).getDeclaringType());
@@ -86,13 +84,6 @@ public class MapFunctionRepoTest {
     assertEquals(F1.class, repo.getOutputFunction(O1, Target3.class).getDeclaringType());
     assertEquals(F2.class, repo.getOutputFunction(O2, Target2.class).getDeclaringType());
     assertEquals(F2.class, repo.getOutputFunction(O2, Target3.class).getDeclaringType());
-  }
-
-  @Test
-  public void specifyDefaultImplementations() {
-    Map<Class<?>, Class<?>> defaultImpls = ImmutableMap.<Class<?>, Class<?>>of(F1.class, F1Impl2.class);
-    MapFunctionRepo repo = new MapFunctionRepo(s_inputTypes, defaultImpls);
-    assertEquals(F1Impl2.class, repo.getDefaultImplementation(F1.class));
   }
 
   /**

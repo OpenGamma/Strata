@@ -8,7 +8,7 @@ package com.opengamma.sesame.config;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO an interface over the top of this and FunctionConfig
+ *
  */
 public final class ColumnOutput {
 
@@ -40,5 +40,13 @@ public final class ColumnOutput {
    */
   public FunctionConfig getFunctionConfig() {
     return _functionConfig;
+  }
+
+  @Override
+  public String toString() {
+    return "ColumnOutput [" +
+        "_outputName='" + _outputName + "'" +
+        ", _functionConfig=" + _functionConfig +
+        "]";
   }
 }

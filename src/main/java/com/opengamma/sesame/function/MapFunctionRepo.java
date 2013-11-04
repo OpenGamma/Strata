@@ -66,25 +66,13 @@ public final class MapFunctionRepo implements FunctionRepo {
    */
   private final SetMultimap<Class<?>, Class<?>> _implementationsByInterface = HashMultimap.create();
 
-  // TODO is this the right place for this?
-  /**
-   * Default implementations for interfaces.
-   */
-  private final Map<Class<?>, Class<?>> _defaultImplementationsByInterface = Maps.newHashMap();
-
-  public MapFunctionRepo(Set<Class<?>> inputTypes, Map<Class<?>, Class<?>> defaultImplementations) {
+  public MapFunctionRepo(Set<Class<?>> inputTypes) {
     ArgumentChecker.notNull(inputTypes, "inputTypes");
-    ArgumentChecker.notNull(defaultImplementations, "defaultImplementations");
     _inputTypes = ImmutableSet.copyOf(inputTypes);
-    _defaultImplementationsByInterface.putAll(defaultImplementations);
-  }
-
-  public MapFunctionRepo(Map<Class<?>, Class<?>> defaultImplementations) {
-    this(s_defaultInputTypes, defaultImplementations);
   }
 
   public MapFunctionRepo() {
-    this(s_defaultInputTypes, Collections.<Class<?>, Class<?>>emptyMap());
+    this(s_defaultInputTypes);
   }
 
   @Override
@@ -167,13 +155,10 @@ public final class MapFunctionRepo implements FunctionRepo {
     throw new UnsupportedOperationException("getImplementationTypes not implemented");
   }
 
+  // TODO don't provide the default impls, only return a default if it's the only impl
   // if there's only 1 impl, return it, if there are defaults configured check those
   @Override
   public synchronized Class<?> getDefaultImplementation(Class<?> interfaceType) {
-    Class<?> defaultImpl = _defaultImplementationsByInterface.get(interfaceType);
-    if (defaultImpl != null) {
-      return defaultImpl;
-    }
     Set<Class<?>> impls = _implementationsByInterface.get(interfaceType);
     if (impls.size() == 1) {
       return impls.iterator().next();

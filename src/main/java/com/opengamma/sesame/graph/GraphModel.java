@@ -38,8 +38,10 @@ public final class GraphModel {
     _functionTrees = functionTrees;
   }
 
+  // TODO system default FunctionConfig with default impls and default args
   public static GraphModel forView(ViewDef viewDef,
                                    Collection<? extends PositionOrTrade> inputs,
+                                   FunctionConfig defaultConfig,
                                    FunctionRepo functionRepo,
                                    ComponentMap components) {
     ImmutableMap.Builder<String, Map<ObjectId, FunctionModel>> builder = ImmutableMap.builder();
@@ -57,7 +59,7 @@ public final class GraphModel {
         if (posOrTradeOutput != null) {
           FunctionMetadata function = functionRepo.getOutputFunction(posOrTradeOutput, posOrTrade.getClass());
           if (function != null) {
-            FunctionConfig config = configForInput(posOrTrade.getClass(), column, functionRepo);
+            FunctionConfig config = configForInput(posOrTrade.getClass(), column, defaultConfig, functionRepo);
             GraphConfig graphConfig = new GraphConfig(config, components);
             FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
@@ -71,7 +73,7 @@ public final class GraphModel {
         if (securityOutput != null) {
           FunctionMetadata functionType = functionRepo.getOutputFunction(securityOutput, security.getClass());
           if (functionType != null) {
-            FunctionConfig config = configForInput(security.getClass(), column, functionRepo);
+            FunctionConfig config = configForInput(security.getClass(), column, defaultConfig, functionRepo);
             GraphConfig graphConfig = new GraphConfig(config, components);
             FunctionModel securityModel = FunctionModel.forFunction(functionType, graphConfig);
             // TODO factory method on AdaptingFunctionMetadata?
@@ -90,9 +92,12 @@ public final class GraphModel {
     return new GraphModel(builder.build());
   }
 
-  private static FunctionConfig configForInput(Class<?> inputType, ViewColumn column, FunctionRepo functionRepo) {
-    return new CompositeFunctionConfig(column.getFunctionConfig(inputType),
-                                       new DefaultImplementationProvider(functionRepo));
+  private static FunctionConfig configForInput(Class<?> inputType,
+                                               ViewColumn column,
+                                               FunctionConfig defaultConfig,
+                                               FunctionRepo functionRepo) {
+    CompositeFunctionConfig config = new CompositeFunctionConfig(column.getFunctionConfig(inputType), defaultConfig);
+    return new CompositeFunctionConfig(config, new DefaultImplementationProvider(functionRepo));
   }
 
   /**

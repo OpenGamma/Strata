@@ -47,6 +47,7 @@ import com.opengamma.sesame.MarketDataValue;
 import com.opengamma.sesame.ResettableMarketDataProviderFunction;
 import com.opengamma.sesame.SingleMarketDataValue;
 import com.opengamma.sesame.StandardMarketDataRequirement;
+import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.example.CashFlowDescription;
 import com.opengamma.sesame.example.CashFlowDescriptionFunction;
@@ -184,14 +185,14 @@ public class EngineTest {
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
 
-    Map<Class<?>, Class<?>> defaultImpls = ImmutableMap.of(
+    FunctionConfig defaultConfig = config(implementations(
         EquityDescriptionFunction.class, EquityDescription.class,
         CashFlowDescriptionFunction.class, CashFlowDescription.class,
-        IdSchemeFunction.class, IdScheme.class);
-    MapFunctionRepo functionRepo = new MapFunctionRepo(defaultImpls);
+        IdSchemeFunction.class, IdScheme.class));
+    MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     functionRepo.register(CashFlowDescriptionFunction.class);
-    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
+    Engine engine = new Engine(new DirectExecutorService(), functionRepo, defaultConfig);
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
