@@ -97,6 +97,7 @@
       <version>6.8.5</version>
     </dependency>
 
+    <!-- TODO should we be using these or TestNG asserts? -->
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
