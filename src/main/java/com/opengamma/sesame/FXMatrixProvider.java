@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.StandardResultGenerator.failure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
 
 import java.util.Set;
@@ -50,22 +48,20 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
   }
 
   @Override
-  public FunctionResult<FXMatrix> getFXMatrix(String curveConfigurationName) {
-
-    final CurveConstructionConfiguration curveConstructionConfiguration =
-        _curveConfigurationSource.getCurveConstructionConfiguration(curveConfigurationName);
-
-    if (curveConstructionConfiguration == null) {
-      return failure(MISSING_DATA, "Could not get curve construction configuration called: {}", curveConfigurationName);
-    }
+  public FunctionResult<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration) {
 
     // todo - should this actually be another function or set of functions
-    final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration,
+    final Set<Currency> currencies = CurveUtils.getCurrencies(configuration,
                                                               _configSource,
                                                               VersionCorrection.LATEST,
                                                               _conventionSource,
                                                               new CurveNodeCurrencyVisitor(_conventionSource));
 
+    return buildResult(currencies);
+  }
+
+  @Override
+  public FunctionResult<FXMatrix> getFXMatrix(Set<Currency> currencies) {
     return buildResult(currencies);
   }
 

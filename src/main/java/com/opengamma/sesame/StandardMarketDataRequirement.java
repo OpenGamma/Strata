@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame;
 
+import java.util.Set;
+
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 
@@ -29,6 +32,22 @@ public class StandardMarketDataRequirement implements MarketDataRequirement {
     return null;  //To change body of created methods use File | Settings | File Templates.
   }
 
+  public static Set<MarketDataRequirement> of(CurveNodeWithIdentifier id) {
+
+    /*Set<MarketDataRequirement> requirements = new HashSet<>();
+    if (id.getDataField() != null) {
+
+      id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+      if (id instanceof PointsCurveNodeWithIdentifier) {
+        final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
+        requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+      }
+    } else {
+      requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+    }*/
+    return null;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -49,4 +68,5 @@ public class StandardMarketDataRequirement implements MarketDataRequirement {
     result = 31 * result + _requirement.hashCode();
     return result;
   }
+
 }
