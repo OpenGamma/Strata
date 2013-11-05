@@ -17,8 +17,7 @@ public class DefaultImplementationProvider implements FunctionConfig {
   private final FunctionRepo _functionRepo;
 
   public DefaultImplementationProvider(FunctionRepo functionRepo) {
-    ArgumentChecker.notNull(functionRepo, "functionRepo");
-    _functionRepo = functionRepo;
+    _functionRepo = ArgumentChecker.notNull(functionRepo, "functionRepo");
   }
 
   /**

@@ -28,11 +28,9 @@ public final class ViewColumn {
 
   @ImmutableConstructor
   public ViewColumn(String name, ColumnOutput defaultOutput, Map<Class<?>, ColumnOutput> outputs) {
-    ArgumentChecker.notEmpty(name, "name");
-    ArgumentChecker.notNull(outputs, "outputs");
-    _name = name;
+    _name = ArgumentChecker.notEmpty(name, "name");
+    _outputs = ImmutableMap.copyOf(ArgumentChecker.notNull(outputs, "outputs"));
     _defaultOutput = defaultOutput;
-    _outputs = ImmutableMap.copyOf(outputs);
   }
 
   public String getOutputName(Class<?> inputType) {

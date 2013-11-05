@@ -25,10 +25,8 @@ public final class Parameter {
   public Parameter(String name, Class<?> type, int ordinal, Map<Class<?>, Annotation> annotations) {
     _name = name;
     _ordinal = ordinal;
-    ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(annotations, "annotations");
-    _type = type;
-    _annotations = ImmutableMap.copyOf(annotations);
+    _type = ArgumentChecker.notNull(type, "type");
+    _annotations = ImmutableMap.copyOf(ArgumentChecker.notNull(annotations, "annotations"));
   }
 
   public String getName() {

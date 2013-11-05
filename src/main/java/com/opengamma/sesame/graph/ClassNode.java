@@ -33,12 +33,12 @@ public class ClassNode extends Node {
   }
 
   @Override
-  public Object create(ComponentMap components) {
+  public Object create(ComponentMap componentMap) {
     Constructor<?> constructor = ConfigUtils.getConstructor(_type);
     try {
       List<Object> arguments = Lists.newArrayListWithCapacity(_arguments.size());
       for (Node argument : _arguments) {
-        arguments.add(argument.create(components));
+        arguments.add(argument.create(componentMap));
       }
       Object instance = constructor.newInstance(arguments.toArray());
       if (instance instanceof Provider) {

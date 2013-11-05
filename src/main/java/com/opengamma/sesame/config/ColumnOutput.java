@@ -21,9 +21,8 @@ public final class ColumnOutput {
   }
 
   public ColumnOutput(String outputName, FunctionConfig functionConfig) {
-    ArgumentChecker.notNull(functionConfig, "functionConfig");
+    _functionConfig = ArgumentChecker.notNull(functionConfig, "functionConfig");
     _outputName = outputName;
-    _functionConfig = functionConfig;
   }
 
   /**

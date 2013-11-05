@@ -16,10 +16,8 @@ import com.opengamma.util.ArgumentChecker;
   private final FunctionArguments _args2;
 
   /* package */ CompositeFunctionArguments(FunctionArguments args1, FunctionArguments args2) {
-    ArgumentChecker.notNull(args1, "args1");
-    ArgumentChecker.notNull(args2, "args2");
-    _args1 = args1;
-    _args2 = args2;
+    _args1 = ArgumentChecker.notNull(args1, "args1");
+    _args2 = ArgumentChecker.notNull(args2, "args2");
   }
 
   @Override

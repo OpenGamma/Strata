@@ -30,7 +30,7 @@ import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
-import com.opengamma.sesame.proxy.NodeDecorator;
+import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.util.ArgumentChecker;
 
 /**

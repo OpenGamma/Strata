@@ -21,8 +21,8 @@ public final class ObjectNode extends Node {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Object create(ComponentMap components) {
-    return components.getComponent(_type);
+  public Object create(ComponentMap componentMap) {
+    return componentMap.getComponent(_type);
   }
 
   public Class<?> getType() {
