@@ -45,7 +45,6 @@ public class ProxyNodeTest {
 
   public static class Impl implements TestFn {
 
-
     @Override
     public Object foo() {
       return "foo";

@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.proxy;
+package com.opengamma.sesame.cache;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Objects;
 
 import com.opengamma.util.ArgumentChecker;
@@ -22,12 +23,20 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ CacheKey(Class<?> receiverType, Method method, Object[] args) {
     _receiverType = ArgumentChecker.notNull(receiverType, "receiverType");
     _method = ArgumentChecker.notNull(method, "method");
-    _args = ArgumentChecker.notNull(args, "args");
+    _args = args;
+  }
+
+  /* package */ Method getMethod() {
+    return _method;
+  }
+
+  /* package */ Object[] getArgs() {
+    return _args;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_receiverType, _method, _args);
+    return Objects.hash(_receiverType, _method, Arrays.hashCode(_args));
   }
 
   @Override
@@ -42,6 +51,15 @@ import com.opengamma.util.ArgumentChecker;
     return
         Objects.equals(this._receiverType, other._receiverType) &&
         Objects.equals(this._method, other._method) &&
-        Objects.equals(this._args, other._args);
+        Arrays.equals(this._args, other._args);
+  }
+
+  @Override
+  public String toString() {
+    return "CacheKey [" +
+        "_receiverType=" + _receiverType +
+        ", _method=" + _method +
+        ", _args=" + (_args == null ? null : Arrays.asList(_args)) +
+        "]";
   }
 }

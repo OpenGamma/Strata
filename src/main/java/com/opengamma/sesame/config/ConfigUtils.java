@@ -110,9 +110,22 @@ public final class ConfigUtils {
    * @return Metadata for the function
    */
   public static FunctionMetadata createMetadata(Class<?> functionType, String methodName) {
-    for (Method method : functionType.getMethods()) {
+    return new FunctionMetadata(getMethod(functionType, methodName));
+  }
+
+  /**
+   * Returns a named method on a class.
+   * This is for testing and isn't intended to be robust. e.g. If there are multiple methods with the same name
+   * the first one will be used.
+   * @param type The type declaring the method
+   * @param methodName The name of the method
+   * @return The method
+   */
+  public static Method getMethod(Class<?> type, String methodName) {
+    Method[] methods = type.getMethods();
+    for (Method method : methods) {
       if (methodName.equals(method.getName())) {
-        return new FunctionMetadata(method);
+        return method;
       }
     }
     throw new IllegalArgumentException("No method found named " + methodName);
