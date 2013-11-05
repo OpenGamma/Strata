@@ -23,10 +23,8 @@ public final class SimpleFunctionConfig implements FunctionConfig {
 
   public SimpleFunctionConfig(Map<Class<?>, Class<?>> implementationOverrides,
                               Map<Class<?>, FunctionArguments> arguments) {
-    ArgumentChecker.notNull(implementationOverrides, "implementationOverrides");
-    ArgumentChecker.notNull(arguments, "arguments");
-    _implementationOverrides = ImmutableMap.copyOf(implementationOverrides);
-    _arguments = ImmutableMap.copyOf(arguments);
+    _implementationOverrides = ImmutableMap.copyOf(ArgumentChecker.notNull(implementationOverrides, "implementationOverrides"));
+    _arguments = ImmutableMap.copyOf(ArgumentChecker.notNull(arguments, "arguments"));
   }
 
   @Override

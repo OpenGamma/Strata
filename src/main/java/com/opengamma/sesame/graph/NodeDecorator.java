@@ -3,9 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.proxy;
-
-import com.opengamma.sesame.graph.Node;
+package com.opengamma.sesame.graph;
 
 /**
  * Interface for classes that can decorate nodes in the graph.

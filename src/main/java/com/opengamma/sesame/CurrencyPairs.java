@@ -21,8 +21,7 @@ public class CurrencyPairs implements CurrencyPairsFunction {
   private final Set<CurrencyPair> _currencyPairs;
 
   public CurrencyPairs(Set<CurrencyPair> currencyPairs) {
-    ArgumentChecker.notNull(currencyPairs, "currencyPairs");
-    _currencyPairs = currencyPairs;
+    _currencyPairs = ArgumentChecker.notNull(currencyPairs, "currencyPairs");
   }
 
   @Override

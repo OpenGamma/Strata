@@ -15,7 +15,7 @@ import com.opengamma.sesame.engine.ComponentMap;
  */
 public abstract class Node {
 
-  /* package */ public abstract Object create(ComponentMap components);
+  /* package */ public abstract Object create(ComponentMap componentMap);
 
   public List<Node> getDependencies() {
     return Collections.emptyList();

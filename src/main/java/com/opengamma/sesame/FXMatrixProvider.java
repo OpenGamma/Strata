@@ -42,15 +42,11 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
                           ConventionSource conventionSource,
                           CurrencyPairsFunction currencyPairsFunction,
                           MarketDataProviderFunction marketDataProviderFunction) {
-    ArgumentChecker.notNull(configSource, "configSource");
-    ArgumentChecker.notNull(conventionSource, "conventionSource");
-    ArgumentChecker.notNull(currencyPairsFunction, "currencyPairsFunction");
-    ArgumentChecker.notNull(marketDataProviderFunction, "marketDataProviderFunction");
-    _configSource = configSource;
+    _configSource = ArgumentChecker.notNull(configSource, "configSource");
     _curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(_configSource);
-    _conventionSource = conventionSource;
-    _currencyPairsFunction = currencyPairsFunction;
-    _marketDataProviderFunction = marketDataProviderFunction;
+    _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
+    _currencyPairsFunction = ArgumentChecker.notNull(currencyPairsFunction, "currencyPairsFunction");
+    _marketDataProviderFunction = ArgumentChecker.notNull(marketDataProviderFunction, "marketDataProviderFunction");
   }
 
   @Override

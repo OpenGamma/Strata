@@ -78,8 +78,7 @@ public class FunctionMetadata {
   }
 
   public InvokableFunction getInvokableFunction(Object receiver) {
-    ArgumentChecker.notNull(receiver, "receiver");
-    return new MethodInvokableFunction(receiver);
+    return new MethodInvokableFunction(ArgumentChecker.notNull(receiver, "receiver"));
   }
 
   public Class<?> getDeclaringType() {

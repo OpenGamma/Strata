@@ -26,7 +26,6 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.proxy.NodeDecorator;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -94,8 +93,8 @@ public class FunctionModelTest {
       public Node decorateNode(final Node node) {
         return new Node() {
           @Override
-          public Object create(ComponentMap components) {
-            final TestFunction fn = (TestFunction) node.create(components);
+          public Object create(ComponentMap componentMap) {
+            final TestFunction fn = (TestFunction) node.create(componentMap);
             return new TestFunction() {
               @Override
               public Object foo() {

@@ -23,7 +23,6 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.NoOutputFunction;
 import com.opengamma.sesame.function.SecurityFunctionAdapter;
-import com.opengamma.sesame.proxy.NodeDecorator;
 import com.opengamma.util.ArgumentChecker;
 
 /**

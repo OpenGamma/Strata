@@ -60,7 +60,7 @@ import com.opengamma.sesame.example.IdScheme;
 import com.opengamma.sesame.example.IdSchemeFunction;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.MapFunctionRepo;
-import com.opengamma.sesame.proxy.NodeDecorator;
+import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;

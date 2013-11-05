@@ -11,9 +11,9 @@ import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.graph.FunctionModel;
 
 /**
- * Wraps an {@link InvokableFunction} that expects a {@link Security} input in one that expects a {@link PositionOrTrade}
- * input. When the invoker is called it gets the security from the {@link PositionOrTrade} and uses it when
- * calling the wrapped invoker.
+ * Wraps an {@link InvokableFunction} that expects a {@link Security} in one that expects a {@link PositionOrTrade}.
+ * When the invoker is called it gets the security from the {@link PositionOrTrade} and uses it to call
+ * the wrapped invoker.
  */
 public class SecurityFunctionAdapter extends FunctionMetadata {
 

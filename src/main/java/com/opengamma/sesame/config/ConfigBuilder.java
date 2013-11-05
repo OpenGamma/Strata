@@ -122,8 +122,8 @@ public final class ConfigBuilder {
     return new TargetOutput(new ColumnOutput(null, config), targetType);
   }
 
-  public static FunctionConfig config(Overrides overrides, Arguments arguments) {
-    return new SimpleFunctionConfig(overrides._overrides, arguments._arguments);
+  public static FunctionConfig config(Implementations implementations, Arguments arguments) {
+    return new SimpleFunctionConfig(implementations._implementations, arguments._arguments);
   }
 
   public static FunctionConfig config() {
@@ -131,8 +131,8 @@ public final class ConfigBuilder {
   }
 
 
-  public static FunctionConfig config(Overrides overrides) {
-    return new SimpleFunctionConfig(overrides._overrides, EMPTY_ARGUMENTS);
+  public static FunctionConfig config(Implementations implementations) {
+    return new SimpleFunctionConfig(implementations._implementations, EMPTY_ARGUMENTS);
   }
 
   public static FunctionConfig config(Arguments arguments) {
@@ -140,13 +140,13 @@ public final class ConfigBuilder {
 
   }
 
-  public static FunctionConfig config(Arguments arguments, Overrides overrides) {
-    return new SimpleFunctionConfig(overrides._overrides, arguments._arguments);
+  public static FunctionConfig config(Arguments arguments, Implementations implementations) {
+    return new SimpleFunctionConfig(implementations._implementations, arguments._arguments);
   }
 
   // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
-  public static Overrides implementations(Class<?>... overrides) {
-    return new Overrides(overrides);
+  public static Implementations implementations(Class<?>... overrides) {
+    return new Implementations(overrides);
   }
 
   public static FnArgs function(Class<?> functionType, Arg... args) {
@@ -162,16 +162,16 @@ public final class ConfigBuilder {
   }
 
   // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
-  public static class Overrides {
+  public static class Implementations {
 
-    private final Map<Class<?>, Class<?>> _overrides = Maps.newHashMap();
+    private final Map<Class<?>, Class<?>> _implementations = Maps.newHashMap();
 
-    private Overrides(Class<?>... overrides) {
-      if ((overrides.length % 2) != 0) {
+    private Implementations(Class<?>... implementations) {
+      if ((implementations.length % 2) != 0) {
         throw new IllegalArgumentException("Overrides must be specified in pairs of interface implementation");
       }
-      for (int i = 0; i < overrides.length; i += 2) {
-        _overrides.put(overrides[i], overrides[i + 1]);
+      for (int i = 0; i < implementations.length; i += 2) {
+        _implementations.put(implementations[i], implementations[i + 1]);
       }
     }
   }

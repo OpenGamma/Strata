@@ -22,8 +22,7 @@ public final class SimpleFunctionArguments implements FunctionArguments {
   private final Map<String, Object> _arguments;
 
   public SimpleFunctionArguments(Map<String, Object> arguments) {
-    ArgumentChecker.notNull(arguments, "arguments");
-    _arguments = ImmutableMap.copyOf(arguments);
+    _arguments = ImmutableMap.copyOf(ArgumentChecker.notNull(arguments, "arguments"));
   }
 
   @Override

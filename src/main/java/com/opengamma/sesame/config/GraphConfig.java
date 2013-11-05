@@ -7,7 +7,7 @@ package com.opengamma.sesame.config;
 
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.Node;
-import com.opengamma.sesame.proxy.NodeDecorator;
+import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,12 +22,9 @@ public class GraphConfig {
   private final NodeDecorator _nodeDecorator;
 
   public GraphConfig(FunctionConfig functionConfig, ComponentMap components, NodeDecorator nodeDecorator) {
-    ArgumentChecker.notNull(functionConfig, "functionConfig");
-    ArgumentChecker.notNull(components, "components");
-    ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
-    _functionConfig = functionConfig;
-    _components = components;
-    _nodeDecorator = nodeDecorator;
+    _functionConfig = ArgumentChecker.notNull(functionConfig, "functionConfig");
+    _components = ArgumentChecker.notNull(components, "components");
+    _nodeDecorator = ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
   }
 
   public GraphConfig(FunctionConfig functionConfig) {

@@ -23,9 +23,7 @@ public class CurveDefinitionProvider implements CurveDefinitionProviderFunction 
   private final CurveDefinitionSource _curveDefinitionSource;
 
   public CurveDefinitionProvider(ConfigSource configSource) {
-
-    ArgumentChecker.notNull(configSource, "configSource");
-    _curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
+    _curveDefinitionSource = new ConfigDBCurveDefinitionSource(ArgumentChecker.notNull(configSource, "configSource"));
   }
 
   @Override

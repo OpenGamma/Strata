@@ -67,8 +67,7 @@ public final class MapFunctionRepo implements FunctionRepo {
   private final SetMultimap<Class<?>, Class<?>> _implementationsByInterface = HashMultimap.create();
 
   public MapFunctionRepo(Set<Class<?>> inputTypes) {
-    ArgumentChecker.notNull(inputTypes, "inputTypes");
-    _inputTypes = ImmutableSet.copyOf(inputTypes);
+    _inputTypes = ImmutableSet.copyOf(ArgumentChecker.notNull(inputTypes, "inputTypes"));
   }
 
   public MapFunctionRepo() {

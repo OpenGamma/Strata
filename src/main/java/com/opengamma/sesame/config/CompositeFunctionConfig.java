@@ -16,10 +16,8 @@ public class CompositeFunctionConfig implements FunctionConfig {
   private final FunctionConfig _config2;
 
   public CompositeFunctionConfig(FunctionConfig config1, FunctionConfig config2) {
-    ArgumentChecker.notNull(config1, "config1");
-    ArgumentChecker.notNull(config2, "config2");
-    _config1 = config1;
-    _config2 = config2;
+    _config1 = ArgumentChecker.notNull(config1, "config1");
+    _config2 = ArgumentChecker.notNull(config2, "config2");
   }
 
   @Override
