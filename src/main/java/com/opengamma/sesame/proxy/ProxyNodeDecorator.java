@@ -44,7 +44,7 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
   /**
    * Indicates whether a node should be wrapped in a proxy.
    * @param node The node
-   * @return true if the node should be wrapping in a proxy
+   * @return true if the node should be wrapped in a proxy
    */
   protected abstract boolean decorate(InterfaceNode node);
 
