@@ -27,7 +27,8 @@ import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.InvokableFunction;
-import com.opengamma.sesame.graph.FunctionGraph;
+import com.opengamma.sesame.graph.Graph;
+import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.proxy.NodeDecorator;
 import com.opengamma.util.ArgumentChecker;
@@ -41,9 +42,7 @@ import com.opengamma.util.ArgumentChecker;
 
   private final ExecutorService _executor;
   private final ComponentMap _components;
-  private final FunctionRepo _functionRepo;
-  private final FunctionConfig _defaultConfig;
-  private final NodeDecorator _nodeDecorator;
+  private final GraphBuilder _graphBuilder;
 
   /* package */ Engine(ExecutorService executor, FunctionRepo functionRepo) {
     this(executor, ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
@@ -54,16 +53,10 @@ import com.opengamma.util.ArgumentChecker;
                        FunctionRepo functionRepo,
                        FunctionConfig defaultConfig,
                        NodeDecorator nodeDecorator) {
-    ArgumentChecker.notNull(executor, "executor");
-    ArgumentChecker.notNull(components, "components");
-    ArgumentChecker.notNull(functionRepo, "functionRepo");
-    ArgumentChecker.notNull(defaultConfig, "defaultConfig");
-    ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
-    _executor = executor;
-    _components = components;
-    _functionRepo = functionRepo;
-    _defaultConfig = defaultConfig;
-    _nodeDecorator = nodeDecorator;
+    _executor = ArgumentChecker.notNull(executor, "executor");
+    _components = ArgumentChecker.notNull(components, "components");
+    // TODO pass this in as an argument?
+    _graphBuilder = new GraphBuilder(functionRepo, components, defaultConfig, nodeDecorator);
   }
 
   /*public interface Listener {
@@ -74,21 +67,21 @@ import com.opengamma.util.ArgumentChecker;
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
   public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets) {
-    GraphModel graphModel = GraphModel.forView(viewDef, targets, _defaultConfig, _functionRepo, _components, _nodeDecorator);
-    FunctionGraph functionGraph = graphModel.build(_components);
-    return new View(viewDef, functionGraph, targets, _executor);
+    GraphModel graphModel = _graphBuilder.build(viewDef, targets);
+    Graph graph = graphModel.build(_components);
+    return new View(viewDef, graph, targets, _executor);
   }
 
   //----------------------------------------------------------
   public static class View {
 
-    private final FunctionGraph _graph;
+    private final Graph _graph;
     private final ViewDef _viewDef;
     private final Collection<? extends PositionOrTrade> _inputs;
     private final ExecutorService _executor;
 
     private View(ViewDef viewDef,
-                 FunctionGraph graph,
+                 Graph graph,
                  Collection<? extends PositionOrTrade> inputs,
                  ExecutorService executor) {
       _viewDef = viewDef;

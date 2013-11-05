@@ -8,7 +8,7 @@ package com.opengamma.sesame.function;
 import com.opengamma.sesame.config.FunctionArguments;
 
 /**
- * TODO implementation that adapts function taking a security target into one which takes a position or trade
+ *
  */
 public interface InvokableFunction {
 

@@ -14,12 +14,12 @@ import com.opengamma.sesame.function.InvokableFunction;
 /**
  * TODO this class seems to be pointless and nothing but a wrapper for a map. maybe Graph.build should return the map of fns
  */
-public final class FunctionGraph {
+public final class Graph {
 
   /** Map of column names -> map of target ID -> function. */
   private final Map<String, Map<ObjectId, InvokableFunction>> _functions;
 
-  /* package */ FunctionGraph(Map<String, Map<ObjectId, InvokableFunction>> functions) {
+  /* package */ Graph(Map<String, Map<ObjectId, InvokableFunction>> functions) {
     _functions = functions;
   }
 

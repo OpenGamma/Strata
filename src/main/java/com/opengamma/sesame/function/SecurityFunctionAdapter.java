@@ -15,9 +15,9 @@ import com.opengamma.sesame.graph.FunctionModel;
  * input. When the invoker is called it gets the security from the {@link PositionOrTrade} and uses it when
  * calling the wrapped invoker.
  */
-public class SecurityAdapter extends FunctionMetadata {
+public class SecurityFunctionAdapter extends FunctionMetadata {
 
-  public SecurityAdapter(FunctionMetadata function) {
+  public SecurityFunctionAdapter(FunctionMetadata function) {
     super(function);
   }
 
@@ -53,6 +53,6 @@ public class SecurityAdapter extends FunctionMetadata {
 
   public static FunctionModel adapt(FunctionModel positionOrTradeFunction) {
     return new FunctionModel(positionOrTradeFunction.getRootFunction(),
-                             new SecurityAdapter(positionOrTradeFunction.getRootMetadata()));
+                             new SecurityFunctionAdapter(positionOrTradeFunction.getRootMetadata()));
   }
 }
