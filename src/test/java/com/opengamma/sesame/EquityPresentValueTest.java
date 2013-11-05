@@ -39,7 +39,7 @@ public class EquityPresentValueTest {
 
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
-    FunctionResult<Double> result = _equityPresentValueFunction.execute(security);
+    FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);
     assertThat(result.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
@@ -55,7 +55,7 @@ public class EquityPresentValueTest {
         Pairs.<MarketDataStatus,MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     _marketDataProviderFunction.resetMarketData(marketData);
 
-    FunctionResult<Double> result = _equityPresentValueFunction.execute(security);
+    FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
     assertThat(result.getResult(), is(123.45));
   }

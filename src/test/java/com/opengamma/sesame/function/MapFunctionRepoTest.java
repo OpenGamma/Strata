@@ -11,18 +11,21 @@ import java.util.Collections;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
 public class MapFunctionRepoTest {
 
-  protected static final String O1 = "O1";
-  protected static final String O2 = "O2";
+  private static final String O1 = "O1";
+  private static final String O2 = "O2";
+  private static final ImmutableSet<Class<?>> s_inputTypes =
+      ImmutableSet.<Class<?>>of(Target1.class, Target2.class, Target3.class);
 
   @Test
   public void getAvailableOutputs() {
-    MapFunctionRepo repo = new MapFunctionRepo();
+    MapFunctionRepo repo = new MapFunctionRepo(s_inputTypes);
     repo.register(F1.class);
     repo.register(F2.class);
     assertEquals(ImmutableSortedSet.of(O1, O2), repo.getAvailableOutputs(Target3.class));
@@ -35,11 +38,19 @@ public class MapFunctionRepoTest {
   class Target2 extends Target1 { }
   class Target3 extends Target2 { }
 
-  @OutputName(MapFunctionRepoTest.O1)
-  @DefaultImplementation(F1Impl.class)
-  interface F1 extends OutputFunction<Target1, Object> { }
+  interface F1 {
 
-  class F1Impl implements F1 {
+    @Output(MapFunctionRepoTest.O1)
+    Object execute(Target1 target);
+  }
+
+  interface F2 {
+
+    @Output(MapFunctionRepoTest.O2)
+    Object execute(Target2 target);
+  }
+
+  class F1Impl1 implements F1 {
 
     @Override
     public Object execute(Target1 target) {
@@ -47,11 +58,15 @@ public class MapFunctionRepoTest {
     }
   }
 
-  @OutputName(MapFunctionRepoTest.O2)
-  @DefaultImplementation(F2Impl.class)
-  interface F2 extends OutputFunction<Target2, Object> { }
+  class F1Impl2 implements F1 {
 
-  class F2Impl implements F2 {
+    @Override
+    public Object execute(Target1 target) {
+      return null;
+    }
+  }
+
+  class F2Impl1 implements F2 {
 
     @Override
     public Object execute(Target2 target) {
@@ -61,13 +76,21 @@ public class MapFunctionRepoTest {
 
   @Test
   public void getFunctionType() {
-    MapFunctionRepo repo = new MapFunctionRepo();
+    MapFunctionRepo repo = new MapFunctionRepo(s_inputTypes);
     repo.register(F1.class);
     repo.register(F2.class);
-    assertEquals(F1.class, repo.getFunctionType(O1, Target1.class));
-    assertEquals(F1.class, repo.getFunctionType(O1, Target2.class));
-    assertEquals(F1.class, repo.getFunctionType(O1, Target3.class));
-    assertEquals(F2.class, repo.getFunctionType(O2, Target2.class));
-    assertEquals(F2.class, repo.getFunctionType(O2, Target3.class));
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target1.class).getDeclaringType());
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target2.class).getDeclaringType());
+    assertEquals(F1.class, repo.getOutputFunction(O1, Target3.class).getDeclaringType());
+    assertEquals(F2.class, repo.getOutputFunction(O2, Target2.class).getDeclaringType());
+    assertEquals(F2.class, repo.getOutputFunction(O2, Target3.class).getDeclaringType());
+  }
+
+  /**
+   * Check the repo returns an implementation for an interface where there's only one implementation registered
+   */
+  @Test
+  public void inferDefaultImplementation() {
+    // TODO this doesn't work yet
   }
 }

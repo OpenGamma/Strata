@@ -13,14 +13,12 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 public class CashFlowDescription implements CashFlowDescriptionFunction {
 
   /**
-   *
-   *
-   *
+   * Returns a description of the security.
    * @param security A security
    * @return The security name
    */
   @Override
-  public String execute(CashFlowSecurity security) {
+  public String getDescription(CashFlowSecurity security) {
     return security.getName();
   }
 }

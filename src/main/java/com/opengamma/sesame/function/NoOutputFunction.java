@@ -5,16 +5,31 @@
  */
 package com.opengamma.sesame.function;
 
+import java.lang.reflect.Method;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 
 /**
- * Function that returns nothing for outputs where there is no requirement.
+ * A function that takes a {@link PositionOrTrade} and returns null.
  */
-public final class NoOutputFunction implements OutputFunction<PositionOrTrade, Void> {
+public class NoOutputFunction {
 
-  @Override
-  public Void execute(PositionOrTrade positionOrTrade) {
-    // maybe this should return a sentinel value
+  public static final String NO_OUTPUT = "No Output";
+  public static final FunctionMetadata METADATA;
+  
+  static {
+    try {
+      Method doNothing = NoOutputFunction.class.getMethod("doNothing", PositionOrTrade.class);
+      METADATA = new FunctionMetadata(doNothing);
+    } catch (NoSuchMethodException e) {
+      // won't happen but need to throw the exception to convince the compiler
+      throw new OpenGammaRuntimeException("Unexpected problem", e);
+    }
+  }
+  
+  @Output(NO_OUTPUT)
+  public Object doNothing(PositionOrTrade ignored) {
     return null;
   }
 }

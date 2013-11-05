@@ -13,14 +13,11 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 public class EquityDescription implements EquityDescriptionFunction {
 
   /**
-   *
-   *
-   *
    * @param security A security
    * @return The security name
    */
   @Override
-  public String execute(EquitySecurity security) {
+  public String getDescription(EquitySecurity security) {
     return security.getName();
   }
 }

@@ -5,26 +5,32 @@
  */
 package com.opengamma.sesame.graph;
 
-import java.util.Map;
+import com.opengamma.sesame.engine.ComponentMap;
 
 /**
 *
 */
-public final class Infrastructure extends Node {
+public final class ArgumentNode extends Node {
 
   private final Class<?> _type;
+  private final Object _value;
 
-  /* package */ Infrastructure(Class<?> type) {
+  /* package */ ArgumentNode(Class<?> type, Object value) {
     _type = type;
+    _value = value;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  Object create(Map<Class<?>, Object> infrastructure) {
-    return infrastructure.get(_type);
+  public Object create(ComponentMap components) {
+    return _value;
   }
 
   public Class<?> getType() {
     return _type;
+  }
+
+  public Object getValue() {
+    return _value;
   }
 }

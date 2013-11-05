@@ -6,7 +6,6 @@
 package com.opengamma.sesame.engine;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -21,11 +20,18 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.FunctionRepo;
-import com.opengamma.sesame.function.OutputFunction;
-import com.opengamma.sesame.graph.FunctionGraph;
+import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.graph.Graph;
+import com.opengamma.sesame.graph.GraphBuilder;
+import com.opengamma.sesame.graph.GraphModel;
+import com.opengamma.sesame.proxy.NodeDecorator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * TODO this is totally provisional, just enough to run some basic tests that stitch everything together
@@ -35,59 +41,66 @@ import com.opengamma.sesame.graph.Graph;
   private static final Logger s_logger = LoggerFactory.getLogger(Engine.class);
 
   private final ExecutorService _executor;
-  private final Map<Class<?>, Object> _infrastructure;
-  private final FunctionRepo _functionRepo;
+  private final ComponentMap _components;
+  private final GraphBuilder _graphBuilder;
 
   /* package */ Engine(ExecutorService executor, FunctionRepo functionRepo) {
-    this(executor, Collections.<Class<?>, Object>emptyMap(), functionRepo);
-  }
-  /* package */ Engine(ExecutorService executor, Map<Class<?>, Object> infrastructure, FunctionRepo functionRepo) {
-    _executor = executor;
-    _infrastructure = infrastructure;
-    _functionRepo = functionRepo;
+    this(executor, ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
   }
 
-  public interface Listener {
+  /* package */ Engine(ExecutorService executor,
+                       ComponentMap components,
+                       FunctionRepo functionRepo,
+                       FunctionConfig defaultConfig,
+                       NodeDecorator nodeDecorator) {
+    _executor = ArgumentChecker.notNull(executor, "executor");
+    _components = ArgumentChecker.notNull(components, "components");
+    // TODO pass this in as an argument?
+    _graphBuilder = new GraphBuilder(functionRepo, components, defaultConfig, nodeDecorator);
+  }
+
+  /*public interface Listener {
 
     void cycleComplete(Results results);
-  }
+  }*/
 
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
-  public View createView(ViewDef viewDef,
-                         Collection<? extends PositionOrTrade> targets,
-                         Listener listener) {
-    Graph graph = Graph.forView(viewDef, targets, _infrastructure, _functionRepo);
-    FunctionGraph functionGraph = graph.build(_infrastructure);
-    return new View(functionGraph, targets, listener, _executor);
+  public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets) {
+    GraphModel graphModel = _graphBuilder.build(viewDef, targets);
+    Graph graph = graphModel.build(_components);
+    return new View(viewDef, graph, targets, _executor);
   }
 
+  //----------------------------------------------------------
   public static class View {
 
-    private final FunctionGraph _graph;
-    private final Collection<? extends PositionOrTrade> _targets;
-    private final Listener _listener;
+    private final Graph _graph;
+    private final ViewDef _viewDef;
+    private final Collection<? extends PositionOrTrade> _inputs;
     private final ExecutorService _executor;
 
-    private View(FunctionGraph graph,
-                 Collection<? extends PositionOrTrade> targets,
-                 Listener listener,
+    private View(ViewDef viewDef,
+                 Graph graph,
+                 Collection<? extends PositionOrTrade> inputs,
                  ExecutorService executor) {
-      _targets = targets;
-      _listener = listener;
+      _viewDef = viewDef;
+      _inputs = inputs;
       _graph = graph;
       _executor = executor;
     }
 
-    public void run() {
+    public Results run() {
       List<Task> tasks = Lists.newArrayList();
-      for (Map.Entry<String, Map<ObjectId, OutputFunction<PositionOrTrade, ?>>> entry : _graph.getFunctions().entrySet()) {
-        String columnName = entry.getKey();
-        Map<ObjectId, OutputFunction<PositionOrTrade, ?>> functionsByTargetId = entry.getValue();
-        for (PositionOrTrade target : _targets) {
-          ObjectId targetId = target.getUniqueId().getObjectId();
-          OutputFunction<PositionOrTrade, ?> function = functionsByTargetId.get(targetId);
-          tasks.add(new Task(target, columnName, function));
+      for (ViewColumn column : _viewDef.getColumns()) {
+        String columnName = column.getName();
+        Map<ObjectId, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
+        for (PositionOrTrade input : _inputs) {
+          ObjectId inputId = input.getUniqueId().getObjectId();
+          InvokableFunction function = functions.get(inputId);
+          FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
+          FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
+          tasks.add(new Task(input, args, columnName, function));
         }
       }
       List<Future<TaskResult>> futures;
@@ -106,9 +119,14 @@ import com.opengamma.sesame.graph.Graph;
           s_logger.warn("Failed to get result from task", e);
         }
       }
-      _listener.cycleComplete(resultsBuilder.build());
+      return resultsBuilder.build();
     }
 
+    // TODO run() variants that take:
+    //   1) cycle and listener (for multiple execution)
+    //   2) listener (for single async or infinite execution)
+
+    //----------------------------------------------------------
     private static class TaskResult {
       
       private final ObjectId _targetId;
@@ -122,30 +140,32 @@ import com.opengamma.sesame.graph.Graph;
       }
     }
 
+    //----------------------------------------------------------
     private static class Task implements Callable<TaskResult> {
 
-      private final PositionOrTrade _target;
+      private final UniqueIdentifiable _input;
       private final String _columnName;
-      private final OutputFunction<PositionOrTrade, ?> _function;
+      private final InvokableFunction _invokableFunction;
+      private final FunctionArguments _args;
+      // TODO need the arguments for the class that provides the function implementation
 
-      private Task(PositionOrTrade target,
-                   String columnName,
-                   OutputFunction<PositionOrTrade, ?> function) {
-        _target = target;
+      private Task(UniqueIdentifiable input, FunctionArguments args, String columnName, InvokableFunction invokableFunction) {
+        _input = input;
+        _args = args;
         _columnName = columnName;
-        _function = function;
+        _invokableFunction = invokableFunction;
       }
 
       @Override
       public TaskResult call() throws Exception {
         Object result;
         try {
-          result = _function.execute(_target);
+          result = _invokableFunction.invoke(_input, _args);
         } catch (Exception e) {
           s_logger.warn("Failed to execute function", e);
           result = e;
         }
-        return new TaskResult(_target.getUniqueId().getObjectId(), _columnName, result);
+        return new TaskResult(_input.getUniqueId().getObjectId(), _columnName, result);
       }
     }
   }

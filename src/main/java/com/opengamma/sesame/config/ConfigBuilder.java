@@ -32,33 +32,34 @@ public final class ConfigBuilder {
 
   public static void main(String[] args) {
     ViewDef viewDef =
-        viewDef("name",
-                column("Description",
-                       output(OutputNames.DESCRIPTION)),
-                column("Description",
-                       output(OutputNames.DESCRIPTION,
-                              config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
+        viewDef("view name",
+                column(OutputNames.DESCRIPTION),
+                column(
+                    columnOutput(OutputNames.DESCRIPTION,
+                                 config(
+                                     implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                     arguments(
+                                         function(IdScheme.class,
+                                                  argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
                 column("Bloomberg Ticker",
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                       columnOutput(OutputNames.DESCRIPTION),
+                       output(EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class))),
+                       output(CashFlowSecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class)))),
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class)))),
                 column("ACTIV Symbol",
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                       columnOutput(OutputNames.DESCRIPTION),
+                       output(EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                       output(CashFlowSecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
                                   arguments(
                                       function(IdScheme.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
@@ -72,7 +73,7 @@ public final class ConfigBuilder {
   private static Map<Class<?>, ColumnOutput> createTargetOutputs(TargetOutput... outputs) {
     Map<Class<?>, ColumnOutput> targetOutputs = Maps.newHashMap();
     for (TargetOutput output : outputs) {
-      targetOutputs.put(output._targetType, output._output);
+      targetOutputs.put(output._inputType, output._output);
     }
     return targetOutputs;
   }
@@ -85,17 +86,25 @@ public final class ConfigBuilder {
     return new ViewColumn(name, defaultOutput, Collections.<Class<?>, ColumnOutput>emptyMap());
   }
 
+  public static ViewColumn column(String name) {
+    return new ViewColumn(name, new ColumnOutput(name), Collections.<Class<?>, ColumnOutput>emptyMap());
+  }
+
+  public static ViewColumn column(ColumnOutput defaultOutput) {
+    return new ViewColumn(defaultOutput.getOutputName(), defaultOutput, Collections.<Class<?>, ColumnOutput>emptyMap());
+  }
+
   public static ViewColumn column(String name, ColumnOutput defaultOutput, TargetOutput... targetOutputs) {
     return new ViewColumn(name, defaultOutput, createTargetOutputs(targetOutputs));
   }
 
   // for the default column output
-  public static ColumnOutput output(String outputName) {
+  public static ColumnOutput columnOutput(String outputName) {
     return new ColumnOutput(outputName);
   }
 
   // for the default column output
-  public static ColumnOutput output(String outputName, FunctionConfig config) {
+  public static ColumnOutput columnOutput(String outputName, FunctionConfig config) {
     return new ColumnOutput(outputName, config);
   }
 
@@ -107,24 +116,36 @@ public final class ConfigBuilder {
     return new TargetOutput(new ColumnOutput(outputName, config), targetType);
   }
 
-  public static FunctionConfig config(Overrides overrides, Arguments arguments) {
-    return new FunctionConfig(overrides._overrides, arguments._arguments);
+  // TODO this needs to inherit the output name from the column. not sure that's going to be easy
+  // maybe column output needs to allow a null output name
+  public static TargetOutput output(Class<?> targetType, FunctionConfig config) {
+    return new TargetOutput(new ColumnOutput(null, config), targetType);
   }
 
+  public static FunctionConfig config(Overrides overrides, Arguments arguments) {
+    return new SimpleFunctionConfig(overrides._overrides, arguments._arguments);
+  }
+
+  public static FunctionConfig config() {
+    return new SimpleFunctionConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
+  }
+
+
   public static FunctionConfig config(Overrides overrides) {
-    return new FunctionConfig(overrides._overrides, EMPTY_ARGUMENTS);
+    return new SimpleFunctionConfig(overrides._overrides, EMPTY_ARGUMENTS);
   }
 
   public static FunctionConfig config(Arguments arguments) {
-    return new FunctionConfig(EMPTY_OVERRIDES, arguments._arguments);
+    return new SimpleFunctionConfig(EMPTY_OVERRIDES, arguments._arguments);
 
   }
 
   public static FunctionConfig config(Arguments arguments, Overrides overrides) {
-    return new FunctionConfig(overrides._overrides, arguments._arguments);
+    return new SimpleFunctionConfig(overrides._overrides, arguments._arguments);
   }
 
-  public static Overrides overrides(Class<?>... overrides) {
+  // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
+  public static Overrides implementations(Class<?>... overrides) {
     return new Overrides(overrides);
   }
 
@@ -140,6 +161,7 @@ public final class ConfigBuilder {
     return new Arg(name, value);
   }
 
+  // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
   public static class Overrides {
 
     private final Map<Class<?>, Class<?>> _overrides = Maps.newHashMap();
@@ -148,7 +170,7 @@ public final class ConfigBuilder {
       if ((overrides.length % 2) != 0) {
         throw new IllegalArgumentException("Overrides must be specified in pairs of interface implementation");
       }
-      for (int i = 0; i < overrides.length / 2; i += 2) {
+      for (int i = 0; i < overrides.length; i += 2) {
         _overrides.put(overrides[i], overrides[i + 1]);
       }
     }
@@ -176,7 +198,7 @@ public final class ConfigBuilder {
       for (Arg arg : args) {
         argVals.put(arg._name, arg._value);
       }
-      _args = new FunctionArguments(argVals);
+      _args = new SimpleFunctionArguments(argVals);
     }
   }
 
@@ -194,11 +216,11 @@ public final class ConfigBuilder {
 
   public static class TargetOutput {
     private final ColumnOutput _output;
-    private final Class<?> _targetType;
+    private final Class<?> _inputType;
 
-    public TargetOutput(ColumnOutput output, Class<?> targetType) {
+    public TargetOutput(ColumnOutput output, Class<?> inputType) {
       _output = output;
-      _targetType = targetType;
+      _inputType = inputType;
     }
   }
 }

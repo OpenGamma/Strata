@@ -24,14 +24,12 @@ public class EquityIdDescription implements EquityDescriptionFunction {
   }
 
   /**
-   *
-   *
-   *
+   * @param marketData Not used
    * @param security A security
    * @return The value of one of the security's external IDs
    */
   @Override
-  public String execute(EquitySecurity security) {
+  public String getDescription(EquitySecurity security) {
     ExternalId externalId = security.getExternalIdBundle().getExternalId(_idSchemeFunction.getScheme());
     if (externalId != null) {
       return externalId.getValue();

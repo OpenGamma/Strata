@@ -13,12 +13,12 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveNodeCurrencyVisitor;
 import com.opengamma.financial.analytics.curve.CurveUtils;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;

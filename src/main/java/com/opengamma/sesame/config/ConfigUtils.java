@@ -6,6 +6,7 @@
 package com.opengamma.sesame.config;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -15,15 +16,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.inject.Inject;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.sesame.function.Inject;
+import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Parameter;
+import com.thoughtworks.paranamer.AdaptiveParanamer;
+import com.thoughtworks.paranamer.AnnotationParanamer;
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.CachingParanamer;
+import com.thoughtworks.paranamer.Paranamer;
+import com.thoughtworks.paranamer.PositionalParanamer;
 
 public final class ConfigUtils {
 
   private static ConcurrentMap<Class<?>, Set<Class<?>>> s_supertypes = Maps.newConcurrentMap();
+  private static Paranamer s_paranamer =
+      new CachingParanamer(
+          new AdaptiveParanamer(
+              new BytecodeReadingParanamer(), new AnnotationParanamer(), new PositionalParanamer()));
 
   private ConfigUtils() {
   }
@@ -34,7 +47,7 @@ public final class ConfigUtils {
    * {@link Inject} it's returned. Otherwise an {@link IllegalArgumentException} is thrown.
    * @param type The type
    * @param <T> Tye type
-   * @return The constructor the engine should use for building instances
+   * @return The constructor the engine should use for building instances, not null
    * @throws IllegalArgumentException If there isn't a valid constructor
    */
   @SuppressWarnings("unchecked")
@@ -64,14 +77,17 @@ public final class ConfigUtils {
   }
 
   public static List<Parameter> getParameters(Method method) {
-    return getParameters(method.getParameterTypes(), method.getParameterAnnotations());
+    return getParameters(method, method.getParameterTypes(), method.getParameterAnnotations());
   }
 
   public static List<Parameter> getParameters(Constructor<?> constructor) {
-    return getParameters(constructor.getParameterTypes(), constructor.getParameterAnnotations());
+    return getParameters(constructor, constructor.getParameterTypes(), constructor.getParameterAnnotations());
   }
 
-  private static List<Parameter> getParameters(Class<?>[] parameterTypes, Annotation[][] allAnnotations) {
+  private static List<Parameter> getParameters(AccessibleObject ctorOrMethod,
+                                               Class<?>[] parameterTypes,
+                                               Annotation[][] allAnnotations) {
+    String[] paramNames = s_paranamer.lookupParameterNames(ctorOrMethod);
     List<Parameter> parameters = Lists.newArrayList();
     for (int i = 0; i < parameterTypes.length; i++) {
       Map<Class<?>, Annotation> annotationMap = Maps.newHashMap();
@@ -80,17 +96,28 @@ public final class ConfigUtils {
       for (Annotation annotation : annotations) {
         annotationMap.put(annotation.annotationType(), annotation);
       }
-      parameters.add(new Parameter(type, annotationMap));
+      parameters.add(new Parameter(paramNames[i], type, i, annotationMap));
     }
     return parameters;
   }
 
   /**
-   * Returns a type's supertypes. Classes are returned first, going up the inheritance hierarchy to {@link Object},
-   * followed by interfaces in the order they are encountered going up the inheritance hierarchy.
-   * @param type A type
-   * @return All the type's supertypes
+   * Creates function metadata for a named method on a class.
+   * This is for testing and isn't intended to be robust. e.g. If there are multiple methods with the same name
+   * the first one will be used.
+   * @param functionType The interface declaring the function method
+   * @param methodName The name of the method
+   * @return Metadata for the function
    */
+  public static FunctionMetadata createMetadata(Class<?> functionType, String methodName) {
+    for (Method method : functionType.getMethods()) {
+      if (methodName.equals(method.getName())) {
+        return new FunctionMetadata(method);
+      }
+    }
+    throw new IllegalArgumentException("No method found named " + methodName);
+  }
+
   public static Set<Class<?>> getSupertypes(Class<?> type) {
     Set<Class<?>> supertypes = Sets.newLinkedHashSet();
     Set<Class<?>> interfaces = Sets.newLinkedHashSet();

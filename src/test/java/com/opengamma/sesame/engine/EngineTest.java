@@ -8,10 +8,11 @@ package com.opengamma.sesame.engine;
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
+import static com.opengamma.sesame.config.ConfigBuilder.columnOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.sesame.config.ConfigBuilder.overrides;
 import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -36,6 +37,7 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.sesame.EquityPresentValue;
 import com.opengamma.sesame.EquityPresentValueFunction;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.MarketDataProvider;
@@ -46,14 +48,19 @@ import com.opengamma.sesame.MarketDataValue;
 import com.opengamma.sesame.ResettableMarketDataProviderFunction;
 import com.opengamma.sesame.SingleMarketDataValue;
 import com.opengamma.sesame.StandardMarketDataRequirement;
+import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.example.CashFlowDescription;
 import com.opengamma.sesame.example.CashFlowDescriptionFunction;
 import com.opengamma.sesame.example.CashFlowIdDescription;
+import com.opengamma.sesame.example.EquityDescription;
 import com.opengamma.sesame.example.EquityDescriptionFunction;
 import com.opengamma.sesame.example.EquityIdDescription;
 import com.opengamma.sesame.example.IdScheme;
+import com.opengamma.sesame.example.IdSchemeFunction;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.MapFunctionRepo;
+import com.opengamma.sesame.proxy.NodeDecorator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -78,19 +85,19 @@ public class EngineTest {
   private static final String CASH_FLOW_ACTIV_SYMBOL = "CASHFLOW.";
 
   @Test
-  public void defaultFunctionImpls() {
+  public void basicFunction() {
     ViewDef viewDef =
         viewDef("Trivial Test View",
                 column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class)));
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                              config(
+                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
-    Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
-    Results results = listener.getResults();
+    Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
     System.out.println(results);
@@ -101,30 +108,30 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Equity PV",
                 column(PRESENT_VALUE_HEADER,
-                       output(OutputNames.PRESENT_VALUE, EquitySecurity.class)));
+                       columnOutput(OutputNames.PRESENT_VALUE,
+                                    config(
+                                        implementations(EquityPresentValueFunction.class,
+                                                        EquityPresentValue.class)))));
 
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);
 
-    // todo - is it correct that we don't need this line?
-    //    functionRepo.register(MarketDataProviderFunction.class);
     ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
-    Engine engine = new Engine(new DirectExecutorService(),
-                               ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class, marketDataProvider),
-                               functionRepo);
-    Listener listener = new Listener();
+    ComponentMap componentMap = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class,
+                                                                                  marketDataProvider));
+    Engine engine = new Engine(new DirectExecutorService(), componentMap, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
     Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData = ImmutableMap.of(
         // todo - we shouldn't be casting here
-        StandardMarketDataRequirement.of((FinancialSecurity) trade.getSecurity(), MarketDataRequirementNames.MARKET_VALUE),
+        StandardMarketDataRequirement.of((FinancialSecurity) trade.getSecurity(),
+                                         MarketDataRequirementNames.MARKET_VALUE),
         Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     marketDataProvider.resetMarketData(marketData);
 
-    Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
-    Results results = listener.getResults();
+    Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(123.45, ((FunctionResult) tradeResults.get(PRESENT_VALUE_HEADER)).getResult());
     System.out.println(results);
@@ -135,15 +142,17 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Trivial Test View",
                 column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION)));
+                       columnOutput(OutputNames.DESCRIPTION,
+                                    config(
+                                        implementations(EquityDescriptionFunction.class,
+                                                        EquityDescription.class)))));
+
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
-    Listener listener = new Listener();
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
-    Results results = listener.getResults();
+    Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run();
     Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
     System.out.println(results);
@@ -153,49 +162,54 @@ public class EngineTest {
   public void overridesAndConfig() {
     ViewDef viewDef =
         viewDef("name",
-                column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION)),
+                column(OutputNames.DESCRIPTION),
                 column(BLOOMBERG_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                       columnOutput(OutputNames.DESCRIPTION,
+                                    config(
+                                        arguments(
+                                            function(IdScheme.class,
+                                                     argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
+                       output(EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                       output(CashFlowSecurity.class,
                               config(
-                                  overrides(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
                 column(ACTIV_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                       columnOutput(OutputNames.DESCRIPTION,
+                                    config(
+                                        arguments(
+                                            function(IdScheme.class,
+                                                     argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                       output(EquitySecurity.class,
                               config(
-                                  overrides(EquityDescriptionFunction.class, EquityIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                       output(OutputNames.DESCRIPTION, CashFlowSecurity.class,
+                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                       output(CashFlowSecurity.class,
                               config(
-                                  overrides(CashFlowDescriptionFunction.class, CashFlowIdDescription.class),
-                                  arguments(
-                                      function(IdScheme.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
+                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))));
 
+    FunctionConfig defaultConfig = config(implementations(
+        EquityDescriptionFunction.class, EquityDescription.class,
+        CashFlowDescriptionFunction.class, CashFlowDescription.class,
+        IdSchemeFunction.class, IdScheme.class));
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     functionRepo.register(CashFlowDescriptionFunction.class);
-    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
-    Listener listener = new Listener();
+    Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, defaultConfig, NodeDecorator.IDENTITY);
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
-    Engine.View view = engine.createView(viewDef, trades, listener);
-    view.run();
-    Results results = listener.getResults();
-    
+    Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run();
+
     Map<String, Object> equityResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
     assertEquals(EQUITY_NAME, equityResults.get(DESCRIPTION_HEADER));
     assertEquals(EQUITY_BLOOMBERG_TICKER, equityResults.get(BLOOMBERG_HEADER));
     assertEquals(EQUITY_ACTIV_SYMBOL, equityResults.get(ACTIV_HEADER));
-    
+
     Map<String, Object> cashFlowResults = results.getTargetResults(CASH_FLOW_TRADE_ID.getObjectId());
     assertEquals(CASH_FLOW_NAME, cashFlowResults.get(DESCRIPTION_HEADER));
     assertEquals(CASH_FLOW_BLOOMBERG_TICKER, cashFlowResults.get(BLOOMBERG_HEADER));
     assertEquals(CASH_FLOW_ACTIV_SYMBOL, cashFlowResults.get(ACTIV_HEADER));
-    
+
     System.out.println(results);
   }
 
@@ -225,23 +239,6 @@ public class EngineTest {
     trade.setSecurityLink(securityLink);
     trade.setUniqueId(CASH_FLOW_TRADE_ID);
     return trade;
-  }
-
-  /**
-   * Simple listener for tests that run the engine using a single thread
-   */
-  private static class Listener implements Engine.Listener {
-
-    private Results _results;
-
-    @Override
-    public void cycleComplete(Results results) {
-      _results = results;
-    }
-
-    public Results getResults() {
-      return _results;
-    }
   }
 
   /**

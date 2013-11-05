@@ -30,7 +30,7 @@ public class CashFlowIdDescription implements CashFlowDescriptionFunction {
    * @return The value of one of the security's external IDs
    */
   @Override
-  public String execute(CashFlowSecurity security) {
+  public String getDescription(CashFlowSecurity security) {
     return security.getExternalIdBundle().getExternalId(_idSchemeFunction.getScheme()).getValue();
   }
 }
