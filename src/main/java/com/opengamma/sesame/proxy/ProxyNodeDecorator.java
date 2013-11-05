@@ -14,6 +14,7 @@ import com.opengamma.sesame.graph.NodeDecorator;
 
 /**
  * Decorates node in the graph with a proxy.
+ * Subclasses should be stateless and thread safe as there is only one instance shared between all proxied objects.
  */
 public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHandlerFactory {
 

@@ -43,7 +43,7 @@ public class ProxyNodeTest {
     Object foo();
   }
 
-  public class Impl implements TestFn {
+  public static class Impl implements TestFn {
 
 
     @Override
