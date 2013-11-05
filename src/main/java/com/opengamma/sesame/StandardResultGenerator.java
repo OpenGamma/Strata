@@ -14,6 +14,7 @@ import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -108,10 +109,6 @@ public class StandardResultGenerator {
       throw new IllegalStateException("Unable to get an error message from a success result");
     }
 
-    @Override
-    public <N> FunctionResult<N> generateFailureResult() {
-      throw new IllegalStateException("Can only generate a failure result from an existing failure");
-    }
   }
 
   private static class FailureFunctionResult<T> extends AbstractFunctionResult<T>  {
@@ -139,14 +136,8 @@ public class StandardResultGenerator {
     @Override
     public String getFailureMessage() {
       return _errorMessage.getMessage();
-
     }
 
-    @Override
-    public <N> FunctionResult<N> generateFailureResult() {
-      // todo - remove cast
-      return new FailureFunctionResult<>((FailureStatus) getStatus(), _errorMessage);
-    }
   }
 
   private static final class MarketDataFunctionSuccessResult extends SuccessFunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>>
@@ -181,6 +172,17 @@ public class StandardResultGenerator {
       }
     }
 
+    @Override
+    public SnapshotDataBundle toSnapshot() {
+      SnapshotDataBundle snapshot = new SnapshotDataBundle();
+      for (Map.Entry<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> entry : getResult().entrySet()) {
+       // snapshot.setDataPoint();
+        throw new UnsupportedOperationException("Implement me!");
+      }
+      return snapshot;
+    }
+
+
     private static final class MarketDataFunctionFailureResult extends FailureFunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>>
         implements MarketDataFunctionResult {
 
@@ -202,6 +204,11 @@ public class StandardResultGenerator {
       public MarketDataValue getMarketDataValue(MarketDataRequirement requirement) {
         throw new IllegalStateException("Unable to get data from a failure result");
       }
+
+      @Override
+      public SnapshotDataBundle toSnapshot() {
+        throw new IllegalStateException("Unable to get snapshot from a failure result");
+      }
     }
   }
 
@@ -220,13 +227,8 @@ public class StandardResultGenerator {
     }
 
     @Override
-    public <N> FunctionResult<N> generateSuccessResult(SuccessStatus status, N newResult) {
-      return new SuccessFunctionResult<>(newResult);
-    }
-
-    @Override
-    public <N> FunctionResult<N> generateFailureResult(FailureStatus status, String message, Object... args) {
-      return new FailureFunctionResult<>(status, message, args);
+    public boolean isResultAvailable() {
+      return _status.isResultAvailable();
     }
   }
 }

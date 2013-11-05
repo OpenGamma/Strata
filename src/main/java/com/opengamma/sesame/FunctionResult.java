@@ -25,7 +25,8 @@ public interface FunctionResult<T> {
   /**
    * Return the actual result if calculated successfully. If it has not been
    * calculated then an IllegalStateException will be thrown. To avoid this
-   * check the result status using {@link #getStatus()} first.
+   * check the result status using {@link #isResultAvailable()} or
+   * {@link #getStatus()} first.
    *
    * @return the result if calculated successfully, not null
    * @throws IllegalArgumentException if called when the result has not been
@@ -33,18 +34,26 @@ public interface FunctionResult<T> {
    */
   T getResult();
 
-  <N> FunctionResult<N> generateSuccessResult(SuccessStatus status, N newResult);
-
-  <N> FunctionResult<N> generateFailureResult(FailureStatus status, String message, Object... args);
+  /**
+   * Return the message associated with a failure event. If the calculation
+   * was actually successful then an an IllegalStateException will be thrown.
+   * To avoid this check the result status using {@link #isResultAvailable()}
+   * or {@link #getStatus()} first.
+   *
+   * @return the failure message if calculation was unsuccessful, not null
+   * @throws IllegalArgumentException if called when the result has been
+   * successfully calculated
+   */
+  String getFailureMessage();
 
   /**
-   * Generate a new failure result with the same details as this one but potentially
-   * with a new result type.
+   * Indicates if there is a result available from this instance. This
+   * generally means that any calculation has been successfully performed
+   * but for calculation that may return partial results e.g. market data
+   * requests this method will return true. To distinguish between these
+   * cases, check the result status using {@link #getStatus()}.
    *
-   * @param <N> the result type
-   * @return a new failure result
+   * @return true if a result is available
    */
-  <N> FunctionResult<N> generateFailureResult();
-
-  String getFailureMessage();
+  boolean isResultAvailable();
 }
