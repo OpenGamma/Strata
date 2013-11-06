@@ -8,6 +8,8 @@ package com.opengamma.sesame.function;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.ArgumentChecker;
 
@@ -16,17 +18,22 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class Parameter {
 
+  private final Class<?> _declaringClass;
   private final String _name;
   private final Class<?> _type;
   private final int _ordinal;
   private final ImmutableMap<Class<?>, Annotation> _annotations;
-  // TODO nullability flag
 
-  public Parameter(String name, Class<?> type, int ordinal, Map<Class<?>, Annotation> annotations) {
-    _name = name;
+  public Parameter(Class<?> declaringClass, String name, Class<?> type, int ordinal, Map<Class<?>, Annotation> annotations) {
+    _declaringClass = ArgumentChecker.notNull(declaringClass, "declaringClass");
+    _name = ArgumentChecker.notEmpty(name, "name");
     _ordinal = ordinal;
     _type = ArgumentChecker.notNull(type, "type");
     _annotations = ImmutableMap.copyOf(ArgumentChecker.notNull(annotations, "annotations"));
+  }
+
+  public Class<?> getDeclaringClass() {
+    return _declaringClass;
   }
 
   public String getName() {
@@ -43,5 +50,23 @@ public final class Parameter {
 
   public ImmutableMap<Class<?>, Annotation> getAnnotations() {
     return _annotations;
+  }
+
+  public boolean isNullable() {
+    return _annotations.get(Nullable.class) != null;
+  }
+
+  @Override
+  public String toString() {
+    return "Parameter [" +
+        "_name='" + _name + "'" +
+        ", _type=" + _type +
+        ", _ordinal=" + _ordinal +
+        ", _annotations=" + _annotations +
+        "]";
+  }
+
+  public String getFullName() {
+    return _declaringClass.getSimpleName() + "(" + _name + ")";
   }
 }

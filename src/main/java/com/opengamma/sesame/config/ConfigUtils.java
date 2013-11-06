@@ -49,6 +49,7 @@ public final class ConfigUtils {
    * @param <T> Tye type
    * @return The constructor the engine should use for building instances, not null
    * @throws IllegalArgumentException If there isn't a valid constructor
+   * TODO return null or throw specific exception?
    */
   @SuppressWarnings("unchecked")
   public static <T> Constructor<T> getConstructor(Class<T> type) {
@@ -77,14 +78,21 @@ public final class ConfigUtils {
   }
 
   public static List<Parameter> getParameters(Method method) {
-    return getParameters(method, method.getParameterTypes(), method.getParameterAnnotations());
+    return getParameters(method,
+                         method.getDeclaringClass(),
+                         method.getParameterTypes(),
+                         method.getParameterAnnotations());
   }
 
   public static List<Parameter> getParameters(Constructor<?> constructor) {
-    return getParameters(constructor, constructor.getParameterTypes(), constructor.getParameterAnnotations());
+    return getParameters(constructor,
+                         constructor.getDeclaringClass(),
+                         constructor.getParameterTypes(),
+                         constructor.getParameterAnnotations());
   }
 
   private static List<Parameter> getParameters(AccessibleObject ctorOrMethod,
+                                               Class<?> declaringClass,
                                                Class<?>[] parameterTypes,
                                                Annotation[][] allAnnotations) {
     String[] paramNames = s_paranamer.lookupParameterNames(ctorOrMethod);
@@ -96,7 +104,7 @@ public final class ConfigUtils {
       for (Annotation annotation : annotations) {
         annotationMap.put(annotation.annotationType(), annotation);
       }
-      parameters.add(new Parameter(paramNames[i], type, i, annotationMap));
+      parameters.add(new Parameter(declaringClass, paramNames[i], type, i, annotationMap));
     }
     return parameters;
   }

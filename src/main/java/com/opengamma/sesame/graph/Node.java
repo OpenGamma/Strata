@@ -11,7 +11,7 @@ import java.util.List;
 import com.opengamma.sesame.engine.ComponentMap;
 
 /**
- *
+ * TODO isValid()? all impls except exceptionNode return true?
  */
 public abstract class Node {
 

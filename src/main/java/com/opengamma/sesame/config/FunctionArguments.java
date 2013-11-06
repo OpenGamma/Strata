@@ -6,7 +6,7 @@
 package com.opengamma.sesame.config;
 
 /**
- *
+ * TODO sentinel value for NULL? or return null for null have have a sentinel value for MISSING?
  */
 public interface FunctionArguments {
 

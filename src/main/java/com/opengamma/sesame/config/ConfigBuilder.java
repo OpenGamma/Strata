@@ -24,8 +24,8 @@ import com.opengamma.sesame.example.OutputNames;
  */
 public final class ConfigBuilder {
 
-  protected static final Map<Class<?>,FunctionArguments> EMPTY_ARGUMENTS = Collections.emptyMap();
-  protected static final Map<Class<?>,Class<?>> EMPTY_OVERRIDES = Collections.emptyMap();
+  protected static final Map<Class<?>, FunctionArguments> EMPTY_ARGUMENTS = Collections.emptyMap();
+  protected static final Map<Class<?>, Class<?>> EMPTY_OVERRIDES = Collections.emptyMap();
 
   private ConfigBuilder() {
   }
