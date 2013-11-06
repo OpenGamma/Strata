@@ -23,7 +23,8 @@ public class EquityPresentValue implements EquityPresentValueFunction {
   @Override
   public FunctionResult<Double> presentValue(EquitySecurity security) {
 
-    MarketDataRequirement requirement = StandardMarketDataRequirement.of(security, MarketDataRequirementNames.MARKET_VALUE);
+    MarketDataRequirement requirement = MarketDataRequirementFactory.of(security,
+                                                                         MarketDataRequirementNames.MARKET_VALUE);
     MarketDataFunctionResult result = _marketDataProviderFunction.requestData(requirement);
 
     if (result.getStatus().isResultAvailable()) {

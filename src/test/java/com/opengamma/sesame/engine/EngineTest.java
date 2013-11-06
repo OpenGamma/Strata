@@ -43,11 +43,11 @@ import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.MarketDataProvider;
 import com.opengamma.sesame.MarketDataProviderFunction;
 import com.opengamma.sesame.MarketDataRequirement;
+import com.opengamma.sesame.MarketDataRequirementFactory;
 import com.opengamma.sesame.MarketDataStatus;
 import com.opengamma.sesame.MarketDataValue;
 import com.opengamma.sesame.ResettableMarketDataProviderFunction;
 import com.opengamma.sesame.SingleMarketDataValue;
-import com.opengamma.sesame.StandardMarketDataRequirement;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.example.CashFlowDescription;
@@ -125,8 +125,8 @@ public class EngineTest {
 
     Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData = ImmutableMap.of(
         // todo - we shouldn't be casting here
-        StandardMarketDataRequirement.of((FinancialSecurity) trade.getSecurity(),
-                                         MarketDataRequirementNames.MARKET_VALUE),
+        MarketDataRequirementFactory.of((FinancialSecurity) trade.getSecurity(),
+                                        MarketDataRequirementNames.MARKET_VALUE),
         Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     marketDataProvider.resetMarketData(marketData);
 

@@ -201,9 +201,12 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
           final CurveSpecification specification = curveSpecResult.getResult();
           final MarketDataFunctionResult marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
 
-          if (curveDefResult.isResultAvailable() && marketDataResult.isResultAvailable()) {
+          // Only proceed if we have all market data values available to us
+          if (curveDefResult.isResultAvailable() && marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
 
             CurveDefinition curveDefinition = curveDefResult.getResult();
+
+            // todo this is temporary to allow us to get up and running fast
             final SnapshotDataBundle snapshot = marketDataResult.toSnapshot();
 
             final int nNodes = specification.getNodes().size();
@@ -288,12 +291,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
     final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nodes.size()];
     int i = 0;
 
-    for (final CurveNodeWithIdentifier node : nodes) { // Node points - start
-
-      final Double marketData = snapshot.getDataPoint(node.getIdentifier());
-      if (marketData == null) {
-        throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
-      }
+    for (final CurveNodeWithIdentifier node : nodes) {
 
       final InstrumentDefinition<?> definitionForNode =
           node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, now));

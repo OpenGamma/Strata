@@ -77,7 +77,7 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
       if (refCurr == null) {
         refCurr = currency;
       } else {
-        MarketDataRequirement spotReqmt = StandardMarketDataRequirement.of(
+        MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(
             CurrencyPair.of(currency, refCurr));
         MarketDataFunctionResult marketDataFunctionResult = _marketDataProviderFunction.requestData(spotReqmt);
 

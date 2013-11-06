@@ -51,7 +51,7 @@ public class EquityPresentValueTest {
 
     Map<MarketDataRequirement, Pair<MarketDataStatus,MarketDataValue>> marketData = new HashMap<>();
     marketData.put(
-        StandardMarketDataRequirement.of(security, MarketDataRequirementNames.MARKET_VALUE),
+        MarketDataRequirementFactory.of(security, MarketDataRequirementNames.MARKET_VALUE),
         Pairs.<MarketDataStatus,MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     _marketDataProviderFunction.resetMarketData(marketData);
 

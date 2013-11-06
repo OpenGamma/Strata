@@ -24,7 +24,7 @@ public class CurveSpecificationMarketDataProvider implements CurveSpecificationM
 
     final Set<MarketDataRequirement> requirements = new HashSet<>();
     for (final CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
-      requirements.addAll(StandardMarketDataRequirement.of(id));
+      requirements.addAll(MarketDataRequirementFactory.of(id));
     }
     return _marketDataProviderFunction.requestData(requirements);
   }
