@@ -115,7 +115,7 @@ public final class FunctionModel {
         if (config.getObject(parameter.getType()) != null) {
           argNode = config.decorateNode(new ObjectNode(parameter.getType()));
         } else {
-          Object argument = config.getConstructorArgument(implType, parameter.getType(), parameter.getName());
+          Object argument = config.getConstructorArgument(implType, parameter);
           if (argument == null) {
             // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't
             Node createdNode = createNode(parameter.getType(), config, newPath, failureAccumulator);

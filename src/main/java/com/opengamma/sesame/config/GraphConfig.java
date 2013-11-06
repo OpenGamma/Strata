@@ -6,6 +6,7 @@
 package com.opengamma.sesame.config;
 
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.util.ArgumentChecker;
@@ -33,15 +34,16 @@ public class GraphConfig {
     _nodeDecorator = NodeDecorator.IDENTITY;
   }
 
-  public Object getConstructorArgument(Class<?> objectType, Class<?> parameterType, String name) {
+  public Object getConstructorArgument(Class<?> objectType, Parameter parameter) {
     FunctionArguments args = _functionConfig.getFunctionArguments(objectType);
-    Object arg = args.getArgument(name);
+    Object arg = args.getArgument(parameter.getName());
     if (arg == null) {
       return null;
-    } else if (parameterType.isInstance(arg)) {
+    } else if (parameter.getType().isInstance(arg)) {
       return arg;
     } else {
-      throw new IllegalArgumentException("Argument " + arg + " isn't of the required type " + parameterType.getName());
+      throw new IllegalArgumentException("Argument (" + arg + ": " + arg.getClass().getSimpleName() + ") isn't of the " +
+                                             "required type for " + parameter.getFullName());
     }
   }
 

@@ -5,7 +5,10 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
@@ -19,13 +22,18 @@ import java.util.Set;
 import javax.inject.Provider;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -58,10 +66,24 @@ public class FXForwardPVFunctionTest {
                             MarketDataProviderFunction.class, MarketDataProvider.class,
                             FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
                             InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                            DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class/*,
-                            CurveSpecificationProvider.class, */));
-    ComponentMap componentMap = componentMap(ConfigSource.class, ConventionSource.class, ConventionBundleSource.class,
-                                             HistoricalTimeSeriesResolver.class, SecuritySource.class);
+                            DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class,
+                            /*, CurveSpecificationProvider.class, */
+                            ValuationTimeProviderFunction.class, ValuationTimeProvider.class,
+                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class),
+            arguments(
+                function(ValuationTimeProvider.class,
+                         argument("valuationTime", Instant.now())),
+                function(RootFinderConfiguration.class,
+                         argument("rootFinderAbsoluteTolerance", 1d),
+                         argument("rootFinderRelativeTolerance", 1d),
+                         argument("rootFinderMaxIterations", 1))));
+    ComponentMap componentMap = componentMap(ConfigSource.class,
+                                             ConventionSource.class,
+                                             ConventionBundleSource.class,
+                                             HistoricalTimeSeriesResolver.class,
+                                             SecuritySource.class,
+                                             HolidaySource.class,
+                                             RegionSource.class);
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, graphConfig);
     Object fn = functionModel.build(componentMap).getReceiver();
