@@ -32,10 +32,6 @@ public final class Parameter {
     _annotations = ImmutableMap.copyOf(ArgumentChecker.notNull(annotations, "annotations"));
   }
 
-  public Class<?> getDeclaringClass() {
-    return _declaringClass;
-  }
-
   public String getName() {
     return _name;
   }
@@ -67,6 +63,6 @@ public final class Parameter {
   }
 
   public String getFullName() {
-    return _declaringClass.getSimpleName() + "(" + _name + ": " + _type.getSimpleName() + ")";
+    return _declaringClass.getSimpleName() + "(" + _type.getSimpleName() + " " + _name + ")";
   }
 }

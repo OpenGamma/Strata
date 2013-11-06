@@ -17,9 +17,6 @@ import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Provider;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -55,19 +52,18 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFunctionTest {
 
-  //@Test(enabled = false)
   @Test
   public void buildGraph() {
     FunctionMetadata calculatePV = ConfigUtils.createMetadata(FXForwardPVFunction.class, "calculatePV");
     FunctionConfig config =
         config(
             implementations(FXForwardPVFunction.class, DiscountingFXForwardPV.class,
-                            CurrencyPairsFunction.class, CurrencyPairsProvider.class,
+                            CurrencyPairsFunction.class, CurrencyPairs.class,
                             MarketDataProviderFunction.class, MarketDataProvider.class,
                             FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
                             InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
                             DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class,
-                            /*, CurveSpecificationProvider.class, */
+                            CurveSpecificationProviderFunction.class, CurveSpecificationProvider.class,
                             ValuationTimeProviderFunction.class, ValuationTimeProvider.class,
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class),
             arguments(
@@ -76,7 +72,9 @@ public class FXForwardPVFunctionTest {
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1d),
                          argument("rootFinderRelativeTolerance", 1d),
-                         argument("rootFinderMaxIterations", 1))));
+                         argument("rootFinderMaxIterations", 1)),
+                function(CurrencyPairs.class,
+                         argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD))))));
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
                                              ConventionBundleSource.class,
@@ -96,15 +94,5 @@ public class FXForwardPVFunctionTest {
       compMap.put(componentType, mock(componentType));
     }
     return ComponentMap.of(compMap);
-  }
-
-  // TODO necessary because it requires a Set<CurrencyPair> and can't do Type keys yet
-  private static class CurrencyPairsProvider implements Provider<CurrencyPairs> {
-
-    @Override
-    public CurrencyPairs get() {
-      Set<CurrencyPair> pairs = ImmutableSet.of(CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD));
-      return new CurrencyPairs(pairs);
-    }
   }
 }

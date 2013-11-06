@@ -33,8 +33,7 @@ import com.opengamma.sesame.function.Parameter;
     } else {
       List<String> pathElements = Lists.newArrayListWithCapacity(path.size());
       for (Parameter parameter : path) {
-        pathElements.add("\t\t" + parameter.getDeclaringClass().getSimpleName() + "(" + parameter.getName() + ": " +
-                             parameter.getType().getSimpleName() + ")");
+        pathElements.add("\t\t" + parameter.getFullName());
       }
       return "\n\n\tpath:\n" + StringUtils.join(pathElements, "\n") + "\n";
     }

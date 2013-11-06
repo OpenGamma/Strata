@@ -42,7 +42,7 @@ public class GraphConfig {
     if (arg == null) {
       return null;
     // this takes into account boxing of primitives which Class.isAssignableFrom() doesn't
-    } else if (ClassUtils.isAssignable(parameter.getType(), arg.getClass(), true)) {
+    } else if (ClassUtils.isAssignable(arg.getClass(), parameter.getType(), true)) {
       return arg;
     } else {
       throw new IllegalArgumentException("Argument (" + arg + ": " + arg.getClass().getSimpleName() + ") isn't of the " +
