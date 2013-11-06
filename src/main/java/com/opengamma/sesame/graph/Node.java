@@ -9,15 +9,39 @@ import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.function.Parameter;
 
 /**
  * TODO isValid()? all impls except exceptionNode return true?
+ * TODO should every node have a (possibly null) Parameter?
  */
 public abstract class Node {
+
+  private final Parameter _parameter;
+
+  protected Node(Parameter parameter) {
+    _parameter = parameter;
+  }
 
   /* package */ public abstract Object create(ComponentMap componentMap);
 
   public List<Node> getDependencies() {
     return Collections.emptyList();
+  }
+
+  public String prettyPrint() {
+    return toString();
+  }
+
+  public Parameter getParameter() {
+    return _parameter;
+  }
+
+  protected final String getParameterName() {
+    if (getParameter() == null) {
+      return "";
+    } else {
+      return getParameter().getName() + ": ";
+    }
   }
 }

@@ -73,7 +73,7 @@ public final class FunctionModel {
 
   private static Node createNode(Class<?> type, GraphConfig config) {
     List<GraphBuildException> failures = Lists.newArrayList();
-    Node node = createNode(type, config, Lists.<Parameter>newArrayList(), failures);
+    Node node = createNode(type, config, Lists.<Parameter>newArrayList(), null, failures);
     if (!failures.isEmpty()) {
       GraphBuildException exception = new GraphBuildException("Failed to build graph");
       for (GraphBuildException failure : failures) {
@@ -89,6 +89,7 @@ public final class FunctionModel {
   private static Node createNode(Class<?> type,
                                  GraphConfig config,
                                  List<Parameter> path,
+                                 Parameter parentParameter,
                                  List<GraphBuildException> failureAccumulator) {
     if (!isEligibleForBuilding(type)) {
       return null;
@@ -101,7 +102,7 @@ public final class FunctionModel {
       NoImplementationException e = new NoImplementationException(path, "No implementation or provider available for " +
                                                                     type.getSimpleName());
       failureAccumulator.add(e);
-      return new ExceptionNode(e);
+      return new ExceptionNode(e, parentParameter);
     }
     Constructor<?> constructor = ConfigUtils.getConstructor(implType);
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
@@ -113,35 +114,35 @@ public final class FunctionModel {
       Node argNode;
       try {
         if (config.getObject(parameter.getType()) != null) {
-          argNode = config.decorateNode(new ObjectNode(parameter.getType()));
+          argNode = config.decorateNode(new ObjectNode(parameter.getType(), parameter));
         } else {
           Object argument = config.getConstructorArgument(implType, parameter);
           if (argument == null) {
             // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't
-            Node createdNode = createNode(parameter.getType(), config, newPath, failureAccumulator);
+            Node createdNode = createNode(parameter.getType(), config, newPath, parameter, failureAccumulator);
             if (createdNode != null) {
               argNode = createdNode;
             } else if (parameter.isNullable()) {
-              argNode = config.decorateNode(new ArgumentNode(parameter.getType(), null));
+              argNode = config.decorateNode(new ArgumentNode(parameter.getType(), null, parameter));
             } else {
               throw new NoConstructorArgumentException(newPath, "No value available for non-nullable parameter " +
                                                            parameter.getFullName());
             }
           } else {
-            argNode = config.decorateNode(new ArgumentNode(parameter.getType(), argument));
+            argNode = config.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
           }
         }
       } catch (GraphBuildException e) {
         failureAccumulator.add(e);
-        argNode = new ExceptionNode(e);
+        argNode = new ExceptionNode(e, parameter);
       }
       constructorArguments.add(argNode);
     }
     Node node;
     if (type.isInterface()) {
-      node = new InterfaceNode(type, implType, constructorArguments);
+      node = new InterfaceNode(type, implType, constructorArguments, parentParameter);
     } else {
-      node = new ClassNode(implType, constructorArguments);
+      node = new ClassNode(implType, constructorArguments, parentParameter);
     }
     return config.decorateNode(node);
   }
@@ -173,5 +174,15 @@ public final class FunctionModel {
     return true;
   }
 
-  // TODO pretty print method
+  public String prettyPrint() {
+    return prettyPrint(new StringBuilder(), _root, "").toString();
+  }
+
+  private static StringBuilder prettyPrint(StringBuilder builder, Node node, String indent) {
+    builder.append('\n').append(indent).append(node.prettyPrint());
+    for (Node child : node.getDependencies()) {
+      prettyPrint(builder, child, indent + "    ");
+    }
+    return builder;
+  }
 }

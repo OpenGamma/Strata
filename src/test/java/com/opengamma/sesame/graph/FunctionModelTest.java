@@ -91,7 +91,7 @@ public class FunctionModelTest {
     NodeDecorator decorator = new NodeDecorator() {
       @Override
       public Node decorateNode(final Node node) {
-        return new Node() {
+        return new Node(null) {
           @Override
           public Object create(ComponentMap componentMap) {
             final TestFunction fn = (TestFunction) node.create(componentMap);

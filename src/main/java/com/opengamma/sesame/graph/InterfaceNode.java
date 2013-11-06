@@ -7,6 +7,7 @@ package com.opengamma.sesame.graph;
 
 import java.util.List;
 
+import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,12 +17,17 @@ public final class InterfaceNode extends ClassNode {
 
   private final Class<?> _interfaceType;
 
-  public InterfaceNode(Class<?> interfaceType, Class<?> implementationType, List<Node> arguments) {
-    super(implementationType, arguments);
+  public InterfaceNode(Class<?> interfaceType, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
+    super(implementationType, arguments, parameter);
     _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
   }
 
   public Class<?> getInterfaceType() {
     return _interfaceType;
+  }
+
+  @Override
+  public String prettyPrint() {
+    return getParameterName() + _interfaceType.getSimpleName() + " (new " + getType().getSimpleName() + ")";
   }
 }

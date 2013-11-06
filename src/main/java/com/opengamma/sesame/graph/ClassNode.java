@@ -16,18 +16,19 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A node in the dependency model an object referred to by its concrete class that must be created by the injection framework.
- * TODO separate class ProviderNode? it would only differ by a line or two
  */
 public class ClassNode extends Node {
 
   private final List<Node> _arguments;
   private final Class<?> _type;
 
-  public ClassNode(Class<?> type, List<Node> arguments) {
+  public ClassNode(Class<?> type, List<Node> arguments, Parameter parameter) {
+    super(parameter);
     _type = ArgumentChecker.notNull(type, "type");
     _arguments = ImmutableList.copyOf(ArgumentChecker.notNull(arguments, "arguments"));
   }
@@ -58,5 +59,14 @@ public class ClassNode extends Node {
 
   public Class<?> getType() {
     return _type;
+  }
+
+  public List<Node> getArguments() {
+    return _arguments;
+  }
+
+  @Override
+  public String prettyPrint() {
+    return getParameterName() + "new " + _type.getSimpleName();
   }
 }

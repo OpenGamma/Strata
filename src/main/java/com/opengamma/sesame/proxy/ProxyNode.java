@@ -22,6 +22,7 @@ import com.opengamma.util.ArgumentChecker;
   private final InvocationHandlerFactory _handlerFactory;
 
   /* package */ ProxyNode(Node delegateNode, Class<?> interfaceType, InvocationHandlerFactory handlerFactory) {
+    super(delegateNode.getParameter());
     _delegateNode = ArgumentChecker.notNull(delegateNode, "delegate");
     _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
     _handlerFactory = ArgumentChecker.notNull(handlerFactory, "handlerFactory");
@@ -33,5 +34,10 @@ import com.opengamma.util.ArgumentChecker;
     Object delegate = _delegateNode.create(componentMap);
     InvocationHandler invocationHandler = _handlerFactory.create(delegate);
     return Proxy.newProxyInstance(_interfaceType.getClassLoader(), new Class<?>[]{_interfaceType}, invocationHandler);
+  }
+
+  @Override
+  public String prettyPrint() {
+    return getParameterName() + "proxy " + _interfaceType.getSimpleName() + "(" + _handlerFactory.getClass().getSimpleName() + ")";
   }
 }

@@ -7,6 +7,7 @@ package com.opengamma.sesame.graph;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.function.Parameter;
 
 /**
  *
@@ -15,12 +16,18 @@ import com.opengamma.sesame.engine.ComponentMap;
 
   private final Exception _exception;
 
-  /* package */ ExceptionNode(Exception exception) {
+  /* package */ ExceptionNode(Exception exception, Parameter parameter) {
+    super(parameter);
     _exception = exception;
   }
 
   @Override
   public Object create(ComponentMap componentMap) {
     throw new OpenGammaRuntimeException("Can't build an invalid graph", _exception);
+  }
+
+  @Override
+  public String prettyPrint() {
+    return getParameterName() + _exception.toString();
   }
 }

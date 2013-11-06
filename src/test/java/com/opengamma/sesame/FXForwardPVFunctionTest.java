@@ -46,9 +46,6 @@ import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.util.test.TestGroup;
 
-/**
- *
- */
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFunctionTest {
 
@@ -86,6 +83,7 @@ public class FXForwardPVFunctionTest {
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, graphConfig);
     Object fn = functionModel.build(componentMap).getReceiver();
     assertTrue(fn instanceof FXForwardPVFunction);
+    System.out.println(functionModel.prettyPrint());
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {

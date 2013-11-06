@@ -6,6 +6,7 @@
 package com.opengamma.sesame.graph;
 
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.function.Parameter;
 
 /**
 *
@@ -15,7 +16,8 @@ public final class ArgumentNode extends Node {
   private final Class<?> _type;
   private final Object _value;
 
-  /* package */ ArgumentNode(Class<?> type, Object value) {
+  /* package */ ArgumentNode(Class<?> type, Object value, Parameter parameter) {
+    super(parameter);
     _type = type;
     _value = value;
   }
@@ -24,6 +26,11 @@ public final class ArgumentNode extends Node {
   @Override
   public Object create(ComponentMap componentMap) {
     return _value;
+  }
+
+  @Override
+  public String prettyPrint() {
+    return getParameterName() + _type.getSimpleName() + " " + _value;
   }
 
   public Class<?> getType() {

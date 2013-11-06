@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public int hashCode() {
-    return Objects.hash(_receiverType, _method, Arrays.hashCode(_args));
+    return Objects.hash(_receiverType, _method, Arrays.deepHashCode(_args));
   }
 
   @Override
@@ -51,7 +51,7 @@ import com.opengamma.util.ArgumentChecker;
     return
         Objects.equals(this._receiverType, other._receiverType) &&
         Objects.equals(this._method, other._method) &&
-        Arrays.equals(this._args, other._args);
+        Arrays.deepEquals(this._args, other._args);
   }
 
   @Override
