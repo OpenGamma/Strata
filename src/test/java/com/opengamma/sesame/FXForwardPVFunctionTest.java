@@ -67,8 +67,8 @@ public class FXForwardPVFunctionTest {
                 function(ValuationTimeProvider.class,
                          argument("valuationTime", Instant.now())),
                 function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1d),
-                         argument("rootFinderRelativeTolerance", 1d),
+                         argument("rootFinderAbsoluteTolerance", 1),
+                         argument("rootFinderRelativeTolerance", 1),
                          argument("rootFinderMaxIterations", 1)),
                 function(CurrencyPairs.class,
                          argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD))))));

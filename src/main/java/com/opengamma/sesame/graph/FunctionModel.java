@@ -6,6 +6,7 @@
 package com.opengamma.sesame.graph;
 
 import java.lang.reflect.Constructor;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -175,13 +176,24 @@ public final class FunctionModel {
   }
 
   public String prettyPrint() {
-    return prettyPrint(new StringBuilder(), _root, "").toString();
+    return prettyPrint(new StringBuilder(), _root, "", "").toString();
   }
 
-  private static StringBuilder prettyPrint(StringBuilder builder, Node node, String indent) {
+  private static StringBuilder prettyPrint(StringBuilder builder, Node node, String indent, String childIndent) {
     builder.append('\n').append(indent).append(node.prettyPrint());
-    for (Node child : node.getDependencies()) {
-      prettyPrint(builder, child, indent + "    ");
+    for (Iterator<Node> itr = node.getDependencies().iterator(); itr.hasNext(); ) {
+      Node child = itr.next();
+      String newIndent;
+      String newChildIndent;
+      boolean isFinalChild = !itr.hasNext();
+      if (!isFinalChild) {
+        newIndent = childIndent + " |--";
+        newChildIndent = childIndent + " |  ";
+      } else {
+        newIndent = childIndent + " `--";
+        newChildIndent = childIndent + "    ";
+      }
+      prettyPrint(builder, child, newIndent, newChildIndent);
     }
     return builder;
   }
