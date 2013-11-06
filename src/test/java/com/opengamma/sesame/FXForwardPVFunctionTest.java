@@ -47,7 +47,8 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFunctionTest {
 
-  @Test(enabled = false)
+  //@Test(enabled = false)
+  @Test
   public void buildGraph() {
     FunctionMetadata calculatePV = ConfigUtils.createMetadata(FXForwardPVFunction.class, "calculatePV");
     FunctionConfig config =

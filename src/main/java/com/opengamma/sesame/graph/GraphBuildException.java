@@ -28,29 +28,15 @@ import com.opengamma.sesame.function.Parameter;
   }
 
   private static String pathString(List<Parameter> path) {
-    List<PathElement> pathElements = Lists.newArrayList();
-    for (Parameter parameter : path) {
-      pathElements.add(new PathElement(parameter.getDeclaringClass().getSimpleName(), parameter.getName()));
-    }
-    if (pathElements.isEmpty()) {
+    if (path.isEmpty()) {
       return "";
     } else {
-      return ". path: " + StringUtils.join(pathElements, " / ");
-    }
-  }
-
-  private static class PathElement {
-    private final String _simpleClassName;
-    private final String _parameterName;
-
-    private PathElement(String simpleClassName, String parameterName) {
-      _simpleClassName = simpleClassName;
-      _parameterName = parameterName;
-    }
-
-    @Override
-    public String toString() {
-      return _simpleClassName + "(" + _parameterName + ")";
+      List<String> pathElements = Lists.newArrayListWithCapacity(path.size());
+      for (Parameter parameter : path) {
+        pathElements.add("\t\t" + parameter.getDeclaringClass().getSimpleName() + "(" + parameter.getName() + ": " +
+                             parameter.getType().getSimpleName() + ")");
+      }
+      return "\n\n\tpath:\n" + StringUtils.join(pathElements, "\n") + "\n";
     }
   }
 }

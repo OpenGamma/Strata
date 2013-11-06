@@ -117,13 +117,15 @@ public final class FunctionModel {
         } else {
           Object argument = config.getConstructorArgument(implType, parameter.getType(), parameter.getName());
           if (argument == null) {
+            // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't
             Node createdNode = createNode(parameter.getType(), config, newPath, failureAccumulator);
             if (createdNode != null) {
               argNode = createdNode;
             } else if (parameter.isNullable()) {
               argNode = config.decorateNode(new ArgumentNode(parameter.getType(), null));
             } else {
-              throw new NoConstructorArgumentException(newPath, "No value available for non-nullable parameter " + parameter.getFullName());
+              throw new NoConstructorArgumentException(newPath, "No value available for non-nullable parameter " +
+                                                           parameter.getFullName());
             }
           } else {
             argNode = config.decorateNode(new ArgumentNode(parameter.getType(), argument));

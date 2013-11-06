@@ -67,6 +67,6 @@ public final class Parameter {
   }
 
   public String getFullName() {
-    return _declaringClass.getSimpleName() + "(" + _name + ")";
+    return _declaringClass.getSimpleName() + "(" + _name + ": " + _type.getSimpleName() + ")";
   }
 }
