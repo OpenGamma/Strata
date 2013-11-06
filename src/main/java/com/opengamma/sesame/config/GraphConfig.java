@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.config;
 
+import org.apache.commons.lang.ClassUtils;
+
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.graph.Node;
@@ -39,7 +41,8 @@ public class GraphConfig {
     Object arg = args.getArgument(parameter.getName());
     if (arg == null) {
       return null;
-    } else if (parameter.getType().isInstance(arg)) {
+    // this takes into account boxing of primitives which Class.isAssignableFrom() doesn't
+    } else if (ClassUtils.isAssignable(parameter.getType(), arg.getClass(), true)) {
       return arg;
     } else {
       throw new IllegalArgumentException("Argument (" + arg + ": " + arg.getClass().getSimpleName() + ") isn't of the " +
