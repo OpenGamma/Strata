@@ -5,6 +5,11 @@
  */
 package com.opengamma.sesame;
 
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataResult;
+import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.sesame.marketdata.MarketDataValue;
+
 public class EmptyMarketDataResult implements MarketDataResult {
 
   public static final MarketDataResult INSTANCE = new EmptyMarketDataResult();

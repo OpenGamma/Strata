@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.MarketDataStatus.AVAILABLE;
-import static com.opengamma.sesame.MarketDataStatus.PENDING;
+import static com.opengamma.sesame.marketdata.MarketDataStatus.AVAILABLE;
+import static com.opengamma.sesame.marketdata.MarketDataStatus.PENDING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -18,6 +18,10 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.sesame.marketdata.MarketDataValue;
+import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;

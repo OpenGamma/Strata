@@ -12,6 +12,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataResultBuilder;
+import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.util.tuple.Pair;
 
 /**

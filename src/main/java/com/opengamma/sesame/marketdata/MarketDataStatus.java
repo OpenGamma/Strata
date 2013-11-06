@@ -1,4 +1,4 @@
-package com.opengamma.sesame;
+package com.opengamma.sesame.marketdata;
 
 /**
  * Status value of a particular piece of market data. The value will only be

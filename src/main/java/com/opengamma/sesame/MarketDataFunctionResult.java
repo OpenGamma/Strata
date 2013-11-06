@@ -8,6 +8,9 @@ package com.opengamma.sesame;
 import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.util.tuple.Pair;
 
 public interface MarketDataFunctionResult extends FunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>> {

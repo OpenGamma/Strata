@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.marketdata;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.ArgumentChecker;

@@ -25,7 +25,7 @@ import com.opengamma.sesame.CurrencyPairsFunction;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.MarketDataFunctionResult;
 import com.opengamma.sesame.MarketDataProviderFunction;
-import com.opengamma.sesame.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.ResultStatus;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
