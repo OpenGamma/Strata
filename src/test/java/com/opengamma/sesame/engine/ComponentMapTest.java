@@ -28,7 +28,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.INTEGRATION)
 public class ComponentMapTest {
 
-  @Test
+  @Test(enabled = false)
   public void connect() {
     ComponentMap componentMap = ComponentMap.loadComponents("http://localhost:8080");
     assertNotNull(componentMap);

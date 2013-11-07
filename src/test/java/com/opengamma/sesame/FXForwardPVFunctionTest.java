@@ -82,7 +82,7 @@ public class FXForwardPVFunctionTest {
     System.out.println(functionModel.prettyPrint());
   }
 
-  @Test(groups = TestGroup.INTEGRATION)
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServer() {
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
