@@ -85,6 +85,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
   private final CurveSpecificationMarketDataProviderFunction _curveSpecificationMarketDataProvider;
   private final ValuationTimeProviderFunction _valuationTimeProvider;
   private final FXMatrixProviderFunction _fxMatrixProvider;
+  private final HistoricalTimeSeriesProviderFunction _historicalTimeSeriesProvider;
 
   private final CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
   private final ConventionSource _conventionSource;
@@ -98,6 +99,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
                                              CurveSpecificationMarketDataProviderFunction curveSpecificationMarketDataProvider,
                                              ValuationTimeProviderFunction valuationTimeProvider,
                                              FXMatrixProviderFunction fxMatrixProvider,
+                                             HistoricalTimeSeriesProviderFunction historicalTimeSeriesProvider,
                                              CurveConstructionConfigurationSource curveConstructionConfigurationSource,
                                              ConventionSource conventionSource,
                                              HolidaySource holidaySource,
@@ -109,6 +111,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
     _curveSpecificationMarketDataProvider = curveSpecificationMarketDataProvider;
     _valuationTimeProvider = valuationTimeProvider;
     _fxMatrixProvider = fxMatrixProvider;
+    _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
     _curveConstructionConfigurationSource = curveConstructionConfigurationSource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
@@ -199,10 +202,12 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
         if (curveSpecResult.isResultAvailable()) {
 
           final CurveSpecification specification = curveSpecResult.getResult();
+          final FunctionResult<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(specification);
           final MarketDataFunctionResult marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
 
           // Only proceed if we have all market data values available to us
-          if (curveDefResult.isResultAvailable() && marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
+          if (curveDefResult.isResultAvailable() && htsResult.isResultAvailable() &&
+              marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
 
             CurveDefinition curveDefinition = curveDefResult.getResult();
 
@@ -213,7 +218,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
             final double[] parameterGuessForCurves = new double[nNodes];
             Arrays.fill(parameterGuessForCurves, 0.02);  // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
 
-            final InstrumentDerivative[] derivativesForCurve = extractInstrumentDerivatives(specification, snapshot);
+            final InstrumentDerivative[] derivativesForCurve = extractInstrumentDerivatives(specification, snapshot, htsResult.getResult());
 
             for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
               if (type instanceof DiscountingCurveTypeConfiguration) {
@@ -283,7 +288,8 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
   }
 
   private InstrumentDerivative[] extractInstrumentDerivatives(CurveSpecification specification,
-        SnapshotDataBundle snapshot) {
+                                                              SnapshotDataBundle snapshot,
+                                                              HistoricalTimeSeriesBundle htsBundle) {
 
     ZonedDateTime now = _valuationTimeProvider.getZonedDateTime();
 
@@ -298,8 +304,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
 
       // todo - we may need to allow the node converter implementation to be changed
       derivativesForCurve[i++] =
-          // todo - what do we really need in terms of time series?
-          (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, now, new HistoricalTimeSeriesBundle());
+          (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, now, htsBundle);
     }
 
     return derivativesForCurve;
@@ -319,7 +324,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
         final FixedDateInterpolatedCurveDefinition fixedDateDefinition = (FixedDateInterpolatedCurveDefinition) definition;
         final List<LocalDate> fixedDates = fixedDateDefinition.getFixedDates();
         final DoubleArrayList nodePoints = new DoubleArrayList(fixedDates.size()); //TODO what about equal node points?
-        LocalDate valuationDate = LocalDate.from(_valuationTimeProvider.getValuationTime());
+        LocalDate valuationDate = _valuationTimeProvider.getLocalDate();
         for (final LocalDate fixedDate : fixedDates) {
           nodePoints.add(TimeCalculator.getTimeBetween(valuationDate, fixedDate)); //TODO what to do if the fixed date is before the valuation date?
         }

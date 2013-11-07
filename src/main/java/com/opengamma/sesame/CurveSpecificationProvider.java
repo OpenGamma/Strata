@@ -8,8 +8,6 @@ package com.opengamma.sesame;
 import static com.opengamma.sesame.StandardResultGenerator.failure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
 
-import org.threeten.bp.LocalDate;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -46,7 +44,7 @@ public class CurveSpecificationProvider implements CurveSpecificationProviderFun
     } else {
       return success(_curveSpecificationBuilder.buildCurve(
           _valuationTimeProviderFunction.getValuationTime(),
-          LocalDate.from(_valuationTimeProviderFunction.getValuationTime()),
+          _valuationTimeProviderFunction.getLocalDate(),
           curveDefinition));
     }
   }

@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 public interface ValuationTimeProviderFunction {
@@ -13,4 +14,6 @@ public interface ValuationTimeProviderFunction {
   Instant getValuationTime();
 
   ZonedDateTime getZonedDateTime();
+
+  LocalDate getLocalDate();
 }

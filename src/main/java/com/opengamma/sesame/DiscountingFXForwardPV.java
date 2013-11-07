@@ -111,7 +111,7 @@ public class DiscountingFXForwardPV implements FXForwardPVFunction {
 
       MulticurveProviderDiscount bundle = mergeBundles(fxmResult.getResult(), bundles);
 
-      // todo - what do we really need in terms of time series?
+      // Note that no time series are needed for FX Forward, so pass in an empty bundle
       InstrumentDerivative derivative =
           _definitionToDerivativeConverter.convert(security, definition, valuationTime, new HistoricalTimeSeriesBundle());
       MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, bundle);

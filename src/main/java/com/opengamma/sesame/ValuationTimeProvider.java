@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -27,6 +28,11 @@ public class ValuationTimeProvider implements ValuationTimeProviderFunction {
   @Override
   public ZonedDateTime getZonedDateTime() {
     return ZonedDateTime.ofInstant(_valuationTime, ZoneOffset.UTC);
+  }
+
+  @Override
+  public LocalDate getLocalDate() {
+    return LocalDate.from(_valuationTime);
   }
 
   public void setValuationTime(Instant valuationTime) {
