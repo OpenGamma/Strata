@@ -19,8 +19,10 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
@@ -172,7 +174,8 @@ public class FXForwardPVFunctionTest {
 
   private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketData() throws IOException {
     Properties properties = new Properties();
-    try (BufferedReader reader = new BufferedReader(new FileReader("/Users/chris/Desktop/marketdata.properties"))) {
+    try (InputStream stream = FXForwardPVFunction.class.getResourceAsStream("/marketdata.properties");
+         Reader reader = new BufferedReader(new InputStreamReader(stream))) {
       properties.load(reader);
     }
     Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> data = Maps.newHashMap();
