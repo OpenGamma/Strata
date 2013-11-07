@@ -202,7 +202,8 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
         if (curveSpecResult.isResultAvailable()) {
 
           final CurveSpecification specification = curveSpecResult.getResult();
-          final FunctionResult<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(specification);
+          final FunctionResult<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(
+              specification);
           final MarketDataFunctionResult marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
 
           // Only proceed if we have all market data values available to us
@@ -342,21 +343,32 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
 
     ResultStatus exogenousStatus = SuccessStatus.SUCCESS;
     Set<MulticurveProviderDiscount> exogenousBundles = new HashSet<>();
-    for (String configName : curveConstructionConfiguration.getExogenousConfigurations()) {
 
-      FunctionResult<MulticurveProviderDiscount> bundleResult = generateBundle(configName);
-      if (bundleResult.getStatus().isResultAvailable()) {
-        exogenousBundles.add(bundleResult.getResult());
-      } else {
-        exogenousStatus = bundleResult.getStatus();
+    List<String> exogenousConfigurations = curveConstructionConfiguration.getExogenousConfigurations();
+
+    // THis null check should not be required but currently null can be returned - see PLAT-5047
+    if (exogenousConfigurations != null) {
+      for (String configName : exogenousConfigurations) {
+
+        FunctionResult<MulticurveProviderDiscount> bundleResult = generateBundle(configName);
+        if (bundleResult.getStatus().isResultAvailable()) {
+          exogenousBundles.add(bundleResult.getResult());
+        } else {
+          exogenousStatus = bundleResult.getStatus();
+        }
       }
     }
 
     if (exogenousStatus.isResultAvailable() && fxMatrixResult.isResultAvailable()) {
 
-      MulticurveProviderDiscount result = ProviderUtils.mergeDiscountingProviders(exogenousBundles);
-      MulticurveProviderDiscount provider = ProviderUtils.mergeDiscountingProviders(result, fxMatrixResult.getResult());
-      return success(provider);
+      FXMatrix fxMatrix = fxMatrixResult.getResult();
+      if (exogenousBundles.isEmpty()) {
+        return success(new MulticurveProviderDiscount(fxMatrix));
+      } else {
+        MulticurveProviderDiscount result = ProviderUtils.mergeDiscountingProviders(exogenousBundles);
+        MulticurveProviderDiscount provider = ProviderUtils.mergeDiscountingProviders(result, fxMatrix);
+        return success(provider);
+      }
     } else if (!exogenousStatus.isResultAvailable()) {
 
       return failure(MISSING_DATA, "Unable to build exogenous curve bundles");
