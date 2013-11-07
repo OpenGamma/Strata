@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -30,6 +31,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
@@ -70,6 +72,7 @@ public class FXForwardPVFunctionTest {
                                              HistoricalTimeSeriesResolver.class,
                                              SecuritySource.class,
                                              HolidaySource.class,
+                                             HistoricalTimeSeriesSource.class,
                                              RegionSource.class);
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, graphConfig);
@@ -110,7 +113,10 @@ public class FXForwardPVFunctionTest {
                          argument("rootFinderMaxIterations", 1)),
                 function(CurrencyPairs.class,
                          argument("currencyPairs",
-                                  ImmutableSet.of(CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD))))),
+                                  ImmutableSet.of(CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD)))),
+                function(HistoricalTimeSeriesProvider.class,
+                         argument("resolutionKey", "DEFAULT_TSS"),
+                         argument("htsRetrievalPeriod", Period.ofYears(1)))),
             implementations(FXForwardPVFunction.class, DiscountingFXForwardPV.class,
                             CurrencyPairsFunction.class, CurrencyPairs.class,
                             MarketDataProviderFunction.class, MarketDataProvider.class,
@@ -122,7 +128,8 @@ public class FXForwardPVFunctionTest {
                             DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class,
                             CurveSpecificationProviderFunction.class, CurveSpecificationProvider.class,
                             ValuationTimeProviderFunction.class, ValuationTimeProvider.class,
-                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class));
+                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                            HistoricalTimeSeriesProviderFunction.class, HistoricalTimeSeriesProvider.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {
