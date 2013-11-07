@@ -89,8 +89,7 @@ public class FXForwardPVFunctionTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     MarketDataProvider marketDataProvider = new MarketDataProvider();
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
-                                                  MarketDataProviderFunction.class,
-                                                  marketDataProvider);
+                                                  MarketDataProviderFunction.class, marketDataProvider);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
     FXForwardPVFunction pvFunction = FunctionModel.build(FXForwardPVFunction.class, "calculatePV", graphConfig);
