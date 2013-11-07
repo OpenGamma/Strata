@@ -263,13 +263,15 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
             }
             final GeneratorYDCurve generator = getGenerator(curveDefinition);
             singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
-            curveBundles[i++] = new MultiCurveBundle<>(singleCurves);
           } else {
             curveBundlesComplete = false;
           }
         } else {
           curveBundlesComplete = false;
         }
+      }
+      if (curveBundlesComplete) {
+        curveBundles[i++] = new MultiCurveBundle<>(singleCurves);
       }
     } // Group - end
 
