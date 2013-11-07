@@ -118,7 +118,7 @@ public class DiscountingFXForwardPV implements FXForwardPVFunction {
 
       return success(FXUtils.getMultipleCurrencyAmountAsMatrix(mca));
     } else if (!incompleteBundles.isEmpty()) {
-      return failure(FailureStatus.MISSING_DATA, "Missing curveConstructionConfiguration(s) for: {}", incompleteBundles);
+      return failure(FailureStatus.MISSING_DATA, "Missing complete curve bundles(s) for: {}", incompleteBundles);
     } else {
       return propagateFailure(fxmResult);
     }
