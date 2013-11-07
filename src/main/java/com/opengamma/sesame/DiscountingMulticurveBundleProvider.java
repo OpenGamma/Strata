@@ -263,7 +263,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
             }
             final GeneratorYDCurve generator = getGenerator(curveDefinition);
             singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
-
+            curveBundles[i++] = new MultiCurveBundle<>(singleCurves);
           } else {
             curveBundlesComplete = false;
           }
@@ -271,7 +271,6 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
           curveBundlesComplete = false;
         }
       }
-      curveBundles[i++] = new MultiCurveBundle<>(singleCurves);
     } // Group - end
 
     if (exogenousBundle.isResultAvailable() && curveBundlesComplete) {

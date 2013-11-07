@@ -32,7 +32,7 @@ public class ValuationTimeProvider implements ValuationTimeProviderFunction {
 
   @Override
   public LocalDate getLocalDate() {
-    return LocalDate.from(_valuationTime);
+    return LocalDate.from(getZonedDateTime());
   }
 
   public void setValuationTime(Instant valuationTime) {
