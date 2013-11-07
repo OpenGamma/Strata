@@ -10,6 +10,9 @@ import java.util.Map;
 
 import javax.inject.Provider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.core.config.ConfigSource;
@@ -31,6 +34,8 @@ import com.opengamma.financial.tool.ToolContext;
  */
 public class ComponentMap {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ComponentMap.class);
+
   public static final ComponentMap EMPTY = new ComponentMap(Collections.<Class<?>, Object>emptyMap());
   private final ImmutableMap<Class<?>, Object> _components;
 
@@ -45,6 +50,7 @@ public class ComponentMap {
    */
   public static ComponentMap loadComponents(String location) {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
+    s_logger.info("Loading components from {}", location);
     ToolContext toolContext = ToolContextUtils.getToolContext(location, ToolContext.class);
 
     builder.put(ConfigSource.class, toolContext.getConfigSource());

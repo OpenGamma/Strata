@@ -14,20 +14,27 @@ import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.USD;
 import static org.mockito.Mockito.mock;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
@@ -36,7 +43,11 @@ import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvi
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
@@ -52,29 +63,7 @@ public class FXForwardPVFunctionTest {
   @Test
   public void buildGraph() {
     FunctionMetadata calculatePV = ConfigUtils.createMetadata(FXForwardPVFunction.class, "calculatePV");
-    FunctionConfig config =
-        config(
-            implementations(FXForwardPVFunction.class, DiscountingFXForwardPV.class,
-                            CurrencyPairsFunction.class, CurrencyPairs.class,
-                            MarketDataProviderFunction.class, MarketDataProvider.class,
-                            FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataProviderFunction.class, CurveSpecificationMarketDataProvider.class,
-                            FXMatrixProviderFunction.class, FXMatrixProvider.class,
-                            CurveDefinitionProviderFunction.class, CurveDefinitionProvider.class,
-                            DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class,
-                            CurveSpecificationProviderFunction.class, CurveSpecificationProvider.class,
-                            ValuationTimeProviderFunction.class, ValuationTimeProvider.class,
-                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class),
-            arguments(
-                function(ValuationTimeProvider.class,
-                         argument("valuationTime", Instant.now())),
-                function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1),
-                         argument("rootFinderRelativeTolerance", 1),
-                         argument("rootFinderMaxIterations", 1)),
-                function(CurrencyPairs.class,
-                         argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD))))));
+    FunctionConfig config = createFunctionConfig();
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
                                              ConventionBundleSource.class,
@@ -87,6 +76,65 @@ public class FXForwardPVFunctionTest {
     Object fn = functionModel.build(componentMap).getReceiver();
     assertTrue(fn instanceof FXForwardPVFunction);
     System.out.println(functionModel.prettyPrint());
+  }
+
+  @Test(groups = TestGroup.INTEGRATION)
+  public void executeAgainstRemoteServer() {
+    String serverUrl = "http://localhost:8080";
+    URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
+    HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
+    Map<Class<?>, Object> resolverMap = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
+    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(resolverMap);
+    GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
+    FXForwardPVFunction pvFunction = FunctionModel.build(FXForwardPVFunction.class, "calculatePV", graphConfig);
+    ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
+    ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
+    FXForwardSecurity security = new FXForwardSecurity(EUR, 1000000, USD, 1350000, forwardDate, regionId);
+    security.setUniqueId(UniqueId.of("sec", "123"));
+    FunctionResult<CurrencyLabelledMatrix1D> pv = pvFunction.calculatePV(security);
+    assertNotNull(pv);
+  }
+
+  private static FunctionConfig createFunctionConfig() {
+    return
+        config(
+            arguments(
+                function(DiscountingFXForwardPV.class,
+                         argument("exposureConfigNames", ImmutableSet.of("USD-Standard"))),
+                //argument("exposureConfigNames", ImmutableSet.of("EUR Demo 1"))),
+                function(ValuationTimeProvider.class,
+                         argument("valuationTime", Instant.now())),
+                function(RootFinderConfiguration.class,
+                         argument("rootFinderAbsoluteTolerance", 1),
+                         argument("rootFinderRelativeTolerance", 1),
+                         argument("rootFinderMaxIterations", 1)),
+                function(CurrencyPairs.class,
+                         argument("currencyPairs",
+                                  ImmutableSet.of(CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD))))),
+            implementations(FXForwardPVFunction.class,
+                            DiscountingFXForwardPV.class,
+                            CurrencyPairsFunction.class,
+                            CurrencyPairs.class,
+                            MarketDataProviderFunction.class,
+                            MarketDataProvider.class,
+                            FinancialSecurityVisitor.class,
+                            FXForwardSecurityConverter.class,
+                            InstrumentExposuresProvider.class,
+                            ConfigDBInstrumentExposuresProvider.class,
+                            CurveSpecificationMarketDataProviderFunction.class,
+                            CurveSpecificationMarketDataProvider.class,
+                            FXMatrixProviderFunction.class,
+                            FXMatrixProvider.class,
+                            CurveDefinitionProviderFunction.class,
+                            CurveDefinitionProvider.class,
+                            DiscountingMulticurveBundleProviderFunction.class,
+                            DiscountingMulticurveBundleProvider.class,
+                            CurveSpecificationProviderFunction.class,
+                            CurveSpecificationProvider.class,
+                            ValuationTimeProviderFunction.class,
+                            ValuationTimeProvider.class,
+                            CurveConstructionConfigurationSource.class,
+                            ConfigDBCurveConstructionConfigurationSource.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {

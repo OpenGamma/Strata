@@ -89,6 +89,7 @@ public final class GraphBuilder {
         }
         FunctionModel functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);
         // TODO how will this work for in-memory trades? assign an ID? use object identity?
+        // at least some of the analytics code assumes a unique ID (on securities) so maybe we have to assign them
         columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
       }
       builder.put(column.getName(), columnBuilder.build());

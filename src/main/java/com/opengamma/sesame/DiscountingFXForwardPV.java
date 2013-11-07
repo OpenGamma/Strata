@@ -48,13 +48,15 @@ public class DiscountingFXForwardPV implements FXForwardPVFunction {
   private final InstrumentExposuresProvider _instrumentExposuresProvider;
   private final DiscountingMulticurveBundleProviderFunction _multicurveBundleProviderFunction;
   private final ValuationTimeProviderFunction _valuationTimeProviderFunction;
+  private final Set<String> _exposureConfigNames;
 
   public DiscountingFXForwardPV(FXMatrixProviderFunction fxMatrixProvider,
                                 FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter,
                                 FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                 InstrumentExposuresProvider instrumentExposuresProvider,
                                 DiscountingMulticurveBundleProviderFunction multicurveBundleProviderFunction,
-                                ValuationTimeProviderFunction valuationTimeProviderFunction) {
+                                ValuationTimeProviderFunction valuationTimeProviderFunction,
+                                Set<String> exposureConfigNames) {
 
     _fxMatrixProvider = fxMatrixProvider;
     _securityConverter = securityConverter;
@@ -62,6 +64,7 @@ public class DiscountingFXForwardPV implements FXForwardPVFunction {
     _instrumentExposuresProvider = instrumentExposuresProvider;
     _multicurveBundleProviderFunction = multicurveBundleProviderFunction;
     _valuationTimeProviderFunction = valuationTimeProviderFunction;
+    _exposureConfigNames = exposureConfigNames;
   }
 
   @Override
@@ -77,14 +80,13 @@ public class DiscountingFXForwardPV implements FXForwardPVFunction {
     FunctionResult<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(currencies);
 
     // Determine required exposure function
-    Set<String> exposureConfigNames = ImmutableSet.of("some sensible default");
 
     Set<String> incompleteBundles = new HashSet<>();
     Set<MulticurveProviderDiscount> bundles = new HashSet<>();
 
     // We allow for there being more than one exposure config, though in
     // reality there will probably be only one
-    for (final String curveExposureConfig : exposureConfigNames) {
+    for (final String curveExposureConfig : _exposureConfigNames) {
 
       final Set<String> curveConstructionConfigurationNames =
           _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
