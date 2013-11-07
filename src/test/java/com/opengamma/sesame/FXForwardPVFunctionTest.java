@@ -73,6 +73,7 @@ public class FXForwardPVFunctionTest {
                                              SecuritySource.class,
                                              HolidaySource.class,
                                              HistoricalTimeSeriesSource.class,
+                                             MarketDataProviderFunction.class,
                                              RegionSource.class);
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, graphConfig);
@@ -86,8 +87,11 @@ public class FXForwardPVFunctionTest {
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
-    Map<Class<?>, Object> resolverMap = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
-    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(resolverMap);
+    MarketDataProvider marketDataProvider = new MarketDataProvider();
+    Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
+                                                  MarketDataProviderFunction.class,
+                                                  marketDataProvider);
+    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
     FXForwardPVFunction pvFunction = FunctionModel.build(FXForwardPVFunction.class, "calculatePV", graphConfig);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
@@ -119,7 +123,6 @@ public class FXForwardPVFunctionTest {
                          argument("htsRetrievalPeriod", Period.ofYears(1)))),
             implementations(FXForwardPVFunction.class, DiscountingFXForwardPV.class,
                             CurrencyPairsFunction.class, CurrencyPairs.class,
-                            MarketDataProviderFunction.class, MarketDataProvider.class,
                             FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
                             InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
                             CurveSpecificationMarketDataProviderFunction.class, CurveSpecificationMarketDataProvider.class,
