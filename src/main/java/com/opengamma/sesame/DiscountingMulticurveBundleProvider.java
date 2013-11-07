@@ -80,11 +80,11 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 public class DiscountingMulticurveBundleProvider implements DiscountingMulticurveBundleProviderFunction {
 
-  private final CurveDefinitionProvider _curveDefinitionProvider;
+  private final CurveDefinitionProviderFunction _curveDefinitionProvider;
   private final CurveSpecificationProviderFunction _curveSpecificationProvider;
-  private final CurveSpecificationMarketDataProvider _curveSpecificationMarketDataProvider;
+  private final CurveSpecificationMarketDataProviderFunction _curveSpecificationMarketDataProvider;
   private final ValuationTimeProviderFunction _valuationTimeProvider;
-  private final FXMatrixProvider _fxMatrixProvider;
+  private final FXMatrixProviderFunction _fxMatrixProvider;
 
   private final CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
   private final ConventionSource _conventionSource;
@@ -93,11 +93,11 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
 
   private final RootFinderConfiguration _rootFinderConfiguration;
 
-  public DiscountingMulticurveBundleProvider(CurveDefinitionProvider curveDefinitionProvider,
+  public DiscountingMulticurveBundleProvider(CurveDefinitionProviderFunction curveDefinitionProvider,
                                              CurveSpecificationProviderFunction curveSpecificationProvider,
-                                             CurveSpecificationMarketDataProvider curveSpecificationMarketDataProvider,
+                                             CurveSpecificationMarketDataProviderFunction curveSpecificationMarketDataProvider,
                                              ValuationTimeProviderFunction valuationTimeProvider,
-                                             FXMatrixProvider fxMatrixProvider,
+                                             FXMatrixProviderFunction fxMatrixProvider,
                                              CurveConstructionConfigurationSource curveConstructionConfigurationSource,
                                              ConventionSource conventionSource,
                                              HolidaySource holidaySource,

@@ -40,7 +40,7 @@ public class DiscountingFXForwardPV implements FXForwardPVFunction {
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR =
       PresentValueDiscountingCalculator.getInstance();
 
-  private final FXMatrixProvider _fxMatrixProvider;
+  private final FXMatrixProviderFunction _fxMatrixProvider;
 
   private final FinancialSecurityVisitor<InstrumentDefinition<?>> _securityConverter;
 
@@ -49,7 +49,7 @@ public class DiscountingFXForwardPV implements FXForwardPVFunction {
   private final DiscountingMulticurveBundleProviderFunction _multicurveBundleProviderFunction;
   private final ValuationTimeProviderFunction _valuationTimeProviderFunction;
 
-  public DiscountingFXForwardPV(FXMatrixProvider fxMatrixProvider,
+  public DiscountingFXForwardPV(FXMatrixProviderFunction fxMatrixProvider,
                                 FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter,
                                 FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                 InstrumentExposuresProvider instrumentExposuresProvider,
