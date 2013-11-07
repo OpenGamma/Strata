@@ -66,6 +66,10 @@ public class GraphConfig {
     throw new UnsupportedOperationException();
   }
 
+  public ComponentMap getComponents() {
+    return _components;
+  }
+
   public Node decorateNode(Node node) {
     return _nodeDecorator.decorateNode(node);
   }

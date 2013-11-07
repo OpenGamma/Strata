@@ -123,18 +123,27 @@ public final class ConfigUtils {
 
   /**
    * Returns a named method on a class.
-   * This is for testing and isn't intended to be robust. e.g. If there are multiple methods with the same name
-   * the first one will be used.
+   * This only works if there is exactly one method with a matching name. If there are zero or multiple methods
+   * with a matching name an exception is thrown.
    * @param type The type declaring the method
    * @param methodName The name of the method
    * @return The method
+   * @throws IllegalArgumentException If there isn't exactly one method in the class with a matching name
    */
   public static Method getMethod(Class<?> type, String methodName) {
     Method[] methods = type.getMethods();
+    Method found = null;
     for (Method method : methods) {
       if (methodName.equals(method.getName())) {
-        return method;
+        if (found == null) {
+          found = method;
+        } else {
+          throw new IllegalArgumentException("Multiple methods found named " + methodName);
+        }
       }
+    }
+    if (found != null) {
+      return found;
     }
     throw new IllegalArgumentException("No method found named " + methodName);
   }

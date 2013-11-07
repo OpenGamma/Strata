@@ -61,6 +61,21 @@ public final class FunctionModel {
     return new FunctionModel(createNode(function.getDeclaringType(), GraphConfig.EMPTY), function);
   }
 
+  public static <T> T build(Class<T> functionType, String methodName, GraphConfig config) {
+    FunctionMetadata metadata = ConfigUtils.createMetadata(functionType, methodName);
+    FunctionModel functionModel = new FunctionModel(createNode(metadata.getDeclaringType(), config), metadata);
+    InvokableFunction function = functionModel.build(config.getComponents());
+    return functionType.cast(function.getReceiver());
+  }
+
+  public static <T> T build(Class<T> functionType, String methodName, FunctionConfig config) {
+    return build(functionType, methodName, new GraphConfig(config));
+  }
+
+  public static <T> T build(Class<T> functionType, String methodName) {
+    return build(functionType, methodName, GraphConfig.EMPTY);
+  }
+
   // TODO need to pass in config that merges default from system, view, (calc config), column, input type
   // it needs to know about the view def, (calc config), column because this class doesn't
   // it needs to merge arguments from everything going up the type hierarchy
@@ -75,6 +90,9 @@ public final class FunctionModel {
   private static Node createNode(Class<?> type, GraphConfig config) {
     List<GraphBuildException> failures = Lists.newArrayList();
     Node node = createNode(type, config, Lists.<Parameter>newArrayList(), null, failures);
+    // TODO is it better to throw an exception here or return a model with exception nodes?
+    // the latter might be more useful once we have a UI
+    // particularly in conjunction with a method Node.isValid()
     if (!failures.isEmpty()) {
       GraphBuildException exception = new GraphBuildException("Failed to build graph");
       for (GraphBuildException failure : failures) {

@@ -114,6 +114,31 @@ public class FunctionModelTest {
   }
 
   @Test
+  public void buildDirectly1() {
+    Concrete1 fn = FunctionModel.build(Concrete1.class, "foo");
+    assertNotNull(fn);
+  }
+
+  @Test
+  public void buildDirectly2() {
+    FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
+    TestFunction fn = FunctionModel.build(TestFunction.class, "foo", config);
+    assertTrue(fn instanceof BasicImpl);
+  }
+
+  @Test
+  public void buildDirectly3() {
+    final ComponentMap infrastructure = ComponentMap.of(
+        ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
+    FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
+    GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
+    TestFunction fn = FunctionModel.build(TestFunction.class, "foo", graphConfig);
+    assertTrue(fn instanceof InfrastructureImpl);
+    //noinspection ConstantConditions
+    assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
+  }
+
+  @Test
   public void noVisibleConstructors() {
 
 
