@@ -27,6 +27,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -126,17 +127,20 @@ public class FXForwardPVFunctionTest {
     FXForwardPVFunction pvFunction = FunctionModel.build(FXForwardPVFunction.class, "calculatePV", graphConfig);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
-    FXForwardSecurity security = new FXForwardSecurity(JPY, 1000000, USD, 1350000, forwardDate, regionId);
+    FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
     security.setUniqueId(UniqueId.of("sec", "123"));
-    return pvFunction.calculatePV(security);
+    FunctionResult<CurrencyLabelledMatrix1D> result = pvFunction.calculatePV(security);
+    logMarketData(marketDataProvider.getCollectedRequests());
+    return result;
   }
 
   private static FunctionConfig createFunctionConfig() {
+    String exposureConfig = "EUR-USD[ON-OIS][EURIBOR6M-FRA/IRS][EURIBOR3M-FRA/BS]-[ON-OIS][LIBOR3M-FRA/IRS]";
     return
         config(
             arguments(
                 function(DiscountingFXForwardPV.class,
-                         argument("exposureConfigNames", ImmutableSet.of("Exposure Functions Test"))),
+                         argument("exposureConfigNames", ImmutableSet.of(exposureConfig))),
                 function(ValuationTimeProvider.class,
                          argument("valuationTime", Instant.now())),
                 function(RootFinderConfiguration.class,
@@ -193,5 +197,14 @@ public class FXForwardPVFunctionTest {
     return marketData.put(
         new CurveNodeMarketDataRequirement(ExternalSchemes.bloombergTickerSecurityId(ticker), "Market_Value"),
         Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(value)));
+  }
+
+  private static void logMarketData(Set<MarketDataRequirement> requirements) {
+    for (MarketDataRequirement requirement : requirements) {
+      if (requirement instanceof CurveNodeMarketDataRequirement) {
+        ExternalId id = ((CurveNodeMarketDataRequirement) requirement).getExternalId();
+        System.out.println(id);
+      }
+    }
   }
 }

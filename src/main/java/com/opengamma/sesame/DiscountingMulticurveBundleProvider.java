@@ -67,6 +67,7 @@ import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
 import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
+import com.opengamma.financial.analytics.curve.ThreeLegBasisSwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -385,7 +386,12 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
     return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashNodeVisitor(new CashNodeConverter(_conventionSource, _holidaySource, _regionSource,
                                                marketData, dataId, valuationTime))
-        .fraNode(new FRANodeConverter(_conventionSource, _holidaySource, _regionSource, marketData, dataId, valuationTime))
+        .fraNode(new FRANodeConverter(_conventionSource,
+                                      _holidaySource,
+                                      _regionSource,
+                                      marketData,
+                                      dataId,
+                                      valuationTime))
         .fxForwardNode(new FXForwardNodeConverter(_conventionSource, _holidaySource, _regionSource,
                                                   marketData, dataId, valuationTime))
         .immFRANode(new RollDateFRANodeConverter(_conventionSource,
@@ -412,6 +418,12 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
                                         marketData,
                                         dataId,
                                         valuationTime))
+        .threeLegBasisSwapNode(new ThreeLegBasisSwapNodeConverter(_conventionSource,
+                                                                          _holidaySource,
+                                                                          _regionSource,
+                                                                          marketData,
+                                                                          dataId,
+                                                                          valuationTime))
         .create();
   }
 }
