@@ -34,4 +34,8 @@ public class CurveNodeMarketDataRequirement implements MarketDataRequirement {
   public int hashCode() {
     return 31 * _identifier.hashCode() + _dataField.hashCode();
   }
+
+  public ExternalId getExternalId() {
+    return _identifier;
+  }
 }

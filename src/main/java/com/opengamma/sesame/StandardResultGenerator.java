@@ -15,6 +15,7 @@ import org.slf4j.helpers.MessageFormatter;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataResultBuilder;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
@@ -176,12 +177,20 @@ public class StandardResultGenerator {
       }
     }
 
+    // todo - temporary implementation only!
     @Override
     public SnapshotDataBundle toSnapshot() {
       SnapshotDataBundle snapshot = new SnapshotDataBundle();
       for (Map.Entry<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> entry : getResult().entrySet()) {
-       // snapshot.setDataPoint();
-        throw new UnsupportedOperationException("Implement me!");
+
+        MarketDataRequirement key = entry.getKey();
+        Pair<MarketDataStatus, ? extends MarketDataValue> pair = entry.getValue();
+        MarketDataStatus status = pair.getFirst();
+
+        if (key instanceof CurveNodeMarketDataRequirement && status == MarketDataStatus.AVAILABLE) {
+          snapshot.setDataPoint(((CurveNodeMarketDataRequirement) key).getExternalId(), (Double) pair.getValue().getValue());
+        }
+
       }
       return snapshot;
     }
