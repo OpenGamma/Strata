@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.security.CodeSource;
 import java.util.Collections;
 import java.util.Map;
 
@@ -13,6 +12,7 @@ import javax.inject.Provider;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.component.tool.ToolContextUtils;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -47,7 +47,7 @@ public class ComponentMap {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     ToolContext toolContext = ToolContextUtils.getToolContext(location, ToolContext.class);
 
-    builder.put(CodeSource.class, toolContext.getConfigSource());
+    builder.put(ConfigSource.class, toolContext.getConfigSource());
     builder.put(ConventionBundleSource.class, toolContext.getConventionBundleSource());
     builder.put(ConventionSource.class, toolContext.getConventionSource());
     builder.put(ExchangeSource.class, toolContext.getExchangeSource());
