@@ -22,6 +22,7 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.sesame.proxy.ProxyNode;
 
 /**
  * A lightweight representation of the dependency tree for a single function.
@@ -137,7 +138,7 @@ public final class FunctionModel {
         } else {
           Object argument = config.getConstructorArgument(implType, parameter);
           if (argument == null) {
-            // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't
+            // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't?
             Node createdNode = createNode(parameter.getType(), config, newPath, parameter, failureAccumulator);
             if (createdNode != null) {
               argNode = createdNode;
@@ -193,13 +194,18 @@ public final class FunctionModel {
     return true;
   }
 
-  public String prettyPrint() {
-    return prettyPrint(new StringBuilder(), _root, "", "").toString();
+  public String prettyPrint(boolean showProxies) {
+    return prettyPrint(new StringBuilder(), _root, "", "", showProxies).toString();
   }
 
-  private static StringBuilder prettyPrint(StringBuilder builder, Node node, String indent, String childIndent) {
-    builder.append('\n').append(indent).append(node.prettyPrint());
-    for (Iterator<Node> itr = node.getDependencies().iterator(); itr.hasNext(); ) {
+  private static StringBuilder prettyPrint(StringBuilder builder,
+                                           Node node,
+                                           String indent,
+                                           String childIndent,
+                                           boolean showProxies) {
+    Node realNode = getRealNode(node, showProxies);
+    builder.append('\n').append(indent).append(realNode.prettyPrint());
+    for (Iterator<Node> itr = realNode.getDependencies().iterator(); itr.hasNext(); ) {
       Node child = itr.next();
       String newIndent;
       String newChildIndent;
@@ -211,8 +217,19 @@ public final class FunctionModel {
         newIndent = childIndent + " `--";
         newChildIndent = childIndent + "    ";
       }
-      prettyPrint(builder, child, newIndent, newChildIndent);
+      prettyPrint(builder, child, newIndent, newChildIndent, showProxies);
     }
     return builder;
+  }
+
+  private static Node getRealNode(Node node, boolean showProxies) {
+    if (showProxies) {
+      return node;
+    }
+    if (node instanceof ProxyNode) {
+      return getRealNode(((ProxyNode) node).getDelegate(), false);
+    } else {
+      return node;
+    }
   }
 }

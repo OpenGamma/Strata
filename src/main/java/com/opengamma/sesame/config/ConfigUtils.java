@@ -84,6 +84,7 @@ public final class ConfigUtils {
                          method.getParameterAnnotations());
   }
 
+  // TODO won't work for non-static inner classes. throw exception. how do I know?
   public static List<Parameter> getParameters(Constructor<?> constructor) {
     return getParameters(constructor,
                          constructor.getDeclaringClass(),

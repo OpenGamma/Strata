@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.trace;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.opengamma.sesame.graph.InterfaceNode;
@@ -38,11 +37,7 @@ public final class TracingProxy extends ProxyNodeDecorator {
   protected Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Throwable {
     // this avoids recording calls to toString() in the debugger
     if (method.getName().equals("toString")) {
-      try {
-        return method.invoke(delegate, args);
-      } catch (InvocationTargetException e) {
-        throw e.getCause();
-      }
+      return method.invoke(delegate, args);
     }
     Tracer tracer = s_tracer.get();
     tracer.called(method, args);
@@ -50,7 +45,7 @@ public final class TracingProxy extends ProxyNodeDecorator {
       Object retVal = method.invoke(delegate, args);
       tracer.returned(retVal);
       return retVal;
-    } catch (InvocationTargetException e) {
+    } catch (Exception e) {
       Throwable cause = e.getCause();
       tracer.threw(cause);
       throw cause;

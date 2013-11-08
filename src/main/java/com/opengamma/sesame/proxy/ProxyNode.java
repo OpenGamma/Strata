@@ -7,6 +7,8 @@ package com.opengamma.sesame.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
+import java.util.List;
 
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.Node;
@@ -15,17 +17,19 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A graph model node that inserts a dynamic proxy in front of a component.
  */
-/* package */ class ProxyNode extends Node {
+public class ProxyNode extends Node {
 
   private final Class<?> _interfaceType;
   private final Node _delegateNode;
   private final InvocationHandlerFactory _handlerFactory;
+  private final List<Node> _dependencies;
 
   /* package */ ProxyNode(Node delegateNode, Class<?> interfaceType, InvocationHandlerFactory handlerFactory) {
     super(delegateNode.getParameter());
     _delegateNode = ArgumentChecker.notNull(delegateNode, "delegate");
     _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
     _handlerFactory = ArgumentChecker.notNull(handlerFactory, "handlerFactory");
+    _dependencies = Collections.singletonList(delegateNode);
   }
 
   @Override
@@ -39,5 +43,18 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public String prettyPrint() {
     return getParameterName() + "proxy " + _interfaceType.getSimpleName() + "(" + _handlerFactory.getClass().getSimpleName() + ")";
+  }
+
+  @Override
+  public List<Node> getDependencies() {
+    return _dependencies;
+  }
+
+  public Node getDelegate() {
+    return _delegateNode;
+  }
+
+  public Class<?> getInterfaceType() {
+    return _interfaceType;
   }
 }

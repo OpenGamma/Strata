@@ -34,7 +34,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.testng.annotations.Test;
-import org.threeten.bp.Instant;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -64,11 +63,13 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
+import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
+import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
@@ -77,6 +78,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.sesame.marketdata.SingleMarketDataValue;
+import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -101,11 +103,11 @@ public class FXForwardPVFunctionTest {
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, graphConfig);
     Object fn = functionModel.build(componentMap).getReceiver();
     assertTrue(fn instanceof FXForwardPVFunction);
-    System.out.println(functionModel.prettyPrint());
+    System.out.println(functionModel.prettyPrint(true));
   }
 
-  @Test(groups = TestGroup.INTEGRATION)
-  //@Test(groups = TestGroup.INTEGRATION, enabled = false)
+  //@Test(groups = TestGroup.INTEGRATION)
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithNoData() throws IOException {
     FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(
         Collections.<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>>emptyMap());
@@ -113,8 +115,8 @@ public class FXForwardPVFunctionTest {
     assertThat(pv.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
-  @Test(groups = TestGroup.INTEGRATION)
-  //@Test(groups = TestGroup.INTEGRATION, enabled = false)
+  //@Test(groups = TestGroup.INTEGRATION)
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
     FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(loadMarketDataForForward());
     assertNotNull(pv);
@@ -133,13 +135,22 @@ public class FXForwardPVFunctionTest {
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
                                                   MarketDataProviderFunction.class, marketDataProvider);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, CachingProxyDecorator.INSTANCE);
+    GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
+    //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, TimingProxy.INSTANCE);
+    //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
     FXForwardPVFunction pvFunction = FunctionModel.build(FXForwardPVFunction.class, "calculatePV", graphConfig);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
     security.setUniqueId(UniqueId.of("sec", "123"));
-    FunctionResult<CurrencyLabelledMatrix1D> result = pvFunction.calculatePV(security);
+    //TracingProxy.start(new FullTracer());
+    FunctionResult<CurrencyLabelledMatrix1D> result = null;
+    for (int i = 0; i < 100; i++) {
+      result = pvFunction.calculatePV(security);
+      System.out.println();
+    }
+    //System.out.println(TracingProxy.end().prettyPrint());
     logMarketData(marketDataProvider.getCollectedRequests());
     return result;
   }
@@ -183,7 +194,7 @@ public class FXForwardPVFunctionTest {
                 function(DiscountingFXForwardPV.class,
                          argument("exposureConfigNames", ImmutableSet.of(exposureConfig))),
                 function(ValuationTimeProvider.class,
-                         argument("valuationTime", Instant.now())),
+                         argument("valuationTime", ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),

@@ -6,6 +6,7 @@
 package com.opengamma.sesame.proxy;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.opengamma.sesame.graph.InterfaceNode;
@@ -20,12 +21,14 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
 
   @Override
   public Node decorateNode(Node node) {
-    if (!(node instanceof InterfaceNode)) {
-      return node;
-    }
-    InterfaceNode interfaceNode = (InterfaceNode) node;
-    if (decorate(interfaceNode)) {
-      return new ProxyNode(node, interfaceNode.getInterfaceType(), this);
+    if (node instanceof InterfaceNode) {
+      if (decorate((InterfaceNode) node)) {
+        return new ProxyNode(node, ((InterfaceNode) node).getInterfaceType(), this);
+      } else {
+        return node;
+      }
+    } else if (node instanceof ProxyNode) {
+      return new ProxyNode(node, ((ProxyNode) node).getInterfaceType(), this);
     } else {
       return node;
     }
@@ -36,7 +39,11 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
     return new InvocationHandler() {
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return ProxyNodeDecorator.this.invoke(proxy, delegate, method, args);
+        try {
+          return ProxyNodeDecorator.this.invoke(proxy, delegate, method, args);
+        } catch (InvocationTargetException e) {
+          throw e.getCause();
+        }
       }
     };
   }
@@ -57,6 +64,6 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
    * @return The return value of the call
    * @throws Exception If something goes wrong with the underlying call
    */
-  protected abstract Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Exception;
+  protected abstract Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Throwable;
 
 }
