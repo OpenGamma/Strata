@@ -6,8 +6,11 @@
 package com.opengamma.sesame;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.sesame.example.OutputNames;
+import com.opengamma.sesame.function.Output;
 
 public interface DiscountingMulticurveBundleProviderFunction {
 
+  @Output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE)
   FunctionResult<MulticurveProviderDiscount> generateBundle(String curveConstructionConfigurationName);
 }

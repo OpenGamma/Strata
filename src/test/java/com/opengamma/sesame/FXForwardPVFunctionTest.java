@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
+import static com.opengamma.sesame.SuccessStatus.SUCCESS;
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
@@ -14,6 +16,8 @@ import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.JPY;
 import static com.opengamma.util.money.Currency.USD;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -38,6 +42,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -68,6 +73,7 @@ import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.sesame.marketdata.SingleMarketDataValue;
@@ -104,14 +110,18 @@ public class FXForwardPVFunctionTest {
     FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(
         Collections.<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>>emptyMap());
     assertNotNull(pv);
+    assertThat(pv.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
   @Test(groups = TestGroup.INTEGRATION)
   //@Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
-    FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(loadMarketData());
+    FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(loadMarketDataForForward());
     assertNotNull(pv);
+    assertThat(pv.getStatus(), is((ResultStatus) SUCCESS));
   }
+
+
 
   private FunctionResult<CurrencyLabelledMatrix1D> executeAgainstRemoteServer(
       Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData) {
@@ -132,6 +142,37 @@ public class FXForwardPVFunctionTest {
     FunctionResult<CurrencyLabelledMatrix1D> result = pvFunction.calculatePV(security);
     logMarketData(marketDataProvider.getCollectedRequests());
     return result;
+  }
+
+  @Test
+  public void executeYieldCurveAgainstRemoteServer() throws IOException {
+
+    //String serverUrl = "http://devsvr-lx-2:8080";
+    String serverUrl = "http://localhost:8080";
+    URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
+    HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
+    MarketDataProvider marketDataProvider = new MarketDataProvider();
+    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData = loadMarketDataForYieldCurve();
+    addValue(marketData, MarketDataRequirementFactory.of(CurrencyPair.of(USD, JPY)), 98.86);
+    marketDataProvider.resetMarketData(marketData);
+    Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
+                                                  MarketDataProviderFunction.class, marketDataProvider);
+    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+
+    GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
+    DiscountingMulticurveBundleProviderFunction bundleProvider =
+        FunctionModel.build(DiscountingMulticurveBundleProviderFunction.class, "generateBundle", graphConfig);
+    FunctionResult<MulticurveProviderDiscount> result = null;
+    try {
+      result = bundleProvider.generateBundle("Z-Marc JPY Dsc - FX USD");
+    } catch (Exception e) {
+      logMarketData(marketDataProvider.getCollectedRequests());
+      throw e;
+    }
+    assertNotNull(result);
+    assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
+
+    // Can examine result.getResult().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
   }
 
   private static FunctionConfig createFunctionConfig() {
@@ -176,9 +217,17 @@ public class FXForwardPVFunctionTest {
     return ComponentMap.of(compMap);
   }
 
-  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketData() throws IOException {
+  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketDataForForward() throws IOException {
+    return loadMarketData("/marketdata.properties");
+  }
+
+  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketDataForYieldCurve() throws IOException {
+    return loadMarketData("/yield-curve-marketdata.properties");
+  }
+
+  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketData(String fileName) throws IOException {
     Properties properties = new Properties();
-    try (InputStream stream = FXForwardPVFunction.class.getResourceAsStream("/marketdata.properties");
+    try (InputStream stream = FXForwardPVFunction.class.getResourceAsStream(fileName);
          Reader reader = new BufferedReader(new InputStreamReader(stream))) {
       properties.load(reader);
     }
@@ -186,7 +235,7 @@ public class FXForwardPVFunctionTest {
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String id = (String) entry.getKey();
       String value = (String) entry.getValue();
-      addValue(data, id, Double.valueOf(value));
+      addValue(data, id, Double.valueOf(value) / 100);
     }
     return data;
   }
@@ -194,8 +243,14 @@ public class FXForwardPVFunctionTest {
   private static Pair<MarketDataStatus, MarketDataValue> addValue(
       Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData, String ticker, double value) {
 
+    return addValue(marketData, new CurveNodeMarketDataRequirement(ExternalSchemes.bloombergTickerSecurityId(ticker), "Market_Value"), value);
+  }
+
+  private static Pair<MarketDataStatus, MarketDataValue> addValue(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData,
+                                                                  MarketDataRequirement requirement,
+                                                                  double value) {
     return marketData.put(
-        new CurveNodeMarketDataRequirement(ExternalSchemes.bloombergTickerSecurityId(ticker), "Market_Value"),
+        requirement,
         Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(value)));
   }
 
@@ -204,6 +259,8 @@ public class FXForwardPVFunctionTest {
       if (requirement instanceof CurveNodeMarketDataRequirement) {
         ExternalId id = ((CurveNodeMarketDataRequirement) requirement).getExternalId();
         System.out.println(id);
+      } else {
+        System.out.println(requirement);
       }
     }
   }

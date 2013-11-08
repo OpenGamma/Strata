@@ -13,6 +13,7 @@ public final class OutputNames {
   public static final String DESCRIPTION = "Description";
   public static final String PRESENT_VALUE = "PresentValue";
   public static final String FX_PRESENT_VALUE = "FX Present Value";
+  public static final String DISCOUNTING_MULTICURVE_BUNDLE = "Discounting Multicurve Bundle";
 
   private OutputNames() {
   }
