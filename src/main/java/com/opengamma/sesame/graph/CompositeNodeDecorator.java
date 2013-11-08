@@ -13,14 +13,14 @@ import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO this badly needs a test, it was quietly broken
  */
 public class CompositeNodeDecorator implements NodeDecorator {
 
   private final List<NodeDecorator> _decorators;
 
   public CompositeNodeDecorator(NodeDecorator... decorators) {
-    // reverse the decorators so the first decorator's node is the first one presented with the argument
+    // reverse the decorators so the first decorator is the first one presented with the argument
     // it's arguable which way round is least surprising. this makes most sense to me
     List<NodeDecorator> reversed = Lists.newArrayList(ArgumentChecker.notNull(decorators, "decorators"));
     Collections.reverse(reversed);

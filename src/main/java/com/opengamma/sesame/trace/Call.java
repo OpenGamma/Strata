@@ -25,14 +25,13 @@ public class Call {
   private Object _returnValue;
   private Throwable _throwable;
 
-  /* package */ Call(Method method, Object[] args) {
+  /* package */ Call(Method method, Object... args) {
     _method = method;
     _args = args;
   }
 
-  /* package */ Call called(Call call) {
+  /* package */ void called(Call call) {
     _calls.add(call);
-    return call;
   }
 
   /* package */ void returned(Object returnValue) {

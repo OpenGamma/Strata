@@ -7,7 +7,10 @@ package com.opengamma.sesame.trace;
 
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
+
+import java.lang.reflect.Method;
 
 import org.testng.annotations.Test;
 
@@ -19,11 +22,20 @@ import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;
 
-/**
- * TODO some assertions
- */
 @Test(groups = TestGroup.UNIT)
 public class FullTracerTest {
+
+  private static final Method METHOD1;
+  private static final Method METHOD2;
+
+  static {
+    try {
+      METHOD1 = I1.class.getMethod("method1", Integer.TYPE);
+      METHOD2 = I2.class.getMethod("method2", Boolean.TYPE);
+    } catch (NoSuchMethodException e) {
+      throw new OpenGammaRuntimeException("", e);
+    }
+  }
 
   private I1 buildFunction() {
     FunctionConfig functionConfig = config(implementations(I1.class, C1.class, I2.class, C2.class));
@@ -32,11 +44,14 @@ public class FullTracerTest {
   }
 
   @Test
-  public void trace1Level() {
+  public void trace1Level() throws NoSuchMethodException {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(0);
     Call call = TracingProxy.end();
+    Call expected = new Call(METHOD1, 0);
+    expected.returned("foo");
+    assertEquals(expected, call);
     System.out.println(call.prettyPrint());
   }
 
@@ -45,8 +60,14 @@ public class FullTracerTest {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(1);
-    Call call2 = TracingProxy.end();
-    System.out.println(call2.prettyPrint());
+    Call call1 = TracingProxy.end();
+    Call expected = new Call(METHOD1, 1);
+    expected.returned("foo 42");
+    Call call2 = new Call(METHOD2, true);
+    call2.returned(42);
+    expected.called(call2);
+    assertEquals(expected, call1);
+    System.out.println(call1.prettyPrint());
   }
 
   @Test
@@ -54,8 +75,17 @@ public class FullTracerTest {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(2);
-    Call call2 = TracingProxy.end();
-    System.out.println(call2.prettyPrint());
+    Call expected = new Call(METHOD1, 2);
+    expected.returned("bar 42 84");
+    Call call2 = new Call(METHOD2, true);
+    call2.returned(42);
+    Call call3 = new Call(METHOD2, true);
+    call3.returned(42);
+    expected.called(call2);
+    expected.called(call3);
+    Call call = TracingProxy.end();
+    assertEquals(expected, call);
+    System.out.println(call.prettyPrint());
   }
 
   @Test
@@ -68,14 +98,20 @@ public class FullTracerTest {
     } catch (OpenGammaRuntimeException e) {
       // expected
     }
+    Call expected = new Call(METHOD1, 3);
+    expected.threw(new OpenGammaRuntimeException("an exception"));
+    Call call2 = new Call(METHOD2, true);
+    call2.threw(new OpenGammaRuntimeException("an exception"));
+    expected.called(call2);
     Call call = TracingProxy.end();
     System.out.println(call.prettyPrint());
   }
 
-  @Test
+  @Test(expectedExceptions = IllegalStateException.class)
   public void tracingDisabled() {
-
-
+    I1 i1 = buildFunction();
+    i1.method1(2);
+    TracingProxy.end();
   }
 
   interface I1 {

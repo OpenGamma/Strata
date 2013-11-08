@@ -37,6 +37,8 @@ public class ProxyNodeTest {
     assertEquals(Lists.newArrayList("proxied", "foo"), fn.foo());
   }
 
+  // TODO exception handling
+
   interface TestFn {
 
     @Output("foo")

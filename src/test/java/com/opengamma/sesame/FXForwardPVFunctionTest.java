@@ -123,8 +123,6 @@ public class FXForwardPVFunctionTest {
     assertThat(pv.getStatus(), is((ResultStatus) SUCCESS));
   }
 
-
-
   private FunctionResult<CurrencyLabelledMatrix1D> executeAgainstRemoteServer(
       Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData) {
     String serverUrl = "http://localhost:8080";
