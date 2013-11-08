@@ -30,7 +30,7 @@ public class CachingProxyDecoratorTest {
   @Test
   public void oneLookup() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
@@ -47,7 +47,7 @@ public class CachingProxyDecoratorTest {
   @Test
   public void multipleFunctions() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig);
@@ -65,7 +65,7 @@ public class CachingProxyDecoratorTest {
   @Test
   public void multipleCalls() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();

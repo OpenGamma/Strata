@@ -18,7 +18,9 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 /**
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  */
-/* package */ class CachingProxyDecorator extends ProxyNodeDecorator {
+public class CachingProxyDecorator extends ProxyNodeDecorator {
+
+  public static final CachingProxyDecorator INSTANCE = new CachingProxyDecorator();
 
   private static final net.sf.ehcache.Cache s_cache;
 
@@ -31,8 +33,12 @@ import net.sf.ehcache.config.PersistenceConfiguration;
     CacheManager.getInstance().addCache(s_cache);
   }
 
+  private CachingProxyDecorator() {
+  }
+
   @Override
   protected boolean decorate(InterfaceNode node) {
+    // TODO should this look on the interface or implementation methods? or both?
     Class<?> interfaceType = node.getInterfaceType();
     for (Method method : interfaceType.getMethods()) {
       if (method.getAnnotation(Cache.class) != null) {
