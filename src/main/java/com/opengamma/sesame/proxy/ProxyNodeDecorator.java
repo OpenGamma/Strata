@@ -23,23 +23,27 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
   public Node decorateNode(Node node) {
     if (node instanceof InterfaceNode) {
       if (decorate((InterfaceNode) node)) {
+        // TODO we know the concrete type here
         return new ProxyNode(node, ((InterfaceNode) node).getInterfaceType(), this);
       } else {
         return node;
       }
     } else if (node instanceof ProxyNode) {
+      // TODO if we put the concrete type in ProxyNode we'd know it here
       return new ProxyNode(node, ((ProxyNode) node).getInterfaceType(), this);
     } else {
       return node;
     }
   }
 
+  // TODO param for the concrete type?
   @Override
   public InvocationHandler create(final Object delegate) {
     return new InvocationHandler() {
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
+          // TODO pass in the concrete type here?
           return ProxyNodeDecorator.this.invoke(proxy, delegate, method, args);
         } catch (InvocationTargetException e) {
           throw e.getCause();
@@ -63,6 +67,7 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
    * @param args The method arguments
    * @return The return value of the call
    * @throws Exception If something goes wrong with the underlying call
+   * TODO param for the concrete type?
    */
   protected abstract Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Throwable;
 

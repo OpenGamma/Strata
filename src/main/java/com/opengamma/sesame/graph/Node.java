@@ -17,6 +17,7 @@ import com.opengamma.sesame.function.Parameter;
  */
 public abstract class Node {
 
+  /** the parameter this node satisfies, null if it's the root node */
   private final Parameter _parameter;
 
   protected Node(Parameter parameter) {

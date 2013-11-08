@@ -38,7 +38,7 @@ public class CachingProxyDecorator extends ProxyNodeDecorator {
 
   @Override
   protected boolean decorate(InterfaceNode node) {
-    // TODO should this look on the interface or implementation methods? or both?
+    // TODO should this look on the interface or implementation methods? or both? probably both
     Class<?> interfaceType = node.getInterfaceType();
     for (Method method : interfaceType.getMethods()) {
       if (method.getAnnotation(Cache.class) != null) {
@@ -51,10 +51,17 @@ public class CachingProxyDecorator extends ProxyNodeDecorator {
   @Override
   protected Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Exception {
     // check the method for the annotation, it's possible for the same class to have cached and non-cached methods
+    // TODO should be able to put the @Cache annotation on the impl
+    // don't know the impl class here so can't check the method
+    // create a proxy instance per proxied node and store the delegate type?
+    // can't check the delegate, it might be another proxy, not the impl instance
+    // if the concrete type is passed in will it be a lot worse than knowing it up front?
+    // could I do some instance level caching of the methods if I have one proxy instance per node?
     if (method.getAnnotation(Cache.class) == null) {
       return method.invoke(delegate, args);
     } else {
       CacheKey key = new CacheKey(delegate.getClass(), method, args);
+      // TODO confirm this blocks if multiple threads try to get the same value
       Element element = s_cache.getWithLoader(key, ProxyCacheLoader.INSTANCE, delegate);
       // TODO is the null check necessary?
       if (element == null) {

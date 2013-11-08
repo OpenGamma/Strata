@@ -34,8 +34,10 @@ public class ProxyNode extends Node {
 
   @Override
   public Object create(ComponentMap componentMap) {
+    // TODO can I use ProxyGenerator here? or extract its logic?
     // TODO which class loader?
     Object delegate = _delegateNode.create(componentMap);
+    // TODO can I pass the concrete type in here?
     InvocationHandler invocationHandler = _handlerFactory.create(delegate);
     return Proxy.newProxyInstance(_interfaceType.getClassLoader(), new Class<?>[]{_interfaceType}, invocationHandler);
   }
