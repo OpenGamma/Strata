@@ -94,6 +94,7 @@ import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.sesame.proxy.TimingProxy;
+import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -246,8 +247,8 @@ public class FXForwardPVFunctionTest {
                                                   HistoricalTimeSeriesProviderFunction.class, HistoricalTimeSeriesProvider.class)))));
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     //ExecutorService executor = new EngineTest.DirectExecutorService();
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE);
-    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE, TracingProxy.INSTANCE);
+    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE);
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE, TracingProxy.INSTANCE);
     //CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, CachingProxyDecorator.INSTANCE);
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
