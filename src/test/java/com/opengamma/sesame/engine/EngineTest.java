@@ -8,12 +8,14 @@ package com.opengamma.sesame.engine;
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
-import static com.opengamma.sesame.config.ConfigBuilder.columnOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.defaultConfig;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
+import static com.opengamma.util.money.Currency.AUD;
+import static com.opengamma.util.money.Currency.GBP;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
@@ -42,12 +44,7 @@ import com.opengamma.sesame.EquityPresentValueFunction;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.MarketDataProvider;
 import com.opengamma.sesame.MarketDataProviderFunction;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.sesame.ResettableMarketDataProviderFunction;
-import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.example.CashFlowDescription;
@@ -61,7 +58,11 @@ import com.opengamma.sesame.example.IdSchemeFunction;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.MapFunctionRepo;
 import com.opengamma.sesame.graph.NodeDecorator;
-import com.opengamma.util.money.Currency;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
+import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.sesame.marketdata.MarketDataValue;
+import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -108,10 +109,10 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Equity PV",
                 column(PRESENT_VALUE_HEADER,
-                       columnOutput(OutputNames.PRESENT_VALUE,
-                                    config(
-                                        implementations(EquityPresentValueFunction.class,
-                                                        EquityPresentValue.class)))));
+                       defaultConfig(OutputNames.PRESENT_VALUE,
+                                     config(
+                                         implementations(EquityPresentValueFunction.class,
+                                                         EquityPresentValue.class)))));
 
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);
@@ -142,10 +143,10 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("Trivial Test View",
                 column(DESCRIPTION_HEADER,
-                       columnOutput(OutputNames.DESCRIPTION,
-                                    config(
-                                        implementations(EquityDescriptionFunction.class,
-                                                        EquityDescription.class)))));
+                       defaultConfig(OutputNames.DESCRIPTION,
+                                     config(
+                                         implementations(EquityDescriptionFunction.class,
+                                                         EquityDescription.class)))));
 
     MapFunctionRepo functionRepo = new MapFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
@@ -164,11 +165,12 @@ public class EngineTest {
         viewDef("name",
                 column(OutputNames.DESCRIPTION),
                 column(BLOOMBERG_HEADER,
-                       columnOutput(OutputNames.DESCRIPTION,
-                                    config(
-                                        arguments(
-                                            function(IdScheme.class,
-                                                     argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
+                       defaultConfig(OutputNames.DESCRIPTION,
+                                     config(
+                                         arguments(
+                                             function(IdScheme.class,
+                                                      argument("scheme",
+                                                               ExternalSchemes.BLOOMBERG_TICKER))))),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
@@ -176,11 +178,12 @@ public class EngineTest {
                               config(
                                   implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
                 column(ACTIV_HEADER,
-                       columnOutput(OutputNames.DESCRIPTION,
-                                    config(
-                                        arguments(
-                                            function(IdScheme.class,
-                                                     argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                       defaultConfig(OutputNames.DESCRIPTION,
+                                     config(
+                                         arguments(
+                                             function(IdScheme.class,
+                                                      argument("scheme",
+                                                               ExternalSchemes.ACTIVFEED_TICKER))))),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
@@ -214,7 +217,7 @@ public class EngineTest {
   }
 
   private static Trade createEquityTrade() {
-    EquitySecurity security = new EquitySecurity("exc", "exc", "compName", Currency.AUD);
+    EquitySecurity security = new EquitySecurity("exc", "exc", "compName", AUD);
     security.setUniqueId(UniqueId.of("secId", "123"));
     security.setName(EQUITY_NAME);
     security.addExternalId(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, EQUITY_BLOOMBERG_TICKER));
@@ -228,7 +231,7 @@ public class EngineTest {
   }
 
   private static Trade createCashFlowTrade() {
-    CashFlowSecurity security = new CashFlowSecurity(Currency.GBP, ZonedDateTime.now(), 12345d);
+    CashFlowSecurity security = new CashFlowSecurity(GBP, ZonedDateTime.now(), 12345d);
     security.setUniqueId(UniqueId.of("secId", "234"));
     security.setName(CASH_FLOW_NAME);
     security.addExternalId(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, CASH_FLOW_BLOOMBERG_TICKER));
@@ -244,7 +247,7 @@ public class EngineTest {
   /**
    * {@link ExecutorService} that uses the calling thread to run all tasks. Nice and simple for unit tests.
    */
-  private static class DirectExecutorService extends AbstractExecutorService {
+  public static class DirectExecutorService extends AbstractExecutorService {
 
     @Override
     public void execute(Runnable command) {

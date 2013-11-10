@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * TODO this is totally provisional, just enough to run some basic tests that stitch everything together
  */
-/* package */ class Engine {
+public class Engine {
 
   private static final Logger s_logger = LoggerFactory.getLogger(Engine.class);
 
@@ -48,11 +48,11 @@ import com.opengamma.util.ArgumentChecker;
     this(executor, ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
   }
 
-  /* package */ Engine(ExecutorService executor,
-                       ComponentMap components,
-                       FunctionRepo functionRepo,
-                       FunctionConfig defaultConfig,
-                       NodeDecorator nodeDecorator) {
+  public Engine(ExecutorService executor,
+                ComponentMap components,
+                FunctionRepo functionRepo,
+                FunctionConfig defaultConfig,
+                NodeDecorator nodeDecorator) {
     _executor = ArgumentChecker.notNull(executor, "executor");
     _components = ArgumentChecker.notNull(components, "components");
     // TODO pass this in as an argument?

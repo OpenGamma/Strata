@@ -8,7 +8,7 @@ package com.opengamma.sesame.config;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO is there a better name for this?
  */
 public final class ColumnOutput {
 

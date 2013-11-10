@@ -114,6 +114,10 @@ public class StandardResultGenerator {
       throw new IllegalStateException("Unable to get an error message from a success result");
     }
 
+    @Override
+    public String toString() {
+      return "SuccessFunctionResult{_result=" + _result + '}';
+    }
   }
 
   private static class FailureFunctionResult<T> extends AbstractFunctionResult<T>  {
@@ -143,6 +147,10 @@ public class StandardResultGenerator {
       return _errorMessage.getMessage();
     }
 
+    @Override
+    public String toString() {
+      return "FailureFunctionResult{_errorMessage=" + _errorMessage + '}';
+    }
   }
 
   private static final class MarketDataFunctionSuccessResult extends SuccessFunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>>

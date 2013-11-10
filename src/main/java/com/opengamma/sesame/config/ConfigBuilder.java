@@ -35,12 +35,12 @@ public final class ConfigBuilder {
         viewDef("view name",
                 column(OutputNames.DESCRIPTION),
                 column(
-                    columnOutput(OutputNames.DESCRIPTION,
-                                 config(
-                                     implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
-                                     arguments(
-                                         function(IdScheme.class,
-                                                  argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
+                    defaultConfig(OutputNames.DESCRIPTION,
+                                  config(
+                                      implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                      arguments(
+                                          function(IdScheme.class,
+                                                   argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
                 column("Bloomberg Ticker",
                        columnOutput(OutputNames.DESCRIPTION),
                        output(EquitySecurity.class,
@@ -103,8 +103,9 @@ public final class ConfigBuilder {
     return new ColumnOutput(outputName);
   }
 
+  // TODO this is really badly named
   // for the default column output
-  public static ColumnOutput columnOutput(String outputName, FunctionConfig config) {
+  public static ColumnOutput defaultConfig(String outputName, FunctionConfig config) {
     return new ColumnOutput(outputName, config);
   }
 
@@ -116,6 +117,7 @@ public final class ConfigBuilder {
     return new TargetOutput(new ColumnOutput(outputName, config), targetType);
   }
 
+  // TODO this is a bad name
   // TODO this needs to inherit the output name from the column. not sure that's going to be easy
   // maybe column output needs to allow a null output name
   public static TargetOutput output(Class<?> targetType, FunctionConfig config) {

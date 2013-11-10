@@ -9,9 +9,12 @@ import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
 import static com.opengamma.sesame.SuccessStatus.SUCCESS;
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
+import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static com.opengamma.sesame.config.ConfigBuilder.output;
+import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.JPY;
@@ -29,9 +32,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -40,6 +47,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.config.ConfigSource;
@@ -47,8 +55,11 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -67,8 +78,12 @@ import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
+import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.FunctionMetadata;
+import com.opengamma.sesame.function.MapFunctionRepo;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -79,12 +94,15 @@ import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.sesame.proxy.TimingProxy;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFunctionTest {
+
+  private static final AtomicLong s_nextId = new AtomicLong(0);
 
   @Test
   public void buildGraph() {
@@ -153,7 +171,7 @@ public class FXForwardPVFunctionTest {
     return result;
   }
 
-  @Test
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeYieldCurveAgainstRemoteServer() throws IOException {
 
     //String serverUrl = "http://devsvr-lx-2:8080";
@@ -171,7 +189,7 @@ public class FXForwardPVFunctionTest {
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
     DiscountingMulticurveBundleProviderFunction bundleProvider =
         FunctionModel.build(DiscountingMulticurveBundleProviderFunction.class, "generateBundle", graphConfig);
-    FunctionResult<MulticurveProviderDiscount> result = null;
+    FunctionResult<MulticurveProviderDiscount> result;
     try {
       result = bundleProvider.generateBundle("Z-Marc JPY Dsc - FX USD");
     } catch (Exception e) {
@@ -182,6 +200,109 @@ public class FXForwardPVFunctionTest {
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
 
     // Can examine result.getResult().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
+  }
+
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
+  public void engine() throws Exception {
+    int nTrades = 1000;
+    List<Trade> trades = Lists.newArrayListWithCapacity(nTrades);
+    for (int i = 0; i < nTrades; i++) {
+      trades.add(createRandomFxForwardTrade());
+    }
+    String exposureConfig = "EUR-USD[ON-OIS][EURIBOR6M-FRA/IRS][EURIBOR3M-FRA/BS]-[ON-OIS][LIBOR3M-FRA/IRS]";
+    ViewDef viewDef =
+        viewDef("FX forward PV view",
+                column("Present Value",
+                       output(OutputNames.FX_PRESENT_VALUE, FXForwardSecurity.class,
+                              config(
+                                  arguments(
+                                      function(DiscountingFXForwardPV.class,
+                                               argument("exposureConfigNames", ImmutableSet.of(exposureConfig))),
+                                      function(ValuationTimeProvider.class,
+                                               argument("valuationTime",
+                                                        ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
+                                      function(RootFinderConfiguration.class,
+                                               argument("rootFinderAbsoluteTolerance", 1e-9),
+                                               argument("rootFinderRelativeTolerance", 1e-9),
+                                               argument("rootFinderMaxIterations", 1000)),
+                                      function(CurrencyPairs.class,
+                                               argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                                                         CurrencyPair.of(EUR, USD),
+                                                                                         CurrencyPair.of(GBP, USD)))),
+                                      function(HistoricalTimeSeriesProvider.class,
+                                               argument("resolutionKey", "DEFAULT_TSS"),
+                                               argument("htsRetrievalPeriod", Period.ofYears(1)))),
+                                  implementations(FXForwardPVFunction.class, DiscountingFXForwardPV.class,
+                                                  CurrencyPairsFunction.class, CurrencyPairs.class,
+                                                  FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
+                                                  InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                                                  CurveSpecificationMarketDataProviderFunction.class, CurveSpecificationMarketDataProvider.class,
+                                                  FXMatrixProviderFunction.class, FXMatrixProvider.class,
+                                                  CurveDefinitionProviderFunction.class, CurveDefinitionProvider.class,
+                                                  DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class,
+                                                  CurveSpecificationProviderFunction.class, CurveSpecificationProvider.class,
+                                                  ValuationTimeProviderFunction.class, ValuationTimeProvider.class,
+                                                  CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                                                  HistoricalTimeSeriesProviderFunction.class, HistoricalTimeSeriesProvider.class)))));
+    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
+    //ExecutorService executor = new EngineTest.DirectExecutorService();
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE);
+    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE, TracingProxy.INSTANCE);
+    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, CachingProxyDecorator.INSTANCE);
+    String serverUrl = "http://localhost:8080";
+    URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
+    HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
+    MarketDataProvider marketDataProvider = new MarketDataProvider();
+    marketDataProvider.resetMarketData(FXForwardPVFunctionTest.loadMarketDataForForward());
+    Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
+                                                  MarketDataProviderFunction.class, marketDataProvider);
+    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+    MapFunctionRepo functionRepo = new MapFunctionRepo();
+    functionRepo.register(FXForwardPVFunction.class);
+    Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
+    long graphStart = System.currentTimeMillis();
+    Engine.View view = engine.createView(viewDef, trades);
+    System.out.println("view built in " + (System.currentTimeMillis() - graphStart) + "ms");
+    for (int i = 0; i < 20; i++) {
+      long start = System.currentTimeMillis();
+      view.run();
+      //System.out.println(view.run());
+      long time = System.currentTimeMillis() - start;
+      System.out.println("view executed in " + time + "ms");
+      Thread.sleep(1000);
+    }
+  }
+
+  private static Trade createRandomFxForwardTrade() {
+    ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
+    double usdAmount = 10_000_000 * Math.random();
+    double eurAmount = usdAmount * (1.31 + 0.04 * Math.random());
+    Currency payCcy;
+    Currency recCcy;
+    double payAmount;
+    double recAmount;
+    if (Math.random() < 0.5) {
+      payAmount = usdAmount;
+      payCcy = USD;
+      recAmount = eurAmount;
+      recCcy = EUR;
+    } else {
+      payAmount = eurAmount;
+      payCcy = EUR;
+      recAmount = usdAmount;
+      recCcy = USD;
+    }
+    ZonedDateTime forwardDate = ZonedDateTime.now().plusWeeks((long) (104 * Math.random()));
+    FXForwardSecurity security = new FXForwardSecurity(payCcy, payAmount, recCcy, recAmount, forwardDate, regionId);
+    String id = Long.toString(s_nextId.getAndIncrement());
+    security.setUniqueId(UniqueId.of("fxFwdSec", id));
+    security.setName("FX forward " + id);
+    SimpleTrade trade = new SimpleTrade();
+    SimpleSecurityLink securityLink = new SimpleSecurityLink(ExternalId.of("fxFwdSecEx", id));
+    securityLink.setTarget(security);
+    trade.setSecurityLink(securityLink);
+    trade.setUniqueId(UniqueId.of("fxFwdTrd", id));
+    return trade;
   }
 
   private static FunctionConfig createFunctionConfig() {
@@ -226,7 +347,8 @@ public class FXForwardPVFunctionTest {
     return ComponentMap.of(compMap);
   }
 
-  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketDataForForward() throws IOException {
+  // TODO move this somewhere else now it's shared with the engine test
+  public static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketDataForForward() throws IOException {
     return loadMarketData("/marketdata.properties");
   }
 
