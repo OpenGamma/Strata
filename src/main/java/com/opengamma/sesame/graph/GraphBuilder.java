@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ObjectId;
@@ -49,24 +50,33 @@ public final class GraphBuilder {
 
   public GraphModel build(ViewDef viewDef, Collection<? extends PositionOrTrade> inputs) {
     ImmutableMap.Builder<String, Map<ObjectId, FunctionModel>> builder = ImmutableMap.builder();
+    // TODO each column could easily be done in parallel
     for (ViewColumn column : viewDef.getColumns()) {
+      Map<Class<?>, FunctionModel> functions = Maps.newHashMap();
       ImmutableMap.Builder<ObjectId, FunctionModel> columnBuilder = ImmutableMap.builder();
       for (PositionOrTrade posOrTrade : inputs) {
-        // TODO no need to create a FunctionTree for every target, cache on outputName/inputType
-
         // if we need to support stateful functions this is the place to do it.
         // the FunctionModel could flag if its tree contains any functions annotated as @Stateful and
         // it wouldn't be eligible for sharing with other inputs
+
+        // TODO extract a method for the logic below. it's almost exactly the same twice except adapting the security function
 
         // look for an output for the position or trade
         String posOrTradeOutput = column.getOutputName(posOrTrade.getClass());
         if (posOrTradeOutput != null) {
           FunctionMetadata function = _functionRepo.getOutputFunction(posOrTradeOutput, posOrTrade.getClass());
           if (function != null) {
-            FunctionConfig columnConfig = column.getFunctionConfig(posOrTrade.getClass());
-            FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, _defaultConfig, _defaultImplProvider);
-            GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
-            FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
+            FunctionModel functionModel;
+            FunctionModel existingFunction = functions.get(posOrTrade.getClass());
+            if (existingFunction != null) {
+              functionModel = existingFunction;
+            } else {
+              FunctionConfig columnConfig = column.getFunctionConfig(posOrTrade.getClass());
+              FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, _defaultConfig, _defaultImplProvider);
+              GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
+              functionModel = FunctionModel.forFunction(function, graphConfig);
+              functions.put(posOrTrade.getClass(), functionModel);
+            }
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
@@ -76,13 +86,20 @@ public final class GraphBuilder {
         Security security = posOrTrade.getSecurity();
         String securityOutput = column.getOutputName(security.getClass());
         if (securityOutput != null) {
-          FunctionMetadata functionType = _functionRepo.getOutputFunction(securityOutput, security.getClass());
-          if (functionType != null) {
-            FunctionConfig columnConfig = column.getFunctionConfig(security.getClass());
-            FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, _defaultConfig, _defaultImplProvider);
-            GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
-            FunctionModel securityModel = FunctionModel.forFunction(functionType, graphConfig);
-            FunctionModel functionModel = SecurityFunctionAdapter.adapt(securityModel);
+          FunctionMetadata function = _functionRepo.getOutputFunction(securityOutput, security.getClass());
+          if (function != null) {
+            FunctionModel functionModel;
+            FunctionModel existingFunction = functions.get(security.getClass());
+            if (existingFunction != null) {
+              functionModel = existingFunction;
+            } else {
+              FunctionConfig columnConfig = column.getFunctionConfig(security.getClass());
+              FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, _defaultConfig, _defaultImplProvider);
+              GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
+              FunctionModel securityModel = FunctionModel.forFunction(function, graphConfig);
+              functionModel = SecurityFunctionAdapter.adapt(securityModel);
+              functions.put(security.getClass(), functionModel);
+            }
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
