@@ -13,6 +13,7 @@ import com.opengamma.id.ObjectId;
 
 /**
  * TODO use linked maps so the column and rows orders reflect the view def
+ * TODO including the column names in every row is wildly inefficient, use lists and a separate list/map of columns
  */
 public class Results {
 

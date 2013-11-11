@@ -40,6 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
@@ -83,7 +85,7 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.FunctionMetadata;
-import com.opengamma.sesame.function.MapFunctionRepo;
+import com.opengamma.sesame.function.SimpleFunctionRepo;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -102,6 +104,8 @@ import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFunctionTest {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardPVFunctionTest.class);
 
   private static final AtomicLong s_nextId = new AtomicLong(0);
 
@@ -203,13 +207,16 @@ public class FXForwardPVFunctionTest {
     // Can examine result.getResult().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
   }
 
+  //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void engine() throws Exception {
-    int nTrades = 1000;
+    int nTrades = 10_000;
+    long startTrades = System.currentTimeMillis();
     List<Trade> trades = Lists.newArrayListWithCapacity(nTrades);
     for (int i = 0; i < nTrades; i++) {
       trades.add(createRandomFxForwardTrade());
     }
+    s_logger.info("created {} trades in {}ms", nTrades, System.currentTimeMillis() - startTrades);
     String exposureConfig = "EUR-USD[ON-OIS][EURIBOR6M-FRA/IRS][EURIBOR3M-FRA/BS]-[ON-OIS][LIBOR3M-FRA/IRS]";
     ViewDef viewDef =
         viewDef("FX forward PV view",
@@ -233,6 +240,7 @@ public class FXForwardPVFunctionTest {
                                       function(HistoricalTimeSeriesProvider.class,
                                                argument("resolutionKey", "DEFAULT_TSS"),
                                                argument("htsRetrievalPeriod", Period.ofYears(1)))),
+                                  // TODO register impls and remove from here is there is only 1 impl for the interface
                                   implementations(FXForwardPVFunction.class, DiscountingFXForwardPV.class,
                                                   CurrencyPairsFunction.class, CurrencyPairs.class,
                                                   FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
@@ -257,19 +265,24 @@ public class FXForwardPVFunctionTest {
     marketDataProvider.resetMarketData(FXForwardPVFunctionTest.loadMarketDataForForward());
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
                                                   MarketDataProviderFunction.class, marketDataProvider);
+    long startComponents = System.currentTimeMillis();
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    MapFunctionRepo functionRepo = new MapFunctionRepo();
+    s_logger.info("loaded components in {}ms", System.currentTimeMillis() - startComponents);
+    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
+    // TODO register impls
     functionRepo.register(FXForwardPVFunction.class);
+    long startEngine = System.currentTimeMillis();
     Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
+    s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
     Engine.View view = engine.createView(viewDef, trades);
-    System.out.println("view built in " + (System.currentTimeMillis() - graphStart) + "ms");
+    s_logger.info("view built in {}ms", System.currentTimeMillis() - graphStart);
     for (int i = 0; i < 20; i++) {
       long start = System.currentTimeMillis();
       view.run();
       //System.out.println(view.run());
       long time = System.currentTimeMillis() - start;
-      System.out.println("view executed in " + time + "ms");
+      s_logger.info("view executed in {}ms", time);
       Thread.sleep(1000);
     }
   }

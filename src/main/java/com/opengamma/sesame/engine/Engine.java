@@ -67,8 +67,11 @@ public class Engine {
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
   public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets) {
+    s_logger.debug("building graph model");
     GraphModel graphModel = _graphBuilder.build(viewDef, targets);
+    s_logger.debug("graph model complete, building graph");
     Graph graph = graphModel.build(_components);
+    s_logger.debug("graph complete");
     return new View(viewDef, graph, targets, _executor);
   }
 

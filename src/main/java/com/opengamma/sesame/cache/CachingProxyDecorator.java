@@ -26,7 +26,7 @@ public class CachingProxyDecorator extends ProxyNodeDecorator {
 
   static {
     // TODO this is just a very basic proof of concept
-    CacheConfiguration config = new CacheConfiguration("EngineProxyCache", 1000000)
+    CacheConfiguration config = new CacheConfiguration("EngineProxyCache", 1000)
         .eternal(true)
         .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE));
     s_cache = new net.sf.ehcache.Cache(config);

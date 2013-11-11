@@ -8,6 +8,9 @@ package com.opengamma.sesame.graph;
 import java.util.Collection;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.core.position.PositionOrTrade;
@@ -30,6 +33,8 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public final class GraphBuilder {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(GraphBuilder.class);
 
   private final FunctionRepo _functionRepo;
   private final ComponentMap _componentMap;
@@ -70,13 +75,16 @@ public final class GraphBuilder {
             FunctionModel existingFunction = functions.get(posOrTrade.getClass());
             if (existingFunction != null) {
               functionModel = existingFunction;
+              s_logger.debug("using existing function for {}/{}", column.getName(), posOrTrade.getClass().getSimpleName());
             } else {
               FunctionConfig columnConfig = column.getFunctionConfig(posOrTrade.getClass());
               FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, _defaultConfig, _defaultImplProvider);
               GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
               functionModel = FunctionModel.forFunction(function, graphConfig);
               functions.put(posOrTrade.getClass(), functionModel);
+              s_logger.debug("created function for {}/{}", column.getName(), posOrTrade.getClass().getSimpleName());
             }
+            // TODO see note in Graph about keying the functions by column/input type instead of ID. this is inefficient
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }
@@ -92,6 +100,7 @@ public final class GraphBuilder {
             FunctionModel existingFunction = functions.get(security.getClass());
             if (existingFunction != null) {
               functionModel = existingFunction;
+              s_logger.debug("using existing function for {}/{}", column.getName(), security.getClass().getSimpleName());
             } else {
               FunctionConfig columnConfig = column.getFunctionConfig(security.getClass());
               FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, _defaultConfig, _defaultImplProvider);
@@ -99,7 +108,9 @@ public final class GraphBuilder {
               FunctionModel securityModel = FunctionModel.forFunction(function, graphConfig);
               functionModel = SecurityFunctionAdapter.adapt(securityModel);
               functions.put(security.getClass(), functionModel);
+              s_logger.debug("created function for {}/{}", column.getName(), security.getClass().getSimpleName());
             }
+            // TODO see note in Graph about keying the functions by column/input type instead of ID. this is inefficient
             columnBuilder.put(posOrTrade.getUniqueId().getObjectId(), functionModel);
             continue;
           }

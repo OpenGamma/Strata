@@ -21,13 +21,13 @@ public final class GraphModel {
   // it will probably be better to have a real class than a rats' nest of generics
   private final Map<String, Map<ObjectId, FunctionModel>> _functionTrees;
 
+  // TODO see note in Graph about keying the functions by column/input type instead of ID. this is inefficient
   /* package */ GraphModel(Map<String, Map<ObjectId, FunctionModel>> functionTrees) {
     _functionTrees = functionTrees;
   }
 
   /**
-   * TODO just return the map? function graph doesn't serve any purpose in its current form
-   *
+   * TODO see note in Graph about keying the functions by column/input type instead of ID. this is inefficient
    * @return A graph containing the built function instances
    */
   public Graph build(ComponentMap components) {

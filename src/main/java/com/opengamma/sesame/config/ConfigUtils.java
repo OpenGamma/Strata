@@ -158,6 +158,12 @@ public final class ConfigUtils {
     return supertypes;
   }
 
+  public static Set<Class<?>> getInterfaces(Class<?> type) {
+    Set<Class<?>> interfaces = Sets.newLinkedHashSet();
+    getSupertypes(type, Sets.<Class<?>>newLinkedHashSet(), interfaces);
+    return interfaces;
+  }
+
   private static void getSupertypes(Class<?> type, Set<Class<?>> supertypeAccumulator, Set<Class<?>> interfaceAccumulator) {
     supertypeAccumulator.add(type);
     getInterfaces(type.getInterfaces(), interfaceAccumulator);

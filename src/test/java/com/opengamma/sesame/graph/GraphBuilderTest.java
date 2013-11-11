@@ -17,7 +17,7 @@ public class GraphBuilderTest {
 
   @Test
   public void checkFunctionsAreCached() {
-
+    // create functions from 4 securities of 2 different types
 
   }
 }

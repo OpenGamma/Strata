@@ -31,7 +31,7 @@ import com.opengamma.util.tuple.Pairs;
  * TODO if this turns out to be a point of contention make it non-synchronized and more complicated
  * TODO can this be split into 2 interfaces, one for the engine and one to generate data to guide the user through configuration?
  */
-public final class MapFunctionRepo implements FunctionRepo {
+public final class SimpleFunctionRepo implements FunctionRepo {
 
   private static final Set<Class<?>> s_defaultInputTypes =
       ImmutableSet.<Class<?>>of(Trade.class, Position.class, Security.class);
@@ -64,13 +64,13 @@ public final class MapFunctionRepo implements FunctionRepo {
    * Classes that implement registered function interfaces, keyed by the interface type.
    * This is needed to tell the user of the available options when they're configuring the view.
    */
-  private final SetMultimap<Class<?>, Class<?>> _implementationsByInterface = HashMultimap.create();
+  private final SetMultimap<Class<?>, Class<?>> _interfaceToImplementations = HashMultimap.create();
 
-  public MapFunctionRepo(Set<Class<?>> inputTypes) {
+  public SimpleFunctionRepo(Set<Class<?>> inputTypes) {
     _inputTypes = ImmutableSet.copyOf(ArgumentChecker.notNull(inputTypes, "inputTypes"));
   }
 
-  public MapFunctionRepo() {
+  public SimpleFunctionRepo() {
     this(s_defaultInputTypes);
   }
 
@@ -150,15 +150,19 @@ public final class MapFunctionRepo implements FunctionRepo {
    */
   @Override
   public synchronized Set<Class<?>> getImplementationTypes(Class<?> interfaceType) {
-    // TODO implement getImplementationTypes()
-    throw new UnsupportedOperationException("getImplementationTypes not implemented");
+    return _interfaceToImplementations.get(interfaceType);
   }
 
-  // TODO don't provide the default impls, only return a default if it's the only impl
-  // if there's only 1 impl, return it, if there are defaults configured check those
+  /**
+   * Returns the implementation type for an interface is there is only one implementation, null is there are
+   * zero or multiple known implementations.
+   * @param interfaceType An interface
+   * @return The implementation type for an interface is there is only one implementation, null is there are
+   * zero or multiple known implementations
+   */
   @Override
   public synchronized Class<?> getDefaultImplementation(Class<?> interfaceType) {
-    Set<Class<?>> impls = _implementationsByInterface.get(interfaceType);
+    Set<Class<?>> impls = _interfaceToImplementations.get(interfaceType);
     if (impls.size() == 1) {
       return impls.iterator().next();
     }
@@ -174,6 +178,15 @@ public final class MapFunctionRepo implements FunctionRepo {
     registerOutputs(type);
     registerImplementation(type);
   }
+
+  public synchronized void register(Class<?>... types) {
+    for (Class<?> type : types) {
+      register(type);
+    }
+  }
+
+  // TODO I think reflections can tell us all impls for an interface so this might be efficient
+  // void register(Class<?> interfaceType, Class<?>... implTypes)
 
   /**
    * Registers the outputs that can be produced by a function type.
@@ -197,6 +210,13 @@ public final class MapFunctionRepo implements FunctionRepo {
 
   // TODO this is only necessary for informing the user of the options if they don't specify an implementation for an interface
   private void registerImplementation(Class<?> type) {
+    if (type.isInterface() || type.isPrimitive()) {
+      return;
+    }
+    Set<Class<?>> interfaces = ConfigUtils.getInterfaces(type);
+    for (Class<?> iface : interfaces) {
+      _interfaceToImplementations.put(iface, type);
+    }
   }
 
   private List<FunctionMetadata> getOutputFunctions(Class<?> type) {

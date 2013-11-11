@@ -40,4 +40,15 @@ public class ConfigUtilsTest {
     supertypes.add(I5.class);
     assertEquals(supertypes, ConfigUtils.getSupertypes(C1.class));
   }
+
+  @Test
+  public void getInterfaces() {
+    Set<Class<?>> interfaces = Sets.newLinkedHashSet();
+    interfaces.add(I1.class);
+    interfaces.add(I2.class);
+    interfaces.add(I3.class);
+    interfaces.add(I4.class);
+    interfaces.add(I5.class);
+    assertEquals(interfaces, ConfigUtils.getInterfaces(C1.class));
+  }
 }

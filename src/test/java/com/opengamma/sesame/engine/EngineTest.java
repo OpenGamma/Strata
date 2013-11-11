@@ -54,9 +54,8 @@ import com.opengamma.sesame.example.EquityDescription;
 import com.opengamma.sesame.example.EquityDescriptionFunction;
 import com.opengamma.sesame.example.EquityIdDescription;
 import com.opengamma.sesame.example.IdScheme;
-import com.opengamma.sesame.example.IdSchemeFunction;
 import com.opengamma.sesame.example.OutputNames;
-import com.opengamma.sesame.function.MapFunctionRepo;
+import com.opengamma.sesame.function.SimpleFunctionRepo;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
@@ -93,7 +92,7 @@ public class EngineTest {
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
-    MapFunctionRepo functionRepo = new MapFunctionRepo();
+    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     List<Trade> trades = ImmutableList.of(createEquityTrade());
@@ -114,7 +113,7 @@ public class EngineTest {
                                          implementations(EquityPresentValueFunction.class,
                                                          EquityPresentValue.class)))));
 
-    MapFunctionRepo functionRepo = new MapFunctionRepo();
+    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);
 
     ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
@@ -148,7 +147,7 @@ public class EngineTest {
                                          implementations(EquityDescriptionFunction.class,
                                                          EquityDescription.class)))));
 
-    MapFunctionRepo functionRepo = new MapFunctionRepo();
+    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     List<Trade> trades = ImmutableList.of(createEquityTrade());
@@ -193,11 +192,9 @@ public class EngineTest {
 
     FunctionConfig defaultConfig = config(implementations(
         EquityDescriptionFunction.class, EquityDescription.class,
-        CashFlowDescriptionFunction.class, CashFlowDescription.class,
-        IdSchemeFunction.class, IdScheme.class));
-    MapFunctionRepo functionRepo = new MapFunctionRepo();
-    functionRepo.register(EquityDescriptionFunction.class);
-    functionRepo.register(CashFlowDescriptionFunction.class);
+        CashFlowDescriptionFunction.class, CashFlowDescription.class));
+    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
+    functionRepo.register(EquityDescriptionFunction.class, CashFlowDescriptionFunction.class, IdScheme.class);
     Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, defaultConfig, NodeDecorator.IDENTITY);
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     Engine.View view = engine.createView(viewDef, trades);
