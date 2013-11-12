@@ -67,7 +67,7 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
    * @param args The method arguments
    * @return The return value of the call
    * @throws Exception If something goes wrong with the underlying call
-   * TODO param for the concrete type?
+   * TODO param for the concrete type? or the proxy node itself?
    */
   protected abstract Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Throwable;
 

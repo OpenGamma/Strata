@@ -43,6 +43,7 @@ import net.sf.ehcache.loader.CacheLoader;
   public Object load(Object key, Object receiver) {
     CacheKey cacheKey = (CacheKey) key;
     try {
+      s_logger.debug("Loading value for key {}", cacheKey);
       // TODO do I need a wrapper object that can rethrow an exception when it's dereferenced?
       return cacheKey.getMethod().invoke(receiver, cacheKey.getArgs());
     } catch (IllegalAccessException | InvocationTargetException e) {

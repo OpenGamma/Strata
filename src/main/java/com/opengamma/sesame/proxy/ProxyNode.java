@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 public class ProxyNode extends Node {
 
   private final Class<?> _interfaceType;
+  // TODO concrete type of delegate
   private final Node _delegateNode;
   private final InvocationHandlerFactory _handlerFactory;
   private final List<Node> _dependencies;

@@ -19,8 +19,12 @@ import com.opengamma.util.ArgumentChecker;
   private final Class<?> _receiverType;
   private final Method _method;
   private final Object[] _args;
+  /** This is deliberately not used in hashCode() and equals(). */
+  private final Object _receiver;
 
-  /* package */ CacheKey(Class<?> receiverType, Method method, Object[] args) {
+  // TODO I really don't like having to include the receiver. is there a better way?
+  /* package */ CacheKey(Class<?> receiverType, Method method, Object[] args, Object receiver) {
+    _receiver = ArgumentChecker.notNull(receiver, "receiver");
     _receiverType = ArgumentChecker.notNull(receiverType, "receiverType");
     _method = ArgumentChecker.notNull(method, "method");
     _args = args;
@@ -32,6 +36,10 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ Object[] getArgs() {
     return _args;
+  }
+
+  /* package */ Object getReceiver() {
+    return _receiver;
   }
 
   @Override
@@ -59,7 +67,7 @@ import com.opengamma.util.ArgumentChecker;
     return "CacheKey [" +
         "_receiverType=" + _receiverType +
         ", _method=" + _method +
-        ", _args=" + (_args == null ? null : Arrays.asList(_args)) +
+        ", _args=" + Arrays.deepToString(_args) +
         "]";
   }
 }

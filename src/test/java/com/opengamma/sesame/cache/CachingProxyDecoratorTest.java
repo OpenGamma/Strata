@@ -34,7 +34,8 @@ public class CachingProxyDecoratorTest {
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
-    CacheKey key = new CacheKey(Impl.class, ConfigUtils.getMethod(TestFn.class, "foo"), new Object[]{"bar"});
+    // TODO nasty to have to provide the receiver here
+    CacheKey key = new CacheKey(Impl.class, ConfigUtils.getMethod(TestFn.class, "foo"), new Object[]{"bar"}, new Object());
 
     Object results = fn.foo("bar");
     Element element = CachingProxyDecorator.getCache().get(key);
