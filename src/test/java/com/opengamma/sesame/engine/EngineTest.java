@@ -190,9 +190,8 @@ public class EngineTest {
                               config(
                                   implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))));
 
-    FunctionConfig defaultConfig = config(implementations(
-        EquityDescriptionFunction.class, EquityDescription.class,
-        CashFlowDescriptionFunction.class, CashFlowDescription.class));
+    FunctionConfig defaultConfig = config(implementations(EquityDescriptionFunction.class, EquityDescription.class,
+                                                          CashFlowDescriptionFunction.class, CashFlowDescription.class));
     SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class, CashFlowDescriptionFunction.class, IdScheme.class);
     Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, defaultConfig, NodeDecorator.IDENTITY);

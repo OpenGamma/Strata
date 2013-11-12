@@ -210,7 +210,7 @@ public class FXForwardPVFunctionTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void engine() throws Exception {
-    int nTrades = 10_000;
+    int nTrades = 1000;
     long startTrades = System.currentTimeMillis();
     List<Trade> trades = Lists.newArrayListWithCapacity(nTrades);
     for (int i = 0; i < nTrades; i++) {
@@ -239,20 +239,8 @@ public class FXForwardPVFunctionTest {
                                                                                          CurrencyPair.of(GBP, USD)))),
                                       function(HistoricalTimeSeriesProvider.class,
                                                argument("resolutionKey", "DEFAULT_TSS"),
-                                               argument("htsRetrievalPeriod", Period.ofYears(1)))),
-                                  // TODO register impls and remove from here is there is only 1 impl for the interface
-                                  implementations(FXForwardPVFunction.class, DiscountingFXForwardPV.class,
-                                                  CurrencyPairsFunction.class, CurrencyPairs.class,
-                                                  FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
-                                                  InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                                                  CurveSpecificationMarketDataProviderFunction.class, CurveSpecificationMarketDataProvider.class,
-                                                  FXMatrixProviderFunction.class, FXMatrixProvider.class,
-                                                  CurveDefinitionProviderFunction.class, CurveDefinitionProvider.class,
-                                                  DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class,
-                                                  CurveSpecificationProviderFunction.class, CurveSpecificationProvider.class,
-                                                  ValuationTimeProviderFunction.class, ValuationTimeProvider.class,
-                                                  CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                                                  HistoricalTimeSeriesProviderFunction.class, HistoricalTimeSeriesProvider.class)))));
+                                               argument("htsRetrievalPeriod", Period.ofYears(1))))))));
+
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     //ExecutorService executor = new EngineTest.DirectExecutorService();
     //CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE);
@@ -269,8 +257,19 @@ public class FXForwardPVFunctionTest {
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     s_logger.info("loaded components in {}ms", System.currentTimeMillis() - startComponents);
     SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    // TODO register impls
-    functionRepo.register(FXForwardPVFunction.class);
+    functionRepo.register(FXForwardPVFunction.class,
+                          DiscountingFXForwardPV.class,
+                          CurrencyPairs.class,
+                          FXForwardSecurityConverter.class,
+                          ConfigDBInstrumentExposuresProvider.class,
+                          CurveSpecificationMarketDataProvider.class,
+                          FXMatrixProvider.class,
+                          CurveDefinitionProvider.class,
+                          DiscountingMulticurveBundleProvider.class,
+                          CurveSpecificationProvider.class,
+                          ValuationTimeProvider.class,
+                          ConfigDBCurveConstructionConfigurationSource.class,
+                          HistoricalTimeSeriesProvider.class);
     long startEngine = System.currentTimeMillis();
     Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
