@@ -77,6 +77,9 @@ public class CachingProxyDecorator implements NodeDecorator {
     return node;
   }
 
+  /**
+   * Creates an instance of {@link Handler} when the graph is built.
+   */
   private static class HandlerFactory implements InvocationHandlerFactory {
 
     private final Class<?> _interfaceType;
@@ -97,6 +100,9 @@ public class CachingProxyDecorator implements NodeDecorator {
       }
       for (Method method : _implementationType.getMethods()) {
         if (method.getAnnotation(Cache.class) != null) {
+          // TODO this is wrong. the proxy will always see the interface method. no point caching this one
+          // need to go up the inheritance hierarchy and find all interface methods implemented by this method
+          // and cache those. ugh
           cachedMethods.add(method);
         }
       }
@@ -104,6 +110,14 @@ public class CachingProxyDecorator implements NodeDecorator {
     }
   }
 
+  /**
+   * Handles method invocations and possibly returns a cached result instead of calling the underlying object.
+   * If the method doesn't have a {@link Cache} annotation the underlying object is called.
+   * If the cache contains an element that corresponds to the method and arguments it's returned and the underlying
+   * object isn't called.
+   * If the cache doesn't contain an element the underlying object is called and
+   * the result is cached (via {@link EntryFactory}).
+   */
   private static class Handler implements InvocationHandler {
 
     private final Object _delegate;
@@ -124,7 +138,7 @@ public class CachingProxyDecorator implements NodeDecorator {
         return element.getObjectValue();
       } else {
         try {
-          return method.invoke(_delegate);
+          return method.invoke(_delegate, args);
         } catch (InvocationTargetException e) {
           throw e.getCause();
         }
@@ -136,6 +150,11 @@ public class CachingProxyDecorator implements NodeDecorator {
     return s_cache;
   }
 
+  /**
+   * Populates the cache when a lookup is done and no object is found. A lookup is keyed by a method invocation -
+   * the Method object and the arguments. If there is no cached value the method is invoked and its return value
+   * is cached.
+   */
   private static class EntryFactory implements CacheEntryFactory {
 
     private static final Logger s_logger = LoggerFactory.getLogger(EntryFactory.class);

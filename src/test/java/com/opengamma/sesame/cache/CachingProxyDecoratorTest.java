@@ -10,6 +10,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.lang.reflect.Method;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.sesame.config.ConfigUtils;
@@ -34,7 +36,7 @@ public class CachingProxyDecoratorTest {
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
-    MethodInvocationKey key = new MethodInvocationKey(Impl.class, ConfigUtils.getMethod(TestFn.class, "foo"), new Object[]{"bar"}, new Object());
+    MethodInvocationKey key = new MethodInvocationKey(Impl.class, ConfigUtils.getMethod(TestFn.class, "foo"), new Object[]{"bar"}, new Impl());
 
     Object results = fn.foo("bar");
     Element element = CachingProxyDecorator.getCache().get(key);
@@ -81,6 +83,40 @@ public class CachingProxyDecoratorTest {
 
   public static class Impl implements TestFn {
 
+    @Override
+    public Object foo(String arg) {
+      return new Object();
+    }
+  }
+
+  // TODO this is disabled because it doesn't work. need to fix CachingProxyDecorator.HandlerFactory.create()
+  /** check caching works when the class method is annotated and the interface isn't */
+  @Test(enabled = false)
+  public void annotationOnClass() {
+    FunctionConfig config = config(implementations(TestFn2.class, Impl2.class));
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);
+    FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn2.class, "foo");
+    FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
+    TestFn2 fn = (TestFn2) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    Method foo = ConfigUtils.getMethod(TestFn2.class, "foo");
+    MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, new Impl2());
+
+    Object results = fn.foo("bar");
+    Element element = CachingProxyDecorator.getCache().get(key);
+    assertNotNull(element);
+    Object cacheValue = element.getObjectValue();
+    assertSame(cacheValue, results);
+  }
+
+  interface TestFn2 {
+
+    @Output("Foo")
+    Object foo(String arg);
+  }
+
+  public static class Impl2 implements TestFn2 {
+
+    @Cache
     @Override
     public Object foo(String arg) {
       return new Object();
