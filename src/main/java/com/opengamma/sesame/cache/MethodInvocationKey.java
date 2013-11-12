@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.cache;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
@@ -12,9 +13,11 @@ import java.util.Objects;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Cache key containing encapsulating a method invocation including its arguments.
+ * This class contains the receiver of the method so the method can be invoked to get the value if it isn't present
+ * in the cache. The receiver isn't used in the hashCode() or equals() methods.
  */
-/* package */ class CacheKey {
+/* package */ class MethodInvocationKey {
 
   private final Class<?> _receiverType;
   private final Method _method;
@@ -22,24 +25,24 @@ import com.opengamma.util.ArgumentChecker;
   /** This is deliberately not used in hashCode() and equals(). */
   private final Object _receiver;
 
-  // TODO I really don't like having to include the receiver. is there a better way?
-  /* package */ CacheKey(Class<?> receiverType, Method method, Object[] args, Object receiver) {
+  /* package */ MethodInvocationKey(Class<?> receiverType, Method method, Object[] args, Object receiver) {
     _receiver = ArgumentChecker.notNull(receiver, "receiver");
     _receiverType = ArgumentChecker.notNull(receiverType, "receiverType");
     _method = ArgumentChecker.notNull(method, "method");
     _args = args;
   }
 
-  /* package */ Method getMethod() {
-    return _method;
-  }
-
-  /* package */ Object[] getArgs() {
-    return _args;
-  }
-
-  /* package */ Object getReceiver() {
-    return _receiver;
+  /* package */ Object invoke() throws Exception {
+    try {
+      return _method.invoke(_receiver, _args);
+    } catch (InvocationTargetException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof Error) {
+        throw ((Error) cause);
+      } else {
+        throw ((Exception) cause);
+      }
+    }
   }
 
   @Override
@@ -55,7 +58,7 @@ import com.opengamma.util.ArgumentChecker;
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    final CacheKey other = (CacheKey) obj;
+    final MethodInvocationKey other = (MethodInvocationKey) obj;
     return
         Objects.equals(this._receiverType, other._receiverType) &&
         Objects.equals(this._method, other._method) &&

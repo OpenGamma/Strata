@@ -21,7 +21,6 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -56,8 +55,8 @@ public class ProxyNodeTest {
   class Decorator extends ProxyNodeDecorator {
 
     @Override
-    protected boolean decorate(InterfaceNode node) {
-      return node.getInterfaceType().equals(TestFn.class);
+    protected boolean decorate(Class<?> interfaceType, Class<?> implementationType) {
+      return interfaceType.equals(TestFn.class);
     }
 
     @Override

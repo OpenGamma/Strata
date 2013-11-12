@@ -144,8 +144,7 @@ public class EngineTest {
                 column(DESCRIPTION_HEADER,
                        defaultConfig(OutputNames.DESCRIPTION,
                                      config(
-                                         implementations(EquityDescriptionFunction.class,
-                                                         EquityDescription.class)))));
+                                         implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
 
     SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
     functionRepo.register(EquityDescriptionFunction.class);

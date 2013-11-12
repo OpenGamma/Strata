@@ -7,8 +7,6 @@ package com.opengamma.sesame.proxy;
 
 import java.lang.reflect.Method;
 
-import com.opengamma.sesame.graph.InterfaceNode;
-
 /**
  *
  */
@@ -27,7 +25,7 @@ public class TimingProxy extends ProxyNodeDecorator {
   }
 
   @Override
-  protected boolean decorate(InterfaceNode node) {
+  protected boolean decorate(Class<?> interfaceType, Class<?> implementationType) {
     return true;
   }
 

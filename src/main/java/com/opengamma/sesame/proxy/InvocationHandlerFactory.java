@@ -17,9 +17,11 @@ public interface InvocationHandlerFactory {
 
   /**
    * Creates a handler for a proxy that sits in front of the delegate
+   *
    * @param delegate The object being proxied
+   * @param node The proxy node
    * @return A handler that provides the proxy behaviour
    * TODO this should probably have an argument for the node too
    */
-  InvocationHandler create(Object delegate);
+  InvocationHandler create(Object delegate, ProxyNode node);
 }

@@ -5,14 +5,21 @@
  */
 package com.opengamma.sesame.cache;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.sesame.graph.InterfaceNode;
-import com.opengamma.sesame.proxy.ProxyNodeDecorator;
+import com.opengamma.sesame.graph.Node;
+import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.proxy.InvocationHandlerFactory;
+import com.opengamma.sesame.proxy.ProxyNode;
+import com.opengamma.util.ArgumentChecker;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -24,19 +31,18 @@ import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 /**
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  */
-public class CachingProxyDecorator extends ProxyNodeDecorator {
+public class CachingProxyDecorator implements NodeDecorator {
 
   public static final CachingProxyDecorator INSTANCE = new CachingProxyDecorator();
 
+  // TODO make this an instance field
   private static final SelfPopulatingCache s_cache;
-  //private static final net.sf.ehcache.Cache s_cache;
 
   static {
     // TODO this is just a very basic proof of concept
     CacheConfiguration config = new CacheConfiguration("EngineProxyCache", 1000)
         .eternal(true)
         .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE));
-    //s_cache = new net.sf.ehcache.Cache(config);
     s_cache = new SelfPopulatingCache(new net.sf.ehcache.Cache(config), new EntryFactory());
     CacheManager.getInstance().addCache(s_cache);
   }
@@ -45,40 +51,88 @@ public class CachingProxyDecorator extends ProxyNodeDecorator {
   }
 
   @Override
-  protected boolean decorate(InterfaceNode node) {
-    // TODO should this look on the interface or implementation methods? or both? probably both
-    Class<?> interfaceType = node.getInterfaceType();
+  public Node decorateNode(Node node) {
+    if (!(node instanceof ProxyNode) && !(node instanceof InterfaceNode)) {
+      return node;
+    }
+    Class<?> interfaceType;
+    Class<?> implementationType;
+    if (node instanceof InterfaceNode) {
+      implementationType = ((InterfaceNode) node).getType();
+      interfaceType = ((InterfaceNode) node).getInterfaceType();
+    } else {
+      implementationType = ((ProxyNode) node).getImplementationType();
+      interfaceType = ((ProxyNode) node).getInterfaceType();
+    }
     for (Method method : interfaceType.getMethods()) {
       if (method.getAnnotation(Cache.class) != null) {
-        return true;
+        return new ProxyNode(node, interfaceType, implementationType, new HandlerFactory(implementationType, interfaceType));
       }
     }
-    return false;
+    for (Method method : implementationType.getMethods()) {
+      if (method.getAnnotation(Cache.class) != null) {
+        return new ProxyNode(node, interfaceType, implementationType, new HandlerFactory(implementationType, interfaceType));
+      }
+    }
+    return node;
   }
 
-  @Override
-  protected Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Exception {
-    // check the method for the annotation, it's possible for the same class to have cached and non-cached methods
-    // TODO should be able to put the @Cache annotation on the impl
-    // don't know the impl class here so can't check the method
-    // create a proxy instance per proxied node and store the delegate type?
-    // can't check the delegate, it might be another proxy, not the impl instance
-    // if the concrete type is passed in will it be a lot worse than knowing it up front?
-    // could I do some instance level caching of the methods if I have one proxy instance per node?
-    if (method.getAnnotation(Cache.class) == null) {
-      return method.invoke(delegate, args);
-    } else {
-      CacheKey key = new CacheKey(delegate.getClass(), method, args, delegate);
-      // TODO confirm this blocks if multiple threads try to get the same value.
-      // looking at the Ehcache source I'm not sure it does. need to lock at the level of the key
-      //Element element = s_cache.getWithLoader(key, ProxyCacheLoader.INSTANCE, delegate);
-      Element element = s_cache.get(key);
-      return element.getObjectValue();
+  private static class HandlerFactory implements InvocationHandlerFactory {
+
+    private final Class<?> _interfaceType;
+    private final Class<?> _implementationType;
+
+    private HandlerFactory(Class<?> implementationType, Class<?> interfaceType) {
+      _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
+      _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
+    }
+
+    @Override
+    public InvocationHandler create(Object delegate, ProxyNode node) {
+      Set<Method> cachedMethods = Sets.newHashSet();
+      for (Method method : _interfaceType.getMethods()) {
+        if (method.getAnnotation(Cache.class) != null) {
+          cachedMethods.add(method);
+        }
+      }
+      for (Method method : _implementationType.getMethods()) {
+        if (method.getAnnotation(Cache.class) != null) {
+          cachedMethods.add(method);
+        }
+      }
+      return new Handler(delegate, cachedMethods, _implementationType);
     }
   }
 
-  /** Package scoped for testing */
-  /* package */ static /*net.sf.ehcache.Cache*/SelfPopulatingCache getCache() {
+  private static class Handler implements InvocationHandler {
+
+    private final Object _delegate;
+    private final Set<Method> _cachedMethods;
+    private final Class<?> _implementationType;
+
+    private Handler(Object delegate, Set<Method> cachedMethods, Class<?> implementationType) {
+      _delegate = ArgumentChecker.notNull(delegate, "delegate");
+      _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
+      _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      if (_cachedMethods.contains(method)) {
+        MethodInvocationKey key = new MethodInvocationKey(_implementationType, method, args, _delegate);
+        Element element = s_cache.get(key);
+        return element.getObjectValue();
+      } else {
+        try {
+          return method.invoke(_delegate);
+        } catch (InvocationTargetException e) {
+          throw e.getCause();
+        }
+      }
+    }
+  }
+
+  /* package */ static SelfPopulatingCache getCache() {
     return s_cache;
   }
 
@@ -88,17 +142,18 @@ public class CachingProxyDecorator extends ProxyNodeDecorator {
 
     @Override
     public Object createEntry(Object key) throws Exception {
-      CacheKey cacheKey = (CacheKey) key;
+      MethodInvocationKey cacheKey = (MethodInvocationKey) key;
       try {
         s_logger.debug("Loading value for key {}", cacheKey);
-        // TODO do I need a wrapper object that can rethrow an exception when it's dereferenced?
-        return cacheKey.getMethod().invoke(cacheKey.getReceiver(), cacheKey.getArgs());
+        return cacheKey.invoke();
       } catch (IllegalAccessException | InvocationTargetException e) {
-        // TODO handle this better
-        s_logger.warn("Failed to populate cache", e);
-        return null;
+        Throwable cause = e.getCause();
+        if (cause instanceof Error) {
+          throw ((Error) cause);
+        } else {
+          throw ((Exception) cause);
+        }
       }
-
     }
   }
 }

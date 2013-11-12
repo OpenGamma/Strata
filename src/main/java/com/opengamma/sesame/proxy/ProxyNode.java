@@ -20,13 +20,17 @@ import com.opengamma.util.ArgumentChecker;
 public class ProxyNode extends Node {
 
   private final Class<?> _interfaceType;
-  // TODO concrete type of delegate
+  private final Class<?> _implementationType;
   private final Node _delegateNode;
   private final InvocationHandlerFactory _handlerFactory;
   private final List<Node> _dependencies;
 
-  /* package */ ProxyNode(Node delegateNode, Class<?> interfaceType, InvocationHandlerFactory handlerFactory) {
+  public ProxyNode(Node delegateNode,
+                   Class<?> interfaceType,
+                   Class<?> implementationType,
+                   InvocationHandlerFactory handlerFactory) {
     super(delegateNode.getParameter());
+    _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
     _delegateNode = ArgumentChecker.notNull(delegateNode, "delegate");
     _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
     _handlerFactory = ArgumentChecker.notNull(handlerFactory, "handlerFactory");
@@ -38,8 +42,7 @@ public class ProxyNode extends Node {
     // TODO can I use ProxyGenerator here? or extract its logic?
     // TODO which class loader?
     Object delegate = _delegateNode.create(componentMap);
-    // TODO can I pass the concrete type in here?
-    InvocationHandler invocationHandler = _handlerFactory.create(delegate);
+    InvocationHandler invocationHandler = _handlerFactory.create(delegate, this);
     return Proxy.newProxyInstance(_interfaceType.getClassLoader(), new Class<?>[]{_interfaceType}, invocationHandler);
   }
 
@@ -59,5 +62,9 @@ public class ProxyNode extends Node {
 
   public Class<?> getInterfaceType() {
     return _interfaceType;
+  }
+
+  public Class<?> getImplementationType() {
+    return _implementationType;
   }
 }

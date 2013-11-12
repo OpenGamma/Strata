@@ -7,7 +7,6 @@ package com.opengamma.sesame.trace;
 
 import java.lang.reflect.Method;
 
-import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.proxy.ProxyNodeDecorator;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,7 +28,7 @@ public final class TracingProxy extends ProxyNodeDecorator {
   }
 
   @Override
-  protected boolean decorate(InterfaceNode node) {
+  protected boolean decorate(Class<?> interfaceType, Class<?> implementationType) {
     return true;
   }
 

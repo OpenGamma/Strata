@@ -21,29 +21,31 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
 
   @Override
   public Node decorateNode(Node node) {
+    if (!(node instanceof ProxyNode) && !(node instanceof InterfaceNode)) {
+      return node;
+    }
+    Class<?> interfaceType;
+    Class<?> implementationType;
     if (node instanceof InterfaceNode) {
-      if (decorate((InterfaceNode) node)) {
-        // TODO we know the concrete type here
-        return new ProxyNode(node, ((InterfaceNode) node).getInterfaceType(), this);
-      } else {
-        return node;
-      }
-    } else if (node instanceof ProxyNode) {
-      // TODO if we put the concrete type in ProxyNode we'd know it here
-      return new ProxyNode(node, ((ProxyNode) node).getInterfaceType(), this);
+      implementationType = ((InterfaceNode) node).getType();
+      interfaceType = ((InterfaceNode) node).getInterfaceType();
+    } else {
+      implementationType = ((ProxyNode) node).getImplementationType();
+      interfaceType = ((ProxyNode) node).getInterfaceType();
+    }
+    if (decorate(interfaceType, implementationType)) {
+      return new ProxyNode(node, interfaceType, implementationType, this);
     } else {
       return node;
     }
   }
 
-  // TODO param for the concrete type?
   @Override
-  public InvocationHandler create(final Object delegate) {
+  public InvocationHandler create(final Object delegate, ProxyNode node) {
     return new InvocationHandler() {
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-          // TODO pass in the concrete type here?
           return ProxyNodeDecorator.this.invoke(proxy, delegate, method, args);
         } catch (InvocationTargetException e) {
           throw e.getCause();
@@ -54,10 +56,12 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
 
   /**
    * Indicates whether a node should be wrapped in a proxy.
-   * @param node The node
-   * @return true if the node should be wrapped in a proxy
+   *
+   * @param interfaceType The type of the interface being decorated
+   * @param implementationType The implementation type being decorated. This isn't necessarily the type of the
+   * delegate as the delegate could be another proxy. This is the type of the real object.
    */
-  protected abstract boolean decorate(InterfaceNode node);
+  protected abstract boolean decorate(Class<?> interfaceType, Class<?> implementationType);
 
   /**
    * Called when a method on the proxy is invoked.
