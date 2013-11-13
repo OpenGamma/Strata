@@ -32,7 +32,11 @@ import com.thoughtworks.paranamer.PositionalParanamer;
 
 public final class ConfigUtils {
 
+  /** Cache of the results of {@link #getSupertypes} */
   private static ConcurrentMap<Class<?>, Set<Class<?>>> s_supertypes = Maps.newConcurrentMap();
+  /** Cache of the results of {@link #getInterfaces} */
+  private static ConcurrentMap<Class<?>, Set<Class<?>>> s_interfaces = Maps.newConcurrentMap();
+
   private static Paranamer s_paranamer =
       new CachingParanamer(
           new AdaptiveParanamer(
@@ -150,18 +154,29 @@ public final class ConfigUtils {
   }
 
   public static Set<Class<?>> getSupertypes(Class<?> type) {
+    Set<Class<?>> existingSupertypes = s_supertypes.get(type);
+    if (existingSupertypes != null) {
+      return existingSupertypes;
+    }
     Set<Class<?>> supertypes = Sets.newLinkedHashSet();
     Set<Class<?>> interfaces = Sets.newLinkedHashSet();
     getSupertypes(type, supertypes, interfaces);
     supertypes.addAll(interfaces);
-    s_supertypes.put(type, Collections.unmodifiableSet(supertypes));
-    return supertypes;
+    Set<Class<?>> cachedSupertypes = Collections.unmodifiableSet(supertypes);
+    s_supertypes.put(type, cachedSupertypes);
+    return cachedSupertypes;
   }
 
   public static Set<Class<?>> getInterfaces(Class<?> type) {
+    Set<Class<?>> existingInterfaces = s_interfaces.get(type);
+    if (existingInterfaces != null) {
+      return existingInterfaces;
+    }
     Set<Class<?>> interfaces = Sets.newLinkedHashSet();
     getSupertypes(type, Sets.<Class<?>>newLinkedHashSet(), interfaces);
-    return interfaces;
+    Set<Class<?>> cachedInterfaces = Collections.unmodifiableSet(interfaces);
+    s_interfaces.put(type, cachedInterfaces);
+    return cachedInterfaces;
   }
 
   private static void getSupertypes(Class<?> type, Set<Class<?>> supertypeAccumulator, Set<Class<?>> interfaceAccumulator) {

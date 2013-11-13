@@ -89,9 +89,8 @@ public class CachingProxyDecoratorTest {
     }
   }
 
-  // TODO this is disabled because it doesn't work. need to fix CachingProxyDecorator.HandlerFactory.create()
   /** check caching works when the class method is annotated and the interface isn't */
-  @Test(enabled = false)
+  @Test
   public void annotationOnClass() {
     FunctionConfig config = config(implementations(TestFn2.class, Impl2.class));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);

@@ -6,6 +6,7 @@
 package com.opengamma.sesame.config;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
 
 import java.util.Set;
 
@@ -28,27 +29,33 @@ public class ConfigUtilsTest {
 
   @Test
   public void getSupertypes() {
-    Set<Class<?>> supertypes = Sets.newLinkedHashSet();
-    supertypes.add(C1.class);
-    supertypes.add(C2.class);
-    supertypes.add(C3.class);
-    supertypes.add(Object.class);
-    supertypes.add(I1.class);
-    supertypes.add(I2.class);
-    supertypes.add(I3.class);
-    supertypes.add(I4.class);
-    supertypes.add(I5.class);
-    assertEquals(supertypes, ConfigUtils.getSupertypes(C1.class));
+    Set<Class<?>> expectedSupertypes = Sets.newLinkedHashSet();
+    expectedSupertypes.add(C1.class);
+    expectedSupertypes.add(C2.class);
+    expectedSupertypes.add(C3.class);
+    expectedSupertypes.add(Object.class);
+    expectedSupertypes.add(I1.class);
+    expectedSupertypes.add(I2.class);
+    expectedSupertypes.add(I3.class);
+    expectedSupertypes.add(I4.class);
+    expectedSupertypes.add(I5.class);
+    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(C1.class);
+    assertEquals(expectedSupertypes, supertypes);
+    // check that results are cached
+    assertSame(supertypes, ConfigUtils.getSupertypes(C1.class));
   }
 
   @Test
   public void getInterfaces() {
-    Set<Class<?>> interfaces = Sets.newLinkedHashSet();
-    interfaces.add(I1.class);
-    interfaces.add(I2.class);
-    interfaces.add(I3.class);
-    interfaces.add(I4.class);
-    interfaces.add(I5.class);
-    assertEquals(interfaces, ConfigUtils.getInterfaces(C1.class));
+    Set<Class<?>> expectedInterfaces = Sets.newLinkedHashSet();
+    expectedInterfaces.add(I1.class);
+    expectedInterfaces.add(I2.class);
+    expectedInterfaces.add(I3.class);
+    expectedInterfaces.add(I4.class);
+    expectedInterfaces.add(I5.class);
+    Set<Class<?>> interfaces = ConfigUtils.getInterfaces(C1.class);
+    assertEquals(expectedInterfaces, interfaces);
+    // check that results are cached
+    assertSame(interfaces, ConfigUtils.getInterfaces(C1.class));
   }
 }

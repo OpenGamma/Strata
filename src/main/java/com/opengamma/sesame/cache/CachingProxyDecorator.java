@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -100,10 +101,17 @@ public class CachingProxyDecorator implements NodeDecorator {
       }
       for (Method method : _implementationType.getMethods()) {
         if (method.getAnnotation(Cache.class) != null) {
-          // TODO this is wrong. the proxy will always see the interface method. no point caching this one
+          // the proxy will always see the interface method. no point caching the instance method
           // need to go up the inheritance hierarchy and find all interface methods implemented by this method
-          // and cache those. ugh
-          cachedMethods.add(method);
+          // and cache those
+          for (Class<?> iface : ConfigUtils.getInterfaces(_implementationType)) {
+            try {
+              Method ifaceMethod = iface.getMethod(method.getName(), method.getParameterTypes());
+              cachedMethods.add(ifaceMethod);
+            } catch (NoSuchMethodException e) {
+              // expected
+            }
+          }
         }
       }
       return new Handler(delegate, cachedMethods, _implementationType);
