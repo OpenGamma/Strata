@@ -36,6 +36,10 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 @Test(groups = TestGroup.UNIT)
 public class CacheInvalidatorTest {
 
+  private static final MethodInvocationKey METHOD_KEY_1 = methodKey(new ArrayList<>(), "subList", new Object[]{1, 2});
+  private static final MethodInvocationKey METHOD_KEY_2 = methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"});
+  private static final MethodInvocationKey METHOD_KEY_3 = methodKey(new ArrayList<>(), "size", null);
+
   @Test
   public void registerAndInvalidate() {
     final LinkedList<MethodInvocationKey> keys = Lists.newLinkedList();
@@ -53,39 +57,41 @@ public class CacheInvalidatorTest {
     ExternalId bnd1 = ExternalId.of("bnd", "1");
     ExternalId bnd2 = ExternalId.of("bnd", "2");
 
-    keys.add(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2}));
+    keys.add(METHOD_KEY_1);
     invalidator.register(abc1);
-    keys.add(methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"}));
+    keys.add(METHOD_KEY_2);
     invalidator.register(abc2);
     keys.removeLast();
     invalidator.register(ExternalIdBundle.of(bnd1, bnd2));
 
-    cache.put(new Element(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2}), new Object()));
-    cache.put(new Element(methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"}), new Object()));
-    cache.put(new Element(methodKey(new ArrayList<>(), "size", null), new Object()));
+    populateCache(cache);
     invalidator.invalidate(abc1);
-    assertNull(cache.get(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2})));
-    assertNotNull(cache.get(methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"})));
-    assertNotNull(cache.get(methodKey(new ArrayList<>(), "size", null)));
+    assertNull(cache.get(METHOD_KEY_1));
+    assertNotNull(cache.get(METHOD_KEY_2));
+    assertNotNull(cache.get(METHOD_KEY_3));
 
-    cache.put(new Element(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2}), new Object()));
+    populateCache(cache);
     invalidator.invalidate(abc2);
-    assertNull(cache.get(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2})));
-    assertNull(cache.get(methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"})));
-    assertNotNull(cache.get(methodKey(new ArrayList<>(), "size", null)));
+    assertNull(cache.get(METHOD_KEY_1));
+    assertNull(cache.get(METHOD_KEY_2));
+    assertNotNull(cache.get(METHOD_KEY_3));
 
-    cache.put(new Element(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2}), new Object()));
-    cache.put(new Element(methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"}), new Object()));
-    invalidator.invalidate(bnd1);
-    assertNull(cache.get(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2})));
-    assertNotNull(cache.get(methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"})));
-    assertNotNull(cache.get(methodKey(new ArrayList<>(), "size", null)));
+    populateCache(cache);invalidator.invalidate(bnd1);
+    assertNull(cache.get(METHOD_KEY_1));
+    assertNotNull(cache.get(METHOD_KEY_2));
+    assertNotNull(cache.get(METHOD_KEY_3));
 
-    cache.put(new Element(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2}), new Object()));
+    populateCache(cache);
     invalidator.invalidate(bnd2);
-    assertNull(cache.get(methodKey(new ArrayList<>(), "subList", new Object[]{1, 2})));
-    assertNotNull(cache.get(methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"})));
-    assertNotNull(cache.get(methodKey(new ArrayList<>(), "size", null)));
+    assertNull(cache.get(METHOD_KEY_1));
+    assertNotNull(cache.get(METHOD_KEY_2));
+    assertNotNull(cache.get(METHOD_KEY_3));
+  }
+
+  private void populateCache(Cache cache) {
+    cache.put(new Element(METHOD_KEY_1, new Object()));
+    cache.put(new Element(METHOD_KEY_2, new Object()));
+    cache.put(new Element(METHOD_KEY_3, new Object()));
   }
 
   @Test
