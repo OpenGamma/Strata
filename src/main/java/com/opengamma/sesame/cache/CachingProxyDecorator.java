@@ -23,6 +23,7 @@ import com.opengamma.sesame.proxy.ProxyNode;
 import com.opengamma.util.ArgumentChecker;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
@@ -34,21 +35,21 @@ import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
  */
 public class CachingProxyDecorator implements NodeDecorator {
 
-  public static final CachingProxyDecorator INSTANCE = new CachingProxyDecorator();
+  private final SelfPopulatingCache _cache;
 
-  // TODO make this an instance field
-  private static final SelfPopulatingCache s_cache;
-
-  static {
+  // TODO this probably belongs somewhere else but this will do for now
+  public static SelfPopulatingCache createCache() {
     // TODO this is just a very basic proof of concept
     CacheConfiguration config = new CacheConfiguration("EngineProxyCache", 1000)
         .eternal(true)
         .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE));
-    s_cache = new SelfPopulatingCache(new net.sf.ehcache.Cache(config), new EntryFactory());
-    CacheManager.getInstance().addCache(s_cache);
+    SelfPopulatingCache cache = new SelfPopulatingCache(new net.sf.ehcache.Cache(config), new EntryFactory());
+    CacheManager.getInstance().addCache(cache);
+    return cache;
   }
 
-  private CachingProxyDecorator() {
+  public CachingProxyDecorator(SelfPopulatingCache cache) {
+    this._cache = ArgumentChecker.notNull(cache, "cache");
   }
 
   @Override
@@ -67,12 +68,14 @@ public class CachingProxyDecorator implements NodeDecorator {
     }
     for (Method method : interfaceType.getMethods()) {
       if (method.getAnnotation(Cache.class) != null) {
-        return new ProxyNode(node, interfaceType, implementationType, new HandlerFactory(implementationType, interfaceType));
+        HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache);
+        return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
       }
     }
     for (Method method : implementationType.getMethods()) {
       if (method.getAnnotation(Cache.class) != null) {
-        return new ProxyNode(node, interfaceType, implementationType, new HandlerFactory(implementationType, interfaceType));
+        HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache);
+        return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
       }
     }
     return node;
@@ -85,8 +88,10 @@ public class CachingProxyDecorator implements NodeDecorator {
 
     private final Class<?> _interfaceType;
     private final Class<?> _implementationType;
+    private final Ehcache _cache;
 
-    private HandlerFactory(Class<?> implementationType, Class<?> interfaceType) {
+    private HandlerFactory(Class<?> implementationType, Class<?> interfaceType, Ehcache cache) {
+      _cache = ArgumentChecker.notNull(cache, "cache");
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
       _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
     }
@@ -114,7 +119,7 @@ public class CachingProxyDecorator implements NodeDecorator {
           }
         }
       }
-      return new Handler(delegate, cachedMethods, _implementationType);
+      return new Handler(delegate, cachedMethods, _implementationType, _cache);
     }
   }
 
@@ -131,8 +136,10 @@ public class CachingProxyDecorator implements NodeDecorator {
     private final Object _delegate;
     private final Set<Method> _cachedMethods;
     private final Class<?> _implementationType;
+    private final Ehcache _cache;
 
-    private Handler(Object delegate, Set<Method> cachedMethods, Class<?> implementationType) {
+    private Handler(Object delegate, Set<Method> cachedMethods, Class<?> implementationType, Ehcache cache) {
+      _cache = cache;
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
@@ -142,7 +149,7 @@ public class CachingProxyDecorator implements NodeDecorator {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
       if (_cachedMethods.contains(method)) {
         MethodInvocationKey key = new MethodInvocationKey(_implementationType, method, args, _delegate);
-        Element element = s_cache.get(key);
+        Element element = _cache.get(key);
         return element.getObjectValue();
       } else {
         try {
@@ -152,10 +159,6 @@ public class CachingProxyDecorator implements NodeDecorator {
         }
       }
     }
-  }
-
-  /* package */ static SelfPopulatingCache getCache() {
-    return s_cache;
   }
 
   /**

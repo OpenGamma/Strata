@@ -24,22 +24,25 @@ import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 
 @Test(groups = TestGroup.UNIT)
 public class CachingProxyDecoratorTest {
+
+  private static final SelfPopulatingCache CACHE = CachingProxyDecorator.createCache();
 
   /** check the cache contains the item returns from the function */
   @Test
   public void oneLookup() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
     MethodInvocationKey key = new MethodInvocationKey(Impl.class, ConfigUtils.getMethod(TestFn.class, "foo"), new Object[]{"bar"}, new Impl());
 
     Object results = fn.foo("bar");
-    Element element = CachingProxyDecorator.getCache().get(key);
+    Element element = CACHE.get(key);
     assertNotNull(element);
     Object cacheValue = element.getObjectValue();
     assertSame(cacheValue, results);
@@ -49,7 +52,7 @@ public class CachingProxyDecoratorTest {
   @Test
   public void multipleFunctions() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig);
@@ -67,7 +70,7 @@ public class CachingProxyDecoratorTest {
   @Test
   public void multipleCalls() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
@@ -93,7 +96,7 @@ public class CachingProxyDecoratorTest {
   @Test
   public void annotationOnClass() {
     FunctionConfig config = config(implementations(TestFn2.class, Impl2.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, CachingProxyDecorator.INSTANCE);
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn2 fn = (TestFn2) functionModel.build(ComponentMap.EMPTY).getReceiver();
@@ -101,7 +104,7 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, new Impl2());
 
     Object results = fn.foo("bar");
-    Element element = CachingProxyDecorator.getCache().get(key);
+    Element element = CACHE.get(key);
     assertNotNull(element);
     Object cacheValue = element.getObjectValue();
     assertSame(cacheValue, results);

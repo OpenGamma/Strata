@@ -102,6 +102,8 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFunctionTest {
 
@@ -156,7 +158,8 @@ public class FXForwardPVFunctionTest {
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
                                                   MarketDataProviderFunction.class, marketDataProvider);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, CachingProxyDecorator.INSTANCE);
+    SelfPopulatingCache cache = CachingProxyDecorator.createCache();
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, new CachingProxyDecorator(cache));
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
     //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, TimingProxy.INSTANCE);
     //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
@@ -246,7 +249,8 @@ public class FXForwardPVFunctionTest {
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     //ExecutorService executor = new EngineTest.DirectExecutorService();
     //CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE);
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE, TracingProxy.INSTANCE);
+    SelfPopulatingCache cache = CachingProxyDecorator.createCache();
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(new CachingProxyDecorator(cache), TracingProxy.INSTANCE);
     //CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, CachingProxyDecorator.INSTANCE);
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
