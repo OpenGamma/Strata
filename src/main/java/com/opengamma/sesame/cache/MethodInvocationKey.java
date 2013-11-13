@@ -67,10 +67,11 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public String toString() {
-    return "CacheKey [" +
+    return "MethodInvocationKey [" +
         "_receiverType=" + _receiverType +
         ", _method=" + _method +
         ", _args=" + Arrays.deepToString(_args) +
+        ", _receiver=" + _receiver +
         "]";
   }
 }
