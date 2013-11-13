@@ -30,9 +30,6 @@ import com.opengamma.util.ArgumentChecker;
     _receiverType = ArgumentChecker.notNull(receiverType, "receiverType");
     _method = ArgumentChecker.notNull(method, "method");
     _args = args;
-    if (!_receiverType.isInstance(receiver)) {
-      throw new IllegalArgumentException("Receiver " + receiver + " isn't an instance of " + receiverType.getName());
-    }
   }
 
   /* package */ Object invoke() throws Exception {

@@ -210,7 +210,9 @@ public class FXForwardPVFunctionTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void engine() throws Exception {
-    int nTrades = 1000;
+    //int nTrades = 1_000_000;
+    //int nTrades = 10_000;
+    int nTrades = 1_000;
     long startTrades = System.currentTimeMillis();
     List<Trade> trades = Lists.newArrayListWithCapacity(nTrades);
     for (int i = 0; i < nTrades; i++) {

@@ -97,10 +97,15 @@ public class Engine {
       List<Task> tasks = Lists.newArrayList();
       for (ViewColumn column : _viewDef.getColumns()) {
         String columnName = column.getName();
-        Map<ObjectId, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
+        Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
         for (PositionOrTrade input : _inputs) {
-          ObjectId inputId = input.getUniqueId().getObjectId();
-          InvokableFunction function = functions.get(inputId);
+          InvokableFunction function;
+          InvokableFunction posOrTradeFunction = functions.get(input.getClass());
+          if (posOrTradeFunction != null) {
+            function = posOrTradeFunction;
+          } else {
+            function = functions.get(input.getSecurity().getClass());
+          }
           FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
           FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
           tasks.add(new Task(input, args, columnName, function));

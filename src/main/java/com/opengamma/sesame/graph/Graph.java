@@ -8,7 +8,6 @@ package com.opengamma.sesame.graph;
 import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.function.InvokableFunction;
 
 /**
@@ -20,15 +19,15 @@ import com.opengamma.sesame.function.InvokableFunction;
  */
 public final class Graph {
 
-  /** Map of column names -> map of target ID -> function. */
-  private final Map<String, Map<ObjectId, InvokableFunction>> _functions;
+  /** Map of column names -> map of input type -> function. */
+  private final Map<String, Map<Class<?>, InvokableFunction>> _functions;
 
-  /* package */ Graph(Map<String, Map<ObjectId, InvokableFunction>> functions) {
+  /* package */ Graph(Map<String, Map<Class<?>, InvokableFunction>> functions) {
     _functions = functions;
   }
 
-  public Map<ObjectId, InvokableFunction> getFunctionsForColumn(String columnName) {
-    Map<ObjectId, InvokableFunction> functions = _functions.get(columnName);
+  public Map<Class<?>, InvokableFunction> getFunctionsForColumn(String columnName) {
+    Map<Class<?>, InvokableFunction> functions = _functions.get(columnName);
     if (functions == null) {
       throw new DataNotFoundException("No column found with name " + columnName);
     }
