@@ -16,6 +16,15 @@ import com.opengamma.util.ArgumentChecker;
  * Cache key containing encapsulating a method invocation including its arguments.
  * This class contains the receiver of the method so the method can be invoked to get the value if it isn't present
  * in the cache. The receiver isn't used in the hashCode() or equals() methods.
+ *
+ * TODO this doesn't account for functions of the same type with different constructor args and therefore different behaviour
+ * need to include the actual receiver in the cache key if it has state? will need equals() and hashCode()
+ * but what if it doesn't have state? don't want to use Object.hashCode() / equals() because we'll be unnecessarily
+ * recalculating things that could be cached.
+ * could the constructor args be used instead of the instance itself?
+ * should I just bite the bullet and share fn instances in the builder? only if annotated with @Cache?
+ * what about stateful functions? if I predicate the cache behaviour on sharing is that a problem?
+ * or would stateful functions be impossible to cache anyway?
  */
 /* package */ class MethodInvocationKey {
 

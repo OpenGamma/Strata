@@ -5,10 +5,14 @@
  */
 package com.opengamma.sesame.cache;
 
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.lang.reflect.Method;
 
@@ -34,12 +38,14 @@ public class CachingProxyDecoratorTest {
   /** check the cache contains the item returns from the function */
   @Test
   public void oneLookup() {
-    FunctionConfig config = config(implementations(TestFn.class, Impl.class));
+    FunctionConfig config = config(implementations(TestFn.class, Impl.class),
+                                   arguments(function(Impl.class, argument("s", "s"))));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
-    MethodInvocationKey key = new MethodInvocationKey(Impl.class, ConfigUtils.getMethod(TestFn.class, "foo"), new Object[]{"bar"}, new Impl());
+    Method foo = ConfigUtils.getMethod(TestFn.class, "foo");
+    MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, new Impl("s"));
 
     Object results = fn.foo("bar");
     Element element = CACHE.get(key);
@@ -51,7 +57,8 @@ public class CachingProxyDecoratorTest {
   /** check that multiple instances of the same function return the cached value when invoked with the same args */
   @Test
   public void multipleFunctions() {
-    FunctionConfig config = config(implementations(TestFn.class, Impl.class));
+    FunctionConfig config = config(implementations(TestFn.class, Impl.class),
+                                   arguments(function(Impl.class, argument("s", "s"))));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
 
@@ -69,12 +76,34 @@ public class CachingProxyDecoratorTest {
    */
   @Test
   public void multipleCalls() {
-    FunctionConfig config = config(implementations(TestFn.class, Impl.class));
+    FunctionConfig config = config(implementations(TestFn.class, Impl.class),
+                                   arguments(function(Impl.class, argument("s", "s"))));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
     assertSame(fn.foo("bar"), fn.foo("bar"));
+  }
+
+  // TODO this is disabled because it's a test for a bug that hasn't been fixed yet
+  @Test(enabled = false)
+  public void sameFunctionDifferentConstructorArgs() {
+    FunctionConfig config1 = config(implementations(TestFn.class, Impl.class),
+                                    arguments(function(Impl.class, argument("s", "s"))));
+    FunctionConfig config2 = config(implementations(TestFn.class, Impl.class),
+                                    arguments(function(Impl.class, argument("s", "t"))));
+    FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
+
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
+    TestFn fn1 = (TestFn) functionModel1.build(ComponentMap.EMPTY).getReceiver();
+
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
+    TestFn fn2 = (TestFn) functionModel2.build(ComponentMap.EMPTY).getReceiver();
+    Object val1 = fn1.foo("bar");
+    Object val2 = fn2.foo("bar");
+    assertTrue(val1 != val2);
   }
 
   interface TestFn {
@@ -86,9 +115,15 @@ public class CachingProxyDecoratorTest {
 
   public static class Impl implements TestFn {
 
+    private final String _s;
+
+    public Impl(String s) {
+      _s = s;
+    }
+
     @Override
     public Object foo(String arg) {
-      return new Object();
+      return _s + new Object();
     }
   }
 
