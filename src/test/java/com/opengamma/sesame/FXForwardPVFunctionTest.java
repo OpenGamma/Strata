@@ -66,8 +66,6 @@ import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
-import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
-import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -214,8 +212,8 @@ public class FXForwardPVFunctionTest {
   @Test(groups = TestGroup.INTEGRATION, enabled = true)
   public void engine() throws Exception {
     //int nTrades = 1_000_000;
-    //int nTrades = 10_000;
-    int nTrades = 1_000;
+    int nTrades = 10_000;
+    //int nTrades = 1_000;
     long startTrades = System.currentTimeMillis();
     List<Trade> trades = Lists.newArrayListWithCapacity(nTrades);
     for (int i = 0; i < nTrades; i++) {
@@ -267,7 +265,6 @@ public class FXForwardPVFunctionTest {
                           DiscountingFXForwardPV.class,
                           CurrencyPairs.class,
                           FXForwardSecurityConverter.class,
-                          ConfigDBInstrumentExposuresProvider.class,
                           CurveSpecificationMarketDataProvider.class,
                           FXMatrixProvider.class,
                           CurveDefinitionProvider.class,
@@ -275,7 +272,10 @@ public class FXForwardPVFunctionTest {
                           CurveSpecificationProvider.class,
                           ValuationTimeProvider.class,
                           ConfigDBCurveConstructionConfigurationSource.class,
-                          HistoricalTimeSeriesProvider.class);
+                          HistoricalTimeSeriesProvider.class,
+                          MarketExposureSelectorProvider.class,
+                          FxForwardDiscountingCalculatorProvider.class,
+                          ConfigDbMarketExposureSelectorProvider.class);
     long startEngine = System.currentTimeMillis();
     Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
@@ -349,7 +349,6 @@ public class FXForwardPVFunctionTest {
                             MarketExposureSelectorProvider.class, ConfigDbMarketExposureSelectorProvider.class,
                             CurrencyPairsFunction.class, CurrencyPairs.class,
                             FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
                             CurveSpecificationMarketDataProviderFunction.class, CurveSpecificationMarketDataProvider.class,
                             FXMatrixProviderFunction.class, FXMatrixProvider.class,
                             CurveDefinitionProviderFunction.class, CurveDefinitionProvider.class,
