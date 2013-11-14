@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.Node;
@@ -22,6 +23,7 @@ public class ProxyNode extends Node {
   private final Class<?> _interfaceType;
   private final Class<?> _implementationType;
   private final Node _delegateNode;
+  // TODO this is potentially a problem for equals / hashCode. should proxy nodes be ignored?
   private final InvocationHandlerFactory _handlerFactory;
   private final List<Node> _dependencies;
 
@@ -66,5 +68,27 @@ public class ProxyNode extends Node {
 
   public Class<?> getImplementationType() {
     return _implementationType;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_interfaceType, _implementationType, _delegateNode/*, _handlerFactory*/, _dependencies);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final ProxyNode other = (ProxyNode) obj;
+    return
+        Objects.equals(this._interfaceType, other._interfaceType) &&
+        Objects.equals(this._implementationType, other._implementationType) &&
+        Objects.equals(this._delegateNode, other._delegateNode) &&
+        //Objects.equals(this._handlerFactory, other._handlerFactory) &&
+        Objects.equals(this._dependencies, other._dependencies);
   }
 }

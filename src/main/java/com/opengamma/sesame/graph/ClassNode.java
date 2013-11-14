@@ -8,6 +8,7 @@ package com.opengamma.sesame.graph;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Provider;
 
@@ -68,5 +69,22 @@ public class ClassNode extends Node {
   @Override
   public String prettyPrint() {
     return getParameterName() + "new " + _type.getSimpleName();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_arguments, _type);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final ClassNode other = (ClassNode) obj;
+    return Objects.equals(this._arguments, other._arguments) && Objects.equals(this._type, other._type);
   }
 }

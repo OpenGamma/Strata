@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.graph;
 
+import java.util.Objects;
+
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
 
@@ -34,5 +36,22 @@ public final class ObjectNode extends Node {
 
   public Class<?> getType() {
     return _type;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_type);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final ObjectNode other = (ObjectNode) obj;
+    return Objects.equals(this._type, other._type);
   }
 }
