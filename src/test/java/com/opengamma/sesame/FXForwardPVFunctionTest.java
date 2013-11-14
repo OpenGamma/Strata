@@ -211,7 +211,7 @@ public class FXForwardPVFunctionTest {
   }
 
   //@Test(groups = TestGroup.INTEGRATION)
-  @Test(groups = TestGroup.INTEGRATION, enabled = false)
+  @Test(groups = TestGroup.INTEGRATION, enabled = true)
   public void engine() throws Exception {
     //int nTrades = 1_000_000;
     //int nTrades = 10_000;
@@ -229,8 +229,8 @@ public class FXForwardPVFunctionTest {
                        output(OutputNames.FX_PRESENT_VALUE, FXForwardSecurity.class,
                               config(
                                   arguments(
-                                      function(DiscountingFXForwardPV.class,
-                                               argument("exposureConfigNames", ImmutableSet.of(exposureConfig))),
+                                      function(ConfigDbMarketExposureSelectorProvider.class,
+                                               argument("exposureConfigName", exposureConfig)),
                                       function(ValuationTimeProvider.class,
                                                argument("valuationTime",
                                                         ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
@@ -329,8 +329,8 @@ public class FXForwardPVFunctionTest {
     return
         config(
             arguments(
-                function(DiscountingFXForwardPV.class,
-                         argument("exposureConfigNames", ImmutableSet.of(exposureConfig))),
+                function(ConfigDbMarketExposureSelectorProvider.class,
+                         argument("exposureConfigName", exposureConfig)),
                 function(ValuationTimeProvider.class,
                          argument("valuationTime", ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
                 function(RootFinderConfiguration.class,
@@ -345,6 +345,8 @@ public class FXForwardPVFunctionTest {
                          argument("resolutionKey", "DEFAULT_TSS"),
                          argument("htsRetrievalPeriod", Period.ofYears(1)))),
             implementations(FXForwardPVFunction.class, DiscountingFXForwardPV.class,
+                            FxForwardCalculatorProvider.class, FxForwardDiscountingCalculatorProvider.class,
+                            MarketExposureSelectorProvider.class, ConfigDbMarketExposureSelectorProvider.class,
                             CurrencyPairsFunction.class, CurrencyPairs.class,
                             FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
                             InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
