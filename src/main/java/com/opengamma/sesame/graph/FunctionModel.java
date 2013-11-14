@@ -204,6 +204,7 @@ public final class FunctionModel {
                                            String childIndent,
                                            boolean showProxies) {
     Node realNode = getRealNode(node, showProxies);
+    // TODO can this method deal with prepending the property name so Node doesn't need to know the parameter?
     builder.append('\n').append(indent).append(realNode.prettyPrint());
     for (Iterator<Node> itr = realNode.getDependencies().iterator(); itr.hasNext(); ) {
       Node child = itr.next();

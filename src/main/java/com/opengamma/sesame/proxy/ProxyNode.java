@@ -17,13 +17,15 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * A graph model node that inserts a dynamic proxy in front of a component.
+ * Proxy nodes are effectively transparent to equality and hash code, i.e. only the real nodes are included.
+ * This is valid as long as we don't have any proxies that change the behaviour or return values of nodes. If that
+ * happens we'll have to have a rethink.
  */
 public class ProxyNode extends Node {
 
   private final Class<?> _interfaceType;
   private final Class<?> _implementationType;
   private final Node _delegateNode;
-  // TODO this is potentially a problem for equals / hashCode. should proxy nodes be ignored?
   private final InvocationHandlerFactory _handlerFactory;
   private final List<Node> _dependencies;
 
@@ -72,7 +74,7 @@ public class ProxyNode extends Node {
 
   @Override
   public int hashCode() {
-    return Objects.hash(_interfaceType, _implementationType, _delegateNode/*, _handlerFactory*/, _dependencies);
+    return Objects.hash(_delegateNode);
   }
 
   @Override
@@ -84,11 +86,6 @@ public class ProxyNode extends Node {
       return false;
     }
     final ProxyNode other = (ProxyNode) obj;
-    return
-        Objects.equals(this._interfaceType, other._interfaceType) &&
-        Objects.equals(this._implementationType, other._implementationType) &&
-        Objects.equals(this._delegateNode, other._delegateNode) &&
-        //Objects.equals(this._handlerFactory, other._handlerFactory) &&
-        Objects.equals(this._dependencies, other._dependencies);
+    return Objects.equals(this._delegateNode, other._delegateNode);
   }
 }
