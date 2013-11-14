@@ -102,7 +102,7 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import net.sf.ehcache.Ehcache;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFunctionTest {
@@ -158,7 +158,7 @@ public class FXForwardPVFunctionTest {
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
                                                   MarketDataProviderFunction.class, marketDataProvider);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    SelfPopulatingCache cache = CachingProxyDecorator.createCache();
+    Ehcache cache = CachingProxyDecorator.createCache();
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, new CachingProxyDecorator(cache));
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
     //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, TimingProxy.INSTANCE);
@@ -211,18 +211,18 @@ public class FXForwardPVFunctionTest {
   }
 
   //@Test(groups = TestGroup.INTEGRATION)
-  @Test(groups = TestGroup.INTEGRATION, enabled = true)
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void engine() throws Exception {
     //int nTrades = 1_000_000;
-    //int nTrades = 10_000;
-    int nTrades = 1_000;
+    int nTrades = 10_000;
+    //int nTrades = 1_000;
     long startTrades = System.currentTimeMillis();
     List<Trade> trades = Lists.newArrayListWithCapacity(nTrades);
     for (int i = 0; i < nTrades; i++) {
       trades.add(createRandomFxForwardTrade());
     }
     s_logger.info("created {} trades in {}ms", nTrades, System.currentTimeMillis() - startTrades);
-    String exposureConfig = "EUR-USD[ON-OIS][EURIBOR6M-FRA/IRS][EURIBOR3M-FRA/BS]-[ON-OIS][LIBOR3M-FRA/IRS]";
+    String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
     ViewDef viewDef =
         viewDef("FX forward PV view",
                 column("Present Value",
@@ -249,7 +249,7 @@ public class FXForwardPVFunctionTest {
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     //ExecutorService executor = new EngineTest.DirectExecutorService();
     //CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE);
-    SelfPopulatingCache cache = CachingProxyDecorator.createCache();
+    Ehcache cache = CachingProxyDecorator.createCache();
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(new CachingProxyDecorator(cache), TracingProxy.INSTANCE);
     //CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, CachingProxyDecorator.INSTANCE);
     String serverUrl = "http://localhost:8080";
@@ -275,7 +275,9 @@ public class FXForwardPVFunctionTest {
                           CurveSpecificationProvider.class,
                           ValuationTimeProvider.class,
                           ConfigDBCurveConstructionConfigurationSource.class,
-                          HistoricalTimeSeriesProvider.class);
+                          HistoricalTimeSeriesProvider.class,
+                          FxForwardDiscountingCalculatorProvider.class,
+                          ConfigDbMarketExposureSelectorProvider.class);
     long startEngine = System.currentTimeMillis();
     Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
@@ -285,7 +287,8 @@ public class FXForwardPVFunctionTest {
     for (int i = 0; i < 20; i++) {
       long start = System.currentTimeMillis();
       view.run();
-      //System.out.println(view.run());
+      //Results results = view.run();
+      //System.out.println(results);
       long time = System.currentTimeMillis() - start;
       s_logger.info("view executed in {}ms", time);
       Thread.sleep(1000);
