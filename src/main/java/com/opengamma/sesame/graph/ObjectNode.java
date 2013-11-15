@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.graph;
 
+import java.util.List;
 import java.util.Objects;
 
 import com.opengamma.sesame.engine.ComponentMap;
@@ -25,7 +26,7 @@ public final class ObjectNode extends Node {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Object create(ComponentMap componentMap) {
+  public Object create(ComponentMap componentMap, List<Object> dependencies) {
     return componentMap.getComponent(_type);
   }
 

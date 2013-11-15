@@ -29,13 +29,14 @@ public final class GraphModel {
    */
   public Graph build(ComponentMap components) {
     ImmutableMap.Builder<String, Map<Class<?>, InvokableFunction>> builder = ImmutableMap.builder();
+    FunctionBuilder functionBuilder = new FunctionBuilder();
     for (Map.Entry<String, Map<Class<?>, FunctionModel>> entry : _functionTrees.entrySet()) {
       Map<Class<?>, FunctionModel> functionsByTargetId = entry.getValue();
       ImmutableMap.Builder<Class<?>, InvokableFunction> columnBuilder = ImmutableMap.builder();
       for (Map.Entry<Class<?>, FunctionModel> columnEntry : functionsByTargetId.entrySet()) {
         Class<?> inputType = columnEntry.getKey();
         FunctionModel functionModel = columnEntry.getValue();
-        columnBuilder.put(inputType, functionModel.build(components));
+        columnBuilder.put(inputType, functionModel.build(functionBuilder, components));
       }
       String columnName = entry.getKey();
       builder.put(columnName, columnBuilder.build());

@@ -25,7 +25,7 @@ public abstract class Node {
     _parameter = parameter;
   }
 
-  /* package */ public abstract Object create(ComponentMap componentMap);
+  /* package */ public abstract Object create(ComponentMap componentMap, List<Object> dependencies);
 
   public List<Node> getDependencies() {
     return Collections.emptyList();

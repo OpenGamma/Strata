@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.cache;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +15,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
 
 import net.sf.ehcache.Ehcache;
@@ -34,21 +34,18 @@ import net.sf.ehcache.Ehcache;
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
   }
 
-  // provider decorators register IDs when they're requested (e.g. market data, config)
-  /* package */ synchronized void register(Object... ids) {
-    register(Arrays.asList(ids));
+  /* package */ synchronized void register(ExternalId id) {
+    registerSingle(id);
   }
 
-  /* package */ synchronized void register(Collection<Object> ids) {
-    for (Object id : ids) {
-      if (id instanceof ExternalIdBundle) {
-        for (ExternalId externalId : ((ExternalIdBundle) id).getExternalIds()) {
-          registerSingle(externalId);
-        }
-      } else {
-        registerSingle(id);
-      }
+  /* package */ synchronized void register(ExternalIdBundle bundle) {
+    for (ExternalId id : bundle.getExternalIds()) {
+      registerSingle(id);
     }
+  }
+
+  /* package */ synchronized void register(ObjectId id) {
+    registerSingle(id);
   }
 
   private void registerSingle(Object id) {
@@ -61,22 +58,12 @@ import net.sf.ehcache.Ehcache;
     }
   }
 
-  /* package */ synchronized void invalidate(Object... ids) {
-    invalidate(Arrays.asList(ids));
+  /* package */ synchronized void invalidate(ExternalId id) {
+    invalidateSingle(id);
   }
 
-  // engine calls this between cycles with the ids of everything that's updated
-  // corresponding cache keys are looked up and cleared out
-  /* package */ synchronized void invalidate(Collection<Object> ids) {
-    for (Object id : ids) {
-      if (id instanceof ExternalIdBundle) {
-        for (ExternalId externalId : ((ExternalIdBundle) id).getExternalIds()) {
-          invalidateSingle(externalId);
-        }
-      } else {
-        invalidateSingle(id);
-      }
-    }
+  /* package */ synchronized void invalidate(ObjectId id) {
+    invalidateSingle(id);
   }
 
   private void invalidateSingle(Object id) {

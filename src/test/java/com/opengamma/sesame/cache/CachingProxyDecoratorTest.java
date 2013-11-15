@@ -26,6 +26,7 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;
 
@@ -51,7 +52,7 @@ public class CachingProxyDecoratorTest {
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     Method foo = ConfigUtils.getMethod(TestFn.class, "foo");
     MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, new Impl("s"));
 
@@ -72,10 +73,10 @@ public class CachingProxyDecoratorTest {
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn1 = (TestFn) functionModel1.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn1 = (TestFn) functionModel1.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
 
     FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn2 = (TestFn) functionModel2.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn2 = (TestFn) functionModel2.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertSame(fn1.foo("bar"), fn2.foo("bar"));
   }
 
@@ -91,7 +92,7 @@ public class CachingProxyDecoratorTest {
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertSame(fn.foo("bar"), fn.foo("bar"));
   }
 
@@ -108,10 +109,10 @@ public class CachingProxyDecoratorTest {
     GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
-    TestFn fn1 = (TestFn) functionModel1.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn1 = (TestFn) functionModel1.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
 
     FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
-    TestFn fn2 = (TestFn) functionModel2.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn2 = (TestFn) functionModel2.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     Object val1 = fn1.foo("bar");
     Object val2 = fn2.foo("bar");
     assertTrue(val1 != val2);
@@ -149,7 +150,7 @@ public class CachingProxyDecoratorTest {
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn2 fn = (TestFn2) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFn2 fn = (TestFn2) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     Method foo = ConfigUtils.getMethod(TestFn2.class, "foo");
     MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, new Impl2());
 

@@ -32,7 +32,7 @@ import com.opengamma.financial.tool.ToolContext;
  * Loads components using {@link ToolContext} configuration and puts them in a map.
  * This isn't a long-term solution but will do for the time being.
  */
-public class ComponentMap {
+public final class ComponentMap {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ComponentMap.class);
 

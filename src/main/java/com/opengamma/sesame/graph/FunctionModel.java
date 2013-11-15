@@ -62,10 +62,11 @@ public final class FunctionModel {
     return new FunctionModel(createNode(function.getDeclaringType(), GraphConfig.EMPTY), function);
   }
 
+  // TODO make it clear this is for one-off building, testing etc, not for the engine (because FunctionBuilder isn't shared)
   public static <T> T build(Class<T> functionType, String methodName, GraphConfig config) {
     FunctionMetadata metadata = ConfigUtils.createMetadata(functionType, methodName);
     FunctionModel functionModel = new FunctionModel(createNode(metadata.getDeclaringType(), config), metadata);
-    InvokableFunction function = functionModel.build(config.getComponents());
+    InvokableFunction function = functionModel.build(new FunctionBuilder(), config.getComponents());
     return functionType.cast(function.getReceiver());
   }
 
@@ -167,8 +168,9 @@ public final class FunctionModel {
     return config.decorateNode(node);
   }
 
-  public InvokableFunction build(ComponentMap components) {
-    Object receiver = _root.create(components);
+  public InvokableFunction build(FunctionBuilder builder, ComponentMap components) {
+    Object receiver = builder.create(_root, components);
+    //Object receiver = _root.create(components);
     return _rootMetadata.getInvokableFunction(receiver);
   }
 

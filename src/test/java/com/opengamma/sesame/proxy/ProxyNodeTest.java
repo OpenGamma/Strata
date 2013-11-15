@@ -20,6 +20,7 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;
 
@@ -32,7 +33,7 @@ public class ProxyNodeTest {
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new Decorator());
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertEquals(Lists.newArrayList("proxied", "foo"), fn.foo());
   }
 
