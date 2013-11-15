@@ -194,4 +194,13 @@ public final class ConfigUtils {
       getInterfaces(iFace.getInterfaces(), accumulator);
     }
   }
+
+  public static boolean hasMethodAnnotation(Class<?> type, Class<? extends Annotation> annotation) {
+    for (Method method : type.getMethods()) {
+      if (method.getAnnotation(annotation) != null) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

@@ -60,6 +60,7 @@ public class CachingProxyDecorator implements NodeDecorator {
     if (!(node instanceof ProxyNode) && !(node instanceof InterfaceNode)) {
       return node;
     }
+    // TODO extract this logic so it can be reused in FunctionBuilder? static helper method
     Class<?> interfaceType;
     Class<?> implementationType;
     if (node instanceof InterfaceNode) {
@@ -69,6 +70,7 @@ public class CachingProxyDecorator implements NodeDecorator {
       implementationType = ((ProxyNode) node).getImplementationType();
       interfaceType = ((ProxyNode) node).getInterfaceType();
     }
+    // TODO use ConfigUtils.hasMethodAnnotation()
     for (Method method : interfaceType.getMethods()) {
       if (method.getAnnotation(Cache.class) != null) {
         HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache);
@@ -134,8 +136,9 @@ public class CachingProxyDecorator implements NodeDecorator {
    * If the cache doesn't contain an element the underlying object is called and the cache is populated.
    * The values in the cache are futures. This allows multiple threads to request the same value and for all of
    * them to block while the first thread calculates it.
+   * This is package scoped for testing.
    */
-  private static class Handler implements InvocationHandler {
+  /* package */ static class Handler implements InvocationHandler {
 
     private final Object _delegate;
     private final Set<Method> _cachedMethods;
@@ -176,6 +179,11 @@ public class CachingProxyDecorator implements NodeDecorator {
           throw e.getCause();
         }
       }
+    }
+
+    /** Visible for testing */
+    /* package */ Object getDelegate() {
+      return _delegate;
     }
 
     private class CallableMethod implements Callable<Object> {

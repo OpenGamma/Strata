@@ -6,6 +6,7 @@
 package com.opengamma.sesame.graph;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
@@ -29,5 +30,25 @@ public final class InterfaceNode extends ClassNode {
   @Override
   public String prettyPrint() {
     return getParameterName() + _interfaceType.getSimpleName() + " (new " + getType().getSimpleName() + ")";
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(_interfaceType);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    final InterfaceNode other = (InterfaceNode) obj;
+    return Objects.equals(this._interfaceType, other._interfaceType);
   }
 }
