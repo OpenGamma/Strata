@@ -87,6 +87,7 @@ import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.SimpleFunctionRepo;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
+import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
@@ -126,7 +127,7 @@ public class FXForwardPVFunctionTest {
                                              RegionSource.class);
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, graphConfig);
-    Object fn = functionModel.build(componentMap).getReceiver();
+    Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
     assertTrue(fn instanceof FXForwardPVFunction);
     System.out.println(functionModel.prettyPrint(true));
   }
