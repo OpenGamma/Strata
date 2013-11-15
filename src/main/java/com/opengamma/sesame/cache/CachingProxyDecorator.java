@@ -9,6 +9,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,28 +30,28 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 
 /**
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  */
 public class CachingProxyDecorator implements NodeDecorator {
 
-  private final SelfPopulatingCache _cache;
+  private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
+
+  private final Ehcache _cache;
 
   // TODO this probably belongs somewhere else but this will do for now
-  public static SelfPopulatingCache createCache() {
+  public static Ehcache createCache() {
     // TODO this is just a very basic proof of concept
     CacheConfiguration config = new CacheConfiguration("EngineProxyCache", 1000)
         .eternal(true)
         .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE));
-    SelfPopulatingCache cache = new SelfPopulatingCache(new net.sf.ehcache.Cache(config), new EntryFactory());
+    Ehcache cache = new net.sf.ehcache.Cache(config);
     CacheManager.getInstance().addCache(cache);
     return cache;
   }
 
-  public CachingProxyDecorator(SelfPopulatingCache cache) {
+  public CachingProxyDecorator(Ehcache cache) {
     this._cache = ArgumentChecker.notNull(cache, "cache");
   }
 
@@ -128,8 +131,9 @@ public class CachingProxyDecorator implements NodeDecorator {
    * If the method doesn't have a {@link Cache} annotation the underlying object is called.
    * If the cache contains an element that corresponds to the method and arguments it's returned and the underlying
    * object isn't called.
-   * If the cache doesn't contain an element the underlying object is called and
-   * the result is cached (via {@link EntryFactory}).
+   * If the cache doesn't contain an element the underlying object is called and the cache is populated.
+   * The values in the cache are futures. This allows multiple threads to request the same value and for all of
+   * them to block while the first thread calculates it.
    */
   private static class Handler implements InvocationHandler {
 
@@ -145,12 +149,26 @@ public class CachingProxyDecorator implements NodeDecorator {
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
       if (_cachedMethods.contains(method)) {
-        MethodInvocationKey key = new MethodInvocationKey(_implementationType, method, args, _delegate);
+        final MethodInvocationKey key = new MethodInvocationKey(_implementationType, method, args, _delegate);
         Element element = _cache.get(key);
-        return element.getObjectValue();
+        if (element != null) {
+          FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
+          return task.get();
+        }
+        FutureTask<Object> task = new FutureTask<>(new CallableMethod(key, method, args));
+        Element previous = _cache.putIfAbsent(new Element(key, task));
+        // our task is the one in the cache, run it
+        if (previous == null) {
+          task.run();
+          return task.get();
+        } else {
+          // someone else's task is there already, block until it completes
+          return ((Future<Object>) previous.getObjectValue()).get();
+        }
       } else {
         try {
           return method.invoke(_delegate, args);
@@ -159,29 +177,31 @@ public class CachingProxyDecorator implements NodeDecorator {
         }
       }
     }
-  }
 
-  /**
-   * Populates the cache when a lookup is done and no object is found. A lookup is keyed by a method invocation -
-   * the Method object and the arguments. If there is no cached value the method is invoked and its return value
-   * is cached.
-   */
-  private static class EntryFactory implements CacheEntryFactory {
+    private class CallableMethod implements Callable<Object> {
 
-    private static final Logger s_logger = LoggerFactory.getLogger(EntryFactory.class);
+      private final MethodInvocationKey _key;
+      private final Method _method;
+      private final Object[] _args;
 
-    @Override
-    public Object createEntry(Object key) throws Exception {
-      MethodInvocationKey cacheKey = (MethodInvocationKey) key;
-      try {
-        s_logger.debug("Loading value for key {}", cacheKey);
-        return cacheKey.invoke();
-      } catch (IllegalAccessException | InvocationTargetException e) {
-        Throwable cause = e.getCause();
-        if (cause instanceof Error) {
-          throw ((Error) cause);
-        } else {
-          throw ((Exception) cause);
+      public CallableMethod(MethodInvocationKey key, Method method, Object[] args) {
+        _key = key;
+        _method = method;
+        _args = args;
+      }
+
+      @Override
+      public Object call() throws Exception {
+        try {
+          s_logger.debug("Loading value for key {}", _key);
+          return _method.invoke(_delegate, _args);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+          Throwable cause = e.getCause();
+          if (cause instanceof Error) {
+            throw ((Error) cause);
+          } else {
+            throw ((Exception) cause);
+          }
         }
       }
     }

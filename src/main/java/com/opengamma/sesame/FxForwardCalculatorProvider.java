@@ -6,10 +6,10 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.sesame.cache.Cache;
 
 public interface FxForwardCalculatorProvider {
 
-  @Cache
+  // it seems to be faster without caching on this method
+  //@Cache
   FunctionResult<FxForwardCalculator> generateCalculator(FXForwardSecurity security);
 }

@@ -15,6 +15,8 @@ import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
@@ -27,20 +29,26 @@ import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.PersistenceConfiguration;
 
+@SuppressWarnings("unchecked")
 @Test(groups = TestGroup.UNIT)
 public class CachingProxyDecoratorTest {
 
-  private static final SelfPopulatingCache CACHE = CachingProxyDecorator.createCache();
+  /** Ehcache has mutable static state (ugh) so this is necessary */
+  private static final AtomicInteger s_nextCacheName = new AtomicInteger();
 
   /** check the cache contains the item returns from the function */
   @Test
-  public void oneLookup() {
+  public void oneLookup() throws Exception {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
+    Ehcache cache = createCache();
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
@@ -48,10 +56,10 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, new Impl("s"));
 
     Object results = fn.foo("bar");
-    Element element = CACHE.get(key);
+    Element element = cache.get(key);
     assertNotNull(element);
-    Object cacheValue = element.getObjectValue();
-    assertSame(cacheValue, results);
+    FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
+    assertSame(task.get(), results);
   }
 
   /** check that multiple instances of the same function return the cached value when invoked with the same args */
@@ -59,7 +67,8 @@ public class CachingProxyDecoratorTest {
   public void multipleFunctions() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
+    Ehcache cache = createCache();
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig);
@@ -78,7 +87,8 @@ public class CachingProxyDecoratorTest {
   public void multipleCalls() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
+    Ehcache cache = createCache();
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
@@ -93,8 +103,9 @@ public class CachingProxyDecoratorTest {
     FunctionConfig config2 = config(implementations(TestFn.class, Impl.class),
                                     arguments(function(Impl.class, argument("s", "t"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
-    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
-    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
+    Ehcache cache = createCache();
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
     TestFn fn1 = (TestFn) functionModel1.build(ComponentMap.EMPTY).getReceiver();
@@ -105,6 +116,9 @@ public class CachingProxyDecoratorTest {
     Object val2 = fn2.foo("bar");
     assertTrue(val1 != val2);
   }
+
+  // TODO test for two functions that are the same but depend on different functions
+  // either different impls of the same interface or two instances of the same class with different args and behaviour
 
   interface TestFn {
 
@@ -129,9 +143,10 @@ public class CachingProxyDecoratorTest {
 
   /** check caching works when the class method is annotated and the interface isn't */
   @Test
-  public void annotationOnClass() {
+  public void annotationOnClass() throws Exception {
     FunctionConfig config = config(implementations(TestFn2.class, Impl2.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(CACHE));
+    Ehcache cache = createCache();
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn2 fn = (TestFn2) functionModel.build(ComponentMap.EMPTY).getReceiver();
@@ -139,10 +154,19 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, new Impl2());
 
     Object results = fn.foo("bar");
-    Element element = CACHE.get(key);
+    Element element = cache.get(key);
     assertNotNull(element);
-    Object cacheValue = element.getObjectValue();
-    assertSame(cacheValue, results);
+    FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
+    assertSame(task.get(), results);
+  }
+
+  private static Ehcache createCache() {
+    CacheConfiguration config = new CacheConfiguration(Integer.toString(s_nextCacheName.getAndIncrement()), 1000)
+        .eternal(true)
+        .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE));
+    Ehcache cache = new net.sf.ehcache.Cache(config);
+    CacheManager.getInstance().addCache(cache);
+    return cache;
   }
 
   interface TestFn2 {

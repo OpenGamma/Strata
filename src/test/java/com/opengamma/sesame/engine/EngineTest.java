@@ -117,8 +117,7 @@ public class EngineTest {
     functionRepo.register(EquityPresentValueFunction.class);
 
     ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
-    ComponentMap componentMap = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class,
-                                                                                  marketDataProvider));
+    ComponentMap componentMap = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class, marketDataProvider));
     Engine engine = new Engine(new DirectExecutorService(), componentMap, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);

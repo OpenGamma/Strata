@@ -14,7 +14,8 @@
 
   <!--<logger name="com.opengamma.sesame.engine.Engine" level="debug"/>-->
   <logger name="com.opengamma.sesame.FXForwardPVFunctionTest" level="info"/>
-  <logger name="com.opengamma.sesame.cache.ProxyCacheLoader" level="debug"/>
-  <logger name="com.opengamma.sesame.cache.CachingProxyDecorator$EntryFactory" level="debug"/>
+  <!--<logger name="com.opengamma.sesame.cache.CachingProxyDecorator" level="debug"/>-->
+  <!--<logger name="com.opengamma.sesame.cache.ProxyCacheLoader" level="debug"/>-->
+  <!--<logger name="com.opengamma.sesame.cache.CachingProxyDecorator$EntryFactory" level="debug"/>-->
 
 </configuration>
