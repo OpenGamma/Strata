@@ -33,6 +33,7 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 
 /**
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
+ * TODO thorough docs for the basis of caching, i.e. has to be the same function instance but instances are shared
  */
 public class CachingProxyDecorator implements NodeDecorator {
 
@@ -60,7 +61,6 @@ public class CachingProxyDecorator implements NodeDecorator {
     if (!(node instanceof ProxyNode) && !(node instanceof InterfaceNode)) {
       return node;
     }
-    // TODO extract this logic so it can be reused in FunctionBuilder? static helper method
     Class<?> interfaceType;
     Class<?> implementationType;
     if (node instanceof InterfaceNode) {
@@ -70,18 +70,10 @@ public class CachingProxyDecorator implements NodeDecorator {
       implementationType = ((ProxyNode) node).getImplementationType();
       interfaceType = ((ProxyNode) node).getInterfaceType();
     }
-    // TODO use ConfigUtils.hasMethodAnnotation()
-    for (Method method : interfaceType.getMethods()) {
-      if (method.getAnnotation(Cache.class) != null) {
-        HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache);
-        return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
-      }
-    }
-    for (Method method : implementationType.getMethods()) {
-      if (method.getAnnotation(Cache.class) != null) {
-        HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache);
-        return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
-      }
+    if (ConfigUtils.hasMethodAnnotation(interfaceType, Cache.class) ||
+        ConfigUtils.hasMethodAnnotation(implementationType, Cache.class)) {
+      HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache);
+      return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
     return node;
   }

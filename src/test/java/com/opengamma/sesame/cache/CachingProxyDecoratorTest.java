@@ -104,9 +104,9 @@ public class CachingProxyDecoratorTest {
   @Test
   public void sameFunctionDifferentConstructorArgs() {
     FunctionConfig config1 = config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "s"))));
+                                    arguments(function(Impl.class, argument("s", "a string"))));
     FunctionConfig config2 = config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "t"))));
+                                    arguments(function(Impl.class, argument("s", "a different string"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     Ehcache cache = createCache();
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
@@ -123,8 +123,6 @@ public class CachingProxyDecoratorTest {
     assertTrue(val1 != val2);
   }
 
-  // TODO test for two functions that are the same but depend on different functions
-  // both different impls of the same interface or two instances of the same class with different args and behaviour
 
   interface TestFn {
 
@@ -145,6 +143,110 @@ public class CachingProxyDecoratorTest {
     public Object foo(String arg) {
       return _s + new Object();
     }
+  }
+
+  /* package */ interface TopLevelFunction {
+
+    @Output("topLevel")
+    Object fn();
+  }
+
+  public static class TopLevel implements TopLevelFunction {
+
+    private final DelegateFunction _delegateFunction;
+
+    public TopLevel(DelegateFunction delegateFunction) {
+      _delegateFunction = delegateFunction;
+    }
+
+    @Override
+    @Cache
+    public Object fn() {
+      return _delegateFunction.fn();
+    }
+  }
+
+  /* package */ interface DelegateFunction {
+
+    Object fn();
+  }
+
+  public static class Delegate1 implements DelegateFunction {
+
+    private final String _s;
+
+    public Delegate1(String s) {
+      _s = s;
+    }
+
+    @Override
+    public Object fn() {
+      return _s + new Object();
+    }
+  }
+
+  public static class Delegate2 implements DelegateFunction {
+
+    @Override
+    public Object fn() {
+      return new Object();
+    }
+  }
+
+  /**
+   * 2 functions where the top level function is the same and the dependency functions are the same implementation
+   * type but have different constructor args.
+   */
+  @Test
+  public void sameFunctionDifferentDependencyInstances() {
+    FunctionConfig config1 = config(implementations(TopLevelFunction.class, TopLevel.class,
+                                                    DelegateFunction.class, Delegate1.class),
+                                    arguments(function(Delegate1.class, argument("s", "a string"))));
+    FunctionConfig config2 = config(implementations(TopLevelFunction.class, TopLevel.class,
+                                                    DelegateFunction.class, Delegate1.class),
+                                    arguments(function(Delegate1.class, argument("s", "a different string"))));
+    FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
+    Ehcache cache = createCache();
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+
+    FunctionBuilder functionBuilder = new FunctionBuilder();
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
+    TopLevelFunction fn1 = (TopLevelFunction) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
+    TopLevelFunction fn2 = (TopLevelFunction) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+
+    Object val1 = fn1.fn();
+    Object val2 = fn2.fn();
+    assertTrue(val1 != val2);
+  }
+
+  /**
+   * 2 functions where the top level function is the same and the dependency functions implement the same interface
+   * but are instances of different classes.
+   */
+  @Test
+  public void sameFunctionDifferentDependencyTypes() {
+    FunctionConfig config1 = config(implementations(TopLevelFunction.class, TopLevel.class,
+                                                    DelegateFunction.class, Delegate1.class),
+                                    arguments(function(Delegate1.class, argument("s", "a string"))));
+    FunctionConfig config2 = config(implementations(TopLevelFunction.class, TopLevel.class,
+                                                    DelegateFunction.class, Delegate2.class),
+                                    arguments(function(Delegate2.class, argument("s", "a string"))));
+    FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
+    Ehcache cache = createCache();
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+
+    FunctionBuilder functionBuilder = new FunctionBuilder();
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
+    TopLevelFunction fn1 = (TopLevelFunction) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
+    TopLevelFunction fn2 = (TopLevelFunction) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+
+    Object val1 = fn1.fn();
+    Object val2 = fn2.fn();
+    assertTrue(val1 != val2);
   }
 
   /** check caching works when the class method is annotated and the interface isn't */
