@@ -13,7 +13,6 @@ import com.opengamma.sesame.function.Parameter;
 
 /**
  * TODO isValid()? all impls except exceptionNode return true?
- * TODO should every node have a (possibly null) Parameter?
  */
 public abstract class Node {
 

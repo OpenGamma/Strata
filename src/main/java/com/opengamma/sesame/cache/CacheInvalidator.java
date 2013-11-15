@@ -6,13 +6,12 @@
 package com.opengamma.sesame.cache;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Provider;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -22,11 +21,12 @@ import net.sf.ehcache.Ehcache;
 
 /**
  * TODO if this turns out to be a point of contention will need to remove the locking and make thread safe
+ * or have multiple thread local copies and merge them at the end of the cycle before the invalidation step
  */
 /* package */ class CacheInvalidator {
 
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
-  private final Map<Object, Set<MethodInvocationKey>> _idsToKeys = Maps.newHashMap();
+  private final SetMultimap<Object, MethodInvocationKey> _idsToKeys = HashMultimap.create();
   private final Ehcache _cache;
 
   /* package */ CacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods, Ehcache cache) {
@@ -49,13 +49,7 @@ import net.sf.ehcache.Ehcache;
   }
 
   private void registerSingle(Object id) {
-    Set<MethodInvocationKey> methodsForId = _idsToKeys.get(id);
-    if (methodsForId == null) {
-      methodsForId = Sets.newHashSet(_executingMethods.get());
-      _idsToKeys.put(id, methodsForId);
-    } else {
-      methodsForId.addAll(_executingMethods.get());
-    }
+    _idsToKeys.putAll(id, _executingMethods.get());
   }
 
   /* package */ synchronized void invalidate(ExternalId id) {
@@ -67,7 +61,7 @@ import net.sf.ehcache.Ehcache;
   }
 
   private void invalidateSingle(Object id) {
-    Set<MethodInvocationKey> keys = _idsToKeys.remove(id);
+    Set<MethodInvocationKey> keys = _idsToKeys.removeAll(id);
     if (keys != null) {
       _cache.removeAll(keys);
     }

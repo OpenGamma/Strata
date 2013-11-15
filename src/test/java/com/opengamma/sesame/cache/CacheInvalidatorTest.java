@@ -117,6 +117,6 @@ public class CacheInvalidatorTest {
    */
   @Test
   public void callStack() {
-    // TODO some code maybe?
+
   }
 }
