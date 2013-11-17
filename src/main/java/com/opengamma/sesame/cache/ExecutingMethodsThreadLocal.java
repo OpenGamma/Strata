@@ -15,7 +15,10 @@ import javax.inject.Provider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Thread local deque of {@link MethodInvocationKey}s whose initial value is an empty deque.
+ * Thread local stack of {@link MethodInvocationKey}s whose initial value is an empty stack.
+ * When a cacheable method is executed the corresponding cache key is {@link #push}ed into this object.
+ * This makes it available to {@link CacheInvalidator} to associate with any subscriptions that occur
+ * while it's executing.
  */
 public class ExecutingMethodsThreadLocal implements Provider<Collection<MethodInvocationKey>> {
 
