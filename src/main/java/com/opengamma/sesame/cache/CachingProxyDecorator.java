@@ -40,6 +40,7 @@ public class CachingProxyDecorator implements NodeDecorator {
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 
   private final Ehcache _cache;
+  private final ExecutingMethodsThreadLocal _executingMethods;
 
   // TODO this probably belongs somewhere else but this will do for now
   public static Ehcache createCache() {
@@ -52,8 +53,9 @@ public class CachingProxyDecorator implements NodeDecorator {
     return cache;
   }
 
-  public CachingProxyDecorator(Ehcache cache) {
-    this._cache = ArgumentChecker.notNull(cache, "cache");
+  public CachingProxyDecorator(Ehcache cache, ExecutingMethodsThreadLocal executingMethods) {
+    _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
+    _cache = ArgumentChecker.notNull(cache, "cache");
   }
 
   @Override
@@ -72,7 +74,7 @@ public class CachingProxyDecorator implements NodeDecorator {
     }
     if (ConfigUtils.hasMethodAnnotation(interfaceType, Cache.class) ||
         ConfigUtils.hasMethodAnnotation(implementationType, Cache.class)) {
-      HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache);
+      HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache, _executingMethods);
       return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
     return node;
@@ -86,8 +88,13 @@ public class CachingProxyDecorator implements NodeDecorator {
     private final Class<?> _interfaceType;
     private final Class<?> _implementationType;
     private final Ehcache _cache;
+    private final ExecutingMethodsThreadLocal _executingMethods;
 
-    private HandlerFactory(Class<?> implementationType, Class<?> interfaceType, Ehcache cache) {
+    private HandlerFactory(Class<?> implementationType,
+                           Class<?> interfaceType,
+                           Ehcache cache,
+                           ExecutingMethodsThreadLocal executingMethods) {
+      _executingMethods = executingMethods;
       _cache = ArgumentChecker.notNull(cache, "cache");
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
       _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
@@ -116,7 +123,7 @@ public class CachingProxyDecorator implements NodeDecorator {
           }
         }
       }
-      return new Handler(delegate, cachedMethods, _implementationType, _cache);
+      return new Handler(delegate, cachedMethods, _implementationType, _cache, _executingMethods);
     }
   }
 
@@ -136,9 +143,15 @@ public class CachingProxyDecorator implements NodeDecorator {
     private final Set<Method> _cachedMethods;
     private final Class<?> _implementationType;
     private final Ehcache _cache;
+    private final ExecutingMethodsThreadLocal _executingMethods;
 
-    private Handler(Object delegate, Set<Method> cachedMethods, Class<?> implementationType, Ehcache cache) {
-      _cache = cache;
+    private Handler(Object delegate,
+                    Set<Method> cachedMethods,
+                    Class<?> implementationType,
+                    Ehcache cache,
+                    ExecutingMethodsThreadLocal executingMethods) {
+      _cache = ArgumentChecker.notNull(cache, "cache");
+      _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
@@ -194,6 +207,7 @@ public class CachingProxyDecorator implements NodeDecorator {
       public Object call() throws Exception {
         try {
           s_logger.debug("Loading value for key {}", _key);
+          _executingMethods.push(_key);
           return _method.invoke(_delegate, _args);
         } catch (IllegalAccessException | InvocationTargetException e) {
           Throwable cause = e.getCause();
@@ -202,6 +216,8 @@ public class CachingProxyDecorator implements NodeDecorator {
           } else {
             throw ((Exception) cause);
           }
+        } finally {
+          _executingMethods.pop();
         }
       }
     }

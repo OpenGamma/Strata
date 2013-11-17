@@ -50,7 +50,8 @@ public class CachingProxyDecoratorTest {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
     Ehcache cache = createCache();
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
@@ -72,7 +73,8 @@ public class CachingProxyDecoratorTest {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
     Ehcache cache = createCache();
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionBuilder functionBuilder = new FunctionBuilder();
 
@@ -94,7 +96,8 @@ public class CachingProxyDecoratorTest {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
     Ehcache cache = createCache();
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
@@ -109,8 +112,9 @@ public class CachingProxyDecoratorTest {
                                     arguments(function(Impl.class, argument("s", "a different string"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     Ehcache cache = createCache();
-    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
-    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
@@ -207,8 +211,9 @@ public class CachingProxyDecoratorTest {
                                     arguments(function(Delegate1.class, argument("s", "a different string"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
     Ehcache cache = createCache();
-    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
-    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
@@ -235,8 +240,9 @@ public class CachingProxyDecoratorTest {
                                     arguments(function(Delegate2.class, argument("s", "a string"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
     Ehcache cache = createCache();
-    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
-    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
@@ -254,7 +260,8 @@ public class CachingProxyDecoratorTest {
   public void annotationOnClass() throws Exception {
     FunctionConfig config = config(implementations(TestFn2.class, Impl2.class));
     Ehcache cache = createCache();
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
     TestFn2 fn = (TestFn2) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();

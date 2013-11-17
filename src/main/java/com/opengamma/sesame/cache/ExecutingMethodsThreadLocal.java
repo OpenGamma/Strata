@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Thread local deque of {@link MethodInvocationKey}s whose initial value is an empty deque.
  */
-/* package */ class ExecutingMethodsThreadLocal implements Provider<Collection<MethodInvocationKey>> {
+public class ExecutingMethodsThreadLocal implements Provider<Collection<MethodInvocationKey>> {
 
   private final ThreadLocal<Deque<MethodInvocationKey>> _executingMethods = new ThreadLocal<Deque<MethodInvocationKey>>() {
     @Override
