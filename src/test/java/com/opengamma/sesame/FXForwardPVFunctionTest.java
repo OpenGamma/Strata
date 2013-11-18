@@ -77,6 +77,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
+import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
@@ -87,6 +88,7 @@ import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.SimpleFunctionRepo;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
+import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
@@ -126,7 +128,7 @@ public class FXForwardPVFunctionTest {
                                              RegionSource.class);
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, graphConfig);
-    Object fn = functionModel.build(componentMap).getReceiver();
+    Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
     assertTrue(fn instanceof FXForwardPVFunction);
     System.out.println(functionModel.prettyPrint(true));
   }
@@ -159,7 +161,8 @@ public class FXForwardPVFunctionTest {
                                                   MarketDataProviderFunction.class, marketDataProvider);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     Ehcache cache = CachingProxyDecorator.createCache();
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, cachingDecorator);
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
     //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, TimingProxy.INSTANCE);
     //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
@@ -250,7 +253,8 @@ public class FXForwardPVFunctionTest {
     //ExecutorService executor = new EngineTest.DirectExecutorService();
     //CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE);
     Ehcache cache = CachingProxyDecorator.createCache();
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(new CachingProxyDecorator(cache), TracingProxy.INSTANCE);
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
     //CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, CachingProxyDecorator.INSTANCE);
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");

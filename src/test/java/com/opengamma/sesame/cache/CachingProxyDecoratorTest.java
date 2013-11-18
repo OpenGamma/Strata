@@ -15,6 +15,7 @@ import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,6 +27,7 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.test.TestGroup;
 
@@ -48,12 +50,15 @@ public class CachingProxyDecoratorTest {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
     Ehcache cache = createCache();
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     Method foo = ConfigUtils.getMethod(TestFn.class, "foo");
-    MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, new Impl("s"));
+    CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
+    Impl delegate = (Impl) invocationHandler.getDelegate();
+    MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, delegate);
 
     Object results = fn.foo("bar");
     Element element = cache.get(key);
@@ -68,14 +73,17 @@ public class CachingProxyDecoratorTest {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
     Ehcache cache = createCache();
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
+    FunctionBuilder functionBuilder = new FunctionBuilder();
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn1 = (TestFn) functionModel1.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn1 = (TestFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
 
     FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn2 = (TestFn) functionModel2.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn2 = (TestFn) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+
     assertSame(fn1.foo("bar"), fn2.foo("bar"));
   }
 
@@ -88,37 +96,37 @@ public class CachingProxyDecoratorTest {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
     Ehcache cache = createCache();
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn fn = (TestFn) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertSame(fn.foo("bar"), fn.foo("bar"));
   }
 
-  // TODO this is disabled because it's a test for a bug that hasn't been fixed yet
-  @Test(enabled = false)
+  @Test
   public void sameFunctionDifferentConstructorArgs() {
     FunctionConfig config1 = config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "s"))));
+                                    arguments(function(Impl.class, argument("s", "a string"))));
     FunctionConfig config2 = config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "t"))));
+                                    arguments(function(Impl.class, argument("s", "a different string"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     Ehcache cache = createCache();
-    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
-    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
+    FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
-    TestFn fn1 = (TestFn) functionModel1.build(ComponentMap.EMPTY).getReceiver();
-
+    TestFn fn1 = (TestFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
     FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
-    TestFn fn2 = (TestFn) functionModel2.build(ComponentMap.EMPTY).getReceiver();
+    TestFn fn2 = (TestFn) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+
     Object val1 = fn1.foo("bar");
     Object val2 = fn2.foo("bar");
     assertTrue(val1 != val2);
   }
 
-  // TODO test for two functions that are the same but depend on different functions
-  // either different impls of the same interface or two instances of the same class with different args and behaviour
 
   interface TestFn {
 
@@ -141,17 +149,126 @@ public class CachingProxyDecoratorTest {
     }
   }
 
+  /* package */ interface TopLevelFunction {
+
+    @Output("topLevel")
+    Object fn();
+  }
+
+  public static class TopLevel implements TopLevelFunction {
+
+    private final DelegateFunction _delegateFunction;
+
+    public TopLevel(DelegateFunction delegateFunction) {
+      _delegateFunction = delegateFunction;
+    }
+
+    @Override
+    @Cache
+    public Object fn() {
+      return _delegateFunction.fn();
+    }
+  }
+
+  /* package */ interface DelegateFunction {
+
+    Object fn();
+  }
+
+  public static class Delegate1 implements DelegateFunction {
+
+    private final String _s;
+
+    public Delegate1(String s) {
+      _s = s;
+    }
+
+    @Override
+    public Object fn() {
+      return _s + new Object();
+    }
+  }
+
+  public static class Delegate2 implements DelegateFunction {
+
+    @Override
+    public Object fn() {
+      return new Object();
+    }
+  }
+
+  /**
+   * 2 functions where the top level function is the same and the dependency functions are the same implementation
+   * type but have different constructor args.
+   */
+  @Test
+  public void sameFunctionDifferentDependencyInstances() {
+    FunctionConfig config1 = config(implementations(TopLevelFunction.class, TopLevel.class,
+                                                    DelegateFunction.class, Delegate1.class),
+                                    arguments(function(Delegate1.class, argument("s", "a string"))));
+    FunctionConfig config2 = config(implementations(TopLevelFunction.class, TopLevel.class,
+                                                    DelegateFunction.class, Delegate1.class),
+                                    arguments(function(Delegate1.class, argument("s", "a different string"))));
+    FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
+    Ehcache cache = createCache();
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
+
+    FunctionBuilder functionBuilder = new FunctionBuilder();
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
+    TopLevelFunction fn1 = (TopLevelFunction) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
+    TopLevelFunction fn2 = (TopLevelFunction) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+
+    Object val1 = fn1.fn();
+    Object val2 = fn2.fn();
+    assertTrue(val1 != val2);
+  }
+
+  /**
+   * 2 functions where the top level function is the same and the dependency functions implement the same interface
+   * but are instances of different classes.
+   */
+  @Test
+  public void sameFunctionDifferentDependencyTypes() {
+    FunctionConfig config1 = config(implementations(TopLevelFunction.class, TopLevel.class,
+                                                    DelegateFunction.class, Delegate1.class),
+                                    arguments(function(Delegate1.class, argument("s", "a string"))));
+    FunctionConfig config2 = config(implementations(TopLevelFunction.class, TopLevel.class,
+                                                    DelegateFunction.class, Delegate2.class),
+                                    arguments(function(Delegate2.class, argument("s", "a string"))));
+    FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
+    Ehcache cache = createCache();
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
+    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
+
+    FunctionBuilder functionBuilder = new FunctionBuilder();
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
+    TopLevelFunction fn1 = (TopLevelFunction) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
+    TopLevelFunction fn2 = (TopLevelFunction) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+
+    Object val1 = fn1.fn();
+    Object val2 = fn2.fn();
+    assertTrue(val1 != val2);
+  }
+
   /** check caching works when the class method is annotated and the interface isn't */
   @Test
   public void annotationOnClass() throws Exception {
     FunctionConfig config = config(implementations(TestFn2.class, Impl2.class));
     Ehcache cache = createCache();
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new CachingProxyDecorator(cache));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
-    TestFn2 fn = (TestFn2) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFn2 fn = (TestFn2) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     Method foo = ConfigUtils.getMethod(TestFn2.class, "foo");
-    MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, new Impl2());
+    CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
+    Impl2 delegate = (Impl2) invocationHandler.getDelegate();
+    MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, delegate);
 
     Object results = fn.foo("bar");
     Element element = cache.get(key);

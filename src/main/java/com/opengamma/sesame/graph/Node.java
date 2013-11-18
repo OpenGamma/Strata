@@ -13,7 +13,6 @@ import com.opengamma.sesame.function.Parameter;
 
 /**
  * TODO isValid()? all impls except exceptionNode return true?
- * TODO should every node have a (possibly null) Parameter?
  */
 public abstract class Node {
 
@@ -25,7 +24,7 @@ public abstract class Node {
     _parameter = parameter;
   }
 
-  /* package */ public abstract Object create(ComponentMap componentMap);
+  /* package */ public abstract Object create(ComponentMap componentMap, List<Object> dependencies);
 
   public List<Node> getDependencies() {
     return Collections.emptyList();

@@ -14,6 +14,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.List;
+
 import javax.inject.Provider;
 
 import org.testng.annotations.Test;
@@ -38,7 +40,7 @@ public class FunctionModelTest {
   public void basicImpl() {
     FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
-    TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFunction fn = (TestFunction) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof BasicImpl);
   }
 
@@ -49,7 +51,7 @@ public class FunctionModelTest {
     FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
-    TestFunction fn = (TestFunction) functionModel.build(infrastructure).getReceiver();
+    TestFunction fn = (TestFunction) functionModel.build(new FunctionBuilder(), infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
@@ -60,7 +62,7 @@ public class FunctionModelTest {
     FunctionConfig config = config(implementations(TestFunction.class, CallsOtherFunction.class,
                                                    CollaboratorFunction.class, Collaborator.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
-    TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFunction fn = (TestFunction) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof CallsOtherFunction);
     //noinspection ConstantConditions
     assertTrue(((CallsOtherFunction) fn)._collaborator instanceof Collaborator);
@@ -70,7 +72,7 @@ public class FunctionModelTest {
   public void concreteTypes() {
     FunctionMetadata metadata = ConfigUtils.createMetadata(Concrete1.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
-    Concrete1 fn = (Concrete1) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    Concrete1 fn = (Concrete1) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertNotNull(fn._concrete);
   }
 
@@ -82,19 +84,20 @@ public class FunctionModelTest {
                                        function(PrivateConstructorProvider.class,
                                                 argument("providerName", providerName))));
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
-    PrivateConstructor fn = (PrivateConstructor) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    PrivateConstructor fn = (PrivateConstructor) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertEquals(providerName, fn.getName());
   }
 
   @Test
   public void decorators() {
     NodeDecorator decorator = new NodeDecorator() {
+
       @Override
       public Node decorateNode(final Node node) {
-        return new Node(null) {
+        return new DependentNode(null, node) {
           @Override
-          public Object create(ComponentMap componentMap) {
-            final TestFunction fn = (TestFunction) node.create(componentMap);
+          public Object create(ComponentMap componentMap, List<Object> dependencies) {
+            final TestFunction fn = (TestFunction) dependencies.get(0);
             return new TestFunction() {
               @Override
               public Object foo() {
@@ -108,7 +111,7 @@ public class FunctionModelTest {
     FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, decorator);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
-    TestFunction fn = (TestFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    TestFunction fn = (TestFunction) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     // the basic method just returns "foo"
     assertEquals(Lists.newArrayList("decorated", "foo"), fn.foo());
   }
@@ -159,6 +162,12 @@ public class FunctionModelTest {
   @Test
   public void cyclicDependency() {
 
+
+  }
+
+  @Test
+  public void sharedNodes() {
+    // TODO or should this be in a test for FunctionBuilder
 
   }
 }

@@ -5,28 +5,28 @@
  */
 package com.opengamma.sesame.cache;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Provider;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
 
 import net.sf.ehcache.Ehcache;
 
 /**
  * TODO if this turns out to be a point of contention will need to remove the locking and make thread safe
+ * or have multiple thread local copies and merge them at the end of the cycle before the invalidation step
  */
 /* package */ class CacheInvalidator {
 
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
-  private final Map<Object, Set<MethodInvocationKey>> _idsToKeys = Maps.newHashMap();
+  private final SetMultimap<Object, MethodInvocationKey> _idsToKeys = HashMultimap.create();
   private final Ehcache _cache;
 
   /* package */ CacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods, Ehcache cache) {
@@ -34,53 +34,34 @@ import net.sf.ehcache.Ehcache;
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
   }
 
-  // provider decorators register IDs when they're requested (e.g. market data, config)
-  /* package */ synchronized void register(Object... ids) {
-    register(Arrays.asList(ids));
+  /* package */ synchronized void register(ExternalId id) {
+    registerSingle(id);
   }
 
-  /* package */ synchronized void register(Collection<Object> ids) {
-    for (Object id : ids) {
-      if (id instanceof ExternalIdBundle) {
-        for (ExternalId externalId : ((ExternalIdBundle) id).getExternalIds()) {
-          registerSingle(externalId);
-        }
-      } else {
-        registerSingle(id);
-      }
+  /* package */ synchronized void register(ExternalIdBundle bundle) {
+    for (ExternalId id : bundle.getExternalIds()) {
+      registerSingle(id);
     }
+  }
+
+  /* package */ synchronized void register(ObjectId id) {
+    registerSingle(id);
   }
 
   private void registerSingle(Object id) {
-    Set<MethodInvocationKey> methodsForId = _idsToKeys.get(id);
-    if (methodsForId == null) {
-      methodsForId = Sets.newHashSet(_executingMethods.get());
-      _idsToKeys.put(id, methodsForId);
-    } else {
-      methodsForId.addAll(_executingMethods.get());
-    }
+    _idsToKeys.putAll(id, _executingMethods.get());
   }
 
-  /* package */ synchronized void invalidate(Object... ids) {
-    invalidate(Arrays.asList(ids));
+  /* package */ synchronized void invalidate(ExternalId id) {
+    invalidateSingle(id);
   }
 
-  // engine calls this between cycles with the ids of everything that's updated
-  // corresponding cache keys are looked up and cleared out
-  /* package */ synchronized void invalidate(Collection<Object> ids) {
-    for (Object id : ids) {
-      if (id instanceof ExternalIdBundle) {
-        for (ExternalId externalId : ((ExternalIdBundle) id).getExternalIds()) {
-          invalidateSingle(externalId);
-        }
-      } else {
-        invalidateSingle(id);
-      }
-    }
+  /* package */ synchronized void invalidate(ObjectId id) {
+    invalidateSingle(id);
   }
 
   private void invalidateSingle(Object id) {
-    Set<MethodInvocationKey> keys = _idsToKeys.remove(id);
+    Set<MethodInvocationKey> keys = _idsToKeys.removeAll(id);
     if (keys != null) {
       _cache.removeAll(keys);
     }

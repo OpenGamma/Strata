@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.util.test.TestGroup;
 
@@ -75,7 +75,7 @@ public class CacheInvalidatorTest {
     Cache cache = createCache();
     CacheInvalidator invalidator = new CacheInvalidator(provider, cache);
     // doesn't matter what the methods are
-    UniqueId abc2 = UniqueId.of("abc", "2");
+    ObjectId abc2 = ObjectId.of("abc", "2");
     ExternalId abc1 = ExternalId.of("abc", "1");
     ExternalId bnd1 = ExternalId.of("bnd", "1");
     ExternalId bnd2 = ExternalId.of("bnd", "2");
@@ -117,6 +117,6 @@ public class CacheInvalidatorTest {
    */
   @Test
   public void callStack() {
-    // TODO some code maybe?
+
   }
 }

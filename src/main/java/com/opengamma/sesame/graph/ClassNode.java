@@ -12,8 +12,6 @@ import java.util.Objects;
 
 import javax.inject.Provider;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -23,26 +21,20 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A node in the dependency model an object referred to by its concrete class that must be created by the injection framework.
  */
-public class ClassNode extends Node {
+public class ClassNode extends DependentNode {
 
-  private final List<Node> _arguments;
   private final Class<?> _type;
 
   public ClassNode(Class<?> type, List<Node> arguments, Parameter parameter) {
-    super(parameter);
+    super(parameter, arguments);
     _type = ArgumentChecker.notNull(type, "type");
-    _arguments = ImmutableList.copyOf(ArgumentChecker.notNull(arguments, "arguments"));
   }
 
   @Override
-  public Object create(ComponentMap componentMap) {
+  public Object create(ComponentMap componentMap, List<Object> dependencies) {
     Constructor<?> constructor = ConfigUtils.getConstructor(_type);
     try {
-      List<Object> arguments = Lists.newArrayListWithCapacity(_arguments.size());
-      for (Node argument : _arguments) {
-        arguments.add(argument.create(componentMap));
-      }
-      Object instance = constructor.newInstance(arguments.toArray());
+      Object instance = constructor.newInstance(dependencies.toArray());
       if (instance instanceof Provider) {
         return ((Provider) instance).get();
       } else {
@@ -53,17 +45,8 @@ public class ClassNode extends Node {
     }
   }
 
-  @Override
-  public List<Node> getDependencies() {
-    return _arguments;
-  }
-
   public Class<?> getType() {
     return _type;
-  }
-
-  public List<Node> getArguments() {
-    return _arguments;
   }
 
   @Override
@@ -73,7 +56,7 @@ public class ClassNode extends Node {
 
   @Override
   public int hashCode() {
-    return Objects.hash(_arguments, _type);
+    return 31 * super.hashCode() + Objects.hash(_type);
   }
 
   @Override
@@ -84,7 +67,10 @@ public class ClassNode extends Node {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
+    if (!super.equals(obj)) {
+      return false;
+    }
     final ClassNode other = (ClassNode) obj;
-    return Objects.equals(this._arguments, other._arguments) && Objects.equals(this._type, other._type);
+    return Objects.equals(this._type, other._type);
   }
 }

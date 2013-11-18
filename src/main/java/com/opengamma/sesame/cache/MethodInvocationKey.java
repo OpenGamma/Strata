@@ -31,7 +31,6 @@ import com.opengamma.util.ArgumentChecker;
   private final Class<?> _receiverType;
   private final Method _method;
   private final Object[] _args;
-  // TODO this needs to be used in hashCode and equals using object identity / hashCode
   private final Object _receiver;
 
   /* package */ MethodInvocationKey(Class<?> receiverType, Method method, Object[] args, Object receiver) {
@@ -43,7 +42,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public int hashCode() {
-    return Objects.hash(_receiverType, _method, Arrays.deepHashCode(_args));
+    return Objects.hash(_receiverType, _method, Arrays.deepHashCode(_args), System.identityHashCode(_receiver));
   }
 
   @Override
@@ -58,7 +57,8 @@ import com.opengamma.util.ArgumentChecker;
     return
         Objects.equals(this._receiverType, other._receiverType) &&
         Objects.equals(this._method, other._method) &&
-        Arrays.deepEquals(this._args, other._args);
+        Arrays.deepEquals(this._args, other._args) &&
+        _receiver == other._receiver;
   }
 
   @Override

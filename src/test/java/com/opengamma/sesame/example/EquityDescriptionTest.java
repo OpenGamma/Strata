@@ -22,6 +22,7 @@ import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
+import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -49,7 +50,7 @@ public class EquityDescriptionTest {
   public void defaultImpl() {
     FunctionConfig config = config(implementations(EquityDescriptionFunction.class, EquityDescription.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
-    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     String description = fn.getDescription(SECURITY);
     assertEquals(description, SECURITY_NAME);
   }
@@ -63,7 +64,7 @@ public class EquityDescriptionTest {
                    function(IdScheme.class,
                             argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
-    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(ComponentMap.EMPTY).getReceiver();
+    EquityDescriptionFunction fn = (EquityDescriptionFunction) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     String description = fn.getDescription(SECURITY);
     assertEquals(description, ACTIV_VALUE);
   }
