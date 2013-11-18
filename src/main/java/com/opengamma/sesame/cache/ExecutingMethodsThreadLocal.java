@@ -5,10 +5,9 @@
  */
 package com.opengamma.sesame.cache;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.inject.Provider;
 
@@ -20,18 +19,18 @@ import com.opengamma.util.ArgumentChecker;
  * This makes it available to {@link CacheInvalidator} to associate with any subscriptions that occur
  * while it's executing.
  */
-public class ExecutingMethodsThreadLocal implements Provider<Collection<MethodInvocationKey>> {
+public class ExecutingMethodsThreadLocal implements Provider<List<MethodInvocationKey>> {
 
-  private final ThreadLocal<Deque<MethodInvocationKey>> _executingMethods = new ThreadLocal<Deque<MethodInvocationKey>>() {
+  private final ThreadLocal<LinkedList<MethodInvocationKey>> _executingMethods = new ThreadLocal<LinkedList<MethodInvocationKey>>() {
     @Override
-    protected Deque<MethodInvocationKey> initialValue() {
+    protected LinkedList<MethodInvocationKey> initialValue() {
       return new LinkedList<>();
     }
   };
 
   @Override
-  public Collection<MethodInvocationKey> get() {
-    return Collections.unmodifiableCollection(_executingMethods.get());
+  public List<MethodInvocationKey> get() {
+    return Collections.unmodifiableList(_executingMethods.get());
   }
 
   /* package */ void push(MethodInvocationKey key) {

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.engine;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
@@ -27,6 +29,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.sesame.graph.Provides;
 
 /**
  * Loads components using {@link ToolContext} configuration and puts them in a map.
@@ -70,8 +73,20 @@ public final class ComponentMap {
 
   public Object getComponent(Class<?> type) {
     Object component = _components.get(type);
+    // TODO move this to a helper
     if (component instanceof Provider) {
-      return ((Provider) component).get();
+      Method getMethod;
+      try {
+        getMethod = component.getClass().getMethod("get", new Class[0]);
+      } catch (NoSuchMethodException e) {
+        // won't happen, we know it's a provider
+        throw new OpenGammaRuntimeException("Unexpected exception", e);
+      }
+      if (getMethod.getAnnotation(Provides.class) != null) {
+        return ((Provider) component).get();
+      } else {
+        return component;
+      }
     } else {
       return component;
     }

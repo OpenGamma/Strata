@@ -36,6 +36,7 @@ public class ClassNode extends DependentNode {
     try {
       Object instance = constructor.newInstance(dependencies.toArray());
       if (instance instanceof Provider) {
+        // TODO check for @Provides
         return ((Provider) instance).get();
       } else {
         return instance;

@@ -10,17 +10,21 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertSame;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.LinkedList;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
@@ -191,9 +195,15 @@ public class CachingProxyDecoratorTest {
 
   public static class Delegate2 implements DelegateFunction {
 
+    private final String _s;
+
+    public Delegate2(String s) {
+      _s = s;
+    }
+
     @Override
     public Object fn() {
-      return new Object();
+      return _s + new Object();
     }
   }
 
@@ -298,6 +308,83 @@ public class CachingProxyDecoratorTest {
     @Override
     public Object foo(String arg) {
       return new Object();
+    }
+  }
+
+  /** Check the expected cache keys are pushed onto a thread local stack while a cacheable method executes. */
+  @Test
+  public void executingMethods() {
+    FunctionConfig config = config(implementations(ExecutingMethodsI1.class, ExecutingMethodsC1.class,
+                                                   ExecutingMethodsI2.class, ExecutingMethodsC2.class));
+    ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
+    ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
+                                                                                executingMethods));
+    GraphConfig graphConfig = new GraphConfig(config, components, new CachingProxyDecorator(createCache(), executingMethods));
+    ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class, "fn", graphConfig);
+    i1.fn("s", 1);
+  }
+
+  interface ExecutingMethodsI1 {
+
+    @Output("abc")
+    @Cache
+    Object fn(String s, int i);
+  }
+
+  public static class ExecutingMethodsC1 implements ExecutingMethodsI1 {
+
+    private final ExecutingMethodsI2 _i2;
+    private final ExecutingMethodsThreadLocal _executingMethods;
+
+    public ExecutingMethodsC1(ExecutingMethodsI2 i2, ExecutingMethodsThreadLocal executingMethods) {
+      _i2 = i2;
+      // this is a bit grubby but necessary so the method keys can be checked
+      CachingProxyDecorator.Handler handler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(i2);
+      ExecutingMethodsC2 c2 = (ExecutingMethodsC2) handler.getDelegate();
+      c2._c1 = this;
+      _executingMethods = executingMethods;
+    }
+
+    @Override
+    public Object fn(String s, int i) {
+      Method fn = ConfigUtils.getMethod(ExecutingMethodsI1.class, "fn");
+      MethodInvocationKey key = new MethodInvocationKey(ExecutingMethodsC1.class, fn, new Object[]{s, i}, this);
+      LinkedList<MethodInvocationKey> expected = Lists.newLinkedList();
+      expected.add(key);
+      assertEquals(expected, _executingMethods.get());
+      Object retVal = _i2.fn(s, i, s + i);
+      assertEquals(expected, _executingMethods.get());
+      return retVal;
+    }
+  }
+
+  interface ExecutingMethodsI2 {
+
+    @Cache
+    Object fn(String s, int i, String s2);
+  }
+
+  public static class ExecutingMethodsC2 implements ExecutingMethodsI2 {
+
+    private final ExecutingMethodsThreadLocal _executingMethods;
+
+    private ExecutingMethodsC1 _c1;
+
+    public ExecutingMethodsC2(ExecutingMethodsThreadLocal executingMethods) {
+      _executingMethods = executingMethods;
+    }
+
+    @Override
+    public Object fn(String s, int i, String s2) {
+      Method fn1 = ConfigUtils.getMethod(ExecutingMethodsI1.class, "fn");
+      MethodInvocationKey key1 = new MethodInvocationKey(ExecutingMethodsC1.class, fn1, new Object[]{s, i}, _c1);
+      Method fn2 = ConfigUtils.getMethod(ExecutingMethodsI2.class, "fn");
+      MethodInvocationKey key2 = new MethodInvocationKey(ExecutingMethodsC2.class, fn2, new Object[]{s, i, s2}, this);
+      LinkedList<MethodInvocationKey> expected = Lists.newLinkedList();
+      expected.add(key2);
+      expected.add(key1);
+      assertEquals(expected, _executingMethods.get());
+      return null;
     }
   }
 }
