@@ -17,12 +17,12 @@ public enum SuccessStatus implements ResultStatus {
   SUCCESS,
   /**
    * Indicates that a result has been returned but that some (or all)
-   * market data is missing. Primarily for use for market data function calls.
+   * market data is missing. Intended for use in market data function calls.
    */
   MISSING_MARKET_DATA,
   /**
    * Indicates that a result has been returned but that some (or all)
-   * market data is pending. Primarily for use for market data function calls.
+   * market data is pending. Intended for use in market data function calls.
    */
   AWAITING_MARKET_DATA;
 

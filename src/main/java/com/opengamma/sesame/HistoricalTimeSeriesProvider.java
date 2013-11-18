@@ -23,7 +23,9 @@ import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 public class HistoricalTimeSeriesProvider implements HistoricalTimeSeriesProviderFunction {
 
@@ -48,11 +50,18 @@ public class HistoricalTimeSeriesProvider implements HistoricalTimeSeriesProvide
   }
 
   @Override
+  public FunctionResult<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair) {
+
+
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
   public FunctionResult<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve) {
 
     // For expediency we will mirror the current ways of working out dates which is
     // pretty much to take 1 year before the valuation date. This is blunt and
-    // returns more data than is actuallky required
+    // returns more data than is actually required
     // todo - could we manage HTS lookup in the same way as market data? i.e. request the values needed look them up so they are available next time
 
     final LocalDate endDate = _valuationTimeProviderFunction.getLocalDate();

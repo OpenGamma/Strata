@@ -10,42 +10,43 @@ import static com.opengamma.sesame.StandardResultGenerator.failure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
 import static com.opengamma.sesame.SuccessStatus.SUCCESS;
 
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 public class CurrencyPairs implements CurrencyPairsFunction {
 
-  private final Set<CurrencyPair> _currencyPairs;
+  private final Map<UnorderedCurrencyPair, CurrencyPair> _currencyPairs;
 
   public CurrencyPairs(Set<CurrencyPair> currencyPairs) {
-    _currencyPairs = ArgumentChecker.notNull(currencyPairs, "currencyPairs");
+    ArgumentChecker.notNull(currencyPairs, "currencyPairs");
+    ImmutableMap.Builder<UnorderedCurrencyPair, CurrencyPair> builder = ImmutableMap.builder();
+    for (CurrencyPair pair : currencyPairs) {
+      builder.put(UnorderedCurrencyPair.of(pair.getBase(), pair.getCounter()), pair);
+    }
+    _currencyPairs = builder.build();
   }
 
   @Override
   public FunctionResult<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
 
-    ArgumentChecker.notNull(currency1, "currency1");
-    ArgumentChecker.notNull(currency2, "currency2");
-
-    CurrencyPair requestedPair = CurrencyPair.of(currency1, currency2);
-    CurrencyPair matchingPair = findMatchingPair(requestedPair);
-
-    if (matchingPair != null) {
-      return success(SUCCESS, matchingPair);
-    } else {
-      return failure(MISSING_DATA, "No currency pair matching {} was found", requestedPair);
-    }
+    return getCurrencyPair(UnorderedCurrencyPair.of(currency1, currency2));
   }
 
-  private CurrencyPair findMatchingPair(CurrencyPair pair) {
-    if (_currencyPairs.contains(pair)) {
-      return pair;
+  @Override
+  public FunctionResult<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair) {
+
+    ArgumentChecker.notNull(pair, "pair");
+
+    if (_currencyPairs.containsKey(pair)) {
+      return success(SUCCESS, _currencyPairs.get(pair));
     } else {
-      CurrencyPair inverse = pair.inverse();
-      return _currencyPairs.contains(inverse) ? inverse : null;
+      return failure(MISSING_DATA, "No currency pair matching {} was found", pair);
     }
   }
 }

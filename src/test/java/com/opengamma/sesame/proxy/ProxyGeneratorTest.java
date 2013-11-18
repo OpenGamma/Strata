@@ -28,6 +28,7 @@ import com.opengamma.sesame.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.ResultStatus;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -66,6 +67,11 @@ public class ProxyGeneratorTest {
       @Override
       public FunctionResult<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
         throw new RuntimeException(message);
+      }
+
+      @Override
+      public FunctionResult<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair) {
+        return null;
       }
     };
 

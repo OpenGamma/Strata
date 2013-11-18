@@ -56,9 +56,7 @@ public class FxForwardCalculator {
    * @return the present value, not null
    */
   public CurrencyLabelledMatrix1D calculatePV() {
-
-    MultipleCurrencyAmount currencyExposure = calculateCurrencyExposure();
-    return FXUtils.getMultipleCurrencyAmountAsMatrix(currencyExposure);
+    return FXUtils.getMultipleCurrencyAmountAsMatrix(calculateCurrencyExposure());
   }
 
   public MultipleCurrencyAmount calculateCurrencyExposure() {
@@ -70,6 +68,4 @@ public class FxForwardCalculator {
         _definitionToDerivativeConverter.convert(_security, definition, valuationTime, new HistoricalTimeSeriesBundle());
     return derivative.accept(CALCULATOR, _discountingMulticurveBundle);
   }
-
-
 }
