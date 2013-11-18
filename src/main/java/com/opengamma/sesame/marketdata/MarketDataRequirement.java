@@ -5,6 +5,10 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.util.Set;
+
+import com.opengamma.id.ExternalIdBundle;
+
 /**
  * A requirement for a particular piece of market data. It will generally
  * be for the current value (and this is the assumed default), but can also
@@ -12,4 +16,7 @@ package com.opengamma.sesame.marketdata;
  */
 public interface MarketDataRequirement {
 
+  String getDataField();
+
+  Set<ExternalIdBundle> getIds();
 }

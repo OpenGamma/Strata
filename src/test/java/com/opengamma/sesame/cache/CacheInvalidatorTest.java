@@ -111,12 +111,4 @@ public class CacheInvalidatorTest {
     assertNotNull(cache.get(METHOD_KEY_2));
     assertNotNull(cache.get(METHOD_KEY_3));
   }
-
-  /**
-   * test the invalidator wired up to caching proxies and proxies that register object with the invalidator
-   */
-  @Test
-  public void callStack() {
-
-  }
 }
