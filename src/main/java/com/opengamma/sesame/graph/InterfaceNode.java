@@ -20,6 +20,6 @@ public final class InterfaceNode extends ClassNode {
 
   @Override
   public String prettyPrint() {
-    return getParameterName() + getType().getSimpleName() + " (new " + getType().getSimpleName() + ")";
+    return getParameterName() + getType().getSimpleName() + " (new " + getImplementationType().getSimpleName() + ")";
   }
 }

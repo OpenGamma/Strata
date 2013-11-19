@@ -145,13 +145,13 @@ public final class FunctionModel {
             if (createdNode != null) {
               argNode = createdNode;
             } else if (parameter.isNullable()) {
-              argNode = config.decorateNode(new ArgumentNode(type, null, parameter));
+              argNode = config.decorateNode(new ArgumentNode(parameter.getType(), null, parameter));
             } else {
               throw new NoConstructorArgumentException(newPath, "No value available for non-nullable parameter " +
                                                            parameter.getFullName());
             }
           } else {
-            argNode = config.decorateNode(new ArgumentNode(type, argument, parameter));
+            argNode = config.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
           }
         }
       } catch (GraphBuildException e) {
