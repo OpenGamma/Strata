@@ -11,5 +11,4 @@ package com.opengamma.sesame.marketdata;
  * represent a request for historic data (either from a timeseries or tick store).
  */
 public interface MarketDataRequirement {
-
 }

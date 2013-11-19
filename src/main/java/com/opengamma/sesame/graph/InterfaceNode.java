@@ -6,49 +6,20 @@
 package com.opengamma.sesame.graph;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.opengamma.sesame.function.Parameter;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A node in the dependency model for an object referred to via an interface that must be created by the injection framework.
  */
 public final class InterfaceNode extends ClassNode {
 
-  private final Class<?> _interfaceType;
-
   public InterfaceNode(Class<?> interfaceType, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
-    super(implementationType, arguments, parameter);
-    _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
-  }
-
-  public Class<?> getInterfaceType() {
-    return _interfaceType;
+    super(interfaceType, implementationType, arguments, parameter);
   }
 
   @Override
   public String prettyPrint() {
-    return getParameterName() + _interfaceType.getSimpleName() + " (new " + getType().getSimpleName() + ")";
-  }
-
-  @Override
-  public int hashCode() {
-    return 31 * super.hashCode() + Objects.hash(_interfaceType);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    final InterfaceNode other = (InterfaceNode) obj;
-    return Objects.equals(this._interfaceType, other._interfaceType);
+    return getParameterName() + getType().getSimpleName() + " (new " + getImplementationType().getSimpleName() + ")";
   }
 }

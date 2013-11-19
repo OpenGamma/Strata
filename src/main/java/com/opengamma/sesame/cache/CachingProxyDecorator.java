@@ -66,11 +66,11 @@ public class CachingProxyDecorator implements NodeDecorator {
     Class<?> interfaceType;
     Class<?> implementationType;
     if (node instanceof InterfaceNode) {
-      implementationType = ((InterfaceNode) node).getType();
-      interfaceType = ((InterfaceNode) node).getInterfaceType();
+      implementationType = ((InterfaceNode) node).getImplementationType();
+      interfaceType = ((InterfaceNode) node).getType();
     } else {
       implementationType = ((ProxyNode) node).getImplementationType();
-      interfaceType = ((ProxyNode) node).getInterfaceType();
+      interfaceType = ((ProxyNode) node).getType();
     }
     if (ConfigUtils.hasMethodAnnotation(interfaceType, Cache.class) ||
         ConfigUtils.hasMethodAnnotation(implementationType, Cache.class)) {

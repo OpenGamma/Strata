@@ -38,4 +38,12 @@ public class CurveNodeMarketDataRequirement implements MarketDataRequirement {
   public ExternalId getExternalId() {
     return _identifier;
   }
+
+  public String getDataField() {
+    return _dataField;
+  }
+
+  public ExternalId getId() {
+    return _identifier;
+  }
 }

@@ -20,12 +20,12 @@ public abstract class DependentNode extends Node {
 
   private final List<Node> _dependencies;
 
-  protected DependentNode(Parameter parameter, Node... dependencies) {
-    this(parameter, Arrays.asList(dependencies));
+  protected DependentNode(Class<?> type, Parameter parameter, Node... dependencies) {
+    this(type, parameter, Arrays.asList(dependencies));
   }
 
-  protected DependentNode(Parameter parameter, List<Node> dependencies) {
-    super(parameter);
+  protected DependentNode(Class<?> type, Parameter parameter, List<Node> dependencies) {
+    super(type, parameter);
     _dependencies = ImmutableList.copyOf(ArgumentChecker.notNull(dependencies, "dependencies"));
   }
 
@@ -36,7 +36,7 @@ public abstract class DependentNode extends Node {
 
   @Override
   public int hashCode() {
-    return Objects.hash(_dependencies);
+    return 31 * super.hashCode() + Objects.hash(_dependencies);
   }
 
   @Override
@@ -45,6 +45,9 @@ public abstract class DependentNode extends Node {
       return true;
     }
     if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    if (!super.equals(obj)) {
       return false;
     }
     final DependentNode other = (DependentNode) obj;

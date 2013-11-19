@@ -10,8 +10,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Objects;
 
-import javax.inject.Provider;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -23,40 +21,35 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ClassNode extends DependentNode {
 
-  private final Class<?> _type;
+  private final Class<?> _implementationType;
 
-  public ClassNode(Class<?> type, List<Node> arguments, Parameter parameter) {
-    super(parameter, arguments);
-    _type = ArgumentChecker.notNull(type, "type");
+  public ClassNode(Class<?> type, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
+    super(type, parameter, arguments);
+    _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
   }
 
   @Override
-  public Object create(ComponentMap componentMap, List<Object> dependencies) {
-    Constructor<?> constructor = ConfigUtils.getConstructor(_type);
+  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
+    Constructor<?> constructor = ConfigUtils.getConstructor(_implementationType);
     try {
-      Object instance = constructor.newInstance(dependencies.toArray());
-      if (instance instanceof Provider) {
-        return ((Provider) instance).get();
-      } else {
-        return instance;
-      }
+      return constructor.newInstance(dependencies.toArray());
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new OpenGammaRuntimeException("Failed to create of " + constructor.getDeclaringClass().getName(), e);
     }
   }
 
-  public Class<?> getType() {
-    return _type;
+  public Class<?> getImplementationType() {
+    return _implementationType;
   }
 
   @Override
   public String prettyPrint() {
-    return getParameterName() + "new " + _type.getSimpleName();
+    return getParameterName() + "new " + _implementationType.getSimpleName();
   }
 
   @Override
   public int hashCode() {
-    return 31 * super.hashCode() + Objects.hash(_type);
+    return 31 * super.hashCode() + Objects.hash(_implementationType);
   }
 
   @Override
@@ -71,6 +64,6 @@ public class ClassNode extends DependentNode {
       return false;
     }
     final ClassNode other = (ClassNode) obj;
-    return Objects.equals(this._type, other._type);
+    return Objects.equals(this._implementationType, other._implementationType);
   }
 }

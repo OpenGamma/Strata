@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.mock;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,10 +32,8 @@ import com.opengamma.util.tuple.Pairs;
 public class MarketDataProviderTest {
 
   private ResettableMarketDataProviderFunction _resettableMarketDataProviderFunction;
-  private MarketDataRequirement _mdReqmt1 = new MarketDataRequirement() {
-  };
-  private MarketDataRequirement _mdReqmt2 = new MarketDataRequirement() {
-  };
+  private MarketDataRequirement _mdReqmt1 = mock(MarketDataRequirement.class);
+  private MarketDataRequirement _mdReqmt2 = mock(MarketDataRequirement.class);
 
   @BeforeMethod
   public void setUp() {

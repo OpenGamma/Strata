@@ -13,6 +13,7 @@ import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.util.tuple.Pair;
 
+// TODO a class for the type parameter?
 public interface MarketDataFunctionResult extends FunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>> {
 
   MarketDataValue getSingleMarketDataValue();

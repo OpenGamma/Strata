@@ -27,11 +27,11 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
     Class<?> interfaceType;
     Class<?> implementationType;
     if (node instanceof InterfaceNode) {
-      implementationType = ((InterfaceNode) node).getType();
-      interfaceType = ((InterfaceNode) node).getInterfaceType();
+      implementationType = ((InterfaceNode) node).getImplementationType();
+      interfaceType = ((InterfaceNode) node).getType();
     } else {
       implementationType = ((ProxyNode) node).getImplementationType();
-      interfaceType = ((ProxyNode) node).getInterfaceType();
+      interfaceType = ((ProxyNode) node).getType();
     }
     if (decorate(interfaceType, implementationType)) {
       return new ProxyNode(node, interfaceType, implementationType, this);

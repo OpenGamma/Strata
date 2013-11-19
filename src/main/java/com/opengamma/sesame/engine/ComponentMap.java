@@ -8,8 +8,6 @@ package com.opengamma.sesame.engine;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.inject.Provider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,12 +67,7 @@ public final class ComponentMap {
   }
 
   public Object getComponent(Class<?> type) {
-    Object component = _components.get(type);
-    if (component instanceof Provider) {
-      return ((Provider) component).get();
-    } else {
-      return component;
-    }
+    return _components.get(type);
   }
 
   public ComponentMap with(Map<Class<?>, Object> components) {

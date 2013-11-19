@@ -16,28 +16,21 @@ import com.opengamma.sesame.function.Parameter;
 */
 public final class ArgumentNode extends Node {
 
-  private final Class<?> _type;
   private final Object _value;
 
   /* package */ ArgumentNode(Class<?> type, Object value, Parameter parameter) {
-    super(parameter);
-    _type = type;
+    super(type, parameter);
     _value = value;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public Object create(ComponentMap componentMap, List<Object> dependencies) {
+  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
     return _value;
   }
 
   @Override
   public String prettyPrint() {
-    return getParameterName() + _type.getSimpleName() + " " + _value;
-  }
-
-  public Class<?> getType() {
-    return _type;
+    return getParameterName() + getType().getSimpleName() + " " + _value;
   }
 
   public Object getValue() {
@@ -46,7 +39,7 @@ public final class ArgumentNode extends Node {
 
   @Override
   public int hashCode() {
-    return Objects.hash(_type, _value);
+    return 31 * super.hashCode() + Objects.hash(_value);
   }
 
   @Override
@@ -57,7 +50,10 @@ public final class ArgumentNode extends Node {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
+    if (!super.equals(obj)) {
+      return false;
+    }
     final ArgumentNode other = (ArgumentNode) obj;
-    return Objects.equals(this._type, other._type) && Objects.equals(this._value, other._value);
+    return Objects.equals(this._value, other._value);
   }
 }

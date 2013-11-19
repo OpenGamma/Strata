@@ -105,6 +105,7 @@ public final class FunctionModel {
     return node;
   }
 
+  // TODO I don't think this will work if the root is an infrastructure component. is that important?
   // TODO this is ugly, simplify / beautify
   @SuppressWarnings("unchecked")
   private static Node createNode(Class<?> type,
@@ -123,7 +124,7 @@ public final class FunctionModel {
       NoImplementationException e = new NoImplementationException(path, "No implementation or provider available for " +
                                                                     type.getSimpleName());
       failureAccumulator.add(e);
-      return new ExceptionNode(e, parentParameter);
+      return new ExceptionNode(type, e, parentParameter);
     }
     Constructor<?> constructor = ConfigUtils.getConstructor(implType);
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
@@ -135,7 +136,7 @@ public final class FunctionModel {
       Node argNode;
       try {
         if (config.getObject(parameter.getType()) != null) {
-          argNode = config.decorateNode(new ObjectNode(parameter.getType(), parameter));
+          argNode = config.decorateNode(new ObjectNode(parameter));
         } else {
           Object argument = config.getConstructorArgument(implType, parameter);
           if (argument == null) {
@@ -155,7 +156,7 @@ public final class FunctionModel {
         }
       } catch (GraphBuildException e) {
         failureAccumulator.add(e);
-        argNode = new ExceptionNode(e, parameter);
+        argNode = new ExceptionNode(type, e, parameter);
       }
       constructorArguments.add(argNode);
     }
@@ -163,14 +164,13 @@ public final class FunctionModel {
     if (type.isInterface()) {
       node = new InterfaceNode(type, implType, constructorArguments, parentParameter);
     } else {
-      node = new ClassNode(implType, constructorArguments, parentParameter);
+      node = new ClassNode(type, implType, constructorArguments, parentParameter);
     }
     return config.decorateNode(node);
   }
 
   public InvokableFunction build(FunctionBuilder builder, ComponentMap components) {
     Object receiver = builder.create(_root, components);
-    //Object receiver = _root.create(components);
     return _rootMetadata.getInvokableFunction(receiver);
   }
 

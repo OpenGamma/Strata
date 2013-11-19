@@ -26,7 +26,7 @@ public final class FunctionBuilder {
     // TODO cache this info if it proves expensive to do it over and over for the same classes
     boolean cacheable =
         node instanceof InterfaceNode &&
-            (ConfigUtils.hasMethodAnnotation(((InterfaceNode) node).getInterfaceType(), Cache.class) ||
+            (ConfigUtils.hasMethodAnnotation(((InterfaceNode) node).getImplementationType(), Cache.class) ||
                 (ConfigUtils.hasMethodAnnotation(((InterfaceNode) node).getType(), Cache.class)));
     if (cacheable) {
       Object existing = _sharedNodeObjects.get(node);
