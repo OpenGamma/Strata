@@ -94,9 +94,9 @@ public class FunctionModelTest {
 
       @Override
       public Node decorateNode(final Node node) {
-        return new DependentNode(null, node) {
+        return new DependentNode(Object.class, null, node) {
           @Override
-          public Object create(ComponentMap componentMap, List<Object> dependencies) {
+          protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
             final TestFunction fn = (TestFunction) dependencies.get(0);
             return new TestFunction() {
               @Override

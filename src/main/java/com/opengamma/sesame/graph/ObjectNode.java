@@ -6,10 +6,10 @@
 package com.opengamma.sesame.graph;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A node in the dependency model representing an existing object instance (e.g. a piece of infrastructure provided
@@ -17,42 +17,17 @@ import com.opengamma.sesame.function.Parameter;
  */
 public final class ObjectNode extends Node {
 
-  private final Class<?> _type;
-
-  /* package */ ObjectNode(Class<?> type, Parameter parameter) {
-    super(parameter);
-    _type = type;
+  /* package */ ObjectNode(Parameter parameter) {
+    super(ArgumentChecker.notNull(parameter, "parameter").getType(), parameter);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public Object create(ComponentMap componentMap, List<Object> dependencies) {
-    return componentMap.getComponent(_type);
+  protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
+    return componentMap.getComponent(getType());
   }
 
   @Override
   public String prettyPrint() {
-    return getParameterName() + "component " + _type.getSimpleName();
-  }
-
-  public Class<?> getType() {
-    return _type;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(_type);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    final ObjectNode other = (ObjectNode) obj;
-    return Objects.equals(this._type, other._type);
+    return getParameterName() + "component " + getType().getSimpleName();
   }
 }
