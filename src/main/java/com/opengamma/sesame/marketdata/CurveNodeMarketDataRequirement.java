@@ -5,11 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.Collections;
-import java.util.Set;
-
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 
 public class CurveNodeMarketDataRequirement implements MarketDataRequirement {
 
@@ -43,13 +39,11 @@ public class CurveNodeMarketDataRequirement implements MarketDataRequirement {
     return _identifier;
   }
 
-  @Override
   public String getDataField() {
     return _dataField;
   }
 
-  @Override
-  public Set<ExternalIdBundle> getIds() {
-    return Collections.singleton(ExternalIdBundle.of(_identifier));
+  public ExternalId getId() {
+    return _identifier;
   }
 }

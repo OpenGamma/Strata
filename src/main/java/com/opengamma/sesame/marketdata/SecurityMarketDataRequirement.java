@@ -5,10 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.Set;
-
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -47,17 +44,5 @@ public class SecurityMarketDataRequirement implements MarketDataRequirement {
   @Override
   public int hashCode() {
     return 31 * _security.hashCode() + _dataField.hashCode();
-  }
-
-  @Override
-  public String getDataField() {
-    // TODO implement getDataField()
-    throw new UnsupportedOperationException("getDataField not implemented");
-  }
-
-  @Override
-  public Set<ExternalIdBundle> getIds() {
-    // TODO implement getIds()
-    throw new UnsupportedOperationException("getIds not implemented");
   }
 }

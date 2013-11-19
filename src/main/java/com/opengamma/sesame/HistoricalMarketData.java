@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -33,11 +34,14 @@ public class HistoricalMarketData implements MarketDataProviderFunction {
   private final LocalDate _snapshotDate;
   private final String _dataSource;
   private final String _dataProvider;
+  private final MarketDataResolver _marketDataResolver;
 
   public HistoricalMarketData(HistoricalTimeSeriesSource timeSeriesSource,
+                              MarketDataResolver marketDataResolver,
                               LocalDate snapshotDate,
                               String dataSource,
                               String dataProvider) {
+    _marketDataResolver = marketDataResolver;
     _dataSource = ArgumentChecker.notEmpty(dataSource, "dataSource");
     _dataProvider = ArgumentChecker.notEmpty(dataProvider, "dataProvider");
     _timeSeriesSource = ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
@@ -53,8 +57,10 @@ public class HistoricalMarketData implements MarketDataProviderFunction {
   public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements) {
     MarketDataResultBuilder resultBuilder = StandardResultGenerator.marketDataResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
-      String dataField = requirement.getDataField();
-      for (ExternalIdBundle ids : requirement.getIds()) {
+      List<MarketDataResolver.Item> items = _marketDataResolver.resolve(requirement);
+      for (MarketDataResolver.Item item : items) {
+        String dataField = item.getDataField();
+        ExternalIdBundle ids = item.getIds();
         HistoricalTimeSeries hts = _timeSeriesSource.getHistoricalTimeSeries(ids, _dataSource, _dataProvider, dataField,
                                                                              _snapshotDate, true, _snapshotDate, true);
         if (hts == null || hts.getTimeSeries().isEmpty()) {
