@@ -124,15 +124,14 @@ public final class SimpleFunctionRepo implements FunctionRepo {
    * @throws DataNotFoundException If nothing can provide the requested output for the target type
    */
   @Override
-  @SuppressWarnings("unchecked")
   public synchronized FunctionMetadata getOutputFunction(String outputName, Class<?> inputType) {
-    Pair<String, Class<?>> targetKey = (Pair<String, Class<?>>) Pairs.of(outputName, inputType);
+    Pair<String, Class<?>> targetKey = Pairs.<String, Class<?>>of(outputName, inputType);
     if (_allFunctionsForOutputs.containsKey(targetKey)) {
       return _allFunctionsForOutputs.get(targetKey);
     }
     Set<Class<?>> supertypes = ConfigUtils.getSupertypes(inputType);
     for (Class<?> supertype : supertypes) {
-      Pair<String, Class<?>> key = (Pair<String, Class<?>>) Pairs.of(outputName, supertype);
+      Pair<String, Class<?>> key = Pairs.<String, Class<?>>of(outputName, supertype);
       if (_functionsForOutputs.containsKey(key)) {
         FunctionMetadata function = _functionsForOutputs.get(key);
         _allFunctionsForOutputs.put(targetKey, function);
@@ -170,7 +169,6 @@ public final class SimpleFunctionRepo implements FunctionRepo {
   }
 
   // type must have at least one method annotated with @Output with a parameter annotated with @Target
-  @SuppressWarnings("unchecked")
   public synchronized void register(Class<?> type) {
     // clear the lazily populated caches which might be out of date after registering a new type
     _allOutputsByInputType.clear();

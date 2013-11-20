@@ -31,7 +31,7 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
    * value will indicate whether the data is available or is likely to become available at some
    * point in the future.
    */
-  private final Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> _availableMarketData = new HashMap<>();
+  private final Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> _availableMarketData = new HashMap<>();
 
   /**
    * Records the requests which have been made by clients that we don't have status data for. Uses
@@ -68,7 +68,7 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
   }
 
   @Override
-  public void resetMarketData(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> replacementData) {
+  public void resetMarketData(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> replacementData) {
     _marketDataRequests.clear();
     _availableMarketData.clear();
     _availableMarketData.putAll(replacementData);

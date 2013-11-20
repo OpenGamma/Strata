@@ -51,7 +51,7 @@ public class MarketDataProviderTest {
   @Test
   public void alreadyPendingDataReturnsPendingResultButNoRequest() {
 
-    _resettableMarketDataProviderFunction.resetMarketData(ImmutableMap.of(_mdReqmt1, Pairs.of(PENDING, (MarketDataValue) null)));
+    _resettableMarketDataProviderFunction.resetMarketData(ImmutableMap.of(_mdReqmt1, Pairs.<MarketDataStatus, MarketDataValue<?>>of(PENDING, null)));
 
     MarketDataFunctionResult result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1);
     assertThat(result.getMarketDataState(_mdReqmt1), is(PENDING));
@@ -61,7 +61,7 @@ public class MarketDataProviderTest {
   @Test
   public void availableDataReturnsResultButNoRequest() {
 
-    _resettableMarketDataProviderFunction.resetMarketData(ImmutableMap.of(_mdReqmt1, Pairs.<MarketDataStatus, MarketDataValue>of(AVAILABLE, new SingleMarketDataValue(123.45))));
+    _resettableMarketDataProviderFunction.resetMarketData(ImmutableMap.of(_mdReqmt1, Pairs.<MarketDataStatus, MarketDataValue<?>>of(AVAILABLE, new SingleMarketDataValue(123.45))));
 
     MarketDataFunctionResult result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1);
     assertThat(result.getMarketDataState(_mdReqmt1), is(AVAILABLE));
@@ -72,14 +72,14 @@ public class MarketDataProviderTest {
   @Test
   public void resettingRemovesRequestsAndAvailableData() {
 
-    _resettableMarketDataProviderFunction.resetMarketData(ImmutableMap.of(_mdReqmt1, Pairs.<MarketDataStatus, MarketDataValue>of(AVAILABLE, new SingleMarketDataValue(123.45))));
+    _resettableMarketDataProviderFunction.resetMarketData(ImmutableMap.of(_mdReqmt1, Pairs.<MarketDataStatus, MarketDataValue<?>>of(AVAILABLE, new SingleMarketDataValue(123.45))));
 
     MarketDataFunctionResult result1 = _resettableMarketDataProviderFunction.requestData(ImmutableSet.of(_mdReqmt1, _mdReqmt2));
     assertThat(result1.getMarketDataState(_mdReqmt1), is(AVAILABLE));
     assertThat(result1.getMarketDataState(_mdReqmt2), is(PENDING));
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), contains(_mdReqmt2));
 
-    _resettableMarketDataProviderFunction.resetMarketData(ImmutableMap.<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>>of());
+    _resettableMarketDataProviderFunction.resetMarketData(ImmutableMap.<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>>of());
 
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), is(empty()));
     MarketDataFunctionResult result2 = _resettableMarketDataProviderFunction.requestData(ImmutableSet.of(_mdReqmt1, _mdReqmt2));

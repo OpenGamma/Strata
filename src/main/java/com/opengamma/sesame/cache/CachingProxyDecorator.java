@@ -83,7 +83,7 @@ public class CachingProxyDecorator implements NodeDecorator {
   /**
    * Creates an instance of {@link Handler} when the graph is built.
    */
-  private static class HandlerFactory implements InvocationHandlerFactory {
+  private static final class HandlerFactory implements InvocationHandlerFactory {
 
     private final Class<?> _interfaceType;
     private final Class<?> _implementationType;
@@ -137,7 +137,7 @@ public class CachingProxyDecorator implements NodeDecorator {
    * them to block while the first thread calculates it.
    * This is package scoped for testing.
    */
-  /* package */ static class Handler implements InvocationHandler {
+  /* package */ static final class Handler implements InvocationHandler {
 
     private final Object _delegate;
     private final Set<Method> _cachedMethods;

@@ -45,5 +45,5 @@ public interface ResettableMarketDataProviderFunction extends MarketDataProvider
    *
    * @param replacementData the new map of availability data
    */
-  void resetMarketData(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> replacementData);
+  void resetMarketData(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> replacementData);
 }

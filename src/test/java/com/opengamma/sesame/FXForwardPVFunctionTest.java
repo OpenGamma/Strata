@@ -137,7 +137,7 @@ public class FXForwardPVFunctionTest {
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithNoData() throws IOException {
     FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(
-        Collections.<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>>emptyMap());
+        Collections.<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>>emptyMap());
     assertNotNull(pv);
     assertThat(pv.getStatus(), is((ResultStatus) MISSING_DATA));
   }
@@ -151,7 +151,7 @@ public class FXForwardPVFunctionTest {
   }
 
   private FunctionResult<CurrencyLabelledMatrix1D> executeAgainstRemoteServer(
-      Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData) {
+      Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> marketData) {
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -190,7 +190,7 @@ public class FXForwardPVFunctionTest {
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     MarketDataProvider marketDataProvider = new MarketDataProvider();
-    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData = loadMarketDataForYieldCurve();
+    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> marketData = loadMarketDataForYieldCurve();
     addValue(marketData, MarketDataRequirementFactory.of(CurrencyPair.of(USD, JPY)), 98.86);
     marketDataProvider.resetMarketData(marketData);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
@@ -376,21 +376,21 @@ public class FXForwardPVFunctionTest {
   }
 
   // TODO move this somewhere else now it's shared with the engine test
-  public static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketDataForForward() throws IOException {
+  public static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> loadMarketDataForForward() throws IOException {
     return loadMarketData("/marketdata.properties");
   }
 
-  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketDataForYieldCurve() throws IOException {
+  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> loadMarketDataForYieldCurve() throws IOException {
     return loadMarketData("/yield-curve-marketdata.properties");
   }
 
-  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> loadMarketData(String fileName) throws IOException {
+  private static Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> loadMarketData(String fileName) throws IOException {
     Properties properties = new Properties();
     try (InputStream stream = FXForwardPVFunction.class.getResourceAsStream(fileName);
          Reader reader = new BufferedReader(new InputStreamReader(stream))) {
       properties.load(reader);
     }
-    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> data = Maps.newHashMap();
+    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> data = Maps.newHashMap();
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String id = (String) entry.getKey();
       String value = (String) entry.getValue();
@@ -399,18 +399,18 @@ public class FXForwardPVFunctionTest {
     return data;
   }
 
-  private static Pair<MarketDataStatus, MarketDataValue> addValue(
-      Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData, String ticker, double value) {
+  private static Pair<MarketDataStatus, MarketDataValue<?>> addValue(
+      Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> marketData, String ticker, double value) {
 
     return addValue(marketData, new CurveNodeMarketDataRequirement(ExternalSchemes.bloombergTickerSecurityId(ticker), "Market_Value"), value);
   }
 
-  private static Pair<MarketDataStatus, MarketDataValue> addValue(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData,
+  private static Pair<MarketDataStatus, MarketDataValue<?>> addValue(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> marketData,
                                                                   MarketDataRequirement requirement,
                                                                   double value) {
     return marketData.put(
         requirement,
-        Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(value)));
+        Pairs.<MarketDataStatus, MarketDataValue<?>>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(value)));
   }
 
   private static void logMarketData(Set<MarketDataRequirement> requirements) {

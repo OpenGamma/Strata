@@ -122,11 +122,11 @@ public class EngineTest {
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
-    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue>> marketData = ImmutableMap.of(
+    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> marketData = ImmutableMap.of(
         // todo - we shouldn't be casting here
         MarketDataRequirementFactory.of((FinancialSecurity) trade.getSecurity(),
                                         MarketDataRequirementNames.MARKET_VALUE),
-        Pairs.<MarketDataStatus, MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+        Pairs.<MarketDataStatus, MarketDataValue<?>>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     marketDataProvider.resetMarketData(marketData);
 
     Engine.View view = engine.createView(viewDef, trades);

@@ -17,7 +17,7 @@ public interface MarketDataResultBuilder {
 
   MarketDataResultBuilder missingData(MarketDataRequirement requirement);
 
-  MarketDataResultBuilder foundData(Map<MarketDataRequirement, Pair<MarketDataStatus,? extends MarketDataValue>> result);
+  MarketDataResultBuilder foundData(Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> result);
 
   MarketDataResultBuilder foundData(MarketDataRequirement requirement,
                  Pair<MarketDataStatus, ? extends MarketDataValue> state);

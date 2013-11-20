@@ -54,10 +54,10 @@ public class EquityPresentValueTest {
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
 
-    Map<MarketDataRequirement, Pair<MarketDataStatus,MarketDataValue>> marketData = new HashMap<>();
+    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> marketData = new HashMap<>();
     marketData.put(
         MarketDataRequirementFactory.of(security, MarketDataRequirementNames.MARKET_VALUE),
-        Pairs.<MarketDataStatus,MarketDataValue>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+        Pairs.<MarketDataStatus, MarketDataValue<?>>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
     _marketDataProviderFunction.resetMarketData(marketData);
 
     FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);
