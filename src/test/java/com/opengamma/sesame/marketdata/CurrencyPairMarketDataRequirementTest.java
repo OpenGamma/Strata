@@ -21,9 +21,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
-/**
- *
- */
 @Test(groups = TestGroup.UNIT)
 public class CurrencyPairMarketDataRequirementTest {
 

@@ -36,8 +36,9 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
     _dataProvider = ArgumentChecker.notEmpty(dataProvider, "dataProvider");
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public MarketDataValue<?> get(ExternalIdBundle idBundle, String dataField) {
+  public <T> MarketDataValue<T> get(ExternalIdBundle idBundle, String dataField) {
     HistoricalTimeSeries hts = _timeSeriesSource.getHistoricalTimeSeries(idBundle, _dataSource, _dataProvider, dataField,
                                                                          _snapshotDate, true, _snapshotDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
@@ -45,11 +46,10 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
       return null;
     }
     Double value = hts.getTimeSeries().getValue(_snapshotDate);
-    // TODO handle null better
     if (value == null) {
       return null;
     } else {
-      return new SingleMarketDataValue(value);
+      return (MarketDataValue<T>) new SingleMarketDataValue(value);
     }
   }
 }

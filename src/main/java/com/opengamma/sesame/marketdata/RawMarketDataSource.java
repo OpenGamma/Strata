@@ -13,5 +13,5 @@ import com.opengamma.id.ExternalIdBundle;
 public interface RawMarketDataSource {
 
   // TODO is dataField needed for all impls? what about live?
-  MarketDataValue<?> get(ExternalIdBundle idBundle, String dataField);
+  <T> MarketDataValue<T> get(ExternalIdBundle idBundle, String dataField);
 }

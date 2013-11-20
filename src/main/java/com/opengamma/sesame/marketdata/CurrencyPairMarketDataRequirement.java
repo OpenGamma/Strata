@@ -23,7 +23,6 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
    */
   private final CurrencyPair _currencyPair;
 
-  // TODO can we safely assume this is always the market convention pair? does it matter for getting the data?
   /* package */ CurrencyPairMarketDataRequirement(CurrencyPair currencyPair) {
     _currencyPair = currencyPair;
   }
@@ -70,9 +69,7 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
         ValueRequirement valueRequirement = req.getValueRequirement();
         ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
-        // TODO null value for MarketDataValue
-        MarketDataValue<Double> marketDataValue = (MarketDataValue<Double>) dataSource.get(idBundle, dataField);
-        Double spotRate = marketDataValue.getValue();
+        Double spotRate = dataSource.<Double>get(idBundle, dataField).getValue();
         if (spotRate == null) {
           return null;
         }
@@ -85,7 +82,6 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
 
       @Override
       public Double visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        // TODO check the ordering is right so the rate is the right way round
         Double baseCrossRate = getRate(currencyMatrix, dataSource, base, cross.getCrossCurrency());
         Double crossCounterRate = getRate(currencyMatrix, dataSource, cross.getCrossCurrency(), counter);
         if (baseCrossRate == null || crossCounterRate == null) {
