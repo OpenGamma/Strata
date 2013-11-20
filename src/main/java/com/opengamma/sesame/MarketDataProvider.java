@@ -22,6 +22,7 @@ import com.opengamma.util.tuple.Pair;
  * Provides market data and stores the requests which have been made. By starting with an empty
  * instance provided for the first cycle, it will be filled with the market data requirements
  * by the end of the cycle.
+ * TODO should this be in the marketdata package?
  */
 // todo - consider that at some point we may want to track market data that is no longer needed e.g. trade removal, option expiry
 public class MarketDataProvider implements ResettableMarketDataProviderFunction {

@@ -14,13 +14,15 @@ import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.util.tuple.Pair;
 
 // TODO a class for the type parameter?
+// TODO should this be in the marketdata package?
+// TODO type parameter for the value?
 public interface MarketDataFunctionResult extends FunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>> {
 
-  MarketDataValue getSingleMarketDataValue();
+  <T> MarketDataValue<T> getSingleMarketDataValue();
 
   MarketDataStatus getMarketDataState(MarketDataRequirement requirement);
 
-  MarketDataValue getMarketDataValue(MarketDataRequirement requirement);
+  <T> MarketDataValue<T> getMarketDataValue(MarketDataRequirement requirement);
 
   /**
    * Temporary method to allow conversion to the old-style market data bundle.

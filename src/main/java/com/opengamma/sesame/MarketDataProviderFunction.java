@@ -13,6 +13,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
  * Function providing market data to clients. When data is requested a {@link MarketDataFunctionResult}
  * is returned which contains status (and potentially value) for every item that has been requested.
  * TODO blocking variant
+ * TODO should this be in the marketdata package?
  */
 public interface MarketDataProviderFunction {
 

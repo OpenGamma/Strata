@@ -11,7 +11,9 @@ import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.LocalDateRange;
 
 /**
  * A market data requirement for a currency pair spot rate.
@@ -44,7 +46,8 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return _currencyPair.hashCode();
   }
 
-  /* package */ Double getSpotRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
+  /* package */
+  public Double getSpotRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
     return getRate(currencyMatrix, dataSource, _currencyPair.getBase(), _currencyPair.getCounter());
   }
 
@@ -96,5 +99,20 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
       }
     };
     return value.accept(visitor);
+  }
+
+  // TODO do I need a different data source type for time series?
+  public LocalDateDoubleTimeSeries getSpotRateSeries(LocalDateRange dateRange,
+                                                     CurrencyMatrix currencyMatrix,
+                                                     RawMarketDataSeriesSource rawDataSource) {
+    return getSpotRateSeries(dateRange, currencyMatrix, rawDataSource, _currencyPair.getBase(), _currencyPair.getCounter());
+  }
+
+  private LocalDateDoubleTimeSeries getSpotRateSeries(LocalDateRange dateRange,
+                                                      CurrencyMatrix currencyMatrix,
+                                                      RawMarketDataSeriesSource rawDataSource,
+                                                      Currency base,
+                                                      Currency counter) {
+    throw new UnsupportedOperationException();
   }
 }

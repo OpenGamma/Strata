@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.marketdata;
+package com.opengamma.sesame;
 
 import java.util.Collections;
 import java.util.Set;
@@ -11,9 +11,14 @@ import java.util.Set;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.MarketDataFunctionResult;
-import com.opengamma.sesame.MarketDataProviderFunction;
-import com.opengamma.sesame.StandardResultGenerator;
+import com.opengamma.sesame.marketdata.CurrencyPairMarketDataRequirement;
+import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataResultBuilder;
+import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.sesame.marketdata.MarketDataValue;
+import com.opengamma.sesame.marketdata.RawMarketDataSource;
+import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pairs;
 
