@@ -55,6 +55,9 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
                          final Currency base,
                          final Currency counter) {
     CurrencyMatrixValue value = currencyMatrix.getConversion(base, counter);
+    if (value == null) {
+      return null;
+    }
     CurrencyMatrixValueVisitor<Double> visitor = new CurrencyMatrixValueVisitor<Double>() {
       @Override
       public Double visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
@@ -69,7 +72,15 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
         String dataField = valueRequirement.getValueName();
         // TODO null value for MarketDataValue
         MarketDataValue<Double> marketDataValue = (MarketDataValue<Double>) dataSource.get(idBundle, dataField);
-        return marketDataValue.getValue();
+        Double spotRate = marketDataValue.getValue();
+        if (spotRate == null) {
+          return null;
+        }
+        if (req.isReciprocal()) {
+          return 1 / spotRate;
+        } else {
+          return spotRate;
+        }
       }
 
       @Override
