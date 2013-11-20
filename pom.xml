@@ -49,6 +49,12 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>examples-simulated</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- 3rd party dependencies -->
 
     <dependency>

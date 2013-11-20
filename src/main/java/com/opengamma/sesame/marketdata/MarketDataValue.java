@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+// TODO factory method(s) for creating instances?
 public interface MarketDataValue<T> {
 
   T getValue();
