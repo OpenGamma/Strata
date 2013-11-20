@@ -49,6 +49,10 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
   }
 
   // TODO does this logic belong in this class? maybe not. move it if there turns out to be a better place
+  // TODO this probably needs splitting up to handle time series. if one or more time series are needed
+  // this logic is required to get the external IDs. but the lookup in the HTS source needs to happen in one go
+  // so might need multiple impls of this including one that's HTS aware
+  // TODO should there be a getSpotRateSeries() method on this class?
   private Double getRate(final CurrencyMatrix currencyMatrix,
                          final RawMarketDataSource dataSource,
                          final Currency base,

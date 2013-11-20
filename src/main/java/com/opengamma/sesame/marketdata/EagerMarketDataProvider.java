@@ -30,9 +30,6 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
   public EagerMarketDataProvider(RawMarketDataSource rawMarketDataSource,
                                  ConfigSource configSource,
                                  String currencyMatrixName) {
-    // TODO this raises an important point. if functions look up config in the constructor we won't be able to track it
-    // prohibit it? inject proxies to config etc. that won't allow lookups until activated? that will catch any
-    // problems the first time a function runs
     _currencyMatrixName = ArgumentChecker.notEmpty(currencyMatrixName, "currencyMatrixName");
     _configSource = ArgumentChecker.notNull(configSource, "configSource");
     _rawMarketDataSource = ArgumentChecker.notNull(rawMarketDataSource, "rawMarketDataSource");

@@ -12,10 +12,11 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.MarketDataProviderFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Useful for backing a {@link MarketDataProviderFunction} which needs historical data from a fixed point in time.
  */
 public class HistoricalRawMarketDataSource implements RawMarketDataSource {
 
