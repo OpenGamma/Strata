@@ -1,0 +1,363 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.sesame.component;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import net.sf.ehcache.CacheManager;
+
+import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.sesame.ConfigDbMarketExposureSelectorProvider;
+import com.opengamma.sesame.CurrencyPairs;
+import com.opengamma.sesame.CurveDefinitionProvider;
+import com.opengamma.sesame.CurveSpecificationMarketDataProvider;
+import com.opengamma.sesame.CurveSpecificationProvider;
+import com.opengamma.sesame.DiscountingFXForwardPV;
+import com.opengamma.sesame.DiscountingMulticurveBundleProvider;
+import com.opengamma.sesame.FXForwardPVFunction;
+import com.opengamma.sesame.FXMatrixProvider;
+import com.opengamma.sesame.FxForwardDiscountingCalculatorProvider;
+import com.opengamma.sesame.HistoricalTimeSeriesProvider;
+import com.opengamma.sesame.ValuationTimeProvider;
+import com.opengamma.sesame.cache.CachingProxyDecorator;
+import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
+import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.function.FunctionRepo;
+import com.opengamma.sesame.function.SimpleFunctionRepo;
+import com.opengamma.sesame.graph.CompositeNodeDecorator;
+import com.opengamma.sesame.trace.TracingProxy;
+
+/**
+ * Component factory for the engine. 
+ */
+@BeanDefinition
+public class EngineComponentFactory extends AbstractComponentFactory {
+
+  /**
+   * The classifier that the factory should publish under.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _classifier;
+  
+  /**
+   * The cache manager.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private CacheManager _cacheManager;
+  
+  @Override
+  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
+    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
+    FunctionRepo functionRepo = initFunctionRepo();
+    
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(getCacheManager(), new ExecutingMethodsThreadLocal());
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
+    
+    ComponentMap componentMap = initComponentMap(repo, configuration);
+    // Indicate remaining configuration has been used
+    configuration.clear();
+    
+    Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
+    ComponentInfo info = new ComponentInfo(Engine.class, getClassifier());
+    repo.registerComponent(info, engine);
+  }
+  
+  protected ComponentMap initComponentMap(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+    Map<Class<?>, Object> components = new HashMap<>();
+    for (Map.Entry<String, String> entry : configuration.entrySet()) {
+      String key = entry.getKey();
+      String valueStr = entry.getValue();
+      if (!valueStr.contains("::")) {
+        throw new OpenGammaRuntimeException("Property " + key + " does not reference a component: " + valueStr);
+      }
+      final String type = StringUtils.substringBefore(valueStr, "::");
+      final String classifier = StringUtils.substringAfter(valueStr, "::");
+      final ComponentInfo info = repo.findInfo(type, classifier);
+      if (info == null) {
+        throw new IllegalArgumentException("Component not found: " + valueStr);
+      }
+      final Object instance = repo.getInstance(info);
+      components.put(info.getType(), instance);
+    }
+    return ComponentMap.of(components);
+  }
+  
+  protected FunctionRepo initFunctionRepo() {
+    // TODO jonathan 2013-11-20 -- use annotations or something to discover this
+    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
+    functionRepo.register(FXForwardPVFunction.class,
+                          DiscountingFXForwardPV.class,
+                          CurrencyPairs.class,
+                          FXForwardSecurityConverter.class,
+                          ConfigDBInstrumentExposuresProvider.class,
+                          CurveSpecificationMarketDataProvider.class,
+                          FXMatrixProvider.class,
+                          CurveDefinitionProvider.class,
+                          DiscountingMulticurveBundleProvider.class,
+                          CurveSpecificationProvider.class,
+                          ValuationTimeProvider.class,
+                          ConfigDBCurveConstructionConfigurationSource.class,
+                          HistoricalTimeSeriesProvider.class,
+                          FxForwardDiscountingCalculatorProvider.class,
+                          ConfigDbMarketExposureSelectorProvider.class);
+    return functionRepo;
+  }
+
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code EngineComponentFactory}.
+   * @return the meta-bean, not null
+   */
+  public static EngineComponentFactory.Meta meta() {
+    return EngineComponentFactory.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(EngineComponentFactory.Meta.INSTANCE);
+  }
+
+  @Override
+  public EngineComponentFactory.Meta metaBean() {
+    return EngineComponentFactory.Meta.INSTANCE;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the classifier that the factory should publish under.
+   * @return the value of the property, not null
+   */
+  public String getClassifier() {
+    return _classifier;
+  }
+
+  /**
+   * Sets the classifier that the factory should publish under.
+   * @param classifier  the new value of the property, not null
+   */
+  public void setClassifier(String classifier) {
+    JodaBeanUtils.notNull(classifier, "classifier");
+    this._classifier = classifier;
+  }
+
+  /**
+   * Gets the the {@code classifier} property.
+   * @return the property, not null
+   */
+  public final Property<String> classifier() {
+    return metaBean().classifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the cache manager.
+   * @return the value of the property
+   */
+  public CacheManager getCacheManager() {
+    return _cacheManager;
+  }
+
+  /**
+   * Sets the cache manager.
+   * @param cacheManager  the new value of the property
+   */
+  public void setCacheManager(CacheManager cacheManager) {
+    this._cacheManager = cacheManager;
+  }
+
+  /**
+   * Gets the the {@code cacheManager} property.
+   * @return the property, not null
+   */
+  public final Property<CacheManager> cacheManager() {
+    return metaBean().cacheManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public EngineComponentFactory clone() {
+    return (EngineComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EngineComponentFactory other = (EngineComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("EngineComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code EngineComponentFactory}.
+   */
+  public static class Meta extends AbstractComponentFactory.Meta {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code classifier} property.
+     */
+    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
+        this, "classifier", EngineComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     */
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", EngineComponentFactory.class, CacheManager.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "classifier",
+        "cacheManager");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return _classifier;
+        case -1452875317:  // cacheManager
+          return _cacheManager;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends EngineComponentFactory> builder() {
+      return new DirectBeanBuilder<EngineComponentFactory>(new EngineComponentFactory());
+    }
+
+    @Override
+    public Class<? extends EngineComponentFactory> beanType() {
+      return EngineComponentFactory.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code classifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> classifier() {
+      return _classifier;
+    }
+
+    /**
+     * The meta-property for the {@code cacheManager} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CacheManager> cacheManager() {
+      return _cacheManager;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((EngineComponentFactory) bean).getClassifier();
+        case -1452875317:  // cacheManager
+          return ((EngineComponentFactory) bean).getCacheManager();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((EngineComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((EngineComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((EngineComponentFactory) bean)._classifier, "classifier");
+      super.validate(bean);
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
+}
