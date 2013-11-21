@@ -8,18 +8,16 @@ package com.opengamma.sesame.marketdata;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.util.tuple.Pair;
-
 public interface MarketDataResultBuilder {
 
   MarketDataResultBuilder missingData(Set<MarketDataRequirement> missing);
 
   MarketDataResultBuilder missingData(MarketDataRequirement requirement);
 
-  MarketDataResultBuilder foundData(Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> result);
+  MarketDataResultBuilder foundData(Map<MarketDataRequirement, MarketDataItem<?>> data);
 
-  MarketDataResultBuilder foundData(MarketDataRequirement requirement,
-                 Pair<MarketDataStatus, ? extends MarketDataValue> state);
+  // TODO is this a good name given that this is what we'll call if the data is missing or pending?
+  MarketDataResultBuilder foundData(MarketDataRequirement requirement, MarketDataItem<?> value);
 
-  MarketDataFunctionResult build();
+  MarketDataSingleResult build();
 }

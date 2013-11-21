@@ -16,7 +16,7 @@ import java.lang.reflect.Proxy;
 
 import com.opengamma.sesame.FailureStatus;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
+import com.opengamma.sesame.marketdata.MarketDataSingleResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -46,7 +46,7 @@ public class ProxyGenerator {
 
           if (method.getReturnType() == FunctionResult.class) {
             return failure(FailureStatus.ERROR, "Received exception: {}", cause);
-          } else if (method.getReturnType() == MarketDataFunctionResult.class) {
+          } else if (method.getReturnType() == MarketDataSingleResult.class) {
             return marketDataFailure(FailureStatus.ERROR, "Received exception: {}", cause);
           } else {
             throw cause;

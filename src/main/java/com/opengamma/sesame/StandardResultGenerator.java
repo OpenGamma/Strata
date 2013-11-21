@@ -16,13 +16,12 @@ import org.slf4j.helpers.MessageFormatter;
 import com.google.common.collect.Iterables;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
+import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataResultBuilder;
+import com.opengamma.sesame.marketdata.MarketDataSingleResult;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValue;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 public class StandardResultGenerator {
 
@@ -32,7 +31,7 @@ public class StandardResultGenerator {
       private final Set<MarketDataRequirement> _missing = new HashSet<>();
       private SuccessStatus _status = SuccessStatus.AWAITING_MARKET_DATA;
 
-      private final Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> _requirementStatus = new HashMap<>();
+      private final Map<MarketDataRequirement, MarketDataItem<?>> _requirementStatus = new HashMap<>();
 
       @Override
       public MarketDataResultBuilder missingData(Set<MarketDataRequirement> missing) {
@@ -47,26 +46,29 @@ public class StandardResultGenerator {
       @Override
       public MarketDataResultBuilder missingData(MarketDataRequirement requirement) {
         _missing.add(requirement);
-        _requirementStatus.put(requirement, Pairs.of(MarketDataStatus.PENDING, (MarketDataValue) null));
+        _requirementStatus.put(requirement, MarketDataItem.PENDING);
         return this;
       }
 
       @Override
-      public MarketDataResultBuilder foundData(MarketDataRequirement requirement,
-                                               Pair<MarketDataStatus, ? extends MarketDataValue> state) {
-         _requirementStatus.put(requirement, state);
+      public MarketDataResultBuilder foundData(MarketDataRequirement requirement, MarketDataItem<?> item) {
+         _requirementStatus.put(requirement, item);
         return this;
       }
 
       @Override
-      public MarketDataResultBuilder foundData(Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> result) {
-        _requirementStatus.putAll(result);
+      public MarketDataResultBuilder foundData(Map<MarketDataRequirement, MarketDataItem<?>> data) {
+        _requirementStatus.putAll(data);
         return this;
       }
 
       @Override
-      public MarketDataFunctionResult build() {
-        return new MarketDataFunctionSuccessResult(_missing.isEmpty() ? SuccessStatus.SUCCESS : _status, _requirementStatus);
+      public MarketDataSingleResult build() {
+        if (_missing.isEmpty()) {
+          return new MarketDataFunctionSuccessResult(SuccessStatus.SUCCESS, _requirementStatus);
+        } else {
+          return new MarketDataFunctionSuccessResult(_status, _requirementStatus);
+        }
       }
     };
   }
@@ -88,7 +90,7 @@ public class StandardResultGenerator {
     return new SuccessFunctionResult<>(status, value);
   }
 
-  public static MarketDataFunctionResult marketDataFailure(FailureStatus status, String message, Object... messageArgs) {
+  public static MarketDataSingleResult marketDataFailure(FailureStatus status, String message, Object... messageArgs) {
     return new MarketDataFunctionSuccessResult.MarketDataFunctionFailureResult(status, message, messageArgs);
   }
 
@@ -154,33 +156,35 @@ public class StandardResultGenerator {
     }
   }
 
-  private static final class MarketDataFunctionSuccessResult extends SuccessFunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>>
-      implements MarketDataFunctionResult {
+  @SuppressWarnings("unchecked")
+  private static final class MarketDataFunctionSuccessResult extends SuccessFunctionResult<Map<MarketDataRequirement, MarketDataItem<?>>>
+      implements MarketDataSingleResult {
 
-    private MarketDataFunctionSuccessResult(SuccessStatus status,
-                                             Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> marketDataResults) {
+    private MarketDataFunctionSuccessResult(SuccessStatus status, Map<MarketDataRequirement, MarketDataItem<?>> marketDataResults) {
       super(status, marketDataResults);
     }
 
     // todo this is probably not worth having?
     @Override
-    public MarketDataValue getSingleMarketDataValue() {
-      return Iterables.getOnlyElement(getResult().values()).getValue();
+    public <T> MarketDataValue<T> getSingleValue() {
+      return (MarketDataValue<T>) Iterables.getOnlyElement(getResult().values()).getValue();
     }
 
     @Override
-    public MarketDataStatus getMarketDataState(MarketDataRequirement requirement) {
+    public MarketDataStatus getStatus(MarketDataRequirement requirement) {
 
-      return getResult().containsKey(requirement) ?
-          getResult().get(requirement).getKey() :
-          MarketDataStatus.NOT_REQUESTED;
+      if (getResult().containsKey(requirement)) {
+        return getResult().get(requirement).getStatus();
+      } else {
+        return MarketDataStatus.NOT_REQUESTED;
+      }
     }
 
     @Override
-    public MarketDataValue getMarketDataValue(MarketDataRequirement requirement) {
+    public <T> MarketDataValue<T> getValue(MarketDataRequirement requirement) {
       if (getResult().containsKey(requirement) &&
-          getResult().get(requirement).getKey() == MarketDataStatus.AVAILABLE) {
-          return getResult().get(requirement).getValue();
+          getResult().get(requirement).getStatus() == MarketDataStatus.AVAILABLE) {
+          return (MarketDataValue<T>) getResult().get(requirement).getValue();
       } else {
         throw new IllegalStateException("Market data value for requirement: " + requirement + " is not available");
       }
@@ -190,14 +194,14 @@ public class StandardResultGenerator {
     @Override
     public SnapshotDataBundle toSnapshot() {
       SnapshotDataBundle snapshot = new SnapshotDataBundle();
-      for (Map.Entry<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>> entry : getResult().entrySet()) {
+      for (Map.Entry<MarketDataRequirement, MarketDataItem<?>> entry : getResult().entrySet()) {
 
         MarketDataRequirement key = entry.getKey();
-        Pair<MarketDataStatus, ? extends MarketDataValue> pair = entry.getValue();
-        MarketDataStatus status = pair.getFirst();
+        MarketDataItem<?> pair = entry.getValue();
+        MarketDataStatus status = pair.getStatus();
 
         if (key instanceof CurveNodeMarketDataRequirement && status == MarketDataStatus.AVAILABLE) {
-          snapshot.setDataPoint(((CurveNodeMarketDataRequirement) key).getExternalId(), (Double) pair.getValue().getValue());
+          snapshot.setDataPoint(((CurveNodeMarketDataRequirement) key).getExternalId(), (Double) pair.getValue());
         }
 
       }
@@ -205,25 +209,25 @@ public class StandardResultGenerator {
     }
 
 
-    private static final class MarketDataFunctionFailureResult extends FailureFunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>>
-        implements MarketDataFunctionResult {
+    private static final class MarketDataFunctionFailureResult extends FailureFunctionResult<Map<MarketDataRequirement, MarketDataItem<?>>>
+        implements MarketDataSingleResult {
 
       private MarketDataFunctionFailureResult(FailureStatus failureStatus, String message, Object... messageArgs) {
         super(failureStatus, message, messageArgs);
       }
 
       @Override
-      public MarketDataValue getSingleMarketDataValue() {
+      public <T> MarketDataValue<T> getSingleValue() {
         throw new IllegalStateException("Unable to get data from a failure result");
       }
 
       @Override
-      public MarketDataStatus getMarketDataState(MarketDataRequirement requirement) {
+      public MarketDataStatus getStatus(MarketDataRequirement requirement) {
         throw new IllegalStateException("Unable to get data from a failure result");
       }
 
       @Override
-      public MarketDataValue getMarketDataValue(MarketDataRequirement requirement) {
+      public <T> MarketDataValue<T> getValue(MarketDataRequirement requirement) {
         throw new IllegalStateException("Unable to get data from a failure result");
       }
 

@@ -10,7 +10,7 @@ import java.util.Set;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
- * Function providing market data to clients. When data is requested a {@link MarketDataFunctionResult}
+ * Function providing market data to clients. When data is requested a {@link MarketDataSingleResult}
  * is returned which contains status (and potentially value) for every item that has been requested.
  * TODO blocking variant
  */
@@ -23,7 +23,7 @@ public interface MarketDataProviderFunction {
    * @return a result object containing an indication of whether the data is (currently)
    * available and the value if it is.
    */
-  MarketDataFunctionResult requestData(MarketDataRequirement requirement);
+  MarketDataSingleResult requestData(MarketDataRequirement requirement);
 
   /**
    * Request multiple item,s of market data.
@@ -32,14 +32,9 @@ public interface MarketDataProviderFunction {
    * @return a result object containing an indication of whether each item of data is (currently)
    * available and the value if it is.
    */
-  MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements);
+  MarketDataSingleResult requestData(Set<MarketDataRequirement> requirements);
 
-  // TODO should these be in here instead of their own interface?
+  MarketDataSeriesResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
 
-  // TODO or should the date (range) be part of the requirement so the existing methods can also specify time series?
-
-  MarketDataFunctionResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
-
-  // TODO this looks something that would return HistoricalTimeSeriesBundle
-  MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
+  MarketDataSeriesResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
 }

@@ -55,16 +55,13 @@ import com.opengamma.sesame.example.IdScheme;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.SimpleFunctionRepo;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataProvider;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class EngineTest {
@@ -110,8 +107,7 @@ public class EngineTest {
                 column(PRESENT_VALUE_HEADER,
                        defaultConfig(OutputNames.PRESENT_VALUE,
                                      config(
-                                         implementations(EquityPresentValueFunction.class,
-                                                         EquityPresentValue.class)))));
+                                         implementations(EquityPresentValueFunction.class, EquityPresentValue.class)))));
 
     SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);
@@ -122,11 +118,12 @@ public class EngineTest {
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
-    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> marketData = ImmutableMap.of(
-        // todo - we shouldn't be casting here
-        MarketDataRequirementFactory.of((FinancialSecurity) trade.getSecurity(),
-                                        MarketDataRequirementNames.MARKET_VALUE),
-        Pairs.<MarketDataStatus, MarketDataValue<?>>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+    // todo - we shouldn't be casting here
+    MarketDataRequirement requirement = MarketDataRequirementFactory.of((FinancialSecurity) trade.getSecurity(),
+                                                                        MarketDataRequirementNames.MARKET_VALUE);
+    MarketDataItem<SingleMarketDataValue> item = MarketDataItem.available(new SingleMarketDataValue(123.45));
+    Map<MarketDataRequirement, MarketDataItem<?>> marketData =
+        ImmutableMap.<MarketDataRequirement, MarketDataItem<?>>of(requirement, item);
     marketDataProvider.resetMarketData(marketData);
 
     Engine.View view = engine.createView(viewDef, trades);

@@ -6,11 +6,11 @@
 package com.opengamma.sesame;
 
 
-import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
+import com.opengamma.sesame.marketdata.MarketDataSingleResult;
 
 public class ResultBuilder {
 
-  public void addResult(MarketDataFunctionResult result) {
+  public void addResult(MarketDataSingleResult result) {
     //To change body of created methods use File | Settings | File Templates.
   }
 

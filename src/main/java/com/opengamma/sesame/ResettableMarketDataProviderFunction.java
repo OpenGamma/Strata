@@ -8,11 +8,9 @@ package com.opengamma.sesame;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValue;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Extension to the MarketDataProviderFunction which adds management methods.
@@ -46,5 +44,5 @@ public interface ResettableMarketDataProviderFunction extends MarketDataProvider
    *
    * @param replacementData the new map of availability data
    */
-  void resetMarketData(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> replacementData);
+  void resetMarketData(Map<MarketDataRequirement, MarketDataItem<?>> replacementData);
 }

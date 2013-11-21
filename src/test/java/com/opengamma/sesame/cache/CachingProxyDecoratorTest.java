@@ -20,9 +20,6 @@ import java.lang.reflect.Proxy;
 import java.util.LinkedList;
 import java.util.concurrent.FutureTask;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,6 +35,10 @@ import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 
 @SuppressWarnings("unchecked")
 @Test(groups = TestGroup.UNIT)
@@ -66,7 +67,7 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, delegate);
 
     Object results = fn.foo("bar");
-    net.sf.ehcache.Cache cache = EHCacheUtils.getCacheFromManager(_cacheManager, CachingProxyDecorator.ENGINE_PROXY_CACHE);
+    Ehcache cache = EHCacheUtils.getCacheFromManager(_cacheManager, CachingProxyDecorator.ENGINE_PROXY_CACHE);
     Element element = cache.get(key);
     assertNotNull(element);
     FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
@@ -277,7 +278,7 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, delegate);
 
     Object results = fn.foo("bar");
-    net.sf.ehcache.Cache cache = EHCacheUtils.getCacheFromManager(_cacheManager, CachingProxyDecorator.ENGINE_PROXY_CACHE);
+    Ehcache cache = EHCacheUtils.getCacheFromManager(_cacheManager, CachingProxyDecorator.ENGINE_PROXY_CACHE);
     Element element = cache.get(key);
     assertNotNull(element);
     FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();

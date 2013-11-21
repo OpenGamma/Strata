@@ -15,13 +15,11 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.sesame.ResettableMarketDataProviderFunction;
 import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Provides market data and stores the requests which have been made. By starting with an empty
  * instance provided for the first cycle, it will be filled with the market data requirements
  * by the end of the cycle.
- * TODO should this be in the marketdata package?
  */
 // todo - consider that at some point we may want to track market data that is no longer needed e.g. trade removal, option expiry
 public class MarketDataProvider implements ResettableMarketDataProviderFunction {
@@ -30,30 +28,32 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
    * The market data which has previously been requested and which may have a value present. The status
    * value will indicate whether the data is available or is likely to become available at some
    * point in the future.
+   * TODO this was requested in a previous cycle and will have been sent to the MDS
    */
-  private final Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> _availableMarketData = new HashMap<>();
+  private final Map<MarketDataRequirement, MarketDataItem<?>> _requestedMarketData = new HashMap<>();
 
   /**
    * Records the requests which have been made by clients that we don't have status data for. Uses
    * a concurrent map which should avoid contention, however it may sometimes block. If this becomes a
    * problem then consider using a ConcurrentLinkedQueue which should be entirely wait-free. Using the queue
    * could also allow another thread to drain off the requests and send them out to the market data server.
+   * TODO newly requested data in this cycle
    */
   // todo we should size based on portfolio size and concurrency requirements
   private final Set<MarketDataRequirement> _marketDataRequests =
       Collections.newSetFromMap(new ConcurrentHashMap<MarketDataRequirement, Boolean>());
 
   @Override
-  public MarketDataFunctionResult requestData(MarketDataRequirement requirement) {
+  public MarketDataSingleResult requestData(MarketDataRequirement requirement) {
     return requestData(ImmutableSet.of(requirement));
   }
 
   @Override
-  public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements) {
+  public MarketDataSingleResult requestData(Set<MarketDataRequirement> requirements) {
     MarketDataResultBuilder builder = StandardResultGenerator.marketDataResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
-      if (_availableMarketData.containsKey(requirement)) {
-        builder.foundData(requirement, _availableMarketData.get(requirement));
+      if (_requestedMarketData.containsKey(requirement)) {
+        builder.foundData(requirement, _requestedMarketData.get(requirement));
       } else {
         _marketDataRequests.add(requirement);
         builder.missingData(requirement);
@@ -63,13 +63,13 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
   }
 
   @Override
-  public MarketDataFunctionResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  public MarketDataSeriesResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
     // TODO implement requestData()
     throw new UnsupportedOperationException("requestData not implemented");
   }
 
   @Override
-  public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+  public MarketDataSeriesResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
     // TODO implement requestData()
     throw new UnsupportedOperationException("requestData not implemented");
   }
@@ -80,9 +80,9 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
   }
 
   @Override
-  public void resetMarketData(Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> replacementData) {
+  public void resetMarketData(Map<MarketDataRequirement, MarketDataItem<?>> replacementData) {
     _marketDataRequests.clear();
-    _availableMarketData.clear();
-    _availableMarketData.putAll(replacementData);
+    _requestedMarketData.clear();
+    _requestedMarketData.putAll(replacementData);
   }
 }

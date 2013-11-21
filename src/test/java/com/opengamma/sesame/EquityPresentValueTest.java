@@ -19,15 +19,12 @@ import org.testng.annotations.Test;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataProvider;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValue;
 import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 public class EquityPresentValueTest {
 
@@ -55,10 +52,9 @@ public class EquityPresentValueTest {
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
 
-    Map<MarketDataRequirement, Pair<MarketDataStatus, MarketDataValue<?>>> marketData = new HashMap<>();
-    marketData.put(
-        MarketDataRequirementFactory.of(security, MarketDataRequirementNames.MARKET_VALUE),
-        Pairs.<MarketDataStatus, MarketDataValue<?>>of(MarketDataStatus.AVAILABLE, new SingleMarketDataValue(123.45)));
+    Map<MarketDataRequirement, MarketDataItem<?>> marketData = new HashMap<>();
+    MarketDataRequirement requirement = MarketDataRequirementFactory.of(security, MarketDataRequirementNames.MARKET_VALUE);
+    marketData.put(requirement, MarketDataItem.available(new SingleMarketDataValue(123.45)));
     _marketDataProviderFunction.resetMarketData(marketData);
 
     FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);

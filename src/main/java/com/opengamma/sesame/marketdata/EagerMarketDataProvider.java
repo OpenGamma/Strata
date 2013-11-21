@@ -15,7 +15,6 @@ import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  * Attempts to provide market data by immediately looking it up in a {@link RawMarketDataSource}.
@@ -36,17 +35,17 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
   }
 
   @Override
-  public MarketDataFunctionResult requestData(MarketDataRequirement requirement) {
+  public MarketDataSingleResult requestData(MarketDataRequirement requirement) {
     return requestData(Collections.singleton(requirement));
   }
 
   @Override
-  public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements) {
+  public MarketDataSingleResult requestData(Set<MarketDataRequirement> requirements) {
     MarketDataResultBuilder resultBuilder = StandardResultGenerator.marketDataResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       MarketDataValue<?> value = getValue(requirement);
       if (value != null) {
-        resultBuilder.foundData(requirement, Pairs.of(MarketDataStatus.AVAILABLE, value));
+        resultBuilder.foundData(requirement, MarketDataItem.available(value));
       } else {
         resultBuilder.missingData(requirement);
       }
@@ -79,22 +78,24 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
   }
 
   @Override
-  public MarketDataFunctionResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  public MarketDataSeriesResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
     return requestData(Collections.singleton(requirement), dateRange);
   }
 
   @Override
-  public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+  public MarketDataSeriesResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
     MarketDataResultBuilder resultBuilder = StandardResultGenerator.marketDataResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       MarketDataValue<?> value = getSeries(requirement, dateRange);
       if (value != null) {
-        resultBuilder.foundData(requirement, Pairs.of(MarketDataStatus.AVAILABLE, value));
+        resultBuilder.foundData(requirement, MarketDataItem.available(value));
       } else {
         resultBuilder.missingData(requirement);
       }
     }
-    return resultBuilder.build();
+    throw new UnsupportedOperationException();
+    // TODO what here?
+    //return resultBuilder.build();
   }
 
   private MarketDataValue<?> getSeries(MarketDataRequirement requirement, LocalDateRange dateRange) {

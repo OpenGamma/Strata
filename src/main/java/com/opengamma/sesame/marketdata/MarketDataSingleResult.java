@@ -9,20 +9,20 @@ import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.util.tuple.Pair;
 
 // TODO a class for the type parameter?
-// TODO type parameter for the value?
-public interface MarketDataFunctionResult extends FunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>> {
+// TODO type parameter for the value? Pair<status, value> -> MarketDataItem?
+// or a type instead of the map? MarketDataItem getValue(MarketDataRequirement)
+public interface MarketDataSingleResult extends FunctionResult<Map<MarketDataRequirement, MarketDataItem<?>>> {
 
-  <T> MarketDataValue<T> getSingleMarketDataValue();
+  <T> MarketDataValue<T> getSingleValue();
 
-  // TODO is this the right thing to do? should it return a MarketDataSeries?
+  // TODO is this the right thing to do? should it return a MarketDataSeries? or should there be a different result type?
   //<T> MarketDataValue<T> getMarketDataSeries();
 
-  MarketDataStatus getMarketDataState(MarketDataRequirement requirement);
+  MarketDataStatus getStatus(MarketDataRequirement requirement);
 
-  <T> MarketDataValue<T> getMarketDataValue(MarketDataRequirement requirement);
+  <T> MarketDataValue<T> getValue(MarketDataRequirement requirement);
 
   /**
    * Temporary method to allow conversion to the old-style market data bundle.
