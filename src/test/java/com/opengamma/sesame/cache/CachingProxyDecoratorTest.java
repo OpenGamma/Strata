@@ -19,8 +19,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.LinkedList;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -33,28 +36,26 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
-
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
 
 @SuppressWarnings("unchecked")
 @Test(groups = TestGroup.UNIT)
 public class CachingProxyDecoratorTest {
 
-  /** Ehcache has mutable static state (ugh) so this is necessary */
-  private static final AtomicInteger s_nextCacheName = new AtomicInteger();
+  private CacheManager _cacheManager;
 
+  @BeforeClass
+  public void setUpClass() {
+    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+  }
+  
   /** check the cache contains the item returns from the function */
   @Test
   public void oneLookup() throws Exception {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
-    Ehcache cache = createCache();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
@@ -65,6 +66,7 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, delegate);
 
     Object results = fn.foo("bar");
+    net.sf.ehcache.Cache cache = EHCacheUtils.getCacheFromManager(_cacheManager, CachingProxyDecorator.ENGINE_PROXY_CACHE);
     Element element = cache.get(key);
     assertNotNull(element);
     FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
@@ -76,8 +78,7 @@ public class CachingProxyDecoratorTest {
   public void multipleFunctions() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
-    Ehcache cache = createCache();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionBuilder functionBuilder = new FunctionBuilder();
@@ -99,8 +100,7 @@ public class CachingProxyDecoratorTest {
   public void multipleCalls() {
     FunctionConfig config = config(implementations(TestFn.class, Impl.class),
                                    arguments(function(Impl.class, argument("s", "s"))));
-    Ehcache cache = createCache();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
@@ -115,8 +115,7 @@ public class CachingProxyDecoratorTest {
     FunctionConfig config2 = config(implementations(TestFn.class, Impl.class),
                                     arguments(function(Impl.class, argument("s", "a different string"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn.class, "foo");
-    Ehcache cache = createCache();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
     GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
@@ -220,8 +219,7 @@ public class CachingProxyDecoratorTest {
                                                     DelegateFunction.class, Delegate1.class),
                                     arguments(function(Delegate1.class, argument("s", "a different string"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
-    Ehcache cache = createCache();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
     GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
@@ -249,8 +247,7 @@ public class CachingProxyDecoratorTest {
                                                     DelegateFunction.class, Delegate2.class),
                                     arguments(function(Delegate2.class, argument("s", "a string"))));
     FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
-    Ehcache cache = createCache();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
     GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
@@ -269,8 +266,7 @@ public class CachingProxyDecoratorTest {
   @Test
   public void annotationOnClass() throws Exception {
     FunctionConfig config = config(implementations(TestFn2.class, Impl2.class));
-    Ehcache cache = createCache();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = ConfigUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
@@ -281,19 +277,11 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, delegate);
 
     Object results = fn.foo("bar");
+    net.sf.ehcache.Cache cache = EHCacheUtils.getCacheFromManager(_cacheManager, CachingProxyDecorator.ENGINE_PROXY_CACHE);
     Element element = cache.get(key);
     assertNotNull(element);
     FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
     assertSame(task.get(), results);
-  }
-
-  private static Ehcache createCache() {
-    CacheConfiguration config = new CacheConfiguration(Integer.toString(s_nextCacheName.getAndIncrement()), 1000)
-        .eternal(true)
-        .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE));
-    Ehcache cache = new net.sf.ehcache.Cache(config);
-    CacheManager.getInstance().addCache(cache);
-    return cache;
   }
 
   interface TestFn2 {
@@ -319,7 +307,7 @@ public class CachingProxyDecoratorTest {
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
     ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
                                                                                 executingMethods));
-    GraphConfig graphConfig = new GraphConfig(config, components, new CachingProxyDecorator(createCache(), executingMethods));
+    GraphConfig graphConfig = new GraphConfig(config, components, new CachingProxyDecorator(_cacheManager, executingMethods));
     ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class, "fn", graphConfig);
     i1.fn("s", 1);
   }

@@ -13,6 +13,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +28,7 @@ import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.proxy.InvocationHandlerFactory;
 import com.opengamma.sesame.proxy.ProxyNode;
 import com.opengamma.util.ArgumentChecker;
-
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
@@ -38,24 +37,17 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 public class CachingProxyDecorator implements NodeDecorator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
+  
+  /*package*/ static final String ENGINE_PROXY_CACHE = "EngineProxyCache";
 
   private final Ehcache _cache;
   private final ExecutingMethodsThreadLocal _executingMethods;
 
-  // TODO this probably belongs somewhere else but this will do for now
-  public static Ehcache createCache() {
-    // TODO this is just a very basic proof of concept
-    CacheConfiguration config = new CacheConfiguration("EngineProxyCache", 1000)
-        .eternal(true)
-        .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE));
-    Ehcache cache = new net.sf.ehcache.Cache(config);
-    CacheManager.getInstance().addCache(cache);
-    return cache;
-  }
-
-  public CachingProxyDecorator(Ehcache cache, ExecutingMethodsThreadLocal executingMethods) {
+  public CachingProxyDecorator(CacheManager cacheManager, ExecutingMethodsThreadLocal executingMethods) {
+    ArgumentChecker.notNull(cacheManager, "cacheManager");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
-    _cache = ArgumentChecker.notNull(cache, "cache");
+    EHCacheUtils.addCache(cacheManager, ENGINE_PROXY_CACHE);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, ENGINE_PROXY_CACHE);
   }
 
   @Override
