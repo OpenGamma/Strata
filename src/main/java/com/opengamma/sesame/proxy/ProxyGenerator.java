@@ -16,7 +16,7 @@ import java.lang.reflect.Proxy;
 
 import com.opengamma.sesame.FailureStatus;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.MarketDataFunctionResult;
+import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**

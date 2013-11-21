@@ -6,6 +6,8 @@
 package com.opengamma.sesame;
 
 
+import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
+
 public class ResultBuilder {
 
   public void addResult(MarketDataFunctionResult result) {

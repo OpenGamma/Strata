@@ -23,13 +23,14 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.CurrencyPairsFunction;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.MarketDataFunctionResult;
-import com.opengamma.sesame.MarketDataProviderFunction;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.ResultStatus;
+import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
+import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.LocalDateRange;
 
 @Test(groups = TestGroup.UNIT)
 public class ProxyGeneratorTest {
@@ -100,6 +101,16 @@ public class ProxyGeneratorTest {
 
       @Override
       public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements) {
+        throw new RuntimeException(message);
+      }
+
+      @Override
+      public MarketDataFunctionResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+        throw new RuntimeException(message);
+      }
+
+      @Override
+      public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
         throw new RuntimeException(message);
       }
     };

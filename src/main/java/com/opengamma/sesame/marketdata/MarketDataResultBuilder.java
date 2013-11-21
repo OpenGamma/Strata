@@ -8,7 +8,6 @@ package com.opengamma.sesame.marketdata;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.sesame.MarketDataFunctionResult;
 import com.opengamma.util.tuple.Pair;
 
 public interface MarketDataResultBuilder {

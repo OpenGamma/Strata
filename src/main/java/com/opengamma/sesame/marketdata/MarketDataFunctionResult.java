@@ -3,22 +3,22 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.marketdata;
 
 import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValue;
+import com.opengamma.sesame.FunctionResult;
 import com.opengamma.util.tuple.Pair;
 
 // TODO a class for the type parameter?
-// TODO should this be in the marketdata package?
 // TODO type parameter for the value?
 public interface MarketDataFunctionResult extends FunctionResult<Map<MarketDataRequirement, Pair<MarketDataStatus, ? extends MarketDataValue>>> {
 
   <T> MarketDataValue<T> getSingleMarketDataValue();
+
+  // TODO is this the right thing to do? should it return a MarketDataSeries?
+  //<T> MarketDataValue<T> getMarketDataSeries();
 
   MarketDataStatus getMarketDataState(MarketDataRequirement requirement);
 

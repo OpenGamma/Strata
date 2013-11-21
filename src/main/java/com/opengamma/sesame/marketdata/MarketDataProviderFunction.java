@@ -3,17 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.marketdata;
 
 import java.util.Set;
 
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Function providing market data to clients. When data is requested a {@link MarketDataFunctionResult}
  * is returned which contains status (and potentially value) for every item that has been requested.
  * TODO blocking variant
- * TODO should this be in the marketdata package?
  */
 public interface MarketDataProviderFunction {
 
@@ -34,4 +33,13 @@ public interface MarketDataProviderFunction {
    * available and the value if it is.
    */
   MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements);
+
+  // TODO should these be in here instead of their own interface?
+
+  // TODO or should the date (range) be part of the requirement so the existing methods can also specify time series?
+
+  MarketDataFunctionResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
+
+  // TODO this looks something that would return HistoricalTimeSeriesBundle
+  MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
 }

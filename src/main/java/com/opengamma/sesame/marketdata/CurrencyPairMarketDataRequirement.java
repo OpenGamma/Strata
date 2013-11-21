@@ -46,8 +46,7 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return _currencyPair.hashCode();
   }
 
-  /* package */
-  public Double getSpotRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
+  /* package */ Double getSpotRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
     return getRate(currencyMatrix, dataSource, _currencyPair.getBase(), _currencyPair.getCounter());
   }
 
@@ -101,16 +100,15 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return value.accept(visitor);
   }
 
-  // TODO do I need a different data source type for time series?
-  public LocalDateDoubleTimeSeries getSpotRateSeries(LocalDateRange dateRange,
-                                                     CurrencyMatrix currencyMatrix,
-                                                     RawMarketDataSeriesSource rawDataSource) {
+  /* package */ LocalDateDoubleTimeSeries getSpotRateSeries(LocalDateRange dateRange,
+                                                            CurrencyMatrix currencyMatrix,
+                                                            RawMarketDataSource rawDataSource) {
     return getSpotRateSeries(dateRange, currencyMatrix, rawDataSource, _currencyPair.getBase(), _currencyPair.getCounter());
   }
 
   private LocalDateDoubleTimeSeries getSpotRateSeries(LocalDateRange dateRange,
                                                       CurrencyMatrix currencyMatrix,
-                                                      RawMarketDataSeriesSource rawDataSource,
+                                                      RawMarketDataSource rawDataSource,
                                                       Currency base,
                                                       Currency counter) {
     throw new UnsupportedOperationException();

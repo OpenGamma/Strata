@@ -16,6 +16,7 @@ import org.slf4j.helpers.MessageFormatter;
 import com.google.common.collect.Iterables;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataResultBuilder;
 import com.opengamma.sesame.marketdata.MarketDataStatus;

@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
 
 /**
  * Gets the market data required for a curve specification.

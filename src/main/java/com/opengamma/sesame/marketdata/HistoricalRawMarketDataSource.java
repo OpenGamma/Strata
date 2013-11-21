@@ -12,8 +12,8 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.MarketDataProviderFunction;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Useful for backing a {@link MarketDataProviderFunction} which needs historical data from a fixed point in time.
@@ -52,5 +52,11 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
     } else {
       return (MarketDataValue<T>) new SingleMarketDataValue(value);
     }
+  }
+
+  @Override
+  public <T> MarketDataValue<T> get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange) {
+    // TODO implement get()
+    throw new UnsupportedOperationException("get not implemented");
   }
 }

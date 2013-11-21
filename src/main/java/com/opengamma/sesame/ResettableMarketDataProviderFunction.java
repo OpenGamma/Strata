@@ -8,6 +8,7 @@ package com.opengamma.sesame;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValue;

@@ -74,6 +74,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalId;
+import com.opengamma.sesame.marketdata.MarketDataFunctionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 

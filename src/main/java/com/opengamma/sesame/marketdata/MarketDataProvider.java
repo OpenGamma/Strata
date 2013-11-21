@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.marketdata;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,10 +12,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataResultBuilder;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValue;
+import com.opengamma.sesame.ResettableMarketDataProviderFunction;
+import com.opengamma.sesame.StandardResultGenerator;
+import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -61,6 +60,18 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
       }
     }
     return builder.build();
+  }
+
+  @Override
+  public MarketDataFunctionResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+    // TODO implement requestData()
+    throw new UnsupportedOperationException("requestData not implemented");
+  }
+
+  @Override
+  public MarketDataFunctionResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+    // TODO implement requestData()
+    throw new UnsupportedOperationException("requestData not implemented");
   }
 
   @Override
