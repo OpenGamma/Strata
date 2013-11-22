@@ -10,9 +10,9 @@ import java.lang.reflect.Method;
 /**
  *
  */
-/* package */ final class NoOpTracer implements Tracer {
+public final class NoOpTracer implements Tracer {
 
-  /* package */ static final Tracer INSTANCE = new NoOpTracer();
+  public static final Tracer INSTANCE = new NoOpTracer();
 
   private NoOpTracer() {
   }
@@ -33,7 +33,7 @@ import java.lang.reflect.Method;
   }
 
   @Override
-  public Call getRoot() {
+  public CallGraph getRoot() {
     throw new IllegalStateException();
   }
 }

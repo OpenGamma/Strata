@@ -152,7 +152,7 @@ public class StandardResultGenerator {
 
     @Override
     public String toString() {
-      return "FailureFunctionResult{_errorMessage=" + _errorMessage + '}';
+      return "FailureFunctionResult{_errorMessage=" + _errorMessage.getMessage() + '}';
     }
   }
 
@@ -197,11 +197,12 @@ public class StandardResultGenerator {
       for (Map.Entry<MarketDataRequirement, MarketDataItem<?>> entry : getResult().entrySet()) {
 
         MarketDataRequirement key = entry.getKey();
-        MarketDataItem<?> pair = entry.getValue();
-        MarketDataStatus status = pair.getStatus();
+        MarketDataItem<?> item = entry.getValue();
+        MarketDataStatus status = item.getStatus();
+        MarketDataValue<?> marketDataValue = (MarketDataValue<?>) item.getValue();
 
         if (key instanceof CurveNodeMarketDataRequirement && status == MarketDataStatus.AVAILABLE) {
-          snapshot.setDataPoint(((CurveNodeMarketDataRequirement) key).getExternalId(), (Double) pair.getValue());
+          snapshot.setDataPoint(((CurveNodeMarketDataRequirement) key).getExternalId(), (Double) marketDataValue.getValue());
         }
 
       }

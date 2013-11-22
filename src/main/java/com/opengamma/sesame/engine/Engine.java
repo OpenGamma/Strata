@@ -31,6 +31,10 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.trace.CallGraph;
+import com.opengamma.sesame.trace.NoOpTracer;
+import com.opengamma.sesame.trace.Tracer;
+import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -108,7 +112,10 @@ public class Engine {
           }
           FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
           FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
-          tasks.add(new Task(input, args, columnName, function));
+          // TODO this needs to be configurable
+          Tracer tracer = NoOpTracer.INSTANCE;
+          //Tracer tracer = new FullTracer();
+          tasks.add(new Task(input, args, columnName, function, tracer));
         }
       }
       List<Future<TaskResult>> futures;
@@ -122,7 +129,7 @@ public class Engine {
         try {
           // TODO this won't do as a long term solution, it will block indefinitely if a function blocks
           TaskResult result = future.get();
-          resultsBuilder.add(result._columnName, result._targetId, result._result);
+          resultsBuilder.add(result._columnName, result._targetId, result._result, result._callGraph);
         } catch (InterruptedException | ExecutionException e) {
           s_logger.warn("Failed to get result from task", e);
         }
@@ -140,11 +147,13 @@ public class Engine {
       private final ObjectId _targetId;
       private final String _columnName;
       private final Object _result;
+      private final CallGraph _callGraph;
 
-      private TaskResult(ObjectId targetId, String columnName, Object result) {
+      private TaskResult(ObjectId targetId, String columnName, Object result, CallGraph callGraph) {
         _targetId = targetId;
         _columnName = columnName;
         _result = result;
+        _callGraph = callGraph;
       }
     }
 
@@ -154,26 +163,33 @@ public class Engine {
       private final UniqueIdentifiable _input;
       private final String _columnName;
       private final InvokableFunction _invokableFunction;
+      private final Tracer _tracer;
       private final FunctionArguments _args;
-      // TODO need the arguments for the class that provides the function implementation
 
-      private Task(UniqueIdentifiable input, FunctionArguments args, String columnName, InvokableFunction invokableFunction) {
+      private Task(UniqueIdentifiable input,
+                   FunctionArguments args,
+                   String columnName,
+                   InvokableFunction invokableFunction,
+                   Tracer tracer) {
         _input = input;
         _args = args;
         _columnName = columnName;
         _invokableFunction = invokableFunction;
+        _tracer = tracer;
       }
 
       @Override
       public TaskResult call() throws Exception {
         Object result;
+        TracingProxy.start(_tracer);
         try {
           result = _invokableFunction.invoke(_input, _args);
         } catch (Exception e) {
           s_logger.warn("Failed to execute function", e);
           result = e;
         }
-        return new TaskResult(_input.getUniqueId().getObjectId(), _columnName, result);
+        CallGraph callGraph = TracingProxy.end();
+        return new TaskResult(_input.getUniqueId().getObjectId(), _columnName, result, callGraph);
       }
     }
   }

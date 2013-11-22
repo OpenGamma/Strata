@@ -48,11 +48,11 @@ public class FullTracerTest {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(0);
-    Call call = TracingProxy.end();
-    Call expected = new Call(METHOD1, 0);
+    CallGraph callGraph = TracingProxy.end();
+    CallGraph expected = new CallGraph(METHOD1, 0);
     expected.returned("foo");
-    assertEquals(expected, call);
-    System.out.println(call.prettyPrint());
+    assertEquals(expected, callGraph);
+    System.out.println(callGraph.prettyPrint());
   }
 
   @Test
@@ -60,14 +60,14 @@ public class FullTracerTest {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(1);
-    Call call1 = TracingProxy.end();
-    Call expected = new Call(METHOD1, 1);
+    CallGraph callGraph1 = TracingProxy.end();
+    CallGraph expected = new CallGraph(METHOD1, 1);
     expected.returned("foo 42");
-    Call call2 = new Call(METHOD2, true);
-    call2.returned(42);
-    expected.called(call2);
-    assertEquals(expected, call1);
-    System.out.println(call1.prettyPrint());
+    CallGraph callGraph2 = new CallGraph(METHOD2, true);
+    callGraph2.returned(42);
+    expected.called(callGraph2);
+    assertEquals(expected, callGraph1);
+    System.out.println(callGraph1.prettyPrint());
   }
 
   @Test
@@ -75,17 +75,17 @@ public class FullTracerTest {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(2);
-    Call expected = new Call(METHOD1, 2);
+    CallGraph expected = new CallGraph(METHOD1, 2);
     expected.returned("bar 42 84");
-    Call call2 = new Call(METHOD2, true);
-    call2.returned(42);
-    Call call3 = new Call(METHOD2, true);
-    call3.returned(42);
-    expected.called(call2);
-    expected.called(call3);
-    Call call = TracingProxy.end();
-    assertEquals(expected, call);
-    System.out.println(call.prettyPrint());
+    CallGraph callGraph2 = new CallGraph(METHOD2, true);
+    callGraph2.returned(42);
+    CallGraph callGraph3 = new CallGraph(METHOD2, true);
+    callGraph3.returned(42);
+    expected.called(callGraph2);
+    expected.called(callGraph3);
+    CallGraph callGraph = TracingProxy.end();
+    assertEquals(expected, callGraph);
+    System.out.println(callGraph.prettyPrint());
   }
 
   @Test
@@ -98,13 +98,13 @@ public class FullTracerTest {
     } catch (OpenGammaRuntimeException e) {
       // expected
     }
-    Call expected = new Call(METHOD1, 3);
+    CallGraph expected = new CallGraph(METHOD1, 3);
     expected.threw(new OpenGammaRuntimeException("an exception"));
-    Call call2 = new Call(METHOD2, true);
-    call2.threw(new OpenGammaRuntimeException("an exception"));
-    expected.called(call2);
-    Call call = TracingProxy.end();
-    System.out.println(call.prettyPrint());
+    CallGraph callGraph2 = new CallGraph(METHOD2, true);
+    callGraph2.threw(new OpenGammaRuntimeException("an exception"));
+    expected.called(callGraph2);
+    CallGraph callGraph = TracingProxy.end();
+    System.out.println(callGraph.prettyPrint());
   }
 
   @Test(expectedExceptions = IllegalStateException.class)

@@ -16,22 +16,22 @@ import com.google.common.collect.Lists;
 /**
  * TODO maybe an interface instead? abstract class? different tracers will need similar functionality
  */
-public class Call {
+public class CallGraph {
 
   private final Method _method;
   private final Object[] _args;
-  private final List<Call> _calls = Lists.newArrayList();
+  private final List<CallGraph> _callGraphs = Lists.newArrayList();
 
   private Object _returnValue;
   private Throwable _throwable;
 
-  /* package */ Call(Method method, Object... args) {
+  /* package */ CallGraph(Method method, Object... args) {
     _method = method;
     _args = args;
   }
 
-  /* package */ void called(Call call) {
-    _calls.add(call);
+  /* package */ void called(CallGraph callGraph) {
+    _callGraphs.add(callGraph);
   }
 
   /* package */ void returned(Object returnValue) {
@@ -42,18 +42,18 @@ public class Call {
     _throwable = throwable;
   }
 
-  /* package */ List<Call> calls() {
-    return _calls;
+  /* package */ List<CallGraph> calls() {
+    return _callGraphs;
   }
 
   public String prettyPrint() {
     return prettyPrint(new StringBuilder(), this, "", "").toString();
   }
 
-  private static StringBuilder prettyPrint(StringBuilder builder, Call call, String indent, String childIndent) {
-    builder.append('\n').append(indent).append(call.toString());
-    for (Iterator<Call> itr = call.calls().iterator(); itr.hasNext(); ) {
-      Call next = itr.next();
+  private static StringBuilder prettyPrint(StringBuilder builder, CallGraph callGraph, String indent, String childIndent) {
+    builder.append('\n').append(indent).append(callGraph.toString());
+    for (Iterator<CallGraph> itr = callGraph.calls().iterator(); itr.hasNext(); ) {
+      CallGraph next = itr.next();
       String newIndent;
       String newChildIndent;
       boolean isFinalChild = !itr.hasNext();
@@ -78,7 +78,7 @@ public class Call {
 
   @Override
   public int hashCode() {
-    return Objects.hash(_method, Arrays.deepHashCode(_args), _calls, _returnValue, _throwable);
+    return Objects.hash(_method, Arrays.deepHashCode(_args), _callGraphs, _returnValue, _throwable);
   }
 
   @Override
@@ -89,11 +89,11 @@ public class Call {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    final Call other = (Call) obj;
+    final CallGraph other = (CallGraph) obj;
     return
         Objects.equals(this._method, other._method) &&
         Arrays.deepEquals(this._args, other._args) &&
-        Objects.equals(this._calls, other._calls) &&
+        Objects.equals(this._callGraphs, other._callGraphs) &&
         Objects.equals(this._returnValue, other._returnValue) &&
         Objects.equals(this._throwable, other._throwable);
   }

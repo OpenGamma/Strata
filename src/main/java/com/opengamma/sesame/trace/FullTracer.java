@@ -14,19 +14,19 @@ import java.util.LinkedList;
  */
 public class FullTracer implements Tracer {
 
-  private final Deque<Call> _stack = new LinkedList<>();
+  private final Deque<CallGraph> _stack = new LinkedList<>();
 
-  private Call _root;
+  private CallGraph _root;
 
   @Override
   public void called(Method method, Object[] args) {
-    Call call = new Call(method, args);
+    CallGraph callGraph = new CallGraph(method, args);
     if (_root == null) {
-      _root = call;
+      _root = callGraph;
     } else {
-      _stack.peek().called(call);
+      _stack.peek().called(callGraph);
     }
-    _stack.push(call);
+    _stack.push(callGraph);
   }
 
   @Override
@@ -40,7 +40,7 @@ public class FullTracer implements Tracer {
   }
 
   @Override
-  public Call getRoot() {
+  public CallGraph getRoot() {
     return _root;
   }
 }

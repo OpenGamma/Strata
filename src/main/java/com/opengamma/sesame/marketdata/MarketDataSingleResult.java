@@ -13,12 +13,12 @@ import com.opengamma.sesame.FunctionResult;
 // TODO a class for the type parameter?
 // TODO type parameter for the value? Pair<status, value> -> MarketDataItem?
 // or a type instead of the map? MarketDataItem getValue(MarketDataRequirement)
+// TODO use this for values and series, type params for T or <T extends DateTimeSeries<T extends LocalDate, ?>>
+// sub interfaces that specify the type params
+// multiple builder impls
 public interface MarketDataSingleResult extends FunctionResult<Map<MarketDataRequirement, MarketDataItem<?>>> {
 
   <T> MarketDataValue<T> getSingleValue();
-
-  // TODO is this the right thing to do? should it return a MarketDataSeries? or should there be a different result type?
-  //<T> MarketDataValue<T> getMarketDataSeries();
 
   MarketDataStatus getStatus(MarketDataRequirement requirement);
 
@@ -31,3 +31,5 @@ public interface MarketDataSingleResult extends FunctionResult<Map<MarketDataReq
    */
   SnapshotDataBundle toSnapshot();
 }
+
+// TODO do I need abstract superclass and value/series impls for results builder, success and failure result impls?

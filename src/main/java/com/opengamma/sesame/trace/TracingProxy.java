@@ -55,7 +55,7 @@ public final class TracingProxy extends ProxyNodeDecorator {
     s_tracer.set(ArgumentChecker.notNull(tracer, "tracer"));
   }
 
-  public static Call end() {
+  public static CallGraph end() {
     Tracer tracer = s_tracer.get();
     s_tracer.remove();
     return tracer.getRoot();

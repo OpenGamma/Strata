@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  * might need an incremental stateful version if we need to show live updating call graphs in the UI.
  * need to assign a stable ID to nodes so the UI can keep track of node state as the graph is updated
  */
-/* package */ interface Tracer {
+public interface Tracer {
 
   /* package */ void called(Method method, Object[] args);
 
@@ -26,5 +26,5 @@ import java.lang.reflect.Method;
 
   /* package */ void threw(Throwable e);
 
-  /* package */ Call getRoot();
+  /* package */ CallGraph getRoot();
 }

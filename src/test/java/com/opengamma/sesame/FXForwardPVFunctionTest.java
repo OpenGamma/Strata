@@ -85,6 +85,7 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.SimpleFunctionRepo;
@@ -220,12 +221,13 @@ public class FXForwardPVFunctionTest {
     // Can examine result.getResult().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
   }
 
-  //@Test(groups = TestGroup.INTEGRATION)
-  @Test(groups = TestGroup.INTEGRATION, enabled = false)
+  @Test(groups = TestGroup.INTEGRATION)
+  //@Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void engine() throws Exception {
     //int nTrades = 1_000_000;
-    int nTrades = 10_000;
+    //int nTrades = 10_000;
     //int nTrades = 1_000;
+    int nTrades = 1;
     long startTrades = System.currentTimeMillis();
     List<Trade> trades = Lists.newArrayListWithCapacity(nTrades);
     for (int i = 0; i < nTrades; i++) {
@@ -258,10 +260,8 @@ public class FXForwardPVFunctionTest {
 
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     //ExecutorService executor = new EngineTest.DirectExecutorService();
-    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(CachingProxyDecorator.INSTANCE);
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
-    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, CachingProxyDecorator.INSTANCE);
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -294,11 +294,13 @@ public class FXForwardPVFunctionTest {
     long graphStart = System.currentTimeMillis();
     Engine.View view = engine.createView(viewDef, trades);
     s_logger.info("view built in {}ms", System.currentTimeMillis() - graphStart);
-    for (int i = 0; i < 20; i++) {
+    int nRuns = 1;
+    //int nRuns = 20;
+    for (int i = 0; i < nRuns; i++) {
       long start = System.currentTimeMillis();
-      view.run();
-      //Results results = view.run();
-      //System.out.println(results);
+      //view.run();
+      Results results = view.run();
+      System.out.println(results);
       long time = System.currentTimeMillis() - start;
       s_logger.info("view executed in {}ms", time);
       Thread.sleep(1000);
