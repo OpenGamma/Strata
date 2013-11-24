@@ -8,10 +8,14 @@ package com.opengamma.sesame.marketdata;
 import java.util.Collections;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.StandardResultGenerator;
+import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
@@ -35,15 +39,15 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
   }
 
   @Override
-  public MarketDataSingleResult requestData(MarketDataRequirement requirement) {
+  public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
     return requestData(Collections.singleton(requirement));
   }
 
   @Override
-  public MarketDataSingleResult requestData(Set<MarketDataRequirement> requirements) {
-    MarketDataResultBuilder resultBuilder = StandardResultGenerator.marketDataResultBuilder();
+  public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
+    MarketDataValuesResultBuilder resultBuilder = StandardResultGenerator.marketDataBuilder();
     for (MarketDataRequirement requirement : requirements) {
-      MarketDataValue<?> value = getValue(requirement);
+      Object value = getValue(requirement);
       if (value != null) {
         resultBuilder.foundData(requirement, MarketDataItem.available(value));
       } else {
@@ -53,7 +57,7 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
     return resultBuilder.build();
   }
 
-  private MarketDataValue<?> getValue(MarketDataRequirement requirement) {
+  private Object getValue(MarketDataRequirement requirement) {
     if (requirement instanceof CurrencyPairMarketDataRequirement) {
 
       // TODO THIS IS DEFINITELY WRONG but will work for now. don't use latest, don't use ConfigSource
@@ -62,13 +66,7 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
         throw new IllegalArgumentException("No currency matrix found named " + _currencyMatrixName);
       }
       CurrencyPairMarketDataRequirement ccyReq = (CurrencyPairMarketDataRequirement) requirement;
-      // TODO handle the null case - null / missing impl of MarketDataValue
-      Double spotRate = ccyReq.getSpotRate(currencyMatrix, _rawDataSource);
-      if (spotRate != null) {
-        return new SingleMarketDataValue(spotRate);
-      } else {
-        return null;
-      }
+      return ccyReq.getSpotRate(currencyMatrix, _rawDataSource);
     } else if (requirement instanceof CurveNodeMarketDataRequirement) {
 
       CurveNodeMarketDataRequirement nodeReq = (CurveNodeMarketDataRequirement) requirement;
@@ -78,15 +76,15 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
   }
 
   @Override
-  public MarketDataSeriesResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
     return requestData(Collections.singleton(requirement), dateRange);
   }
 
   @Override
-  public MarketDataSeriesResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
-    MarketDataResultBuilder resultBuilder = StandardResultGenerator.marketDataResultBuilder();
+  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+    MarketDataSeriesResultBuilder resultBuilder = StandardResultGenerator.marketDataSeriesBuilder();
     for (MarketDataRequirement requirement : requirements) {
-      MarketDataValue<?> value = getSeries(requirement, dateRange);
+      DateTimeSeries<LocalDate, ?> value = getSeries(requirement, dateRange);
       if (value != null) {
         resultBuilder.foundData(requirement, MarketDataItem.available(value));
       } else {
@@ -98,7 +96,7 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
     //return resultBuilder.build();
   }
 
-  private MarketDataValue<?> getSeries(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  private DateTimeSeries<LocalDate, ?> getSeries(MarketDataRequirement requirement, LocalDateRange dateRange) {
     if (requirement instanceof CurrencyPairMarketDataRequirement) {
 
       // TODO THIS IS DEFINITELY WRONG but will work for now. don't use latest, don't use ConfigSource

@@ -12,6 +12,7 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -37,9 +38,8 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
     _dataProvider = ArgumentChecker.notEmpty(dataProvider, "dataProvider");
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <T> MarketDataValue<T> get(ExternalIdBundle idBundle, String dataField) {
+  public Object get(ExternalIdBundle idBundle, String dataField) {
     HistoricalTimeSeries hts = _timeSeriesSource.getHistoricalTimeSeries(idBundle, _dataSource, _dataProvider, dataField,
                                                                          _snapshotDate, true, _snapshotDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
@@ -50,12 +50,12 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
     if (value == null) {
       return null;
     } else {
-      return (MarketDataValue<T>) new SingleMarketDataValue(value);
+      return value;
     }
   }
 
   @Override
-  public <T> MarketDataValue<T> get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange) {
+  public DateTimeSeries<LocalDate, ?> get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange) {
     // TODO implement get()
     throw new UnsupportedOperationException("get not implemented");
   }

@@ -5,7 +5,10 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -14,8 +17,8 @@ import com.opengamma.util.time.LocalDateRange;
 public interface RawMarketDataSource {
 
   // TODO is dataField needed for all impls? what about live?
-  <T> MarketDataValue<T> get(ExternalIdBundle idBundle, String dataField);
+  Object get(ExternalIdBundle idBundle, String dataField);
 
-  <T> MarketDataValue<T> get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange);
+  DateTimeSeries<LocalDate, ?> get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange);
 
 }

@@ -112,7 +112,7 @@ public class Engine {
           }
           FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
           FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
-          // TODO this needs to be configurable
+          // TODO this needs to be configurable. if we don't have IDs how will we signal which inputs to trace?
           Tracer tracer = NoOpTracer.INSTANCE;
           //Tracer tracer = new FullTracer();
           tasks.add(new Task(input, args, columnName, function, tracer));
@@ -140,6 +140,7 @@ public class Engine {
     // TODO run() variants that take:
     //   1) cycle and listener (for multiple execution)
     //   2) listener (for single async or infinite execution)
+    //   3) new list of inputs
 
     //----------------------------------------------------------
     private static class TaskResult {

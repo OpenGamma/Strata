@@ -13,7 +13,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataSingleResult;
+import com.opengamma.sesame.marketdata.MarketDataValues;
 
 public class CurveSpecificationMarketDataProvider implements CurveSpecificationMarketDataProviderFunction {
 
@@ -24,7 +24,7 @@ public class CurveSpecificationMarketDataProvider implements CurveSpecificationM
   }
 
   @Override
-  public MarketDataSingleResult requestData(CurveSpecification curveSpecification) {
+  public FunctionResult<MarketDataValues> requestData(CurveSpecification curveSpecification) {
 
     final Set<MarketDataRequirement> requirements = new HashSet<>();
     for (final CurveNodeWithIdentifier id : curveSpecification.getNodes()) {

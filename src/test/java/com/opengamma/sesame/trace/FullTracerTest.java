@@ -8,6 +8,7 @@ package com.opengamma.sesame.trace;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
 import java.lang.reflect.Method;
@@ -107,11 +108,11 @@ public class FullTracerTest {
     System.out.println(callGraph.prettyPrint());
   }
 
-  @Test(expectedExceptions = IllegalStateException.class)
+  @Test
   public void tracingDisabled() {
     I1 i1 = buildFunction();
     i1.method1(2);
-    TracingProxy.end();
+    assertNull(TracingProxy.end());
   }
 
   interface I1 {

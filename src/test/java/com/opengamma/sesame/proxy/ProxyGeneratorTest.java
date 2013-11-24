@@ -26,8 +26,8 @@ import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.ResultStatus;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataSeriesResult;
-import com.opengamma.sesame.marketdata.MarketDataSingleResult;
+import com.opengamma.sesame.marketdata.MarketDataSeries;
+import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.test.TestGroup;
@@ -96,22 +96,22 @@ public class ProxyGeneratorTest {
     final String message = "Oops, thrown my toys out";
     MarketDataProviderFunction mdpf = new MarketDataProviderFunction() {
       @Override
-      public MarketDataSingleResult requestData(MarketDataRequirement requirement) {
+      public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public MarketDataSingleResult requestData(Set<MarketDataRequirement> requirements) {
+      public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public MarketDataSeriesResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+      public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public MarketDataSeriesResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+      public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
         throw new RuntimeException(message);
       }
     };
@@ -124,7 +124,7 @@ public class ProxyGeneratorTest {
     }
 
     MarketDataProviderFunction proxy = _proxyGenerator.generate(mdpf, MarketDataProviderFunction.class);
-    MarketDataSingleResult result = proxy.requestData((MarketDataRequirement) null);
+    FunctionResult<MarketDataValues> result = proxy.requestData((MarketDataRequirement) null);
     assertThat(result.getStatus(), is((ResultStatus) ERROR));
     assertThat(result.getFailureMessage(), containsString(message));
   }

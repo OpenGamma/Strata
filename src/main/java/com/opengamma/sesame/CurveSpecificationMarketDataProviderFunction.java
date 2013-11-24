@@ -6,12 +6,12 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.analytics.curve.CurveSpecification;
-import com.opengamma.sesame.marketdata.MarketDataSingleResult;
+import com.opengamma.sesame.marketdata.MarketDataValues;
 
 /**
  * Gets the market data required for a curve specification.
  */
 public interface CurveSpecificationMarketDataProviderFunction {
 
-  MarketDataSingleResult requestData(CurveSpecification curveSpecification);
+  FunctionResult<MarketDataValues> requestData(CurveSpecification curveSpecification);
 }

@@ -12,16 +12,16 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class MarketDataItem<T> {
+public class MarketDataItem {
 
-  public static final MarketDataItem<Void> UNAVAILBLE = new MarketDataItem<>(MarketDataStatus.UNAVAILABLE, null);
-  public static final MarketDataItem<Void> PENDING = new MarketDataItem<>(MarketDataStatus.PENDING, null);
-  public static final MarketDataItem<Void> NOT_REQUESTED = new MarketDataItem<>(MarketDataStatus.NOT_REQUESTED, null);
+  public static final MarketDataItem UNAVAILBLE = new MarketDataItem(MarketDataStatus.UNAVAILABLE, null);
+  public static final MarketDataItem PENDING = new MarketDataItem(MarketDataStatus.PENDING, null);
+  public static final MarketDataItem NOT_REQUESTED = new MarketDataItem(MarketDataStatus.NOT_REQUESTED, null);
 
   private final MarketDataStatus _status;
-  private final T _value;
+  private final Object _value;
 
-  private MarketDataItem(MarketDataStatus status, T value) {
+  private MarketDataItem(MarketDataStatus status, Object value) {
     _status = ArgumentChecker.notNull(status, "status");
     _value = value;
   }
@@ -30,15 +30,15 @@ public class MarketDataItem<T> {
     return _status;
   }
 
-  public T getValue() {
+  public Object getValue() {
     if (_value == null) {
       throw new IllegalStateException("No value available when status is " + _status);
     }
     return _value;
   }
 
-  public static <U> MarketDataItem<U> available(U value) {
-    return new MarketDataItem<>(MarketDataStatus.AVAILABLE, ArgumentChecker.notNull(value, "value"));
+  public static MarketDataItem available(Object value) {
+    return new MarketDataItem(MarketDataStatus.AVAILABLE, ArgumentChecker.notNull(value, "value"));
   }
 
   @Override

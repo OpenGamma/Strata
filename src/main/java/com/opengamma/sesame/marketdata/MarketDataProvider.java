@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.ResettableMarketDataProviderFunction;
 import com.opengamma.sesame.StandardResultGenerator;
 import com.opengamma.util.time.LocalDateRange;
@@ -30,7 +31,7 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
    * point in the future.
    * TODO this was requested in a previous cycle and will have been sent to the MDS
    */
-  private final Map<MarketDataRequirement, MarketDataItem<?>> _requestedMarketData = new HashMap<>();
+  private final Map<MarketDataRequirement, MarketDataItem> _requestedMarketData = new HashMap<>();
 
   /**
    * Records the requests which have been made by clients that we don't have status data for. Uses
@@ -44,13 +45,13 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
       Collections.newSetFromMap(new ConcurrentHashMap<MarketDataRequirement, Boolean>());
 
   @Override
-  public MarketDataSingleResult requestData(MarketDataRequirement requirement) {
+  public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
     return requestData(ImmutableSet.of(requirement));
   }
 
   @Override
-  public MarketDataSingleResult requestData(Set<MarketDataRequirement> requirements) {
-    MarketDataResultBuilder builder = StandardResultGenerator.marketDataResultBuilder();
+  public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
+    MarketDataValuesResultBuilder builder = StandardResultGenerator.marketDataBuilder();
     for (MarketDataRequirement requirement : requirements) {
       if (_requestedMarketData.containsKey(requirement)) {
         builder.foundData(requirement, _requestedMarketData.get(requirement));
@@ -63,13 +64,13 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
   }
 
   @Override
-  public MarketDataSeriesResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
     // TODO implement requestData()
     throw new UnsupportedOperationException("requestData not implemented");
   }
 
   @Override
-  public MarketDataSeriesResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
     // TODO implement requestData()
     throw new UnsupportedOperationException("requestData not implemented");
   }
@@ -80,7 +81,7 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
   }
 
   @Override
-  public void resetMarketData(Map<MarketDataRequirement, MarketDataItem<?>> replacementData) {
+  public void resetMarketData(Map<MarketDataRequirement, MarketDataItem> replacementData) {
     _marketDataRequests.clear();
     _requestedMarketData.clear();
     _requestedMarketData.putAll(replacementData);

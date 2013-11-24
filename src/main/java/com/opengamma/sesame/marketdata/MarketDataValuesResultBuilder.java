@@ -1,0 +1,54 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.sesame.marketdata;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import com.opengamma.sesame.FunctionResult;
+import com.opengamma.sesame.StandardResultGenerator;
+
+/**
+ *
+ */
+public class MarketDataValuesResultBuilder {
+
+  // TODO should this be a map including the status?
+  private final Set<MarketDataRequirement> _missing = new HashSet<>();
+
+  private final Map<MarketDataRequirement, MarketDataItem> _results = new HashMap<>();
+
+  /*public MarketDataValuesResultBuilder missingData(Set<MarketDataRequirement> missing) {
+    for (MarketDataRequirement requirement : missing) {
+      missingData(requirement);
+    }
+    return this;
+  }*/
+
+  public MarketDataValuesResultBuilder missingData(MarketDataRequirement requirement) {
+    _missing.add(requirement);
+    // TODO why pending? couldn't it also be UNAVAILABLE? or should it be always be UNAVAILABLE
+    _results.put(requirement, MarketDataItem.PENDING);
+    return this;
+
+  }
+
+  /*public MarketDataValuesResultBuilder foundData(Map<MarketDataRequirement, MarketDataItem> data) {
+    _results.putAll(data);
+    return this;
+  }*/
+
+  public MarketDataValuesResultBuilder foundData(MarketDataRequirement requirement, MarketDataItem item) {
+    _results.put(requirement, item);
+    return this;
+  }
+
+  public FunctionResult<MarketDataValues> build() {
+    return StandardResultGenerator.success(new MarketDataValues(_results, _missing));
+  }
+}

@@ -71,7 +71,7 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
         ValueRequirement valueRequirement = req.getValueRequirement();
         ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
-        Double spotRate = dataSource.<Double>get(idBundle, dataField).getValue();
+        Double spotRate = (Double) dataSource.get(idBundle, dataField);
         if (spotRate == null) {
           return null;
         }

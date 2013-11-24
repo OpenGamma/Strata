@@ -22,8 +22,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataSingleResult;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -84,10 +84,11 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
       } else {
         MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(
             CurrencyPair.of(currency, refCurr));
-        MarketDataSingleResult marketDataFunctionResult = _marketDataProviderFunction.requestData(spotReqmt);
+        FunctionResult<MarketDataValues> marketDataFunctionResult = _marketDataProviderFunction.requestData(spotReqmt);
 
-        if (marketDataFunctionResult.getStatus(spotReqmt) == MarketDataStatus.AVAILABLE) {
-          double spotRate = (Double) marketDataFunctionResult.getValue(spotReqmt).getValue();
+        MarketDataValues marketDataValues = marketDataFunctionResult.getResult();
+        if (marketDataValues.getStatus(spotReqmt) == MarketDataStatus.AVAILABLE) {
+          double spotRate = (Double) marketDataValues.getValue(spotReqmt);
 
           FunctionResult<CurrencyPair> result = _currencyPairsFunction.getCurrencyPair(refCurr, currency);
           if (result.getStatus() == SuccessStatus.SUCCESS) {
@@ -97,6 +98,6 @@ public class FXMatrixProvider implements FXMatrixProviderFunction {
         }
       }
     }
-    return success(SuccessStatus.SUCCESS, matrix);
+    return success(matrix);
   }
 }

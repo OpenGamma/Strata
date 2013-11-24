@@ -7,10 +7,11 @@ package com.opengamma.sesame.marketdata;
 
 import java.util.Set;
 
+import com.opengamma.sesame.FunctionResult;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
- * Function providing market data to clients. When data is requested a {@link MarketDataSingleResult}
+ * Function providing market data to clients. When data is requested a {@link MarketDataResult}
  * is returned which contains status (and potentially value) for every item that has been requested.
  * TODO blocking variant
  */
@@ -23,18 +24,18 @@ public interface MarketDataProviderFunction {
    * @return a result object containing an indication of whether the data is (currently)
    * available and the value if it is.
    */
-  MarketDataSingleResult requestData(MarketDataRequirement requirement);
+  FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement);
 
   /**
-   * Request multiple item,s of market data.
+   * Request multiple items of market data.
    *
    * @param requirements the items of market data being requested
    * @return a result object containing an indication of whether each item of data is (currently)
    * available and the value if it is.
    */
-  MarketDataSingleResult requestData(Set<MarketDataRequirement> requirements);
+  FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements);
 
-  MarketDataSeriesResult requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
+  FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
 
-  MarketDataSeriesResult requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
+  FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
 }

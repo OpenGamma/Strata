@@ -14,8 +14,8 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataSingleResult;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.sesame.marketdata.MarketDataValues;
 
 public class EquityPresentValue implements EquityPresentValueFunction {
 
@@ -30,11 +30,12 @@ public class EquityPresentValue implements EquityPresentValueFunction {
 
     MarketDataRequirement requirement = MarketDataRequirementFactory.of(security,
                                                                         MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataSingleResult result = _marketDataProviderFunction.requestData(requirement);
+    FunctionResult<MarketDataValues> result = _marketDataProviderFunction.requestData(requirement);
 
     if (result.getStatus().isResultAvailable()) {
-      if (result.getStatus(requirement) == MarketDataStatus.AVAILABLE) {
-        return success((Double) result.getSingleValue().getValue());
+      MarketDataValues marketDataValues = result.getResult();
+      if (marketDataValues.getStatus(requirement) == MarketDataStatus.AVAILABLE) {
+        return success((Double) marketDataValues.getOnlyValue());
       } else {
         return failure(FailureStatus.MISSING_DATA, "Market data was not available");
       }

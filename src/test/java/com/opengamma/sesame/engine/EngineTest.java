@@ -60,7 +60,6 @@ import com.opengamma.sesame.marketdata.MarketDataProvider;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.SingleMarketDataValue;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -121,9 +120,8 @@ public class EngineTest {
     // todo - we shouldn't be casting here
     MarketDataRequirement requirement = MarketDataRequirementFactory.of((FinancialSecurity) trade.getSecurity(),
                                                                         MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataItem<SingleMarketDataValue> item = MarketDataItem.available(new SingleMarketDataValue(123.45));
-    Map<MarketDataRequirement, MarketDataItem<?>> marketData =
-        ImmutableMap.<MarketDataRequirement, MarketDataItem<?>>of(requirement, item);
+    MarketDataItem item = MarketDataItem.available(123.45);
+    Map<MarketDataRequirement, MarketDataItem> marketData = ImmutableMap.of(requirement, item);
     marketDataProvider.resetMarketData(marketData);
 
     Engine.View view = engine.createView(viewDef, trades);

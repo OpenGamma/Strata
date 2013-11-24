@@ -34,6 +34,6 @@ public final class NoOpTracer implements Tracer {
 
   @Override
   public CallGraph getRoot() {
-    throw new IllegalStateException();
+    return null;
   }
 }

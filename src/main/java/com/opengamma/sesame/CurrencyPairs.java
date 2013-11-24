@@ -8,7 +8,6 @@ package com.opengamma.sesame;
 import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
 import static com.opengamma.sesame.StandardResultGenerator.failure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
-import static com.opengamma.sesame.SuccessStatus.SUCCESS;
 
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +43,7 @@ public class CurrencyPairs implements CurrencyPairsFunction {
     ArgumentChecker.notNull(pair, "pair");
 
     if (_currencyPairs.containsKey(pair)) {
-      return success(SUCCESS, _currencyPairs.get(pair));
+      return success(_currencyPairs.get(pair));
     } else {
       return failure(MISSING_DATA, "No currency pair matching {} was found", pair);
     }

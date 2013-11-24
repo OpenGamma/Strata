@@ -51,7 +51,7 @@ public class CurrencyPairMarketDataRequirementTest {
     ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE, ComputationTargetType.PRIMITIVE, rateId);
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
     RawMarketDataSource dataSource = mock(RawMarketDataSource.class);
-    SingleMarketDataValue value = new SingleMarketDataValue(GBPUSD_RATE);
+    Object value = GBPUSD_RATE;
     when(dataSource.get(ExternalIdBundle.of(rateId), MARKET_VALUE)).thenAnswer(new Returns(value));
 
     CurrencyPairMarketDataRequirement requirement = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("GBP/USD"));
@@ -86,12 +86,12 @@ public class CurrencyPairMarketDataRequirementTest {
     ExternalId usdchfRateId = ExternalId.of("x", "USDCHF");
     ValueRequirement usdchfReq = new ValueRequirement(MARKET_VALUE, ComputationTargetType.PRIMITIVE, usdchfRateId);
     matrix.setLiveData(Currency.USD, Currency.CHF, usdchfReq);
-    SingleMarketDataValue usdchfValue = new SingleMarketDataValue(USDCHF_RATE);
+    Object usdchfValue = USDCHF_RATE;
 
     ExternalId eurusdRateId = ExternalId.of("x", "EURUSD");
     ValueRequirement eurusdReq = new ValueRequirement(MARKET_VALUE, ComputationTargetType.PRIMITIVE, eurusdRateId);
     matrix.setLiveData(Currency.EUR, Currency.USD, eurusdReq);
-    SingleMarketDataValue eurusdValue = new SingleMarketDataValue(EURUSD_RATE);
+    Object eurusdValue = EURUSD_RATE;
 
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
 
