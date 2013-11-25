@@ -219,8 +219,8 @@ public class FXForwardPVFunctionTest {
     // Can examine result.getResult().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
   }
 
-  @Test(groups = TestGroup.INTEGRATION)
-  //@Test(groups = TestGroup.INTEGRATION, enabled = false)
+  //@Test(groups = TestGroup.INTEGRATION)
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void engine() throws Exception {
     //int nTrades = 1_000_000;
     int nTrades = 10_000;

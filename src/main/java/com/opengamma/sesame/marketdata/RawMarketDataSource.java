@@ -5,10 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import org.threeten.bp.LocalDate;
-
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -17,8 +14,9 @@ import com.opengamma.util.time.LocalDateRange;
 public interface RawMarketDataSource {
 
   // TODO is dataField needed for all impls? what about live?
-  Object get(ExternalIdBundle idBundle, String dataField);
+  MarketDataItem get(ExternalIdBundle idBundle, String dataField);
 
-  DateTimeSeries<LocalDate, ?> get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange);
-
+  // TODO I'm torn about whether to add a type param to MarketDataItem. it would make this method clearer
+  // could return MarketDataItem<DateTimeSeries<LocalDate, ?>>
+  MarketDataItem get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange);
 }

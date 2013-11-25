@@ -16,11 +16,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * TODO can this be merged with MarketDataSeries? the only difference is casting the results
  */
 public class MarketDataValues {
 
   private final Map<MarketDataRequirement, MarketDataItem> _results;
+    // TODO does this need to be map<requirement, status>? or collection<pair<requirement, status>>?
   private final Set<MarketDataRequirement> _missing;
 
   public MarketDataValues(Map<MarketDataRequirement, MarketDataItem> results, Set<MarketDataRequirement> missing) {

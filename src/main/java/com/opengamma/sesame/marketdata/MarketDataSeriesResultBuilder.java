@@ -19,6 +19,7 @@ import com.opengamma.timeseries.date.DateTimeSeries;
  */
 public class MarketDataSeriesResultBuilder {
 
+  // TODO does this need to include the status?
   private final Set<MarketDataRequirement> _missing = new HashSet<>();
 
   private final Map<MarketDataRequirement, MarketDataItem> _results = new HashMap<>();
@@ -30,10 +31,9 @@ public class MarketDataSeriesResultBuilder {
     return this;
   }*/
 
-  public MarketDataSeriesResultBuilder missingData(MarketDataRequirement requirement) {
+  public MarketDataSeriesResultBuilder missingData(MarketDataRequirement requirement, MarketDataStatus status) {
     _missing.add(requirement);
-    // TODO why pending? couldn't it also be UNAVAILABLE? or should it be always be UNAVAILABLE
-    _results.put(requirement, MarketDataItem.PENDING);
+    _results.put(requirement, MarketDataItem.missing(status));
     return this;
 
   }

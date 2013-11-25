@@ -12,7 +12,6 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -39,7 +38,7 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
   }
 
   @Override
-  public Object get(ExternalIdBundle idBundle, String dataField) {
+  public MarketDataItem get(ExternalIdBundle idBundle, String dataField) {
     HistoricalTimeSeries hts = _timeSeriesSource.getHistoricalTimeSeries(idBundle, _dataSource, _dataProvider, dataField,
                                                                          _snapshotDate, true, _snapshotDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
@@ -48,15 +47,21 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
     }
     Double value = hts.getTimeSeries().getValue(_snapshotDate);
     if (value == null) {
-      return null;
+      return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
     } else {
-      return value;
+      return MarketDataItem.available(value);
     }
   }
 
   @Override
-  public DateTimeSeries<LocalDate, ?> get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange) {
-    // TODO implement get()
-    throw new UnsupportedOperationException("get not implemented");
+  public MarketDataItem get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange) {
+    HistoricalTimeSeries hts = _timeSeriesSource.getHistoricalTimeSeries(idBundle, _dataSource, _dataProvider, dataField,
+                                                                         _snapshotDate, true, _snapshotDate, true);
+    if (hts == null || hts.getTimeSeries().isEmpty()) {
+      s_logger.info("No time-series for {}", idBundle);
+      return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
+    } else {
+      return MarketDataItem.available(hts.getTimeSeries());
+    }
   }
 }

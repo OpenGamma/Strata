@@ -10,7 +10,7 @@ import java.util.Objects;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO should this have a type param or not?
  */
 public class MarketDataItem {
 
@@ -41,6 +41,13 @@ public class MarketDataItem {
     return new MarketDataItem(MarketDataStatus.AVAILABLE, ArgumentChecker.notNull(value, "value"));
   }
 
+  public static MarketDataItem missing(MarketDataStatus status) {
+    if (status == MarketDataStatus.AVAILABLE) {
+      throw new IllegalArgumentException("Missing data can't have status AVAILABLE");
+    }
+    return new MarketDataItem(status, null);
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(_status, _value);
@@ -56,5 +63,9 @@ public class MarketDataItem {
     }
     final MarketDataItem other = (MarketDataItem) obj;
     return Objects.equals(this._status, other._status) && Objects.equals(this._value, other._value);
+  }
+
+  public boolean isAvailable() {
+    return _status == MarketDataStatus.AVAILABLE;
   }
 }

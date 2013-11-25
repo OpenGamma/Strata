@@ -8,15 +8,11 @@ package com.opengamma.sesame.marketdata;
 import java.util.Collections;
 import java.util.Set;
 
-import org.threeten.bp.LocalDate;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.StandardResultGenerator;
-import com.opengamma.timeseries.date.DateTimeSeries;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -51,6 +47,7 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
       if (value != null) {
         resultBuilder.foundData(requirement, MarketDataItem.available(value));
       } else {
+        // TODO how can we tell the difference between PENDING and UNAVAILABLE?
         resultBuilder.missingData(requirement);
       }
     }
@@ -84,19 +81,17 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
   public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
     MarketDataSeriesResultBuilder resultBuilder = StandardResultGenerator.marketDataSeriesBuilder();
     for (MarketDataRequirement requirement : requirements) {
-      DateTimeSeries<LocalDate, ?> value = getSeries(requirement, dateRange);
-      if (value != null) {
-        resultBuilder.foundData(requirement, MarketDataItem.available(value));
+      MarketDataItem item = getSeries(requirement, dateRange);
+      if (item.isAvailable()) {
+        resultBuilder.foundData(requirement, item);
       } else {
-        resultBuilder.missingData(requirement);
+        resultBuilder.missingData(requirement, item.getStatus());
       }
     }
-    throw new UnsupportedOperationException();
-    // TODO what here?
-    //return resultBuilder.build();
+    return resultBuilder.build();
   }
 
-  private DateTimeSeries<LocalDate, ?> getSeries(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  private MarketDataItem getSeries(MarketDataRequirement requirement, LocalDateRange dateRange) {
     if (requirement instanceof CurrencyPairMarketDataRequirement) {
 
       // TODO THIS IS DEFINITELY WRONG but will work for now. don't use latest, don't use ConfigSource
@@ -105,19 +100,12 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
         throw new IllegalArgumentException("No currency matrix found named " + _currencyMatrixName);
       }
       CurrencyPairMarketDataRequirement ccyReq = (CurrencyPairMarketDataRequirement) requirement;
-      LocalDateDoubleTimeSeries spotRateSeries = ccyReq.getSpotRateSeries(dateRange, currencyMatrix, _rawDataSource);
-      if (spotRateSeries != null) {
-        // TODO need a value class for series? or get rid of MarketDataValue altogether?
-        //return new SingleMarketDataValue(spotRateSeries);
-        throw new UnsupportedClassVersionError();
-      } else {
-        return null;
-      }
+      return ccyReq.getSpotRateSeries(dateRange, currencyMatrix, _rawDataSource);
     } else if (requirement instanceof CurveNodeMarketDataRequirement) {
 
       CurveNodeMarketDataRequirement nodeReq = (CurveNodeMarketDataRequirement) requirement;
       return _rawDataSource.get(ExternalIdBundle.of(nodeReq.getExternalId()), nodeReq.getDataField(), dateRange);
     }
-    return null;
+    return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
   }
 }

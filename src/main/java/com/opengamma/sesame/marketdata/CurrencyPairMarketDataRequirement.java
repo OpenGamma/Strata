@@ -11,7 +11,6 @@ import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -71,10 +70,11 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
         ValueRequirement valueRequirement = req.getValueRequirement();
         ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
-        Double spotRate = (Double) dataSource.get(idBundle, dataField);
-        if (spotRate == null) {
+        MarketDataItem item = dataSource.get(idBundle, dataField);
+        if (!item.isAvailable()) {
           return null;
         }
+        Double spotRate = (Double) item.getValue();
         if (req.isReciprocal()) {
           return 1 / spotRate;
         } else {
@@ -96,17 +96,17 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return value.accept(visitor);
   }
 
-  /* package */ LocalDateDoubleTimeSeries getSpotRateSeries(LocalDateRange dateRange,
-                                                            CurrencyMatrix currencyMatrix,
-                                                            RawMarketDataSource rawDataSource) {
+  /* package */ MarketDataItem getSpotRateSeries(LocalDateRange dateRange,
+                                                 CurrencyMatrix currencyMatrix,
+                                                 RawMarketDataSource rawDataSource) {
     return getSpotRateSeries(dateRange, currencyMatrix, rawDataSource, _currencyPair.getBase(), _currencyPair.getCounter());
   }
 
-  private LocalDateDoubleTimeSeries getSpotRateSeries(LocalDateRange dateRange,
-                                                      CurrencyMatrix currencyMatrix,
-                                                      RawMarketDataSource rawDataSource,
-                                                      Currency base,
-                                                      Currency counter) {
+  private MarketDataItem getSpotRateSeries(LocalDateRange dateRange,
+                                           CurrencyMatrix currencyMatrix,
+                                           RawMarketDataSource rawDataSource,
+                                           Currency base,
+                                           Currency counter) {
     // TODO needs to look a lot like getRate. see CurrencyMatrixSeriesSourcingFunction.getRate
     throw new UnsupportedOperationException();
   }

@@ -32,7 +32,7 @@ public class MarketDataValuesResultBuilder {
 
   public MarketDataValuesResultBuilder missingData(MarketDataRequirement requirement) {
     _missing.add(requirement);
-    // TODO why pending? couldn't it also be UNAVAILABLE? or should it be always be UNAVAILABLE
+    // TODO how will we be able to tell the difference between PENDING and UNAVAILABLE?
     _results.put(requirement, MarketDataItem.PENDING);
     return this;
 
