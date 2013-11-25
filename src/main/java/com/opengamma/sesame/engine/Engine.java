@@ -86,10 +86,7 @@ public class Engine {
     private final Collection<? extends PositionOrTrade> _inputs;
     private final ExecutorService _executor;
 
-    private View(ViewDef viewDef,
-                 Graph graph,
-                 Collection<? extends PositionOrTrade> inputs,
-                 ExecutorService executor) {
+    private View(ViewDef viewDef, Graph graph, Collection<? extends PositionOrTrade> inputs, ExecutorService executor) {
       _viewDef = viewDef;
       _inputs = inputs;
       _graph = graph;
@@ -132,7 +129,7 @@ public class Engine {
       Results.Builder resultsBuilder = Results.builder(columnNames);
       for (Future<TaskResult> future : futures) {
         try {
-          // TODO this won't do as a long term solution, it will block indefinitely if a function blocks
+          // TODO this probably won't do as a long term solution, it will block indefinitely if a function blocks
           TaskResult result = future.get();
           resultsBuilder.add(result._rowIndex, result._columnIndex, result._input, result._result, result._callGraph);
         } catch (InterruptedException | ExecutionException e) {

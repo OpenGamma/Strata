@@ -15,6 +15,7 @@ import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.ArgumentChecker;
 
 // TODO is it worth including a lookup by ID instead of row index?
+// TODO is it worth including a lookup by column name as well as column index?
 // TODO Iterable<Row>?
 // TODO column types
 public final class Results {
@@ -48,17 +49,13 @@ public final class Results {
 
   @Override
   public String toString() {
-    return "Results [" +
-        "_columnNames=" + _columnNames +
-        ", _rows=" + _rows +
-        "]";
+    return "Results [_columnNames=" + _columnNames + ", _rows=" + _rows + "]";
   }
 
   /* package */ static Builder builder(List<String> columnNames) {
     return new Builder(columnNames);
   }
 
-  // TODO is this necessary?
   //Item get(int rowIndex, String columnName);
 
   public static final class Row {
@@ -70,18 +67,17 @@ public final class Results {
     }
 
     public Item get(int columnIndex) {
-      // TODO check index is in bounds
+      if (columnIndex < 0 || columnIndex >= _items.size()) {
+        throw new IndexOutOfBoundsException("Index " + columnIndex + " is out of bounds. column count = " + _items.size());
+      }
       return _items.get(columnIndex);
     }
 
-    // TODO is this necessary?
     //Item get(String columnName);
 
     @Override
     public String toString() {
-      return "Row [" +
-          "_items=" + _items +
-          "]";
+      return "Row [_items=" + _items + "]";
     }
   }
 
@@ -111,11 +107,7 @@ public final class Results {
 
     @Override
     public String toString() {
-      return "Item [" +
-          "_result=" + _output +
-          ", _input=" + _input +
-          ", _callGraph=" + _callGraph +
-          "]";
+      return "Item [_result=" + _output + ", _input=" + _input + ", _callGraph=" + _callGraph + "]";
     }
   }
 

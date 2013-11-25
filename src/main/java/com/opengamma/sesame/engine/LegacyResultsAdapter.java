@@ -65,14 +65,13 @@ import com.opengamma.util.tuple.Pair;
         columns.add(new ColumnSpec(calcConfig.getName(), output.getFirst(), output.getSecond(), header));
       }
     }
-    Map<ColumnSpec, Integer> colToIndex = Maps.newHashMapWithExpectedSize(columns.size());
+    _colToIndex = Maps.newHashMapWithExpectedSize(columns.size());
     _columnNames = Lists.newArrayListWithCapacity(columns.size());
     int colIndex = 0;
     for (ColumnSpec column : columns) {
-      colToIndex.put(column, colIndex++);
+      _colToIndex.put(column, colIndex++);
       _columnNames.add(column._header);
     }
-    _colToIndex = colToIndex;
   }
 
   private static Map<ObjectId, Integer> rowIndices(PortfolioNode node) {
@@ -112,13 +111,13 @@ import com.opengamma.util.tuple.Pair;
         ColumnSpec colSpec = new ColumnSpec(calcConfigName, valueReq.getValueName(), valueSpec.getProperties());
         Integer colIndex = _colToIndex.get(colSpec);
         Integer rowIndex = _idToIndex.get(valueReq.getTargetReference().getSpecification().getUniqueId().getObjectId());
+        // TODO use the object, not its ID here
         builder.add(rowIndex, colIndex, valueSpec.getTargetSpecification().getUniqueId(), value.getValue(), null);
       }
     }
     return builder.build();
   }
 
-  // header is deliberately ignored for the purposes of equals and hashCode
   private static class ColumnSpec {
 
     /** Name of the calculation configuration that produces the column data. */
@@ -141,11 +140,13 @@ import com.opengamma.util.tuple.Pair;
       this(calcConfigName, valueName, properties, null);
     }
 
+    // header is deliberately ignored for the purposes of equals and hashCode
     @Override
     public int hashCode() {
       return Objects.hash(_calcConfigName, _valueName, _valueProperties);
     }
 
+    // header is deliberately ignored for the purposes of equals and hashCode
     @Override
     public boolean equals(Object obj) {
       if (this == obj) {
