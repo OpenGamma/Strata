@@ -30,6 +30,7 @@ import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -39,13 +40,39 @@ import com.opengamma.util.tuple.Pair;
 /* package */ class LegacyResultsAdapter {
 
   private final Map<ObjectId, Integer> _idToIndex;
+  private final Map<ObjectId, UniqueIdentifiable> _idToTarget;
   private final Map<ColumnSpec, Integer> _colToIndex;
   private final CompiledViewDefinition _compiledViewDef;
   private final List<String> _columnNames;
 
   /* package */ LegacyResultsAdapter(CompiledViewDefinition compiledViewDef) {
     _compiledViewDef = ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
-    _idToIndex = rowIndices(compiledViewDef.getPortfolio().getRootNode());
+
+    PortfolioMapperFunction<List<UniqueIdentifiable>> mapperFn = new PortfolioMapperFunction<List<UniqueIdentifiable>>() {
+      @Override
+      public List<UniqueIdentifiable> apply(PortfolioNode node) {
+        return Collections.<UniqueIdentifiable>singletonList(node);
+      }
+
+      @Override
+      public List<UniqueIdentifiable> apply(PortfolioNode parent, Position position) {
+        List<UniqueIdentifiable> targets = Lists.<UniqueIdentifiable>newArrayList(position);
+        for (Trade trade : position.getTrades()) {
+          targets.add(trade);
+        }
+        return targets;
+      }
+    };
+    List<UniqueIdentifiable> targets = PortfolioMapper.flatMap(compiledViewDef.getPortfolio().getRootNode(), mapperFn);
+    _idToIndex = Maps.newHashMapWithExpectedSize(targets.size());
+    _idToTarget = Maps.newHashMapWithExpectedSize(targets.size());
+    int rowIndex = 0;
+    for (UniqueIdentifiable target : targets) {
+      _idToIndex.put(target.getUniqueId().getObjectId(), rowIndex++);
+      _idToTarget.put(target.getUniqueId().getObjectId(), target);
+    }
+
+    //---------------------------------------------------
 
     Collection<ViewCalculationConfiguration> calcConfigs = compiledViewDef.getViewDefinition().getAllCalculationConfigurations();
     Set<ColumnSpec> columns = Sets.newLinkedHashSet();
@@ -74,31 +101,6 @@ import com.opengamma.util.tuple.Pair;
     }
   }
 
-  private static Map<ObjectId, Integer> rowIndices(PortfolioNode node) {
-    PortfolioMapperFunction<List<ObjectId>> mapperFn = new PortfolioMapperFunction<List<ObjectId>>() {
-      @Override
-      public List<ObjectId> apply(PortfolioNode node) {
-        return Collections.singletonList(node.getUniqueId().getObjectId());
-      }
-
-      @Override
-      public List<ObjectId> apply(PortfolioNode parent, Position position) {
-        List<ObjectId> ids = Lists.newArrayList(position.getUniqueId().getObjectId());
-        for (Trade trade : position.getTrades()) {
-          ids.add(trade.getUniqueId().getObjectId());
-        }
-        return ids;
-      }
-    };
-    List<ObjectId> ids = PortfolioMapper.flatMap(node, mapperFn);
-    Map<ObjectId, Integer> idsToIndex = Maps.newHashMapWithExpectedSize(ids.size());
-    int rowIndex = 0;
-    for (ObjectId id : ids) {
-      idsToIndex.put(id, rowIndex++);
-    }
-    return idsToIndex;
-  }
-
   /* package */ Results adapt(ViewResultModel resultModel) {
     Results.Builder builder = Results.builder(_columnNames);
     for (ViewResultEntry entry : resultModel.getAllResults()) {
@@ -111,8 +113,8 @@ import com.opengamma.util.tuple.Pair;
         ColumnSpec colSpec = new ColumnSpec(calcConfigName, valueReq.getValueName(), valueSpec.getProperties());
         Integer colIndex = _colToIndex.get(colSpec);
         Integer rowIndex = _idToIndex.get(valueReq.getTargetReference().getSpecification().getUniqueId().getObjectId());
-        // TODO use the object, not its ID here
-        builder.add(rowIndex, colIndex, valueSpec.getTargetSpecification().getUniqueId(), value.getValue(), null);
+        ObjectId id = valueSpec.getTargetSpecification().getUniqueId().getObjectId();
+        builder.add(rowIndex, colIndex, _idToTarget.get(id), value.getValue(), null);
       }
     }
     return builder.build();
