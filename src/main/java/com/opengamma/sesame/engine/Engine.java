@@ -197,7 +197,7 @@ public class Engine {
           result = e;
         }
         CallGraph callGraph = TracingProxy.end();
-        return new TaskResult(_input.getUniqueId().getObjectId(), _rowIndex, _columnIndex, result, callGraph);
+        return new TaskResult(_input, _rowIndex, _columnIndex, result, callGraph);
       }
     }
   }
