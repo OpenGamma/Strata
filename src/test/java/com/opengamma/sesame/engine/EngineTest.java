@@ -94,8 +94,7 @@ public class EngineTest {
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
-    Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
-    assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
+    assertEquals(EQUITY_NAME, results.get(0, 0).getValue());
     System.out.println(results);
   }
 
@@ -126,8 +125,7 @@ public class EngineTest {
 
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
-    Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
-    assertEquals(123.45, ((FunctionResult) tradeResults.get(PRESENT_VALUE_HEADER)).getResult());
+    assertEquals(123.45, ((FunctionResult) results.get(0, 0).getValue()).getResult());
     System.out.println(results);
   }
 
@@ -146,8 +144,7 @@ public class EngineTest {
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
-    Map<String, Object> tradeResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
-    assertEquals(EQUITY_NAME, tradeResults.get(DESCRIPTION_HEADER));
+    assertEquals(EQUITY_NAME, results.get(0, 0).getValue());
     System.out.println(results);
   }
 
@@ -192,15 +189,13 @@ public class EngineTest {
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
 
-    Map<String, Object> equityResults = results.getTargetResults(EQUITY_TRADE_ID.getObjectId());
-    assertEquals(EQUITY_NAME, equityResults.get(DESCRIPTION_HEADER));
-    assertEquals(EQUITY_BLOOMBERG_TICKER, equityResults.get(BLOOMBERG_HEADER));
-    assertEquals(EQUITY_ACTIV_SYMBOL, equityResults.get(ACTIV_HEADER));
+    assertEquals(EQUITY_NAME, results.get(0, 0).getValue());
+    assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getValue());
+    assertEquals(EQUITY_ACTIV_SYMBOL, results.get(0, 2).getValue());
 
-    Map<String, Object> cashFlowResults = results.getTargetResults(CASH_FLOW_TRADE_ID.getObjectId());
-    assertEquals(CASH_FLOW_NAME, cashFlowResults.get(DESCRIPTION_HEADER));
-    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, cashFlowResults.get(BLOOMBERG_HEADER));
-    assertEquals(CASH_FLOW_ACTIV_SYMBOL, cashFlowResults.get(ACTIV_HEADER));
+    assertEquals(CASH_FLOW_NAME, results.get(1, 0).getValue());
+    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, results.get(1, 1).getValue());
+    assertEquals(CASH_FLOW_ACTIV_SYMBOL, results.get(1, 2).getValue());
 
     System.out.println(results);
   }

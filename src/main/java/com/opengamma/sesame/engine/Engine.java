@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
@@ -99,9 +98,11 @@ public class Engine {
 
     public Results run() {
       List<Task> tasks = Lists.newArrayList();
+      int colIndex = 0;
       for (ViewColumn column : _viewDef.getColumns()) {
         String columnName = column.getName();
         Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
+        int rowIndex = 0;
         for (PositionOrTrade input : _inputs) {
           InvokableFunction function;
           InvokableFunction posOrTradeFunction = functions.get(input.getClass());
@@ -112,11 +113,12 @@ public class Engine {
           }
           FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
           FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
-          // TODO this needs to be configurable. if we don't have IDs how will we signal which inputs to trace?
+          // TODO this needs to be configurable. if we don't have IDs how will we signal which inputs to trace? row/col index?
           Tracer tracer = NoOpTracer.INSTANCE;
           //Tracer tracer = new FullTracer();
-          tasks.add(new Task(input, args, columnName, function, tracer));
+          tasks.add(new Task(input, args, rowIndex++, colIndex, function, tracer));
         }
+        colIndex++;
       }
       List<Future<TaskResult>> futures;
       try {
@@ -124,12 +126,12 @@ public class Engine {
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Interrupted", e);
       }
-      Results.Builder resultsBuilder = new Results.Builder();
+      Results.Builder resultsBuilder = Results.builder(_viewDef.getColumns());
       for (Future<TaskResult> future : futures) {
         try {
           // TODO this won't do as a long term solution, it will block indefinitely if a function blocks
           TaskResult result = future.get();
-          resultsBuilder.add(result._columnName, result._targetId, result._result, result._callGraph);
+          resultsBuilder.add(result._rowIndex, result._columnIndex, result._input, result._result, result._callGraph);
         } catch (InterruptedException | ExecutionException e) {
           s_logger.warn("Failed to get result from task", e);
         }
@@ -145,14 +147,16 @@ public class Engine {
     //----------------------------------------------------------
     private static class TaskResult {
       
-      private final ObjectId _targetId;
-      private final String _columnName;
+      private final Object _input;
+      private final int _rowIndex;
+      private final int _columnIndex;
       private final Object _result;
       private final CallGraph _callGraph;
 
-      private TaskResult(ObjectId targetId, String columnName, Object result, CallGraph callGraph) {
-        _targetId = targetId;
-        _columnName = columnName;
+      private TaskResult(Object input, int rowIndex, int columnIndex, Object result, CallGraph callGraph) {
+        _input = input;
+        _rowIndex = rowIndex;
+        _columnIndex = columnIndex;
         _result = result;
         _callGraph = callGraph;
       }
@@ -162,19 +166,22 @@ public class Engine {
     private static class Task implements Callable<TaskResult> {
 
       private final UniqueIdentifiable _input;
-      private final String _columnName;
+      private final int _rowIndex;
+      private final int _columnIndex;
       private final InvokableFunction _invokableFunction;
       private final Tracer _tracer;
       private final FunctionArguments _args;
 
       private Task(UniqueIdentifiable input,
                    FunctionArguments args,
-                   String columnName,
+                   int rowIndex,
+                   int columnIndex,
                    InvokableFunction invokableFunction,
                    Tracer tracer) {
         _input = input;
         _args = args;
-        _columnName = columnName;
+        _rowIndex = rowIndex;
+        _columnIndex = columnIndex;
         _invokableFunction = invokableFunction;
         _tracer = tracer;
       }
@@ -190,7 +197,7 @@ public class Engine {
           result = e;
         }
         CallGraph callGraph = TracingProxy.end();
-        return new TaskResult(_input.getUniqueId().getObjectId(), _columnName, result, callGraph);
+        return new TaskResult(_input.getUniqueId().getObjectId(), _rowIndex, _columnIndex, result, callGraph);
       }
     }
   }

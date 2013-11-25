@@ -107,4 +107,6 @@ public class CurrencyPairMarketDataRequirementTest {
     Double reciprocalSpotRate = (Double) reciprocal.getSpotRate(matrix, dataSource).getValue();
     assertEquals(1 / (USDCHF_RATE * EURUSD_RATE), reciprocalSpotRate, DELTA);
   }
+
+  // TODO same tests but for time series
 }

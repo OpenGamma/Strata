@@ -5,57 +5,144 @@
  */
 package com.opengamma.sesame.engine;
 
+import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectId;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
+import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.trace.CallGraph;
+import com.opengamma.util.ArgumentChecker;
 
-/**
- * TODO use linked maps so the column and rows orders reflect the view def
- * TODO including the column names in every row is wildly inefficient, use lists and a separate list/map of columns
- */
-public class Results {
+// TODO is it worth including a lookup by ID instead of row index?
+// TODO interface or class?
+// TODO Iterable<Row>?
+public final class Results {
 
-  private final Map<ObjectId, Map<String, Object>> _results;
+  private final List<String> _columnNames;
+  private final List<Row> _rows;
 
-  /* package */ Results(Map<ObjectId, Map<String, Object>> results) {
-    // TODO copy into immutable map so can be safely shared
-    _results = results;
+  private Results(List<Row> rows, List<String> columnNames) {
+    _rows = rows;
+    _columnNames = columnNames;
   }
 
-  /* package */ Map<String, Object> getTargetResults(ObjectId targetId) {
-    if (!_results.containsKey(targetId)) {
-      throw new DataNotFoundException("No results for target ID " + targetId);
+  public Row get(int rowIndex) {
+    checkRowIndex(rowIndex);
+    return _rows.get(rowIndex);
+  }
+
+  private void checkRowIndex(int rowIndex) {
+    if (rowIndex < 0 || rowIndex >= _rows.size()) {
+      throw new IndexOutOfBoundsException("Index " + rowIndex + " is out of bounds. row count = " + _rows.size());
     }
-    return _results.get(targetId);
+  }
+
+  public Item get(int rowIndex, int columnIndex) {
+    checkRowIndex(rowIndex);
+    if (columnIndex < 0 || columnIndex >= _columnNames.size()) {
+      throw new IndexOutOfBoundsException("Index " + columnIndex + " is out of bounds. column count = " + _columnNames.size());
+    }
+    return _rows.get(rowIndex).get(columnIndex);
   }
 
   @Override
   public String toString() {
-    return _results.toString();
+    return "Results [" +
+        "_columnNames=" + _columnNames +
+        ", _rows=" + _rows +
+        "]";
   }
 
-  // TODO this is most definitely *not* thread safe yet
-  /* package */ static class Builder {
+  /* package */ static Builder builder(List<ViewColumn> columns) {
+    return new Builder(columns);
+  }
 
-    private final Map<ObjectId, Map<String, Object>> _results = Maps.newHashMap();
+  // TODO is this necessary?
+  //Item get(int rowIndex, String columnName);
 
-    /* package */ void add(String columnName, ObjectId targetId, Object result, CallGraph callGraph) {
-      // TODO add the call graph to the results
-      Map<String, Object> targetResults;
-      if (_results.containsKey(targetId)) {
-        targetResults = _results.get(targetId);
-      } else {
-        targetResults = Maps.newHashMap();
-        _results.put(targetId, targetResults);
+  public static final class Row {
+
+    private final List<Item> _items;
+
+    private Row(List<Item> items) {
+      _items = items;
+    }
+
+    public Item get(int columnIndex) {
+      // TODO check index is in bounds
+      return _items.get(columnIndex);
+    }
+
+    // TODO is this necessary?
+    //Item get(String columnName);
+
+    @Override
+    public String toString() {
+      return "Row [" +
+          "_items=" + _items +
+          "]";
+    }
+  }
+
+  public final static class Item {
+
+    private final Object _result;
+    private final Object _input;
+    private final CallGraph _callGraph;
+
+    public Item(Object input, Object result, CallGraph callGraph) {
+      _input = ArgumentChecker.notNull(input, "positionOrTrade");
+      _result = result;
+      _callGraph = callGraph;
+    }
+
+    public Object getValue() {
+      return _result;
+    }
+
+    public CallGraph getCallGraph() {
+      return _callGraph;
+    }
+
+    public Object getInput() {
+      return _input;
+    }
+
+    @Override
+    public String toString() {
+      return "Item [" +
+          "_result=" + _result +
+          ", _input=" + _input +
+          ", _callGraph=" + _callGraph +
+          "]";
+    }
+  }
+
+  /* package */ static final class Builder {
+
+    private final Table<Integer, Integer, Item> _table = TreeBasedTable.create();
+    private final List<String> _columnNames;
+
+    public Builder(List<ViewColumn> columns) {
+      _columnNames = Lists.newArrayListWithCapacity(columns.size());
+      for (ViewColumn column : columns) {
+        _columnNames.add(column.getName());
       }
-      targetResults.put(columnName, result);
+    }
+
+    /* package */ void add(int rowIndex, int columnIndex, Object input, Object result, CallGraph callGraph) {
+      _table.put(rowIndex, columnIndex, new Item(input, result, callGraph));
     }
 
     /* package */ Results build() {
-      return new Results(_results);
+      Map<Integer, Map<Integer, Item>> rowMap = _table.rowMap();
+      List<Row> rows = Lists.newArrayListWithCapacity(rowMap.size());
+      for (Map<Integer, Item> row : rowMap.values()) {
+        rows.add(new Row(Lists.newArrayList(row.values())));
+      }
+      return new Results(rows, _columnNames);
     }
   }
 }
