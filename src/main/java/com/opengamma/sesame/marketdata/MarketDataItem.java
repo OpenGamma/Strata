@@ -11,6 +11,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * TODO should this have a type param or not?
+ * TODO maybe there should be 2 similar classes for single values and time series
  */
 public class MarketDataItem {
 

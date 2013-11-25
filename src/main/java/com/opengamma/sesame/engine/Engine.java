@@ -99,8 +99,11 @@ public class Engine {
     public Results run() {
       List<Task> tasks = Lists.newArrayList();
       int colIndex = 0;
-      for (ViewColumn column : _viewDef.getColumns()) {
+      List<ViewColumn> columns = _viewDef.getColumns();
+      List<String> columnNames = Lists.newArrayListWithCapacity(columns.size());
+      for (ViewColumn column : columns) {
         String columnName = column.getName();
+        columnNames.add(columnName);
         Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
         int rowIndex = 0;
         for (PositionOrTrade input : _inputs) {
@@ -126,7 +129,7 @@ public class Engine {
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Interrupted", e);
       }
-      Results.Builder resultsBuilder = Results.builder(_viewDef.getColumns());
+      Results.Builder resultsBuilder = Results.builder(columnNames);
       for (Future<TaskResult> future : futures) {
         try {
           // TODO this won't do as a long term solution, it will block indefinitely if a function blocks

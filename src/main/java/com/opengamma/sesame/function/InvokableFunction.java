@@ -8,7 +8,7 @@ package com.opengamma.sesame.function;
 import com.opengamma.sesame.config.FunctionArguments;
 
 /**
- *
+ * TODO return type
  */
 public interface InvokableFunction {
 

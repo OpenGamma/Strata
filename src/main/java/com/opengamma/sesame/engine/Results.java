@@ -11,13 +11,12 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
-import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.ArgumentChecker;
 
 // TODO is it worth including a lookup by ID instead of row index?
-// TODO interface or class?
 // TODO Iterable<Row>?
+// TODO column types
 public final class Results {
 
   private final List<String> _columnNames;
@@ -55,8 +54,8 @@ public final class Results {
         "]";
   }
 
-  /* package */ static Builder builder(List<ViewColumn> columns) {
-    return new Builder(columns);
+  /* package */ static Builder builder(List<String> columnNames) {
+    return new Builder(columnNames);
   }
 
   // TODO is this necessary?
@@ -88,18 +87,18 @@ public final class Results {
 
   public final static class Item {
 
-    private final Object _result;
+    private final Object _output;
     private final Object _input;
     private final CallGraph _callGraph;
 
-    public Item(Object input, Object result, CallGraph callGraph) {
-      _input = ArgumentChecker.notNull(input, "positionOrTrade");
-      _result = result;
+    public Item(Object input, Object output, CallGraph callGraph) {
+      _input = ArgumentChecker.notNull(input, "input");
+      _output = output;
       _callGraph = callGraph;
     }
 
-    public Object getValue() {
-      return _result;
+    public Object getOutput() {
+      return _output;
     }
 
     public CallGraph getCallGraph() {
@@ -113,7 +112,7 @@ public final class Results {
     @Override
     public String toString() {
       return "Item [" +
-          "_result=" + _result +
+          "_result=" + _output +
           ", _input=" + _input +
           ", _callGraph=" + _callGraph +
           "]";
@@ -125,11 +124,8 @@ public final class Results {
     private final Table<Integer, Integer, Item> _table = TreeBasedTable.create();
     private final List<String> _columnNames;
 
-    public Builder(List<ViewColumn> columns) {
-      _columnNames = Lists.newArrayListWithCapacity(columns.size());
-      for (ViewColumn column : columns) {
-        _columnNames.add(column.getName());
-      }
+    public Builder(List<String> columnNames) {
+      _columnNames = columnNames;
     }
 
     /* package */ void add(int rowIndex, int columnIndex, Object input, Object result, CallGraph callGraph) {

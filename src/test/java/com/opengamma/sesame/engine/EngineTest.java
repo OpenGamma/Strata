@@ -94,7 +94,7 @@ public class EngineTest {
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
-    assertEquals(EQUITY_NAME, results.get(0, 0).getValue());
+    assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
   }
 
@@ -125,7 +125,7 @@ public class EngineTest {
 
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
-    assertEquals(123.45, ((FunctionResult) results.get(0, 0).getValue()).getResult());
+    assertEquals(123.45, ((FunctionResult) results.get(0, 0).getOutput()).getResult());
     System.out.println(results);
   }
 
@@ -144,7 +144,7 @@ public class EngineTest {
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
-    assertEquals(EQUITY_NAME, results.get(0, 0).getValue());
+    assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
   }
 
@@ -189,13 +189,13 @@ public class EngineTest {
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run();
 
-    assertEquals(EQUITY_NAME, results.get(0, 0).getValue());
-    assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getValue());
-    assertEquals(EQUITY_ACTIV_SYMBOL, results.get(0, 2).getValue());
+    assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
+    assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getOutput());
+    assertEquals(EQUITY_ACTIV_SYMBOL, results.get(0, 2).getOutput());
 
-    assertEquals(CASH_FLOW_NAME, results.get(1, 0).getValue());
-    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, results.get(1, 1).getValue());
-    assertEquals(CASH_FLOW_ACTIV_SYMBOL, results.get(1, 2).getValue());
+    assertEquals(CASH_FLOW_NAME, results.get(1, 0).getOutput());
+    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, results.get(1, 1).getOutput());
+    assertEquals(CASH_FLOW_ACTIV_SYMBOL, results.get(1, 2).getOutput());
 
     System.out.println(results);
   }
