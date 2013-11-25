@@ -35,7 +35,6 @@ public class MarketDataSeries {
     _missing = ImmutableSet.copyOf(ArgumentChecker.notNull(missing, "missing"));
   }
 
-  // TODO should this throw an exception if there's no value? I think so. check status if you want to know?
   // TODO is the return type right? will we ever return anything except LocalDateDoubleTimeSeries?
   public DateTimeSeries<LocalDate, ?> getSeries(MarketDataRequirement requirement) {
     MarketDataItem item = _results.get(requirement);

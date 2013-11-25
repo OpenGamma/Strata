@@ -30,10 +30,9 @@ public class MarketDataValuesResultBuilder {
     return this;
   }*/
 
-  public MarketDataValuesResultBuilder missingData(MarketDataRequirement requirement) {
+  public MarketDataValuesResultBuilder missingData(MarketDataRequirement requirement, MarketDataStatus status) {
     _missing.add(requirement);
-    // TODO how will we be able to tell the difference between PENDING and UNAVAILABLE?
-    _results.put(requirement, MarketDataItem.PENDING);
+    _results.put(requirement, MarketDataItem.missing(status));
     return this;
 
   }

@@ -13,7 +13,7 @@ import com.opengamma.sesame.marketdata.MarketDataValuesResultBuilder;
 
 public class StandardResultGenerator {
 
-  public static MarketDataValuesResultBuilder marketDataBuilder() {
+  public static MarketDataValuesResultBuilder marketDataValuesBuilder() {
     return new MarketDataValuesResultBuilder();
   }
 

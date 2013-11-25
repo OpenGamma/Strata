@@ -41,20 +41,19 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
 
   @Override
   public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
-    MarketDataValuesResultBuilder resultBuilder = StandardResultGenerator.marketDataBuilder();
+    MarketDataValuesResultBuilder resultBuilder = StandardResultGenerator.marketDataValuesBuilder();
     for (MarketDataRequirement requirement : requirements) {
-      Object value = getValue(requirement);
-      if (value != null) {
-        resultBuilder.foundData(requirement, MarketDataItem.available(value));
+      MarketDataItem item = getValue(requirement);
+      if (item.isAvailable()) {
+        resultBuilder.foundData(requirement, MarketDataItem.available(item));
       } else {
-        // TODO how can we tell the difference between PENDING and UNAVAILABLE?
-        resultBuilder.missingData(requirement);
+        resultBuilder.missingData(requirement, item.getStatus());
       }
     }
     return resultBuilder.build();
   }
 
-  private Object getValue(MarketDataRequirement requirement) {
+  private MarketDataItem getValue(MarketDataRequirement requirement) {
     if (requirement instanceof CurrencyPairMarketDataRequirement) {
 
       // TODO THIS IS DEFINITELY WRONG but will work for now. don't use latest, don't use ConfigSource

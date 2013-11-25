@@ -51,13 +51,13 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
 
   @Override
   public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
-    MarketDataValuesResultBuilder builder = StandardResultGenerator.marketDataBuilder();
+    MarketDataValuesResultBuilder builder = StandardResultGenerator.marketDataValuesBuilder();
     for (MarketDataRequirement requirement : requirements) {
       if (_requestedMarketData.containsKey(requirement)) {
         builder.foundData(requirement, _requestedMarketData.get(requirement));
       } else {
         _marketDataRequests.add(requirement);
-        builder.missingData(requirement);
+        builder.missingData(requirement, MarketDataStatus.PENDING);
       }
     }
     return builder.build();
@@ -65,14 +65,21 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
 
   @Override
   public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
-    // TODO implement requestData()
-    throw new UnsupportedOperationException("requestData not implemented");
+    return requestData(ImmutableSet.of(requirement), dateRange);
   }
 
   @Override
   public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
-    // TODO implement requestData()
-    throw new UnsupportedOperationException("requestData not implemented");
+    MarketDataSeriesResultBuilder builder = StandardResultGenerator.marketDataSeriesBuilder();
+    for (MarketDataRequirement requirement : requirements) {
+      if (_requestedMarketData.containsKey(requirement)) {
+        builder.foundData(requirement, _requestedMarketData.get(requirement));
+      } else {
+        _marketDataRequests.add(requirement);
+        builder.missingData(requirement, MarketDataStatus.PENDING);
+      }
+    }
+    return builder.build();
   }
 
   @Override

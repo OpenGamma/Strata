@@ -36,11 +36,11 @@ public class CurrencyPairMarketDataRequirementTest {
     matrix.setFixedConversion(Currency.GBP, Currency.USD, GBPUSD_RATE);
 
     CurrencyPairMarketDataRequirement requirement = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("GBP/USD"));
-    Double spotRate = requirement.getSpotRate(matrix, mock(RawMarketDataSource.class));
+    Double spotRate = (Double) requirement.getSpotRate(matrix, mock(RawMarketDataSource.class)).getValue();
     assertEquals(GBPUSD_RATE, spotRate, DELTA);
 
     CurrencyPairMarketDataRequirement reciprocal = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("USD/GBP"));
-    Double reciprocalSpotRate = reciprocal.getSpotRate(matrix, mock(RawMarketDataSource.class));
+    Double reciprocalSpotRate = (Double) reciprocal.getSpotRate(matrix, mock(RawMarketDataSource.class)).getValue();
     assertEquals(1 / GBPUSD_RATE, reciprocalSpotRate, DELTA);
   }
 
@@ -55,11 +55,11 @@ public class CurrencyPairMarketDataRequirementTest {
     when(dataSource.get(ExternalIdBundle.of(rateId), MARKET_VALUE)).thenAnswer(new Returns(MarketDataItem.available(value)));
 
     CurrencyPairMarketDataRequirement requirement = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("GBP/USD"));
-    Double spotRate = requirement.getSpotRate(matrix, dataSource);
+    Double spotRate = (Double) requirement.getSpotRate(matrix, dataSource).getValue();
     assertEquals(GBPUSD_RATE, spotRate, DELTA);
 
     CurrencyPairMarketDataRequirement reciprocal = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("USD/GBP"));
-    Double reciprocalSpotRate = reciprocal.getSpotRate(matrix, dataSource);
+    Double reciprocalSpotRate = (Double) reciprocal.getSpotRate(matrix, dataSource).getValue();
     assertEquals(1 / GBPUSD_RATE, reciprocalSpotRate, DELTA);
   }
 
@@ -71,11 +71,11 @@ public class CurrencyPairMarketDataRequirementTest {
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);
 
     CurrencyPairMarketDataRequirement requirement = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("EUR/CHF"));
-    Double spotRate = requirement.getSpotRate(matrix, mock(RawMarketDataSource.class));
+    Double spotRate = (Double) requirement.getSpotRate(matrix, mock(RawMarketDataSource.class)).getValue();
     assertEquals(USDCHF_RATE * EURUSD_RATE, spotRate, DELTA);
 
     CurrencyPairMarketDataRequirement reciprocal = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("CHF/EUR"));
-    Double reciprocalSpotRate = reciprocal.getSpotRate(matrix, mock(RawMarketDataSource.class));
+    Double reciprocalSpotRate = (Double) reciprocal.getSpotRate(matrix, mock(RawMarketDataSource.class)).getValue();
     assertEquals(1 / (USDCHF_RATE * EURUSD_RATE), reciprocalSpotRate, DELTA);
   }
 
@@ -100,11 +100,11 @@ public class CurrencyPairMarketDataRequirementTest {
     when(dataSource.get(ExternalIdBundle.of(eurusdRateId), MARKET_VALUE)).thenAnswer(new Returns(MarketDataItem.available(eurusdValue)));
 
     CurrencyPairMarketDataRequirement requirement = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("EUR/CHF"));
-    Double spotRate = requirement.getSpotRate(matrix, dataSource);
+    Double spotRate = (Double) requirement.getSpotRate(matrix, dataSource).getValue();
     assertEquals(USDCHF_RATE * EURUSD_RATE, spotRate, DELTA);
 
     CurrencyPairMarketDataRequirement reciprocal = new CurrencyPairMarketDataRequirement(CurrencyPair.parse("CHF/EUR"));
-    Double reciprocalSpotRate = reciprocal.getSpotRate(matrix, dataSource);
+    Double reciprocalSpotRate = (Double) reciprocal.getSpotRate(matrix, dataSource).getValue();
     assertEquals(1 / (USDCHF_RATE * EURUSD_RATE), reciprocalSpotRate, DELTA);
   }
 }

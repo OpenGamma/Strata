@@ -11,6 +11,7 @@ import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -45,28 +46,28 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return _currencyPair.hashCode();
   }
 
-  /* package */ Double getSpotRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
+  /* package */ MarketDataItem getSpotRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
     return getRate(currencyMatrix, dataSource, _currencyPair.getBase(), _currencyPair.getCounter());
   }
 
   // TODO does this logic belong in this class? maybe not. move it if there turns out to be a better place
-  private Double getRate(final CurrencyMatrix currencyMatrix,
-                         final RawMarketDataSource dataSource,
-                         final Currency base,
-                         final Currency counter) {
+  private MarketDataItem getRate(final CurrencyMatrix currencyMatrix,
+                                 final RawMarketDataSource dataSource,
+                                 final Currency base,
+                                 final Currency counter) {
     CurrencyMatrixValue value = currencyMatrix.getConversion(base, counter);
     if (value == null) {
-      return null;
+      return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
     }
-    CurrencyMatrixValueVisitor<Double> visitor = new CurrencyMatrixValueVisitor<Double>() {
+    CurrencyMatrixValueVisitor<MarketDataItem> visitor = new CurrencyMatrixValueVisitor<MarketDataItem>() {
       @Override
-      public Double visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
-        return fixedValue.getFixedValue();
+      public MarketDataItem visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
+        return MarketDataItem.available(fixedValue.getFixedValue());
       }
 
       @SuppressWarnings("unchecked")
       @Override
-      public Double visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
+      public MarketDataItem visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
         ValueRequirement valueRequirement = req.getValueRequirement();
         ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
@@ -76,20 +77,23 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
         }
         Double spotRate = (Double) item.getValue();
         if (req.isReciprocal()) {
-          return 1 / spotRate;
+          return MarketDataItem.available(1 / spotRate);
         } else {
-          return spotRate;
+          return MarketDataItem.available(spotRate);
         }
       }
 
       @Override
-      public Double visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        Double baseCrossRate = getRate(currencyMatrix, dataSource, base, cross.getCrossCurrency());
-        Double crossCounterRate = getRate(currencyMatrix, dataSource, cross.getCrossCurrency(), counter);
-        if (baseCrossRate == null || crossCounterRate == null) {
-          return null;
+      public MarketDataItem visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
+        MarketDataItem baseCrossRate = getRate(currencyMatrix, dataSource, base, cross.getCrossCurrency());
+        MarketDataItem crossCounterRate = getRate(currencyMatrix, dataSource, cross.getCrossCurrency(), counter);
+        if (!baseCrossRate.isAvailable() || !crossCounterRate.isAvailable()) {
+          // TODO should this be pending?
+          return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
         } else {
-          return baseCrossRate * crossCounterRate;
+          Double rate1 = (Double) baseCrossRate.getValue();
+          Double rate2 = (Double) crossCounterRate.getValue();
+          return MarketDataItem.available(rate1 * rate2);
         }
       }
     };
@@ -102,12 +106,56 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return getSpotRateSeries(dateRange, currencyMatrix, rawDataSource, _currencyPair.getBase(), _currencyPair.getCounter());
   }
 
-  private MarketDataItem getSpotRateSeries(LocalDateRange dateRange,
-                                           CurrencyMatrix currencyMatrix,
-                                           RawMarketDataSource rawDataSource,
-                                           Currency base,
-                                           Currency counter) {
+  private MarketDataItem getSpotRateSeries(final LocalDateRange dateRange,
+                                           final CurrencyMatrix currencyMatrix,
+                                           final RawMarketDataSource dataSource,
+                                           final Currency base,
+                                           final Currency counter) {
     // TODO needs to look a lot like getRate. see CurrencyMatrixSeriesSourcingFunction.getRate
-    throw new UnsupportedOperationException();
+    CurrencyMatrixValue value = currencyMatrix.getConversion(base, counter);
+    if (value == null) {
+      return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
+    }
+    CurrencyMatrixValueVisitor<MarketDataItem> visitor = new CurrencyMatrixValueVisitor<MarketDataItem>() {
+      @Override
+      public MarketDataItem visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
+        // TODO is this right? don't I need a constant time series?
+        // the existing code returns a double but that smells like an undiscovered bug to me
+        return MarketDataItem.available(fixedValue.getFixedValue());
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public MarketDataItem visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
+        ValueRequirement valueRequirement = req.getValueRequirement();
+        ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
+        String dataField = valueRequirement.getValueName();
+        MarketDataItem item = dataSource.get(idBundle, dataField, dateRange);
+        if (!item.isAvailable()) {
+          return null;
+        }
+        DoubleTimeSeries<?> spotRate = (DoubleTimeSeries<?>) item.getValue();
+        if (req.isReciprocal()) {
+          return MarketDataItem.available(spotRate.reciprocal());
+        } else {
+          return MarketDataItem.available(spotRate);
+        }
+      }
+
+      @Override
+      public MarketDataItem visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
+        MarketDataItem baseCrossRate = getSpotRateSeries(dateRange, currencyMatrix, dataSource, base, cross.getCrossCurrency());
+        MarketDataItem crossCounterRate = getSpotRateSeries(dateRange, currencyMatrix, dataSource, cross.getCrossCurrency(), counter);
+        if (!baseCrossRate.isAvailable() || !crossCounterRate.isAvailable()) {
+          // TODO should this ever be pending?
+          return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
+        } else {
+          DoubleTimeSeries<?> rate1 = (DoubleTimeSeries<?>) baseCrossRate.getValue();
+          DoubleTimeSeries<?> rate2 = (DoubleTimeSeries<?>) crossCounterRate.getValue();
+          return MarketDataItem.available(rate1.multiply(rate2));
+        }
+      }
+    };
+    return value.accept(visitor);
   }
 }
