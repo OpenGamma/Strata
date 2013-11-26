@@ -110,7 +110,7 @@ import com.opengamma.util.tuple.Pair;
       CompiledViewCalculationConfiguration calcConfig = _compiledViewDef.getCompiledCalculationConfiguration(calcConfigName);
       Set<ValueRequirement> valueReqs = calcConfig.getTerminalOutputSpecifications().get(valueSpec);
       for (ValueRequirement valueReq : valueReqs) {
-        ColumnSpec colSpec = new ColumnSpec(calcConfigName, valueReq.getValueName(), valueSpec.getProperties());
+        ColumnSpec colSpec = new ColumnSpec(calcConfigName, valueReq.getValueName(), valueReq.getConstraints());
         Integer colIndex = _colToIndex.get(colSpec);
         Integer rowIndex = _idToIndex.get(valueReq.getTargetReference().getSpecification().getUniqueId().getObjectId());
         ObjectId id = valueSpec.getTargetSpecification().getUniqueId().getObjectId();
