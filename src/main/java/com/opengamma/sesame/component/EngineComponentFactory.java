@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -53,6 +51,8 @@ import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.SimpleFunctionRepo;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.trace.TracingProxy;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the engine. 
@@ -122,6 +122,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
                           CurveDefinitionProvider.class,
                           DiscountingMulticurveBundleProvider.class,
                           CurveSpecificationProvider.class,
+                          // TODO is this necessary? shouldn't this be a component?
                           ValuationTimeProvider.class,
                           ConfigDBCurveConstructionConfigurationSource.class,
                           HistoricalTimeSeriesProvider.class,

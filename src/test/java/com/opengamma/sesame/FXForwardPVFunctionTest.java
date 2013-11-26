@@ -241,9 +241,9 @@ public class FXForwardPVFunctionTest {
                                   arguments(
                                       function(ConfigDbMarketExposureSelectorProvider.class,
                                                argument("exposureConfigName", exposureConfig)),
+                                      // TODO this would make more sense as a component
                                       function(ValuationTimeProvider.class,
-                                               argument("valuationTime",
-                                                        ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
+                                               argument("valuationTime", ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
                                       function(RootFinderConfiguration.class,
                                                argument("rootFinderAbsoluteTolerance", 1e-9),
                                                argument("rootFinderRelativeTolerance", 1e-9),
@@ -281,7 +281,7 @@ public class FXForwardPVFunctionTest {
                           CurveDefinitionProvider.class,
                           DiscountingMulticurveBundleProvider.class,
                           CurveSpecificationProvider.class,
-                          ValuationTimeProvider.class,
+                          ValuationTimeProvider.class, // TODO what's this doing here?
                           ConfigDBCurveConstructionConfigurationSource.class,
                           HistoricalTimeSeriesProvider.class,
                           FxForwardDiscountingCalculatorProvider.class,
@@ -344,6 +344,7 @@ public class FXForwardPVFunctionTest {
             arguments(
                 function(ConfigDbMarketExposureSelectorProvider.class,
                          argument("exposureConfigName", exposureConfig)),
+                // TODO this would make more sense as a component
                 function(ValuationTimeProvider.class,
                          argument("valuationTime", ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
                 function(RootFinderConfiguration.class,
@@ -368,6 +369,7 @@ public class FXForwardPVFunctionTest {
                             CurveDefinitionProviderFunction.class, CurveDefinitionProvider.class,
                             DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class,
                             CurveSpecificationProviderFunction.class, CurveSpecificationProvider.class,
+                            // TODO is this really necessary?
                             ValuationTimeProviderFunction.class, ValuationTimeProvider.class,
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                             HistoricalTimeSeriesProviderFunction.class, HistoricalTimeSeriesProvider.class));

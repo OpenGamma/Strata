@@ -25,7 +25,13 @@ import net.sf.ehcache.Ehcache;
  */
 /* package */ class CacheInvalidator {
 
+  // TODO valuation time. method to register and invalidate
+
+  // TODO pairs of methods - register/invalidateMarketData, register/invalidateConfig, register/invalidateValuationTime?
+
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
+  // TODO multiple separate maps for market data, config objects?
+  // need to clear market data when data provider spec changes
   private final SetMultimap<Object, MethodInvocationKey> _idsToKeys = HashMultimap.create();
   private final Ehcache _cache;
 
