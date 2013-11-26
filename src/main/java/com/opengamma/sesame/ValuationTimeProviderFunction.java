@@ -5,15 +5,9 @@
  */
 package com.opengamma.sesame;
 
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
+import javax.inject.Provider;
+
 import org.threeten.bp.ZonedDateTime;
 
-public interface ValuationTimeProviderFunction {
-
-  Instant getValuationTime();
-
-  ZonedDateTime getZonedDateTime();
-
-  LocalDate getLocalDate();
+public interface ValuationTimeProviderFunction extends Provider<ZonedDateTime> {
 }
