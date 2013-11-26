@@ -8,6 +8,8 @@ package com.opengamma.sesame.marketdata;
 import java.util.Collections;
 import java.util.Set;
 
+import org.threeten.bp.Period;
+
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
@@ -106,5 +108,15 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
       return _rawDataSource.get(ExternalIdBundle.of(nodeReq.getExternalId()), nodeReq.getDataField(), dateRange);
     }
     return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
+  }
+
+  @Override
+  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+    return requestData(requirement, _rawDataSource.calculateDateRange(seriesPeriod));
+  }
+
+  @Override
+  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
+    return requestData(requirements, _rawDataSource.calculateDateRange(seriesPeriod));
   }
 }

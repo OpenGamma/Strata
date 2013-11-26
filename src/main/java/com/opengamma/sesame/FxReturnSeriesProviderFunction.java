@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame;
 
+import org.threeten.bp.Period;
+
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -16,8 +19,11 @@ public interface FxReturnSeriesProviderFunction {
   /**
    * Get the return series for the supplied currency pair.
    *
+   *
+   *
+   * @param seriesPeriod
    * @param currencyPair the pair to get the return series for, not null
    * @return the return series for the currency pair if available, not null
    */
-  FunctionResult<LocalDateDoubleTimeSeries> getReturnSeries(UnorderedCurrencyPair currencyPair);
+  FunctionResult<LocalDateDoubleTimeSeries> getReturnSeries(Period seriesPeriod, CurrencyPair currencyPair);
 }

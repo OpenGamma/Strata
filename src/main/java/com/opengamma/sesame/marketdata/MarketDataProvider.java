@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
+
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.ResettableMarketDataProviderFunction;
@@ -43,6 +47,8 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
   // todo we should size based on portfolio size and concurrency requirements
   private final Set<MarketDataRequirement> _marketDataRequests =
       Collections.newSetFromMap(new ConcurrentHashMap<MarketDataRequirement, Boolean>());
+
+  private ZonedDateTime _valuationTime;
 
   @Override
   public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
@@ -83,14 +89,31 @@ public class MarketDataProvider implements ResettableMarketDataProviderFunction 
   }
 
   @Override
+  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+    return requestData(requirement, calculateDateRange(seriesPeriod));
+  }
+
+  private LocalDateRange calculateDateRange(Period seriesPeriod) {
+    LocalDate end = _valuationTime.toLocalDate();
+    LocalDate start = end.minus(seriesPeriod);
+    return LocalDateRange.of(start, end, true);
+  }
+
+  @Override
+  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
+    return requestData(requirements, calculateDateRange(seriesPeriod));
+  }
+
+  @Override
   public Set<MarketDataRequirement> getCollectedRequests() {
     return _marketDataRequests;
   }
 
   @Override
-  public void resetMarketData(Map<MarketDataRequirement, MarketDataItem> replacementData) {
+  public void resetMarketData(ZonedDateTime valuationTime, Map<MarketDataRequirement, MarketDataItem> replacementData) {
     _marketDataRequests.clear();
     _requestedMarketData.clear();
+    _valuationTime = valuationTime;
     _requestedMarketData.putAll(replacementData);
   }
 }

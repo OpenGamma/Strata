@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import javax.inject.Inject;
+
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -20,6 +22,7 @@ public class ValuationTimeProvider implements ValuationTimeProviderFunction {
   public ValuationTimeProvider() {
   }
 
+  @Inject
   public ValuationTimeProvider(ZonedDateTime valuationTime) {
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
   }

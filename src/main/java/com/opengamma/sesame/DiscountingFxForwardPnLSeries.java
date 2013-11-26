@@ -8,6 +8,10 @@ package com.opengamma.sesame;
 import static com.opengamma.sesame.StandardResultGenerator.propagateFailure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
 
+import javax.inject.Inject;
+
+import org.threeten.bp.Period;
+
 import com.google.common.base.Optional;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -32,24 +36,32 @@ public class DiscountingFxForwardPnLSeries implements FxForwardPnLSeriesFunction
   private final FxReturnSeriesProviderFunction _fxReturnSeriesProvider;
   private final HistoricalTimeSeriesProviderFunction _historicalTimeSeriesProvider;
 
+  /**
+   * How big a timeseries result is required. Start date will be valuation date - period.
+   */
+  private final Period _seriesPeriod;
+
+  // todo - what should we be injecting?
+  @Inject
   public DiscountingFxForwardPnLSeries(FxForwardCalculatorProvider calculatorProvider,
                                        CurrencyPairsFunction currencyPairsFunction,
                                        Optional<Currency> outputCurrency,
                                        FxReturnSeriesProviderFunction fxReturnSeriesProvider,
-                                       HistoricalTimeSeriesProviderFunction historicalTimeSeriesProvider) {
+                                       HistoricalTimeSeriesProviderFunction historicalTimeSeriesProvider, Period seriesPeriod) {
     _calculatorProvider = calculatorProvider;
     _currencyPairsFunction = currencyPairsFunction;
     _outputCurrency = outputCurrency;
     _fxReturnSeriesProvider = fxReturnSeriesProvider;
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+    _seriesPeriod = seriesPeriod;
   }
 
   public DiscountingFxForwardPnLSeries(FxForwardCalculatorProvider calculatorProvider,
                                        CurrencyPairsFunction currencyPairsFunction,
                                        FxReturnSeriesProviderFunction fxReturnSeriesProvider,
-                                       HistoricalTimeSeriesProviderFunction historicalTimeSeriesProvider) {
+                                       HistoricalTimeSeriesProviderFunction historicalTimeSeriesProvider, Period seriesPeriod) {
     this(calculatorProvider, currencyPairsFunction, Optional.<Currency>absent(), fxReturnSeriesProvider,
-         historicalTimeSeriesProvider);
+         historicalTimeSeriesProvider, seriesPeriod);
   }
 
   @Override
@@ -59,10 +71,7 @@ public class DiscountingFxForwardPnLSeries implements FxForwardPnLSeriesFunction
     final Currency receiveCurrency = security.getReceiveCurrency();
 
     UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
-
     final FunctionResult<CurrencyPair> cpResult = _currencyPairsFunction.getCurrencyPair(pair);
-
-    FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.getReturnSeries(pair);
 
     FunctionResult<FxForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
 
@@ -87,6 +96,7 @@ public class DiscountingFxForwardPnLSeries implements FxForwardPnLSeriesFunction
     //    }
     //  }
     //});
+    // or "flatMap that shit!"
 
     if (calculatorResult.isResultAvailable()) {
 
@@ -95,6 +105,8 @@ public class DiscountingFxForwardPnLSeries implements FxForwardPnLSeriesFunction
       if (cpResult.isResultAvailable()) {
 
         CurrencyPair currencyPair = cpResult.getResult();
+
+        FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.getReturnSeries( _seriesPeriod, currencyPair);
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getResult();
 
         final Currency baseCurrency = currencyPair.getBase();

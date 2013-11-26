@@ -8,6 +8,7 @@ package com.opengamma.sesame.marketdata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -63,5 +64,11 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
     } else {
       return MarketDataItem.available(hts.getTimeSeries());
     }
+  }
+
+  @Override
+  public LocalDateRange calculateDateRange(Period seriesPeriod) {
+    LocalDate start = _snapshotDate.minus(seriesPeriod);
+    return LocalDateRange.of(start, _snapshotDate, true);
   }
 }

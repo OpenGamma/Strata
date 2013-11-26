@@ -166,9 +166,9 @@ public class FXForwardPVFunctionTest {
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
+    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     MarketDataProvider marketDataProvider = new MarketDataProvider();
-    marketDataProvider.resetMarketData(marketData);
-    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
+    marketDataProvider.resetMarketData(valuationTime, marketData);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
                                                   // TODO these 2 are normally provided by the engine. SSM-59
                                                   MarketDataProviderFunction.class, marketDataProvider,
@@ -203,11 +203,11 @@ public class FXForwardPVFunctionTest {
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
+    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     MarketDataProvider marketDataProvider = new MarketDataProvider();
     Map<MarketDataRequirement, MarketDataItem> marketData = loadMarketDataForYieldCurve();
     addValue(marketData, MarketDataRequirementFactory.of(CurrencyPair.of(USD, JPY)), 98.86);
-    marketDataProvider.resetMarketData(marketData);
-    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
+    marketDataProvider.resetMarketData(valuationTime, marketData);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
                                                   // TODO this is provided by the engine. SSM-59
                                                   // how should it be handled when not using the engine?
@@ -253,6 +253,9 @@ public class FXForwardPVFunctionTest {
                                   arguments(
                                       function(ConfigDbMarketExposureSelectorProvider.class,
                                                argument("exposureConfigName", exposureConfig)),
+                                      function(ValuationTimeProvider.class,
+                                               argument("valuationTime",
+                                                        ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
                                       function(RootFinderConfiguration.class,
                                                argument("rootFinderAbsoluteTolerance", 1e-9),
                                                argument("rootFinderRelativeTolerance", 1e-9),
@@ -272,8 +275,9 @@ public class FXForwardPVFunctionTest {
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
+    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     MarketDataProvider marketDataProvider = new MarketDataProvider();
-    marketDataProvider.resetMarketData(FXForwardPVFunctionTest.loadMarketDataForForward());
+    marketDataProvider.resetMarketData(valuationTime, FXForwardPVFunctionTest.loadMarketDataForForward());
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataProvider);
     long startComponents = System.currentTimeMillis();
@@ -300,7 +304,6 @@ public class FXForwardPVFunctionTest {
     long graphStart = System.currentTimeMillis();
     Engine.View view = engine.createView(viewDef, trades);
     s_logger.info("view built in {}ms", System.currentTimeMillis() - graphStart);
-    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory);
     //int nRuns = 1;
     int nRuns = 20;

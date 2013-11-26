@@ -8,6 +8,8 @@ package com.opengamma.sesame;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
@@ -42,7 +44,9 @@ public interface ResettableMarketDataProviderFunction extends MarketDataProvider
    * Reset the data about which requests have been made and the market availability data. The latter
    * will be replaced by the data passed in.
    *
+   * @param valuationTime
    * @param replacementData the new map of availability data
    */
-  void resetMarketData(Map<MarketDataRequirement, MarketDataItem> replacementData);
+  void resetMarketData(ZonedDateTime valuationTime,
+                       Map<MarketDataRequirement, MarketDataItem> replacementData);
 }

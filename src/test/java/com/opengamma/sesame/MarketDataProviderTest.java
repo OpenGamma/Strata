@@ -19,6 +19,8 @@ import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -35,6 +37,7 @@ public class MarketDataProviderTest {
   private ResettableMarketDataProviderFunction _resettableMarketDataProviderFunction;
   private MarketDataRequirement _mdReqmt1 = mock(MarketDataRequirement.class);
   private MarketDataRequirement _mdReqmt2 = mock(MarketDataRequirement.class);
+  private ZonedDateTime _valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
   @BeforeMethod
   public void setUp() {
@@ -53,7 +56,7 @@ public class MarketDataProviderTest {
   public void alreadyPendingDataReturnsPendingResultButNoRequest() {
 
     Map<MarketDataRequirement, MarketDataItem> data = ImmutableMap.of(_mdReqmt1, MarketDataItem.PENDING);
-    _resettableMarketDataProviderFunction.resetMarketData(data);
+    _resettableMarketDataProviderFunction.resetMarketData(_valuationTime, data);
 
     MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getResult();
     assertThat(result.getStatus(_mdReqmt1), is(PENDING));
@@ -66,7 +69,7 @@ public class MarketDataProviderTest {
     MarketDataItem item = MarketDataItem.available(123.45);
     Map<MarketDataRequirement, MarketDataItem> data =
         ImmutableMap.of(_mdReqmt1, item);
-    _resettableMarketDataProviderFunction.resetMarketData(data);
+    _resettableMarketDataProviderFunction.resetMarketData(_valuationTime, data);
 
     MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getResult();
     assertThat(result.getStatus(_mdReqmt1), is(AVAILABLE));
@@ -79,14 +82,15 @@ public class MarketDataProviderTest {
 
     MarketDataItem item = MarketDataItem.available(123.45);
     ImmutableMap<MarketDataRequirement, MarketDataItem> data = ImmutableMap.of(_mdReqmt1, item);
-    _resettableMarketDataProviderFunction.resetMarketData(data);
+    _resettableMarketDataProviderFunction.resetMarketData(_valuationTime, data);
 
     MarketDataValues result1 = _resettableMarketDataProviderFunction.requestData(ImmutableSet.of(_mdReqmt1, _mdReqmt2)).getResult();
     assertThat(result1.getStatus(_mdReqmt1), is(AVAILABLE));
     assertThat(result1.getStatus(_mdReqmt2), is(PENDING));
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), contains(_mdReqmt2));
 
-    _resettableMarketDataProviderFunction.resetMarketData(Collections.<MarketDataRequirement, MarketDataItem>emptyMap());
+    _resettableMarketDataProviderFunction.resetMarketData(_valuationTime, Collections.<MarketDataRequirement, MarketDataItem>emptyMap()
+    );
 
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), is(empty()));
     MarketDataValues result2 = _resettableMarketDataProviderFunction.requestData(ImmutableSet.of(_mdReqmt1, _mdReqmt2)).getResult();

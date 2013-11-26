@@ -7,6 +7,8 @@ package com.opengamma.sesame.engine;
 
 import java.util.Set;
 
+import org.threeten.bp.Period;
+
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
@@ -50,5 +52,15 @@ import com.opengamma.util.time.LocalDateRange;
   @Override
   public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
     return _delegate.requestData(requirements, dateRange);
+  }
+
+  @Override
+  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+    return _delegate.requestData(requirement, seriesPeriod);
+  }
+
+  @Override
+  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
+    return _delegate.requestData(requirements, seriesPeriod);
   }
 }

@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -112,6 +113,17 @@ public class ProxyGeneratorTest {
 
       @Override
       public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+        throw new RuntimeException(message);
+      }
+
+      @Override
+      public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+        throw new RuntimeException(message);
+      }
+
+      @Override
+      public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements,
+                                                          Period seriesPeriod) {
         throw new RuntimeException(message);
       }
     };
