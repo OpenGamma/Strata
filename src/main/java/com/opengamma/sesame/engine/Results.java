@@ -8,6 +8,7 @@ package com.opengamma.sesame.engine;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
@@ -18,7 +19,6 @@ import com.opengamma.util.ArgumentChecker;
 // TODO is it worth including a lookup by column name as well as column index?
 // TODO Iterable<Row>?
 // TODO column types
-// TODO method to get column name(s)
 public final class Results {
 
   private final List<String> _columnNames;
@@ -26,7 +26,7 @@ public final class Results {
 
   private Results(List<Row> rows, List<String> columnNames) {
     _rows = rows;
-    _columnNames = columnNames;
+    _columnNames = ImmutableList.copyOf(ArgumentChecker.notNull(columnNames, "columnNames"));
   }
 
   public Row get(int rowIndex) {
@@ -46,6 +46,10 @@ public final class Results {
       throw new IndexOutOfBoundsException("Index " + columnIndex + " is out of bounds. column count = " + _columnNames.size());
     }
     return _rows.get(rowIndex).get(columnIndex);
+  }
+
+  public List<String> getColumnNames() {
+    return _columnNames;
   }
 
   @Override
