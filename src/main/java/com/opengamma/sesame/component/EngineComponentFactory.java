@@ -41,7 +41,6 @@ import com.opengamma.sesame.FXForwardPVFunction;
 import com.opengamma.sesame.FXMatrixProvider;
 import com.opengamma.sesame.FxForwardDiscountingCalculatorProvider;
 import com.opengamma.sesame.HistoricalTimeSeriesProvider;
-import com.opengamma.sesame.ValuationTimeProvider;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.FunctionConfig;
@@ -122,8 +121,6 @@ public class EngineComponentFactory extends AbstractComponentFactory {
                           CurveDefinitionProvider.class,
                           DiscountingMulticurveBundleProvider.class,
                           CurveSpecificationProvider.class,
-                          // TODO is this necessary? shouldn't this be a component?
-                          ValuationTimeProvider.class,
                           ConfigDBCurveConstructionConfigurationSource.class,
                           HistoricalTimeSeriesProvider.class,
                           FxForwardDiscountingCalculatorProvider.class,

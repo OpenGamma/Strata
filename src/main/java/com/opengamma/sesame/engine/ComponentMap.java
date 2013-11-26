@@ -29,6 +29,8 @@ import com.opengamma.financial.tool.ToolContext;
 /**
  * Loads components using {@link ToolContext} configuration and puts them in a map.
  * This isn't a long-term solution but will do for the time being.
+ * TODO rename ComponentLookup or create interface and have this implement it
+ * TODO would it be better to compose by delegation/chaining instead of with()?
  */
 public final class ComponentMap {
 

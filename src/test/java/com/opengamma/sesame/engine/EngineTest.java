@@ -16,6 +16,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static com.opengamma.util.money.Currency.AUD;
 import static com.opengamma.util.money.Currency.GBP;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.mockito.Matchers;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
@@ -55,11 +58,13 @@ import com.opengamma.sesame.example.IdScheme;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.SimpleFunctionRepo;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataProvider;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
+import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -93,7 +98,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
-    Results results = view.run();
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
   }
@@ -110,9 +115,7 @@ public class EngineTest {
     SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
     functionRepo.register(EquityPresentValueFunction.class);
 
-    ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
-    ComponentMap componentMap = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(MarketDataProviderFunction.class, marketDataProvider));
-    Engine engine = new Engine(new DirectExecutorService(), componentMap, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
+    Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
@@ -121,10 +124,13 @@ public class EngineTest {
                                                                         MarketDataRequirementNames.MARKET_VALUE);
     MarketDataItem item = MarketDataItem.available(123.45);
     Map<MarketDataRequirement, MarketDataItem> marketData = ImmutableMap.of(requirement, item);
+    ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
     marketDataProvider.resetMarketData(marketData);
+    MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataProvider);
 
     Engine.View view = engine.createView(viewDef, trades);
-    Results results = view.run();
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), marketDataFactory);
+    Results results = view.run(cycleArguments);
     assertEquals(123.45, ((FunctionResult) results.get(0, 0).getOutput()).getResult());
     System.out.println(results);
   }
@@ -143,7 +149,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
-    Results results = view.run();
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
   }
@@ -158,8 +164,7 @@ public class EngineTest {
                                      config(
                                          arguments(
                                              function(IdScheme.class,
-                                                      argument("scheme",
-                                                               ExternalSchemes.BLOOMBERG_TICKER))))),
+                                                      argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
@@ -171,8 +176,7 @@ public class EngineTest {
                                      config(
                                          arguments(
                                              function(IdScheme.class,
-                                                      argument("scheme",
-                                                               ExternalSchemes.ACTIVFEED_TICKER))))),
+                                                      argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
@@ -187,7 +191,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, defaultConfig, NodeDecorator.IDENTITY);
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     Engine.View view = engine.createView(viewDef, trades);
-    Results results = view.run();
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
 
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getOutput());
@@ -226,6 +230,13 @@ public class EngineTest {
     trade.setSecurityLink(securityLink);
     trade.setUniqueId(CASH_FLOW_TRADE_ID);
     return trade;
+  }
+
+  private static MarketDataFactory mockMarketDataFactory() {
+    MarketDataFactory factory = mock(MarketDataFactory.class);
+    MarketDataProviderFunction provider = mock(MarketDataProviderFunction.class);
+    when(factory.create(Matchers.<ComponentMap>any())).thenReturn(provider);
+    return factory;
   }
 
   /**

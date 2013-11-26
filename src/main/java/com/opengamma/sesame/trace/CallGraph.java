@@ -58,10 +58,10 @@ public class CallGraph {
       String newChildIndent;
       boolean isFinalChild = !itr.hasNext();
       if (!isFinalChild) {
-        newIndent = childIndent + " |--";
+        newIndent = childIndent + " ├--";
         newChildIndent = childIndent + " |  ";
       } else {
-        newIndent = childIndent + " `--";
+        newIndent = childIndent + " └--";
         newChildIndent = childIndent + "    ";
       }
       prettyPrint(builder, next, newIndent, newChildIndent);

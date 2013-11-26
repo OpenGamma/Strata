@@ -18,6 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 // TODO is it worth including a lookup by column name as well as column index?
 // TODO Iterable<Row>?
 // TODO column types
+// TODO method to get column name(s)
 public final class Results {
 
   private final List<String> _columnNames;

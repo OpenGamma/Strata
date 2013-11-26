@@ -11,8 +11,8 @@ import com.opengamma.sesame.FunctionResult;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
- * Function providing market data to clients. When data is requested a {@link MarketDataResult}
- * is returned which contains status (and potentially value) for every item that has been requested.
+ * Function providing market data to clients. When data is requested a value is returned containing the status
+ * and possibly the value for every item that was been requested.
  * TODO blocking variant
  */
 public interface MarketDataProviderFunction {

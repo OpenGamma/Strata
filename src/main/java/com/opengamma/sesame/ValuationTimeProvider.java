@@ -7,7 +7,6 @@ package com.opengamma.sesame;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.ArgumentChecker;
@@ -16,28 +15,36 @@ import com.opengamma.util.ArgumentChecker;
 // TODO cache invalidation. decorate or put it in here?
 public class ValuationTimeProvider implements ValuationTimeProviderFunction {
 
-  private Instant _valuationTime;
+  private ZonedDateTime _valuationTime;
 
-  public ValuationTimeProvider(Instant valuationTime) {
+  public ValuationTimeProvider() {
+  }
+
+  public ValuationTimeProvider(ZonedDateTime valuationTime) {
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
   }
 
+  public void setValuationTime(ZonedDateTime valuationTime) {
+    _valuationTime = valuationTime;
+  }
+
   @Override
-  public Instant getValuationTime() {
+  public ZonedDateTime get() {
     return _valuationTime;
   }
 
   @Override
+  public Instant getValuationTime() {
+    return _valuationTime.toInstant();
+  }
+
+  @Deprecated
   public ZonedDateTime getZonedDateTime() {
-    return ZonedDateTime.ofInstant(_valuationTime, ZoneOffset.UTC);
+    return _valuationTime;
   }
 
   @Override
   public LocalDate getLocalDate() {
-    return LocalDate.from(getZonedDateTime());
-  }
-
-  public void setValuationTime(Instant valuationTime) {
-    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
+    return _valuationTime.toLocalDate();
   }
 }

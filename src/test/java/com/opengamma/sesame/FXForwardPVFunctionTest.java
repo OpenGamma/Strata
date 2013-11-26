@@ -84,6 +84,7 @@ import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -93,11 +94,13 @@ import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataProvider;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
+import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -132,7 +135,8 @@ public class FXForwardPVFunctionTest {
                                              HolidaySource.class,
                                              HistoricalTimeSeriesSource.class,
                                              MarketDataProviderFunction.class,
-                                             RegionSource.class);
+                                             RegionSource.class,
+                                             ValuationTimeProviderFunction.class);
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePV, graphConfig);
     Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
@@ -164,8 +168,11 @@ public class FXForwardPVFunctionTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     MarketDataProvider marketDataProvider = new MarketDataProvider();
     marketDataProvider.resetMarketData(marketData);
+    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
-                                                  MarketDataProviderFunction.class, marketDataProvider);
+                                                  // TODO these 2 are normally provided by the engine. SSM-59
+                                                  MarketDataProviderFunction.class, marketDataProvider,
+                                                  ValuationTimeProviderFunction.class, new ValuationTimeProvider(valuationTime));
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, cachingDecorator);
@@ -188,6 +195,7 @@ public class FXForwardPVFunctionTest {
     return result;
   }
 
+  //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeYieldCurveAgainstRemoteServer() throws IOException {
 
@@ -199,8 +207,12 @@ public class FXForwardPVFunctionTest {
     Map<MarketDataRequirement, MarketDataItem> marketData = loadMarketDataForYieldCurve();
     addValue(marketData, MarketDataRequirementFactory.of(CurrencyPair.of(USD, JPY)), 98.86);
     marketDataProvider.resetMarketData(marketData);
+    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
-                                                  MarketDataProviderFunction.class, marketDataProvider);
+                                                  // TODO this is provided by the engine. SSM-59
+                                                  // how should it be handled when not using the engine?
+                                                  MarketDataProviderFunction.class, marketDataProvider,
+                                                  ValuationTimeProviderFunction.class, new ValuationTimeProvider(valuationTime));
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
 
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
@@ -241,9 +253,6 @@ public class FXForwardPVFunctionTest {
                                   arguments(
                                       function(ConfigDbMarketExposureSelectorProvider.class,
                                                argument("exposureConfigName", exposureConfig)),
-                                      // TODO this would make more sense as a component
-                                      function(ValuationTimeProvider.class,
-                                               argument("valuationTime", ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
                                       function(RootFinderConfiguration.class,
                                                argument("rootFinderAbsoluteTolerance", 1e-9),
                                                argument("rootFinderRelativeTolerance", 1e-9),
@@ -265,8 +274,8 @@ public class FXForwardPVFunctionTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     MarketDataProvider marketDataProvider = new MarketDataProvider();
     marketDataProvider.resetMarketData(FXForwardPVFunctionTest.loadMarketDataForForward());
-    Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
-                                                  MarketDataProviderFunction.class, marketDataProvider);
+    Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
+    MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataProvider);
     long startComponents = System.currentTimeMillis();
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     s_logger.info("loaded components in {}ms", System.currentTimeMillis() - startComponents);
@@ -281,7 +290,6 @@ public class FXForwardPVFunctionTest {
                           CurveDefinitionProvider.class,
                           DiscountingMulticurveBundleProvider.class,
                           CurveSpecificationProvider.class,
-                          ValuationTimeProvider.class, // TODO what's this doing here?
                           ConfigDBCurveConstructionConfigurationSource.class,
                           HistoricalTimeSeriesProvider.class,
                           FxForwardDiscountingCalculatorProvider.class,
@@ -292,11 +300,13 @@ public class FXForwardPVFunctionTest {
     long graphStart = System.currentTimeMillis();
     Engine.View view = engine.createView(viewDef, trades);
     s_logger.info("view built in {}ms", System.currentTimeMillis() - graphStart);
+    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
+    CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory);
     //int nRuns = 1;
     int nRuns = 20;
     for (int i = 0; i < nRuns; i++) {
       long start = System.currentTimeMillis();
-      view.run();
+      view.run(cycleArguments);
       //Results results = view.run();
       //System.out.println(results);
       long time = System.currentTimeMillis() - start;
@@ -338,15 +348,12 @@ public class FXForwardPVFunctionTest {
   }
 
   private static FunctionConfig createFunctionConfig() {
-    String exposureConfig = "EUR-USD[ON-OIS][EURIBOR6M-FRA/IRS][EURIBOR3M-FRA/BS]-[ON-OIS][LIBOR3M-FRA/IRS]";
+    String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
     return
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorProvider.class,
                          argument("exposureConfigName", exposureConfig)),
-                // TODO this would make more sense as a component
-                function(ValuationTimeProvider.class,
-                         argument("valuationTime", ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),
@@ -369,8 +376,6 @@ public class FXForwardPVFunctionTest {
                             CurveDefinitionProviderFunction.class, CurveDefinitionProvider.class,
                             DiscountingMulticurveBundleProviderFunction.class, DiscountingMulticurveBundleProvider.class,
                             CurveSpecificationProviderFunction.class, CurveSpecificationProvider.class,
-                            // TODO is this really necessary?
-                            ValuationTimeProviderFunction.class, ValuationTimeProvider.class,
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                             HistoricalTimeSeriesProviderFunction.class, HistoricalTimeSeriesProvider.class));
   }

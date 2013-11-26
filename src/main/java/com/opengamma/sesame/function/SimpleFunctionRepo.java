@@ -168,6 +168,8 @@ public final class SimpleFunctionRepo implements FunctionRepo {
     return null;
   }
 
+  // TODO separate public methods for registering outputs and implementations. should make things clearer
+
   // type must have at least one method annotated with @Output with a parameter annotated with @Target
   public synchronized void register(Class<?> type) {
     // clear the lazily populated caches which might be out of date after registering a new type

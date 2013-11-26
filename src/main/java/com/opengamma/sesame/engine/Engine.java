@@ -17,9 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.sesame.ValuationTimeProvider;
+import com.opengamma.sesame.ValuationTimeProviderFunction;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewColumn;
@@ -30,6 +33,7 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.NoOpTracer;
 import com.opengamma.sesame.trace.Tracer;
@@ -45,21 +49,25 @@ public class Engine {
 
   private final ExecutorService _executor;
   private final ComponentMap _components;
-  private final GraphBuilder _graphBuilder;
+  private final FunctionRepo _functionRepo;
+  private final FunctionConfig _defaultConfig;
+  private final NodeDecorator _nodeDecorator;
 
   /* package */ Engine(ExecutorService executor, FunctionRepo functionRepo) {
     this(executor, ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
   }
 
+  // TODO should any of these be arguments to createView()
   public Engine(ExecutorService executor,
                 ComponentMap components,
                 FunctionRepo functionRepo,
                 FunctionConfig defaultConfig,
                 NodeDecorator nodeDecorator) {
+    _functionRepo = ArgumentChecker.notNull(functionRepo, "functionRepo");
+    _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
+    _nodeDecorator = ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
     _executor = ArgumentChecker.notNull(executor, "executor");
     _components = ArgumentChecker.notNull(components, "components");
-    // TODO pass this in as an argument?
-    _graphBuilder = new GraphBuilder(functionRepo, components, defaultConfig, nodeDecorator);
   }
 
   /*public interface Listener {
@@ -70,12 +78,24 @@ public class Engine {
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
   public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets) {
+    // TODO is this the right place for this logic? should there be a component map pre-populated with them?
+    // as they're completely standard components always provided by the engine
+    // need to supplement components with a MarketDataProviderFunction and ValuationTimeProviderFunction that are
+    // under our control so we can switch out the backing impls each cycle if necessary
+    DelegatingMarketDataProviderFunction marketDataProvider = new DelegatingMarketDataProviderFunction();
+    ValuationTimeProvider valuationTimeProvider = new ValuationTimeProvider();
+    Map<Class<?>, Object> componentOverrides = Maps.newHashMap();
+    componentOverrides.put(MarketDataProviderFunction.class, marketDataProvider);
+    componentOverrides.put(ValuationTimeProviderFunction.class, valuationTimeProvider);
+    ComponentMap components = _components.with(componentOverrides);
+
     s_logger.debug("building graph model");
-    GraphModel graphModel = _graphBuilder.build(viewDef, targets);
+    GraphBuilder graphBuilder = new GraphBuilder(_functionRepo, components, _defaultConfig, _nodeDecorator);
+    GraphModel graphModel = graphBuilder.build(viewDef, targets);
     s_logger.debug("graph model complete, building graph");
-    Graph graph = graphModel.build(_components);
+    Graph graph = graphModel.build(components);
     s_logger.debug("graph complete");
-    return new View(viewDef, graph, targets, _executor);
+    return new View(viewDef, graph, targets, _executor, marketDataProvider, valuationTimeProvider, components);
   }
 
   //----------------------------------------------------------
@@ -85,15 +105,29 @@ public class Engine {
     private final ViewDef _viewDef;
     private final Collection<? extends PositionOrTrade> _inputs;
     private final ExecutorService _executor;
+    private final DelegatingMarketDataProviderFunction _marketDataProvider;
+    private final ValuationTimeProvider _valuationTimeProvider;
+    private final ComponentMap _components;
 
-    private View(ViewDef viewDef, Graph graph, Collection<? extends PositionOrTrade> inputs, ExecutorService executor) {
+    private View(ViewDef viewDef,
+                 Graph graph,
+                 Collection<? extends PositionOrTrade> inputs,
+                 ExecutorService executor,
+                 DelegatingMarketDataProviderFunction marketDataProvider,
+                 ValuationTimeProvider valuationTimeProvider,
+                 ComponentMap components) {
       _viewDef = viewDef;
       _inputs = inputs;
       _graph = graph;
       _executor = executor;
+      _marketDataProvider = marketDataProvider;
+      _valuationTimeProvider = valuationTimeProvider;
+      _components = components;
     }
 
-    public Results run() {
+    public Results run(CycleArguments cycleArguments) {
+      _marketDataProvider.setDelegate(cycleArguments.getMarketDataFactory().create(_components));
+      _valuationTimeProvider.setValuationTime(cycleArguments.getValuationTime());
       List<Task> tasks = Lists.newArrayList();
       int colIndex = 0;
       List<ViewColumn> columns = _viewDef.getColumns();
@@ -113,7 +147,7 @@ public class Engine {
           }
           FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
           FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
-          // TODO this needs to be configurable. if we don't have IDs how will we signal which inputs to trace? row/col index?
+          // TODO set up tracing using the data in cycleArguments
           Tracer tracer = NoOpTracer.INSTANCE;
           //Tracer tracer = new FullTracer();
           tasks.add(new Task(input, args, rowIndex++, colIndex, function, tracer));
