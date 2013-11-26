@@ -19,9 +19,11 @@ import static com.opengamma.util.money.Currency.GBP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +34,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -65,7 +68,11 @@ import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
+import com.opengamma.sesame.trace.CallGraph;
+import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class EngineTest {
@@ -230,6 +237,27 @@ public class EngineTest {
     trade.setSecurityLink(securityLink);
     trade.setUniqueId(CASH_FLOW_TRADE_ID);
     return trade;
+  }
+
+  @Test
+  public void callTracing() {
+    ViewDef viewDef =
+        viewDef("Trivial Test View",
+                column(DESCRIPTION_HEADER,
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                              config(
+                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
+    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
+    functionRepo.register(EquityDescriptionFunction.class);
+    Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, TracingProxy.INSTANCE);
+    List<Trade> trades = ImmutableList.of(createEquityTrade());
+    Engine.View view = engine.createView(viewDef, trades);
+    @SuppressWarnings("unchecked")
+    Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory(), traceCells));
+    CallGraph callGraph = results.get(0, 0).getCallGraph();
+    assertNotNull(callGraph);
+    System.out.println(callGraph.prettyPrint());
   }
 
   private static MarketDataFactory mockMarketDataFactory() {

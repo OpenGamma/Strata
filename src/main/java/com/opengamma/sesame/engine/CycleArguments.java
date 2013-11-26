@@ -13,8 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.util.ArgumentChecker;
-
-import javafx.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *

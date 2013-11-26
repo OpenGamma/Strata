@@ -35,10 +35,12 @@ import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.trace.CallGraph;
+import com.opengamma.sesame.trace.FullTracer;
 import com.opengamma.sesame.trace.NoOpTracer;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * TODO this is totally provisional, just enough to run some basic tests that stitch everything together
@@ -147,9 +149,12 @@ public class Engine {
           }
           FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
           FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
-          // TODO set up tracing using the data in cycleArguments
-          Tracer tracer = NoOpTracer.INSTANCE;
-          //Tracer tracer = new FullTracer();
+          Tracer tracer;
+          if (cycleArguments.getTraceFunctions().contains(Pairs.of(rowIndex, colIndex))) {
+            tracer = new FullTracer();
+          } else {
+            tracer = NoOpTracer.INSTANCE;
+          }
           tasks.add(new Task(input, args, rowIndex++, colIndex, function, tracer));
         }
         colIndex++;
