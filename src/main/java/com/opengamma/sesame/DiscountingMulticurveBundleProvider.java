@@ -131,7 +131,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
 
       FunctionResult<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConstructionConfiguration);
       FunctionResult<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConstructionConfiguration, fxMatrixResult);
-      FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> curves = getCurves(curveConstructionConfiguration, exogenousBundles);
+      FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> curves = getCurves(curveConstructionConfiguration, exogenousBundles, fxMatrixResult);
 
       if (curves.isResultAvailable()) {
         return success(curves.getResult().getFirst());
@@ -166,8 +166,10 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
         _rootFinderConfiguration.getMaxIterations());
   }
 
-  private FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> getCurves(CurveConstructionConfiguration config,
-                                                                               FunctionResult<MulticurveProviderDiscount> exogenousBundle) {
+  private FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> getCurves(
+      CurveConstructionConfiguration config,
+      FunctionResult<MulticurveProviderDiscount> exogenousBundle,
+      FunctionResult<FXMatrix> fxMatrixResult) {
 
     final int nGroups = config.getCurveGroups().size();
 
@@ -209,10 +211,11 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
           FunctionResult<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
 
           // Only proceed if we have all market data values available to us
-          if (curveDefResult.isResultAvailable() && htsResult.isResultAvailable() &&
+          if (curveDefResult.isResultAvailable() && htsResult.isResultAvailable() && fxMatrixResult.isResultAvailable() &&
               marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
 
             CurveDefinition curveDefinition = curveDefResult.getResult();
+            FXMatrix fxMatrix = fxMatrixResult.getResult();
 
             // todo this is temporary to allow us to get up and running fast
             final SnapshotDataBundle snapshot = marketDataResult.getResult().toSnapshot();
@@ -221,7 +224,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
             final double[] parameterGuessForCurves = new double[nNodes];
             Arrays.fill(parameterGuessForCurves, 0.02);  // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
 
-            final InstrumentDerivative[] derivativesForCurve = extractInstrumentDerivatives(specification, snapshot, htsResult.getResult());
+            final InstrumentDerivative[] derivativesForCurve = extractInstrumentDerivatives(specification, snapshot, htsResult.getResult(), fxMatrix);
 
             for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
               if (type instanceof DiscountingCurveTypeConfiguration) {
@@ -293,7 +296,8 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
 
   private InstrumentDerivative[] extractInstrumentDerivatives(CurveSpecification specification,
                                                               SnapshotDataBundle snapshot,
-                                                              HistoricalTimeSeriesBundle htsBundle) {
+                                                              HistoricalTimeSeriesBundle htsBundle,
+                                                              FXMatrix fxMatrix) {
 
     ZonedDateTime now = _valuationTimeProvider.getZonedDateTime();
 
@@ -304,7 +308,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
     for (final CurveNodeWithIdentifier node : nodes) {
 
       final InstrumentDefinition<?> definitionForNode =
-          node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, now));
+          node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, now, fxMatrix));
 
       // todo - we may need to allow the node converter implementation to be changed
       derivativesForCurve[i++] =
@@ -381,9 +385,11 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
     }
   }
 
-  private CurveNodeVisitor<InstrumentDefinition<?>> createCurveNodeVisitor(ExternalId dataId, SnapshotDataBundle
-      marketData,
-                                                                           ZonedDateTime valuationTime) {
+  private CurveNodeVisitor<InstrumentDefinition<?>> createCurveNodeVisitor(ExternalId dataId,
+                                                                           SnapshotDataBundle
+                                                                               marketData,
+                                                                           ZonedDateTime valuationTime,
+                                                                           FXMatrix fxMatrix) {
     return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashNodeVisitor(new CashNodeConverter(_conventionSource, _holidaySource, _regionSource,
                                                marketData, dataId, valuationTime))
@@ -418,7 +424,8 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
                                         _regionSource,
                                         marketData,
                                         dataId,
-                                        valuationTime))
+                                        valuationTime,
+                                        fxMatrix))
         .threeLegBasisSwapNode(new ThreeLegBasisSwapNodeConverter(_conventionSource,
                                                                           _holidaySource,
                                                                           _regionSource,
