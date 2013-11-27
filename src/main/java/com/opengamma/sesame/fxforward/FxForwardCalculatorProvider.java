@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.fxforward;
 
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.sesame.FunctionResult;
 
 public interface FxForwardCalculatorProvider {
 

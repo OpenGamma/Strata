@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.fxforward;
 
 import static com.opengamma.sesame.StandardResultGenerator.propagateFailure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
@@ -15,6 +15,10 @@ import org.threeten.bp.Period;
 import com.google.common.base.Optional;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.sesame.CurrencyPairsFunction;
+import com.opengamma.sesame.FunctionResult;
+import com.opengamma.sesame.FxReturnSeriesProviderFunction;
+import com.opengamma.sesame.HistoricalTimeSeriesProviderFunction;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -106,7 +110,7 @@ public class DiscountingFxForwardPnLSeries implements FxForwardPnLSeriesFunction
 
         CurrencyPair currencyPair = cpResult.getResult();
 
-        FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.getReturnSeries( _seriesPeriod, currencyPair);
+        FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.getReturnSeries(_seriesPeriod, currencyPair);
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getResult();
 
         final Currency baseCurrency = currencyPair.getBase();

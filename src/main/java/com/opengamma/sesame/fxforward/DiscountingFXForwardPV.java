@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.fxforward;
 
 import static com.opengamma.sesame.StandardResultGenerator.propagateFailure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
 
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.sesame.FunctionResult;
 
 public class DiscountingFXForwardPV implements FXForwardPVFunction {
 

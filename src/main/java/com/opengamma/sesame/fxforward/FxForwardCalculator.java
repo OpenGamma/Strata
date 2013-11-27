@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.fxforward;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.sesame.ValuationTimeProviderFunction;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**

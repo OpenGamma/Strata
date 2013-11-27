@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.fxforward;
 
 import static com.opengamma.sesame.StandardResultGenerator.failure;
 import static com.opengamma.sesame.StandardResultGenerator.propagateFailure;
@@ -18,6 +18,12 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.sesame.DiscountingMulticurveBundleProviderFunction;
+import com.opengamma.sesame.FXMatrixProviderFunction;
+import com.opengamma.sesame.FailureStatus;
+import com.opengamma.sesame.FunctionResult;
+import com.opengamma.sesame.MarketExposureSelector;
+import com.opengamma.sesame.MarketExposureSelectorProvider;
 import com.opengamma.util.money.Currency;
 
 public class FxForwardDiscountingCalculatorProvider implements FxForwardCalculatorProvider {
