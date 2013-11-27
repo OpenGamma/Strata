@@ -45,6 +45,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -74,6 +75,7 @@ import com.opengamma.sesame.CurveSpecificationMarketDataProvider;
 import com.opengamma.sesame.CurveSpecificationMarketDataProviderFunction;
 import com.opengamma.sesame.CurveSpecificationProvider;
 import com.opengamma.sesame.CurveSpecificationProviderFunction;
+import com.opengamma.sesame.DifferenceOperatorReturnConverter;
 import com.opengamma.sesame.DiscountingMulticurveBundleProvider;
 import com.opengamma.sesame.DiscountingMulticurveBundleProviderFunction;
 import com.opengamma.sesame.FXMatrixProvider;
@@ -86,6 +88,8 @@ import com.opengamma.sesame.HistoricalTimeSeriesProviderFunction;
 import com.opengamma.sesame.MarketExposureSelectorProvider;
 import com.opengamma.sesame.ResultStatus;
 import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.TimeSeriesReturnConverter;
+import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
 import com.opengamma.sesame.ValuationTimeProvider;
 import com.opengamma.sesame.ValuationTimeProviderFunction;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
@@ -201,6 +205,7 @@ public class FXForwardPnlSeriesFunctionTest {
 
   private static FunctionConfig createFunctionConfig() {
     String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
+
     return
         config(
             arguments(
@@ -212,9 +217,8 @@ public class FXForwardPnlSeriesFunctionTest {
                 function(FxReturnSeriesProvider.class,
                          // TODO will need a different way when we have a UI and the values are strings or primitives
                          argument("timeSeriesSamplingFunction", TimeSeriesSamplingFunctionFactory.NO_PADDING_FUNCTION),
-                         argument("returnSeriesWeighting", FxReturnSeriesProvider.ReturnSeriesWeighting.NONE),
-                         argument("schedule", ScheduleCalculatorFactory.DAILY_CALCULATOR),
-                         argument("returnSeriesType", FxReturnSeriesProvider.ReturnSeriesType.ABSOLUTE)),
+                         argument("timeSeriesConverter", TimeSeriesReturnConverterFactory.absolute()),
+                         argument("schedule", ScheduleCalculatorFactory.DAILY_CALCULATOR)),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),

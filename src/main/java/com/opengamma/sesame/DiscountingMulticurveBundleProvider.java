@@ -74,6 +74,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalId;
+import com.opengamma.sesame.marketdata.MarketDataProvider;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -206,8 +207,10 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
         if (curveSpecResult.isResultAvailable()) {
 
           final CurveSpecification specification = curveSpecResult.getResult();
-          final FunctionResult<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(
-              specification);
+
+          // todo - this can now come from market data provider
+          MarketDataProvider provider;
+          final FunctionResult<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(specification);
           FunctionResult<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
 
           // Only proceed if we have all market data values available to us

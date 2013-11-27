@@ -25,5 +25,5 @@ public interface FxReturnSeriesProviderFunction {
    * @param currencyPair the pair to get the return series for, not null
    * @return the return series for the currency pair if available, not null
    */
-  FunctionResult<LocalDateDoubleTimeSeries> getReturnSeries(Period seriesPeriod, CurrencyPair currencyPair);
+  FunctionResult<LocalDateDoubleTimeSeries> calculateReturnSeries(Period seriesPeriod, CurrencyPair currencyPair);
 }

@@ -110,7 +110,9 @@ public class DiscountingFxForwardPnLSeries implements FxForwardPnLSeriesFunction
 
         CurrencyPair currencyPair = cpResult.getResult();
 
-        FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.getReturnSeries(_seriesPeriod, currencyPair);
+        FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.calculateReturnSeries(
+            _seriesPeriod,
+            currencyPair);
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getResult();
 
         final Currency baseCurrency = currencyPair.getBase();
