@@ -440,13 +440,12 @@ public class FXForwardPVFunctionTest {
   }
 
   private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData, String ticker, double value) {
-
     return addValue(marketData, new CurveNodeMarketDataRequirement(ExternalSchemes.bloombergTickerSecurityId(ticker), "Market_Value"), value);
   }
 
   private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData,
-                                            MarketDataRequirement requirement,
-                                            double value) {
+                                         MarketDataRequirement requirement,
+                                         double value) {
     return marketData.put(requirement, MarketDataItem.available(value));
   }
 

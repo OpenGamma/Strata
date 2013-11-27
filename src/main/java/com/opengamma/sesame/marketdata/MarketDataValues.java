@@ -75,4 +75,9 @@ public class MarketDataValues {
     }
     return snapshot;
   }
+
+  @Override
+  public String toString() {
+    return "MarketDataValues [_results=" + _results + ", _missing=" + _missing + "]";
+  }
 }

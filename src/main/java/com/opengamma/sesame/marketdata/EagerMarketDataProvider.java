@@ -47,7 +47,7 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
     for (MarketDataRequirement requirement : requirements) {
       MarketDataItem item = getValue(requirement);
       if (item.isAvailable()) {
-        resultBuilder.foundData(requirement, MarketDataItem.available(item));
+        resultBuilder.foundData(requirement, item);
       } else {
         resultBuilder.missingData(requirement, item.getStatus());
       }
@@ -70,7 +70,7 @@ public class EagerMarketDataProvider implements MarketDataProviderFunction {
       CurveNodeMarketDataRequirement nodeReq = (CurveNodeMarketDataRequirement) requirement;
       return _rawDataSource.get(ExternalIdBundle.of(nodeReq.getExternalId()), nodeReq.getDataField());
     }
-    return null;
+    return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
   }
 
   @Override

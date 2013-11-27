@@ -28,17 +28,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.hamcrest.MatcherAssert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -104,8 +100,9 @@ import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
+import com.opengamma.sesame.marketdata.EagerMarketDataProvider;
+import com.opengamma.sesame.marketdata.HistoricalRawMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataProvider;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.proxy.TimingProxy;
@@ -119,9 +116,6 @@ import net.sf.ehcache.CacheManager;
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPnlSeriesFunctionTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardPnlSeriesFunctionTest.class);
-
-  private static final AtomicLong s_nextId = new AtomicLong(0);
   private static final ZonedDateTime s_valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
 
   private CacheManager _cacheManager;
@@ -155,7 +149,7 @@ public class FXForwardPnlSeriesFunctionTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithNoData() throws IOException {
-    FunctionResult<LocalDateDoubleTimeSeries> pnl = executeAgainstRemoteServer(Collections.<MarketDataRequirement, MarketDataItem>emptyMap());
+    FunctionResult<LocalDateDoubleTimeSeries> pnl = executeAgainstRemoteServer();
     assertNotNull(pnl);
     MatcherAssert.assertThat(pnl.getStatus(), is((ResultStatus) MISSING_DATA));
   }
@@ -163,22 +157,29 @@ public class FXForwardPnlSeriesFunctionTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
-    FunctionResult<LocalDateDoubleTimeSeries> pnl = executeAgainstRemoteServer(loadMarketDataForForward());
+    FunctionResult<LocalDateDoubleTimeSeries> pnl = executeAgainstRemoteServer();
     assertNotNull(pnl);
     assertThat(pnl.getStatus(), is((ResultStatus) SUCCESS));
   }
 
-  private FunctionResult<LocalDateDoubleTimeSeries> executeAgainstRemoteServer(
-      Map<MarketDataRequirement, MarketDataItem> marketData) {
+  private FunctionResult<LocalDateDoubleTimeSeries> executeAgainstRemoteServer() {
     String serverUrl = "http://localhost:8080";
+    ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
+    ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
+    HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
+    LocalDate date = LocalDate.of(2013, 11, 7);
+    HistoricalRawMarketDataSource rawDataSource =
+        new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+    MarketDataProviderFunction marketDataProvider =
+        new EagerMarketDataProvider(rawDataSource, configSource, "BloombergLiveData");
+
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
-    MarketDataProvider marketDataProvider = new MarketDataProvider();
-    marketDataProvider.resetMarketData(s_valuationTime, marketData);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
                                                   MarketDataProviderFunction.class, marketDataProvider,
                                                   ValuationTimeProviderFunction.class, new ValuationTimeProvider(s_valuationTime));
-    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+    ComponentMap componentMap = serverComponents.with(comps);
+
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, cachingDecorator);
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
@@ -194,7 +195,6 @@ public class FXForwardPnlSeriesFunctionTest {
       System.out.println();
     }
     //System.out.println(TracingProxy.end().prettyPrint());
-    logMarketData(marketDataProvider.getCollectedRequests());
     return result;
   }
 
@@ -271,10 +271,31 @@ public class FXForwardPnlSeriesFunctionTest {
     return loadMarketData("/marketdata.properties");
   }
 
-  private static Map<MarketDataRequirement, MarketDataItem> loadMarketDataForYieldCurve() throws IOException {
+  /*private static Map<MarketDataRequirement, MarketDataItem> loadMarketDataForYieldCurve() throws IOException {
     return loadMarketData("/yield-curve-marketdata.properties");
-  }
+  }*/
 
+/*  private static Map<MarketDataRequirement, MarketDataItem> loadCurrencyPairTimeSeriesMarketData(String fileName) throws IOException {
+    try (InputStream stream = FXForwardPVFunction.class.getResourceAsStream(fileName);
+         BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+      String ccyPairStr = reader.readLine();
+      CurrencyPair currencyPair = CurrencyPair.parse(ccyPairStr);
+      String line;
+      LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
+      while ((line = reader.readLine()) != null) {
+        String[] split = line.split("=");
+        LocalDate date = LocalDate.parse(split[0]);
+        Double value = Double.valueOf(split[1]);
+        builder.put(date, value);
+      }
+      MarketDataItem item = MarketDataItem.available(builder.build());
+      Map<MarketDataRequirement, MarketDataItem> data = Maps.newHashMap();
+      data.put(MarketDataRequirementFactory.of(currencyPair), item);
+      return data;
+    }
+  }*/
+
+  // TODO move to a test helper class
   private static Map<MarketDataRequirement, MarketDataItem> loadMarketData(String fileName) throws IOException {
     Properties properties = new Properties();
     try (InputStream stream = FXForwardPVFunction.class.getResourceAsStream(fileName);
@@ -301,7 +322,7 @@ public class FXForwardPnlSeriesFunctionTest {
     return marketData.put(requirement, MarketDataItem.available(value));
   }
 
-  private static void logMarketData(Set<MarketDataRequirement> requirements) {
+  /*private static void logMarketData(Set<MarketDataRequirement> requirements) {
     for (MarketDataRequirement requirement : requirements) {
       if (requirement instanceof CurveNodeMarketDataRequirement) {
         ExternalId id = ((CurveNodeMarketDataRequirement) requirement).getExternalId();
@@ -310,5 +331,5 @@ public class FXForwardPnlSeriesFunctionTest {
         System.out.println(requirement);
       }
     }
-  }
+  }*/
 }

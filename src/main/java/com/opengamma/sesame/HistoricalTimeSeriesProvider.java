@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.sesame.StandardResultGenerator.failure;
+import static com.opengamma.sesame.StandardResultGenerator.propagateFailure;
 import static com.opengamma.sesame.StandardResultGenerator.success;
 
 import org.slf4j.Logger;
@@ -25,6 +27,12 @@ import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
+import com.opengamma.sesame.marketdata.MarketDataSeries;
+import com.opengamma.sesame.marketdata.MarketDataStatus;
+import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
 public class HistoricalTimeSeriesProvider implements HistoricalTimeSeriesProviderFunction {
@@ -36,24 +44,36 @@ public class HistoricalTimeSeriesProvider implements HistoricalTimeSeriesProvide
   private final ConventionSource _conventionSource;
   private final ValuationTimeProviderFunction _valuationTimeProviderFunction;
   private final Period _htsRetrievalPeriod;
+  private final MarketDataProviderFunction _marketDataProvider;
 
   public HistoricalTimeSeriesProvider(HistoricalTimeSeriesSource htsSource,
                                       String resolutionKey,
                                       ConventionSource conventionSource,
                                       ValuationTimeProviderFunction valuationTimeProviderFunction,
+                                      MarketDataProviderFunction marketDataProvider,
                                       Period htsRetrievalPeriod) {
     _htsSource = htsSource;
     _resolutionKey = resolutionKey;
     _conventionSource = conventionSource;
     _valuationTimeProviderFunction = valuationTimeProviderFunction;
     _htsRetrievalPeriod = htsRetrievalPeriod;
+    _marketDataProvider = marketDataProvider;
   }
 
   @Override
   public FunctionResult<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair) {
-
-
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    MarketDataRequirement requirement = MarketDataRequirementFactory.of(currencyPair);
+    FunctionResult<MarketDataSeries> result = _marketDataProvider.requestData(requirement, _htsRetrievalPeriod);
+    if (!result.isResultAvailable()) {
+      return propagateFailure(result);
+    }
+    MarketDataSeries series = result.getResult();
+    if (series.getStatus(requirement) == MarketDataStatus.AVAILABLE) {
+      DateTimeSeries<LocalDate, ?> onlySeries = series.getOnlySeries();
+      return success((LocalDateDoubleTimeSeries) onlySeries);
+    } else {
+      return failure(FailureStatus.MISSING_DATA, "No time series for " + requirement);
+    }
   }
 
   @Override
@@ -64,7 +84,7 @@ public class HistoricalTimeSeriesProvider implements HistoricalTimeSeriesProvide
     // returns more data than is actually required
     // todo - could we manage HTS lookup in the same way as market data? i.e. request the values needed look them up so they are available next time
 
-    final LocalDate endDate = _valuationTimeProviderFunction.getLocalDate();
+    final LocalDate endDate = _valuationTimeProviderFunction.get().toLocalDate();
     final LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
     final boolean includeStart = true;
     final boolean includeEnd = true;

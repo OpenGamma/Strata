@@ -46,4 +46,9 @@ public class CurveNodeMarketDataRequirement implements MarketDataRequirement {
   public ExternalId getId() {
     return _identifier;
   }
+
+  @Override
+  public String toString() {
+    return "CurveNodeMarketDataRequirement [_identifier=" + _identifier + ", _dataField='" + _dataField + "']";
+  }
 }

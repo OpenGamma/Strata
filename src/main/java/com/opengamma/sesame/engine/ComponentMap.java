@@ -68,8 +68,9 @@ public final class ComponentMap {
     return new ComponentMap(builder.build());
   }
 
-  public Object getComponent(Class<?> type) {
-    return _components.get(type);
+  @SuppressWarnings("unchecked")
+  public <T> T getComponent(Class<T> type) {
+    return (T) _components.get(type);
   }
 
   public ComponentMap with(Map<Class<?>, Object> components) {

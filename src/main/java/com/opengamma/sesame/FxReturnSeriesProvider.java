@@ -92,13 +92,10 @@ public class FxReturnSeriesProvider implements FxReturnSeriesProviderFunction {
 
   @Override
   public FunctionResult<LocalDateDoubleTimeSeries> getReturnSeries(Period seriesPeriod, CurrencyPair currencyPair) {
-
     FunctionResult<MarketDataSeries> result =
         _marketDataProviderFunction.requestData(MarketDataRequirementFactory.of(currencyPair), seriesPeriod);
 
     if (result.isResultAvailable()) {
-
-      // todo - is faffing abount with include start / end required?
       LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) result.getResult().getOnlySeries();
 
       final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(_scheduleCalculator.getSchedule(timeSeries.getEarliestTime(), timeSeries.getLatestTime(), true, false), WEEKEND_CALENDAR);

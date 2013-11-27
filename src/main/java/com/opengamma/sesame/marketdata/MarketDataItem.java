@@ -69,4 +69,9 @@ public class MarketDataItem {
   public boolean isAvailable() {
     return _status == MarketDataStatus.AVAILABLE;
   }
+
+  @Override
+  public String toString() {
+    return "MarketDataItem [" + _status + ", " + _value + "]";
+  }
 }

@@ -46,6 +46,11 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return _currencyPair.hashCode();
   }
 
+  @Override
+  public String toString() {
+    return "CurrencyPairMarketDataRequirement [" + _currencyPair + "]";
+  }
+
   /* package */ MarketDataItem getSpotRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
     return getRate(currencyMatrix, dataSource, _currencyPair.getBase(), _currencyPair.getCounter());
   }

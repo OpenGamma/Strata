@@ -44,7 +44,7 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
                                                                          _snapshotDate, true, _snapshotDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
       s_logger.info("No time-series for {}", idBundle);
-      return null;
+      return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
     }
     Double value = hts.getTimeSeries().getValue(_snapshotDate);
     if (value == null) {
@@ -56,8 +56,10 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
 
   @Override
   public MarketDataItem get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange) {
+    LocalDate startDate = dateRange.getStartDateInclusive();
+    LocalDate endDate = dateRange.getEndDateInclusive();
     HistoricalTimeSeries hts = _timeSeriesSource.getHistoricalTimeSeries(idBundle, _dataSource, _dataProvider, dataField,
-                                                                         _snapshotDate, true, _snapshotDate, true);
+                                                                         startDate, true, endDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
       s_logger.info("No time-series for {}", idBundle);
       return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
