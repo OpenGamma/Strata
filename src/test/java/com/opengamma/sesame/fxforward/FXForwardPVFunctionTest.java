@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.fxforward;
 
 import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
 import static com.opengamma.sesame.SuccessStatus.SUCCESS;
@@ -40,6 +40,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.hamcrest.MatcherAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
@@ -77,6 +78,27 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
+import com.opengamma.sesame.ConfigDbMarketExposureSelectorProvider;
+import com.opengamma.sesame.CurrencyPairs;
+import com.opengamma.sesame.CurrencyPairsFunction;
+import com.opengamma.sesame.CurveDefinitionProvider;
+import com.opengamma.sesame.CurveDefinitionProviderFunction;
+import com.opengamma.sesame.CurveSpecificationMarketDataProvider;
+import com.opengamma.sesame.CurveSpecificationMarketDataProviderFunction;
+import com.opengamma.sesame.CurveSpecificationProvider;
+import com.opengamma.sesame.CurveSpecificationProviderFunction;
+import com.opengamma.sesame.DiscountingMulticurveBundleProvider;
+import com.opengamma.sesame.DiscountingMulticurveBundleProviderFunction;
+import com.opengamma.sesame.FXMatrixProvider;
+import com.opengamma.sesame.FXMatrixProviderFunction;
+import com.opengamma.sesame.FunctionResult;
+import com.opengamma.sesame.HistoricalTimeSeriesProvider;
+import com.opengamma.sesame.HistoricalTimeSeriesProviderFunction;
+import com.opengamma.sesame.MarketExposureSelectorProvider;
+import com.opengamma.sesame.ResultStatus;
+import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.ValuationTimeProvider;
+import com.opengamma.sesame.ValuationTimeProviderFunction;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.ConfigUtils;
@@ -89,10 +111,6 @@ import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.SimpleFunctionRepo;
-import com.opengamma.sesame.fxforward.DiscountingFXForwardPV;
-import com.opengamma.sesame.fxforward.FXForwardPVFunction;
-import com.opengamma.sesame.fxforward.FxForwardCalculatorProvider;
-import com.opengamma.sesame.fxforward.FxForwardDiscountingCalculatorProvider;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -154,7 +172,7 @@ public class FXForwardPVFunctionTest {
     FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(
         Collections.<MarketDataRequirement, MarketDataItem>emptyMap());
     assertNotNull(pv);
-    assertThat(pv.getStatus(), is((ResultStatus) MISSING_DATA));
+    MatcherAssert.assertThat(pv.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
   //@Test(groups = TestGroup.INTEGRATION)
