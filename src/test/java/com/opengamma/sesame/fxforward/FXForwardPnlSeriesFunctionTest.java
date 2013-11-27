@@ -122,7 +122,7 @@ public class FXForwardPnlSeriesFunctionTest {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardPnlSeriesFunctionTest.class);
 
   private static final AtomicLong s_nextId = new AtomicLong(0);
-  private static ZonedDateTime s_valuationTime;
+  private static final ZonedDateTime s_valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
 
   private CacheManager _cacheManager;
 
@@ -143,7 +143,8 @@ public class FXForwardPnlSeriesFunctionTest {
                                              HolidaySource.class,
                                              HistoricalTimeSeriesSource.class,
                                              MarketDataProviderFunction.class,
-                                             RegionSource.class);
+                                             RegionSource.class,
+                                             ValuationTimeProviderFunction.class);
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePnl, graphConfig);
     Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
@@ -175,7 +176,8 @@ public class FXForwardPnlSeriesFunctionTest {
     MarketDataProvider marketDataProvider = new MarketDataProvider();
     marketDataProvider.resetMarketData(s_valuationTime, marketData);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
-                                                  MarketDataProviderFunction.class, marketDataProvider);
+                                                  MarketDataProviderFunction.class, marketDataProvider,
+                                                  ValuationTimeProviderFunction.class, new ValuationTimeProvider(s_valuationTime));
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, cachingDecorator);
@@ -198,8 +200,7 @@ public class FXForwardPnlSeriesFunctionTest {
 
 
   private static FunctionConfig createFunctionConfig() {
-    String exposureConfig = "EUR-USD[ON-OIS][EURIBOR6M-FRA/IRS][EURIBOR3M-FRA/BS]-[ON-OIS][LIBOR3M-FRA/IRS]";
-    s_valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
+    String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
     return
         config(
             arguments(
@@ -209,12 +210,11 @@ public class FXForwardPnlSeriesFunctionTest {
                          argument("seriesPeriod", Period.ofYears(5)),
                          argument("outputCurrency", Optional.of(Currency.USD))),
                 function(FxReturnSeriesProvider.class,
+                         // TODO will need a different way when we have a UI and the values are strings or primitives
                          argument("timeSeriesSamplingFunction", TimeSeriesSamplingFunctionFactory.NO_PADDING_FUNCTION),
                          argument("returnSeriesWeighting", FxReturnSeriesProvider.ReturnSeriesWeighting.NONE),
                          argument("schedule", ScheduleCalculatorFactory.DAILY_CALCULATOR),
                          argument("returnSeriesType", FxReturnSeriesProvider.ReturnSeriesType.ABSOLUTE)),
-                function(ValuationTimeProvider.class,
-                         argument("valuationTime", s_valuationTime)),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),
@@ -225,6 +225,8 @@ public class FXForwardPnlSeriesFunctionTest {
                                                                    CurrencyPair.of(GBP, USD)))),
                 function(HistoricalTimeSeriesProvider.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
+                         // TODO will need to handle this differently when arg values are strings and primitives
+                         // will need string conversion for values like this which can be parsed
                          argument("htsRetrievalPeriod", Period.ofYears(1)))),
             implementations(FxForwardPnLSeriesFunction.class,
                             DiscountingFxForwardPnLSeries.class,
@@ -250,8 +252,6 @@ public class FXForwardPnlSeriesFunctionTest {
                             DiscountingMulticurveBundleProvider.class,
                             CurveSpecificationProviderFunction.class,
                             CurveSpecificationProvider.class,
-                            ValuationTimeProviderFunction.class,
-                            ValuationTimeProvider.class,
                             CurveConstructionConfigurationSource.class,
                             ConfigDBCurveConstructionConfigurationSource.class,
                             HistoricalTimeSeriesProviderFunction.class,
