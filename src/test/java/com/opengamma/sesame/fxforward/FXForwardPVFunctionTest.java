@@ -253,13 +253,14 @@ public class FXForwardPVFunctionTest {
     // Can examine result.getResult().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
   }
 
-  //@Test(groups = TestGroup.INTEGRATION)
-  @Test(groups = TestGroup.INTEGRATION, enabled = false)
+  @Test(groups = TestGroup.INTEGRATION)
+  //@Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void engine() throws Exception {
     //int nTrades = 1_000_000;
-    int nTrades = 10_000;
-    //int nTrades = 1_000;
+    //int nTrades = 10_000;
+    int nTrades = 1_000;
     //int nTrades = 1;
+    //int nTrades = 2;
     long startTrades = System.currentTimeMillis();
     List<Trade> trades = Lists.newArrayListWithCapacity(nTrades);
     for (int i = 0; i < nTrades; i++) {
@@ -275,9 +276,6 @@ public class FXForwardPVFunctionTest {
                                   arguments(
                                       function(ConfigDbMarketExposureSelectorProvider.class,
                                                argument("exposureConfigName", exposureConfig)),
-                                      function(ValuationTimeProvider.class,
-                                               argument("valuationTime",
-                                                        ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC).toInstant())),
                                       function(RootFinderConfiguration.class,
                                                argument("rootFinderAbsoluteTolerance", 1e-9),
                                                argument("rootFinderRelativeTolerance", 1e-9),
@@ -326,14 +324,18 @@ public class FXForwardPVFunctionTest {
     long graphStart = System.currentTimeMillis();
     Engine.View view = engine.createView(viewDef, trades);
     s_logger.info("view built in {}ms", System.currentTimeMillis() - graphStart);
+    //@SuppressWarnings("unchecked")
+    //Set<Pair<Integer, Integer>> traceFunctions = Sets.newHashSet(Pairs.of(0, 0), Pairs.of(1, 0));
+    //CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory, traceFunctions);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory);
     //int nRuns = 1;
     int nRuns = 20;
     for (int i = 0; i < nRuns; i++) {
       long start = System.currentTimeMillis();
       view.run(cycleArguments);
-      //Results results = view.run();
-      //System.out.println(results);
+      //Results results = view.run(cycleArguments);
+      //System.out.println(results.get(0, 0).getCallGraph().prettyPrint());
+      //System.out.println(results.get(1, 0).getCallGraph().prettyPrint());
       long time = System.currentTimeMillis() - start;
       s_logger.info("view executed in {}ms", time);
       Thread.sleep(1000);
