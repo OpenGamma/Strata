@@ -40,10 +40,10 @@ import com.opengamma.util.tuple.Pair;
 /* package */ class LegacyResultsAdapter {
 
   private final Map<ObjectId, Integer> _idToIndex;
-  private final Map<ObjectId, UniqueIdentifiable> _idToTarget;
   private final Map<ColumnSpec, Integer> _colToIndex;
   private final CompiledViewDefinition _compiledViewDef;
   private final List<String> _columnNames;
+  private final List<UniqueIdentifiable> _inputs;
 
   /* package */ LegacyResultsAdapter(CompiledViewDefinition compiledViewDef) {
     _compiledViewDef = ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
@@ -51,7 +51,7 @@ import com.opengamma.util.tuple.Pair;
     PortfolioMapperFunction<List<UniqueIdentifiable>> mapperFn = new PortfolioMapperFunction<List<UniqueIdentifiable>>() {
       @Override
       public List<UniqueIdentifiable> apply(PortfolioNode node) {
-        return Collections.<UniqueIdentifiable>singletonList(node);
+        return Collections.emptyList();
       }
 
       @Override
@@ -63,13 +63,11 @@ import com.opengamma.util.tuple.Pair;
         return targets;
       }
     };
-    List<UniqueIdentifiable> targets = PortfolioMapper.flatMap(compiledViewDef.getPortfolio().getRootNode(), mapperFn);
-    _idToIndex = Maps.newHashMapWithExpectedSize(targets.size());
-    _idToTarget = Maps.newHashMapWithExpectedSize(targets.size());
+    _inputs = PortfolioMapper.flatMap(compiledViewDef.getPortfolio().getRootNode(), mapperFn);
+    _idToIndex = Maps.newHashMapWithExpectedSize(_inputs.size());
     int rowIndex = 0;
-    for (UniqueIdentifiable target : targets) {
+    for (UniqueIdentifiable target : _inputs) {
       _idToIndex.put(target.getUniqueId().getObjectId(), rowIndex++);
-      _idToTarget.put(target.getUniqueId().getObjectId(), target);
     }
 
     //---------------------------------------------------
@@ -102,7 +100,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /* package */ Results adapt(ViewResultModel resultModel) {
-    Results.Builder builder = Results.builder(_columnNames);
+    Results.Builder builder = Results.builder(_inputs, _columnNames);
     for (ViewResultEntry entry : resultModel.getAllResults()) {
       String calcConfigName = entry.getCalculationConfiguration();
       ComputedValueResult value = entry.getComputedValue();
@@ -113,8 +111,7 @@ import com.opengamma.util.tuple.Pair;
         ColumnSpec colSpec = new ColumnSpec(calcConfigName, valueReq.getValueName(), valueReq.getConstraints());
         Integer colIndex = _colToIndex.get(colSpec);
         Integer rowIndex = _idToIndex.get(valueReq.getTargetReference().getSpecification().getUniqueId().getObjectId());
-        ObjectId id = valueSpec.getTargetSpecification().getUniqueId().getObjectId();
-        builder.add(rowIndex, colIndex, _idToTarget.get(id), value.getValue(), null);
+        builder.add(rowIndex, colIndex, value.getValue(), null);
       }
     }
     return builder.build();

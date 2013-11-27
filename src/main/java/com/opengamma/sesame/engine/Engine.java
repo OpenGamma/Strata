@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -79,7 +78,7 @@ public class Engine {
 
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
-  public View createView(ViewDef viewDef, Collection<? extends PositionOrTrade> targets) {
+  public View createView(ViewDef viewDef, List<? extends PositionOrTrade> targets) {
     // TODO is this the right place for this logic? should there be a component map pre-populated with them?
     // as they're completely standard components always provided by the engine
     // need to supplement components with a MarketDataProviderFunction and ValuationTimeProviderFunction that are
@@ -105,7 +104,7 @@ public class Engine {
 
     private final Graph _graph;
     private final ViewDef _viewDef;
-    private final Collection<? extends PositionOrTrade> _inputs;
+    private final List<? extends PositionOrTrade> _inputs;
     private final ExecutorService _executor;
     private final DelegatingMarketDataProviderFunction _marketDataProvider;
     private final ValuationTimeProvider _valuationTimeProvider;
@@ -113,7 +112,7 @@ public class Engine {
 
     private View(ViewDef viewDef,
                  Graph graph,
-                 Collection<? extends PositionOrTrade> inputs,
+                 List<? extends PositionOrTrade> inputs,
                  ExecutorService executor,
                  DelegatingMarketDataProviderFunction marketDataProvider,
                  ValuationTimeProvider valuationTimeProvider,
@@ -165,12 +164,12 @@ public class Engine {
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Interrupted", e);
       }
-      Results.Builder resultsBuilder = Results.builder(columnNames);
+      Results.Builder resultsBuilder = Results.builder(_inputs, columnNames);
       for (Future<TaskResult> future : futures) {
         try {
           // TODO this probably won't do as a long term solution, it will block indefinitely if a function blocks
           TaskResult result = future.get();
-          resultsBuilder.add(result._rowIndex, result._columnIndex, result._input, result._result, result._callGraph);
+          resultsBuilder.add(result._rowIndex, result._columnIndex, result._result, result._callGraph);
         } catch (InterruptedException | ExecutionException e) {
           s_logger.warn("Failed to get result from task", e);
         }
@@ -186,14 +185,12 @@ public class Engine {
     //----------------------------------------------------------
     private static class TaskResult {
       
-      private final Object _input;
       private final int _rowIndex;
       private final int _columnIndex;
       private final Object _result;
       private final CallGraph _callGraph;
 
-      private TaskResult(Object input, int rowIndex, int columnIndex, Object result, CallGraph callGraph) {
-        _input = input;
+      private TaskResult(int rowIndex, int columnIndex, Object result, CallGraph callGraph) {
         _rowIndex = rowIndex;
         _columnIndex = columnIndex;
         _result = result;
@@ -236,7 +233,7 @@ public class Engine {
           result = e;
         }
         CallGraph callGraph = TracingProxy.end();
-        return new TaskResult(_input, _rowIndex, _columnIndex, result, callGraph);
+        return new TaskResult(_rowIndex, _columnIndex, result, callGraph);
       }
     }
   }
