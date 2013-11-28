@@ -35,19 +35,18 @@ import com.opengamma.sesame.CurrencyPairs;
 import com.opengamma.sesame.CurveDefinitionProvider;
 import com.opengamma.sesame.CurveSpecificationMarketDataProvider;
 import com.opengamma.sesame.CurveSpecificationProvider;
-import com.opengamma.sesame.fxforward.DiscountingFXForwardPV;
 import com.opengamma.sesame.DiscountingMulticurveBundleProvider;
-import com.opengamma.sesame.fxforward.FXForwardPVFunction;
 import com.opengamma.sesame.FXMatrixProvider;
-import com.opengamma.sesame.fxforward.FxForwardDiscountingCalculatorProvider;
 import com.opengamma.sesame.HistoricalTimeSeriesProvider;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.SimpleFunctionRepo;
+import com.opengamma.sesame.fxforward.DiscountingFXForwardPV;
+import com.opengamma.sesame.fxforward.FXForwardPVFunction;
+import com.opengamma.sesame.fxforward.FxForwardDiscountingCalculatorProvider;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.trace.TracingProxy;
 
@@ -74,7 +73,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
-    FunctionRepo functionRepo = initFunctionRepo();
+    SimpleFunctionRepo functionRepo = initFunctionRepo();
     
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(getCacheManager(), new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
@@ -84,8 +83,10 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     configuration.clear();
     
     Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
-    ComponentInfo info = new ComponentInfo(Engine.class, getClassifier());
-    repo.registerComponent(info, engine);
+    ComponentInfo engineInfo = new ComponentInfo(Engine.class, getClassifier());
+    repo.registerComponent(engineInfo, engine);
+    ComponentInfo functionRepoInfo = new ComponentInfo(SimpleFunctionRepo.class, getClassifier());
+    repo.registerComponent(functionRepoInfo, functionRepo);
   }
   
   protected ComponentMap initComponentMap(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
@@ -108,7 +109,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     return ComponentMap.of(components);
   }
   
-  protected FunctionRepo initFunctionRepo() {
+  protected SimpleFunctionRepo initFunctionRepo() {
     // TODO jonathan 2013-11-20 -- use annotations or something to discover this
     SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
     functionRepo.register(FXForwardPVFunction.class,

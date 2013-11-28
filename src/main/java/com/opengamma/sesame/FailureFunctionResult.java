@@ -48,7 +48,7 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
 
   @Override
   public T getResult() {
-    throw new IllegalStateException("Unable to get an error message from a success result");
+    throw new IllegalStateException("Unable to get a value from a failure result");
   }
 
   @Override

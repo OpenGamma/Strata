@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.sesame.FailureStatus;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.StandardResultGenerator;
 
@@ -47,7 +48,12 @@ public class MarketDataValuesResultBuilder {
     return this;
   }
 
+  // TODO what's the correct behaviour here? is getting some of the data success or failure?
   public FunctionResult<MarketDataValues> build() {
-    return StandardResultGenerator.success(new MarketDataValues(_results, _missing));
+    if (_results.isEmpty()) {
+      return StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "Missing market data: {}", _missing);
+    } else {
+      return StandardResultGenerator.success(new MarketDataValues(_results, _missing));
+    }
   }
 }

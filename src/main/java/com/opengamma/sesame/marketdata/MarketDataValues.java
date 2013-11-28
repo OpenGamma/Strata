@@ -68,8 +68,8 @@ public class MarketDataValues {
       MarketDataRequirement key = entry.getKey();
       MarketDataItem item = entry.getValue();
       MarketDataStatus status = item.getStatus();
-      Object marketDataValue = item.getValue();
       if (key instanceof CurveNodeMarketDataRequirement && status == MarketDataStatus.AVAILABLE) {
+        Object marketDataValue = item.getValue();
         snapshot.setDataPoint(((CurveNodeMarketDataRequirement) key).getExternalId(), (Double) marketDataValue);
       }
     }
