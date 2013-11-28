@@ -53,7 +53,10 @@ public final class GraphBuilder {
     _defaultImplProvider = new DefaultImplementationProvider(functionRepo);
   }
 
+  // TODO change the input type to a collection of Object?
   public GraphModel build(ViewDef viewDef, Collection<? extends PositionOrTrade> inputs) {
+    ArgumentChecker.notNull(viewDef, "viewDef");
+    ArgumentChecker.notNull(inputs, "inputs");
     ImmutableMap.Builder<String, Map<Class<?>, FunctionModel>> builder = ImmutableMap.builder();
     // TODO each column could easily be done in parallel
     for (ViewColumn column : viewDef.getColumns()) {

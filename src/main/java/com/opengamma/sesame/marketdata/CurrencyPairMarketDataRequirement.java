@@ -78,7 +78,7 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
         String dataField = valueRequirement.getValueName();
         MarketDataItem item = dataSource.get(idBundle, dataField);
         if (!item.isAvailable()) {
-          return null;
+          return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
         }
         Double spotRate = (Double) item.getValue();
         if (req.isReciprocal()) {
@@ -137,7 +137,7 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
         String dataField = valueRequirement.getValueName();
         MarketDataItem item = dataSource.get(idBundle, dataField, dateRange);
         if (!item.isAvailable()) {
-          return null;
+          return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
         }
         DoubleTimeSeries<?> spotRate = (DoubleTimeSeries<?>) item.getValue();
         if (req.isReciprocal()) {

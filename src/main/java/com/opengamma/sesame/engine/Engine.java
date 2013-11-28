@@ -78,7 +78,7 @@ public class Engine {
 
   // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
   // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
-  public View createView(ViewDef viewDef, List<? extends PositionOrTrade> targets) {
+  public View createView(ViewDef viewDef, List<? extends PositionOrTrade> inputs) {
     // TODO is this the right place for this logic? should there be a component map pre-populated with them?
     // as they're completely standard components always provided by the engine
     // need to supplement components with a MarketDataProviderFunction and ValuationTimeProviderFunction that are
@@ -92,11 +92,11 @@ public class Engine {
 
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(_functionRepo, components, _defaultConfig, _nodeDecorator);
-    GraphModel graphModel = graphBuilder.build(viewDef, targets);
+    GraphModel graphModel = graphBuilder.build(viewDef, inputs);
     s_logger.debug("graph model complete, building graph");
     Graph graph = graphModel.build(components);
     s_logger.debug("graph complete");
-    return new View(viewDef, graph, targets, _executor, marketDataProvider, valuationTimeProvider, components);
+    return new View(viewDef, graph, inputs, _executor, marketDataProvider, valuationTimeProvider, components);
   }
 
   //----------------------------------------------------------
@@ -127,6 +127,7 @@ public class Engine {
     }
 
     public Results run(CycleArguments cycleArguments) {
+      // TODO this will need to be a lot cleverer when we need to support dynamic rebinding for full reval
       _marketDataProvider.setDelegate(cycleArguments.getMarketDataFactory().create(_components));
       _valuationTimeProvider.setValuationTime(cycleArguments.getValuationTime());
       List<Task> tasks = Lists.newArrayList();
