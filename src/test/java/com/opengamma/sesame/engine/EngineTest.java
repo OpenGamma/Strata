@@ -259,7 +259,7 @@ public class EngineTest {
     @SuppressWarnings("unchecked")
     Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory(), traceCells));
-    CallGraph callGraph = results.get(0, 0).getCallGraph();
+    CallGraph callGraph = results.get(0, 0).getCallGraph().get();
     assertNotNull(callGraph);
     System.out.println(callGraph.prettyPrint());
   }

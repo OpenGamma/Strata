@@ -164,7 +164,7 @@ public class Engine {
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Interrupted", e);
       }
-      Results.Builder resultsBuilder = Results.builder(_inputs, columnNames);
+      ResultBuilder resultsBuilder = Results.builder(_inputs, columnNames);
       for (Future<TaskResult> future : futures) {
         try {
           // TODO this probably won't do as a long term solution, it will block indefinitely if a function blocks

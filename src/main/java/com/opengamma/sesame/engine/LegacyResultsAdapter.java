@@ -100,7 +100,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /* package */ Results adapt(ViewResultModel resultModel) {
-    Results.Builder builder = Results.builder(_inputs, _columnNames);
+    ResultBuilder builder = Results.builder(_inputs, _columnNames);
     for (ViewResultEntry entry : resultModel.getAllResults()) {
       String calcConfigName = entry.getCalculationConfiguration();
       ComputedValueResult value = entry.getComputedValue();
