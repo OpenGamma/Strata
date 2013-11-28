@@ -15,6 +15,7 @@ public final class OutputNames {
   public static final String FX_PRESENT_VALUE = "FX Present Value";
   public static final String DISCOUNTING_MULTICURVE_BUNDLE = "Discounting Multicurve Bundle";
   public static final String PNL_SERIES = "P&L Series";
+  public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
 
   private OutputNames() {
   }

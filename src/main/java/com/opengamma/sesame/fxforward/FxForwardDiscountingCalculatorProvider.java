@@ -15,6 +15,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -25,6 +26,7 @@ import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MarketExposureSelectorProvider;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 
 public class FxForwardDiscountingCalculatorProvider implements FxForwardCalculatorProvider {
 
@@ -60,17 +62,20 @@ public class FxForwardDiscountingCalculatorProvider implements FxForwardCalculat
 
       Set<String> incompleteBundles = new HashSet<>();
       Set<MulticurveProviderDiscount> bundles = new HashSet<>();
+      CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
 
       MarketExposureSelector selector = mesResult.getResult();
       Set<String> curveConfigNames = selector.determineCurveConfigurationsForSecurity(security);
 
       for (String name : curveConfigNames) {
 
-        FunctionResult<MulticurveProviderDiscount> bundle =
+        FunctionResult<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> bundle =
             _multicurveBundleProviderFunction.generateBundle(name);
 
         if (bundle.isResultAvailable()) {
-          bundles.add(bundle.getResult());
+          Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getResult();
+          bundles.add(result.getFirst());
+          mergedJacobianBundle.addAll(result.getSecond());
         } else {
           incompleteBundles.add(name);
         }
@@ -79,7 +84,7 @@ public class FxForwardDiscountingCalculatorProvider implements FxForwardCalculat
       if (incompleteBundles.isEmpty() && fxmResult.isResultAvailable()) {
 
         MulticurveProviderDiscount bundle = mergeBundles(fxmResult.getResult(), bundles);
-        return success(_factory.createCalculator(security, bundle));
+        return success(_factory.createCalculator(security, bundle, mergedJacobianBundle));
 
       } else if (!incompleteBundles.isEmpty()) {
         return failure(FailureStatus.MISSING_DATA, "Missing complete curve bundles(s) for: {}", incompleteBundles);

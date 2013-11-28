@@ -10,9 +10,15 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.model.forex.FXUtils;
@@ -28,27 +34,42 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public class FxForwardCalculator {
 
+  private static final HistoricalTimeSeriesBundle EMPTY_TIME_SERIES_BUNDLE = new HistoricalTimeSeriesBundle();
+
+  /** The curve sensitivity calculator */
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+      PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  /** The parameter sensitivity calculator */
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC =
+      new ParameterSensitivityParameterCalculator<>(PVCSDC);
+  /** The market quote sensitivity calculator */
+  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> SENSITIVITY_CALCULATOR =
+      new MarketQuoteSensitivityBlockCalculator<>(PSC);
+
   /** The analytics present value calculator */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> CALCULATOR =
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyAmount> PV_CALCULATOR =
       PresentValueDiscountingCalculator.getInstance();
 
   private final FXForwardSecurity _security;
   private final MulticurveProviderDiscount _discountingMulticurveBundle;
 
-  private final FinancialSecurityVisitor<InstrumentDefinition<?>> _securityConverter;
+  private final CurveBuildingBlockBundle _jacobianBundle;
   private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
   private final ValuationTimeProviderFunction _valuationTimeProviderFunction;
+  private final InstrumentDefinition<?> _instrumentDefinition;
 
   public FxForwardCalculator(FXForwardSecurity security,
                              MulticurveProviderDiscount discountingMulticurveBundle,
+                             CurveBuildingBlockBundle jacobianBundle,
                              FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter,
                              FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                              ValuationTimeProviderFunction valuationTimeProviderFunction) {
     _security = security;
-    _securityConverter = securityConverter;
+    _jacobianBundle = jacobianBundle;
     _discountingMulticurveBundle = discountingMulticurveBundle;
     _definitionToDerivativeConverter = definitionToDerivativeConverter;
     _valuationTimeProviderFunction = valuationTimeProviderFunction;
+    _instrumentDefinition = _security.accept(securityConverter);
   }
 
   /**
@@ -62,11 +83,24 @@ public class FxForwardCalculator {
 
   public MultipleCurrencyAmount calculateCurrencyExposure() {
 
-    ZonedDateTime valuationTime = _valuationTimeProviderFunction.getZonedDateTime();
-    InstrumentDefinition<?> definition = _security.accept(_securityConverter);
+    InstrumentDerivative derivative = generateInstrumentDerivative();
+    return derivative.accept(PV_CALCULATOR, _discountingMulticurveBundle);
+  }
+
+  // Note that this is one possible implementation (corresponds to DiscountingBCSFunction), we will
+  // need to support others (e.g. FXForwardPointsBCSFunction)
+  public MultipleCurrencyParameterSensitivity generateBlockCurveSensitivities() {
+    return SENSITIVITY_CALCULATOR.fromInstrument(generateInstrumentDerivative(),
+                                                 _discountingMulticurveBundle,
+                                                 _jacobianBundle);
+  }
+
+  // todo - if this class is thrown away after each cycle then we can use a field rather than this method
+  private InstrumentDerivative generateInstrumentDerivative() {
+
+    ZonedDateTime valuationTime = _valuationTimeProviderFunction.get();
     // Note that no time series are needed for FX Forward, so pass in an empty bundle
-    InstrumentDerivative derivative =
-        _definitionToDerivativeConverter.convert(_security, definition, valuationTime, new HistoricalTimeSeriesBundle());
-    return derivative.accept(CALCULATOR, _discountingMulticurveBundle);
+    return _definitionToDerivativeConverter.convert(
+        _security, _instrumentDefinition, valuationTime, EMPTY_TIME_SERIES_BUNDLE);
   }
 }

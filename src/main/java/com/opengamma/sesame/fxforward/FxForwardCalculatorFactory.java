@@ -6,6 +6,7 @@
 package com.opengamma.sesame.fxforward;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -32,7 +33,10 @@ public class FxForwardCalculatorFactory {
     _valuationTimeProviderFunction = valuationTimeProviderFunction;
   }
 
-  public FxForwardCalculator createCalculator(FXForwardSecurity security, MulticurveProviderDiscount bundle) {
-    return new FxForwardCalculator(security, bundle, _securityConverter, _definitionToDerivativeConverter, _valuationTimeProviderFunction);
+  public FxForwardCalculator createCalculator(FXForwardSecurity security,
+                                              MulticurveProviderDiscount bundle,
+                                              CurveBuildingBlockBundle mergedJacobianBundle) {
+    return new FxForwardCalculator(security, bundle, mergedJacobianBundle,
+                                   _securityConverter, _definitionToDerivativeConverter, _valuationTimeProviderFunction);
   }
 }

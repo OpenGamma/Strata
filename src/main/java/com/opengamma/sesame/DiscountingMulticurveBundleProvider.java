@@ -123,41 +123,33 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
   }
 
   @Override
-  public FunctionResult<MulticurveProviderDiscount> generateBundle(String curveConstructionConfigurationName) {
+  public FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName) {
 
     final CurveConstructionConfiguration curveConstructionConfiguration =
         _curveConstructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
 
     if (curveConstructionConfiguration != null) {
 
+
+      // Each curve config may have one or more exogenous requirements which basically should
+      // point to another curve config (which may point to one or more configs ...)
+      // We need a depth-first evaluation of the tree formed by these configs as (direct) child
+      // MulticurveProviderInterface instances are required to be passed into their parent's
+      // evaluation via the known data parameter
+
+      // If we can't build due to insufficient market data, then we keep going but don't call
+      // the final build step. This way we ensure that market data requirements have been captured.
+
+      // todo check for cycles in the config
+
       FunctionResult<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConstructionConfiguration);
       FunctionResult<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConstructionConfiguration, fxMatrixResult);
-      FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> curves = getCurves(curveConstructionConfiguration, exogenousBundles, fxMatrixResult);
+      return getCurves(curveConstructionConfiguration, exogenousBundles, fxMatrixResult);
 
-      if (curves.isResultAvailable()) {
-        return success(curves.getResult().getFirst());
-      } else {
-        return propagateFailure(curves);
-      }
     } else {
       return failure(MISSING_DATA, "CurveConstructionConfiguration named {} was not found",
                      curveConstructionConfigurationName);
     }
-
-
-    // Each curve config may have one or more exogenous requirements which basically should
-    // point to another curve config (which may point to one or more configs ...)
-    // We need a depth-first evaluation of the tree formed by these configs as (direct) child
-    // MulticurveProviderInterface instances are required to be passed into their parent's
-    // evaluation via the known data parameter
-
-    // If we can't build due to insufficient market data, then we keep going but don't call
-    // the final build step. This way we ensure that market data requirements have been captured.
-
-    // todo check for cycles in the config
-
-
-
   }
 
   private MulticurveDiscountBuildingRepository createBuilder() {
@@ -293,6 +285,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
                                                                ParSpreadMarketQuoteDiscountingCalculator.getInstance(),
                                                                ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
     } else {
+      // todo - supply some useful information in the failure message!
       return failure(MISSING_DATA, "Unable to get intermediate data");
     }
   }
@@ -360,9 +353,11 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
     if (exogenousConfigurations != null) {
       for (String configName : exogenousConfigurations) {
 
-        FunctionResult<MulticurveProviderDiscount> bundleResult = generateBundle(configName);
+        FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
+            generateBundle(configName);
+
         if (bundleResult.getStatus().isResultAvailable()) {
-          exogenousBundles.add(bundleResult.getResult());
+          exogenousBundles.add(bundleResult.getResult().getFirst());
         } else {
           exogenousStatus = bundleResult.getStatus();
         }

@@ -53,6 +53,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
@@ -128,6 +129,7 @@ import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.tuple.Pair;
 
 import net.sf.ehcache.CacheManager;
 
@@ -240,7 +242,7 @@ public class FXForwardPVFunctionTest {
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
     DiscountingMulticurveBundleProviderFunction bundleProvider =
         FunctionModel.build(DiscountingMulticurveBundleProviderFunction.class, "generateBundle", graphConfig);
-    FunctionResult<MulticurveProviderDiscount> result;
+    FunctionResult<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
     try {
       result = bundleProvider.generateBundle("Z-Marc JPY Dsc - FX USD");
     } catch (Exception e) {
