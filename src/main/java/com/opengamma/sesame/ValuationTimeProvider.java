@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.ArgumentChecker;
@@ -31,20 +29,5 @@ public class ValuationTimeProvider implements ValuationTimeProviderFunction {
   @Override
   public ZonedDateTime get() {
     return _valuationTime;
-  }
-
-  @Override
-  public Instant getValuationTime() {
-    return _valuationTime.toInstant();
-  }
-
-  @Deprecated
-  public ZonedDateTime getZonedDateTime() {
-    return _valuationTime;
-  }
-
-  @Override
-  public LocalDate getLocalDate() {
-    return _valuationTime.toLocalDate();
   }
 }

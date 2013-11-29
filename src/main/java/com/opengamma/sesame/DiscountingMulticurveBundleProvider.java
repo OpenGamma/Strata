@@ -295,7 +295,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
                                                               HistoricalTimeSeriesBundle htsBundle,
                                                               FXMatrix fxMatrix) {
 
-    ZonedDateTime now = _valuationTimeProvider.getZonedDateTime();
+    ZonedDateTime now = _valuationTimeProvider.get();
 
     Set<CurveNodeWithIdentifier> nodes = specification.getNodes();
     final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nodes.size()];
@@ -328,7 +328,7 @@ public class DiscountingMulticurveBundleProvider implements DiscountingMulticurv
         final FixedDateInterpolatedCurveDefinition fixedDateDefinition = (FixedDateInterpolatedCurveDefinition) definition;
         final List<LocalDate> fixedDates = fixedDateDefinition.getFixedDates();
         final DoubleArrayList nodePoints = new DoubleArrayList(fixedDates.size()); //TODO what about equal node points?
-        LocalDate valuationDate = _valuationTimeProvider.getLocalDate();
+        LocalDate valuationDate = _valuationTimeProvider.get().toLocalDate();
         for (final LocalDate fixedDate : fixedDates) {
           nodePoints.add(TimeCalculator.getTimeBetween(valuationDate, fixedDate)); //TODO what to do if the fixed date is before the valuation date?
         }

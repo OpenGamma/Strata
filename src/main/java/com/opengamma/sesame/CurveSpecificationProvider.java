@@ -43,8 +43,8 @@ public class CurveSpecificationProvider implements CurveSpecificationProviderFun
       return failure(FailureStatus.MISSING_DATA, "Could not get curve definition called: {}", curveName);
     } else {
       return success(_curveSpecificationBuilder.buildCurve(
-          _valuationTimeProviderFunction.getValuationTime(),
-          _valuationTimeProviderFunction.getLocalDate(),
+          _valuationTimeProviderFunction.get().toInstant(),
+          _valuationTimeProviderFunction.get().toLocalDate(),
           curveDefinition));
     }
   }
