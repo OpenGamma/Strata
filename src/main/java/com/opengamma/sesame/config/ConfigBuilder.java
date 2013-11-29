@@ -67,7 +67,11 @@ public final class ConfigBuilder {
   }
 
   public static ViewDef viewDef(String name, ViewColumn... columns) {
-    return new ViewDef(name, Arrays.asList(columns));
+    return new ViewDef(name, FunctionConfig.EMPTY, Arrays.asList(columns));
+  }
+
+  public static ViewDef viewDef(String name, FunctionConfig defaultConfig, ViewColumn... columns) {
+    return new ViewDef(name, defaultConfig, Arrays.asList(columns));
   }
 
   private static Map<Class<?>, ColumnOutput> createTargetOutputs(TargetOutput... outputs) {

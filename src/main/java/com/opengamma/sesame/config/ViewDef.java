@@ -16,20 +16,26 @@ import com.opengamma.util.ArgumentChecker;
 public final class ViewDef {
 
   // TODO non-column outputs
-  // TODO default FunctionConfig for the whole view? would need to merge with column defaults and specific config
 
   private final String _name;
-
+  private final FunctionConfig _defaultConfig;
   private final List<ViewColumn> _columns;
 
-  /* package */ ViewDef(String name, List<ViewColumn> columns) {
-    ArgumentChecker.notEmpty(name, "name");
-    ArgumentChecker.notNull(columns, "columns");
-    _name = name;
-    _columns = ImmutableList.copyOf(columns);
+  /* package */ ViewDef(String name, FunctionConfig defaultConfig, List<ViewColumn> columns) {
+    _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
+    _name = ArgumentChecker.notEmpty(name, "name");
+    _columns = ImmutableList.copyOf(ArgumentChecker.notNull(columns, "columns"));
   }
 
   public List<ViewColumn> getColumns() {
     return _columns;
+  }
+
+  public FunctionConfig getDefaultConfig() {
+    return _defaultConfig;
+  }
+
+  public String getName() {
+    return _name;
   }
 }

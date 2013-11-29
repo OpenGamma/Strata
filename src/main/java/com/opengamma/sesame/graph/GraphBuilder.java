@@ -59,6 +59,8 @@ public final class GraphBuilder {
     ArgumentChecker.notNull(inputs, "inputs");
     ImmutableMap.Builder<String, Map<Class<?>, FunctionModel>> builder = ImmutableMap.builder();
     // TODO each column could easily be done in parallel
+    FunctionConfig viewConfig = viewDef.getDefaultConfig();
+    FunctionConfig defaultConfig = CompositeFunctionConfig.compose(viewConfig, _defaultConfig, _defaultImplProvider);
     for (ViewColumn column : viewDef.getColumns()) {
       Map<Class<?>, FunctionModel> functions = Maps.newHashMap();
       for (PositionOrTrade posOrTrade : inputs) {
@@ -78,7 +80,7 @@ public final class GraphBuilder {
             FunctionModel existingFunction = functions.get(posOrTrade.getClass());
             if (existingFunction == null) {
               FunctionConfig columnConfig = column.getFunctionConfig(posOrTrade.getClass());
-              FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, _defaultConfig, _defaultImplProvider);
+              FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, defaultConfig);
               GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
               functionModel = FunctionModel.forFunction(function, graphConfig);
               functions.put(posOrTrade.getClass(), functionModel);
@@ -98,7 +100,7 @@ public final class GraphBuilder {
             FunctionModel existingFunction = functions.get(security.getClass());
             if (existingFunction == null) {
               FunctionConfig columnConfig = column.getFunctionConfig(security.getClass());
-              FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, _defaultConfig, _defaultImplProvider);
+              FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, defaultConfig);
               GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
               FunctionModel securityModel = FunctionModel.forFunction(function, graphConfig);
               functionModel = SecurityFunctionAdapter.adapt(securityModel);
@@ -108,6 +110,8 @@ public final class GraphBuilder {
             continue;
           }
         }
+        s_logger.warn("Failed to find function to provide output for {} for {} or {}",
+                      column, security.getClass().getSimpleName(), posOrTrade.getClass().getSimpleName());
         FunctionModel functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);
         functions.put(posOrTrade.getClass(), functionModel);
       }

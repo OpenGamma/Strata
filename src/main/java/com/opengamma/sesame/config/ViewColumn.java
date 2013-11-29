@@ -64,10 +64,6 @@ public final class ViewColumn {
 
   @Override
   public String toString() {
-    return "ViewColumn [" +
-        "_name='" + _name + "'" +
-        ", _defaultOutput=" + _defaultOutput +
-        ", _outputs=" + _outputs +
-        "]";
+    return "ViewColumn [_name='" + _name + "', _defaultOutput=" + _defaultOutput + ", _outputs=" + _outputs + "]";
   }
 }

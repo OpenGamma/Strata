@@ -22,6 +22,7 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.sesame.ValuationTimeProvider;
 import com.opengamma.sesame.ValuationTimeProviderFunction;
+import com.opengamma.sesame.config.CompositeFunctionConfig;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewColumn;
@@ -96,7 +97,7 @@ public class Engine {
     s_logger.debug("graph model complete, building graph");
     Graph graph = graphModel.build(components);
     s_logger.debug("graph complete");
-    return new View(viewDef, graph, inputs, _executor, marketDataProvider, valuationTimeProvider, components);
+    return new View(viewDef, graph, inputs, _executor, marketDataProvider, valuationTimeProvider, components, _defaultConfig);
   }
 
   //----------------------------------------------------------
@@ -109,6 +110,7 @@ public class Engine {
     private final DelegatingMarketDataProviderFunction _marketDataProvider;
     private final ValuationTimeProvider _valuationTimeProvider;
     private final ComponentMap _components;
+    private final FunctionConfig _systemDefaultConfig;
 
     private View(ViewDef viewDef,
                  Graph graph,
@@ -116,7 +118,8 @@ public class Engine {
                  ExecutorService executor,
                  DelegatingMarketDataProviderFunction marketDataProvider,
                  ValuationTimeProvider valuationTimeProvider,
-                 ComponentMap components) {
+                 ComponentMap components,
+                 FunctionConfig systemDefaultConfig) {
       _viewDef = viewDef;
       _inputs = inputs;
       _graph = graph;
@@ -124,6 +127,7 @@ public class Engine {
       _marketDataProvider = marketDataProvider;
       _valuationTimeProvider = valuationTimeProvider;
       _components = components;
+      _systemDefaultConfig = systemDefaultConfig;
     }
 
     public Results run(CycleArguments cycleArguments) {
@@ -147,7 +151,9 @@ public class Engine {
           } else {
             function = functions.get(input.getSecurity().getClass());
           }
-          FunctionConfig functionConfig = column.getFunctionConfig(input.getClass());
+          FunctionConfig functionConfig = CompositeFunctionConfig.compose(column.getFunctionConfig(input.getClass()),
+                                                                          _viewDef.getDefaultConfig(),
+                                                                          _systemDefaultConfig);
           FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
           Tracer tracer;
           if (cycleArguments.getTraceFunctions().contains(Pairs.of(rowIndex, colIndex))) {
