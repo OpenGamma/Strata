@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 
 /**
  * TODO maybe an interface instead? abstract class? different tracers will need similar functionality
+ * TODO joda bean so it can be serialized as part of the results
  */
 public class CallGraph {
 

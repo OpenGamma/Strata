@@ -34,20 +34,31 @@ public class TimingProxy extends ProxyNodeDecorator {
     long start = System.nanoTime();
     try {
       _depth.set(_depth.get() + 1);
+      /*StringBuilder entryBuilder = new StringBuilder();
+      indent(entryBuilder);
+      entryBuilder
+          .append(method.getDeclaringClass().getSimpleName())
+          .append(".")
+          .append(method.getName());
+      System.out.println(entryBuilder);*/
       return method.invoke(delegate, args);
     } finally {
-      StringBuilder builder = new StringBuilder();
-      for (int i = 0; i < _depth.get(); i++) {
-        builder.append("  ");
-      }
-      builder
+      StringBuilder exitBuilder = new StringBuilder();
+      indent(exitBuilder);
+      exitBuilder
           .append((System.nanoTime() - start) / 1e6d)
           .append("ms ")
           .append(method.getDeclaringClass().getSimpleName())
           .append(".")
           .append(method.getName());
-      System.out.println(builder);
+      System.out.println(exitBuilder);
       _depth.set(_depth.get() - 1);
+    }
+  }
+
+  private void indent(StringBuilder builder) {
+    for (int i = 0; i < _depth.get(); i++) {
+      builder.append("  ");
     }
   }
 }

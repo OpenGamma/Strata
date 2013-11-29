@@ -76,6 +76,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     SimpleFunctionRepo functionRepo = initFunctionRepo();
     
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(getCacheManager(), new ExecutingMethodsThreadLocal());
+    // TODO the node decorator should probably be an argument to createView()
+    // or something specifying decorators and the decorators themselves should be created in the view
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
     
     ComponentMap componentMap = initComponentMap(repo, configuration);

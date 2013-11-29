@@ -45,7 +45,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -75,7 +74,6 @@ import com.opengamma.sesame.CurveSpecificationMarketDataProvider;
 import com.opengamma.sesame.CurveSpecificationMarketDataProviderFunction;
 import com.opengamma.sesame.CurveSpecificationProvider;
 import com.opengamma.sesame.CurveSpecificationProviderFunction;
-import com.opengamma.sesame.DifferenceOperatorReturnConverter;
 import com.opengamma.sesame.DiscountingMulticurveBundleProvider;
 import com.opengamma.sesame.DiscountingMulticurveBundleProviderFunction;
 import com.opengamma.sesame.FXMatrixProvider;
@@ -88,7 +86,6 @@ import com.opengamma.sesame.HistoricalTimeSeriesProviderFunction;
 import com.opengamma.sesame.MarketExposureSelectorProvider;
 import com.opengamma.sesame.ResultStatus;
 import com.opengamma.sesame.RootFinderConfiguration;
-import com.opengamma.sesame.TimeSeriesReturnConverter;
 import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
 import com.opengamma.sesame.ValuationTimeProvider;
 import com.opengamma.sesame.ValuationTimeProviderFunction;
@@ -110,6 +107,8 @@ import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.proxy.TimingProxy;
+import com.opengamma.sesame.trace.FullTracer;
+import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
@@ -185,27 +184,28 @@ public class FXForwardPnlSeriesFunctionTest {
     ComponentMap componentMap = serverComponents.with(comps);
 
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, cachingDecorator);
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, TracingProxy.INSTANCE, cachingDecorator);
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
     FxForwardPnLSeriesFunction pvFunction = FunctionModel.build(FxForwardPnLSeriesFunction.class, "calculatePnlSeries", graphConfig);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
     security.setUniqueId(UniqueId.of("sec", "123"));
-    //TracingProxy.start(new FullTracer());
+    TracingProxy.start(new FullTracer());
     FunctionResult<LocalDateDoubleTimeSeries> result = null;
-    for (int i = 0; i < 100; i++) {
+    int nRuns = 100;
+    //int nRuns = 1;
+    for (int i = 0; i < nRuns; i++) {
       result = pvFunction.calculatePnlSeries(security);
       System.out.println();
     }
-    //System.out.println(TracingProxy.end().prettyPrint());
+    System.out.println(TracingProxy.end().prettyPrint());
     return result;
   }
 
 
   private static FunctionConfig createFunctionConfig() {
     String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
-
     return
         config(
             arguments(
@@ -216,6 +216,7 @@ public class FXForwardPnlSeriesFunctionTest {
                          argument("outputCurrency", Optional.of(Currency.USD))),
                 function(FxReturnSeriesProvider.class,
                          // TODO will need a different way when we have a UI and the values are strings or primitives
+                         // maybe an enum with a method to return the object it represents. implement provider?
                          argument("timeSeriesSamplingFunction", TimeSeriesSamplingFunctionFactory.NO_PADDING_FUNCTION),
                          argument("timeSeriesConverter", TimeSeriesReturnConverterFactory.absolute()),
                          argument("schedule", ScheduleCalculatorFactory.DAILY_CALCULATOR)),
@@ -277,26 +278,6 @@ public class FXForwardPnlSeriesFunctionTest {
 
   /*private static Map<MarketDataRequirement, MarketDataItem> loadMarketDataForYieldCurve() throws IOException {
     return loadMarketData("/yield-curve-marketdata.properties");
-  }*/
-
-/*  private static Map<MarketDataRequirement, MarketDataItem> loadCurrencyPairTimeSeriesMarketData(String fileName) throws IOException {
-    try (InputStream stream = FXForwardPVFunction.class.getResourceAsStream(fileName);
-         BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-      String ccyPairStr = reader.readLine();
-      CurrencyPair currencyPair = CurrencyPair.parse(ccyPairStr);
-      String line;
-      LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
-      while ((line = reader.readLine()) != null) {
-        String[] split = line.split("=");
-        LocalDate date = LocalDate.parse(split[0]);
-        Double value = Double.valueOf(split[1]);
-        builder.put(date, value);
-      }
-      MarketDataItem item = MarketDataItem.available(builder.build());
-      Map<MarketDataRequirement, MarketDataItem> data = Maps.newHashMap();
-      data.put(MarketDataRequirementFactory.of(currencyPair), item);
-      return data;
-    }
   }*/
 
   // TODO move to a test helper class
