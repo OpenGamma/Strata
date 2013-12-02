@@ -72,14 +72,16 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
+    // TODO allow the thread pool to grow to allow for threads that block waiting for a cache value to be calculated?
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     SimpleFunctionRepo functionRepo = initFunctionRepo();
     
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(getCacheManager(), new ExecutingMethodsThreadLocal());
     // TODO the node decorator should probably be an argument to createView()
     // or something specifying decorators and the decorators themselves should be created in the view
+    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE, TimingProxy.INSTANCE);
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
-    
+
     ComponentMap componentMap = initComponentMap(repo, configuration);
     // Indicate remaining configuration has been used
     configuration.clear();

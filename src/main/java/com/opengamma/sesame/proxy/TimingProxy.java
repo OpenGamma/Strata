@@ -8,7 +8,10 @@ package com.opengamma.sesame.proxy;
 import java.lang.reflect.Method;
 
 /**
- *
+ * TODO print the implementing class, not the interface type
+ * TODO more sophisticated - selectively enable for specific inputs or threads
+ * TODO log rather than printing to stdout
+ * TODO include thread name so output can be interleaved
  */
 public class TimingProxy extends ProxyNodeDecorator {
 
