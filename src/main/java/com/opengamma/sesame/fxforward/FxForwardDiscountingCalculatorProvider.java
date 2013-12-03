@@ -69,7 +69,7 @@ public class FxForwardDiscountingCalculatorProvider implements FxForwardCalculat
 
       for (String name : curveConfigNames) {
 
-        FunctionResult<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> bundle =
+        FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
             _multicurveBundleProviderFunction.generateBundle(name);
 
         if (bundle.isResultAvailable()) {

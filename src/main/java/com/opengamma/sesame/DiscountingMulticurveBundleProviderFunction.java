@@ -16,5 +16,5 @@ public interface DiscountingMulticurveBundleProviderFunction {
 
   @Cache
   @Output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE)
-  FunctionResult<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName);
+  FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName);
 }
