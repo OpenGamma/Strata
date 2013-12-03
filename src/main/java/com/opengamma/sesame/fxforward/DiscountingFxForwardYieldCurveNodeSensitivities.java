@@ -53,7 +53,7 @@ public class DiscountingFxForwardYieldCurveNodeSensitivities implements FxForwar
       FunctionResult<CurveDefinition> cdResult = _curveDefinitionProvider.getCurveDefinition(_curveName);
 
       if (cdResult.isResultAvailable()) {
-        return findMatchingSensitivities(sensitivities, _curveName, cdResult.getResult());
+        return findMatchingSensitivities(sensitivities, cdResult.getResult());
       } else {
         return propagateFailure(cdResult);
       }
@@ -63,10 +63,10 @@ public class DiscountingFxForwardYieldCurveNodeSensitivities implements FxForwar
   }
 
   private FunctionResult<DoubleLabelledMatrix1D> findMatchingSensitivities(MultipleCurrencyParameterSensitivity sensitivities,
-                                                                     String curveName, CurveDefinition curveDefinition) {
+                                                                           CurveDefinition curveDefinition) {
 
     for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivities.getSensitivities().entrySet()) {
-      if (curveName.equals(entry.getKey().getFirst())) {
+      if (_curveName.equals(entry.getKey().getFirst())) {
         return success(MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition));
       }
     }

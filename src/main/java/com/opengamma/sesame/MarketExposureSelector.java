@@ -79,10 +79,7 @@ public class MarketExposureSelector {
           }
         }
 
-        // We have successfully matched using this function
-        if (curveNames.size() == ids.size()) {
-          return curveNames;
-        }
+        return curveNames;
       }
     }
 
