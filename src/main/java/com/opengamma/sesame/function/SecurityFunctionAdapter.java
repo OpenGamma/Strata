@@ -14,6 +14,7 @@ import com.opengamma.sesame.graph.FunctionModel;
  * Wraps an {@link InvokableFunction} that expects a {@link Security} in one that expects a {@link PositionOrTrade}.
  * When the invoker is called it gets the security from the {@link PositionOrTrade} and uses it to call
  * the wrapped invoker.
+ * TODO is this still required? I don't think it is
  */
 public class SecurityFunctionAdapter extends FunctionMetadata {
 

@@ -19,7 +19,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
-import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.core.security.Security;
 import com.opengamma.sesame.ValuationTimeProvider;
 import com.opengamma.sesame.ValuationTimeProviderFunction;
 import com.opengamma.sesame.config.CompositeFunctionConfig;
@@ -77,9 +77,11 @@ public class Engine {
     void cycleComplete(Results results);
   }*/
 
-  // TODO allow targets to be anything? would allow support for parallelization, e.g. List<SwapSecurity>
-  // might have to make target type an object instead of a type param on OutputFunction to cope with erasure
-  public View createView(ViewDef viewDef, List<? extends PositionOrTrade> inputs) {
+  /**
+   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
+   * in future.
+   */
+  public View createView(ViewDef viewDef, List<?> inputs) {
     // TODO is this the right place for this logic? should there be a component map pre-populated with them?
     // as they're completely standard components always provided by the engine
     // need to supplement components with a MarketDataProviderFunction and ValuationTimeProviderFunction that are
@@ -105,7 +107,7 @@ public class Engine {
 
     private final Graph _graph;
     private final ViewDef _viewDef;
-    private final List<? extends PositionOrTrade> _inputs;
+    private final List<?> _inputs;
     private final ExecutorService _executor;
     private final DelegatingMarketDataProviderFunction _marketDataProvider;
     private final ValuationTimeProvider _valuationTimeProvider;
@@ -114,7 +116,7 @@ public class Engine {
 
     private View(ViewDef viewDef,
                  Graph graph,
-                 List<? extends PositionOrTrade> inputs,
+                 List<?> inputs,
                  ExecutorService executor,
                  DelegatingMarketDataProviderFunction marketDataProvider,
                  ValuationTimeProvider valuationTimeProvider,
@@ -143,15 +145,23 @@ public class Engine {
         columnNames.add(columnName);
         Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
         int rowIndex = 0;
-        for (PositionOrTrade input : _inputs) {
+        for (Object input : _inputs) {
           InvokableFunction function;
-          InvokableFunction posOrTradeFunction = functions.get(input.getClass());
-          if (posOrTradeFunction != null) {
-            function = posOrTradeFunction;
+          InvokableFunction inputFunction = functions.get(input.getClass());
+          // the input to the function can be a security when the input is a position or trade
+          Object functionInput;
+          if (inputFunction != null) {
+            function = inputFunction;
+            functionInput = input;
+          } else if (input instanceof PositionOrTrade) {
+            Security security = ((PositionOrTrade) input).getSecurity();
+            function = functions.get(security.getClass());
+            functionInput = security;
           } else {
-            function = functions.get(input.getSecurity().getClass());
+            // this shouldn't happen if the graph is built correctly
+            throw new OpenGammaRuntimeException("No function found for column " + column + " and " + input);
           }
-          FunctionConfig functionConfig = CompositeFunctionConfig.compose(column.getFunctionConfig(input.getClass()),
+          FunctionConfig functionConfig = CompositeFunctionConfig.compose(column.getFunctionConfig(functionInput.getClass()),
                                                                           _viewDef.getDefaultConfig(),
                                                                           _systemDefaultConfig);
           FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
@@ -161,7 +171,7 @@ public class Engine {
           } else {
             tracer = NoOpTracer.INSTANCE;
           }
-          tasks.add(new Task(input, args, rowIndex++, colIndex, function, tracer));
+          tasks.add(new Task(functionInput, args, rowIndex++, colIndex, function, tracer));
         }
         colIndex++;
       }
@@ -208,14 +218,14 @@ public class Engine {
     //----------------------------------------------------------
     private static class Task implements Callable<TaskResult> {
 
-      private final UniqueIdentifiable _input;
+      private final Object _input;
       private final int _rowIndex;
       private final int _columnIndex;
       private final InvokableFunction _invokableFunction;
       private final Tracer _tracer;
       private final FunctionArguments _args;
 
-      private Task(UniqueIdentifiable input,
+      private Task(Object input,
                    FunctionArguments args,
                    int rowIndex,
                    int columnIndex,

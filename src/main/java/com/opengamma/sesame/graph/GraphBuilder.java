@@ -26,7 +26,6 @@ import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.NoOutputFunction;
-import com.opengamma.sesame.function.SecurityFunctionAdapter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -53,8 +52,11 @@ public final class GraphBuilder {
     _defaultImplProvider = new DefaultImplementationProvider(functionRepo);
   }
 
-  // TODO change the input type to a collection of Object?
-  public GraphModel build(ViewDef viewDef, Collection<? extends PositionOrTrade> inputs) {
+  /**
+   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
+   * in future.
+   */
+  public GraphModel build(ViewDef viewDef, Collection<?> inputs) {
     ArgumentChecker.notNull(viewDef, "viewDef");
     ArgumentChecker.notNull(inputs, "inputs");
     ImmutableMap.Builder<String, Map<Class<?>, FunctionModel>> builder = ImmutableMap.builder();
@@ -63,7 +65,7 @@ public final class GraphBuilder {
     FunctionConfig defaultConfig = CompositeFunctionConfig.compose(viewConfig, _defaultConfig, _defaultImplProvider);
     for (ViewColumn column : viewDef.getColumns()) {
       Map<Class<?>, FunctionModel> functions = Maps.newHashMap();
-      for (PositionOrTrade posOrTrade : inputs) {
+      for (Object input : inputs) {
         // if we need to support stateful functions this is the place to do it.
         // the FunctionModel could flag if its tree contains any functions annotated as @Stateful and
         // it wouldn't be eligible for sharing with other inputs
@@ -72,48 +74,46 @@ public final class GraphBuilder {
         // TODO extract a method for the logic below. it's almost exactly the same twice except adapting the security function
 
         // look for an output for the position or trade
-        String posOrTradeOutput = column.getOutputName(posOrTrade.getClass());
-        if (posOrTradeOutput != null) {
-          FunctionMetadata function = _functionRepo.getOutputFunction(posOrTradeOutput, posOrTrade.getClass());
+        String outputName = column.getOutputName(input.getClass());
+        if (outputName != null) {
+          FunctionMetadata function = _functionRepo.getOutputFunction(outputName, input.getClass());
           if (function != null) {
-            FunctionModel functionModel;
-            FunctionModel existingFunction = functions.get(posOrTrade.getClass());
+            FunctionModel existingFunction = functions.get(input.getClass());
             if (existingFunction == null) {
-              FunctionConfig columnConfig = column.getFunctionConfig(posOrTrade.getClass());
+              FunctionConfig columnConfig = column.getFunctionConfig(input.getClass());
               FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, defaultConfig);
               GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
-              functionModel = FunctionModel.forFunction(function, graphConfig);
-              functions.put(posOrTrade.getClass(), functionModel);
-              s_logger.debug("created function for {}/{}", column.getName(), posOrTrade.getClass().getSimpleName());
+              FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
+              functions.put(input.getClass(), functionModel);
+              s_logger.debug("created function for {}/{}", column.getName(), input.getClass().getSimpleName());
             }
             continue;
           }
         }
 
         // look for an output for the security type
-        Security security = posOrTrade.getSecurity();
-        String securityOutput = column.getOutputName(security.getClass());
-        if (securityOutput != null) {
-          FunctionMetadata function = _functionRepo.getOutputFunction(securityOutput, security.getClass());
-          if (function != null) {
-            FunctionModel functionModel;
-            FunctionModel existingFunction = functions.get(security.getClass());
-            if (existingFunction == null) {
-              FunctionConfig columnConfig = column.getFunctionConfig(security.getClass());
-              FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, defaultConfig);
-              GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
-              FunctionModel securityModel = FunctionModel.forFunction(function, graphConfig);
-              functionModel = SecurityFunctionAdapter.adapt(securityModel);
-              functions.put(security.getClass(), functionModel);
-              s_logger.debug("created function for {}/{}", column.getName(), security.getClass().getSimpleName());
+        if (input instanceof PositionOrTrade) {
+          Security security = ((PositionOrTrade) input).getSecurity();
+          String securityOutput = column.getOutputName(security.getClass());
+          if (securityOutput != null) {
+            FunctionMetadata function = _functionRepo.getOutputFunction(securityOutput, security.getClass());
+            if (function != null) {
+              FunctionModel existingFunction = functions.get(security.getClass());
+              if (existingFunction == null) {
+                FunctionConfig columnConfig = column.getFunctionConfig(security.getClass());
+                FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, defaultConfig);
+                GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
+                FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
+                functions.put(security.getClass(), functionModel);
+                s_logger.debug("created function for {}/{}", column.getName(), security.getClass().getSimpleName());
+              }
+              continue;
             }
-            continue;
           }
         }
-        s_logger.warn("Failed to find function to provide output for {} for {} or {}",
-                      column, security.getClass().getSimpleName(), posOrTrade.getClass().getSimpleName());
+        s_logger.warn("Failed to find function to provide output for {} for {}", column, input.getClass().getSimpleName());
         FunctionModel functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);
-        functions.put(posOrTrade.getClass(), functionModel);
+        functions.put(input.getClass(), functionModel);
       }
       builder.put(column.getName(), Collections.unmodifiableMap(functions));
     }
