@@ -52,7 +52,7 @@ public class FxForwardDiscountingCalculatorProvider implements FxForwardCalculat
     // get currencies from security, probably should use visitor/utils
     Set<Currency> currencies = ImmutableSet.of(security.getPayCurrency(), security.getReceiveCurrency());
 
-    // Even if we can't get a matrix we want to get as afar as we can to
+    // Even if we can't get a matrix we want to get as far as we can to
     // ensure market data population, so ignore the result for now
     FunctionResult<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(currencies);
 
@@ -81,11 +81,13 @@ public class FxForwardDiscountingCalculatorProvider implements FxForwardCalculat
         }
       }
 
-      if (incompleteBundles.isEmpty() && fxmResult.isResultAvailable()) {
+      if (!curveConfigNames.isEmpty() && incompleteBundles.isEmpty() && fxmResult.isResultAvailable()) {
 
-        MulticurveProviderDiscount bundle = mergeBundles(fxmResult.getResult(), bundles);
+        MulticurveProviderDiscount bundle = mergeBundlesAndMatrix(bundles, fxmResult.getResult());
         return success(_factory.createCalculator(security, bundle, mergedJacobianBundle));
 
+      } else if (curveConfigNames.isEmpty()) {
+        return failure(FailureStatus.MISSING_DATA, "No matching curves found for security: {}", security);
       } else if (!incompleteBundles.isEmpty()) {
         return failure(FailureStatus.MISSING_DATA, "Missing complete curve bundles(s) for: {}", incompleteBundles);
       } else {
@@ -96,8 +98,15 @@ public class FxForwardDiscountingCalculatorProvider implements FxForwardCalculat
     }
   }
 
-  private MulticurveProviderDiscount mergeBundles(FXMatrix fxMatrix, Collection<MulticurveProviderDiscount> providers) {
-    final MulticurveProviderDiscount result = ProviderUtils.mergeDiscountingProviders(providers);
-    return ProviderUtils.mergeDiscountingProviders(result, fxMatrix);
+  private MulticurveProviderDiscount mergeBundlesAndMatrix(Collection<MulticurveProviderDiscount> providers,
+                                                           FXMatrix fxMatrix) {
+    // Don't merge when we only have a single provider bundle
+    return providers.size() > 1 ?
+        ProviderUtils.mergeDiscountingProviders(mergeBundles(providers), fxMatrix) :
+        providers.iterator().next();
+  }
+
+  private MulticurveProviderDiscount mergeBundles(Collection<MulticurveProviderDiscount> providers) {
+    return ProviderUtils.mergeDiscountingProviders(providers);
   }
 }
