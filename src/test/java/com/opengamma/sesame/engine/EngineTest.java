@@ -39,6 +39,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -94,7 +95,7 @@ public class EngineTest {
   private static final String CASH_FLOW_ACTIV_SYMBOL = "CASHFLOW.";
 
   @Test
-  public void basicFunction() {
+  public void basicFunctionWithTrade() {
     ViewDef viewDef =
         viewDef("Trivial Test View",
                 column(DESCRIPTION_HEADER,
@@ -106,6 +107,24 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), functionRepo);
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
+    assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
+    System.out.println(results);
+  }
+
+  @Test
+  public void basicFunctionWithSecurity() {
+    ViewDef viewDef =
+        viewDef("Trivial Test View",
+                column(DESCRIPTION_HEADER,
+                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                              config(
+                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
+    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
+    functionRepo.register(EquityDescriptionFunction.class);
+    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
+    List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
+    Engine.View view = engine.createView(viewDef, securities);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
