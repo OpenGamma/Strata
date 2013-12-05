@@ -43,17 +43,21 @@ import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.function.SimpleFunctionRepo;
+import com.opengamma.sesame.function.AvailableImplementations;
+import com.opengamma.sesame.function.AvailableImplementationsImpl;
+import com.opengamma.sesame.function.AvailableOutputs;
+import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.fxforward.DiscountingFXForwardPV;
 import com.opengamma.sesame.fxforward.FXForwardPVFunction;
 import com.opengamma.sesame.fxforward.FxForwardDiscountingCalculatorProvider;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
+import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 
 import net.sf.ehcache.CacheManager;
 
 /**
- * Component factory for the engine. 
+ * Component factory for the engine.
  */
 @BeanDefinition
 public class EngineComponentFactory extends AbstractComponentFactory {
@@ -63,36 +67,47 @@ public class EngineComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-  
+
   /**
    * The cache manager.
    */
   @PropertyDefinition(validate = "notNull")
   private CacheManager _cacheManager;
-  
+
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     // TODO allow the thread pool to grow to allow for threads that block waiting for a cache value to be calculated?
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
-    SimpleFunctionRepo functionRepo = initFunctionRepo();
-    
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(getCacheManager(), new ExecutingMethodsThreadLocal());
+
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(getCacheManager(),
+                                                                       new ExecutingMethodsThreadLocal());
     // TODO the node decorator should probably be an argument to createView()
     // or something specifying decorators and the decorators themselves should be created in the view
-    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE, TimingProxy.INSTANCE);
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator,
+                                                                  TracingProxy.INSTANCE,
+                                                                  TimingProxy.INSTANCE);
+    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
 
     ComponentMap componentMap = initComponentMap(repo, configuration);
     // Indicate remaining configuration has been used
     configuration.clear();
-    
-    Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
+
+    AvailableOutputs availableOutputs = initAvailableOutputs();
+    AvailableImplementations availableImplementations = initAvailableImplementations();
+
+    Engine engine = new Engine(executor,
+                               componentMap,
+                               availableOutputs,
+                               availableImplementations,
+                               FunctionConfig.EMPTY,
+                               decorator);
     ComponentInfo engineInfo = new ComponentInfo(Engine.class, getClassifier());
     repo.registerComponent(engineInfo, engine);
-    ComponentInfo functionRepoInfo = new ComponentInfo(SimpleFunctionRepo.class, getClassifier());
-    repo.registerComponent(functionRepoInfo, functionRepo);
+    // TODO which of the available* objects need to be registered?
+    //ComponentInfo functionRepoInfo = new ComponentInfo(SimpleFunctionRepo.class, getClassifier());
+    //repo.registerComponent(functionRepoInfo, functionRepo);
   }
-  
+
   protected ComponentMap initComponentMap(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     Map<Class<?>, Object> components = new HashMap<>();
     for (Map.Entry<String, String> entry : configuration.entrySet()) {
@@ -112,31 +127,37 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     }
     return ComponentMap.of(components);
   }
-  
-  protected SimpleFunctionRepo initFunctionRepo() {
-    // TODO jonathan 2013-11-20 -- use annotations or something to discover this
-    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    functionRepo.register(FXForwardPVFunction.class,
-                          DiscountingFXForwardPV.class,
-                          CurrencyPairs.class,
-                          FXForwardSecurityConverter.class,
-                          ConfigDBInstrumentExposuresProvider.class,
-                          CurveSpecificationMarketDataProvider.class,
-                          FXMatrixProvider.class,
-                          CurveDefinitionProvider.class,
-                          DiscountingMulticurveBundleProvider.class,
-                          CurveSpecificationProvider.class,
-                          ConfigDBCurveConstructionConfigurationSource.class,
-                          HistoricalTimeSeriesProvider.class,
-                          FxForwardDiscountingCalculatorProvider.class,
-                          ConfigDbMarketExposureSelectorProvider.class);
-    return functionRepo;
+
+  protected AvailableOutputs initAvailableOutputs() {
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(FXForwardPVFunction.class);
+    return availableOutputs;
+  }
+
+  protected AvailableImplementations initAvailableImplementations() {
+    AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
+    availableImplementations.register(DiscountingFXForwardPV.class,
+                                      CurrencyPairs.class,
+                                      FXForwardSecurityConverter.class,
+                                      ConfigDBInstrumentExposuresProvider.class,
+                                      CurveSpecificationMarketDataProvider.class,
+                                      FXMatrixProvider.class,
+                                      CurveDefinitionProvider.class,
+                                      DiscountingMulticurveBundleProvider.class,
+                                      CurveSpecificationProvider.class,
+                                      ConfigDBCurveConstructionConfigurationSource.class,
+                                      HistoricalTimeSeriesProvider.class,
+                                      FxForwardDiscountingCalculatorProvider.class,
+                                      ConfigDbMarketExposureSelectorProvider.class);
+    return availableImplementations;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
+
   /**
    * The meta-bean for {@code EngineComponentFactory}.
+   *
    * @return the meta-bean, not null
    */
   public static EngineComponentFactory.Meta meta() {
@@ -153,8 +174,10 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+
   /**
    * Gets the classifier that the factory should publish under.
+   *
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -163,7 +186,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
+   *
+   * @param classifier the new value of the property, not null
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -172,6 +196,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code classifier} property.
+   *
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -179,8 +204,10 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+
   /**
    * Gets the cache manager.
+   *
    * @return the value of the property
    */
   public CacheManager getCacheManager() {
@@ -189,7 +216,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the cache manager.
-   * @param cacheManager  the new value of the property
+   *
+   * @param cacheManager the new value of the property
    */
   public void setCacheManager(CacheManager cacheManager) {
     this._cacheManager = cacheManager;
@@ -197,6 +225,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code cacheManager} property.
+   *
    * @return the property, not null
    */
   public final Property<CacheManager> cacheManager() {
@@ -252,10 +281,12 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+
   /**
    * The meta-bean for {@code EngineComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
+
     /**
      * The singleton instance of the meta-bean.
      */
@@ -312,8 +343,10 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     }
 
     //-----------------------------------------------------------------------
+
     /**
      * The meta-property for the {@code classifier} property.
+     *
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -322,6 +355,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code cacheManager} property.
+     *
      * @return the meta-property, not null
      */
     public final MetaProperty<CacheManager> cacheManager() {

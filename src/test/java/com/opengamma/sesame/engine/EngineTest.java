@@ -61,7 +61,10 @@ import com.opengamma.sesame.example.EquityDescriptionFunction;
 import com.opengamma.sesame.example.EquityIdDescription;
 import com.opengamma.sesame.example.IdScheme;
 import com.opengamma.sesame.example.OutputNames;
-import com.opengamma.sesame.function.SimpleFunctionRepo;
+import com.opengamma.sesame.function.AvailableImplementations;
+import com.opengamma.sesame.function.AvailableImplementationsImpl;
+import com.opengamma.sesame.function.AvailableOutputs;
+import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataItem;
@@ -102,9 +105,9 @@ public class EngineTest {
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
-    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    functionRepo.register(EquityDescriptionFunction.class);
-    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityDescriptionFunction.class);
+    Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
@@ -120,9 +123,9 @@ public class EngineTest {
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
-    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    functionRepo.register(EquityDescriptionFunction.class);
-    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityDescriptionFunction.class);
+    Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
     Engine.View view = engine.createView(viewDef, securities);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
@@ -139,10 +142,15 @@ public class EngineTest {
                                      config(
                                          implementations(EquityPresentValueFunction.class, EquityPresentValue.class)))));
 
-    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    functionRepo.register(EquityPresentValueFunction.class);
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityPresentValueFunction.class);
 
-    Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
+    Engine engine = new Engine(new DirectExecutorService(),
+                               ComponentMap.EMPTY,
+                               availableOutputs,
+                               new AvailableImplementationsImpl(),
+                               FunctionConfig.EMPTY,
+                               NodeDecorator.IDENTITY);
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
@@ -174,9 +182,9 @@ public class EngineTest {
                                      config(
                                          implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
 
-    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    functionRepo.register(EquityDescriptionFunction.class);
-    Engine engine = new Engine(new DirectExecutorService(), functionRepo);
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityDescriptionFunction.class);
+    Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
@@ -216,9 +224,16 @@ public class EngineTest {
 
     FunctionConfig defaultConfig = config(implementations(EquityDescriptionFunction.class, EquityDescription.class,
                                                           CashFlowDescriptionFunction.class, CashFlowDescription.class));
-    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    functionRepo.register(EquityDescriptionFunction.class, CashFlowDescriptionFunction.class, IdScheme.class);
-    Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, defaultConfig, NodeDecorator.IDENTITY);
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityDescriptionFunction.class, CashFlowDescriptionFunction.class);
+    AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
+    availableImplementations.register(IdScheme.class);
+    Engine engine = new Engine(new DirectExecutorService(),
+                               ComponentMap.EMPTY,
+                               availableOutputs,
+                               availableImplementations,
+                               defaultConfig,
+                               NodeDecorator.IDENTITY);
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
@@ -270,9 +285,14 @@ public class EngineTest {
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
-    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    functionRepo.register(EquityDescriptionFunction.class);
-    Engine engine = new Engine(new DirectExecutorService(), ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, TracingProxy.INSTANCE);
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityDescriptionFunction.class);
+    Engine engine = new Engine(new DirectExecutorService(),
+                               ComponentMap.EMPTY,
+                               availableOutputs,
+                               new AvailableImplementationsImpl(),
+                               FunctionConfig.EMPTY,
+                               TracingProxy.INSTANCE);
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
     @SuppressWarnings("unchecked")

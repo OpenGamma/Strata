@@ -30,6 +30,8 @@ import com.opengamma.sesame.trace.CallGraph;
 @BeanDefinition
 public final class ResultItem implements ImmutableBean {
 
+  // TODO include OutputName, in the current engine it's used for number formatting
+
   @PropertyDefinition
   private final Object _output;
 

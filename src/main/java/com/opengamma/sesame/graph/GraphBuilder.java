@@ -22,9 +22,10 @@ import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.function.AvailableImplementations;
+import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
-import com.opengamma.sesame.function.FunctionRepo;
 import com.opengamma.sesame.function.NoOutputFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -35,21 +36,23 @@ public final class GraphBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(GraphBuilder.class);
 
-  private final FunctionRepo _functionRepo;
+  private final AvailableOutputs _availableOutputs;
   private final ComponentMap _componentMap;
   private final FunctionConfig _defaultConfig;
   private final NodeDecorator _nodeDecorator;
   private final DefaultImplementationProvider _defaultImplProvider;
 
-  public GraphBuilder(FunctionRepo functionRepo,
+  public GraphBuilder(AvailableOutputs availableOutputs,
+                      AvailableImplementations availableImplementations,
                       ComponentMap componentMap,
                       FunctionConfig defaultConfig,
                       NodeDecorator nodeDecorator) {
-    _functionRepo = ArgumentChecker.notNull(functionRepo, "functionRepo");
+    _availableOutputs = ArgumentChecker.notNull(availableOutputs, "functionRepo");
     _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _nodeDecorator = ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
-    _defaultImplProvider = new DefaultImplementationProvider(functionRepo);
+    // TODO should this be an argument?
+    _defaultImplProvider = new DefaultImplementationProvider(availableImplementations);
   }
 
   /**
@@ -76,7 +79,7 @@ public final class GraphBuilder {
         // look for an output for the position or trade
         String outputName = column.getOutputName(input.getClass());
         if (outputName != null) {
-          FunctionMetadata function = _functionRepo.getOutputFunction(outputName, input.getClass());
+          FunctionMetadata function = _availableOutputs.getOutputFunction(outputName, input.getClass());
           if (function != null) {
             FunctionModel existingFunction = functions.get(input.getClass());
             if (existingFunction == null) {
@@ -96,7 +99,7 @@ public final class GraphBuilder {
           Security security = ((PositionOrTrade) input).getSecurity();
           String securityOutput = column.getOutputName(security.getClass());
           if (securityOutput != null) {
-            FunctionMetadata function = _functionRepo.getOutputFunction(securityOutput, security.getClass());
+            FunctionMetadata function = _availableOutputs.getOutputFunction(securityOutput, security.getClass());
             if (function != null) {
               FunctionModel existingFunction = functions.get(security.getClass());
               if (existingFunction == null) {

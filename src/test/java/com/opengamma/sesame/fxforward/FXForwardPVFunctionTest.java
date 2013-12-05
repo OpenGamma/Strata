@@ -110,8 +110,11 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.example.OutputNames;
+import com.opengamma.sesame.function.AvailableImplementations;
+import com.opengamma.sesame.function.AvailableImplementationsImpl;
+import com.opengamma.sesame.function.AvailableOutputs;
+import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.FunctionMetadata;
-import com.opengamma.sesame.function.SimpleFunctionRepo;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -305,23 +308,29 @@ public class FXForwardPVFunctionTest {
     long startComponents = System.currentTimeMillis();
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     s_logger.info("loaded components in {}ms", System.currentTimeMillis() - startComponents);
-    SimpleFunctionRepo functionRepo = new SimpleFunctionRepo();
-    functionRepo.register(FXForwardPVFunction.class,
-                          DiscountingFXForwardPV.class,
-                          CurrencyPairs.class,
-                          FXForwardSecurityConverter.class,
-                          ConfigDBInstrumentExposuresProvider.class,
-                          CurveSpecificationMarketDataProvider.class,
-                          FXMatrixProvider.class,
-                          CurveDefinitionProvider.class,
-                          DiscountingMulticurveBundleProvider.class,
-                          CurveSpecificationProvider.class,
-                          ConfigDBCurveConstructionConfigurationSource.class,
-                          HistoricalTimeSeriesProvider.class,
-                          FxForwardDiscountingCalculatorProvider.class,
-                          ConfigDbMarketExposureSelectorProvider.class);
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(FXForwardPVFunction.class);
+    AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
+    availableImplementations.register(DiscountingFXForwardPV.class,
+                                      CurrencyPairs.class,
+                                      FXForwardSecurityConverter.class,
+                                      ConfigDBInstrumentExposuresProvider.class,
+                                      CurveSpecificationMarketDataProvider.class,
+                                      FXMatrixProvider.class,
+                                      CurveDefinitionProvider.class,
+                                      DiscountingMulticurveBundleProvider.class,
+                                      CurveSpecificationProvider.class,
+                                      ConfigDBCurveConstructionConfigurationSource.class,
+                                      HistoricalTimeSeriesProvider.class,
+                                      FxForwardDiscountingCalculatorProvider.class,
+                                      ConfigDbMarketExposureSelectorProvider.class);
     long startEngine = System.currentTimeMillis();
-    Engine engine = new Engine(executor, componentMap, functionRepo, FunctionConfig.EMPTY, decorator);
+    Engine engine = new Engine(executor,
+                               componentMap,
+                               availableOutputs,
+                               availableImplementations,
+                               FunctionConfig.EMPTY,
+                               decorator);
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
     Engine.View view = engine.createView(viewDef, trades);

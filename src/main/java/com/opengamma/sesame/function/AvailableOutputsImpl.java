@@ -11,11 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Position;
@@ -27,11 +25,9 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * Extremely simple {@link FunctionRepo} backed by a map.
- * TODO if this turns out to be a point of contention make it non-synchronized and more complicated
- * TODO can this be split into 2 interfaces, one for the engine and one to generate data to guide the user through configuration?
+ *
  */
-public final class SimpleFunctionRepo implements FunctionRepo {
+public class AvailableOutputsImpl implements AvailableOutputs {
 
   private static final Set<Class<?>> s_defaultInputTypes =
       ImmutableSet.<Class<?>>of(Trade.class, Position.class, Security.class);
@@ -41,15 +37,7 @@ public final class SimpleFunctionRepo implements FunctionRepo {
   /** Output names registered for an input type. */
   private final Map<Class<?>, Set<String>> _outputsByInputType = Maps.newHashMap();
 
-  /**
-   * All output names available for a target type. This is lazily populated by walking up the type hierarchy from
-   * the target type querying {@link #_outputsByInputType}.
-   */
-  private final Map<Class<?>, Set<String>> _allOutputsByInputType = Maps.newHashMap();
-
-  /**
-   * Map of output name / target type to the function type that provides it.
-   */
+  /** Map of output name / target type to the function type that provides it. */
   // TODO create OutputKey instead of Pair<String, Class>?
   private final Map<Pair<String, Class<?>>, FunctionMetadata> _functionsForOutputs = Maps.newHashMap();
 
@@ -61,17 +49,17 @@ public final class SimpleFunctionRepo implements FunctionRepo {
   private final Map<Pair<String, Class<?>>, FunctionMetadata> _allFunctionsForOutputs = Maps.newHashMap();
 
   /**
-   * Classes that implement registered function interfaces, keyed by the interface type.
-   * This is needed to tell the user of the available options when they're configuring the view.
+   * All output names available for a target type. This is lazily populated by walking up the type hierarchy from
+   * the target type querying {@link #_outputsByInputType}.
    */
-  private final SetMultimap<Class<?>, Class<?>> _interfaceToImplementations = HashMultimap.create();
+  private final Map<Class<?>, Set<String>> _allOutputsByInputType = Maps.newHashMap();
 
-  public SimpleFunctionRepo(Set<Class<?>> inputTypes) {
-    _inputTypes = ImmutableSet.copyOf(ArgumentChecker.notNull(inputTypes, "inputTypes"));
+  public AvailableOutputsImpl() {
+    this(s_defaultInputTypes);
   }
 
-  public SimpleFunctionRepo() {
-    this(s_defaultInputTypes);
+  public AvailableOutputsImpl(Set<Class<?>> inputTypes) {
+    _inputTypes = ImmutableSet.copyOf(ArgumentChecker.notNull(inputTypes, "inputTypes"));
   }
 
   @Override
@@ -107,13 +95,6 @@ public final class SimpleFunctionRepo implements FunctionRepo {
     throw new UnsupportedOperationException("getAvailableOutputs not implemented");
   }
 
-  @Override
-  public FunctionMetadata getOutputFunction(String outputName) {
-    // TODO implement getOutputFunction()
-    throw new UnsupportedOperationException("getOutputFunction not implemented");
-  }
-
-  // this is used to build the graph
   /**
    * Returns metadata for the function that provides an output for an input type.
    * An output is provided by a method annotated with {@link Output}.
@@ -141,82 +122,28 @@ public final class SimpleFunctionRepo implements FunctionRepo {
     return null;
   }
 
-  // this is to allow the user to choose different implementations of functions when constructing the graph
-  /**
-   * Returns all known classes that implement an interface
-   * @param interfaceType The interface
-   * @return A set of classes that implement it TODO empty set or DataNotFoundException if there are none?
-   */
   @Override
-  public synchronized Set<Class<?>> getImplementationTypes(Class<?> interfaceType) {
-    return _interfaceToImplementations.get(interfaceType);
+  public FunctionMetadata getOutputFunction(String outputName) {
+    // TODO implement getOutputFunction()
+    throw new UnsupportedOperationException("getOutputFunction not implemented");
   }
 
-  /**
-   * Returns the implementation type for an interface is there is only one implementation, null is there are
-   * zero or multiple known implementations.
-   * @param interfaceType An interface
-   * @return The implementation type for an interface is there is only one implementation, null is there are
-   * zero or multiple known implementations
-   */
   @Override
-  public synchronized Class<?> getDefaultImplementation(Class<?> interfaceType) {
-    Set<Class<?>> impls = _interfaceToImplementations.get(interfaceType);
-    if (impls.size() == 1) {
-      return impls.iterator().next();
-    }
-    return null;
-  }
-
-  // TODO separate public methods for registering outputs and implementations. should make things clearer
-  // TODO pull the register methods up to FunctionRepo?
-
-  // type must have at least one method annotated with @Output with a parameter annotated with @Target
-  public synchronized void register(Class<?> type) {
-    // clear the lazily populated caches which might be out of date after registering a new type
-    _allOutputsByInputType.clear();
-    _allFunctionsForOutputs.clear();
-    registerOutputs(type);
-    registerImplementation(type);
-  }
-
   public synchronized void register(Class<?>... types) {
     for (Class<?> type : types) {
-      register(type);
-    }
-  }
-
-  // TODO I think reflections can tell us all impls for an interface so this might be efficient
-  // void register(Class<?> interfaceType, Class<?>... implTypes)
-
-  /**
-   * Registers the outputs that can be produced by a function type.
-   * @param type The
-   */
-  private void registerOutputs(Class<?> type) {
-    List<FunctionMetadata> outputs = getOutputFunctions(type);
-    for (FunctionMetadata function : outputs) {
-      String outputName = function.getOutputName();
-      Set<String> outputNames;
-      Class<?> targetType = function.getInputType();
-      if (_outputsByInputType.containsKey(targetType)) {
-        _outputsByInputType.get(targetType).add(outputName);
-      } else {
-        outputNames = Sets.newHashSet(outputName);
-        _outputsByInputType.put(targetType, outputNames);
+      List<FunctionMetadata> outputs = getOutputFunctions(type);
+      for (FunctionMetadata function : outputs) {
+        String outputName = function.getOutputName();
+        Set<String> outputNames;
+        Class<?> targetType = function.getInputType();
+        if (_outputsByInputType.containsKey(targetType)) {
+          _outputsByInputType.get(targetType).add(outputName);
+        } else {
+          outputNames = Sets.newHashSet(outputName);
+          _outputsByInputType.put(targetType, outputNames);
+        }
+        _functionsForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), function);
       }
-      _functionsForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), function);
-    }
-  }
-
-  // TODO this is only necessary for informing the user of the options if they don't specify an implementation for an interface
-  private void registerImplementation(Class<?> type) {
-    if (type.isInterface() || type.isPrimitive()) {
-      return;
-    }
-    Set<Class<?>> interfaces = ConfigUtils.getInterfaces(type);
-    for (Class<?> iface : interfaces) {
-      _interfaceToImplementations.put(iface, type);
     }
   }
 

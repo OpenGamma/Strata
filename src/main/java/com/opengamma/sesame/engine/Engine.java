@@ -27,7 +27,8 @@ import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
-import com.opengamma.sesame.function.FunctionRepo;
+import com.opengamma.sesame.function.AvailableImplementations;
+import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
@@ -51,21 +52,31 @@ public class Engine {
 
   private final ExecutorService _executor;
   private final ComponentMap _components;
-  private final FunctionRepo _functionRepo;
+  private final AvailableOutputs _availableOutputs;
+  private final AvailableImplementations _availableImplementations;
   private final FunctionConfig _defaultConfig;
   private final NodeDecorator _nodeDecorator;
 
-  /* package */ Engine(ExecutorService executor, FunctionRepo functionRepo) {
-    this(executor, ComponentMap.EMPTY, functionRepo, FunctionConfig.EMPTY, NodeDecorator.IDENTITY);
+  /* package */ Engine(ExecutorService executor,
+                       AvailableOutputs availableOutputs,
+                       AvailableImplementations availableImplementations) {
+    this(executor,
+         ComponentMap.EMPTY,
+         availableOutputs,
+         availableImplementations,
+         FunctionConfig.EMPTY,
+         NodeDecorator.IDENTITY);
   }
 
   // TODO should any of these be arguments to createView()
   public Engine(ExecutorService executor,
                 ComponentMap components,
-                FunctionRepo functionRepo,
+                AvailableOutputs availableOutputs,
+                AvailableImplementations availableImplementations,
                 FunctionConfig defaultConfig,
                 NodeDecorator nodeDecorator) {
-    _functionRepo = ArgumentChecker.notNull(functionRepo, "functionRepo");
+    _availableOutputs = availableOutputs;
+    _availableImplementations = availableImplementations;
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _nodeDecorator = ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
     _executor = ArgumentChecker.notNull(executor, "executor");
@@ -94,7 +105,11 @@ public class Engine {
     ComponentMap components = _components.with(componentOverrides);
 
     s_logger.debug("building graph model");
-    GraphBuilder graphBuilder = new GraphBuilder(_functionRepo, components, _defaultConfig, _nodeDecorator);
+    GraphBuilder graphBuilder = new GraphBuilder(_availableOutputs,
+                                                 _availableImplementations,
+                                                 components,
+                                                 _defaultConfig,
+                                                 _nodeDecorator);
     GraphModel graphModel = graphBuilder.build(viewDef, inputs);
     s_logger.debug("graph model complete, building graph");
     Graph graph = graphModel.build(components);

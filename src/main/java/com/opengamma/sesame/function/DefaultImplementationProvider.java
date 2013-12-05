@@ -14,20 +14,20 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DefaultImplementationProvider implements FunctionConfig {
 
-  private final FunctionRepo _functionRepo;
+  private final AvailableImplementations _availableImplementations;
 
-  public DefaultImplementationProvider(FunctionRepo functionRepo) {
-    _functionRepo = ArgumentChecker.notNull(functionRepo, "functionRepo");
+  public DefaultImplementationProvider(AvailableImplementations availableImplementations) {
+    _availableImplementations = ArgumentChecker.notNull(availableImplementations, "functionRepo");
   }
 
   /**
-   * Returns the default implementation from a {@link FunctionRepo}.
+   * Returns the default implementation from some {@link AvailableImplementations}.
    * @param functionInterface The interface
-   * @return The implementation from {@link FunctionRepo#getDefaultImplementation}
+   * @return The implementation from {@link AvailableImplementations#getDefaultImplementation}
    */
   @Override
   public Class<?> getFunctionImplementation(Class<?> functionInterface) {
-    return _functionRepo.getDefaultImplementation(functionInterface);
+    return _availableImplementations.getDefaultImplementation(functionInterface);
   }
 
   /**
