@@ -37,17 +37,9 @@ public final class FunctionModel {
   private final Node _root;
   private final FunctionMetadata _rootMetadata;
 
-  public FunctionModel(Node root, FunctionMetadata rootMetadata) {
+  private FunctionModel(Node root, FunctionMetadata rootMetadata) {
     _root = root;
     _rootMetadata = rootMetadata;
-  }
-
-  public Node getRootFunction() {
-    return _root;
-  }
-
-  public FunctionMetadata getRootMetadata() {
-    return _rootMetadata;
   }
 
   public static FunctionModel forFunction(FunctionMetadata function, GraphConfig config) {
@@ -62,6 +54,7 @@ public final class FunctionModel {
     return new FunctionModel(createNode(function.getDeclaringType(), GraphConfig.EMPTY), function);
   }
 
+  // TODO the methodName arg *ought* to be redundant because we're returning the interface, not InvokableFunction
   // TODO make it clear this is for one-off building, testing etc, not for the engine (because FunctionBuilder isn't shared)
   public static <T> T build(Class<T> functionType, String methodName, GraphConfig config) {
     FunctionMetadata metadata = ConfigUtils.createMetadata(functionType, methodName);
