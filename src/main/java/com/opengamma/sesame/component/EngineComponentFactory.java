@@ -103,9 +103,12 @@ public class EngineComponentFactory extends AbstractComponentFactory {
                                decorator);
     ComponentInfo engineInfo = new ComponentInfo(Engine.class, getClassifier());
     repo.registerComponent(engineInfo, engine);
-    // TODO which of the available* objects need to be registered?
-    //ComponentInfo functionRepoInfo = new ComponentInfo(SimpleFunctionRepo.class, getClassifier());
-    //repo.registerComponent(functionRepoInfo, functionRepo);
+
+    ComponentInfo outputsInfo = new ComponentInfo(AvailableOutputs.class, getClassifier());
+    repo.registerComponent(outputsInfo, availableOutputs);
+
+    ComponentInfo implsInfo = new ComponentInfo(AvailableImplementations.class, getClassifier());
+    repo.registerComponent(implsInfo, availableImplementations);
   }
 
   protected ComponentMap initComponentMap(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
