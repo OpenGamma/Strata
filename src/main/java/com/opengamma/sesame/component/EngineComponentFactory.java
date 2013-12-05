@@ -51,7 +51,6 @@ import com.opengamma.sesame.fxforward.DiscountingFXForwardPV;
 import com.opengamma.sesame.fxforward.FXForwardPVFunction;
 import com.opengamma.sesame.fxforward.FxForwardDiscountingCalculatorProvider;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
-import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 
 import net.sf.ehcache.CacheManager;
@@ -83,10 +82,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
                                                                        new ExecutingMethodsThreadLocal());
     // TODO the node decorator should probably be an argument to createView()
     // or something specifying decorators and the decorators themselves should be created in the view
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator,
-                                                                  TracingProxy.INSTANCE,
-                                                                  TimingProxy.INSTANCE);
-    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
+    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE, TimingProxy.INSTANCE);
+    CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
 
     ComponentMap componentMap = initComponentMap(repo, configuration);
     // Indicate remaining configuration has been used
