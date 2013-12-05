@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
- * Useful for backing a {@link MarketDataProviderFunction} which needs historical data from a fixed point in time.
+ * Useful for backing a {@link MarketDataFn} which needs historical data from a fixed point in time.
  */
 public class HistoricalRawMarketDataSource implements RawMarketDataSource {
 

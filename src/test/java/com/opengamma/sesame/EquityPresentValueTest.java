@@ -21,22 +21,22 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataProvider;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.util.money.Currency;
 
 public class EquityPresentValueTest {
 
-  private EquityPresentValueFunction _equityPresentValueFunction;
-  private ResettableMarketDataProviderFunction _marketDataProviderFunction;
+  private EquityPresentValueFn _equityPresentValueFn;
+  private ResettableMarketDataFn _marketDataProviderFunction;
   private ZonedDateTime _valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
   @BeforeMethod
   public void setUp() {
-    _marketDataProviderFunction = new MarketDataProvider();
-    _equityPresentValueFunction = new EquityPresentValue(_marketDataProviderFunction);
+    _marketDataProviderFunction = new DefaultResettableMarketDataFn();
+    _equityPresentValueFn = new EquityPresentValue(_marketDataProviderFunction);
   }
 
   @Test
@@ -44,7 +44,7 @@ public class EquityPresentValueTest {
 
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
-    FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);
+    FunctionResult<Double> result = _equityPresentValueFn.presentValue(security);
     assertThat(result.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
@@ -59,7 +59,7 @@ public class EquityPresentValueTest {
     marketData.put(requirement, MarketDataItem.available(123.45));
     _marketDataProviderFunction.resetMarketData(_valuationTime, marketData);
 
-    FunctionResult<Double> result = _equityPresentValueFunction.presentValue(security);
+    FunctionResult<Double> result = _equityPresentValueFn.presentValue(security);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
     assertThat(result.getResult(), is(123.45));
   }

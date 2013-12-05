@@ -25,7 +25,7 @@ import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.sesame.ValuationTimeProviderFunction;
+import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -55,7 +55,7 @@ public class FxForwardCalculator {
 
   private final CurveBuildingBlockBundle _jacobianBundle;
   private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
-  private final ValuationTimeProviderFunction _valuationTimeProviderFunction;
+  private final ValuationTimeFn _valuationTimeFn;
   private final InstrumentDefinition<?> _instrumentDefinition;
 
   public FxForwardCalculator(FXForwardSecurity security,
@@ -63,12 +63,12 @@ public class FxForwardCalculator {
                              CurveBuildingBlockBundle jacobianBundle,
                              FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter,
                              FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-                             ValuationTimeProviderFunction valuationTimeProviderFunction) {
+                             ValuationTimeFn valuationTimeFn) {
     _security = security;
     _jacobianBundle = jacobianBundle;
     _discountingMulticurveBundle = discountingMulticurveBundle;
     _definitionToDerivativeConverter = definitionToDerivativeConverter;
-    _valuationTimeProviderFunction = valuationTimeProviderFunction;
+    _valuationTimeFn = valuationTimeFn;
     _instrumentDefinition = _security.accept(securityConverter);
   }
 
@@ -98,7 +98,7 @@ public class FxForwardCalculator {
   // todo - if this class is thrown away after each cycle then we can use a field rather than this method
   private InstrumentDerivative generateInstrumentDerivative() {
 
-    ZonedDateTime valuationTime = _valuationTimeProviderFunction.get();
+    ZonedDateTime valuationTime = _valuationTimeFn.get();
     // Note that no time series are needed for FX Forward, so pass in an empty bundle
     return _definitionToDerivativeConverter.convert(
         _security, _instrumentDefinition, valuationTime, EMPTY_TIME_SERIES_BUNDLE);

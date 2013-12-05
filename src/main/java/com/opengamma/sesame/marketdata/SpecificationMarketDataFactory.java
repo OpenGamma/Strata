@@ -15,7 +15,7 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Creates a {@link MarketDataProviderFunction} given a {@link MarketDataSpecification}.
+ * Creates a {@link MarketDataFn} given a {@link MarketDataSpecification}.
  */
 public class SpecificationMarketDataFactory implements MarketDataFactory {
 
@@ -30,12 +30,12 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public MarketDataProviderFunction create(ComponentMap components) {
+  public MarketDataFn create(ComponentMap components) {
     ConfigSource configSource = components.getComponent(ConfigSource.class);
     HistoricalTimeSeriesSource timeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = ((FixedHistoricalMarketDataSpecification) _marketDataSpecification).getSnapshotDate();
     HistoricalRawMarketDataSource rawDataSource =
         new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
-    return new EagerMarketDataProvider(rawDataSource, configSource, "BloombergLiveData");
+    return new EagerMarketDataFn(rawDataSource, configSource, "BloombergLiveData");
   }
 }

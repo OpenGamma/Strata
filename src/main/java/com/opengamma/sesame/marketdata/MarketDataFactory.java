@@ -12,5 +12,5 @@ import com.opengamma.sesame.engine.ComponentMap;
  */
 public interface MarketDataFactory {
 
-  MarketDataProviderFunction create(ComponentMap components);
+  MarketDataFn create(ComponentMap components);
 }

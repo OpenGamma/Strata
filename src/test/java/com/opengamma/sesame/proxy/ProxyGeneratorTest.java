@@ -22,10 +22,10 @@ import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.sesame.CurrencyPairsFunction;
+import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.FunctionResult;
 import com.opengamma.sesame.ResultStatus;
-import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.sesame.marketdata.MarketDataValues;
@@ -66,7 +66,7 @@ public class ProxyGeneratorTest {
   public void methodReturningFunctionResultWillHaveExceptionsIntercepted() {
 
     final String message = "Oops, thrown my toys out";
-    CurrencyPairsFunction cpf = new CurrencyPairsFunction() {
+    CurrencyPairsFn cpf = new CurrencyPairsFn() {
       @Override
       public FunctionResult<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
         throw new RuntimeException(message);
@@ -85,7 +85,7 @@ public class ProxyGeneratorTest {
       assertThat(e.getMessage(), containsString(message));
     }
 
-    CurrencyPairsFunction proxy = _proxyGenerator.generate(cpf, CurrencyPairsFunction.class);
+    CurrencyPairsFn proxy = _proxyGenerator.generate(cpf, CurrencyPairsFn.class);
     FunctionResult<CurrencyPair> result = proxy.getCurrencyPair(Currency.USD, Currency.GBP);
     assertThat(result.getStatus(), is((ResultStatus) ERROR));
     assertThat(result.getFailureMessage(), containsString(message));
@@ -95,7 +95,7 @@ public class ProxyGeneratorTest {
   public void methodReturningMarketDataFunctionResultWillHaveExceptionsIntercepted() {
 
     final String message = "Oops, thrown my toys out";
-    MarketDataProviderFunction mdpf = new MarketDataProviderFunction() {
+    MarketDataFn mdpf = new MarketDataFn() {
       @Override
       public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
         throw new RuntimeException(message);
@@ -135,7 +135,7 @@ public class ProxyGeneratorTest {
       assertThat(e.getMessage(), containsString(message));
     }
 
-    MarketDataProviderFunction proxy = _proxyGenerator.generate(mdpf, MarketDataProviderFunction.class);
+    MarketDataFn proxy = _proxyGenerator.generate(mdpf, MarketDataFn.class);
     FunctionResult<MarketDataValues> result = proxy.requestData((MarketDataRequirement) null);
     assertThat(result.getStatus(), is((ResultStatus) ERROR));
     assertThat(result.getFailureMessage(), containsString(message));

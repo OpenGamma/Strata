@@ -20,8 +20,8 @@ import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
-import com.opengamma.sesame.ValuationTimeProvider;
-import com.opengamma.sesame.ValuationTimeProviderFunction;
+import com.opengamma.sesame.DefaultValuationTimeFn;
+import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.config.CompositeFunctionConfig;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
@@ -34,7 +34,7 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
-import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.FullTracer;
 import com.opengamma.sesame.trace.NoOpTracer;
@@ -97,11 +97,11 @@ public class Engine {
     // as they're completely standard components always provided by the engine
     // need to supplement components with a MarketDataProviderFunction and ValuationTimeProviderFunction that are
     // under our control so we can switch out the backing impls each cycle if necessary
-    DelegatingMarketDataProviderFunction marketDataProvider = new DelegatingMarketDataProviderFunction();
-    ValuationTimeProvider valuationTimeProvider = new ValuationTimeProvider();
+    DelegatingMarketDataFn marketDataProvider = new DelegatingMarketDataFn();
+    DefaultValuationTimeFn valuationTimeProvider = new DefaultValuationTimeFn();
     Map<Class<?>, Object> componentOverrides = Maps.newHashMap();
-    componentOverrides.put(MarketDataProviderFunction.class, marketDataProvider);
-    componentOverrides.put(ValuationTimeProviderFunction.class, valuationTimeProvider);
+    componentOverrides.put(MarketDataFn.class, marketDataProvider);
+    componentOverrides.put(ValuationTimeFn.class, valuationTimeProvider);
     ComponentMap components = _components.with(componentOverrides);
 
     s_logger.debug("building graph model");
@@ -124,8 +124,8 @@ public class Engine {
     private final ViewDef _viewDef;
     private final List<?> _inputs;
     private final ExecutorService _executor;
-    private final DelegatingMarketDataProviderFunction _marketDataProvider;
-    private final ValuationTimeProvider _valuationTimeProvider;
+    private final DelegatingMarketDataFn _marketDataProvider;
+    private final DefaultValuationTimeFn _valuationTimeProvider;
     private final ComponentMap _components;
     private final FunctionConfig _systemDefaultConfig;
 
@@ -133,8 +133,8 @@ public class Engine {
                  Graph graph,
                  List<?> inputs,
                  ExecutorService executor,
-                 DelegatingMarketDataProviderFunction marketDataProvider,
-                 ValuationTimeProvider valuationTimeProvider,
+                 DelegatingMarketDataFn marketDataProvider,
+                 DefaultValuationTimeFn valuationTimeProvider,
                  ComponentMap components,
                  FunctionConfig systemDefaultConfig) {
       _viewDef = viewDef;

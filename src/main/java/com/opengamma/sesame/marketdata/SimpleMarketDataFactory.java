@@ -9,18 +9,18 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Returns an instance of {@link MarketDataProviderFunction}.
+ * Returns an instance of {@link MarketDataFn}.
  */
 public class SimpleMarketDataFactory implements MarketDataFactory {
 
-  private final MarketDataProviderFunction _function;
+  private final MarketDataFn _function;
 
-  public SimpleMarketDataFactory(MarketDataProviderFunction function) {
+  public SimpleMarketDataFactory(MarketDataFn function) {
     _function = ArgumentChecker.notNull(function, "function");
   }
 
   @Override
-  public MarketDataProviderFunction create(ComponentMap components) {
+  public MarketDataFn create(ComponentMap components) {
     return _function;
   }
 }

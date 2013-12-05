@@ -63,27 +63,27 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorProvider;
-import com.opengamma.sesame.CurrencyPairs;
-import com.opengamma.sesame.CurrencyPairsFunction;
-import com.opengamma.sesame.CurveDefinitionProvider;
-import com.opengamma.sesame.CurveDefinitionProviderFunction;
-import com.opengamma.sesame.CurveSpecificationMarketDataProvider;
-import com.opengamma.sesame.CurveSpecificationMarketDataProviderFunction;
-import com.opengamma.sesame.CurveSpecificationProvider;
-import com.opengamma.sesame.CurveSpecificationProviderFunction;
-import com.opengamma.sesame.DiscountingMulticurveBundleProvider;
-import com.opengamma.sesame.DiscountingMulticurveBundleProviderFunction;
-import com.opengamma.sesame.FXMatrixProvider;
-import com.opengamma.sesame.FXMatrixProviderFunction;
+import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.CurrencyPairsFn;
+import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveSpecificationFn;
+import com.opengamma.sesame.CurveSpecificationMarketDataFn;
+import com.opengamma.sesame.DefaultCurrencyPairsFn;
+import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveSpecificationFn;
+import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultFXMatrixFn;
+import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultValuationTimeFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.HistoricalTimeSeriesProvider;
-import com.opengamma.sesame.HistoricalTimeSeriesProviderFunction;
-import com.opengamma.sesame.MarketExposureSelectorProvider;
+import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.ResultStatus;
 import com.opengamma.sesame.RootFinderConfiguration;
-import com.opengamma.sesame.ValuationTimeProvider;
-import com.opengamma.sesame.ValuationTimeProviderFunction;
+import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.ConfigUtils;
@@ -96,10 +96,10 @@ import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
-import com.opengamma.sesame.marketdata.EagerMarketDataProvider;
+import com.opengamma.sesame.marketdata.EagerMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalRawMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -121,7 +121,7 @@ public class FXForwardYCNSFunctionTest {
 
   @Test
   public void buildGraph() {
-    FunctionMetadata calculateYCNS = ConfigUtils.createMetadata(FxForwardYieldCurveNodeSensitivitiesFunction.class, "calculateYieldCurveNodeSensitivities");
+    FunctionMetadata calculateYCNS = ConfigUtils.createMetadata(FXForwardYieldCurveNodeSensitivitiesFn.class, "calculateYieldCurveNodeSensitivities");
     FunctionConfig config = createFunctionConfig();
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
@@ -130,13 +130,13 @@ public class FXForwardYCNSFunctionTest {
                                              SecuritySource.class,
                                              HolidaySource.class,
                                              HistoricalTimeSeriesSource.class,
-                                             MarketDataProviderFunction.class,
+                                             MarketDataFn.class,
                                              RegionSource.class,
-                                             ValuationTimeProviderFunction.class);
+                                             ValuationTimeFn.class);
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculateYCNS, graphConfig);
     Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
-    assertTrue(fn instanceof FxForwardYieldCurveNodeSensitivitiesFunction);
+    assertTrue(fn instanceof FXForwardYieldCurveNodeSensitivitiesFn);
     System.out.println(functionModel.prettyPrint(true));
   }
 
@@ -164,21 +164,21 @@ public class FXForwardYCNSFunctionTest {
     LocalDate date = LocalDate.of(2013, 11, 7);
     HistoricalRawMarketDataSource rawDataSource =
         new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
-    MarketDataProviderFunction marketDataProvider =
-        new EagerMarketDataProvider(rawDataSource, configSource, "BloombergLiveData");
+    MarketDataFn marketDataProvider =
+        new EagerMarketDataFn(rawDataSource, configSource, "BloombergLiveData");
 
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
-                                                  MarketDataProviderFunction.class, marketDataProvider,
-                                                  ValuationTimeProviderFunction.class, new ValuationTimeProvider(s_valuationTime));
+                                                  MarketDataFn.class, marketDataProvider,
+                                                  ValuationTimeFn.class, new DefaultValuationTimeFn(s_valuationTime));
     ComponentMap componentMap = serverComponents.with(comps);
 
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, cachingDecorator);
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
-    FxForwardYieldCurveNodeSensitivitiesFunction ycnsFunction =
-        FunctionModel.build(FxForwardYieldCurveNodeSensitivitiesFunction.class, graphConfig);
+    FXForwardYieldCurveNodeSensitivitiesFn ycnsFunction =
+        FunctionModel.build(FXForwardYieldCurveNodeSensitivitiesFn.class, graphConfig);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
@@ -200,49 +200,49 @@ public class FXForwardYCNSFunctionTest {
     return
         config(
             arguments(
-                function(ConfigDbMarketExposureSelectorProvider.class,
+                function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfigName", exposureConfig)),
-                function(DiscountingFxForwardYieldCurveNodeSensitivities.class,
+                function(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
                          argument("curveName", "Discounting")),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),
                          argument("rootFinderMaxIterations", 1000)),
-                function(CurrencyPairs.class,
+                function(DefaultCurrencyPairsFn.class,
                          argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
                                                                    CurrencyPair.of(EUR, USD),
                                                                    CurrencyPair.of(GBP, USD)))),
-                function(HistoricalTimeSeriesProvider.class,
+                function(DefaultHistoricalTimeSeriesFn.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
                          // TODO will need to handle this differently when arg values are strings and primitives
                          // will need string conversion for values like this which can be parsed
                          argument("htsRetrievalPeriod", Period.ofYears(1)))),
-            implementations(FxForwardYieldCurveNodeSensitivitiesFunction.class,
-                            DiscountingFxForwardYieldCurveNodeSensitivities.class,
-                            FxForwardCalculatorProvider.class,
-                            FxForwardDiscountingCalculatorProvider.class,
-                            MarketExposureSelectorProvider.class,
-                            ConfigDbMarketExposureSelectorProvider.class,
-                            CurrencyPairsFunction.class,
-                            CurrencyPairs.class,
+            implementations(FXForwardYieldCurveNodeSensitivitiesFn.class,
+                            DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
+                            FxForwardCalculatorFn.class,
+                            FxForwardDiscountingCalculatorFn.class,
+                            MarketExposureSelectorFn.class,
+                            ConfigDbMarketExposureSelectorFn.class,
+                            CurrencyPairsFn.class,
+                            DefaultCurrencyPairsFn.class,
                             FinancialSecurityVisitor.class,
                             FXForwardSecurityConverter.class,
                             InstrumentExposuresProvider.class,
                             ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataProviderFunction.class,
-                            CurveSpecificationMarketDataProvider.class,
-                            FXMatrixProviderFunction.class,
-                            FXMatrixProvider.class,
-                            CurveDefinitionProviderFunction.class,
-                            CurveDefinitionProvider.class,
-                            DiscountingMulticurveBundleProviderFunction.class,
-                            DiscountingMulticurveBundleProvider.class,
-                            CurveSpecificationProviderFunction.class,
-                            CurveSpecificationProvider.class,
+                            CurveSpecificationMarketDataFn.class,
+                            DefaultCurveSpecificationMarketDataFn.class,
+                            FXMatrixFn.class,
+                            DefaultFXMatrixFn.class,
+                            CurveDefinitionFn.class,
+                            DefaultCurveDefinitionFn.class,
+                            DiscountingMulticurveBundleFn.class,
+                            DefaultDiscountingMulticurveBundleFn.class,
+                            CurveSpecificationFn.class,
+                            DefaultCurveSpecificationFn.class,
                             CurveConstructionConfigurationSource.class,
                             ConfigDBCurveConstructionConfigurationSource.class,
-                            HistoricalTimeSeriesProviderFunction.class,
-                            HistoricalTimeSeriesProvider.class));
+                            HistoricalTimeSeriesFn.class,
+                            DefaultHistoricalTimeSeriesFn.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {
@@ -285,7 +285,7 @@ public class FXForwardYCNSFunctionTest {
   // TODO move to a test helper class
   private static Map<MarketDataRequirement, MarketDataItem> loadMarketData(String fileName) throws IOException {
     Properties properties = new Properties();
-    try (InputStream stream = FXForwardPVFunction.class.getResourceAsStream(fileName);
+    try (InputStream stream = FXForwardPVFn.class.getResourceAsStream(fileName);
          Reader reader = new BufferedReader(new InputStreamReader(stream))) {
       properties.load(reader);
     }

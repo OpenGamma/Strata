@@ -30,14 +30,14 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
-import com.opengamma.sesame.ConfigDbMarketExposureSelectorProvider;
-import com.opengamma.sesame.CurrencyPairs;
-import com.opengamma.sesame.CurveDefinitionProvider;
-import com.opengamma.sesame.CurveSpecificationMarketDataProvider;
-import com.opengamma.sesame.CurveSpecificationProvider;
-import com.opengamma.sesame.DiscountingMulticurveBundleProvider;
-import com.opengamma.sesame.FXMatrixProvider;
-import com.opengamma.sesame.HistoricalTimeSeriesProvider;
+import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.DefaultCurrencyPairsFn;
+import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveSpecificationFn;
+import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultFXMatrixFn;
+import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.FunctionConfig;
@@ -47,9 +47,9 @@ import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
-import com.opengamma.sesame.fxforward.DiscountingFXForwardPV;
-import com.opengamma.sesame.fxforward.FXForwardPVFunction;
-import com.opengamma.sesame.fxforward.FxForwardDiscountingCalculatorProvider;
+import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
+import com.opengamma.sesame.fxforward.FXForwardPVFn;
+import com.opengamma.sesame.fxforward.FxForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.trace.TracingProxy;
 
@@ -130,25 +130,25 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
   protected AvailableOutputs initAvailableOutputs() {
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(FXForwardPVFunction.class);
+    availableOutputs.register(FXForwardPVFn.class);
     return availableOutputs;
   }
 
   protected AvailableImplementations initAvailableImplementations() {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
-    availableImplementations.register(DiscountingFXForwardPV.class,
-                                      CurrencyPairs.class,
+    availableImplementations.register(DiscountingFXForwardPVFn.class,
+                                      DefaultCurrencyPairsFn.class,
                                       FXForwardSecurityConverter.class,
                                       ConfigDBInstrumentExposuresProvider.class,
-                                      CurveSpecificationMarketDataProvider.class,
-                                      FXMatrixProvider.class,
-                                      CurveDefinitionProvider.class,
-                                      DiscountingMulticurveBundleProvider.class,
-                                      CurveSpecificationProvider.class,
+                                      DefaultCurveSpecificationMarketDataFn.class,
+                                      DefaultFXMatrixFn.class,
+                                      DefaultCurveDefinitionFn.class,
+                                      DefaultDiscountingMulticurveBundleFn.class,
+                                      DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
-                                      HistoricalTimeSeriesProvider.class,
-                                      FxForwardDiscountingCalculatorProvider.class,
-                                      ConfigDbMarketExposureSelectorProvider.class);
+                                      DefaultHistoricalTimeSeriesFn.class,
+                                      FxForwardDiscountingCalculatorFn.class,
+                                      ConfigDbMarketExposureSelectorFn.class);
     return availableImplementations;
   }
 

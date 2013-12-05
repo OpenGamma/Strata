@@ -48,28 +48,28 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.EquityPresentValue;
-import com.opengamma.sesame.EquityPresentValueFunction;
+import com.opengamma.sesame.EquityPresentValueFn;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.ResettableMarketDataProviderFunction;
+import com.opengamma.sesame.ResettableMarketDataFn;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;
-import com.opengamma.sesame.example.CashFlowDescription;
-import com.opengamma.sesame.example.CashFlowDescriptionFunction;
-import com.opengamma.sesame.example.CashFlowIdDescription;
-import com.opengamma.sesame.example.EquityDescription;
-import com.opengamma.sesame.example.EquityDescriptionFunction;
-import com.opengamma.sesame.example.EquityIdDescription;
-import com.opengamma.sesame.example.IdScheme;
+import com.opengamma.sesame.example.CashFlowDescriptionFn;
+import com.opengamma.sesame.example.CashFlowIdDescriptionFn;
+import com.opengamma.sesame.example.DefaultCashFlowDescriptionFn;
+import com.opengamma.sesame.example.DefaultEquityDescriptionFn;
+import com.opengamma.sesame.example.DefaultIdSchemeFn;
+import com.opengamma.sesame.example.EquityDescriptionFn;
+import com.opengamma.sesame.example.EquityIdDescriptionFn;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataProvider;
-import com.opengamma.sesame.marketdata.MarketDataProviderFunction;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
@@ -104,9 +104,9 @@ public class EngineTest {
                 column(DESCRIPTION_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
+                                  implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFunction.class);
+    availableOutputs.register(EquityDescriptionFn.class);
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
@@ -122,9 +122,9 @@ public class EngineTest {
                 column(DESCRIPTION_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
+                                  implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFunction.class);
+    availableOutputs.register(EquityDescriptionFn.class);
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
     Engine.View view = engine.createView(viewDef, securities);
@@ -140,10 +140,10 @@ public class EngineTest {
                 column(PRESENT_VALUE_HEADER,
                        defaultConfig(OutputNames.PRESENT_VALUE,
                                      config(
-                                         implementations(EquityPresentValueFunction.class, EquityPresentValue.class)))));
+                                         implementations(EquityPresentValueFn.class, EquityPresentValue.class)))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityPresentValueFunction.class);
+    availableOutputs.register(EquityPresentValueFn.class);
 
     Engine engine = new Engine(new DirectExecutorService(),
                                ComponentMap.EMPTY,
@@ -159,7 +159,7 @@ public class EngineTest {
                                                                         MarketDataRequirementNames.MARKET_VALUE);
     MarketDataItem item = MarketDataItem.available(123.45);
     Map<MarketDataRequirement, MarketDataItem> marketData = ImmutableMap.of(requirement, item);
-    ResettableMarketDataProviderFunction marketDataProvider = new MarketDataProvider();
+    ResettableMarketDataFn marketDataProvider = new DefaultResettableMarketDataFn();
 
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
@@ -180,10 +180,10 @@ public class EngineTest {
                 column(DESCRIPTION_HEADER,
                        defaultConfig(OutputNames.DESCRIPTION,
                                      config(
-                                         implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
+                                         implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFunction.class);
+    availableOutputs.register(EquityDescriptionFn.class);
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
@@ -201,33 +201,33 @@ public class EngineTest {
                        defaultConfig(OutputNames.DESCRIPTION,
                                      config(
                                          arguments(
-                                             function(IdScheme.class,
+                                             function(DefaultIdSchemeFn.class,
                                                       argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
                        output(EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                                  implementations(EquityDescriptionFn.class, EquityIdDescriptionFn.class))),
                        output(CashFlowSecurity.class,
                               config(
-                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))),
+                                  implementations(CashFlowDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
                 column(ACTIV_HEADER,
                        defaultConfig(OutputNames.DESCRIPTION,
                                      config(
                                          arguments(
-                                             function(IdScheme.class,
+                                             function(DefaultIdSchemeFn.class,
                                                       argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
                        output(EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityIdDescription.class))),
+                                  implementations(EquityDescriptionFn.class, EquityIdDescriptionFn.class))),
                        output(CashFlowSecurity.class,
                               config(
-                                  implementations(CashFlowDescriptionFunction.class, CashFlowIdDescription.class)))));
+                                  implementations(CashFlowDescriptionFn.class, CashFlowIdDescriptionFn.class)))));
 
-    FunctionConfig defaultConfig = config(implementations(EquityDescriptionFunction.class, EquityDescription.class,
-                                                          CashFlowDescriptionFunction.class, CashFlowDescription.class));
+    FunctionConfig defaultConfig = config(implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class,
+                                                          CashFlowDescriptionFn.class, DefaultCashFlowDescriptionFn.class));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFunction.class, CashFlowDescriptionFunction.class);
+    availableOutputs.register(EquityDescriptionFn.class, CashFlowDescriptionFn.class);
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
-    availableImplementations.register(IdScheme.class);
+    availableImplementations.register(DefaultIdSchemeFn.class);
     Engine engine = new Engine(new DirectExecutorService(),
                                ComponentMap.EMPTY,
                                availableOutputs,
@@ -284,9 +284,9 @@ public class EngineTest {
                 column(DESCRIPTION_HEADER,
                        output(OutputNames.DESCRIPTION, EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, EquityDescription.class)))));
+                                  implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityDescriptionFunction.class);
+    availableOutputs.register(EquityDescriptionFn.class);
     Engine engine = new Engine(new DirectExecutorService(),
                                ComponentMap.EMPTY,
                                availableOutputs,
@@ -305,7 +305,7 @@ public class EngineTest {
 
   private static MarketDataFactory mockMarketDataFactory() {
     MarketDataFactory factory = mock(MarketDataFactory.class);
-    MarketDataProviderFunction provider = mock(MarketDataProviderFunction.class);
+    MarketDataFn provider = mock(MarketDataFn.class);
     when(factory.create(Matchers.<ComponentMap>any())).thenReturn(provider);
     return factory;
   }

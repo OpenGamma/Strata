@@ -13,9 +13,9 @@ import com.google.common.collect.Maps;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.sesame.example.CashFlowIdDescription;
-import com.opengamma.sesame.example.EquityDescriptionFunction;
-import com.opengamma.sesame.example.IdScheme;
+import com.opengamma.sesame.example.CashFlowIdDescriptionFn;
+import com.opengamma.sesame.example.DefaultIdSchemeFn;
+import com.opengamma.sesame.example.EquityDescriptionFn;
 import com.opengamma.sesame.example.OutputNames;
 
 /**
@@ -37,31 +37,31 @@ public final class ConfigBuilder {
                 column(
                     defaultConfig(OutputNames.DESCRIPTION,
                                   config(
-                                      implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
                                       arguments(
-                                          function(IdScheme.class,
+                                          function(DefaultIdSchemeFn.class,
                                                    argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
                 column("Bloomberg Ticker",
                        columnOutput(OutputNames.DESCRIPTION),
                        output(EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class))),
+                                  implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class))),
                        output(CashFlowSecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class)))),
+                                  implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
                 column("ACTIV Symbol",
                        columnOutput(OutputNames.DESCRIPTION),
                        output(EquitySecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                  implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
                                   arguments(
-                                      function(IdScheme.class,
+                                      function(DefaultIdSchemeFn.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
                        output(CashFlowSecurity.class,
                               config(
-                                  implementations(EquityDescriptionFunction.class, CashFlowIdDescription.class),
+                                  implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
                                   arguments(
-                                      function(IdScheme.class,
+                                      function(DefaultIdSchemeFn.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
     System.out.println(viewDef);
   }

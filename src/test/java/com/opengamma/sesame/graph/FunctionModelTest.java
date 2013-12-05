@@ -34,13 +34,13 @@ import com.opengamma.util.test.TestGroup;
 public class FunctionModelTest {
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
-  private static final FunctionMetadata METADATA = ConfigUtils.createMetadata(TestFunction.class, "foo");
+  private static final FunctionMetadata METADATA = ConfigUtils.createMetadata(TestFn.class, "foo");
 
   @Test
   public void basicImpl() {
-    FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
+    FunctionConfig config = config(implementations(TestFn.class, BasicImpl.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
-    TestFunction fn = (TestFunction) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof BasicImpl);
   }
 
@@ -48,10 +48,10 @@ public class FunctionModelTest {
   public void infrastructure() {
     final ComponentMap infrastructure = ComponentMap.of(
         ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
-    FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
+    FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
-    TestFunction fn = (TestFunction) functionModel.build(new FunctionBuilder(), infrastructure).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
@@ -59,13 +59,13 @@ public class FunctionModelTest {
 
   @Test
   public void functionCallingOtherFunction() {
-    FunctionConfig config = config(implementations(TestFunction.class, CallsOtherFunction.class,
-                                                   CollaboratorFunction.class, Collaborator.class));
+    FunctionConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
+                                                   CollaboratorFn.class, Collaborator.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
-    TestFunction fn = (TestFunction) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
-    assertTrue(fn instanceof CallsOtherFunction);
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    assertTrue(fn instanceof CallsOtherFn);
     //noinspection ConstantConditions
-    assertTrue(((CallsOtherFunction) fn)._collaborator instanceof Collaborator);
+    assertTrue(((CallsOtherFn) fn)._collaborator instanceof Collaborator);
   }
 
   @Test
@@ -97,8 +97,8 @@ public class FunctionModelTest {
         return new DependentNode(Object.class, null, node) {
           @Override
           protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
-            final TestFunction fn = (TestFunction) dependencies.get(0);
-            return new TestFunction() {
+            final TestFn fn = (TestFn) dependencies.get(0);
+            return new TestFn() {
               @Override
               public Object foo() {
                 return Lists.newArrayList("decorated", fn.foo());
@@ -108,10 +108,10 @@ public class FunctionModelTest {
         };
       }
     };
-    FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
+    FunctionConfig config = config(implementations(TestFn.class, BasicImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, decorator);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
-    TestFunction fn = (TestFunction) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     // the basic method just returns "foo"
     assertEquals(Lists.newArrayList("decorated", "foo"), fn.foo());
   }
@@ -124,8 +124,8 @@ public class FunctionModelTest {
 
   @Test
   public void buildDirectly2() {
-    FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
-    TestFunction fn = FunctionModel.build(TestFunction.class, config);
+    FunctionConfig config = config(implementations(TestFn.class, BasicImpl.class));
+    TestFn fn = FunctionModel.build(TestFn.class, config);
     assertTrue(fn instanceof BasicImpl);
   }
 
@@ -133,9 +133,9 @@ public class FunctionModelTest {
   public void buildDirectly3() {
     final ComponentMap infrastructure = ComponentMap.of(
         ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
-    FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
+    FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
-    TestFunction fn = FunctionModel.build(TestFunction.class, graphConfig);
+    TestFn fn = FunctionModel.build(TestFn.class, graphConfig);
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
@@ -172,13 +172,13 @@ public class FunctionModelTest {
   }
 }
 
-/* package */ interface TestFunction {
+/* package */ interface TestFn {
 
   @Output("Foo")
   Object foo();
 }
 
-/* package */ class BasicImpl implements TestFunction {
+/* package */ class BasicImpl implements TestFn {
 
   @Override
   public Object foo() {
@@ -186,7 +186,7 @@ public class FunctionModelTest {
   }
 }
 
-/* package */ class InfrastructureImpl implements TestFunction {
+/* package */ class InfrastructureImpl implements TestFn {
 
   /* package */ final String _infrastructureComponent;
 
@@ -200,11 +200,11 @@ public class FunctionModelTest {
   }
 }
 
-/* package */ class CallsOtherFunction implements TestFunction {
+/* package */ class CallsOtherFn implements TestFn {
 
-  /* package */ final CollaboratorFunction _collaborator;
+  /* package */ final CollaboratorFn _collaborator;
 
-  /* package */ CallsOtherFunction(CollaboratorFunction collaborator) {
+  /* package */ CallsOtherFn(CollaboratorFn collaborator) {
     _collaborator = collaborator;
   }
 
@@ -214,9 +214,9 @@ public class FunctionModelTest {
   }
 }
 
-/* package */ interface CollaboratorFunction { }
+/* package */ interface CollaboratorFn { }
 
-/* package */ class Collaborator implements CollaboratorFunction { }
+/* package */ class Collaborator implements CollaboratorFn { }
 
 /* package */ class Concrete1 {
 

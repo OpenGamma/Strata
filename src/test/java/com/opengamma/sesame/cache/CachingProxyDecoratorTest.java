@@ -153,33 +153,33 @@ public class CachingProxyDecoratorTest {
     }
   }
 
-  /* package */ interface TopLevelFunction {
+  /* package */ interface TopLevelFn {
 
     @Output("topLevel")
     Object fn();
   }
 
-  public static class TopLevel implements TopLevelFunction {
+  public static class TopLevel implements TopLevelFn {
 
-    private final DelegateFunction _delegateFunction;
+    private final DelegateFn _delegateFn;
 
-    public TopLevel(DelegateFunction delegateFunction) {
-      _delegateFunction = delegateFunction;
+    public TopLevel(DelegateFn delegateFn) {
+      _delegateFn = delegateFn;
     }
 
     @Override
     @Cache
     public Object fn() {
-      return _delegateFunction.fn();
+      return _delegateFn.fn();
     }
   }
 
-  /* package */ interface DelegateFunction {
+  /* package */ interface DelegateFn {
 
     Object fn();
   }
 
-  public static class Delegate1 implements DelegateFunction {
+  public static class Delegate1 implements DelegateFn {
 
     private final String _s;
 
@@ -193,7 +193,7 @@ public class CachingProxyDecoratorTest {
     }
   }
 
-  public static class Delegate2 implements DelegateFunction {
+  public static class Delegate2 implements DelegateFn {
 
     private final String _s;
 
@@ -213,22 +213,22 @@ public class CachingProxyDecoratorTest {
    */
   @Test
   public void sameFunctionDifferentDependencyInstances() {
-    FunctionConfig config1 = config(implementations(TopLevelFunction.class, TopLevel.class,
-                                                    DelegateFunction.class, Delegate1.class),
+    FunctionConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
+                                                    DelegateFn.class, Delegate1.class),
                                     arguments(function(Delegate1.class, argument("s", "a string"))));
-    FunctionConfig config2 = config(implementations(TopLevelFunction.class, TopLevel.class,
-                                                    DelegateFunction.class, Delegate1.class),
+    FunctionConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
+                                                    DelegateFn.class, Delegate1.class),
                                     arguments(function(Delegate1.class, argument("s", "a different string"))));
-    FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
+    FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
     GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
-    TopLevelFunction fn1 = (TopLevelFunction) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+    TopLevelFn fn1 = (TopLevelFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
     FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
-    TopLevelFunction fn2 = (TopLevelFunction) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+    TopLevelFn fn2 = (TopLevelFn) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
 
     Object val1 = fn1.fn();
     Object val2 = fn2.fn();
@@ -241,22 +241,22 @@ public class CachingProxyDecoratorTest {
    */
   @Test
   public void sameFunctionDifferentDependencyTypes() {
-    FunctionConfig config1 = config(implementations(TopLevelFunction.class, TopLevel.class,
-                                                    DelegateFunction.class, Delegate1.class),
+    FunctionConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
+                                                    DelegateFn.class, Delegate1.class),
                                     arguments(function(Delegate1.class, argument("s", "a string"))));
-    FunctionConfig config2 = config(implementations(TopLevelFunction.class, TopLevel.class,
-                                                    DelegateFunction.class, Delegate2.class),
+    FunctionConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
+                                                    DelegateFn.class, Delegate2.class),
                                     arguments(function(Delegate2.class, argument("s", "a string"))));
-    FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFunction.class, "fn");
+    FunctionMetadata metadata = ConfigUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
     GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
-    TopLevelFunction fn1 = (TopLevelFunction) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+    TopLevelFn fn1 = (TopLevelFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
     FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
-    TopLevelFunction fn2 = (TopLevelFunction) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
+    TopLevelFn fn2 = (TopLevelFn) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
 
     Object val1 = fn1.fn();
     Object val2 = fn2.fn();
