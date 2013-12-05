@@ -41,7 +41,7 @@ public class FullTracerTest {
   private I1 buildFunction() {
     FunctionConfig functionConfig = config(implementations(I1.class, C1.class, I2.class, C2.class));
     GraphConfig graphConfig = new GraphConfig(functionConfig, ComponentMap.EMPTY, TracingProxy.INSTANCE);
-    return FunctionModel.build(I1.class, "method1", graphConfig);
+    return FunctionModel.build(I1.class, graphConfig);
   }
 
   @Test

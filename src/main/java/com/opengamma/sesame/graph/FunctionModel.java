@@ -54,21 +54,19 @@ public final class FunctionModel {
     return new FunctionModel(createNode(function.getDeclaringType(), GraphConfig.EMPTY), function);
   }
 
-  // TODO the methodName arg *ought* to be redundant because we're returning the interface, not InvokableFunction
   // TODO make it clear this is for one-off building, testing etc, not for the engine (because FunctionBuilder isn't shared)
-  public static <T> T build(Class<T> functionType, String methodName, GraphConfig config) {
-    FunctionMetadata metadata = ConfigUtils.createMetadata(functionType, methodName);
-    FunctionModel functionModel = new FunctionModel(createNode(metadata.getDeclaringType(), config), metadata);
-    InvokableFunction function = functionModel.build(new FunctionBuilder(), config.getComponents());
-    return functionType.cast(function.getReceiver());
+  public static <T> T build(Class<T> functionType, GraphConfig config) {
+    FunctionBuilder functionBuilder = new FunctionBuilder();
+    Object function = functionBuilder.create(createNode(functionType, config), config.getComponents());
+    return functionType.cast(function);
   }
 
-  public static <T> T build(Class<T> functionType, String methodName, FunctionConfig config) {
-    return build(functionType, methodName, new GraphConfig(config));
+  public static <T> T build(Class<T> functionType, FunctionConfig config) {
+    return build(functionType, new GraphConfig(config));
   }
 
-  public static <T> T build(Class<T> functionType, String methodName) {
-    return build(functionType, methodName, GraphConfig.EMPTY);
+  public static <T> T build(Class<T> functionType) {
+    return build(functionType, GraphConfig.EMPTY);
   }
 
   // TODO need to pass in config that merges default from system, view, (calc config), column, input type

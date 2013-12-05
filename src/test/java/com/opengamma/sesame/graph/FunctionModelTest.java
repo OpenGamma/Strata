@@ -118,14 +118,14 @@ public class FunctionModelTest {
 
   @Test
   public void buildDirectly1() {
-    Concrete1 fn = FunctionModel.build(Concrete1.class, "foo");
+    Concrete1 fn = FunctionModel.build(Concrete1.class);
     assertNotNull(fn);
   }
 
   @Test
   public void buildDirectly2() {
     FunctionConfig config = config(implementations(TestFunction.class, BasicImpl.class));
-    TestFunction fn = FunctionModel.build(TestFunction.class, "foo", config);
+    TestFunction fn = FunctionModel.build(TestFunction.class, config);
     assertTrue(fn instanceof BasicImpl);
   }
 
@@ -135,7 +135,7 @@ public class FunctionModelTest {
         ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
     FunctionConfig config = config(implementations(TestFunction.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
-    TestFunction fn = FunctionModel.build(TestFunction.class, "foo", graphConfig);
+    TestFunction fn = FunctionModel.build(TestFunction.class, graphConfig);
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);

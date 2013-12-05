@@ -203,7 +203,7 @@ public class FXForwardPVFunctionTest {
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
     //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, TimingProxy.INSTANCE);
     //GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
-    FXForwardPVFunction pvFunction = FunctionModel.build(FXForwardPVFunction.class, "calculatePV", graphConfig);
+    FXForwardPVFunction pvFunction = FunctionModel.build(FXForwardPVFunction.class, graphConfig);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
@@ -241,7 +241,7 @@ public class FXForwardPVFunctionTest {
 
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
     DiscountingMulticurveBundleProviderFunction bundleProvider =
-        FunctionModel.build(DiscountingMulticurveBundleProviderFunction.class, "generateBundle", graphConfig);
+        FunctionModel.build(DiscountingMulticurveBundleProviderFunction.class, graphConfig);
     FunctionResult<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
     try {
       result = bundleProvider.generateBundle("Z-Marc JPY Dsc - FX USD");

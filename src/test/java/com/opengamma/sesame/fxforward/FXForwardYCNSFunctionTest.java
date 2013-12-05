@@ -177,7 +177,8 @@ public class FXForwardYCNSFunctionTest {
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, cachingDecorator);
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
-    FxForwardYieldCurveNodeSensitivitiesFunction ycnsFunction = FunctionModel.build(FxForwardYieldCurveNodeSensitivitiesFunction.class, "calculateYieldCurveNodeSensitivities", graphConfig);
+    FxForwardYieldCurveNodeSensitivitiesFunction ycnsFunction =
+        FunctionModel.build(FxForwardYieldCurveNodeSensitivitiesFunction.class, graphConfig);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);

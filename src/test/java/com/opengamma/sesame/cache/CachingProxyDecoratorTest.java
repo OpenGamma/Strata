@@ -309,7 +309,7 @@ public class CachingProxyDecoratorTest {
     ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
                                                                                 executingMethods));
     GraphConfig graphConfig = new GraphConfig(config, components, new CachingProxyDecorator(_cacheManager, executingMethods));
-    ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class, "fn", graphConfig);
+    ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class, graphConfig);
     i1.fn("s", 1);
   }
 
