@@ -54,7 +54,8 @@ public class GraphConfig {
     return _functionConfig.getFunctionImplementation(interfaceType);
   }
 
-  public Object getObject(Class<?> type) {
+  // TODO should this be called getComponent?
+  public Object getComponent(Class<?> type) {
     return _components.getComponent(type);
   }
 
