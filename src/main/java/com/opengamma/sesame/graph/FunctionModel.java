@@ -126,8 +126,8 @@ public final class FunctionModel {
       newPath.add(parameter);
       Node argNode;
       try {
-        if (config.getObject(parameter.getType()) != null) {
-          argNode = config.decorateNode(new ObjectNode(parameter));
+        if (config.getComponent(parameter.getType()) != null) {
+          argNode = config.decorateNode(new ComponentNode(parameter));
         } else {
           Object argument = config.getConstructorArgument(implType, parameter);
           if (argument == null) {

@@ -15,9 +15,9 @@ import com.opengamma.util.ArgumentChecker;
  * A node in the dependency model representing an existing object instance (e.g. a piece of infrastructure provided
  * by the engine or a singleton function).
  */
-public final class ObjectNode extends Node {
+public final class ComponentNode extends Node {
 
-  /* package */ ObjectNode(Parameter parameter) {
+  /* package */ ComponentNode(Parameter parameter) {
     super(ArgumentChecker.notNull(parameter, "parameter").getType(), parameter);
   }
 
