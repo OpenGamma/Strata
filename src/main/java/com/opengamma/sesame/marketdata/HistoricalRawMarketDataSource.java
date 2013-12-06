@@ -69,8 +69,8 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
   }
 
   @Override
-  public LocalDateRange calculateDateRange(Period seriesPeriod) {
-    LocalDate start = _snapshotDate.minus(seriesPeriod);
+  public LocalDateRange calculateDateRange(Period period) {
+    LocalDate start = _snapshotDate.minus(period);
     return LocalDateRange.of(start, _snapshotDate, true);
   }
 }
