@@ -48,8 +48,8 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
+import com.opengamma.sesame.fxforward.FXForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.fxforward.FXForwardPVFn;
-import com.opengamma.sesame.fxforward.FxForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.trace.TracingProxy;
 
@@ -147,7 +147,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
                                       DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
-                                      FxForwardDiscountingCalculatorFn.class,
+                                      FXForwardDiscountingCalculatorFn.class,
                                       ConfigDbMarketExposureSelectorFn.class);
     return availableImplementations;
   }

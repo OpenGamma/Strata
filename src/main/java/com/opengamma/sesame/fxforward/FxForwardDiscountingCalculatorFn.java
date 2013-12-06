@@ -28,15 +28,15 @@ import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
-public class FxForwardDiscountingCalculatorFn implements FxForwardCalculatorFn {
+public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
 
-  private final FxForwardCalculatorFactory _factory;
+  private final FXForwardCalculatorFactory _factory;
 
   private final MarketExposureSelectorFn _marketExposureSelectorFn;
   private final FXMatrixFn _fxMatrixProvider;
   private final DiscountingMulticurveBundleFn _multicurveBundleProviderFunction;
 
-  public FxForwardDiscountingCalculatorFn(FxForwardCalculatorFactory factory,
+  public FXForwardDiscountingCalculatorFn(FXForwardCalculatorFactory factory,
                                           MarketExposureSelectorFn marketExposureSelectorFn,
                                           FXMatrixFn fxMatrixProvider,
                                           DiscountingMulticurveBundleFn multicurveBundleProviderFunction) {
@@ -47,7 +47,7 @@ public class FxForwardDiscountingCalculatorFn implements FxForwardCalculatorFn {
   }
 
   @Override
-  public FunctionResult<FxForwardCalculator> generateCalculator(FXForwardSecurity security) {
+  public FunctionResult<FXForwardCalculator> generateCalculator(FXForwardSecurity security) {
 
     // get currencies from security, probably should use visitor/utils
     Set<Currency> currencies = ImmutableSet.of(security.getPayCurrency(), security.getReceiveCurrency());

@@ -14,9 +14,9 @@ import com.opengamma.sesame.FunctionResult;
 
 public class DiscountingFXForwardPVFn implements FXForwardPVFn {
 
-  private final FxForwardCalculatorFn _fxForwardCalculatorFn;
+  private final FXForwardCalculatorFn _fxForwardCalculatorFn;
 
-  public DiscountingFXForwardPVFn(FxForwardCalculatorFn fxForwardCalculatorFn) {
+  public DiscountingFXForwardPVFn(FXForwardCalculatorFn fxForwardCalculatorFn) {
 
     _fxForwardCalculatorFn = fxForwardCalculatorFn;
   }
@@ -24,7 +24,7 @@ public class DiscountingFXForwardPVFn implements FXForwardPVFn {
   @Override
   public FunctionResult<CurrencyLabelledMatrix1D> calculatePV(FXForwardSecurity security) {
 
-    FunctionResult<FxForwardCalculator> result = _fxForwardCalculatorFn.generateCalculator(security);
+    FunctionResult<FXForwardCalculator> result = _fxForwardCalculatorFn.generateCalculator(security);
     if (result.isResultAvailable()) {
       return success(result.getResult().calculatePV());
     } else {

@@ -8,9 +8,9 @@ package com.opengamma.sesame.fxforward;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.FunctionResult;
 
-public interface FxForwardCalculatorFn {
+public interface FXForwardCalculatorFn {
 
   // it seems to be faster without caching on this method
   //@Cache
-  FunctionResult<FxForwardCalculator> generateCalculator(FXForwardSecurity security);
+  FunctionResult<FXForwardCalculator> generateCalculator(FXForwardSecurity security);
 }

@@ -14,9 +14,9 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.ValuationTimeFn;
 
 /**
- * Factory class for creating instances of {@link FxForwardCalculator}.
+ * Factory class for creating instances of {@link FXForwardCalculator}.
  */
-public class FxForwardCalculatorFactory {
+public class FXForwardCalculatorFactory {
 
 
   private final FinancialSecurityVisitor<InstrumentDefinition<?>> _securityConverter;
@@ -25,7 +25,7 @@ public class FxForwardCalculatorFactory {
 
   private final ValuationTimeFn _valuationTimeFn;
 
-  public FxForwardCalculatorFactory(FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter,
+  public FXForwardCalculatorFactory(FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter,
                                     FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                     ValuationTimeFn valuationTimeFn) {
     _securityConverter = securityConverter;
@@ -33,10 +33,10 @@ public class FxForwardCalculatorFactory {
     _valuationTimeFn = valuationTimeFn;
   }
 
-  public FxForwardCalculator createCalculator(FXForwardSecurity security,
+  public FXForwardCalculator createCalculator(FXForwardSecurity security,
                                               MulticurveProviderDiscount bundle,
                                               CurveBuildingBlockBundle mergedJacobianBundle) {
-    return new FxForwardCalculator(security, bundle, mergedJacobianBundle,
+    return new FXForwardCalculator(security, bundle, mergedJacobianBundle,
                                    _securityConverter, _definitionToDerivativeConverter, _valuationTimeFn);
   }
 }

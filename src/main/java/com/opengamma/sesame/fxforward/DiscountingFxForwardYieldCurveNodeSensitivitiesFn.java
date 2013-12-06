@@ -25,13 +25,13 @@ import com.opengamma.util.tuple.Pair;
 
 public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForwardYieldCurveNodeSensitivitiesFn {
 
-  private final FxForwardCalculatorFn _fxForwardCalculatorFn;
+  private final FXForwardCalculatorFn _fxForwardCalculatorFn;
 
   private final CurveDefinitionFn _curveDefinitionProvider;
 
   private final String _curveName;
 
-  public DiscountingFXForwardYieldCurveNodeSensitivitiesFn(FxForwardCalculatorFn fxForwardCalculatorFn,
+  public DiscountingFXForwardYieldCurveNodeSensitivitiesFn(FXForwardCalculatorFn fxForwardCalculatorFn,
                                                            CurveDefinitionFn curveDefinitionProvider,
                                                            String curveName) {
     _fxForwardCalculatorFn = fxForwardCalculatorFn;
@@ -42,12 +42,12 @@ public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForw
   @Override
   public FunctionResult<DoubleLabelledMatrix1D> calculateYieldCurveNodeSensitivities(FXForwardSecurity security) {
 
-    FunctionResult<FxForwardCalculator> forwardCalculatorFunctionResult =
+    FunctionResult<FXForwardCalculator> forwardCalculatorFunctionResult =
         _fxForwardCalculatorFn.generateCalculator(security);
 
     if (forwardCalculatorFunctionResult.isResultAvailable()) {
 
-      FxForwardCalculator fxForwardCalculator = forwardCalculatorFunctionResult.getResult();
+      FXForwardCalculator fxForwardCalculator = forwardCalculatorFunctionResult.getResult();
       final MultipleCurrencyParameterSensitivity sensitivities = fxForwardCalculator.generateBlockCurveSensitivities();
 
       FunctionResult<CurveDefinition> cdResult = _curveDefinitionProvider.getCurveDefinition(_curveName);

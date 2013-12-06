@@ -32,7 +32,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * A calculation class for a specific FxForward security. On construction it is provided
  * with all the analytics objects it needs to produce its results.
  */
-public class FxForwardCalculator {
+public class FXForwardCalculator {
 
   private static final HistoricalTimeSeriesBundle EMPTY_TIME_SERIES_BUNDLE = new HistoricalTimeSeriesBundle();
 
@@ -58,7 +58,7 @@ public class FxForwardCalculator {
   private final ValuationTimeFn _valuationTimeFn;
   private final InstrumentDefinition<?> _instrumentDefinition;
 
-  public FxForwardCalculator(FXForwardSecurity security,
+  public FXForwardCalculator(FXForwardSecurity security,
                              MulticurveProviderDiscount discountingMulticurveBundle,
                              CurveBuildingBlockBundle jacobianBundle,
                              FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter,

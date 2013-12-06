@@ -322,7 +322,7 @@ public class FXForwardPVFnTest {
                                       DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
-                                      FxForwardDiscountingCalculatorFn.class,
+                                      FXForwardDiscountingCalculatorFn.class,
                                       ConfigDbMarketExposureSelectorFn.class);
     long startEngine = System.currentTimeMillis();
     Engine engine = new Engine(executor,
@@ -404,7 +404,7 @@ public class FXForwardPVFnTest {
                          argument("resolutionKey", "DEFAULT_TSS"),
                          argument("htsRetrievalPeriod", Period.ofYears(1)))),
             implementations(FXForwardPVFn.class, DiscountingFXForwardPVFn.class,
-                            FxForwardCalculatorFn.class, FxForwardDiscountingCalculatorFn.class,
+                            FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
                             MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                             CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                             FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,

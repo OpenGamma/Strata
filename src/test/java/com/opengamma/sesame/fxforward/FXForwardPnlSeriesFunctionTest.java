@@ -76,13 +76,13 @@ import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultFxReturnSeriesFn;
+import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.FxReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.ResultStatus;
@@ -130,7 +130,7 @@ public class FXForwardPnlSeriesFunctionTest {
 
   @Test
   public void buildGraph() {
-    FunctionMetadata calculatePnl = ConfigUtils.createMetadata(FxForwardPnLSeriesFn.class, "calculatePnlSeries");
+    FunctionMetadata calculatePnl = ConfigUtils.createMetadata(FXForwardPnLSeriesFn.class, "calculatePnlSeries");
     FunctionConfig config = createFunctionConfig();
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
@@ -145,7 +145,7 @@ public class FXForwardPnlSeriesFunctionTest {
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePnl, graphConfig);
     Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
-    assertTrue(fn instanceof FxForwardPnLSeriesFn);
+    assertTrue(fn instanceof FXForwardPnLSeriesFn);
     System.out.println(functionModel.prettyPrint(true));
   }
 
@@ -186,7 +186,7 @@ public class FXForwardPnlSeriesFunctionTest {
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, TracingProxy.INSTANCE, cachingDecorator);
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
-    FxForwardPnLSeriesFn pvFunction = FunctionModel.build(FxForwardPnLSeriesFn.class, graphConfig);
+    FXForwardPnLSeriesFn pvFunction = FunctionModel.build(FXForwardPnLSeriesFn.class, graphConfig);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
@@ -211,10 +211,10 @@ public class FXForwardPnlSeriesFunctionTest {
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfigName", exposureConfig)),
-                function(DiscountingFxForwardPnLSeriesFn.class,
+                function(DiscountingFXForwardPnLSeriesFn.class,
                          argument("seriesPeriod", Period.ofYears(5)),
                          argument("outputCurrency", Optional.of(Currency.USD))),
-                function(DefaultFxReturnSeriesFn.class,
+                function(DefaultFXReturnSeriesFn.class,
                          // TODO will need a different way when we have a UI and the values are strings or primitives
                          // maybe an enum with a method to return the object it represents. implement provider?
                          argument("timeSeriesSamplingFunction", TimeSeriesSamplingFunctionFactory.NO_PADDING_FUNCTION),
@@ -233,12 +233,12 @@ public class FXForwardPnlSeriesFunctionTest {
                          // TODO will need to handle this differently when arg values are strings and primitives
                          // will need string conversion for values like this which can be parsed
                          argument("htsRetrievalPeriod", Period.ofYears(1)))),
-            implementations(FxForwardPnLSeriesFn.class,
-                            DiscountingFxForwardPnLSeriesFn.class,
-                            FxReturnSeriesFn.class,
-                            DefaultFxReturnSeriesFn.class,
-                            FxForwardCalculatorFn.class,
-                            FxForwardDiscountingCalculatorFn.class,
+            implementations(FXForwardPnLSeriesFn.class,
+                            DiscountingFXForwardPnLSeriesFn.class,
+                            FXReturnSeriesFn.class,
+                            DefaultFXReturnSeriesFn.class,
+                            FXForwardCalculatorFn.class,
+                            FXForwardDiscountingCalculatorFn.class,
                             MarketExposureSelectorFn.class,
                             ConfigDbMarketExposureSelectorFn.class,
                             CurrencyPairsFn.class,
