@@ -19,7 +19,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
-public class DefaultFxReturnSeriesFn implements FxReturnSeriesFn {
+public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
 
   /** Removes weekends */
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
@@ -35,7 +35,7 @@ public class DefaultFxReturnSeriesFn implements FxReturnSeriesFn {
 
   private final Schedule _scheduleCalculator;
 
-  public DefaultFxReturnSeriesFn(MarketDataFn marketDataFn,
+  public DefaultFXReturnSeriesFn(MarketDataFn marketDataFn,
                                  TimeSeriesReturnConverter timeSeriesConverter,
                                  TimeSeriesSamplingFunction timeSeriesSamplingFunction,
                                  Schedule schedule) {

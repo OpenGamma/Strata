@@ -13,7 +13,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 /**
  * Provides FX return series for currency pairs.
  */
-public interface FxReturnSeriesFn {
+public interface FXReturnSeriesFn {
 
   /**
    * Get the return series for the supplied currency pair.

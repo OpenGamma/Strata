@@ -11,7 +11,7 @@ import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 
-public interface FxForwardPnLSeriesFn {
+public interface FXForwardPnLSeriesFn {
 
   @Output(OutputNames.PNL_SERIES)
   FunctionResult<LocalDateDoubleTimeSeries> calculatePnlSeries(FXForwardSecurity security);

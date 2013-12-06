@@ -16,17 +16,17 @@ import com.google.common.base.Optional;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurrencyPairsFn;
+import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.FxReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
-public class DiscountingFxForwardPnLSeriesFn implements FxForwardPnLSeriesFn {
+public class DiscountingFXForwardPnLSeriesFn implements FXForwardPnLSeriesFn {
 
-  private final FxForwardCalculatorFn _calculatorProvider;
+  private final FXForwardCalculatorFn _calculatorProvider;
 
   private final CurrencyPairsFn _currencyPairsFn;
 
@@ -37,7 +37,7 @@ public class DiscountingFxForwardPnLSeriesFn implements FxForwardPnLSeriesFn {
    */
   private final Optional<Currency> _outputCurrency;
 
-  private final FxReturnSeriesFn _fxReturnSeriesProvider;
+  private final FXReturnSeriesFn _fxReturnSeriesProvider;
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
 
   /**
@@ -47,10 +47,10 @@ public class DiscountingFxForwardPnLSeriesFn implements FxForwardPnLSeriesFn {
 
   // todo - what should we be injecting?
   @Inject
-  public DiscountingFxForwardPnLSeriesFn(FxForwardCalculatorFn calculatorProvider,
+  public DiscountingFXForwardPnLSeriesFn(FXForwardCalculatorFn calculatorProvider,
                                          CurrencyPairsFn currencyPairsFn,
                                          Optional<Currency> outputCurrency,
-                                         FxReturnSeriesFn fxReturnSeriesProvider,
+                                         FXReturnSeriesFn fxReturnSeriesProvider,
                                          HistoricalTimeSeriesFn historicalTimeSeriesProvider, Period seriesPeriod) {
     _calculatorProvider = calculatorProvider;
     _currencyPairsFn = currencyPairsFn;
@@ -60,9 +60,9 @@ public class DiscountingFxForwardPnLSeriesFn implements FxForwardPnLSeriesFn {
     _seriesPeriod = seriesPeriod;
   }
 
-  public DiscountingFxForwardPnLSeriesFn(FxForwardCalculatorFn calculatorProvider,
+  public DiscountingFXForwardPnLSeriesFn(FXForwardCalculatorFn calculatorProvider,
                                          CurrencyPairsFn currencyPairsFn,
-                                         FxReturnSeriesFn fxReturnSeriesProvider,
+                                         FXReturnSeriesFn fxReturnSeriesProvider,
                                          HistoricalTimeSeriesFn historicalTimeSeriesProvider, Period seriesPeriod) {
     this(calculatorProvider, currencyPairsFn, Optional.<Currency>absent(), fxReturnSeriesProvider,
          historicalTimeSeriesProvider, seriesPeriod);
@@ -77,7 +77,7 @@ public class DiscountingFxForwardPnLSeriesFn implements FxForwardPnLSeriesFn {
     UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
     final FunctionResult<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
 
-    FunctionResult<FxForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
+    FunctionResult<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
 
     // todo this if/else nesting is fairly horrible - is there a nicer way? E.g:
     //return gatherResults(cpResult, returnSeriesResult, calculatorResult).whenAvailable(new Doer() {
