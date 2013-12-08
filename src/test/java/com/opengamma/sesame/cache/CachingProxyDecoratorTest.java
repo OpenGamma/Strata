@@ -67,7 +67,7 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, delegate);
 
     Object results = fn.foo("bar");
-    Ehcache cache = EHCacheUtils.getCacheFromManager(_cacheManager, CachingProxyDecorator.ENGINE_PROXY_CACHE);
+    Ehcache cache = cachingDecorator.getCache();
     Element element = cache.get(key);
     assertNotNull(element);
     FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
@@ -278,7 +278,7 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, delegate);
 
     Object results = fn.foo("bar");
-    Ehcache cache = EHCacheUtils.getCacheFromManager(_cacheManager, CachingProxyDecorator.ENGINE_PROXY_CACHE);
+    Ehcache cache = cachingDecorator.getCache();
     Element element = cache.get(key);
     assertNotNull(element);
     FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();

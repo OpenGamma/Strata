@@ -32,6 +32,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -109,6 +110,7 @@ import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.engine.EngineService;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
@@ -330,7 +332,8 @@ public class FXForwardPVFnTest {
                                availableOutputs,
                                availableImplementations,
                                FunctionConfig.EMPTY,
-                               decorator);
+                               CacheManager.getInstance(),
+                               EnumSet.of(EngineService.CACHING, EngineService.TRACING));
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
     Engine.View view = engine.createView(viewDef, trades);

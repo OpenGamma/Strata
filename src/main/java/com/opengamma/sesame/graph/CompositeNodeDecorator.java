@@ -19,6 +19,10 @@ public class CompositeNodeDecorator implements NodeDecorator {
 
   private final List<NodeDecorator> _decorators;
 
+  public CompositeNodeDecorator(List<NodeDecorator> decorators) {
+    this(decorators.toArray(new NodeDecorator[decorators.size()]));
+  }
+
   public CompositeNodeDecorator(NodeDecorator... decorators) {
     // reverse the decorators so the first decorator is the first one presented with the argument
     // it's arguable which way round is least surprising. this makes most sense to me

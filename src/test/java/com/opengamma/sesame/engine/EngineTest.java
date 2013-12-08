@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,7 +66,6 @@ import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
-import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataFn;
@@ -74,10 +74,11 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.sesame.trace.CallGraph;
-import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+
+import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class EngineTest {
@@ -150,7 +151,8 @@ public class EngineTest {
                                availableOutputs,
                                new AvailableImplementationsImpl(),
                                FunctionConfig.EMPTY,
-                               NodeDecorator.IDENTITY);
+                               CacheManager.getInstance(),
+                               EngineService.DEFAULT_SERVICES);
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
@@ -233,7 +235,8 @@ public class EngineTest {
                                availableOutputs,
                                availableImplementations,
                                defaultConfig,
-                               NodeDecorator.IDENTITY);
+                               CacheManager.getInstance(),
+                               EnumSet.noneOf(EngineService.class));
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     Engine.View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
@@ -292,7 +295,8 @@ public class EngineTest {
                                availableOutputs,
                                new AvailableImplementationsImpl(),
                                FunctionConfig.EMPTY,
-                               TracingProxy.INSTANCE);
+                               CacheManager.getInstance(),
+                               EnumSet.of(EngineService.TRACING));
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     Engine.View view = engine.createView(viewDef, trades);
     @SuppressWarnings("unchecked")

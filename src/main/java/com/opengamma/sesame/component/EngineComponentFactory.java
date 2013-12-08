@@ -38,11 +38,10 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.Engine;
+import com.opengamma.sesame.engine.EngineService;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
@@ -50,8 +49,6 @@ import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
 import com.opengamma.sesame.fxforward.FXForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.fxforward.FXForwardPVFn;
-import com.opengamma.sesame.graph.CompositeNodeDecorator;
-import com.opengamma.sesame.trace.TracingProxy;
 
 import net.sf.ehcache.CacheManager;
 
@@ -77,14 +74,6 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     // TODO allow the thread pool to grow to allow for threads that block waiting for a cache value to be calculated?
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
-
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(getCacheManager(),
-                                                                       new ExecutingMethodsThreadLocal());
-    // TODO the node decorator should probably be an argument to createView()
-    // or something specifying decorators and the decorators themselves should be created in the view
-    //CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE, TimingProxy.INSTANCE);
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
-
     ComponentMap componentMap = initComponentMap(repo, configuration);
     // Indicate remaining configuration has been used
     configuration.clear();
@@ -97,7 +86,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
                                availableOutputs,
                                availableImplementations,
                                FunctionConfig.EMPTY,
-                               decorator);
+                               getCacheManager(),
+                               EngineService.DEFAULT_SERVICES);
     ComponentInfo engineInfo = new ComponentInfo(Engine.class, getClassifier());
     repo.registerComponent(engineInfo, engine);
 

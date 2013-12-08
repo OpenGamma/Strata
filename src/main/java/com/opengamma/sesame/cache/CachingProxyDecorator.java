@@ -12,10 +12,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +27,10 @@ import com.opengamma.sesame.proxy.ProxyNode;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+
 /**
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  * TODO thorough docs for the basis of caching, i.e. has to be the same function instance but instances are shared
@@ -37,8 +38,9 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 public class CachingProxyDecorator implements NodeDecorator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
-  
-  /*package*/ static final String ENGINE_PROXY_CACHE = "EngineProxyCache";
+
+  private static final String VIEW_CACHE = "ViewCache";
+  private static final AtomicLong s_nextCacheId = new AtomicLong(0);
 
   private final Ehcache _cache;
   private final ExecutingMethodsThreadLocal _executingMethods;
@@ -46,8 +48,9 @@ public class CachingProxyDecorator implements NodeDecorator {
   public CachingProxyDecorator(CacheManager cacheManager, ExecutingMethodsThreadLocal executingMethods) {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
-    EHCacheUtils.addCache(cacheManager, ENGINE_PROXY_CACHE);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, ENGINE_PROXY_CACHE);
+    String cacheName = VIEW_CACHE + s_nextCacheId.getAndIncrement();
+    EHCacheUtils.addCache(cacheManager, cacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 
   @Override
@@ -70,6 +73,10 @@ public class CachingProxyDecorator implements NodeDecorator {
       return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
     return node;
+  }
+
+  /* package */ Ehcache getCache() {
+    return _cache;
   }
 
   /**

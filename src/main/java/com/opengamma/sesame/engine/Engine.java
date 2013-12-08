@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.engine;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -22,6 +23,8 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.sesame.cache.CachingProxyDecorator;
+import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.CompositeFunctionConfig;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
@@ -30,11 +33,13 @@ import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.InvokableFunction;
+import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.FullTracer;
 import com.opengamma.sesame.trace.NoOpTracer;
@@ -43,8 +48,11 @@ import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pairs;
 
+import net.sf.ehcache.CacheManager;
+
 /**
- * TODO this is totally provisional, just enough to run some basic tests that stitch everything together
+ * TODO does the engine actually need to exist? all it does is store a couple of fields and create a view
+ * could the views be created directly? or should it just be renamed ViewFactory?
  */
 public class Engine {
 
@@ -54,8 +62,9 @@ public class Engine {
   private final ComponentMap _components;
   private final AvailableOutputs _availableOutputs;
   private final AvailableImplementations _availableImplementations;
+  private final EnumSet<EngineService> _defaultServices;
+  private final CacheManager _cacheManager;
   private final FunctionConfig _defaultConfig;
-  private final NodeDecorator _nodeDecorator;
 
   /* package */ Engine(ExecutorService executor,
                        AvailableOutputs availableOutputs,
@@ -65,20 +74,23 @@ public class Engine {
          availableOutputs,
          availableImplementations,
          FunctionConfig.EMPTY,
-         NodeDecorator.IDENTITY);
+         CacheManager.getInstance(),
+         EngineService.DEFAULT_SERVICES);
   }
 
-  // TODO should any of these be arguments to createView()
+  // TODO parameter to allow arbitrary NodeDecorators to be passed in?
   public Engine(ExecutorService executor,
                 ComponentMap components,
                 AvailableOutputs availableOutputs,
                 AvailableImplementations availableImplementations,
                 FunctionConfig defaultConfig,
-                NodeDecorator nodeDecorator) {
-    _availableOutputs = availableOutputs;
-    _availableImplementations = availableImplementations;
+                CacheManager cacheManager,
+                EnumSet<EngineService> defaultServices) {
+    _availableOutputs = ArgumentChecker.notNull(availableOutputs, "availableOutputs");
+    _availableImplementations = ArgumentChecker.notNull(availableImplementations, "availableImplementations");
+    _defaultServices = ArgumentChecker.notNull(defaultServices, "defaultServices");
+    _cacheManager = ArgumentChecker.notNull(cacheManager, "cacheManager");
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
-    _nodeDecorator = ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
     _executor = ArgumentChecker.notNull(executor, "executor");
     _components = ArgumentChecker.notNull(components, "components");
   }
@@ -88,33 +100,65 @@ public class Engine {
     void cycleComplete(Results results);
   }*/
 
+
   /**
    * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
    * in future.
    */
   public View createView(ViewDef viewDef, List<?> inputs) {
+    return createView(viewDef, inputs, _defaultServices);
+  }
+
+  /**
+   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
+   * in future.
+   * TODO parameter to allow arbitrary NodeDecorators to be passed in?
+   */
+  public View createView(ViewDef viewDef, List<?> inputs, EnumSet<EngineService> services) {
     // TODO is this the right place for this logic? should there be a component map pre-populated with them?
     // as they're completely standard components always provided by the engine
-    // need to supplement components with a MarketDataProviderFunction and ValuationTimeProviderFunction that are
+    // need to supplement components with a MarketDataFn and ValuationTimeFn that are
     // under our control so we can switch out the backing impls each cycle if necessary
-    DelegatingMarketDataFn marketDataProvider = new DelegatingMarketDataFn();
-    DefaultValuationTimeFn valuationTimeProvider = new DefaultValuationTimeFn();
+    DelegatingMarketDataFn marketDataFn = new DelegatingMarketDataFn();
+    DefaultValuationTimeFn valuationTimeFn = new DefaultValuationTimeFn();
     Map<Class<?>, Object> componentOverrides = Maps.newHashMap();
-    componentOverrides.put(MarketDataFn.class, marketDataProvider);
-    componentOverrides.put(ValuationTimeFn.class, valuationTimeProvider);
+    componentOverrides.put(MarketDataFn.class, marketDataFn);
+    componentOverrides.put(ValuationTimeFn.class, valuationTimeFn);
     ComponentMap components = _components.with(componentOverrides);
+
+    // TODO should the node decorator be built here? or passed in here? one cache per view?
+    // whose job is it to build the decorators? probably should be in here for the standard set
+    // should there be an enum set arg specifying which standard decorators to use? caching, timing, tracing
 
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(_availableOutputs,
                                                  _availableImplementations,
                                                  components,
                                                  _defaultConfig,
-                                                 _nodeDecorator);
+                                                 createDecorator(services));
     GraphModel graphModel = graphBuilder.build(viewDef, inputs);
     s_logger.debug("graph model complete, building graph");
     Graph graph = graphModel.build(components);
     s_logger.debug("graph complete");
-    return new View(viewDef, graph, inputs, _executor, marketDataProvider, valuationTimeProvider, components, _defaultConfig);
+    return new View(viewDef, graph, inputs, _executor, marketDataFn, valuationTimeFn, components, _defaultConfig);
+  }
+
+  private NodeDecorator createDecorator(EnumSet<EngineService> services) {
+    if (services.isEmpty()) {
+      return NodeDecorator.IDENTITY;
+    }
+    List<NodeDecorator> decorators = Lists.newArrayListWithCapacity(services.size());
+    // TODO wire up caching proxy to other cache-related stuff (e.g. invalidator)
+    if (services.contains(EngineService.CACHING)) {
+      decorators.add(new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal()));
+    }
+    if (services.contains(EngineService.TIMING)) {
+      decorators.add(TimingProxy.INSTANCE);
+    }
+    if (services.contains(EngineService.TRACING)) {
+      decorators.add(TracingProxy.INSTANCE);
+    }
+    return new CompositeNodeDecorator(decorators);
   }
 
   //----------------------------------------------------------
@@ -147,6 +191,7 @@ public class Engine {
       _systemDefaultConfig = systemDefaultConfig;
     }
 
+    // TODO should this be synchronized?
     public Results run(CycleArguments cycleArguments) {
       // TODO this will need to be a lot cleverer when we need to support dynamic rebinding for full reval
       _marketDataProvider.setDelegate(cycleArguments.getMarketDataFactory().create(_components));
