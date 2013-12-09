@@ -35,7 +35,7 @@ import net.sf.ehcache.Element;
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  * TODO thorough docs for the basis of caching, i.e. has to be the same function instance but instances are shared
  */
-public class CachingProxyDecorator implements NodeDecorator {
+public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 
@@ -44,13 +44,15 @@ public class CachingProxyDecorator implements NodeDecorator {
 
   private final Ehcache _cache;
   private final ExecutingMethodsThreadLocal _executingMethods;
+  private final CacheManager _cacheManager;
+  private final String _cacheName;
 
   public CachingProxyDecorator(CacheManager cacheManager, ExecutingMethodsThreadLocal executingMethods) {
-    ArgumentChecker.notNull(cacheManager, "cacheManager");
+    _cacheManager = ArgumentChecker.notNull(cacheManager, "cacheManager");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
-    String cacheName = VIEW_CACHE + s_nextCacheId.getAndIncrement();
-    EHCacheUtils.addCache(cacheManager, cacheName);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
+    _cacheName = VIEW_CACHE + s_nextCacheId.getAndIncrement();
+    EHCacheUtils.addCache(cacheManager, _cacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, _cacheName);
   }
 
   @Override
@@ -77,6 +79,11 @@ public class CachingProxyDecorator implements NodeDecorator {
 
   /* package */ Ehcache getCache() {
     return _cache;
+  }
+
+  @Override
+  public void close() throws Exception {
+    _cacheManager.removeCache(_cacheName);
   }
 
   /**
