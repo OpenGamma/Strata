@@ -126,26 +126,23 @@ public class Engine {
     componentOverrides.put(ValuationTimeFn.class, valuationTimeFn);
     ComponentMap components = _components.with(componentOverrides);
 
-    // TODO should the node decorator be built here? or passed in here? one cache per view?
-    // whose job is it to build the decorators? probably should be in here for the standard set
-    // should there be an enum set arg specifying which standard decorators to use? caching, timing, tracing
-
+    CompositeNodeDecorator decorator = createDecorator(services);
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(_availableOutputs,
                                                  _availableImplementations,
                                                  components,
                                                  _defaultConfig,
-                                                 createDecorator(services));
+                                                 decorator);
     GraphModel graphModel = graphBuilder.build(viewDef, inputs);
     s_logger.debug("graph model complete, building graph");
     Graph graph = graphModel.build(components);
     s_logger.debug("graph complete");
-    return new View(viewDef, graph, inputs, _executor, marketDataFn, valuationTimeFn, components, _defaultConfig);
+    return new View(viewDef, graph, inputs, _executor, marketDataFn, valuationTimeFn, components, _defaultConfig, decorator);
   }
 
-  private NodeDecorator createDecorator(EnumSet<EngineService> services) {
+  private CompositeNodeDecorator createDecorator(EnumSet<EngineService> services) {
     if (services.isEmpty()) {
-      return NodeDecorator.IDENTITY;
+      return new CompositeNodeDecorator(NodeDecorator.IDENTITY);
     }
     List<NodeDecorator> decorators = Lists.newArrayListWithCapacity(services.size());
     // TODO wire up caching proxy to other cache-related stuff (e.g. invalidator)
@@ -162,7 +159,7 @@ public class Engine {
   }
 
   //----------------------------------------------------------
-  public static class View {
+  public static class View implements AutoCloseable {
 
     private final Graph _graph;
     private final ViewDef _viewDef;
@@ -172,6 +169,7 @@ public class Engine {
     private final DefaultValuationTimeFn _valuationTimeProvider;
     private final ComponentMap _components;
     private final FunctionConfig _systemDefaultConfig;
+    private final CompositeNodeDecorator _decorator;
 
     private View(ViewDef viewDef,
                  Graph graph,
@@ -180,7 +178,8 @@ public class Engine {
                  DelegatingMarketDataFn marketDataProvider,
                  DefaultValuationTimeFn valuationTimeProvider,
                  ComponentMap components,
-                 FunctionConfig systemDefaultConfig) {
+                 FunctionConfig systemDefaultConfig,
+                 CompositeNodeDecorator decorator) {
       _viewDef = viewDef;
       _inputs = inputs;
       _graph = graph;
@@ -189,6 +188,7 @@ public class Engine {
       _valuationTimeProvider = valuationTimeProvider;
       _components = components;
       _systemDefaultConfig = systemDefaultConfig;
+      _decorator = decorator;
     }
 
     // TODO should this be synchronized?
@@ -252,6 +252,11 @@ public class Engine {
         }
       }
       return resultsBuilder.build();
+    }
+
+    @Override
+    public void close() {
+      _decorator.close();
     }
 
     // TODO run() variants that take:
