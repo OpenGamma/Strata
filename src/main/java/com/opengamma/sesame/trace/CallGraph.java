@@ -58,7 +58,15 @@ public class CallGraph {
       String newIndent;
       String newChildIndent;
       boolean isFinalChild = !itr.hasNext();
+      if (!isFinalChild) {
+        newIndent = childIndent + " |--";
+        newChildIndent = childIndent + " |  ";
+      } else {
+        newIndent = childIndent + " `--";
+        newChildIndent = childIndent + "    ";
+      }
       // these are unicode characters for box drawing
+/*
       if (!isFinalChild) {
         newIndent = childIndent + " \u251c\u2500\u2500";
         newChildIndent = childIndent + " \u2502  ";
@@ -66,6 +74,7 @@ public class CallGraph {
         newIndent = childIndent + " \u2514\u2500\u2500";
         newChildIndent = childIndent + "    ";
       }
+*/
       prettyPrint(builder, next, newIndent, newChildIndent);
     }
     return builder;

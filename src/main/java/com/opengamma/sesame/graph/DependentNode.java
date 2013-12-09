@@ -19,6 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class DependentNode extends Node {
 
   private final List<Node> _dependencies;
+  private boolean _valid;
 
   protected DependentNode(Class<?> type, Parameter parameter, Node... dependencies) {
     this(type, parameter, Arrays.asList(dependencies));
@@ -27,11 +28,26 @@ public abstract class DependentNode extends Node {
   protected DependentNode(Class<?> type, Parameter parameter, List<Node> dependencies) {
     super(type, parameter);
     _dependencies = ImmutableList.copyOf(ArgumentChecker.notNull(dependencies, "dependencies"));
+    _valid = isValid(_dependencies);
   }
 
   @Override
   public List<Node> getDependencies() {
     return _dependencies;
+  }
+
+  @Override
+  public boolean isValid() {
+    return _valid;
+  }
+
+  private static boolean isValid(List<Node> dependencies) {
+    for (Node dependency : dependencies) {
+      if (!dependency.isValid()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

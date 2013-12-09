@@ -42,6 +42,27 @@ public final class FunctionModel {
     _rootMetadata = rootMetadata;
   }
 
+  public InvokableFunction build(FunctionBuilder builder, ComponentMap components) {
+    Object receiver = builder.create(_root, components);
+    return _rootMetadata.getInvokableFunction(receiver);
+  }
+
+  public String prettyPrint(boolean showProxies) {
+    return prettyPrint(new StringBuilder(), _root, "", "", showProxies).toString();
+  }
+
+  public String prettyPrint() {
+    return prettyPrint(false);
+  }
+
+  public boolean isValid() {
+    return _root.isValid();
+  }
+
+  /* package */ List<AbstractGraphBuildException> getExceptions() {
+    return _root.getExceptions();
+  }
+
   public static FunctionModel forFunction(FunctionMetadata function, GraphConfig config) {
     return new FunctionModel(createNode(function.getDeclaringType(), config), function);
   }
@@ -81,19 +102,7 @@ public final class FunctionModel {
   // for implementation class it just needs to go up the set of defaults looking for the first one that matches
 
   private static Node createNode(Class<?> type, GraphConfig config) {
-    List<GraphBuildException> failures = Lists.newArrayList();
-    Node node = createNode(type, config, Lists.<Parameter>newArrayList(), null, failures);
-    // TODO is it better to throw an exception here or return a model with exception nodes?
-    // the latter might be more useful once we have a UI
-    // particularly in conjunction with a method Node.isValid()
-    if (!failures.isEmpty()) {
-      GraphBuildException exception = new GraphBuildException("Failed to build graph");
-      for (GraphBuildException failure : failures) {
-        exception.addSuppressed(failure);
-      }
-      throw exception;
-    }
-    return node;
+    return createNode(type, config, Lists.<Parameter>newArrayList(), null);
   }
 
   // TODO I don't think this will work if the root is an infrastructure component. is that important?
@@ -102,8 +111,7 @@ public final class FunctionModel {
   private static Node createNode(Class<?> type,
                                  GraphConfig config,
                                  List<Parameter> path,
-                                 Parameter parentParameter,
-                                 List<GraphBuildException> failureAccumulator) {
+                                 Parameter parentParameter) {
     if (!isEligibleForBuilding(type)) {
       return null;
     }
@@ -112,12 +120,20 @@ public final class FunctionModel {
       implType = type;
     }
     if (implType == null) {
+      // TODO this isn't very nice. rename ExceptionNode->FailureNode and create directly without exceptions
       NoImplementationException e = new NoImplementationException(path, "No implementation or provider available for " +
                                                                     type.getSimpleName());
-      failureAccumulator.add(e);
       return new ExceptionNode(type, e, parentParameter);
     }
-    Constructor<?> constructor = ConfigUtils.getConstructor(implType);
+    Constructor<?> constructor;
+    try {
+      constructor = ConfigUtils.getConstructor(implType);
+    } catch (IllegalArgumentException e) {
+      // TODO this isn't very nice. rename ExceptionNode->FailureNode and create directly without exceptions
+      NoSuitableConstructorException exception =
+          new NoSuitableConstructorException(path, implType.getName() + " has no suitable constructors");
+      return new ExceptionNode(type, exception, parentParameter);
+    }
     List<Parameter> parameters = ConfigUtils.getParameters(constructor);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
     for (Parameter parameter : parameters) {
@@ -132,7 +148,7 @@ public final class FunctionModel {
           Object argument = config.getConstructorArgument(implType, parameter);
           if (argument == null) {
             // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't?
-            Node createdNode = createNode(parameter.getType(), config, newPath, parameter, failureAccumulator);
+            Node createdNode = createNode(parameter.getType(), config, newPath, parameter);
             if (createdNode != null) {
               argNode = createdNode;
             } else if (parameter.isNullable()) {
@@ -145,8 +161,7 @@ public final class FunctionModel {
             argNode = config.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
           }
         }
-      } catch (GraphBuildException e) {
-        failureAccumulator.add(e);
+      } catch (AbstractGraphBuildException e) {
         argNode = new ExceptionNode(type, e, parameter);
       }
       constructorArguments.add(argNode);
@@ -158,11 +173,6 @@ public final class FunctionModel {
       node = new ClassNode(type, implType, constructorArguments, parentParameter);
     }
     return config.decorateNode(node);
-  }
-
-  public InvokableFunction build(FunctionBuilder builder, ComponentMap components) {
-    Object receiver = builder.create(_root, components);
-    return _rootMetadata.getInvokableFunction(receiver);
   }
 
   /**
@@ -187,10 +197,6 @@ public final class FunctionModel {
     return true;
   }
 
-  public String prettyPrint(boolean showProxies) {
-    return prettyPrint(new StringBuilder(), _root, "", "", showProxies).toString();
-  }
-
   private static StringBuilder prettyPrint(StringBuilder builder,
                                            Node node,
                                            String indent,
@@ -206,12 +212,19 @@ public final class FunctionModel {
       boolean isFinalChild = !itr.hasNext();
       // these are unicode characters for box drawing
       if (!isFinalChild) {
+        newIndent = childIndent + " |--";
+        newChildIndent = childIndent + " |  ";
+      } else {
+        newIndent = childIndent + " `--";
+        newChildIndent = childIndent + "    ";
+      }/*
+      if (!isFinalChild) {
         newIndent = childIndent + " \u251c\u2500\u2500";
         newChildIndent = childIndent + " \u2502  ";
       } else {
         newIndent = childIndent + " \u2514\u2500\u2500";
         newChildIndent = childIndent + "    ";
-      }
+      }*/
       prettyPrint(builder, child, newIndent, newChildIndent, showProxies);
     }
     return builder;

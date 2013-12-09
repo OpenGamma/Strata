@@ -11,6 +11,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -46,8 +47,7 @@ public class FunctionModelTest {
 
   @Test
   public void infrastructure() {
-    final ComponentMap infrastructure = ComponentMap.of(
-        ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
+    ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
     FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
@@ -131,8 +131,7 @@ public class FunctionModelTest {
 
   @Test
   public void buildDirectly3() {
-    final ComponentMap infrastructure = ComponentMap.of(
-        ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
+    ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
     FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
     TestFn fn = FunctionModel.build(TestFn.class, graphConfig);
@@ -143,20 +142,25 @@ public class FunctionModelTest {
 
   @Test
   public void noVisibleConstructors() {
-
-
-  }
-
-  @Test
-  public void multipleInjectableConstructors() {
-
-
+    FunctionMetadata metadata = ConfigUtils.createMetadata(PrivateConstructor.class, "getName");
+    FunctionConfig config = config(arguments(function(PrivateConstructor.class, argument("name", "the name"))));
+    FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
+    assertFalse(functionModel.isValid());
   }
 
   @Test
   public void infrastructureNotFound() {
+    FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, NodeDecorator.IDENTITY);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
+    assertFalse(functionModel.isValid());
+  }
 
-
+  @Test
+  public void multipleInjectableConstructors() {
+    FunctionMetadata metadata = ConfigUtils.createMetadata(NoSuitableConstructor.class, "foo");
+    FunctionModel functionModel = FunctionModel.forFunction(metadata);
+    assertFalse(functionModel.isValid());
   }
 
   @Test
@@ -180,6 +184,9 @@ public class FunctionModelTest {
 
 /* package */ class BasicImpl implements TestFn {
 
+  public BasicImpl() {
+  }
+
   @Override
   public Object foo() {
     return "foo";
@@ -190,7 +197,7 @@ public class FunctionModelTest {
 
   /* package */ final String _infrastructureComponent;
 
-  /* package */ InfrastructureImpl(String infrastructureComponent) {
+  public InfrastructureImpl(String infrastructureComponent) {
     _infrastructureComponent = infrastructureComponent;
   }
 
@@ -204,7 +211,7 @@ public class FunctionModelTest {
 
   /* package */ final CollaboratorFn _collaborator;
 
-  /* package */ CallsOtherFn(CollaboratorFn collaborator) {
+  public CallsOtherFn(CollaboratorFn collaborator) {
     _collaborator = collaborator;
   }
 
@@ -216,13 +223,17 @@ public class FunctionModelTest {
 
 /* package */ interface CollaboratorFn { }
 
-/* package */ class Collaborator implements CollaboratorFn { }
+/* package */ class Collaborator implements CollaboratorFn {
+
+  public Collaborator() {
+  }
+}
 
 /* package */ class Concrete1 {
 
   /* package */ final Concrete2 _concrete;
 
-  /* package */ Concrete1(Concrete2 concrete) {
+  public Concrete1(Concrete2 concrete) {
     _concrete = concrete;
   }
 
@@ -231,7 +242,11 @@ public class FunctionModelTest {
     return null;
   }
 }
-/* package */ class Concrete2 { }
+/* package */ class Concrete2 {
+
+  public Concrete2() {
+  }
+}
 
 /**
  * A class with a private constructor that can only be created via a factory method. Need to use a provider to build.
@@ -261,12 +276,26 @@ public class FunctionModelTest {
 
   private final String _providerName;
 
-  /* package */ PrivateConstructorProvider(String providerName) {
+  public PrivateConstructorProvider(String providerName) {
     _providerName = providerName;
   }
 
   @Override
   public PrivateConstructor get() {
     return PrivateConstructor.build(_providerName);
+  }
+}
+
+/* package */ class NoSuitableConstructor {
+
+  public NoSuitableConstructor() {
+  }
+
+  public NoSuitableConstructor(String ignored) {
+  }
+
+  @Output("Foo")
+  public Object foo() {
+    return null;
   }
 }

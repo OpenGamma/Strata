@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.graph;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +17,7 @@ import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO isValid()? all impls except exceptionNode return true?
+ *
  */
 public abstract class Node {
 
@@ -67,6 +68,23 @@ public abstract class Node {
     return _parameter;
   }
 
+  /* package */ List<AbstractGraphBuildException> getExceptions() {
+    return getExceptions(this, new ArrayList<AbstractGraphBuildException>());
+  }
+
+  private static List<AbstractGraphBuildException> getExceptions(Node node, List<AbstractGraphBuildException> accumulator) {
+    if (node instanceof ExceptionNode) {
+      AbstractGraphBuildException exception = ((ExceptionNode) node).getException();
+      accumulator.add(exception);
+      return accumulator;
+    } else {
+      for (Node childNode : node.getDependencies()) {
+        getExceptions(childNode, accumulator);
+      }
+      return accumulator;
+    }
+  }
+
   protected final String getParameterName() {
     if (getParameter() == null) {
       return "";
@@ -77,6 +95,10 @@ public abstract class Node {
 
   public Class<?> getType() {
     return _type;
+  }
+
+  public boolean isValid() {
+    return true;
   }
 
   @Override

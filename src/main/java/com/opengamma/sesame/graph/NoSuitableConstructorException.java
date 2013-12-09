@@ -12,9 +12,9 @@ import com.opengamma.sesame.function.Parameter;
 /**
  *
  */
-/* package */ class NoImplementationException extends AbstractGraphBuildException {
+/* package */ class NoSuitableConstructorException extends AbstractGraphBuildException {
 
-  /* package */ NoImplementationException(List<Parameter> path, String message) {
+  /* package */ NoSuitableConstructorException(List<Parameter> path, String message) {
     super(path, message);
   }
 }

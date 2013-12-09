@@ -22,19 +22,20 @@ import com.opengamma.util.ArgumentChecker;
 public class ClassNode extends DependentNode {
 
   private final Class<?> _implementationType;
+  private Constructor<?> _constructor;
 
   public ClassNode(Class<?> type, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
     super(type, parameter, arguments);
     _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
+    _constructor = ConfigUtils.getConstructor(_implementationType);
   }
 
   @Override
   protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
-    Constructor<?> constructor = ConfigUtils.getConstructor(_implementationType);
     try {
-      return constructor.newInstance(dependencies.toArray());
+      return _constructor.newInstance(dependencies.toArray());
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      throw new OpenGammaRuntimeException("Failed to create of " + constructor.getDeclaringClass().getName(), e);
+      throw new OpenGammaRuntimeException("Failed to create of " + _constructor.getDeclaringClass().getName(), e);
     }
   }
 

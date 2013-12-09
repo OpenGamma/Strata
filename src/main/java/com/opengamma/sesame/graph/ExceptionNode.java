@@ -11,17 +11,18 @@ import java.util.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
 /* package */ class ExceptionNode extends Node {
 
-  private final Exception _exception;
+  private final AbstractGraphBuildException _exception;
 
-  /* package */ ExceptionNode(Class<?> type, Exception exception, Parameter parameter) {
+  /* package */ ExceptionNode(Class<?> type, AbstractGraphBuildException exception, Parameter parameter) {
     super(type, parameter);
-    _exception = exception;
+    _exception = ArgumentChecker.notNull(exception, "exception");
   }
 
   @Override
@@ -30,8 +31,18 @@ import com.opengamma.sesame.function.Parameter;
   }
 
   @Override
+  public boolean isValid() {
+    return false;
+  }
+
+  /* package */ AbstractGraphBuildException getException() {
+    return _exception;
+  }
+
+  @Override
   public String prettyPrint() {
-    return getParameterName() + _exception.toString();
+    return getParameterName() + _exception.getMessage();
+    //return getParameterName() + _exception.toString();
   }
 
   @Override

@@ -5,37 +5,17 @@
  */
 package com.opengamma.sesame.graph;
 
-import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-
-import com.google.common.collect.Lists;
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.sesame.function.Parameter;
 
 /**
  *
  */
-/* package */ class GraphBuildException extends OpenGammaRuntimeException {
+/* package */ class GraphBuildException extends AbstractGraphBuildException {
 
-  /* package */ GraphBuildException(String message) {
-    this(Collections.<Parameter>emptyList(), message);
-  }
-
-  /* package */ GraphBuildException(List<Parameter> path, String message) {
-    super(message + pathString(path));
-  }
-
-  private static String pathString(List<Parameter> path) {
-    if (path.isEmpty()) {
-      return "";
-    } else {
-      List<String> pathElements = Lists.newArrayListWithCapacity(path.size());
-      for (Parameter parameter : path) {
-        pathElements.add("\t\t" + parameter.getFullName());
-      }
-      return "\n\n\tpath:\n" + StringUtils.join(pathElements, "\n") + "\n";
+  /* package */ GraphBuildException(String message, List<AbstractGraphBuildException> exceptions) {
+    super(message);
+    for (AbstractGraphBuildException exception : exceptions) {
+      addSuppressed(exception);
     }
   }
 }

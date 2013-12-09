@@ -9,6 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +63,11 @@ public final class ConfigUtils {
       throw new IllegalArgumentException("No constructors found for " + type.getName());
     }
     if (constructors.length == 1) {
-      return (Constructor<T>) constructors[0];
+      Constructor<T> constructor = (Constructor<T>) constructors[0];
+      if (!Modifier.isPublic(constructor.getModifiers())) {
+        throw new IllegalArgumentException(type.getName() + " has no public constructors");
+      }
+      return constructor;
     }
     Constructor<?> injectableConstructor = null;
     for (Constructor<?> constructor : constructors) {
@@ -77,6 +82,9 @@ public final class ConfigUtils {
     }
     if (injectableConstructor == null) {
       throw new IllegalArgumentException(type.getName() + " has multiple constructors but none have an @Inject annotation");
+    }
+    if (!Modifier.isPublic(injectableConstructor.getModifiers())) {
+      throw new IllegalArgumentException(type.getName() + " has no public constructors");
     }
     return (Constructor<T>) injectableConstructor;
   }

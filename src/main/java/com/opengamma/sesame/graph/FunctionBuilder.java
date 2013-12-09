@@ -15,13 +15,14 @@ import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.engine.ComponentMap;
 
 /**
- * TODO should this be an interface? composable?
+ *
  */
 public final class FunctionBuilder {
 
   private final Map<Node, Object> _sharedNodeObjects = Maps.newHashMap();
 
   /* package */ Object create(Node node, ComponentMap componentMap) {
+    checkValid(node);
     // TODO detect cycles in the graph
     // TODO cache this info if it proves expensive to do it over and over for the same classes
     boolean cacheable =
@@ -43,5 +44,11 @@ public final class FunctionBuilder {
       _sharedNodeObjects.put(node, nodeObject);
     }
     return nodeObject;
+  }
+
+  private static void checkValid(Node node) {
+    if (!node.isValid()) {
+      throw new GraphBuildException("Can't build functions from an invalid graph", node.getExceptions());
+    }
   }
 }

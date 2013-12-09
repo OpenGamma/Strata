@@ -60,7 +60,7 @@
     <dependency>
       <groupId>org.joda</groupId>
       <artifactId>joda-beans</artifactId>
-      <version>0.8.5</version>
+      <version>0.9.0</version>
     </dependency>
 
     <dependency>

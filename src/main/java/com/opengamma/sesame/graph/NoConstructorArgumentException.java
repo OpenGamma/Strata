@@ -12,7 +12,7 @@ import com.opengamma.sesame.function.Parameter;
 /**
  *
  */
-/* package */ class NoConstructorArgumentException extends GraphBuildException {
+/* package */ class NoConstructorArgumentException extends AbstractGraphBuildException {
 
   public NoConstructorArgumentException(List<Parameter> path, String message) {
     super(path, message);
