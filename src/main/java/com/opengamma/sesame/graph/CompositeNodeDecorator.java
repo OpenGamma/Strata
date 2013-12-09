@@ -8,6 +8,9 @@ package com.opengamma.sesame.graph;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
@@ -15,7 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * TODO this badly needs a test, it was quietly broken
  */
-public class CompositeNodeDecorator implements NodeDecorator {
+public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(CompositeNodeDecorator.class);
 
   private final List<NodeDecorator> _decorators;
 
@@ -38,5 +43,18 @@ public class CompositeNodeDecorator implements NodeDecorator {
       wrappedNode = decorator.decorateNode(wrappedNode);
     }
     return wrappedNode;
+  }
+
+  @Override
+  public void close() {
+    for (NodeDecorator decorator : _decorators) {
+      if (decorator instanceof AutoCloseable) {
+        try {
+          ((AutoCloseable) decorator).close();
+        } catch (Exception e) {
+          s_logger.warn("Exception closing decorator", e);
+        }
+      }
+    }
   }
 }
