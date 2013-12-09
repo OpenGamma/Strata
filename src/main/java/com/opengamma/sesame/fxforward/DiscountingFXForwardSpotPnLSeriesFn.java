@@ -24,7 +24,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
-public class DiscountingFXForwardPnLSeriesFn implements FXForwardPnLSeriesFn {
+public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn<LocalDateDoubleTimeSeries> {
 
   private final FXForwardCalculatorFn _calculatorProvider;
 
@@ -47,11 +47,11 @@ public class DiscountingFXForwardPnLSeriesFn implements FXForwardPnLSeriesFn {
 
   // todo - what should we be injecting?
   @Inject
-  public DiscountingFXForwardPnLSeriesFn(FXForwardCalculatorFn calculatorProvider,
-                                         CurrencyPairsFn currencyPairsFn,
-                                         Optional<Currency> outputCurrency,
-                                         FXReturnSeriesFn fxReturnSeriesProvider,
-                                         HistoricalTimeSeriesFn historicalTimeSeriesProvider, Period seriesPeriod) {
+  public DiscountingFXForwardSpotPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
+      final CurrencyPairsFn currencyPairsFn,
+      final Optional<Currency> outputCurrency,
+      final FXReturnSeriesFn fxReturnSeriesProvider,
+      final HistoricalTimeSeriesFn historicalTimeSeriesProvider, final Period seriesPeriod) {
     _calculatorProvider = calculatorProvider;
     _currencyPairsFn = currencyPairsFn;
     _outputCurrency = outputCurrency;
@@ -60,27 +60,27 @@ public class DiscountingFXForwardPnLSeriesFn implements FXForwardPnLSeriesFn {
     _seriesPeriod = seriesPeriod;
   }
 
-  public DiscountingFXForwardPnLSeriesFn(FXForwardCalculatorFn calculatorProvider,
-                                         CurrencyPairsFn currencyPairsFn,
-                                         FXReturnSeriesFn fxReturnSeriesProvider,
-                                         HistoricalTimeSeriesFn historicalTimeSeriesProvider, Period seriesPeriod) {
+  public DiscountingFXForwardSpotPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
+      final CurrencyPairsFn currencyPairsFn,
+      final FXReturnSeriesFn fxReturnSeriesProvider,
+      final HistoricalTimeSeriesFn historicalTimeSeriesProvider, final Period seriesPeriod) {
     this(calculatorProvider, currencyPairsFn, Optional.<Currency>absent(), fxReturnSeriesProvider,
-         historicalTimeSeriesProvider, seriesPeriod);
+        historicalTimeSeriesProvider, seriesPeriod);
   }
 
   @Override
-  public FunctionResult<LocalDateDoubleTimeSeries> calculatePnlSeries(FXForwardSecurity security) {
+  public FunctionResult<LocalDateDoubleTimeSeries> calculatePnlSeries(final FXForwardSecurity security) {
 
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
 
-    UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
+    final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
     final FunctionResult<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
 
-    FunctionResult<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
+    final FunctionResult<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
 
     // todo this if/else nesting is fairly horrible - is there a nicer way? E.g:
-    //return gatherResults(cpResult, returnSeriesResult, calculatorResult).whenAvailable(new Doer() {
+      //return gatherResults(cpResult, returnSeriesResult, calculatorResult).whenAvailable(new Doer() {
     //
     //  public FunctionResult doIt(CurrencyPair pair, LocalDateDoubleTimeSeries series, FxForwardCalculator calculator) {
     //    FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
@@ -108,9 +108,9 @@ public class DiscountingFXForwardPnLSeriesFn implements FXForwardPnLSeriesFn {
 
       if (cpResult.isResultAvailable()) {
 
-        CurrencyPair currencyPair = cpResult.getResult();
+        final CurrencyPair currencyPair = cpResult.getResult();
 
-        FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.calculateReturnSeries(
+        final FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.calculateReturnSeries(
             _seriesPeriod,
             currencyPair);
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getResult();
@@ -120,7 +120,7 @@ public class DiscountingFXForwardPnLSeriesFn implements FXForwardPnLSeriesFn {
 
         if (conversionIsRequired(baseCurrency)) {
 
-          FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
+          final FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
               CurrencyPair.of(baseCurrency, _outputCurrency.get()));
           final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getResult();
 
@@ -143,9 +143,9 @@ public class DiscountingFXForwardPnLSeriesFn implements FXForwardPnLSeriesFn {
     }
   }
 
-  private boolean conversionIsRequired(Currency baseCurrency) {
+  private boolean conversionIsRequired(final Currency baseCurrency) {
 
-    // No output currency property or it's the same as base 
+    // No output currency property or it's the same as base
     return _outputCurrency.or(baseCurrency) != baseCurrency;
   }
 }

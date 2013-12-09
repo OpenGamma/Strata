@@ -211,7 +211,7 @@ public class FXForwardPnlSeriesFunctionTest {
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfigName", exposureConfig)),
-                function(DiscountingFXForwardPnLSeriesFn.class,
+                function(DiscountingFXForwardSpotPnLSeriesFn.class,
                          argument("seriesPeriod", Period.ofYears(5)),
                          argument("outputCurrency", Optional.of(Currency.USD))),
                 function(DefaultFXReturnSeriesFn.class,
@@ -234,7 +234,7 @@ public class FXForwardPnlSeriesFunctionTest {
                          // will need string conversion for values like this which can be parsed
                          argument("htsRetrievalPeriod", Period.ofYears(1)))),
             implementations(FXForwardPnLSeriesFn.class,
-                            DiscountingFXForwardPnLSeriesFn.class,
+                            DiscountingFXForwardSpotPnLSeriesFn.class,
                             FXReturnSeriesFn.class,
                             DefaultFXReturnSeriesFn.class,
                             FXForwardCalculatorFn.class,
