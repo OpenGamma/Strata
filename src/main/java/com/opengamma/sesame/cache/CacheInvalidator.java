@@ -26,6 +26,10 @@ import net.sf.ehcache.Ehcache;
 /* package */ class CacheInvalidator {
 
   // TODO valuation time. method to register and invalidate
+  // need to store the time the value was calculated
+  // when invalidating by valuation time can check the lifetime and the calculation time and possibly retain the value
+  // is lifetime implied by the method called on ValuationTimeFn? getDate() implies 1 day lifetime
+  // getTime() implies it's only valid for the instant it's calculated
 
   // TODO pairs of methods - register/invalidateMarketData, register/invalidateConfig, register/invalidateValuationTime?
 
