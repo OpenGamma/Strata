@@ -7,13 +7,12 @@ package com.opengamma.sesame.fxforward;
 
 import static com.opengamma.util.result.FunctionResultGenerator.failure;
 import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.util.result.FunctionResultGenerator.propagateFailures;
 import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import java.util.Set;
 
 import javax.inject.Inject;
-
-import org.threeten.bp.Period;
 
 import com.google.common.base.Optional;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -29,13 +28,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.util.time.Tenor;
 
 public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> {
@@ -57,11 +55,6 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
   private final CurveSpecificationFn _curveSpecificationFunction;
   private final CurrencyPairsFn _currencyPairsFn;
 
-  /**
-   * How big a timeseries result is required. Start date will be valuation date - period.
-   */
-  private final Period _seriesPeriod;
-
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
                                              final String curveName,
@@ -70,7 +63,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
                                              final FXReturnSeriesFn fxReturnSeriesProvider,
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                              final CurveSpecificationFn curveSpecificationFunction,
-                                             CurrencyPairsFn currencyPairsFn, final Period seriesPeriod) {
+                                             final CurrencyPairsFn currencyPairsFn) {
     _calculatorProvider = calculatorProvider;
     _curveName = curveName;
     _payLeg = payLeg;
@@ -79,7 +72,6 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
-    _seriesPeriod = seriesPeriod;
   }
 
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
@@ -88,99 +80,108 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
                                              final FXReturnSeriesFn fxReturnSeriesProvider,
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                              final CurveSpecificationFn curveSpecificationFunction,
-                                             final Period seriesPeriod, CurrencyPairsFn currencyPairsFn) {
+                                             final CurrencyPairsFn currencyPairsFn) {
     this(calculatorProvider, curveName, payLeg, Optional.<Currency>absent(), fxReturnSeriesProvider,
-        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, seriesPeriod);
+        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn);
   }
 
   @Override
   public FunctionResult<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculatePnlSeries(final FXForwardSecurity security) {
-    Currency payCurrency = security.getPayCurrency();
-    Currency receiveCurrency = security.getReceiveCurrency();
+
+    final Currency payCurrency = security.getPayCurrency();
+    final Currency receiveCurrency = security.getReceiveCurrency();
     final Currency curveCurrency = _payLeg ? payCurrency : receiveCurrency;
-    boolean conversionRequired = conversionIsRequired(curveCurrency);
-
-
     final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
+
     final FunctionResult<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
-
     final FunctionResult<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
-    final FunctionResult<CurveSpecification> curveSpecificationResult = _curveSpecificationFunction.getCurveSpecification(
-        _curveName);
-    if (calculatorResult.isResultAvailable()) {
-      FXForwardCalculator forwardCalculator = calculatorResult.getResult();
-      MultipleCurrencyAmount currencyExposure = forwardCalculator.calculateCurrencyExposure();
+    final FunctionResult<CurveSpecification> curveSpecificationResult =
+        _curveSpecificationFunction.getCurveSpecification(_curveName);
 
-      final MultipleCurrencyParameterSensitivity bcs = forwardCalculator.generateBlockCurveSensitivities();
-      if (curveSpecificationResult.isResultAvailable()) {
-        final CurveSpecification curveSpecification = curveSpecificationResult.getResult();
-        final FunctionResult<HistoricalTimeSeriesBundle> curveSeriesBundleResult = _historicalTimeSeriesProvider.getHtsForCurve(
-            curveSpecification);
-        if (curveSeriesBundleResult.isResultAvailable()) {
-          final HistoricalTimeSeriesBundle curveSeriesBundle = curveSeriesBundleResult.getResult();
-          final DoubleMatrix1D sensitivities = bcs.getSensitivity(_curveName, curveCurrency);
-          final Set<CurveNodeWithIdentifier> nodes = curveSpecification.getNodes();
-          final int n = sensitivities.getNumberOfElements();
-          if (n != nodes.size()) {
-            return failure(FailureStatus.ERROR, "Unequal number of sensitivities ({}) and curve nodes ({})", n, nodes.size());
-          }
-          final Tenor[] keys = new Tenor[n];
-          final Object[] labels = new Object[n];
-          final LocalDateDoubleTimeSeries[] values = new LocalDateDoubleTimeSeries[n];
+    if (calculatorResult.isResultAvailable() && curveSpecificationResult.isResultAvailable() &&
+        cpResult.isResultAvailable()) {
 
-          if (cpResult.isResultAvailable()) {
-            final double exposure = currencyExposure.getAmount(cpResult.getResult().getCounter());
+      final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getResult().generateBlockCurveSensitivities();
+      final CurveSpecification curveSpecification = curveSpecificationResult.getResult();
 
-             LocalDateDoubleTimeSeries convertedSeries = null;
-            if (conversionRequired) {
+      final FunctionResult<HistoricalTimeSeriesBundle> curveSeriesBundleResult =
+          _historicalTimeSeriesProvider.getHtsForCurve(curveSpecification);
 
-              final FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
-                  CurrencyPair.of(curveCurrency, _outputCurrency.get()));
+      if (curveSeriesBundleResult.isResultAvailable()) {
 
-              if (conversionSeriesResult.isResultAvailable()) {
-                final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getResult();
-                convertedSeries = conversionSeries.multiply(exposure);
+        final HistoricalTimeSeriesBundle curveSeriesBundle = curveSeriesBundleResult.getResult();
+        final DoubleMatrix1D sensitivities = bcs.getSensitivity(_curveName, curveCurrency);
+        final Set<CurveNodeWithIdentifier> nodes = curveSpecification.getNodes();
 
-              }
-            }
+        final int sensitivitiesSize = sensitivities.getNumberOfElements();
+        final int nodesSize = nodes.size();
 
-
-          int i = 0;
-          for (final CurveNodeWithIdentifier curveNodeWithId : nodes) {
-            final String field = curveNodeWithId.getDataField();
-            final ExternalId id = curveNodeWithId.getIdentifier();
-            final HistoricalTimeSeries hts = curveSeriesBundle.get(field, id);
-            if (hts == null || hts.getTimeSeries().isEmpty()) {
-              return failure(FailureStatus.MISSING_DATA, "Could not get time series for {} with field {}", id, field);
-            }
-
-            final LocalDateDoubleTimeSeries ts = hts.getTimeSeries();
-            // TODO return series calculation
-            // TODO need to multiply by the FX conversion series if required before the return series is calculated
-
-            final LocalDateDoubleTimeSeries returnSeries;
-            if (conversionRequired) {
-              final LocalDateDoubleTimeSeries converted = ts.multiply(convertedSeries);
-              returnSeries = _fxReturnSeriesProvider.calculateReturnSeries(converted);
-            } else {
-              returnSeries = _fxReturnSeriesProvider.calculateReturnSeries(ts);
-            }
-
-
-
-            keys[i] = curveNodeWithId.getCurveNode().getResolvedMaturity();
-            labels[i] = curveNodeWithId.getCurveNode().getName();
-            values[i] = returnSeries.multiply(sensitivities.getEntry(i));
-            i++;
-          }
-          return success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(keys, labels, values));
-          }
+        if (sensitivitiesSize != nodesSize) {
+          return failure(FailureStatus.ERROR,
+                         "Unequal number of sensitivities ({}) and curve nodes ({})", sensitivitiesSize, nodesSize);
         }
-        return propagateFailure(curveSeriesBundleResult);
+
+        LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(curveCurrency);
+        return calculateSeriesForNodes(curveSeriesBundle, sensitivities, nodes, conversionSeries);
       }
-      return propagateFailure(curveSpecificationResult);
+      return propagateFailure(curveSeriesBundleResult);
     }
-    return propagateFailure(calculatorResult);
+    return propagateFailures(calculatorResult, curveSpecificationResult, cpResult);
+  }
+
+  private LocalDateDoubleTimeSeries generateConversionSeries(Currency curveCurrency) {
+
+    if (conversionIsRequired(curveCurrency)) {
+
+      final FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult =
+          _historicalTimeSeriesProvider.getHtsForCurrencyPair(CurrencyPair.of(curveCurrency, _outputCurrency.get()));
+
+      if (conversionSeriesResult.isResultAvailable()) {
+        return conversionSeriesResult.getResult();
+      }
+      // todo handle the cse where we got no result
+    }
+    return null;
+  }
+
+  private FunctionResult<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateSeriesForNodes(HistoricalTimeSeriesBundle curveSeriesBundle,
+                                                                                         DoubleMatrix1D sensitivities,
+                                                                                         Set<CurveNodeWithIdentifier> nodes,
+                                                                                         LocalDateDoubleTimeSeries fxConversionSeries) {
+    final int size = sensitivities.getNumberOfElements();
+
+    final Tenor[] keys = new Tenor[size];
+    final Object[] labels = new Object[size];
+    final LocalDateDoubleTimeSeries[] values = new LocalDateDoubleTimeSeries[size];
+
+    int i = 0;
+    for (final CurveNodeWithIdentifier curveNodeWithId : nodes) {
+
+      final String field = curveNodeWithId.getDataField();
+      final ExternalId id = curveNodeWithId.getIdentifier();
+      final HistoricalTimeSeries hts = curveSeriesBundle.get(field, id);
+
+      if (hts == null || hts.getTimeSeries().isEmpty()) {
+        return failure(FailureStatus.MISSING_DATA, "Could not get time series for {} with field {}", id, field);
+      }
+
+      final LocalDateDoubleTimeSeries ts = hts.getTimeSeries();
+      final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(ts, fxConversionSeries);
+
+      keys[i] = curveNodeWithId.getCurveNode().getResolvedMaturity();
+      labels[i] = curveNodeWithId.getCurveNode().getName();
+      values[i] = returnSeries.multiply(sensitivities.getEntry(i));
+      i++;
+    }
+
+    return success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(keys, labels, values));
+  }
+
+  private LocalDateDoubleTimeSeries calculateConvertedReturnSeries(LocalDateDoubleTimeSeries ts,
+                                                                   LocalDateDoubleTimeSeries conversionSeries) {
+
+    LocalDateDoubleTimeSeries series = conversionSeries != null ? ts.multiply(conversionSeries) : ts;
+    return _fxReturnSeriesProvider.calculateReturnSeries(series);
   }
 
   private boolean conversionIsRequired(final Currency baseCurrency) {
