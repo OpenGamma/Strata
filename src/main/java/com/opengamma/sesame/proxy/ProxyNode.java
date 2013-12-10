@@ -22,6 +22,7 @@ public class ProxyNode extends DependentNode {
 
   private final Class<?> _implementationType;
   private final Node _delegateNode;
+  // TODO should this be a Class<?> and the instance can be retrieved from the ComponentMap? that could be serialized
   private final InvocationHandlerFactory _handlerFactory;
 
   public ProxyNode(Node delegateNode,
@@ -38,6 +39,7 @@ public class ProxyNode extends DependentNode {
   protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
     // TODO can I use ProxyGenerator here? or extract its logic?
     // TODO which class loader?
+    // TODO if delegate is a proxy need to drill down and get the real receiver
     Object delegate = dependencies.get(0);
     InvocationHandler invocationHandler = _handlerFactory.create(delegate, this);
     return Proxy.newProxyInstance(getType().getClassLoader(), new Class<?>[]{getType()}, invocationHandler);
