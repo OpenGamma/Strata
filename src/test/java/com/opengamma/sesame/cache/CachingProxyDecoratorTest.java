@@ -64,7 +64,7 @@ public class CachingProxyDecoratorTest {
     Method foo = ConfigUtils.getMethod(TestFn.class, "foo");
     CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
     Impl delegate = (Impl) invocationHandler.getDelegate();
-    MethodInvocationKey key = new MethodInvocationKey(Impl.class, foo, new Object[]{"bar"}, delegate);
+    MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
     Ehcache cache = cachingDecorator.getCache();
@@ -275,7 +275,7 @@ public class CachingProxyDecoratorTest {
     Method foo = ConfigUtils.getMethod(TestFn2.class, "foo");
     CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
     Impl2 delegate = (Impl2) invocationHandler.getDelegate();
-    MethodInvocationKey key = new MethodInvocationKey(Impl2.class, foo, new Object[]{"bar"}, delegate);
+    MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
     Ehcache cache = cachingDecorator.getCache();
@@ -337,7 +337,7 @@ public class CachingProxyDecoratorTest {
     @Override
     public Object fn(String s, int i) {
       Method fn = ConfigUtils.getMethod(ExecutingMethodsI1.class, "fn");
-      MethodInvocationKey key = new MethodInvocationKey(ExecutingMethodsC1.class, fn, new Object[]{s, i}, this);
+      MethodInvocationKey key = new MethodInvocationKey(this, fn, new Object[]{s, i});
       LinkedList<MethodInvocationKey> expected = Lists.newLinkedList();
       expected.add(key);
       assertEquals(expected, _executingMethods.get());
@@ -366,9 +366,9 @@ public class CachingProxyDecoratorTest {
     @Override
     public Object fn(String s, int i, String s2) {
       Method fn1 = ConfigUtils.getMethod(ExecutingMethodsI1.class, "fn");
-      MethodInvocationKey key1 = new MethodInvocationKey(ExecutingMethodsC1.class, fn1, new Object[]{s, i}, _c1);
+      MethodInvocationKey key1 = new MethodInvocationKey(_c1, fn1, new Object[]{s, i});
       Method fn2 = ConfigUtils.getMethod(ExecutingMethodsI2.class, "fn");
-      MethodInvocationKey key2 = new MethodInvocationKey(ExecutingMethodsC2.class, fn2, new Object[]{s, i, s2}, this);
+      MethodInvocationKey key2 = new MethodInvocationKey(this, fn2, new Object[]{s, i, s2});
       LinkedList<MethodInvocationKey> expected = Lists.newLinkedList();
       expected.add(key2);
       expected.add(key1);

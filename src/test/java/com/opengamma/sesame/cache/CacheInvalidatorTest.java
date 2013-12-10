@@ -57,7 +57,7 @@ public class CacheInvalidatorTest {
 
   private static MethodInvocationKey methodKey(Object receiver, String methodName, Object[] args) {
     Method method = ConfigUtils.getMethod(receiver.getClass(), methodName);
-    return new MethodInvocationKey(receiver.getClass(), method, args, receiver);
+    return new MethodInvocationKey(receiver, method, args);
   }
 
   /**

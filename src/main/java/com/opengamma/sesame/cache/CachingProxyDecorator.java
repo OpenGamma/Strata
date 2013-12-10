@@ -8,6 +8,7 @@ package com.opengamma.sesame.cache;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -71,7 +72,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
     }
     if (ConfigUtils.hasMethodAnnotation(interfaceType, Cache.class) ||
         ConfigUtils.hasMethodAnnotation(implementationType, Cache.class)) {
-      HandlerFactory handlerFactory = new HandlerFactory(implementationType, interfaceType, _cache, _executingMethods);
+      CachingHandlerFactory handlerFactory = new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods);
       return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
     return node;
@@ -89,17 +90,17 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
   /**
    * Creates an instance of {@link Handler} when the graph is built.
    */
-  private static final class HandlerFactory implements InvocationHandlerFactory {
+  private static final class CachingHandlerFactory implements InvocationHandlerFactory {
 
     private final Class<?> _interfaceType;
     private final Class<?> _implementationType;
     private final Ehcache _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
 
-    private HandlerFactory(Class<?> implementationType,
-                           Class<?> interfaceType,
-                           Ehcache cache,
-                           ExecutingMethodsThreadLocal executingMethods) {
+    private CachingHandlerFactory(Class<?> implementationType,
+                                  Class<?> interfaceType,
+                                  Ehcache cache,
+                                  ExecutingMethodsThreadLocal executingMethods) {
       _executingMethods = executingMethods;
       _cache = ArgumentChecker.notNull(cache, "cache");
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
@@ -129,7 +130,28 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
           }
         }
       }
-      return new Handler(delegate, cachedMethods, _implementationType, _cache, _executingMethods);
+      // TODO delegate could be a proxy but the cache key should contain the underlying shared function instance
+      // probably need 1) an extra argument and 2) a way of drilling through proxies to get to the real receiver
+      return new Handler(delegate, cachedMethods, _cache, _executingMethods);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(_interfaceType, _implementationType);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      final CachingHandlerFactory other = (CachingHandlerFactory) obj;
+      return
+          Objects.equals(this._interfaceType, other._interfaceType) &&
+          Objects.equals(this._implementationType, other._implementationType);
     }
   }
 
@@ -145,46 +167,48 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
    */
   /* package */ static final class Handler implements InvocationHandler {
 
+    // TODO this could be a proxy but also need the real receiver for the cache key
     private final Object _delegate;
     private final Set<Method> _cachedMethods;
-    private final Class<?> _implementationType;
     private final Ehcache _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
 
     private Handler(Object delegate,
                     Set<Method> cachedMethods,
-                    Class<?> implementationType,
                     Ehcache cache,
                     ExecutingMethodsThreadLocal executingMethods) {
       _cache = ArgumentChecker.notNull(cache, "cache");
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
-      _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
       if (_cachedMethods.contains(method)) {
-        final MethodInvocationKey key = new MethodInvocationKey(_implementationType, method, args, _delegate);
+        final MethodInvocationKey key = new MethodInvocationKey(_delegate, method, args);
         Element element = _cache.get(key);
         if (element != null) {
           FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
+          s_logger.debug("Returning cached value for key {}", key);
           return task.get();
         }
         FutureTask<Object> task = new FutureTask<>(new CallableMethod(key, method, args));
         Element previous = _cache.putIfAbsent(new Element(key, task));
         // our task is the one in the cache, run it
         if (previous == null) {
+          s_logger.debug("Calculating value for key {}", key);
           task.run();
           return task.get();
         } else {
           // someone else's task is there already, block until it completes
+          s_logger.debug("Waiting for cached value to be calculated for key {}", key);
           return ((Future<Object>) previous.getObjectValue()).get();
         }
       } else {
         try {
+          s_logger.debug("Calculating non-cacheable result by invoking method {}", method);
           return method.invoke(_delegate, args);
         } catch (InvocationTargetException e) {
           throw e.getCause();
@@ -212,7 +236,6 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
       @Override
       public Object call() throws Exception {
         try {
-          s_logger.debug("Loading value for key {}", _key);
           _executingMethods.push(_key);
           return _method.invoke(_delegate, _args);
         } catch (IllegalAccessException | InvocationTargetException e) {
