@@ -12,7 +12,7 @@ import java.util.Set;
 
 import com.opengamma.sesame.FailureStatus;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.StandardResultGenerator;
+import com.opengamma.sesame.FunctionResultGenerator;
 
 /**
  *
@@ -51,9 +51,9 @@ public class MarketDataValuesResultBuilder {
   // TODO what's the correct behaviour here? is getting some of the data success or failure?
   public FunctionResult<MarketDataValues> build() {
     if (_results.isEmpty()) {
-      return StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "Missing market data: {}", _missing);
+      return FunctionResultGenerator.failure(FailureStatus.MISSING_DATA, "Missing market data: {}", _missing);
     } else {
-      return StandardResultGenerator.success(new MarketDataValues(_results, _missing));
+      return FunctionResultGenerator.success(new MarketDataValues(_results, _missing));
     }
   }
 }

@@ -64,10 +64,10 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
       LocalDateDoubleTimeSeries reciprocalSeries = sampledTimeSeries.reciprocal();
 
       // todo - clip the time-series to the range originally asked for?
-      return StandardResultGenerator.success(_timeSeriesConverter.convert(reciprocalSeries));
+      return FunctionResultGenerator.success(_timeSeriesConverter.convert(reciprocalSeries));
 
     } else {
-      return StandardResultGenerator.propagateFailure(result);
+      return FunctionResultGenerator.propagateFailure(result);
     }
   }
 }

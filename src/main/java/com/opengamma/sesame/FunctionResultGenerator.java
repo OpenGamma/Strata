@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.sesame.marketdata.MarketDataSeriesResultBuilder;
 import com.opengamma.sesame.marketdata.MarketDataValuesResultBuilder;
 
-public class StandardResultGenerator {
+public class FunctionResultGenerator {
 
   public static MarketDataValuesResultBuilder marketDataValuesBuilder() {
     return new MarketDataValuesResultBuilder();

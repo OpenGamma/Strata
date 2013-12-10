@@ -14,7 +14,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.StandardResultGenerator;
+import com.opengamma.sesame.FunctionResultGenerator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -41,7 +41,7 @@ public class EagerMarketDataFn implements MarketDataFn {
 
   @Override
   public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
-    MarketDataValuesResultBuilder resultBuilder = StandardResultGenerator.marketDataValuesBuilder();
+    MarketDataValuesResultBuilder resultBuilder = FunctionResultGenerator.marketDataValuesBuilder();
     for (MarketDataRequirement requirement : requirements) {
       MarketDataItem item = getValue(requirement);
       if (item.isAvailable()) {
@@ -78,7 +78,7 @@ public class EagerMarketDataFn implements MarketDataFn {
 
   @Override
   public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
-    MarketDataSeriesResultBuilder resultBuilder = StandardResultGenerator.marketDataSeriesBuilder();
+    MarketDataSeriesResultBuilder resultBuilder = FunctionResultGenerator.marketDataSeriesBuilder();
     for (MarketDataRequirement requirement : requirements) {
       MarketDataItem item = getSeries(requirement, dateRange);
       if (item.isAvailable()) {

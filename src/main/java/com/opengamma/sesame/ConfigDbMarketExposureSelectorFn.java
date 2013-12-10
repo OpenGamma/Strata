@@ -6,8 +6,8 @@
 package com.opengamma.sesame;
 
 import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.StandardResultGenerator.failure;
-import static com.opengamma.sesame.StandardResultGenerator.success;
+import static com.opengamma.sesame.FunctionResultGenerator.failure;
+import static com.opengamma.sesame.FunctionResultGenerator.success;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;

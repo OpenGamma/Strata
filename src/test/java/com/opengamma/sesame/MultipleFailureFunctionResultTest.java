@@ -19,9 +19,9 @@ public class MultipleFailureFunctionResultTest {
 
   @Test
   public void sameType() {
-    FunctionResult<Object> failure1 = StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "message 1");
-    FunctionResult<Object> failure2 = StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "message 2");
-    FunctionResult<Object> failure3 = StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "message 3");
+    FunctionResult<Object> failure1 = FunctionResultGenerator.failure(FailureStatus.MISSING_DATA, "message 1");
+    FunctionResult<Object> failure2 = FunctionResultGenerator.failure(FailureStatus.MISSING_DATA, "message 2");
+    FunctionResult<Object> failure3 = FunctionResultGenerator.failure(FailureStatus.MISSING_DATA, "message 3");
     List<FunctionResult<?>> failures = Lists.<FunctionResult<?>>newArrayList(failure1, failure2, failure3);
     MultipleFailureFunctionResult<Object> composite = new MultipleFailureFunctionResult<>(failures);
     assertEquals(FailureStatus.MISSING_DATA, composite.getStatus());
@@ -30,9 +30,9 @@ public class MultipleFailureFunctionResultTest {
 
   @Test
   public void differentTypes() {
-    FunctionResult<Object> failure1 = StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "message 1");
-    FunctionResult<Object> failure2 = StandardResultGenerator.failure(FailureStatus.CALCULATION_FAILED, "message 2");
-    FunctionResult<Object> failure3 = StandardResultGenerator.failure(FailureStatus.ERROR, "message 3");
+    FunctionResult<Object> failure1 = FunctionResultGenerator.failure(FailureStatus.MISSING_DATA, "message 1");
+    FunctionResult<Object> failure2 = FunctionResultGenerator.failure(FailureStatus.CALCULATION_FAILED, "message 2");
+    FunctionResult<Object> failure3 = FunctionResultGenerator.failure(FailureStatus.ERROR, "message 3");
     List<FunctionResult<?>> failures = Lists.<FunctionResult<?>>newArrayList(failure1, failure2, failure3);
     MultipleFailureFunctionResult<Object> composite = new MultipleFailureFunctionResult<>(failures);
     assertEquals(FailureStatus.MULTIPLE, composite.getStatus());

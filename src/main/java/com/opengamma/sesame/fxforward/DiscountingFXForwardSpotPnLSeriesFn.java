@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.sesame.StandardResultGenerator.propagateFailure;
-import static com.opengamma.sesame.StandardResultGenerator.success;
+import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.sesame.FunctionResultGenerator.success;
 
 import javax.inject.Inject;
 

@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.StandardResultGenerator.failure;
-import static com.opengamma.sesame.StandardResultGenerator.propagateFailure;
-import static com.opengamma.sesame.StandardResultGenerator.success;
+import static com.opengamma.sesame.FunctionResultGenerator.failure;
+import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.sesame.FunctionResultGenerator.success;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.security.equity.EquitySecurity;

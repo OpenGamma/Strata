@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.StandardResultGenerator.success;
+import static com.opengamma.sesame.FunctionResultGenerator.success;
 
 import java.util.Set;
 
