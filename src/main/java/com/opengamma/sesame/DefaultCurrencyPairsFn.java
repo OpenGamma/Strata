@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +17,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.result.FunctionResult;
 
 public class DefaultCurrencyPairsFn implements CurrencyPairsFn {
 

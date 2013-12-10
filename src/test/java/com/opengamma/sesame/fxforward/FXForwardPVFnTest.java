@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.SuccessStatus.SUCCESS;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
@@ -95,10 +95,10 @@ import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
-import com.opengamma.sesame.ResultStatus;
+import com.opengamma.util.result.ResultStatus;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
@@ -228,7 +228,7 @@ public class FXForwardPVFnTest {
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeYieldCurveAgainstRemoteServer() throws IOException {
 
-    //String serverUrl = "http://devsvr-lx-2:8080";
+    // String serverUrl = "http://devsvr-lx-2:8080";
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -274,7 +274,7 @@ public class FXForwardPVFnTest {
       trades.add(createRandomFxForwardTrade());
     }
     s_logger.info("created {} trades in {}ms", nTrades, System.currentTimeMillis() - startTrades);
-    String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
+    String exposureConfig = "Temple USD-EUR-JPY";
     ViewDef viewDef =
         viewDef("FX forward PV view",
                 column("Present Value",
@@ -299,7 +299,7 @@ public class FXForwardPVFnTest {
     //ExecutorService executor = new EngineTest.DirectExecutorService();
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
-    String serverUrl = "http://localhost:8080";
+    String serverUrl = "http://devsvr-lx-2:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
@@ -389,7 +389,7 @@ public class FXForwardPVFnTest {
   }
 
   private static FunctionConfig createFunctionConfig() {
-    String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
+    String exposureConfig = "Temple USD-EUR-JPY";
     return
         config(
             arguments(

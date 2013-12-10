@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import javax.inject.Inject;
 
@@ -17,7 +17,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -104,7 +104,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
     if (calculatorResult.isResultAvailable()) {
 
-      final MultipleCurrencyAmount mca = calculatorResult.getResult().calculateCurrencyExposure();
+      final MultipleCurrencyAmount currencyExposure = calculatorResult.getResult().calculateCurrencyExposure();
 
       if (cpResult.isResultAvailable()) {
 
@@ -116,16 +116,16 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getResult();
 
         final Currency baseCurrency = currencyPair.getBase();
-        final double exposure = mca.getAmount(currencyPair.getCounter());
+        final double exposure = currencyExposure.getAmount(currencyPair.getCounter());
 
         if (conversionIsRequired(baseCurrency)) {
 
           final FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
               CurrencyPair.of(baseCurrency, _outputCurrency.get()));
-          final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getResult();
 
           if (conversionSeriesResult.isResultAvailable()) {
 
+            final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getResult();
             final LocalDateDoubleTimeSeries convertedSeries = conversionSeries.multiply(exposure);
             return success(convertedSeries.multiply(fxSpotReturnSeries));
 

@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.proxy;
 
-import static com.opengamma.sesame.FailureStatus.ERROR;
+import static com.opengamma.util.result.FailureStatus.ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -23,8 +23,8 @@ import org.threeten.bp.Period;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.CurrencyPairsFn;
-import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.ResultStatus;
+import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.ResultStatus;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSeries;

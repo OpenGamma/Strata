@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
-import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,8 +21,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Provi
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.FailureStatus;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.util.money.Currency;
@@ -67,6 +67,8 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
       MarketExposureSelector selector = mesResult.getResult();
       Set<String> curveConfigNames = selector.determineCurveConfigurationsForSecurity(security);
 
+      // todo - we may also want to cache the merged bundle at the level of the curveConfig names
+      // e.g. MergedBundleProvider.getMergedBundle(curveConfigNames)
       for (String name : curveConfigNames) {
 
         FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =

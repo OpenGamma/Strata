@@ -16,8 +16,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.FunctionResultGenerator;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.ResettableMarketDataFn;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -57,7 +56,7 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
 
   @Override
   public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
-    MarketDataValuesResultBuilder builder = FunctionResultGenerator.marketDataValuesBuilder();
+    MarketDataValuesResultBuilder builder = new MarketDataValuesResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       if (_requestedMarketData.containsKey(requirement)) {
         builder.foundData(requirement, _requestedMarketData.get(requirement));
@@ -76,7 +75,7 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
 
   @Override
   public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
-    MarketDataSeriesResultBuilder builder = FunctionResultGenerator.marketDataSeriesBuilder();
+    MarketDataSeriesResultBuilder builder = new MarketDataSeriesResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       if (_requestedMarketData.containsKey(requirement)) {
         builder.foundData(requirement, _requestedMarketData.get(requirement));

@@ -50,7 +50,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.EquityPresentValue;
 import com.opengamma.sesame.EquityPresentValueFn;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.ResettableMarketDataFn;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;

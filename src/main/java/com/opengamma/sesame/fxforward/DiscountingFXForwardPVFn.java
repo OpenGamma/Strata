@@ -5,12 +5,12 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FunctionResult;
 
 public class DiscountingFXForwardPVFn implements FXForwardPVFn {
 

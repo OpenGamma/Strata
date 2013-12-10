@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.cache.Cache;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FunctionResult;
 
 /**
  * Provides an FX Matrix.

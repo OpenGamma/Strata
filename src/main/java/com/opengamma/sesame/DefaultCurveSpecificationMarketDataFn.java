@@ -14,6 +14,7 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataValues;
+import com.opengamma.util.result.FunctionResult;
 
 public class DefaultCurveSpecificationMarketDataFn implements CurveSpecificationMarketDataFn {
 

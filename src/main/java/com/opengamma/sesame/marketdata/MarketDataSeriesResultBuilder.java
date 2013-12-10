@@ -10,9 +10,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.sesame.FailureStatus;
-import com.opengamma.sesame.FunctionResult;
-import com.opengamma.sesame.FunctionResultGenerator;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.FunctionResultGenerator;
 import com.opengamma.timeseries.date.DateTimeSeries;
 
 /**

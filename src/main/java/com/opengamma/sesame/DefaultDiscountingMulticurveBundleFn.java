@@ -6,10 +6,10 @@
 package com.opengamma.sesame;
 
 
-import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
-import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,6 +77,9 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.ResultStatus;
+import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.tuple.Pair;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -193,6 +196,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         final List<IndexON> overnightIndex = new ArrayList<>();
         final String curveName = entry.getKey();
 
+        // TODO - curve def and spec are closely related and the curveSec provider should probably use the curveDef provider underneath
         FunctionResult<CurveDefinition> curveDefResult = _curveDefinitionProvider.getCurveDefinition(curveName);
         FunctionResult<CurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(curveName);
 
@@ -295,7 +299,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                                               HistoricalTimeSeriesBundle htsBundle,
                                                               FXMatrix fxMatrix) {
 
-    ZonedDateTime now = _valuationTimeProvider.get();
+    ZonedDateTime valuationTime = _valuationTimeProvider.get();
 
     Set<CurveNodeWithIdentifier> nodes = specification.getNodes();
     final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nodes.size()];
@@ -304,11 +308,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     for (final CurveNodeWithIdentifier node : nodes) {
 
       final InstrumentDefinition<?> definitionForNode =
-          node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, now, fxMatrix));
+          node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationTime, fxMatrix));
 
       // todo - we may need to allow the node converter implementation to be changed
       derivativesForCurve[i++] =
-          (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, now, htsBundle);
+          (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, valuationTime, htsBundle);
     }
 
     return derivativesForCurve;

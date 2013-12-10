@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import java.util.Set;
 
@@ -26,6 +26,8 @@ import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.SuccessStatus;
 
 /**
  */

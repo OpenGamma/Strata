@@ -6,15 +6,15 @@
 package com.opengamma.sesame.proxy;
 
 
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import com.opengamma.sesame.FailureStatus;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**

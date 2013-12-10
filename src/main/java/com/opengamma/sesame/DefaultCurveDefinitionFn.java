@@ -5,14 +5,16 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.FunctionResult;
 
 /**
  * Returns a curve definition from the configured source. If not available, the

@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.SuccessStatus.SUCCESS;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -26,6 +26,8 @@ import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.ResultStatus;
 
 public class EquityPresentValueTest {
 

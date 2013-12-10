@@ -8,6 +8,7 @@ package com.opengamma.sesame;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.result.FunctionResult;
 
 public interface CurrencyPairsFn {
 

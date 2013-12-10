@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
-import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +34,8 @@ import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.FunctionResult;
 
 public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 

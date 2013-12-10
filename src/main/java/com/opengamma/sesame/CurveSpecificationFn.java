@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.util.result.FunctionResult;
 
 public interface CurveSpecificationFn {
 

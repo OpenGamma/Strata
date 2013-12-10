@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 import com.opengamma.sesame.cache.Cache;
+import com.opengamma.util.result.FunctionResult;
 
 public interface MarketExposureSelectorFn {
 

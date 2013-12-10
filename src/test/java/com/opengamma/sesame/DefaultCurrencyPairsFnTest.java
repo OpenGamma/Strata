@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.SuccessStatus.SUCCESS;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static com.opengamma.util.money.Currency.AUD;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
@@ -19,6 +19,8 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
 

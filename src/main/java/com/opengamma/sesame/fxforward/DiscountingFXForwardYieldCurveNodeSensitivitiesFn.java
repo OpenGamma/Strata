@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
-import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import java.util.Map;
 
@@ -18,8 +18,8 @@ import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurveDefinitionFn;
-import com.opengamma.sesame.FailureStatus;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 

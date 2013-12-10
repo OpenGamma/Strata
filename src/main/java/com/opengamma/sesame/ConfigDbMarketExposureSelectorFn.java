@@ -5,14 +5,15 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.FunctionResult;
 
 public class ConfigDbMarketExposureSelectorFn implements MarketExposureSelectorFn {
 

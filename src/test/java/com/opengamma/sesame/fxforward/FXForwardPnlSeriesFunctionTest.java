@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.sesame.FailureStatus.MISSING_DATA;
-import static com.opengamma.sesame.SuccessStatus.SUCCESS;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
@@ -82,10 +82,10 @@ import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
-import com.opengamma.sesame.ResultStatus;
+import com.opengamma.util.result.ResultStatus;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
 import com.opengamma.sesame.ValuationTimeFn;

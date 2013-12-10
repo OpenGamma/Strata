@@ -6,7 +6,7 @@
 package com.opengamma.sesame.fxforward;
 
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FunctionResult;
 
 public interface FXForwardCalculatorFn {
 

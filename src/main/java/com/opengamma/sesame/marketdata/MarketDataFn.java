@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.threeten.bp.Period;
 
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.util.time.LocalDateRange;
 
 /**

@@ -9,6 +9,7 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.result.FunctionResult;
 
 public interface HistoricalTimeSeriesFn {
 

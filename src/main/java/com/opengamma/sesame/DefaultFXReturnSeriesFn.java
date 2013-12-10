@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.util.result.FunctionResultGenerator.success;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -18,6 +20,8 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.FunctionResultGenerator;
 
 public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
 
@@ -51,23 +55,27 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
     FunctionResult<MarketDataSeries> result =
         _marketDataFn.requestData(MarketDataRequirementFactory.of(currencyPair), seriesPeriod);
 
-    if (result.isResultAvailable()) {
+    return result.isResultAvailable() ?
+        success(calculateReturnSeries((LocalDateDoubleTimeSeries) result.getResult().getOnlySeries())) :
+        propagateFailure(result);
+  }
 
-      // todo - is faffing about with include start / end required?
-      LocalDateDoubleTimeSeries timeSeries = (LocalDateDoubleTimeSeries) result.getResult().getOnlySeries();
+  @Override
+  public LocalDateDoubleTimeSeries calculateReturnSeries(LocalDateDoubleTimeSeries timeSeries) {
+    // todo - is faffing about with include start / end required?
+    final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(
+        _scheduleCalculator.getSchedule(timeSeries.getEarliestTime(), timeSeries.getLatestTime(), true, false),
+        WEEKEND_CALENDAR);
+    LocalDateDoubleTimeSeries sampledTimeSeries = _timeSeriesSamplingFunction.getSampledTimeSeries(timeSeries, dates);
 
-      final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(
-          _scheduleCalculator.getSchedule(timeSeries.getEarliestTime(), timeSeries.getLatestTime(), true, false), WEEKEND_CALENDAR);
-      LocalDateDoubleTimeSeries sampledTimeSeries = _timeSeriesSamplingFunction.getSampledTimeSeries(timeSeries, dates);
+    // Implementation note: to obtain the series for one unit of non-base currency expressed in base currency.
+    LocalDateDoubleTimeSeries reciprocalSeries = sampledTimeSeries.reciprocal();
 
-      // Implementation note: to obtain the series for one unit of non-base currency expressed in base currency.
-      LocalDateDoubleTimeSeries reciprocalSeries = sampledTimeSeries.reciprocal();
+    // todo - clip the time-series to the range originally asked for?
+    return _timeSeriesConverter.convert(reciprocalSeries);
+  }
 
-      // todo - clip the time-series to the range originally asked for?
-      return FunctionResultGenerator.success(_timeSeriesConverter.convert(reciprocalSeries));
-
-    } else {
-      return FunctionResultGenerator.propagateFailure(result);
-    }
+  private FunctionResult<LocalDateDoubleTimeSeries> propagateFailure(FunctionResult<MarketDataSeries> result) {
+    return FunctionResultGenerator.propagateFailure(result);
   }
 }

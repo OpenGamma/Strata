@@ -9,6 +9,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.result.FunctionResult;
 
 /**
  * Provides FX return series for currency pairs.
@@ -25,4 +26,6 @@ public interface FXReturnSeriesFn {
    * @return the return series for the currency pair if available, not null
    */
   FunctionResult<LocalDateDoubleTimeSeries> calculateReturnSeries(Period seriesPeriod, CurrencyPair currencyPair);
+
+  LocalDateDoubleTimeSeries calculateReturnSeries(LocalDateDoubleTimeSeries timeSeries);
 }

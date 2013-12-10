@@ -6,6 +6,7 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.util.result.FunctionResult;
 
 /**
  * Function capable of creating a curve definition.

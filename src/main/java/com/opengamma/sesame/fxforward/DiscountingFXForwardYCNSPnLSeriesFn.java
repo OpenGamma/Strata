@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.sesame.FunctionResultGenerator.failure;
-import static com.opengamma.sesame.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.sesame.FunctionResultGenerator.success;
+import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
+import static com.opengamma.util.result.FunctionResultGenerator.success;
 
 import java.util.Set;
 
@@ -23,15 +23,19 @@ import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesM
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.sesame.FailureStatus;
-import com.opengamma.sesame.FunctionResult;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> {
@@ -51,22 +55,22 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
   private final FXReturnSeriesFn _fxReturnSeriesProvider;
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
   private final CurveSpecificationFn _curveSpecificationFunction;
+  private final CurrencyPairsFn _currencyPairsFn;
 
   /**
    * How big a timeseries result is required. Start date will be valuation date - period.
    */
   private final Period _seriesPeriod;
 
-  // todo - what should we be injecting?
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-      final String curveName,
-      final boolean payLeg,
-      final Optional<Currency> outputCurrency,
-      final FXReturnSeriesFn fxReturnSeriesProvider,
-      final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
-      final CurveSpecificationFn curveSpecificationFunction,
-      final Period seriesPeriod) {
+                                             final String curveName,
+                                             final boolean payLeg,
+                                             final Optional<Currency> outputCurrency,
+                                             final FXReturnSeriesFn fxReturnSeriesProvider,
+                                             final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
+                                             final CurveSpecificationFn curveSpecificationFunction,
+                                             CurrencyPairsFn currencyPairsFn, final Period seriesPeriod) {
     _calculatorProvider = calculatorProvider;
     _curveName = curveName;
     _payLeg = payLeg;
@@ -74,27 +78,40 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
     _fxReturnSeriesProvider = fxReturnSeriesProvider;
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
     _curveSpecificationFunction = curveSpecificationFunction;
+    _currencyPairsFn = currencyPairsFn;
     _seriesPeriod = seriesPeriod;
   }
 
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-      final String curveName,
-      final boolean payLeg,
-      final FXReturnSeriesFn fxReturnSeriesProvider,
-      final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
-      final CurveSpecificationFn curveSpecificationFunction,
-      final Period seriesPeriod) {
+                                             final String curveName,
+                                             final boolean payLeg,
+                                             final FXReturnSeriesFn fxReturnSeriesProvider,
+                                             final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
+                                             final CurveSpecificationFn curveSpecificationFunction,
+                                             final Period seriesPeriod, CurrencyPairsFn currencyPairsFn) {
     this(calculatorProvider, curveName, payLeg, Optional.<Currency>absent(), fxReturnSeriesProvider,
-        historicalTimeSeriesProvider, curveSpecificationFunction, seriesPeriod);
+        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, seriesPeriod);
   }
 
   @Override
   public FunctionResult<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculatePnlSeries(final FXForwardSecurity security) {
-    final Currency curveCurrency = _payLeg ? security.getPayCurrency() : security.getReceiveCurrency();
+    Currency payCurrency = security.getPayCurrency();
+    Currency receiveCurrency = security.getReceiveCurrency();
+    final Currency curveCurrency = _payLeg ? payCurrency : receiveCurrency;
+    boolean conversionRequired = conversionIsRequired(curveCurrency);
+
+
+    final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
+    final FunctionResult<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
+
     final FunctionResult<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
-    final FunctionResult<CurveSpecification> curveSpecificationResult = _curveSpecificationFunction.getCurveSpecification(_curveName);
+    final FunctionResult<CurveSpecification> curveSpecificationResult = _curveSpecificationFunction.getCurveSpecification(
+        _curveName);
     if (calculatorResult.isResultAvailable()) {
-      final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getResult().generateBlockCurveSensitivities();
+      FXForwardCalculator forwardCalculator = calculatorResult.getResult();
+      MultipleCurrencyAmount currencyExposure = forwardCalculator.calculateCurrencyExposure();
+
+      final MultipleCurrencyParameterSensitivity bcs = forwardCalculator.generateBlockCurveSensitivities();
       if (curveSpecificationResult.isResultAvailable()) {
         final CurveSpecification curveSpecification = curveSpecificationResult.getResult();
         final FunctionResult<HistoricalTimeSeriesBundle> curveSeriesBundleResult = _historicalTimeSeriesProvider.getHtsForCurve(
@@ -110,6 +127,24 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
           final Tenor[] keys = new Tenor[n];
           final Object[] labels = new Object[n];
           final LocalDateDoubleTimeSeries[] values = new LocalDateDoubleTimeSeries[n];
+
+          if (cpResult.isResultAvailable()) {
+            final double exposure = currencyExposure.getAmount(cpResult.getResult().getCounter());
+
+             LocalDateDoubleTimeSeries convertedSeries = null;
+            if (conversionRequired) {
+
+              final FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
+                  CurrencyPair.of(curveCurrency, _outputCurrency.get()));
+
+              if (conversionSeriesResult.isResultAvailable()) {
+                final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getResult();
+                convertedSeries = conversionSeries.multiply(exposure);
+
+              }
+            }
+
+
           int i = 0;
           for (final CurveNodeWithIdentifier curveNodeWithId : nodes) {
             final String field = curveNodeWithId.getDataField();
@@ -118,14 +153,28 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
             if (hts == null || hts.getTimeSeries().isEmpty()) {
               return failure(FailureStatus.MISSING_DATA, "Could not get time series for {} with field {}", id, field);
             }
+
             final LocalDateDoubleTimeSeries ts = hts.getTimeSeries();
             // TODO return series calculation
             // TODO need to multiply by the FX conversion series if required before the return series is calculated
+
+            final LocalDateDoubleTimeSeries returnSeries;
+            if (conversionRequired) {
+              final LocalDateDoubleTimeSeries converted = ts.multiply(convertedSeries);
+              returnSeries = _fxReturnSeriesProvider.calculateReturnSeries(converted);
+            } else {
+              returnSeries = _fxReturnSeriesProvider.calculateReturnSeries(ts);
+            }
+
+
+
             keys[i] = curveNodeWithId.getCurveNode().getResolvedMaturity();
             labels[i] = curveNodeWithId.getCurveNode().getName();
-            values[i++] = ts.multiply(sensitivities.getEntry(i));
+            values[i] = returnSeries.multiply(sensitivities.getEntry(i));
+            i++;
           }
           return success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(keys, labels, values));
+          }
         }
         return propagateFailure(curveSeriesBundleResult);
       }

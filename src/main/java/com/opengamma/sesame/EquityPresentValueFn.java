@@ -8,6 +8,7 @@ package com.opengamma.sesame;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.util.result.FunctionResult;
 
 // todo the FunctionResult<> bit is probably always there, would be nice if we could say OutputFunction<CashFlowSecurity, Double>
 
