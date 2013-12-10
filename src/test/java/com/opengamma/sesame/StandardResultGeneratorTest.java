@@ -38,7 +38,7 @@ public class StandardResultGeneratorTest {
     FunctionResult<Object> failure1 = StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "failure 1");
     FunctionResult<Object> failure2 = StandardResultGenerator.failure(FailureStatus.ERROR, "failure 2");
     FunctionResult<Object> composite1 = StandardResultGenerator.propagateFailures(success1, success2, failure1, failure2);
-    List failures = ((CompositeFailureFunctionResult) composite1).getFailures();
+    List failures = ((MultipleFailureFunctionResult) composite1).getFailures();
     assertEquals(Lists.newArrayList(failure1, failure2), failures);
   }
 

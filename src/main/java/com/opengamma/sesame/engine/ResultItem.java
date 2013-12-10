@@ -17,7 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -64,7 +64,6 @@ public final class ResultItem implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static ResultItem.Builder builder() {
@@ -170,7 +169,7 @@ public final class ResultItem implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -243,7 +242,7 @@ public final class ResultItem implements ImmutableBean {
   /**
    * The bean-builder for {@code ResultItem}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<ResultItem> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ResultItem> {
 
     private Object _output;
     private CallGraph _callGraph;
@@ -252,7 +251,6 @@ public final class ResultItem implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(ResultItem.Meta.INSTANCE);
     }
 
     /**
@@ -260,7 +258,6 @@ public final class ResultItem implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ResultItem beanToCopy) {
-      super(ResultItem.Meta.INSTANCE);
       this._output = beanToCopy.getOutput();
       this._callGraph = beanToCopy.getCallGraph();
     }
@@ -278,6 +275,30 @@ public final class ResultItem implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -314,8 +335,8 @@ public final class ResultItem implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("ResultItem.Builder{");
-      buf.append("output").append('=').append(_output).append(',').append(' ');
-      buf.append("callGraph").append('=').append(_callGraph);
+      buf.append("output").append('=').append(JodaBeanUtils.toString(_output)).append(',').append(' ');
+      buf.append("callGraph").append('=').append(JodaBeanUtils.toString(_callGraph));
       buf.append('}');
       return buf.toString();
     }

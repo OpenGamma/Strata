@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class CompositeFailureFunctionResultTest {
+public class MultipleFailureFunctionResultTest {
 
   @Test
   public void sameType() {
@@ -23,7 +23,7 @@ public class CompositeFailureFunctionResultTest {
     FunctionResult<Object> failure2 = StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "message 2");
     FunctionResult<Object> failure3 = StandardResultGenerator.failure(FailureStatus.MISSING_DATA, "message 3");
     List<FunctionResult<?>> failures = Lists.<FunctionResult<?>>newArrayList(failure1, failure2, failure3);
-    CompositeFailureFunctionResult<Object> composite = new CompositeFailureFunctionResult<>(failures);
+    MultipleFailureFunctionResult<Object> composite = new MultipleFailureFunctionResult<>(failures);
     assertEquals(FailureStatus.MISSING_DATA, composite.getStatus());
     assertEquals("message 1\nmessage 2\nmessage 3", composite.getFailureMessage());
   }
@@ -34,7 +34,7 @@ public class CompositeFailureFunctionResultTest {
     FunctionResult<Object> failure2 = StandardResultGenerator.failure(FailureStatus.CALCULATION_FAILED, "message 2");
     FunctionResult<Object> failure3 = StandardResultGenerator.failure(FailureStatus.ERROR, "message 3");
     List<FunctionResult<?>> failures = Lists.<FunctionResult<?>>newArrayList(failure1, failure2, failure3);
-    CompositeFailureFunctionResult<Object> composite = new CompositeFailureFunctionResult<>(failures);
+    MultipleFailureFunctionResult<Object> composite = new MultipleFailureFunctionResult<>(failures);
     assertEquals(FailureStatus.MULTIPLE, composite.getStatus());
     assertEquals("message 1\nmessage 2\nmessage 3", composite.getFailureMessage());
   }

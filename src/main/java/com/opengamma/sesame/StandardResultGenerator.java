@@ -65,6 +65,6 @@ public class StandardResultGenerator {
     if (failures.isEmpty()) {
       throw new IllegalArgumentException("No failures found in " + failures);
     }
-    return new CompositeFailureFunctionResult<>(failures);
+    return new MultipleFailureFunctionResult<>(failures);
   }
 }

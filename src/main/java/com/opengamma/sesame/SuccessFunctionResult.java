@@ -17,7 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -83,7 +83,6 @@ public final class SuccessFunctionResult<T> implements FunctionResult<T>, Immuta
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @param <T>  the type
    * @return the builder, not null
    */
@@ -176,7 +175,7 @@ public final class SuccessFunctionResult<T> implements FunctionResult<T>, Immuta
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -238,7 +237,7 @@ public final class SuccessFunctionResult<T> implements FunctionResult<T>, Immuta
   /**
    * The bean-builder for {@code SuccessFunctionResult}.
    */
-  public static final class Builder<T> extends BasicImmutableBeanBuilder<SuccessFunctionResult<T>> {
+  public static final class Builder<T> extends DirectFieldsBeanBuilder<SuccessFunctionResult<T>> {
 
     private T _result;
 
@@ -246,7 +245,6 @@ public final class SuccessFunctionResult<T> implements FunctionResult<T>, Immuta
      * Restricted constructor.
      */
     private Builder() {
-      super(SuccessFunctionResult.Meta.INSTANCE);
     }
 
     /**
@@ -254,7 +252,6 @@ public final class SuccessFunctionResult<T> implements FunctionResult<T>, Immuta
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(SuccessFunctionResult<T> beanToCopy) {
-      super(SuccessFunctionResult.Meta.INSTANCE);
       this._result = beanToCopy.getResult();
     }
 
@@ -269,6 +266,30 @@ public final class SuccessFunctionResult<T> implements FunctionResult<T>, Immuta
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder<T> set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder<T> setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder<T> setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -295,7 +316,7 @@ public final class SuccessFunctionResult<T> implements FunctionResult<T>, Immuta
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("SuccessFunctionResult.Builder{");
-      buf.append("result").append('=').append(_result);
+      buf.append("result").append('=').append(JodaBeanUtils.toString(_result));
       buf.append('}');
       return buf.toString();
     }

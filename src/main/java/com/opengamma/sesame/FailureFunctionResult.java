@@ -17,7 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -93,7 +93,6 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @param <T>  the type
    * @return the builder, not null
    */
@@ -202,7 +201,7 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -276,7 +275,7 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
   /**
    * The bean-builder for {@code FailureFunctionResult}.
    */
-  public static final class Builder<T> extends BasicImmutableBeanBuilder<FailureFunctionResult<T>> {
+  public static final class Builder<T> extends DirectFieldsBeanBuilder<FailureFunctionResult<T>> {
 
     private FormattingTuple _errorMessage;
     private FailureStatus _status;
@@ -285,7 +284,6 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
      * Restricted constructor.
      */
     private Builder() {
-      super(FailureFunctionResult.Meta.INSTANCE);
     }
 
     /**
@@ -293,7 +291,6 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FailureFunctionResult<T> beanToCopy) {
-      super(FailureFunctionResult.Meta.INSTANCE);
       this._errorMessage = beanToCopy.getErrorMessage();
       this._status = beanToCopy.getStatus();
     }
@@ -312,6 +309,30 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder<T> set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder<T> setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder<T> setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder<T> setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -350,8 +371,8 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("FailureFunctionResult.Builder{");
-      buf.append("errorMessage").append('=').append(_errorMessage).append(',').append(' ');
-      buf.append("status").append('=').append(_status);
+      buf.append("errorMessage").append('=').append(JodaBeanUtils.toString(_errorMessage)).append(',').append(' ');
+      buf.append("status").append('=').append(JodaBeanUtils.toString(_status));
       buf.append('}');
       return buf.toString();
     }
