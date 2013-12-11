@@ -5,11 +5,12 @@
  */
 package com.opengamma.sesame;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-public interface ValuationTimeFn /*extends Provider<ZonedDateTime> */{
-  // TODO LocalDate getDate(). to allow finer grained cache behaviour
+public interface ValuationTimeFn {
 
-  //@Override
-  ZonedDateTime get();
+  LocalDate getDate();
+
+  ZonedDateTime getTime();
 }

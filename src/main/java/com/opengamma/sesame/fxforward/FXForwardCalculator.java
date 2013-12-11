@@ -98,7 +98,7 @@ public class FXForwardCalculator {
   // todo - if this class is thrown away after each cycle then we can use a field rather than this method
   private InstrumentDerivative generateInstrumentDerivative() {
 
-    ZonedDateTime valuationTime = _valuationTimeFn.get();
+    ZonedDateTime valuationTime = _valuationTimeFn.getTime();
     // Note that no time series are needed for FX Forward, so pass in an empty bundle
     return _definitionToDerivativeConverter.convert(
         _security, _instrumentDefinition, valuationTime, EMPTY_TIME_SERIES_BUNDLE);

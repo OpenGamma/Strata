@@ -20,6 +20,14 @@ public enum EngineService {
 
   TIMING;
 
-  // TODO add TIMING to this once it can be selectively enabled for a specific target (SSM-66)
+  /**
+   * Default services provided by the engine - caching and tracing of function calls.
+   */
   public static final EnumSet<EngineService> DEFAULT_SERVICES = EnumSet.of(CACHING, TRACING);
+
+  /**
+   * Tells the engine to build the functions with no services.
+   * Useful for debugging as there are no proxies between functions and every method call is direct.
+   */
+  public static final EnumSet<EngineService> NONE = EnumSet.noneOf(EngineService.class);
 }

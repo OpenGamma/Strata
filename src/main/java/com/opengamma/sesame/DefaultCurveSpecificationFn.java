@@ -45,8 +45,8 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
       return failure(FailureStatus.MISSING_DATA, "Could not get curve definition called: {}", curveName);
     } else {
       return success(_curveSpecificationBuilder.buildCurve(
-          _valuationTimeFn.get().toInstant(),
-          _valuationTimeFn.get().toLocalDate(),
+          _valuationTimeFn.getTime().toInstant(),
+          _valuationTimeFn.getDate(),
           curveDefinition));
     }
   }

@@ -86,7 +86,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     // returns more data than is actually required
     // todo - could we manage HTS lookup in the same way as market data? i.e. request the values needed look them up so they are available next time
 
-    final LocalDate endDate = _valuationTimeFn.get().toLocalDate();
+    final LocalDate endDate = _valuationTimeFn.getDate();
     final LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
     final boolean includeStart = true;
     final boolean includeEnd = true;
