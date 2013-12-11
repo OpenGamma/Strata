@@ -169,7 +169,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(ts, fxConversionSeries);
 
       keys[i] = curveNodeWithId.getCurveNode().getResolvedMaturity();
-      labels[i] = curveNodeWithId.getCurveNode().getName();
+      String curveNodeName = curveNodeWithId.getCurveNode().getName();
+      labels[i] = curveNodeName != null ? curveNodeName : keys[i];
       values[i] = returnSeries.multiply(sensitivities.getEntry(i));
       i++;
     }
