@@ -5,75 +5,31 @@
  */
 package com.opengamma.sesame.cache;
 
-import java.util.Collection;
-import java.util.Set;
+import org.threeten.bp.ZonedDateTime;
 
-import javax.inject.Provider;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
-import com.opengamma.util.ArgumentChecker;
-
-import net.sf.ehcache.Ehcache;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
 
 /**
- * TODO if this turns out to be a point of contention will need to remove the locking and make thread safe
- * or have multiple thread local copies and merge them at the end of the cycle before the invalidation step
+ *
  */
-/* package */ class CacheInvalidator {
+public interface CacheInvalidator {
 
-  // TODO valuation time. method to register and invalidate
-  // need to store the time the value was calculated
-  // when invalidating by valuation time can check the lifetime and the calculation time and possibly retain the value
-  // is lifetime implied by the method called on ValuationTimeFn? getDate() implies 1 day lifetime
-  // getTime() implies it's only valid for the instant it's calculated
+  void register(ExternalId id);
 
-  // TODO pairs of methods - register/invalidateMarketData, register/invalidateConfig, register/invalidateValuationTime?
+  void register(ExternalIdBundle bundle);
 
-  private final Provider<Collection<MethodInvocationKey>> _executingMethods;
-  // TODO multiple separate maps for market data, config objects?
-  // need to clear market data when data provider spec changes
-  private final SetMultimap<Object, MethodInvocationKey> _idsToKeys = HashMultimap.create();
-  private final Ehcache _cache;
+  void register(ObjectId id);
 
-  /* package */ CacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods, Ehcache cache) {
-    _cache = ArgumentChecker.notNull(cache, "cache");
-    _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
-  }
+  void invalidate(ExternalId id);
 
-  /* package */ synchronized void register(ExternalId id) {
-    registerSingle(id);
-  }
+  void invalidate(ObjectId id);
 
-  /* package */ synchronized void register(ExternalIdBundle bundle) {
-    for (ExternalId id : bundle.getExternalIds()) {
-      registerSingle(id);
-    }
-  }
+  void register(ValuationTimeCacheEntry entry);
 
-  /* package */ synchronized void register(ObjectId id) {
-    registerSingle(id);
-  }
+  void invalidate(ZonedDateTime valuationTime);
 
-  private void registerSingle(Object id) {
-    _idsToKeys.putAll(id, _executingMethods.get());
-  }
-
-  /* package */ synchronized void invalidate(ExternalId id) {
-    invalidateSingle(id);
-  }
-
-  /* package */ synchronized void invalidate(ObjectId id) {
-    invalidateSingle(id);
-  }
-
-  private void invalidateSingle(Object id) {
-    Set<MethodInvocationKey> keys = _idsToKeys.removeAll(id);
-    if (keys != null) {
-      _cache.removeAll(keys);
-    }
-  }
+  void setDataSource(MarketDataFactory marketDataFactory);
 }

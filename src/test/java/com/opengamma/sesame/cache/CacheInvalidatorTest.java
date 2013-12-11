@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import javax.inject.Provider;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Lists;
 import com.opengamma.id.ExternalId;
@@ -30,15 +32,14 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 
-/**
- *
- */
 @Test(groups = TestGroup.UNIT)
 public class CacheInvalidatorTest {
 
   private static final MethodInvocationKey METHOD_KEY_1 = methodKey(new ArrayList<>(), "subList", new Object[]{1, 2});
   private static final MethodInvocationKey METHOD_KEY_2 = methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"});
   private static final MethodInvocationKey METHOD_KEY_3 = methodKey(new ArrayList<>(), "size", null);
+
+  private final Cache _cache = createCache();
 
   private static Cache createCache() {
     PersistenceConfiguration persistenceConfiguration =
@@ -49,10 +50,11 @@ public class CacheInvalidatorTest {
     return cache;
   }
 
-  private void populateCache(Cache cache) {
-    cache.put(new Element(METHOD_KEY_1, new Object()));
-    cache.put(new Element(METHOD_KEY_2, new Object()));
-    cache.put(new Element(METHOD_KEY_3, new Object()));
+  private void populateCache() {
+    _cache.removeAll();
+    _cache.put(new Element(METHOD_KEY_1, new Object()));
+    _cache.put(new Element(METHOD_KEY_2, new Object()));
+    _cache.put(new Element(METHOD_KEY_3, new Object()));
   }
 
   private static MethodInvocationKey methodKey(Object receiver, String methodName, Object[] args) {
@@ -72,8 +74,8 @@ public class CacheInvalidatorTest {
         return keys;
       }
     };
-    Cache cache = createCache();
-    CacheInvalidator invalidator = new CacheInvalidator(provider, cache);
+    _cache.removeAll();
+    CacheInvalidator invalidator = new DefaultCacheInvalidator(provider, _cache);
     // doesn't matter what the methods are
     ObjectId abc2 = ObjectId.of("abc", "2");
     ExternalId abc1 = ExternalId.of("abc", "1");
@@ -87,28 +89,61 @@ public class CacheInvalidatorTest {
     keys.removeLast();
     invalidator.register(ExternalIdBundle.of(bnd1, bnd2));
 
-    populateCache(cache);
+    populateCache();
     invalidator.invalidate(abc1);
-    assertNull(cache.get(METHOD_KEY_1));
-    assertNotNull(cache.get(METHOD_KEY_2));
-    assertNotNull(cache.get(METHOD_KEY_3));
+    assertNull(_cache.get(METHOD_KEY_1));
+    assertNotNull(_cache.get(METHOD_KEY_2));
+    assertNotNull(_cache.get(METHOD_KEY_3));
 
-    populateCache(cache);
+    populateCache();
     invalidator.invalidate(abc2);
-    assertNull(cache.get(METHOD_KEY_1));
-    assertNull(cache.get(METHOD_KEY_2));
-    assertNotNull(cache.get(METHOD_KEY_3));
+    assertNull(_cache.get(METHOD_KEY_1));
+    assertNull(_cache.get(METHOD_KEY_2));
+    assertNotNull(_cache.get(METHOD_KEY_3));
 
-    populateCache(cache);
+    populateCache();
     invalidator.invalidate(bnd1);
-    assertNull(cache.get(METHOD_KEY_1));
-    assertNotNull(cache.get(METHOD_KEY_2));
-    assertNotNull(cache.get(METHOD_KEY_3));
+    assertNull(_cache.get(METHOD_KEY_1));
+    assertNotNull(_cache.get(METHOD_KEY_2));
+    assertNotNull(_cache.get(METHOD_KEY_3));
 
-    populateCache(cache);
+    populateCache();
     invalidator.invalidate(bnd2);
-    assertNull(cache.get(METHOD_KEY_1));
-    assertNotNull(cache.get(METHOD_KEY_2));
-    assertNotNull(cache.get(METHOD_KEY_3));
+    assertNull(_cache.get(METHOD_KEY_1));
+    assertNotNull(_cache.get(METHOD_KEY_2));
+    assertNotNull(_cache.get(METHOD_KEY_3));
+  }
+
+  @Test
+  public void valuationTime() {
+    ZonedDateTime valuationTime = ZonedDateTime.of(2011, 3, 8, 2, 18, 0, 0, ZoneId.of("Europe/London"));
+    final LinkedList<MethodInvocationKey> keys = Lists.newLinkedList();
+    Provider<Collection<MethodInvocationKey>> provider = new Provider<Collection<MethodInvocationKey>>() {
+      @Override
+      public Collection<MethodInvocationKey> get() {
+        return keys;
+      }
+    };
+    populateCache();
+    CacheInvalidator invalidator = new DefaultCacheInvalidator(provider, _cache);
+
+    // this key is only valid at the instant it was calculated (i.e. 1 cycle)
+    keys.add(METHOD_KEY_1);
+    invalidator.register(new ValuationTimeCacheEntry.ValidAtCalculationInstant(valuationTime));
+    keys.clear();
+    // this key is valid for the whole day on which is was calculated
+    keys.add(METHOD_KEY_2);
+    invalidator.register(new ValuationTimeCacheEntry.ValidOnCalculationDay(valuationTime.toLocalDate()));
+
+    invalidator.invalidate(valuationTime);
+    assertNotNull(_cache.get(METHOD_KEY_1));
+    assertNotNull(_cache.get(METHOD_KEY_2));
+
+    invalidator.invalidate(valuationTime.plusHours(1));
+    assertNull(_cache.get(METHOD_KEY_1));
+    assertNotNull(_cache.get(METHOD_KEY_2));
+
+    invalidator.invalidate(valuationTime.plusDays(1));
+    assertNull(_cache.get(METHOD_KEY_2));
   }
 }

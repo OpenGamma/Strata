@@ -78,7 +78,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
     return node;
   }
 
-  /* package */ Ehcache getCache() {
+  public Ehcache getCache() {
     return _cache;
   }
 

@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame.cache;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.inject.Provider;
 
@@ -16,10 +16,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Thread local stack of {@link MethodInvocationKey}s whose initial value is an empty stack.
  * When a cacheable method is executed the corresponding cache key is {@link #push}ed into this object.
- * This makes it available to {@link CacheInvalidator} to associate with any subscriptions that occur
+ * This makes it available to {@link DefaultCacheInvalidator} to associate with any subscriptions that occur
  * while it's executing.
  */
-public class ExecutingMethodsThreadLocal implements Provider<List<MethodInvocationKey>> {
+public class ExecutingMethodsThreadLocal implements Provider<Collection<MethodInvocationKey>> {
 
   private final ThreadLocal<LinkedList<MethodInvocationKey>> _executingMethods = new ThreadLocal<LinkedList<MethodInvocationKey>>() {
     @Override
@@ -29,7 +29,7 @@ public class ExecutingMethodsThreadLocal implements Provider<List<MethodInvocati
   };
 
   @Override
-  public List<MethodInvocationKey> get() {
+  public Collection<MethodInvocationKey> get() {
     return Collections.unmodifiableList(_executingMethods.get());
   }
 

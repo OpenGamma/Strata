@@ -50,7 +50,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.EquityPresentValue;
 import com.opengamma.sesame.EquityPresentValueFn;
-import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.ResettableMarketDataFn;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;
@@ -74,6 +73,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.sesame.trace.CallGraph;
+import com.opengamma.util.result.FunctionResult;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -110,7 +110,7 @@ public class EngineTest {
     availableOutputs.register(EquityDescriptionFn.class);
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades);
+    View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
@@ -128,7 +128,7 @@ public class EngineTest {
     availableOutputs.register(EquityDescriptionFn.class);
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
-    Engine.View view = engine.createView(viewDef, securities);
+    View view = engine.createView(viewDef, securities);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
@@ -168,7 +168,7 @@ public class EngineTest {
     marketDataProvider.resetMarketData(valuationTime, marketData);
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataProvider);
 
-    Engine.View view = engine.createView(viewDef, trades);
+    View view = engine.createView(viewDef, trades);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), marketDataFactory);
     Results results = view.run(cycleArguments);
     assertEquals(123.45, ((FunctionResult) results.get(0, 0).getOutput()).getResult());
@@ -188,7 +188,7 @@ public class EngineTest {
     availableOutputs.register(EquityDescriptionFn.class);
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades);
+    View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
@@ -238,7 +238,7 @@ public class EngineTest {
                                CacheManager.getInstance(),
                                EnumSet.noneOf(EngineService.class));
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
-    Engine.View view = engine.createView(viewDef, trades);
+    View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
 
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
@@ -298,7 +298,7 @@ public class EngineTest {
                                CacheManager.getInstance(),
                                EnumSet.of(EngineService.TRACING));
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    Engine.View view = engine.createView(viewDef, trades);
+    View view = engine.createView(viewDef, trades);
     @SuppressWarnings("unchecked")
     Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory(), traceCells));
