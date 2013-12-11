@@ -24,7 +24,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
-public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn<LocalDateDoubleTimeSeries> {
+public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn {
 
   private final FXForwardCalculatorFn _calculatorProvider;
 

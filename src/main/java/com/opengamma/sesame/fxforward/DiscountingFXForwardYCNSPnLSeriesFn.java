@@ -36,7 +36,7 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.FunctionResult;
 import com.opengamma.util.time.Tenor;
 
-public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> {
+public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeriesFn {
 
   private final FXForwardCalculatorFn _calculatorProvider;
 
@@ -86,7 +86,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardPnLSeriesFn
   }
 
   @Override
-  public FunctionResult<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculatePnlSeries(final FXForwardSecurity security) {
+  public FunctionResult<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateYCNSPnlSeries(final FXForwardSecurity security) {
 
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
