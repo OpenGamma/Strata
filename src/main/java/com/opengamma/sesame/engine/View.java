@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.engine;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -19,6 +20,8 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.config.CompositeFunctionConfig;
@@ -55,6 +58,7 @@ public class View implements AutoCloseable {
   private final CompositeNodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
 
+  // TODO this has too many parameters. does that matter? it's only called by the engine
   /* package */ View(ViewDef viewDef,
                      Graph graph,
                      List<?> inputs,
@@ -79,8 +83,10 @@ public class View implements AutoCloseable {
 
   public synchronized Results run(CycleArguments cycleArguments) {
     // TODO this will need to be a lot cleverer when we need to support dynamic rebinding for full reval
-    _cacheInvalidator.setDataSource(cycleArguments.getMarketDataFactory());
-    _cacheInvalidator.invalidate(cycleArguments.getValuationTime());
+    _cacheInvalidator.invalidate(cycleArguments.getMarketDataFactory(),
+                                 cycleArguments.getValuationTime(),
+                                 Collections.<ExternalId>emptyList(),
+                                 Collections.<ObjectId>emptyList());
     _marketDataFn.setDelegate(cycleArguments.getMarketDataFactory().create(_components));
     _valuationTimeFn.setValuationTime(cycleArguments.getValuationTime());
     List<Task> tasks = Lists.newArrayList();

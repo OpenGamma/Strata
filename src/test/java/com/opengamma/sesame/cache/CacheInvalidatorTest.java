@@ -5,12 +5,14 @@
  */
 package com.opengamma.sesame.cache;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 
 import javax.inject.Provider;
@@ -24,6 +26,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.util.test.TestGroup;
 
 import net.sf.ehcache.Cache;
@@ -67,6 +70,9 @@ public class CacheInvalidatorTest {
    */
   @Test
   public void registerAndInvalidate() {
+    // doesn't matter what this is as long as it doesn't change
+    ZonedDateTime valuationTime = ZonedDateTime.now();
+    MarketDataFactory marketDataFactory = mock(MarketDataFactory.class);
     final LinkedList<MethodInvocationKey> keys = Lists.newLinkedList();
     Provider<Collection<MethodInvocationKey>> provider = new Provider<Collection<MethodInvocationKey>>() {
       @Override
@@ -90,25 +96,25 @@ public class CacheInvalidatorTest {
     invalidator.register(ExternalIdBundle.of(bnd1, bnd2));
 
     populateCache();
-    invalidator.invalidate(abc1);
+    invalidator.invalidate(marketDataFactory, valuationTime, Lists.newArrayList(abc1), Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));
     assertNotNull(_cache.get(METHOD_KEY_2));
     assertNotNull(_cache.get(METHOD_KEY_3));
 
     populateCache();
-    invalidator.invalidate(abc2);
+    invalidator.invalidate(marketDataFactory, valuationTime, Collections.<ExternalId>emptyList(), Lists.newArrayList(abc2));
     assertNull(_cache.get(METHOD_KEY_1));
     assertNull(_cache.get(METHOD_KEY_2));
     assertNotNull(_cache.get(METHOD_KEY_3));
 
     populateCache();
-    invalidator.invalidate(bnd1);
+    invalidator.invalidate(marketDataFactory, valuationTime, Lists.newArrayList(bnd1), Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));
     assertNotNull(_cache.get(METHOD_KEY_2));
     assertNotNull(_cache.get(METHOD_KEY_3));
 
     populateCache();
-    invalidator.invalidate(bnd2);
+    invalidator.invalidate(marketDataFactory, valuationTime, Lists.newArrayList(bnd2), Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));
     assertNotNull(_cache.get(METHOD_KEY_2));
     assertNotNull(_cache.get(METHOD_KEY_3));
@@ -134,16 +140,26 @@ public class CacheInvalidatorTest {
     // this key is valid for the whole day on which is was calculated
     keys.add(METHOD_KEY_2);
     invalidator.register(new ValuationTimeCacheEntry.ValidOnCalculationDay(valuationTime.toLocalDate()));
+    MarketDataFactory marketDataFactory = mock(MarketDataFactory.class);
 
-    invalidator.invalidate(valuationTime);
+    invalidator.invalidate(marketDataFactory,
+                           valuationTime,
+                           Collections.<ExternalId>emptyList(),
+                           Collections.<ObjectId>emptyList());
     assertNotNull(_cache.get(METHOD_KEY_1));
     assertNotNull(_cache.get(METHOD_KEY_2));
 
-    invalidator.invalidate(valuationTime.plusHours(1));
+    invalidator.invalidate(marketDataFactory,
+                           valuationTime.plusHours(1),
+                           Collections.<ExternalId>emptyList(),
+                           Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));
     assertNotNull(_cache.get(METHOD_KEY_2));
 
-    invalidator.invalidate(valuationTime.plusDays(1));
+    invalidator.invalidate(marketDataFactory,
+                           valuationTime.plusDays(1),
+                           Collections.<ExternalId>emptyList(),
+                           Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_2));
   }
 }

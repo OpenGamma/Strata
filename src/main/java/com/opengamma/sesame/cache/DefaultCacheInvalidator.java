@@ -64,18 +64,15 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
     registerSingle(id);
   }
 
+  @Override
+  public synchronized void register(ValuationTimeCacheEntry entry) {
+    for (MethodInvocationKey key : _executingMethods.get()) {
+      valuationTimeEntries.add(Pairs.of(key, entry));
+    }
+  }
+
   private void registerSingle(Object id) {
     _idsToKeys.putAll(id, _executingMethods.get());
-  }
-
-  @Override
-  public synchronized void invalidate(ExternalId id) {
-    invalidateSingle(id);
-  }
-
-  @Override
-  public synchronized void invalidate(ObjectId id) {
-    invalidateSingle(id);
   }
 
   private void invalidateSingle(Object id) {
@@ -86,14 +83,25 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   }
 
   @Override
-  public synchronized void register(ValuationTimeCacheEntry entry) {
-    for (MethodInvocationKey key : _executingMethods.get()) {
-      valuationTimeEntries.add(Pairs.of(key, entry));
+  public synchronized void invalidate(MarketDataFactory marketDataFactory,
+                                      ZonedDateTime valuationTime,
+                                      List<ExternalId> marketData,
+                                      List<ObjectId> dbData) {
+    // if marketDataFactory equals current marketDataFactory do nothing except update marketDataFactory
+    // otherwise clear all MD dependent values and update marketDataFactory
+    // probably best to separate MD values from DB values instead of putting them all in _idsToKeys
+    invalidate(valuationTime);
+
+    // TODO can these be more efficient if they're done in bulk?
+    for (ExternalId externalId : marketData) {
+      invalidateSingle(externalId);
+    }
+    for (ObjectId objectId : dbData) {
+      invalidateSingle(objectId);
     }
   }
 
-  @Override
-  public synchronized void invalidate(ZonedDateTime valuationTime) {
+  private void invalidate(ZonedDateTime valuationTime) {
     for (Iterator<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> itr = valuationTimeEntries.iterator(); itr.hasNext(); ) {
       Pair<MethodInvocationKey, ValuationTimeCacheEntry> pair = itr.next();
       MethodInvocationKey key = pair.getFirst();
@@ -103,13 +111,5 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
         itr.remove();
       }
     }
-  }
-
-  @Override
-  public synchronized void setDataSource(MarketDataFactory marketDataFactory) {
-    // TODO implement
-    // if marketDataFactory equals current marketDataFactory do nothing except update marketDataFactory
-    // otherwise clear all MD dependent values and update marketDataFactory
-    // probably best to separate MD values from DB values instead of putting them all in _idsToKeys
   }
 }
