@@ -8,7 +8,6 @@ package com.opengamma.sesame.cache;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Provider;
 
@@ -38,9 +37,12 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
   // TODO multiple separate maps for market data, config objects?
   // need to clear market data when data provider spec changes
-  private final SetMultimap<Object, MethodInvocationKey> _idsToKeys = HashMultimap.create();
+  private final SetMultimap<ObjectId, MethodInvocationKey> _objectIdsToKeys = HashMultimap.create();
+  private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> valuationTimeEntries = Lists.newArrayList();
   private final Ehcache _cache;
+
+  private MarketDataFactory _marketDataFactory;
 
   public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods, Ehcache cache) {
     _cache = ArgumentChecker.notNull(cache, "cache");
@@ -49,19 +51,19 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
 
   @Override
   public synchronized void register(ExternalId id) {
-    registerSingle(id);
+    _externalIdsToKeys.putAll(id, _executingMethods.get());
   }
 
   @Override
   public synchronized void register(ExternalIdBundle bundle) {
     for (ExternalId id : bundle.getExternalIds()) {
-      registerSingle(id);
+      register(id);
     }
   }
 
   @Override
   public synchronized void register(ObjectId id) {
-    registerSingle(id);
+    _objectIdsToKeys.putAll(id, _executingMethods.get());
   }
 
   @Override
@@ -71,37 +73,34 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
     }
   }
 
-  private void registerSingle(Object id) {
-    _idsToKeys.putAll(id, _executingMethods.get());
-  }
-
-  private void invalidateSingle(Object id) {
-    Set<MethodInvocationKey> keys = _idsToKeys.removeAll(id);
-    if (keys != null) {
-      _cache.removeAll(keys);
-    }
-  }
-
   @Override
   public synchronized void invalidate(MarketDataFactory marketDataFactory,
                                       ZonedDateTime valuationTime,
                                       List<ExternalId> marketData,
-                                      List<ObjectId> dbData) {
-    // if marketDataFactory equals current marketDataFactory do nothing except update marketDataFactory
-    // otherwise clear all MD dependent values and update marketDataFactory
-    // probably best to separate MD values from DB values instead of putting them all in _idsToKeys
-    invalidate(valuationTime);
+                                      List<ObjectId> dbIds) {
+    ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    ArgumentChecker.notNull(marketData, "marketData");
+    ArgumentChecker.notNull(dbIds, "dbIds");
 
-    // TODO can these be more efficient if they're done in bulk?
-    for (ExternalId externalId : marketData) {
-      invalidateSingle(externalId);
+    // if the market data provider has changed every value that uses market data is potentially invalid
+    if (!marketDataFactory.equals(_marketDataFactory)) {
+      _marketDataFactory = marketDataFactory;
+      _cache.removeAll(_externalIdsToKeys.values());
+      _objectIdsToKeys.clear();
     }
-    for (ObjectId objectId : dbData) {
-      invalidateSingle(objectId);
+
+    invalidateValuationTime(valuationTime);
+
+    for (ExternalId externalId : marketData) {
+      _cache.removeAll(_externalIdsToKeys.removeAll(externalId));
+    }
+    for (ObjectId objectId : dbIds) {
+      _cache.removeAll(_objectIdsToKeys.removeAll(objectId));
     }
   }
 
-  private void invalidate(ZonedDateTime valuationTime) {
+  private void invalidateValuationTime(ZonedDateTime valuationTime) {
     for (Iterator<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> itr = valuationTimeEntries.iterator(); itr.hasNext(); ) {
       Pair<MethodInvocationKey, ValuationTimeCacheEntry> pair = itr.next();
       MethodInvocationKey key = pair.getFirst();

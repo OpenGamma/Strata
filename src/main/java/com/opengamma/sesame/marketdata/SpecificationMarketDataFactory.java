@@ -38,4 +38,25 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
         new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
     return new EagerMarketDataFn(rawDataSource, configSource, "BloombergLiveData");
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    SpecificationMarketDataFactory that = (SpecificationMarketDataFactory) o;
+
+    if (!_marketDataSpecification.equals(that._marketDataSpecification)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return _marketDataSpecification.hashCode();
+  }
 }

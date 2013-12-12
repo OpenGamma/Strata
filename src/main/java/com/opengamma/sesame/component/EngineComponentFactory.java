@@ -87,6 +87,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
                                availableImplementations,
                                FunctionConfig.EMPTY,
                                getCacheManager(),
+                               //EnumSet.of(EngineService.CACHING, EngineService.TIMING));
                                EngineService.DEFAULT_SERVICES);
     ComponentInfo engineInfo = new ComponentInfo(Engine.class, getClassifier());
     repo.registerComponent(engineInfo, engine);
