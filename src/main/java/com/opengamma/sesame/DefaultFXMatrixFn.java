@@ -61,7 +61,6 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
     final Set<Currency> currencies = CurveUtils.getCurrencies(configuration,
                                                               _configSource,
                                                               VersionCorrection.LATEST,
-                                                              _conventionSource,
                                                               new CurveNodeCurrencyVisitor(_conventionSource));
 
     return buildResult(currencies);
