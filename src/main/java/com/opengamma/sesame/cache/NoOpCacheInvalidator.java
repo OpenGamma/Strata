@@ -12,6 +12,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 
 /**
@@ -38,6 +39,7 @@ public class NoOpCacheInvalidator implements CacheInvalidator {
   @Override
   public void invalidate(MarketDataFactory marketDataFactory,
                          ZonedDateTime valuationTime,
+                         VersionCorrection configVersionCorrection,
                          List<ExternalId> marketData,
                          List<ObjectId> dbData) {
   }

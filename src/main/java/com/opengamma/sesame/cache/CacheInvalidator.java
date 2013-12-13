@@ -12,10 +12,11 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 
 /**
- *
+ * TODO bulk register methods?
  */
 public interface CacheInvalidator {
 
@@ -29,6 +30,7 @@ public interface CacheInvalidator {
 
   void invalidate(MarketDataFactory marketDataFactory,
                   ZonedDateTime valuationTime,
+                  VersionCorrection configVersionCorrection,
                   List<ExternalId> marketData,
                   List<ObjectId> dbData);
 }

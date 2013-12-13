@@ -48,6 +48,7 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.EquityPresentValue;
 import com.opengamma.sesame.EquityPresentValueFn;
 import com.opengamma.sesame.ResettableMarketDataFn;
@@ -111,7 +112,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     View view = engine.createView(viewDef, trades);
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
   }
@@ -129,7 +130,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
     View view = engine.createView(viewDef, securities);
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
   }
@@ -169,7 +170,7 @@ public class EngineTest {
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataProvider);
 
     View view = engine.createView(viewDef, trades);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), marketDataFactory);
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, marketDataFactory);
     Results results = view.run(cycleArguments);
     assertEquals(123.45, ((FunctionResult) results.get(0, 0).getOutput()).getResult());
     System.out.println(results);
@@ -189,7 +190,7 @@ public class EngineTest {
     Engine engine = new Engine(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     View view = engine.createView(viewDef, trades);
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     System.out.println(results);
   }
@@ -239,7 +240,7 @@ public class EngineTest {
                                EnumSet.noneOf(EngineService.class));
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     View view = engine.createView(viewDef, trades);
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory()));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
 
     assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
     assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getOutput());
@@ -301,7 +302,11 @@ public class EngineTest {
     View view = engine.createView(viewDef, trades);
     @SuppressWarnings("unchecked")
     Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), mockMarketDataFactory(), traceCells));
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
+                                                       mockMarketDataFactory(),
+                                                       VersionCorrection.LATEST,
+                                                       traceCells);
+    Results results = view.run(cycleArguments);
     CallGraph callGraph = results.get(0, 0).getCallGraph();
     assertNotNull(callGraph);
     System.out.println(callGraph.prettyPrint());

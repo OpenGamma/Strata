@@ -19,6 +19,7 @@ import com.google.common.collect.SetMultimap;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -32,17 +33,17 @@ import net.sf.ehcache.Ehcache;
  */
 public class DefaultCacheInvalidator implements CacheInvalidator {
 
-  // TODO pairs of methods - register/invalidateMarketData, register/invalidateConfig, register/invalidateValuationTime?
+  // TODO need to know the config version correction during invalidation.
+  // if it changes invalidate all cache values that depend on DB data
 
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
-  // TODO multiple separate maps for market data, config objects?
-  // need to clear market data when data provider spec changes
   private final SetMultimap<ObjectId, MethodInvocationKey> _objectIdsToKeys = HashMultimap.create();
   private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> valuationTimeEntries = Lists.newArrayList();
   private final Ehcache _cache;
 
   private MarketDataFactory _marketDataFactory;
+  private VersionCorrection _configVersionCorrection;
 
   public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods, Ehcache cache) {
     _cache = ArgumentChecker.notNull(cache, "cache");
@@ -63,7 +64,9 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
 
   @Override
   public synchronized void register(ObjectId id) {
-    _objectIdsToKeys.putAll(id, _executingMethods.get());
+    if (VersionCorrection.LATEST.equals(_configVersionCorrection)) {
+      _objectIdsToKeys.putAll(id, _executingMethods.get());
+    }
   }
 
   @Override
@@ -76,10 +79,12 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   @Override
   public synchronized void invalidate(MarketDataFactory marketDataFactory,
                                       ZonedDateTime valuationTime,
+                                      VersionCorrection configVersionCorrection,
                                       List<ExternalId> marketData,
                                       List<ObjectId> dbIds) {
     ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
+    ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     ArgumentChecker.notNull(marketData, "marketData");
     ArgumentChecker.notNull(dbIds, "dbIds");
 
@@ -91,6 +96,9 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
     }
 
     invalidateValuationTime(valuationTime);
+
+    // TODO if the new VC isn't the same as the old then clear all DB dependent entries
+    _configVersionCorrection = configVersionCorrection;
 
     for (ExternalId externalId : marketData) {
       _cache.removeAll(_externalIdsToKeys.removeAll(externalId));

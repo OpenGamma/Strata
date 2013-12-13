@@ -83,6 +83,8 @@ public class Engine {
     _cacheManager = ArgumentChecker.notNull(cacheManager, "cacheManager");
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _executor = ArgumentChecker.notNull(executor, "executor");
+    // TODO wrap sources in cache aware versions
+    // TODO listen for changes in the source data
     _components = ArgumentChecker.notNull(components, "components");
   }
 

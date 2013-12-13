@@ -25,6 +25,7 @@ import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecificati
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.SpecificationMarketDataFactory;
@@ -88,6 +89,7 @@ public class CacheInvalidatorTest {
     // this makes sure the market data factory is set before adding any data
     invalidator.invalidate(marketDataFactory,
                            valuationTime,
+                           VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
     // doesn't matter what the methods are
@@ -104,25 +106,41 @@ public class CacheInvalidatorTest {
     invalidator.register(ExternalIdBundle.of(bnd1, bnd2));
 
     populateCache();
-    invalidator.invalidate(marketDataFactory, valuationTime, Lists.newArrayList(abc1), Collections.<ObjectId>emptyList());
+    invalidator.invalidate(marketDataFactory,
+                           valuationTime,
+                           VersionCorrection.LATEST,
+                           Lists.newArrayList(abc1),
+                           Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));
     assertNotNull(_cache.get(METHOD_KEY_2));
     assertNotNull(_cache.get(METHOD_KEY_3));
 
     populateCache();
-    invalidator.invalidate(marketDataFactory, valuationTime, Collections.<ExternalId>emptyList(), Lists.newArrayList(abc2));
+    invalidator.invalidate(marketDataFactory,
+                           valuationTime,
+                           VersionCorrection.LATEST,
+                           Collections.<ExternalId>emptyList(),
+                           Lists.newArrayList(abc2));
     assertNull(_cache.get(METHOD_KEY_1));
     assertNull(_cache.get(METHOD_KEY_2));
     assertNotNull(_cache.get(METHOD_KEY_3));
 
     populateCache();
-    invalidator.invalidate(marketDataFactory, valuationTime, Lists.newArrayList(bnd1), Collections.<ObjectId>emptyList());
+    invalidator.invalidate(marketDataFactory,
+                           valuationTime,
+                           VersionCorrection.LATEST,
+                           Lists.newArrayList(bnd1),
+                           Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));
     assertNotNull(_cache.get(METHOD_KEY_2));
     assertNotNull(_cache.get(METHOD_KEY_3));
 
     populateCache();
-    invalidator.invalidate(marketDataFactory, valuationTime, Lists.newArrayList(bnd2), Collections.<ObjectId>emptyList());
+    invalidator.invalidate(marketDataFactory,
+                           valuationTime,
+                           VersionCorrection.LATEST,
+                           Lists.newArrayList(bnd2),
+                           Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));
     assertNotNull(_cache.get(METHOD_KEY_2));
     assertNotNull(_cache.get(METHOD_KEY_3));
@@ -154,6 +172,7 @@ public class CacheInvalidatorTest {
 
     invalidator.invalidate(marketDataFactory,
                            valuationTime,
+                           VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
     assertNotNull(_cache.get(METHOD_KEY_1));
@@ -161,6 +180,7 @@ public class CacheInvalidatorTest {
 
     invalidator.invalidate(marketDataFactory,
                            valuationTime.plusHours(1),
+                           VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));
@@ -168,6 +188,7 @@ public class CacheInvalidatorTest {
 
     invalidator.invalidate(marketDataFactory,
                            valuationTime.plusDays(1),
+                           VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_2));
@@ -190,6 +211,7 @@ public class CacheInvalidatorTest {
     // this makes sure the market data factory is set before adding any data
     invalidator.invalidate(new SpecificationMarketDataFactory(nowSpec),
                            now,
+                           VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
 
@@ -211,6 +233,7 @@ public class CacheInvalidatorTest {
     FixedHistoricalMarketDataSpecification tomorrowSpec = new FixedHistoricalMarketDataSpecification(tomorrow.toLocalDate());
     invalidator.invalidate(new SpecificationMarketDataFactory(tomorrowSpec),
                            now,
+                           VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
     assertNull(_cache.get(METHOD_KEY_1));

@@ -78,6 +78,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
@@ -342,7 +343,7 @@ public class FXForwardPVFnTest {
     //@SuppressWarnings("unchecked")
     //Set<Pair<Integer, Integer>> traceFunctions = Sets.newHashSet(Pairs.of(0, 0), Pairs.of(1, 0));
     //CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory, traceFunctions);
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory);
+    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory);
     //int nRuns = 1;
     int nRuns = 20;
     for (int i = 0; i < nRuns; i++) {

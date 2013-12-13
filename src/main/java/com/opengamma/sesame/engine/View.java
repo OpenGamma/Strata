@@ -85,6 +85,7 @@ public class View implements AutoCloseable {
     // TODO this will need to be a lot cleverer when we need to support dynamic rebinding for full reval
     _cacheInvalidator.invalidate(cycleArguments.getMarketDataFactory(),
                                  cycleArguments.getValuationTime(),
+                                 cycleArguments.getConfigVersionCorrection(),
                                  Collections.<ExternalId>emptyList(),
                                  Collections.<ObjectId>emptyList());
     _marketDataFn.setDelegate(cycleArguments.getMarketDataFactory().create(_components));
