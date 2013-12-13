@@ -5,11 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 
@@ -31,17 +27,7 @@ public class MarketDataRequirementFactory {
    * @param id the curve node to get data for
    * @return the market data requirements for the curve
    */
-  public static Set<MarketDataRequirement> of(CurveNodeWithIdentifier id) {
-
-    ImmutableSet.Builder<MarketDataRequirement> requirements = ImmutableSet.builder();
-
-    requirements.add(new CurveNodeMarketDataRequirement(id.getIdentifier(), id.getDataField()));
-
-    if (id instanceof PointsCurveNodeWithIdentifier) {
-      final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-      requirements.add(new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(), node.getUnderlyingDataField()));
-    }
-
-    return requirements.build();
+  public static MarketDataRequirement of(CurveNodeWithIdentifier id) {
+    return new CurveNodeMarketDataRequirement(id.getIdentifier(), id.getDataField());
   }
 }
