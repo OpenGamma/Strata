@@ -118,7 +118,7 @@ public class Engine {
         CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, executingMethods);
         decorators.add(cachingDecorator);
         cacheInvalidator = new DefaultCacheInvalidator(executingMethods, cachingDecorator.getCache());
-      } else{
+      } else {
         cacheInvalidator = new NoOpCacheInvalidator();
       }
       if (services.contains(EngineService.TIMING)) {

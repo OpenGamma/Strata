@@ -217,7 +217,8 @@ public final class FunctionModel {
       } else {
         newIndent = childIndent + " `--";
         newChildIndent = childIndent + "    ";
-      }/*
+      }
+      /*
       if (!isFinalChild) {
         newIndent = childIndent + " \u251c\u2500\u2500";
         newChildIndent = childIndent + " \u2502  ";
