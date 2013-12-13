@@ -41,8 +41,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public String prettyPrint() {
-    return getParameterName() + _exception.getMessage();
-    //return getParameterName() + _exception.toString();
+    return getParameterName() + "ERROR: " + _exception.getMessage();
   }
 
   @Override

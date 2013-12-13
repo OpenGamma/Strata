@@ -7,6 +7,9 @@ package com.opengamma.sesame.graph;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.InvokableFunction;
@@ -15,6 +18,8 @@ import com.opengamma.sesame.function.InvokableFunction;
  * Lightweight model of the functions needed to generate the outputs for a view.
  */
 public final class GraphModel {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(GraphModel.class);
 
   // TODO for this to be useful in the UI it needs to be map(column -> map((outputName,inputType) -> functionModel))
   // it will probably be better to have a real class than a rats' nest of generics
@@ -36,6 +41,10 @@ public final class GraphModel {
       for (Map.Entry<Class<?>, FunctionModel> columnEntry : functionsByTargetId.entrySet()) {
         Class<?> inputType = columnEntry.getKey();
         FunctionModel functionModel = columnEntry.getValue();
+        if (!functionModel.isValid()) {
+          // TODO it's pretty bad manners to log a multi line message. but useful in this case
+          s_logger.warn("Can't build invalid function model{}", functionModel.prettyPrint());
+        }
         columnBuilder.put(inputType, functionModel.build(functionBuilder, components));
       }
       String columnName = entry.getKey();

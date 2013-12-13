@@ -25,6 +25,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Loads components using {@link ToolContext} configuration and puts them in a map.
@@ -49,6 +50,7 @@ public final class ComponentMap {
    * @return The available components, keyed by type.
    */
   public static ComponentMap loadComponents(String location) {
+    ArgumentChecker.notEmpty(location, "location");
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     s_logger.info("Loading components from {}", location);
     ToolContext toolContext = ToolContextUtils.getToolContext(location, ToolContext.class);
@@ -68,17 +70,24 @@ public final class ComponentMap {
     return new ComponentMap(builder.build());
   }
 
+  /**
+   * @param type The required component type
+   * @param <T> The required component type
+   * @return A component of the required type of null if there isn't one
+   */
   @SuppressWarnings("unchecked")
   public <T> T getComponent(Class<T> type) {
     return (T) _components.get(type);
   }
 
   public ComponentMap with(Map<Class<?>, Object> components) {
+    ArgumentChecker.notNull(components, "components");
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     return new ComponentMap(builder.putAll(_components).putAll(components).build());
   }
 
   public static ComponentMap of(Map<Class<?>, Object> components) {
+    ArgumentChecker.notNull(components, "components");
     return new ComponentMap(ImmutableMap.copyOf(components));
   }
 }

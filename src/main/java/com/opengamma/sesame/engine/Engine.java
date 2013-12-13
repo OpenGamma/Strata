@@ -141,7 +141,7 @@ public class Engine {
     Map<Class<?>, Object> componentOverrides = Maps.newHashMap();
     componentOverrides.put(MarketDataFn.class, marketDataFn);
     componentOverrides.put(ValuationTimeFn.class, new CacheAwareValuationTimeFn(valuationTimeFn, cacheInvalidator));
-    ComponentMap components = _components.with(componentOverrides);
+    ComponentMap components = decorateSources(_components.with(componentOverrides));
 
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(_availableOutputs,
@@ -155,5 +155,10 @@ public class Engine {
     s_logger.debug("graph complete");
     return new View(viewDef, graph, inputs, _executor, marketDataFn, valuationTimeFn,
                     components, _defaultConfig, decorator, cacheInvalidator);
+  }
+
+  private static ComponentMap decorateSources(ComponentMap components) {
+    // TODO decorate the sources with the CacheAware versions
+    return components;
   }
 }
