@@ -24,12 +24,12 @@ import com.opengamma.util.tuple.Pairs;
 /**
  *
  */
-/* package */ class CacheAwareHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
+public class CacheAwareHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
 
   private final HistoricalTimeSeriesSource _delegate;
   private final CacheInvalidator _cacheInvalidator;
 
-  /* package */ CacheAwareHistoricalTimeSeriesSource(HistoricalTimeSeriesSource delegate, CacheInvalidator cacheInvalidator) {
+  public CacheAwareHistoricalTimeSeriesSource(HistoricalTimeSeriesSource delegate, CacheInvalidator cacheInvalidator) {
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _delegate = ArgumentChecker.notNull(delegate, "delegate");
   }
