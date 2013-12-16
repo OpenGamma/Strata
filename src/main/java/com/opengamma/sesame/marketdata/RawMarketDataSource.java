@@ -9,7 +9,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
- *
+ * TODO should this have bulk methods?
+ * TODO is there any reason to have this and MarketDataFn any more?
  */
 /* package */ interface RawMarketDataSource extends DateRangeCalculator {
 

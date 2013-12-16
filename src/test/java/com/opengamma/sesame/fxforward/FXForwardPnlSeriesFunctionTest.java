@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
@@ -16,6 +14,8 @@ import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.JPY;
 import static com.opengamma.util.money.Currency.USD;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
@@ -82,10 +83,8 @@ import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.util.result.FunctionResult;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
-import com.opengamma.util.result.ResultStatus;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
 import com.opengamma.sesame.ValuationTimeFn;
@@ -112,6 +111,8 @@ import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
 import net.sf.ehcache.CacheManager;
@@ -232,7 +233,9 @@ public class FXForwardPnlSeriesFunctionTest {
                          argument("resolutionKey", "DEFAULT_TSS"),
                          // TODO will need to handle this differently when arg values are strings and primitives
                          // will need string conversion for values like this which can be parsed
-                         argument("htsRetrievalPeriod", Period.ofYears(1)))),
+                         argument("htsRetrievalPeriod", Period.ofYears(1))),
+                function(DefaultDiscountingMulticurveBundleFn.class,
+                         argument("impliedCurveNames", Collections.emptyMap()))),
             implementations(FXForwardPnLSeriesFn.class,
                             DiscountingFXForwardSpotPnLSeriesFn.class,
                             FXReturnSeriesFn.class,

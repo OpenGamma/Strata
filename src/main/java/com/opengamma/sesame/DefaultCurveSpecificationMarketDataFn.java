@@ -33,15 +33,15 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
     _marketDataFn = marketDataFn;
   }
 
-  // TODO we're looping over the set of nodes twice, do it in one go?
+  // TODO we're looping over the set of nodes twice, do it in one go? not sure that's possible
   @Override
   public FunctionResult<MarketDataValues> requestData(CurveSpecification curveSpecification) {
-    final Set<MarketDataRequirement> requirements = new HashSet<>();
-    for (final CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
+    Set<MarketDataRequirement> requirements = new HashSet<>();
+    for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
       MarketDataRequirement fwdReq = MarketDataRequirementFactory.of(id);
       requirements.add(fwdReq);
       if (id instanceof PointsCurveNodeWithIdentifier) {
-        final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
+        PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
         requirements.add(new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(), node.getUnderlyingDataField()));
       }
     }
@@ -50,12 +50,12 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
       return propagateFailure(result);
     }
     Map<MarketDataRequirement, MarketDataItem> items = Maps.newHashMap();
-    for (final CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
+    for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
       MarketDataRequirement fwdReq = MarketDataRequirementFactory.of(id);
       // TODO check result is available
       Double fwd = (Double) result.getResult().getValue(fwdReq);
       if (id instanceof PointsCurveNodeWithIdentifier) {
-        final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
+        PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
         CurveNodeMarketDataRequirement spotReq = new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(),
                                                                                     node.getUnderlyingDataField());
         // TODO check result is available
