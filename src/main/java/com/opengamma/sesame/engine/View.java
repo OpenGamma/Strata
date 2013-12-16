@@ -196,6 +196,17 @@ public class View implements AutoCloseable {
     }
   }
 
+  /**
+   * Decorates the sources with cache aware versions that invalidate cache entries when the data changes.
+   * The returned component map contains the cache aware sources in place of the originals.
+   * The returns collection contains the change managers for all decorated sources. This allows listeners to
+   * be removed when the view closes and prevents a resource leak.
+   * @param components Platform components used by functions
+   * @param cacheInvalidator For registering dependencies between values in the cache and the values used to calculate them
+   * @param sourceListener Listens for changes in items in the database
+   * @return A map of components containing the decorated sources instead of the originals, and a collection of
+   * change managers which had a listener added to them
+   */
   private Pair<ComponentMap, Collection<ChangeManager>> decorateSources(ComponentMap components,
                                                                         CacheInvalidator cacheInvalidator,
                                                                         SourceListener sourceListener) {
