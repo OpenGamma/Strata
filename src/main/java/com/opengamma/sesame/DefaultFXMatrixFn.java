@@ -83,7 +83,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
       if (refCurr == null) {
         refCurr = currency;
       } else {
-        MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(currency, refCurr));
+        MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(refCurr, currency));
         FunctionResult<MarketDataValues> marketDataFunctionResult = _marketDataFn.requestData(spotReqmt);
         MarketDataValues marketDataValues = marketDataFunctionResult.getResult();
         if (marketDataValues.getStatus(spotReqmt) == MarketDataStatus.AVAILABLE) {
