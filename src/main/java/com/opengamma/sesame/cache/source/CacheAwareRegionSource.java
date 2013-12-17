@@ -15,11 +15,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class CacheAwareRegionSource extends CacheAwareSourceWithExternalBundle<Region> implements RegionSource {
+public class CacheAwareRegionSource extends CacheAwareSourceWithExternalBundle<Region> implements RegionSource {
 
   private final RegionSource _delegate;
 
-  /* package */ CacheAwareRegionSource(RegionSource delegate, CacheInvalidator cacheInvalidator) {
+  public CacheAwareRegionSource(RegionSource delegate, CacheInvalidator cacheInvalidator) {
     super(delegate, cacheInvalidator);
     _delegate = ArgumentChecker.notNull(delegate, "delegate");
   }

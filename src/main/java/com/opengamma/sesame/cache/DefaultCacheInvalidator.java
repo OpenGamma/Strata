@@ -80,8 +80,8 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   public synchronized void invalidate(MarketDataFactory marketDataFactory,
                                       ZonedDateTime valuationTime,
                                       VersionCorrection configVersionCorrection,
-                                      List<ExternalId> marketData,
-                                      List<ObjectId> dbIds) {
+                                      Collection<ExternalId> marketData,
+                                      Collection<ObjectId> dbIds) {
     ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");

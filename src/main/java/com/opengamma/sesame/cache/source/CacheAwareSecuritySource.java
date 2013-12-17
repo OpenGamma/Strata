@@ -12,9 +12,9 @@ import com.opengamma.sesame.cache.CacheInvalidator;
 /**
  *
  */
-/* package */ class CacheAwareSecuritySource extends CacheAwareSourceWithExternalBundle<Security> implements SecuritySource {
+public class CacheAwareSecuritySource extends CacheAwareSourceWithExternalBundle<Security> implements SecuritySource {
 
-  /* package */ CacheAwareSecuritySource(SecuritySource delegate, CacheInvalidator cacheInvalidator) {
+  public CacheAwareSecuritySource(SecuritySource delegate, CacheInvalidator cacheInvalidator) {
     super(delegate, cacheInvalidator);
   }
 }

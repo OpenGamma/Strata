@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.cache;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -40,7 +40,7 @@ public class NoOpCacheInvalidator implements CacheInvalidator {
   public void invalidate(MarketDataFactory marketDataFactory,
                          ZonedDateTime valuationTime,
                          VersionCorrection configVersionCorrection,
-                         List<ExternalId> marketData,
-                         List<ObjectId> dbData) {
+                         Collection<ExternalId> marketData,
+                         Collection<ObjectId> dbData) {
   }
 }

@@ -18,12 +18,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class CacheAwareConventionSource extends CacheAwareSourceWithExternalBundle<Convention>
+public class CacheAwareConventionSource extends CacheAwareSourceWithExternalBundle<Convention>
     implements ConventionSource {
 
   private final ConventionSource _delegate;
 
-  /* package */ CacheAwareConventionSource(ConventionSource delegate, CacheInvalidator cacheInvalidator) {
+  public CacheAwareConventionSource(ConventionSource delegate, CacheInvalidator cacheInvalidator) {
     super(delegate, cacheInvalidator);
     _delegate = ArgumentChecker.notNull(delegate, "delegate");
   }

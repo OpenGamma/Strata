@@ -21,12 +21,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class CacheAwareConfigSource implements ConfigSource {
+public class CacheAwareConfigSource implements ConfigSource {
 
   private final ConfigSource _delegate;
   private final CacheInvalidator _cacheInvalidator;
 
-  /* package */ CacheAwareConfigSource(ConfigSource delegate, CacheInvalidator cacheInvalidator) {
+  /* package */
+  public CacheAwareConfigSource(ConfigSource delegate, CacheInvalidator cacheInvalidator) {
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _delegate = ArgumentChecker.notNull(delegate, "delegate");
   }
