@@ -9,8 +9,12 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.id.UniqueId;
+import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.util.ArgumentChecker;
 
@@ -24,19 +28,33 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
 
   public SpecificationMarketDataFactory(MarketDataSpecification marketDataSpecification) {
     _marketDataSpecification = ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
-    if (!(_marketDataSpecification instanceof FixedHistoricalMarketDataSpecification)) {
-      throw new IllegalArgumentException("Only FixedHistoricalMarketDataSpecification is currently supported");
+    if (!(_marketDataSpecification instanceof FixedHistoricalMarketDataSpecification) &&
+        !(_marketDataSpecification instanceof UserMarketDataSpecification)) {
+      throw new IllegalArgumentException("Only fixed historical and snapshot data sources are currently supported");
     }
   }
 
   @Override
   public MarketDataFn create(ComponentMap components) {
     ConfigSource configSource = components.getComponent(ConfigSource.class);
-    HistoricalTimeSeriesSource timeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
-    LocalDate date = ((FixedHistoricalMarketDataSpecification) _marketDataSpecification).getSnapshotDate();
-    HistoricalRawMarketDataSource rawDataSource =
-        new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+    RawMarketDataSource rawDataSource = createRawDataSource(components);
     return new EagerMarketDataFn(rawDataSource, configSource, "BloombergLiveData");
+  }
+
+  private RawMarketDataSource createRawDataSource(ComponentMap components) {
+    // TODO use time series rating instead of hard coding the data source and field?
+    HistoricalTimeSeriesSource timeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
+    if (_marketDataSpecification instanceof FixedHistoricalMarketDataSpecification) {
+      LocalDate date = ((FixedHistoricalMarketDataSpecification) _marketDataSpecification).getSnapshotDate();
+      return new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+    } else if (_marketDataSpecification instanceof UserMarketDataSpecification) {
+      MarketDataSnapshotSource snapshotSource = components.getComponent(MarketDataSnapshotSource.class);
+      UniqueId snapshotId = ((UserMarketDataSpecification) _marketDataSpecification).getUserSnapshotId();
+      ValuationTimeFn valuationTimeFn = components.getComponent(ValuationTimeFn.class);
+      return new SnapshotRawMarketDataSource(snapshotSource, snapshotId, timeSeriesSource, valuationTimeFn, "BLOOMBERG", "Market_Value");
+    } else {
+      throw new IllegalArgumentException("Unexpected spec type " + _marketDataSpecification);
+    }
   }
 
   @Override

@@ -172,12 +172,16 @@ public class View implements AutoCloseable {
 
   /**
    * Does the housekeeping tasks before running a calculation cycle.
-   * This includes invalidating items in the cache that need to be recalculated, setting valuation times, setting
+   * This includes removing items from the cache that need to be recalculated, setting valuation times, setting
    * up market data etc.
    * @param cycleArguments Arguments for running the cycle
    */
   private void initializeCycle(CycleArguments cycleArguments) {
     // TODO this will need to be a lot cleverer when we need to support dynamic rebinding for full reval
+    // TODO need to query the market data factory to see what data has changed during the cycle
+    //   for live sources this will be individual values
+    //   for snapshots it will be the entire snapshot if it's been updated in the DB
+    //   if the data provider has completely changed then everything must go (which is currently done in the invalidator)
     _cacheInvalidator.invalidate(cycleArguments.getMarketDataFactory(),
                                  cycleArguments.getValuationTime(),
                                  cycleArguments.getConfigVersionCorrection(),
@@ -214,31 +218,31 @@ public class View implements AutoCloseable {
     // need to record which ChangeManagers we're listening to so we can remove the listeners and avoid leaks
     Collection<ChangeManager> changeManagers = Lists.newArrayList();
 
-    ConfigSource configSource = components.getComponent(ConfigSource.class);
+    ConfigSource configSource = components.findComponent(ConfigSource.class);
     if (configSource != null) {
       changeManagers.add(configSource.changeManager());
       sources.put(ConfigSource.class, new CacheAwareConfigSource(configSource, cacheInvalidator));
     }
 
-    RegionSource regionSource = components.getComponent(RegionSource.class);
+    RegionSource regionSource = components.findComponent(RegionSource.class);
     if (regionSource != null) {
       changeManagers.add(regionSource.changeManager());
       sources.put(RegionSource.class, new CacheAwareRegionSource(regionSource, cacheInvalidator));
     }
 
-    SecuritySource securitySource = components.getComponent(SecuritySource.class);
+    SecuritySource securitySource = components.findComponent(SecuritySource.class);
     if (securitySource != null) {
       changeManagers.add(securitySource.changeManager());
       sources.put(SecuritySource.class, new CacheAwareSecuritySource(securitySource, cacheInvalidator));
     }
 
-    ConventionSource conventionSource = components.getComponent(ConventionSource.class);
+    ConventionSource conventionSource = components.findComponent(ConventionSource.class);
     if (conventionSource != null) {
       changeManagers.add(conventionSource.changeManager());
       sources.put(ConventionSource.class, new CacheAwareConventionSource(conventionSource, cacheInvalidator));
     }
 
-    HistoricalTimeSeriesSource timeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
+    HistoricalTimeSeriesSource timeSeriesSource = components.findComponent(HistoricalTimeSeriesSource.class);
     if (timeSeriesSource != null) {
       changeManagers.add(timeSeriesSource.changeManager());
       sources.put(HistoricalTimeSeriesSource.class, new CacheAwareHistoricalTimeSeriesSource(timeSeriesSource, cacheInvalidator));

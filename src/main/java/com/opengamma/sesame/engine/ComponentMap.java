@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
@@ -71,13 +72,30 @@ public final class ComponentMap {
   }
 
   /**
+   * Returns a component or throws an exception if there is no component available of the required type.
    * @param type The required component type
    * @param <T> The required component type
-   * @return A component of the required type of null if there isn't one
+   * @return A component of the required type, not null
+   * @throws DataNotFoundException If there is no component of the specified type
    */
   @SuppressWarnings("unchecked")
   public <T> T getComponent(Class<T> type) {
-    return (T) _components.get(type);
+    T component = (T) _components.get(ArgumentChecker.notNull(type, "type"));
+    if (component == null) {
+      throw new DataNotFoundException("No component found of type " + type);
+    }
+    return component;
+  }
+
+  /**
+   * Returns a component or null if there is no component available of the required type.
+   * @param type The required component type
+   * @param <T> The required component type
+   * @return A component of the required type or null if there isn't one
+   */
+  @SuppressWarnings("unchecked")
+  public <T> T findComponent(Class<T> type) {
+    return (T) _components.get(ArgumentChecker.notNull(type, "type"));
   }
 
   public ComponentMap with(Map<Class<?>, Object> components) {

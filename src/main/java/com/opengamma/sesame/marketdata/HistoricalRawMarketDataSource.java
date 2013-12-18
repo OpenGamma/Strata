@@ -19,23 +19,18 @@ import com.opengamma.util.time.LocalDateRange;
 /**
  * Useful for backing a {@link MarketDataFn} which needs historical data from a fixed point in time.
  */
-public class HistoricalRawMarketDataSource implements RawMarketDataSource {
+public class HistoricalRawMarketDataSource extends AbstractRawMarketDataSource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalRawMarketDataSource.class);
 
-  private final HistoricalTimeSeriesSource _timeSeriesSource;
   private final LocalDate _snapshotDate;
-  private final String _dataSource;
-  private final String _dataProvider;
 
   public HistoricalRawMarketDataSource(HistoricalTimeSeriesSource timeSeriesSource,
                                        LocalDate snapshotDate,
                                        String dataSource,
                                        String dataProvider) {
-    _timeSeriesSource = ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
+    super(timeSeriesSource, dataProvider, dataSource);
     _snapshotDate = ArgumentChecker.notNull(snapshotDate, "snapshotDate");
-    _dataSource = ArgumentChecker.notEmpty(dataSource, "dataSource");
-    _dataProvider = ArgumentChecker.notEmpty(dataProvider, "dataProvider");
   }
 
   @Override
@@ -51,20 +46,6 @@ public class HistoricalRawMarketDataSource implements RawMarketDataSource {
       return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
     } else {
       return MarketDataItem.available(value);
-    }
-  }
-
-  @Override
-  public MarketDataItem get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange) {
-    LocalDate startDate = dateRange.getStartDateInclusive();
-    LocalDate endDate = dateRange.getEndDateInclusive();
-    HistoricalTimeSeries hts = _timeSeriesSource.getHistoricalTimeSeries(idBundle, _dataSource, _dataProvider, dataField,
-                                                                         startDate, true, endDate, true);
-    if (hts == null || hts.getTimeSeries().isEmpty()) {
-      s_logger.info("No time-series for {}", idBundle);
-      return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
-    } else {
-      return MarketDataItem.available(hts.getTimeSeries());
     }
   }
 

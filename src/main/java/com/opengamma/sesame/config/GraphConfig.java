@@ -54,9 +54,8 @@ public class GraphConfig {
     return _functionConfig.getFunctionImplementation(interfaceType);
   }
 
-  // TODO should this be called getComponent?
   public Object getComponent(Class<?> type) {
-    return _components.getComponent(type);
+    return _components.findComponent(type);
   }
 
   // TODO should this be on a separate interface? the others are used in graph building, this is for execution
