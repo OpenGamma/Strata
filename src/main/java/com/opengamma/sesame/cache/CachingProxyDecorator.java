@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame.cache;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -23,7 +23,9 @@ import com.opengamma.sesame.config.ConfigUtils;
 import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.proxy.AbstractProxyInvocationHandler;
 import com.opengamma.sesame.proxy.InvocationHandlerFactory;
+import com.opengamma.sesame.proxy.ProxyInvocationHandler;
 import com.opengamma.sesame.proxy.ProxyNode;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -108,7 +110,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
     }
 
     @Override
-    public InvocationHandler create(Object delegate, ProxyNode node) {
+    public ProxyInvocationHandler create(Object delegate, ProxyNode node) {
       Set<Method> cachedMethods = Sets.newHashSet();
       for (Method method : _interfaceType.getMethods()) {
         if (method.getAnnotation(Cache.class) != null) {
@@ -165,10 +167,10 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
    * them to block while the first thread calculates it.
    * This is package scoped for testing.
    */
-  /* package */ static final class Handler implements InvocationHandler {
+  /* package */ static final class Handler extends AbstractProxyInvocationHandler {
 
-    // TODO this could be a proxy but also need the real receiver for the cache key
     private final Object _delegate;
+    private final Object _proxiedObject;
     private final Set<Method> _cachedMethods;
     private final Ehcache _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
@@ -177,17 +179,19 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
                     Set<Method> cachedMethods,
                     Ehcache cache,
                     ExecutingMethodsThreadLocal executingMethods) {
+      super(delegate);
       _cache = ArgumentChecker.notNull(cache, "cache");
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
+      _proxiedObject = getProxiedObject(delegate);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
       if (_cachedMethods.contains(method)) {
-        final MethodInvocationKey key = new MethodInvocationKey(_delegate, method, args);
+        final MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, args);
         Element element = _cache.get(key);
         if (element != null) {
           FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
@@ -214,6 +218,15 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
           throw e.getCause();
         }
       }
+    }
+
+    private static Object getProxiedObject(Object delegate) {
+      // if delegate isn't a proxy then we've reached the end of the chain of proxies
+      if (!Proxy.isProxyClass(delegate.getClass())) {
+        return delegate;
+      }
+      ProxyInvocationHandler invocationHandler = (ProxyInvocationHandler) Proxy.getInvocationHandler(delegate);
+      return getProxiedObject(invocationHandler.getReceiver());
     }
 
     /** Visible for testing */

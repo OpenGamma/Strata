@@ -42,7 +42,7 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
   }
 
   private RawMarketDataSource createRawDataSource(ComponentMap components) {
-    // TODO use time series rating instead of hard coding the data source and field?
+    // TODO use time series rating instead of hard coding the data source and field
     HistoricalTimeSeriesSource timeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
     if (_marketDataSpecification instanceof FixedHistoricalMarketDataSpecification) {
       LocalDate date = ((FixedHistoricalMarketDataSpecification) _marketDataSpecification).getSnapshotDate();

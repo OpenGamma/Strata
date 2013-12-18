@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.proxy;
 
-import java.lang.reflect.InvocationHandler;
-
 /**
  * Factory for objects that provide the behaviour of a proxy.
  * This class is necessary because node decorators are invoked when the graph model is built but
@@ -27,5 +25,5 @@ public interface InvocationHandlerFactory {
    * @return A handler that provides the proxy behaviour
    * TODO this should probably have an argument for the node too
    */
-  InvocationHandler create(Object delegate, ProxyNode node);
+  ProxyInvocationHandler create(Object delegate, ProxyNode node);
 }
