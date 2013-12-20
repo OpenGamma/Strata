@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  * When the valuation time changes entries are checked against the new time and if they're no longer valid
  * the corresponding cache entry is cleared.
  */
-/* package */ interface ValuationTimeCacheEntry {
+public interface ValuationTimeCacheEntry {
 
   /**
    * Returns true if the cache entry is valid at the valuation time.

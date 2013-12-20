@@ -22,12 +22,14 @@ import com.opengamma.util.tuple.Pair;
 public final class CycleArguments {
 
   // TODO currency? or is that a view property
-  // TODO function arguments for the output function
+  // TODO function arguments for the output functions
+  // TODO portfolio version correction
 
   private final ZonedDateTime _valuationTime;
   private final MarketDataFactory _marketDataFactory;
-  private final Set<Pair<Integer, Integer>> _traceFunctions;
   private final VersionCorrection _configVersionCorrection;
+  // TODO this isn't part of the key used for caching. put in a subclass or something?
+  private final Set<Pair<Integer, Integer>> _traceFunctions;
 
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,

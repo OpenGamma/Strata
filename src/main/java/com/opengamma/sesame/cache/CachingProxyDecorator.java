@@ -50,6 +50,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
   private final CacheManager _cacheManager;
   private final String _cacheName;
 
+  // TODO don't create the cache in here, need a level of indirection to allow dynamic rebinding
   public CachingProxyDecorator(CacheManager cacheManager, ExecutingMethodsThreadLocal executingMethods) {
     _cacheManager = ArgumentChecker.notNull(cacheManager, "cacheManager");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
@@ -72,8 +73,8 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
       implementationType = ((ProxyNode) node).getImplementationType();
       interfaceType = ((ProxyNode) node).getType();
     }
-    if (ConfigUtils.hasMethodAnnotation(interfaceType, Cache.class) ||
-        ConfigUtils.hasMethodAnnotation(implementationType, Cache.class)) {
+    if (ConfigUtils.hasMethodAnnotation(interfaceType, Cacheable.class) ||
+        ConfigUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
       CachingHandlerFactory handlerFactory = new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods);
       return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
@@ -113,12 +114,12 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
     public ProxyInvocationHandler create(Object delegate, ProxyNode node) {
       Set<Method> cachedMethods = Sets.newHashSet();
       for (Method method : _interfaceType.getMethods()) {
-        if (method.getAnnotation(Cache.class) != null) {
+        if (method.getAnnotation(Cacheable.class) != null) {
           cachedMethods.add(method);
         }
       }
       for (Method method : _implementationType.getMethods()) {
-        if (method.getAnnotation(Cache.class) != null) {
+        if (method.getAnnotation(Cacheable.class) != null) {
           // the proxy will always see the interface method. no point caching the instance method
           // need to go up the inheritance hierarchy and find all interface methods implemented by this method
           // and cache those
@@ -159,7 +160,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
 
   /**
    * Handles method invocations and possibly returns a cached result instead of calling the underlying object.
-   * If the method doesn't have a {@link Cache} annotation the underlying object is called.
+   * If the method doesn't have a {@link Cacheable} annotation the underlying object is called.
    * If the cache contains an element that corresponds to the method and arguments it's returned and the underlying
    * object isn't called.
    * If the cache doesn't contain an element the underlying object is called and the cache is populated.
@@ -191,6 +192,15 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
     @Override
     public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
       if (_cachedMethods.contains(method)) {
+        // TODO include the time in the cache key
+        //   LocalDate if lifetime is DAY? or ZonedDateTime set to midnight? midday?
+        //   ZonedDateTime if lifetime is INSTANT
+        //   null(?) if lifetime is FOREVER
+        // TODO what about other stuff in the cycle arguments? surely MD, VC(s) need to be included too?
+        // whole cycle arguments as part of the key?
+        // need to be careful with VC. don't ever want to use LATEST in a lookup but need to know when a value
+        // used LATEST because then it will need to be invalidated if the object is updated
+        // context will need resolved version corrections plus flags to say whether they were resolved from LATEST
         final MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, args);
         Element element = _cache.get(key);
         if (element != null) {

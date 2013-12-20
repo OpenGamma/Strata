@@ -11,11 +11,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * TODO Cacheable?
- * TODO annotation to say the value can be cached for the whole day
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Cache {
+public @interface Cacheable {
 
+  CacheLifetime value() default CacheLifetime.INSTANT;
 }

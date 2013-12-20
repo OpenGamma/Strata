@@ -106,6 +106,7 @@ public class Engine {
    * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
    * in future.
    * TODO parameter to allow arbitrary NodeDecorators to be passed in?
+   * TODO should this logic be in View?
    */
   public View createView(ViewDef viewDef, List<?> inputs, EnumSet<EngineService> services) {
     CompositeNodeDecorator decorator;
@@ -131,6 +132,8 @@ public class Engine {
       }
       decorator = new CompositeNodeDecorator(decorators);
     }
+
+    // TODO everything below here could move into the View constructor
 
     // TODO is this the right place for this logic? should there be a component map pre-populated with them?
     // as they're completely standard components always provided by the engine

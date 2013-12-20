@@ -134,7 +134,7 @@ public class CachingProxyDecoratorTest {
 
   interface TestFn {
 
-    @Cache
+    @Cacheable
     @Output("Foo")
     Object foo(String arg);
   }
@@ -168,7 +168,7 @@ public class CachingProxyDecoratorTest {
     }
 
     @Override
-    @Cache
+    @Cacheable
     public Object fn() {
       return _delegateFn.fn();
     }
@@ -293,7 +293,7 @@ public class CachingProxyDecoratorTest {
 
   public static class Impl2 implements TestFn2 {
 
-    @Cache
+    @Cacheable
     @Override
     public Object foo(String arg) {
       return new Object();
@@ -316,7 +316,7 @@ public class CachingProxyDecoratorTest {
   interface ExecutingMethodsI1 {
 
     @Output("abc")
-    @Cache
+    @Cacheable
     Object fn(String s, int i);
   }
 
@@ -349,7 +349,7 @@ public class CachingProxyDecoratorTest {
 
   interface ExecutingMethodsI2 {
 
-    @Cache
+    @Cacheable
     Object fn(String s, int i, String s2);
   }
 

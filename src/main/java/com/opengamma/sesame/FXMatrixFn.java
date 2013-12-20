@@ -9,7 +9,8 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
-import com.opengamma.sesame.cache.Cache;
+import com.opengamma.sesame.cache.CacheLifetime;
+import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FunctionResult;
 
@@ -18,9 +19,9 @@ import com.opengamma.util.result.FunctionResult;
  */
 public interface FXMatrixFn {
 
-  @Cache
+  @Cacheable(CacheLifetime.FOREVER)
   FunctionResult<FXMatrix> getFXMatrix(Set<Currency> currencies);
 
-  @Cache
+  @Cacheable(CacheLifetime.FOREVER)
   FunctionResult<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration);
 }
