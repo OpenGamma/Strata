@@ -3,19 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.link;
+package com.opengamma.service;
 
-import com.opengamma.service.ServiceContext;
 
 /**
  * A thread-local holder for a ServiceContext accessible across the system.
  */
 public class ThreadLocalServiceContext {
   
-  private static ThreadLocal<ServiceContext> s_instance;
+  private static ThreadLocal<ServiceContext> s_instance = new ThreadLocal<ServiceContext>();
   
   public static final void init(ServiceContext serviceContext) {
-    s_instance = new ThreadLocal<ServiceContext>();
     s_instance.set(serviceContext);
   }
   

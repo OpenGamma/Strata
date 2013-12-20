@@ -3,20 +3,22 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.link;
+package com.opengamma.core.link.security;
 
 import java.util.Map;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries2.HistoricalDataRequest;
+import com.opengamma.core.link.MarketDataResult;
 import com.opengamma.core.security.Security;
 import com.opengamma.service.ServiceContext;
 
 /**
- * 
+ * This link is designed to hold an actual instance of the underlying object.  This is useful for unit testing or scripting.
+ * This should not be used in production engine code because it won't track version/correction changes.
  * @param <T> the type of the underlying security
  */
-public class FixedSecurityLink<T extends Security> extends SecurityLink<T> {
+class FixedSecurityLink<T extends Security> extends SecurityLink<T> {
   private T _security;
   private Map<HistoricalDataRequest, HistoricalTimeSeries> _timeSeriesMap;
   private HistoricalTimeSeries _timeSeries;

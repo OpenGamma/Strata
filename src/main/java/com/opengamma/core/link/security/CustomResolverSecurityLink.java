@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.link;
+package com.opengamma.core.link.security;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries2.HistoricalDataRequest;
 import com.opengamma.core.historicaltimeseries2.HistoricalTimeSeriesSource;
+import com.opengamma.core.link.MarketDataResult;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
@@ -15,10 +16,12 @@ import com.opengamma.service.ServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 
 /**
- * 
- * @param <T>
+ * A security link implementation where the user can provide a custom service context rather than use one
+ * in a thread local context.
+ * Instances of this object can be created using the appropriate of() factory method on @see SecurityLink<T>
+ * @param <T> the type of the target object
  */
-public class CustomResolverSecurityLink<T extends Security> extends SecurityLink<T> {
+class CustomResolverSecurityLink<T extends Security> extends SecurityLink<T> {
   private ServiceContext _serviceContext;
 
   protected CustomResolverSecurityLink(ExternalIdBundle bundle, ServiceContext serviceContext) {

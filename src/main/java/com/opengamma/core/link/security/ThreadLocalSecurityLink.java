@@ -3,15 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.link;
+package com.opengamma.core.link.security;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries2.HistoricalDataRequest;
 import com.opengamma.core.historicaltimeseries2.HistoricalTimeSeriesSource;
+import com.opengamma.core.link.MarketDataResult;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 
 /**

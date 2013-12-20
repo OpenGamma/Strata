@@ -3,12 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.core.link;
+package com.opengamma.core.link.security;
 
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries2.HistoricalDataRequest;
+import com.opengamma.core.link.MarketDataResult;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
