@@ -133,7 +133,7 @@ import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -178,7 +178,7 @@ public class FXForwardPVFnTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithNoData() throws IOException {
-    FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(
+    Result<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(
         Collections.<MarketDataRequirement, MarketDataItem>emptyMap());
     assertNotNull(pv);
     MatcherAssert.assertThat(pv.getStatus(), is((ResultStatus) MISSING_DATA));
@@ -187,12 +187,12 @@ public class FXForwardPVFnTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
-    FunctionResult<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(loadMarketDataForForward());
+    Result<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(loadMarketDataForForward());
     assertNotNull(pv);
     assertThat(pv.getStatus(), is((ResultStatus) SUCCESS));
   }
 
-  private FunctionResult<CurrencyLabelledMatrix1D> executeAgainstRemoteServer(
+  private Result<CurrencyLabelledMatrix1D> executeAgainstRemoteServer(
       Map<MarketDataRequirement, MarketDataItem> marketData) {
     String serverUrl = "http://localhost:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
@@ -216,7 +216,7 @@ public class FXForwardPVFnTest {
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
     security.setUniqueId(UniqueId.of("sec", "123"));
     //TracingProxy.start(new FullTracer());
-    FunctionResult<CurrencyLabelledMatrix1D> result = null;
+    Result<CurrencyLabelledMatrix1D> result = null;
     for (int i = 0; i < 100; i++) {
       result = pvFunction.calculatePV(security);
       System.out.println();
@@ -249,7 +249,7 @@ public class FXForwardPVFnTest {
     GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, NodeDecorator.IDENTITY);
     DiscountingMulticurveBundleFn bundleProvider =
         FunctionModel.build(DiscountingMulticurveBundleFn.class, graphConfig);
-    FunctionResult<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
+    Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
     try {
       result = bundleProvider.generateBundle("Z-Marc JPY Dsc - FX USD");
     } catch (Exception e) {
@@ -259,7 +259,7 @@ public class FXForwardPVFnTest {
     assertNotNull(result);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
 
-    // Can examine result.getResult().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
+    // Can examine result.getValue().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
   }
 
   //@Test(groups = TestGroup.INTEGRATION)

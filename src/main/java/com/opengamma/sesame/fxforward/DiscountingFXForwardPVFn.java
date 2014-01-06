@@ -5,12 +5,12 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public class DiscountingFXForwardPVFn implements FXForwardPVFn {
 
@@ -22,11 +22,11 @@ public class DiscountingFXForwardPVFn implements FXForwardPVFn {
   }
 
   @Override
-  public FunctionResult<CurrencyLabelledMatrix1D> calculatePV(FXForwardSecurity security) {
+  public Result<CurrencyLabelledMatrix1D> calculatePV(FXForwardSecurity security) {
 
-    FunctionResult<FXForwardCalculator> result = _fxForwardCalculatorFn.generateCalculator(security);
-    if (result.isResultAvailable()) {
-      return success(result.getResult().calculatePV());
+    Result<FXForwardCalculator> result = _fxForwardCalculatorFn.generateCalculator(security);
+    if (result.isValueAvailable()) {
+      return success(result.getValue().calculatePV());
     } else {
       return propagateFailure(result);
     }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Set;
 
@@ -26,7 +26,7 @@ import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.result.SuccessStatus;
 
 /**
@@ -55,7 +55,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   }
 
   @Override
-  public FunctionResult<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration) {
+  public Result<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration) {
 
     // todo - should this actually be another function or set of functions
     final Set<Currency> currencies = CurveUtils.getCurrencies(configuration,
@@ -67,11 +67,11 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   }
 
   @Override
-  public FunctionResult<FXMatrix> getFXMatrix(Set<Currency> currencies) {
+  public Result<FXMatrix> getFXMatrix(Set<Currency> currencies) {
     return buildResult(currencies);
   }
 
-  private FunctionResult<FXMatrix> buildResult(Set<Currency> currencies) {
+  private Result<FXMatrix> buildResult(Set<Currency> currencies) {
     // todo - if we don't have all the data, do we return a partial/empty fx matrix or an error, doing the latter
 
     final FXMatrix matrix = new FXMatrix();
@@ -84,14 +84,14 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         refCurr = currency;
       } else {
         MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(refCurr, currency));
-        FunctionResult<MarketDataValues> marketDataFunctionResult = _marketDataFn.requestData(spotReqmt);
-        MarketDataValues marketDataValues = marketDataFunctionResult.getResult();
+        Result<MarketDataValues> marketDataResult = _marketDataFn.requestData(spotReqmt);
+        MarketDataValues marketDataValues = marketDataResult.getValue();
         if (marketDataValues.getStatus(spotReqmt) == MarketDataStatus.AVAILABLE) {
           double spotRate = (Double) marketDataValues.getValue(spotReqmt);
 
-          FunctionResult<CurrencyPair> result = _currencyPairsFn.getCurrencyPair(refCurr, currency);
+          Result<CurrencyPair> result = _currencyPairsFn.getCurrencyPair(refCurr, currency);
           if (result.getStatus() == SuccessStatus.SUCCESS) {
-            boolean inversionRequired = result.getResult().getCounter().equals(refCurr);
+            boolean inversionRequired = result.getValue().getCounter().equals(refCurr);
             matrix.addCurrency(currency, refCurr, inversionRequired ? 1 / spotRate : spotRate);
           }
         }

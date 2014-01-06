@@ -7,10 +7,10 @@ package com.opengamma.sesame;
 
 import com.opengamma.sesame.cache.CacheLifetime;
 import com.opengamma.sesame.cache.Cacheable;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public interface MarketExposureSelectorFn {
 
   @Cacheable(CacheLifetime.FOREVER) // TODO is this lifetime correct?
-  FunctionResult<MarketExposureSelector> getMarketExposureSelector();
+  Result<MarketExposureSelector> getMarketExposureSelector();
 }

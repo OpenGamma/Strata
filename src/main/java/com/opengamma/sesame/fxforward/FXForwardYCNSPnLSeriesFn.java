@@ -9,12 +9,12 @@ import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesM
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 /**
  */
 public interface FXForwardYCNSPnLSeriesFn {
 
   @Output(OutputNames.YCNS_PNL_SERIES)
-  FunctionResult<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateYCNSPnlSeries(FXForwardSecurity security);
+  Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateYCNSPnlSeries(FXForwardSecurity security);
 }

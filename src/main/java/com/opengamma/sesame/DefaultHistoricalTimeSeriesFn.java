@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
@@ -63,13 +63,13 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   }
 
   @Override
-  public FunctionResult<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair) {
+  public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair) {
     MarketDataRequirement requirement = MarketDataRequirementFactory.of(currencyPair);
-    FunctionResult<MarketDataSeries> result = _marketDataProvider.requestData(requirement, _htsRetrievalPeriod);
-    if (!result.isResultAvailable()) {
+    Result<MarketDataSeries> result = _marketDataProvider.requestData(requirement, _htsRetrievalPeriod);
+    if (!result.isValueAvailable()) {
       return propagateFailure(result);
     }
-    MarketDataSeries series = result.getResult();
+    MarketDataSeries series = result.getValue();
     if (series.getStatus(requirement) == MarketDataStatus.AVAILABLE) {
       DateTimeSeries<LocalDate, ?> onlySeries = series.getOnlySeries();
       return success((LocalDateDoubleTimeSeries) onlySeries);
@@ -79,7 +79,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   }
 
   @Override
-  public FunctionResult<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve) {
+  public Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve) {
 
     // For expediency we will mirror the current ways of working out dates which is
     // pretty much to take 1 year before the valuation date. This is blunt and

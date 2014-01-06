@@ -16,7 +16,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.sesame.ResettableMarketDataFn;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -50,12 +50,12 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
   private ZonedDateTime _valuationTime;
 
   @Override
-  public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
+  public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
     return requestData(ImmutableSet.of(requirement));
   }
 
   @Override
-  public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
+  public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
     MarketDataValuesResultBuilder builder = new MarketDataValuesResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       if (_requestedMarketData.containsKey(requirement)) {
@@ -69,12 +69,12 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
     return requestData(ImmutableSet.of(requirement), dateRange);
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
     MarketDataSeriesResultBuilder builder = new MarketDataSeriesResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       if (_requestedMarketData.containsKey(requirement)) {
@@ -88,7 +88,7 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
     return requestData(requirement, calculateDateRange(seriesPeriod));
   }
 
@@ -99,7 +99,7 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
+  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
     return requestData(requirements, calculateDateRange(seriesPeriod));
   }
 

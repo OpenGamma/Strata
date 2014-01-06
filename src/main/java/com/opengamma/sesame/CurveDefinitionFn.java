@@ -6,7 +6,7 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.analytics.curve.CurveDefinition;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 /**
  * Function capable of creating a curve definition.
@@ -14,5 +14,5 @@ import com.opengamma.util.result.FunctionResult;
 public interface CurveDefinitionFn {
 
   // TODO @Output
-  FunctionResult<CurveDefinition> getCurveDefinition(String curveName);
+  Result<CurveDefinition> getCurveDefinition(String curveName);
 }

@@ -111,7 +111,7 @@ import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
@@ -153,7 +153,7 @@ public class FXForwardPnlSeriesFunctionTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithNoData() throws IOException {
-    FunctionResult<LocalDateDoubleTimeSeries> pnl = executeAgainstRemoteServer();
+    Result<LocalDateDoubleTimeSeries> pnl = executeAgainstRemoteServer();
     assertNotNull(pnl);
     MatcherAssert.assertThat(pnl.getStatus(), is((ResultStatus) MISSING_DATA));
   }
@@ -161,12 +161,12 @@ public class FXForwardPnlSeriesFunctionTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
-    FunctionResult<LocalDateDoubleTimeSeries> pnl = executeAgainstRemoteServer();
+    Result<LocalDateDoubleTimeSeries> pnl = executeAgainstRemoteServer();
     assertNotNull(pnl);
     assertThat(pnl.getStatus(), is((ResultStatus) SUCCESS));
   }
 
-  private FunctionResult<LocalDateDoubleTimeSeries> executeAgainstRemoteServer() {
+  private Result<LocalDateDoubleTimeSeries> executeAgainstRemoteServer() {
     String serverUrl = "http://localhost:8080";
     ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
@@ -193,7 +193,7 @@ public class FXForwardPnlSeriesFunctionTest {
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
     security.setUniqueId(UniqueId.of("sec", "123"));
     TracingProxy.start(new FullTracer());
-    FunctionResult<LocalDateDoubleTimeSeries> result = null;
+    Result<LocalDateDoubleTimeSeries> result = null;
     int nRuns = 100;
     //int nRuns = 1;
     for (int i = 0; i < nRuns; i++) {

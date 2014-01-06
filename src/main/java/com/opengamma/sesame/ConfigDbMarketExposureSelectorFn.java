@@ -6,14 +6,14 @@
 package com.opengamma.sesame;
 
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public class ConfigDbMarketExposureSelectorFn implements MarketExposureSelectorFn {
 
@@ -32,7 +32,7 @@ public class ConfigDbMarketExposureSelectorFn implements MarketExposureSelectorF
   }
 
   @Override
-  public FunctionResult<MarketExposureSelector> getMarketExposureSelector() {
+  public Result<MarketExposureSelector> getMarketExposureSelector() {
 
     // todo - we should not be using latest
     ExposureFunctions exposures = _configSource.getLatestByName(ExposureFunctions.class, _exposureConfigName);

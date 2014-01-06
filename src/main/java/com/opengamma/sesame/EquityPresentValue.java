@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -17,7 +17,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public class EquityPresentValue implements EquityPresentValueFn {
 
@@ -28,14 +28,14 @@ public class EquityPresentValue implements EquityPresentValueFn {
   }
 
   @Override
-  public FunctionResult<Double> presentValue(EquitySecurity security) {
+  public Result<Double> presentValue(EquitySecurity security) {
 
     MarketDataRequirement requirement = MarketDataRequirementFactory.of(security,
                                                                         MarketDataRequirementNames.MARKET_VALUE);
-    FunctionResult<MarketDataValues> result = _marketDataFn.requestData(requirement);
+    Result<MarketDataValues> result = _marketDataFn.requestData(requirement);
 
     if (result.getStatus().isResultAvailable()) {
-      MarketDataValues marketDataValues = result.getResult();
+      MarketDataValues marketDataValues = result.getValue();
       if (marketDataValues.getStatus(requirement) == MarketDataStatus.AVAILABLE) {
         return success((Double) marketDataValues.getOnlyValue());
       } else {

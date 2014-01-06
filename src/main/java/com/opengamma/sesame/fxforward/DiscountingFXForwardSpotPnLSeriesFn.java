@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import javax.inject.Inject;
 
@@ -17,7 +17,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -69,28 +69,28 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
   }
 
   @Override
-  public FunctionResult<LocalDateDoubleTimeSeries> calculatePnlSeries(final FXForwardSecurity security) {
+  public Result<LocalDateDoubleTimeSeries> calculatePnlSeries(final FXForwardSecurity security) {
 
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
 
     final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
-    final FunctionResult<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
+    final Result<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
 
-    final FunctionResult<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
+    final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
 
     // todo this if/else nesting is fairly horrible - is there a nicer way? E.g:
       //return gatherResults(cpResult, returnSeriesResult, calculatorResult).whenAvailable(new Doer() {
     //
-    //  public FunctionResult doIt(CurrencyPair pair, LocalDateDoubleTimeSeries series, FxForwardCalculator calculator) {
-    //    FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
+    //  public Result doIt(CurrencyPair pair, LocalDateDoubleTimeSeries series, FxForwardCalculator calculator) {
+    //    Result<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
     //        CurrencyPair.of(baseCurrency, _outputCurrency.get()));
     //
     //    final Currency baseCurrency = pair.getBase();
     //    final double exposure = mca.getAmount(pair.getCounter());
-    //    final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getResult();
+    //    final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getValue();
     //
-    //    if (conversionSeriesResult.isResultAvailable()) {
+    //    if (conversionSeriesResult.isValueAvailable()) {
     //
     //      final LocalDateDoubleTimeSeries convertedSeries = conversionSeries.multiply(exposure);
     //      return success(convertedSeries.multiply(series));
@@ -102,30 +102,30 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
     //});
     // or "flatMap that shit!"
 
-    if (calculatorResult.isResultAvailable()) {
+    if (calculatorResult.isValueAvailable()) {
 
-      final MultipleCurrencyAmount currencyExposure = calculatorResult.getResult().calculateCurrencyExposure();
+      final MultipleCurrencyAmount currencyExposure = calculatorResult.getValue().calculateCurrencyExposure();
 
-      if (cpResult.isResultAvailable()) {
+      if (cpResult.isValueAvailable()) {
 
-        final CurrencyPair currencyPair = cpResult.getResult();
+        final CurrencyPair currencyPair = cpResult.getValue();
 
-        final FunctionResult<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.calculateReturnSeries(
+        final Result<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.calculateReturnSeries(
             _seriesPeriod,
             currencyPair);
-        final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getResult();
+        final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getValue();
 
         final Currency baseCurrency = currencyPair.getBase();
         final double exposure = currencyExposure.getAmount(currencyPair.getCounter());
 
         if (conversionIsRequired(baseCurrency)) {
 
-          final FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
+          final Result<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
               CurrencyPair.of(baseCurrency, _outputCurrency.get()));
 
-          if (conversionSeriesResult.isResultAvailable()) {
+          if (conversionSeriesResult.isValueAvailable()) {
 
-            final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getResult();
+            final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getValue();
             final LocalDateDoubleTimeSeries convertedSeries = conversionSeries.multiply(exposure);
             return success(convertedSeries.multiply(fxSpotReturnSeries));
 

@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -14,11 +14,11 @@ import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSou
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 /**
  * Returns a curve definition from the configured source. If not available, the
- * return FunctionResult will indicate the reason why.
+ * return Result will indicate the reason why.
  */
 public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
 
@@ -29,7 +29,7 @@ public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
   }
 
   @Override
-  public FunctionResult<CurveDefinition> getCurveDefinition(String curveName) {
+  public Result<CurveDefinition> getCurveDefinition(String curveName) {
 
     final CurveDefinition curveDefinition = _curveDefinitionSource.getCurveDefinition(curveName);
     if (curveDefinition != null) {

@@ -102,7 +102,7 @@ import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
@@ -144,7 +144,7 @@ public class FXForwardYCNSFunctionTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithNoData() throws IOException {
-    FunctionResult<DoubleLabelledMatrix1D> ycns = executeAgainstRemoteServer();
+    Result<DoubleLabelledMatrix1D> ycns = executeAgainstRemoteServer();
     assertNotNull(ycns);
     MatcherAssert.assertThat(ycns.getStatus(), is((ResultStatus) MISSING_DATA));
   }
@@ -152,12 +152,12 @@ public class FXForwardYCNSFunctionTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
-    FunctionResult<DoubleLabelledMatrix1D> ycns = executeAgainstRemoteServer();
+    Result<DoubleLabelledMatrix1D> ycns = executeAgainstRemoteServer();
     assertNotNull(ycns);
     assertThat(ycns.getStatus(), is((ResultStatus) SUCCESS));
   }
 
-  private FunctionResult<DoubleLabelledMatrix1D> executeAgainstRemoteServer() {
+  private Result<DoubleLabelledMatrix1D> executeAgainstRemoteServer() {
     String serverUrl = "http://localhost:8080";
     ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
@@ -185,7 +185,7 @@ public class FXForwardYCNSFunctionTest {
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
     security.setUniqueId(UniqueId.of("sec", "123"));
     //TracingProxy.start(new FullTracer());
-    FunctionResult<DoubleLabelledMatrix1D> result = null;
+    Result<DoubleLabelledMatrix1D> result = null;
     for (int i = 0; i < 100; i++) {
       result = ycnsFunction.calculateYieldCurveNodeSensitivities(security);
       System.out.println();

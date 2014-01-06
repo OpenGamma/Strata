@@ -5,10 +5,10 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailures;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailures;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Set;
 
@@ -33,7 +33,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
 
 public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeriesFn {
@@ -86,30 +86,30 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   }
 
   @Override
-  public FunctionResult<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateYCNSPnlSeries(final FXForwardSecurity security) {
+  public Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateYCNSPnlSeries(final FXForwardSecurity security) {
 
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
     final Currency curveCurrency = _payLeg ? payCurrency : receiveCurrency;
     final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
 
-    final FunctionResult<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
-    final FunctionResult<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
-    final FunctionResult<CurveSpecification> curveSpecificationResult =
+    final Result<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
+    final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
+    final Result<CurveSpecification> curveSpecificationResult =
         _curveSpecificationFunction.getCurveSpecification(_curveName);
 
-    if (calculatorResult.isResultAvailable() && curveSpecificationResult.isResultAvailable() &&
-        cpResult.isResultAvailable()) {
+    if (calculatorResult.isValueAvailable() && curveSpecificationResult.isValueAvailable() &&
+        cpResult.isValueAvailable()) {
 
-      final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getResult().generateBlockCurveSensitivities();
-      final CurveSpecification curveSpecification = curveSpecificationResult.getResult();
+      final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities();
+      final CurveSpecification curveSpecification = curveSpecificationResult.getValue();
 
-      final FunctionResult<HistoricalTimeSeriesBundle> curveSeriesBundleResult =
+      final Result<HistoricalTimeSeriesBundle> curveSeriesBundleResult =
           _historicalTimeSeriesProvider.getHtsForCurve(curveSpecification);
 
-      if (curveSeriesBundleResult.isResultAvailable()) {
+      if (curveSeriesBundleResult.isValueAvailable()) {
 
-        final HistoricalTimeSeriesBundle curveSeriesBundle = curveSeriesBundleResult.getResult();
+        final HistoricalTimeSeriesBundle curveSeriesBundle = curveSeriesBundleResult.getValue();
         final DoubleMatrix1D sensitivities = bcs.getSensitivity(_curveName, curveCurrency);
         final Set<CurveNodeWithIdentifier> nodes = curveSpecification.getNodes();
 
@@ -133,18 +133,18 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
     if (conversionIsRequired(curveCurrency)) {
 
-      final FunctionResult<LocalDateDoubleTimeSeries> conversionSeriesResult =
+      final Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
           _historicalTimeSeriesProvider.getHtsForCurrencyPair(CurrencyPair.of(curveCurrency, _outputCurrency.get()));
 
-      if (conversionSeriesResult.isResultAvailable()) {
-        return conversionSeriesResult.getResult();
+      if (conversionSeriesResult.isValueAvailable()) {
+        return conversionSeriesResult.getValue();
       }
       // todo handle the cse where we got no result
     }
     return null;
   }
 
-  private FunctionResult<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateSeriesForNodes(HistoricalTimeSeriesBundle curveSeriesBundle,
+  private Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateSeriesForNodes(HistoricalTimeSeriesBundle curveSeriesBundle,
                                                                                          DoubleMatrix1D sensitivities,
                                                                                          Set<CurveNodeWithIdentifier> nodes,
                                                                                          LocalDateDoubleTimeSeries fxConversionSeries) {

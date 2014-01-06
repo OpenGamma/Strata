@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.threeten.bp.Period;
 
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
@@ -35,32 +35,32 @@ import com.opengamma.util.time.LocalDateRange;
   }
 
   @Override
-  public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
+  public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
     return _delegate.requestData(requirement);
   }
 
   @Override
-  public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
+  public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
     return _delegate.requestData(requirements);
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
     return _delegate.requestData(requirement, dateRange);
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
     return _delegate.requestData(requirements, dateRange);
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
     return _delegate.requestData(requirement, seriesPeriod);
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
+  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
     return _delegate.requestData(requirements, seriesPeriod);
   }
 }

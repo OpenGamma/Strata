@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
@@ -39,21 +39,21 @@ public class DefaultCurrencyPairsFnTest {
 
   @Test
   public void testRetrieval() {
-    FunctionResult<CurrencyPair> result = _pairsFunction.getCurrencyPair(EUR, USD);
+    Result<CurrencyPair> result = _pairsFunction.getCurrencyPair(EUR, USD);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
-    assertThat(result.getResult(), is(CurrencyPair.of(EUR, USD)));
+    assertThat(result.getValue(), is(CurrencyPair.of(EUR, USD)));
   }
 
   @Test
   public void testInverseRetrieval() {
-    FunctionResult<CurrencyPair> result = _pairsFunction.getCurrencyPair(USD, GBP);
+    Result<CurrencyPair> result = _pairsFunction.getCurrencyPair(USD, GBP);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
-    assertThat(result.getResult(), is(CurrencyPair.of(GBP, USD)));
+    assertThat(result.getValue(), is(CurrencyPair.of(GBP, USD)));
   }
 
   @Test
   public void testUnknownPair() {
-    FunctionResult<CurrencyPair> result = _pairsFunction.getCurrencyPair(AUD, GBP);
+    Result<CurrencyPair> result = _pairsFunction.getCurrencyPair(AUD, GBP);
     assertThat(result.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 

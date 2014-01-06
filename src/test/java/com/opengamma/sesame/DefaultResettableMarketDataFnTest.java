@@ -47,7 +47,7 @@ public class DefaultResettableMarketDataFnTest {
   @Test
   public void emptyProviderReturnsPendingResultAndRequestIsRecorded() {
 
-    MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getResult();
+    MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getValue();
     assertThat(result.getStatus(_mdReqmt1), is(PENDING));
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), contains(_mdReqmt1));
   }
@@ -58,7 +58,7 @@ public class DefaultResettableMarketDataFnTest {
     Map<MarketDataRequirement, MarketDataItem> data = ImmutableMap.of(_mdReqmt1, MarketDataItem.PENDING);
     _resettableMarketDataProviderFunction.resetMarketData(_valuationTime, data);
 
-    MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getResult();
+    MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getValue();
     assertThat(result.getStatus(_mdReqmt1), is(PENDING));
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), is(empty()));
   }
@@ -71,7 +71,7 @@ public class DefaultResettableMarketDataFnTest {
         ImmutableMap.of(_mdReqmt1, item);
     _resettableMarketDataProviderFunction.resetMarketData(_valuationTime, data);
 
-    MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getResult();
+    MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getValue();
     assertThat(result.getStatus(_mdReqmt1), is(AVAILABLE));
     assertThat(result.getValue(_mdReqmt1), is((Object) 123.45));
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), is(empty()));
@@ -84,7 +84,7 @@ public class DefaultResettableMarketDataFnTest {
     ImmutableMap<MarketDataRequirement, MarketDataItem> data = ImmutableMap.of(_mdReqmt1, item);
     _resettableMarketDataProviderFunction.resetMarketData(_valuationTime, data);
 
-    MarketDataValues result1 = _resettableMarketDataProviderFunction.requestData(ImmutableSet.of(_mdReqmt1, _mdReqmt2)).getResult();
+    MarketDataValues result1 = _resettableMarketDataProviderFunction.requestData(ImmutableSet.of(_mdReqmt1, _mdReqmt2)).getValue();
     assertThat(result1.getStatus(_mdReqmt1), is(AVAILABLE));
     assertThat(result1.getStatus(_mdReqmt2), is(PENDING));
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), contains(_mdReqmt2));
@@ -93,7 +93,7 @@ public class DefaultResettableMarketDataFnTest {
     );
 
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), is(empty()));
-    MarketDataValues result2 = _resettableMarketDataProviderFunction.requestData(ImmutableSet.of(_mdReqmt1, _mdReqmt2)).getResult();
+    MarketDataValues result2 = _resettableMarketDataProviderFunction.requestData(ImmutableSet.of(_mdReqmt1, _mdReqmt2)).getValue();
 
     assertThat(result2.getStatus(_mdReqmt1), is(PENDING));
     assertThat(result2.getStatus(_mdReqmt2), is(PENDING));

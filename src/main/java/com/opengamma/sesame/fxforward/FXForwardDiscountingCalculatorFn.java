@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,7 +22,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.sesame.MarketExposureSelector;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.util.money.Currency;
@@ -47,35 +47,35 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
   }
 
   @Override
-  public FunctionResult<FXForwardCalculator> generateCalculator(FXForwardSecurity security) {
+  public Result<FXForwardCalculator> generateCalculator(FXForwardSecurity security) {
 
     // get currencies from security, probably should use visitor/utils
     Set<Currency> currencies = ImmutableSet.of(security.getPayCurrency(), security.getReceiveCurrency());
 
     // Even if we can't get a matrix we want to get as far as we can to
     // ensure market data population, so ignore the result for now
-    FunctionResult<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(currencies);
+    Result<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(currencies);
 
-    FunctionResult<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
+    Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
-    if (mesResult.isResultAvailable()) {
+    if (mesResult.isValueAvailable()) {
 
       Set<String> incompleteBundles = new HashSet<>();
       Set<MulticurveProviderDiscount> bundles = new HashSet<>();
       CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
 
-      MarketExposureSelector selector = mesResult.getResult();
+      MarketExposureSelector selector = mesResult.getValue();
       Set<String> curveConfigNames = selector.determineCurveConfigurationsForSecurity(security);
 
       // todo - we may also want to cache the merged bundle at the level of the curveConfig names
       // e.g. MergedBundleProvider.getMergedBundle(curveConfigNames)
       for (String name : curveConfigNames) {
 
-        FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
+        Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
             _multicurveBundleProviderFunction.generateBundle(name);
 
-        if (bundle.isResultAvailable()) {
-          Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getResult();
+        if (bundle.isValueAvailable()) {
+          Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getValue();
           bundles.add(result.getFirst());
           mergedJacobianBundle.addAll(result.getSecond());
         } else {
@@ -83,9 +83,9 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
         }
       }
 
-      if (!curveConfigNames.isEmpty() && incompleteBundles.isEmpty() && fxmResult.isResultAvailable()) {
+      if (!curveConfigNames.isEmpty() && incompleteBundles.isEmpty() && fxmResult.isValueAvailable()) {
 
-        MulticurveProviderDiscount bundle = mergeBundlesAndMatrix(bundles, fxmResult.getResult());
+        MulticurveProviderDiscount bundle = mergeBundlesAndMatrix(bundles, fxmResult.getValue());
         return success(_factory.createCalculator(security, bundle, mergedJacobianBundle));
 
       } else if (curveConfigNames.isEmpty()) {

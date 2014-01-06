@@ -26,7 +26,7 @@ import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 
 public class EquityPresentValueTest {
@@ -46,7 +46,7 @@ public class EquityPresentValueTest {
 
     EquitySecurity security = new EquitySecurity("LSE", "LSE", "BloggsCo", Currency.GBP);
     security.setExternalIdBundle(ExternalSchemes.bloombergTickerSecurityId("BLGG").toBundle());
-    FunctionResult<Double> result = _equityPresentValueFn.presentValue(security);
+    Result<Double> result = _equityPresentValueFn.presentValue(security);
     assertThat(result.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
@@ -61,9 +61,9 @@ public class EquityPresentValueTest {
     marketData.put(requirement, MarketDataItem.available(123.45));
     _marketDataProviderFunction.resetMarketData(_valuationTime, marketData);
 
-    FunctionResult<Double> result = _equityPresentValueFn.presentValue(security);
+    Result<Double> result = _equityPresentValueFn.presentValue(security);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
-    assertThat(result.getResult(), is(123.45));
+    assertThat(result.getValue(), is(123.45));
   }
 
 }

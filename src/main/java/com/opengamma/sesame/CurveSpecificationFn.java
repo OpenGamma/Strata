@@ -6,9 +6,9 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.analytics.curve.CurveSpecification;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public interface CurveSpecificationFn {
 
-  FunctionResult<CurveSpecification> getCurveSpecification(String curveName);
+  Result<CurveSpecification> getCurveSpecification(String curveName);
 }

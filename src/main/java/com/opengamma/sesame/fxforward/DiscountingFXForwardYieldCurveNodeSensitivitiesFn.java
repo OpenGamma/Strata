@@ -5,9 +5,9 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Map;
 
@@ -19,7 +19,7 @@ import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -40,29 +40,29 @@ public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForw
   }
 
   @Override
-  public FunctionResult<DoubleLabelledMatrix1D> calculateYieldCurveNodeSensitivities(FXForwardSecurity security) {
+  public Result<DoubleLabelledMatrix1D> calculateYieldCurveNodeSensitivities(FXForwardSecurity security) {
 
-    FunctionResult<FXForwardCalculator> forwardCalculatorFunctionResult =
+    Result<FXForwardCalculator> forwardCalculatorResult =
         _fxForwardCalculatorFn.generateCalculator(security);
 
-    if (forwardCalculatorFunctionResult.isResultAvailable()) {
+    if (forwardCalculatorResult.isValueAvailable()) {
 
-      FXForwardCalculator fxForwardCalculator = forwardCalculatorFunctionResult.getResult();
+      FXForwardCalculator fxForwardCalculator = forwardCalculatorResult.getValue();
       final MultipleCurrencyParameterSensitivity sensitivities = fxForwardCalculator.generateBlockCurveSensitivities();
 
-      FunctionResult<CurveDefinition> cdResult = _curveDefinitionProvider.getCurveDefinition(_curveName);
+      Result<CurveDefinition> cdResult = _curveDefinitionProvider.getCurveDefinition(_curveName);
 
-      if (cdResult.isResultAvailable()) {
-        return findMatchingSensitivities(sensitivities, cdResult.getResult());
+      if (cdResult.isValueAvailable()) {
+        return findMatchingSensitivities(sensitivities, cdResult.getValue());
       } else {
         return propagateFailure(cdResult);
       }
     } else {
-      return propagateFailure(forwardCalculatorFunctionResult);
+      return propagateFailure(forwardCalculatorResult);
     }
   }
 
-  private FunctionResult<DoubleLabelledMatrix1D> findMatchingSensitivities(MultipleCurrencyParameterSensitivity sensitivities,
+  private Result<DoubleLabelledMatrix1D> findMatchingSensitivities(MultipleCurrencyParameterSensitivity sensitivities,
                                                                            CurveDefinition curveDefinition) {
 
     for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivities.getSensitivities().entrySet()) {

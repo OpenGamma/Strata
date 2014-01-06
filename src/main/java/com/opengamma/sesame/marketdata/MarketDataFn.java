@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.threeten.bp.Period;
 
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -26,7 +26,7 @@ public interface MarketDataFn {
    * @return a result object containing an indication of whether the data is (currently)
    * available and the value if it is.
    */
-  FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement);
+  Result<MarketDataValues> requestData(MarketDataRequirement requirement);
 
   /**
    * Request multiple items of market data.
@@ -35,13 +35,13 @@ public interface MarketDataFn {
    * @return a result object containing an indication of whether each item of data is (currently)
    * available and the value if it is.
    */
-  FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements);
+  Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements);
 
-  FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
+  Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
 
-  FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
+  Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
 
-  FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod);
+  Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod);
 
-  FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod);
+  Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod);
 }

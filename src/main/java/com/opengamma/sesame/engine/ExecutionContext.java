@@ -24,7 +24,7 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.sesame.marketdata.MarketDataValues;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -111,33 +111,33 @@ import com.opengamma.util.time.LocalDateRange;
   /* package */ static class MarketData implements MarketDataFn {
 
     @Override
-    public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
+    public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
       return getContext()._marketDataFn.requestData(requirement);
     }
 
     @Override
-    public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
+    public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
       return getContext()._marketDataFn.requestData(requirements);
     }
 
     @Override
-    public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+    public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
       return getContext()._marketDataFn.requestData(requirement, dateRange);
     }
 
     @Override
-    public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements,
+    public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements,
                                                         LocalDateRange dateRange) {
       return getContext()._marketDataFn.requestData(requirements, dateRange);
     }
 
     @Override
-    public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+    public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
       return getContext()._marketDataFn.requestData(requirement, seriesPeriod);
     }
 
     @Override
-    public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
+    public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
       return getContext()._marketDataFn.requestData(requirements, seriesPeriod);
     }
   }

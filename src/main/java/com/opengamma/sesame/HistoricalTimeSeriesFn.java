@@ -9,11 +9,11 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public interface HistoricalTimeSeriesFn {
 
-  FunctionResult<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curveName);
+  Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curveName);
 
-  FunctionResult<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair);
+  Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair);
 }

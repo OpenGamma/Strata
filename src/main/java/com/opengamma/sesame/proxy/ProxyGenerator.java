@@ -6,7 +6,7 @@
 package com.opengamma.sesame.proxy;
 
 
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.failure;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -42,7 +42,7 @@ public class ProxyGenerator {
           // automatically wraps it, so pull it out
           Throwable cause = e.getCause();
 
-          if (method.getReturnType() == FunctionResult.class) {
+          if (method.getReturnType() == Result.class) {
             return failure(FailureStatus.ERROR, "Received exception: {}", cause);
           } else {
             throw cause;

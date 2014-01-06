@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
@@ -20,8 +20,8 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.result.FunctionResult;
-import com.opengamma.util.result.FunctionResultGenerator;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 
 public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
 
@@ -50,13 +50,13 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
   }
 
   @Override
-  public FunctionResult<LocalDateDoubleTimeSeries> calculateReturnSeries(Period seriesPeriod, CurrencyPair currencyPair) {
+  public Result<LocalDateDoubleTimeSeries> calculateReturnSeries(Period seriesPeriod, CurrencyPair currencyPair) {
 
-    FunctionResult<MarketDataSeries> result =
+    Result<MarketDataSeries> result =
         _marketDataFn.requestData(MarketDataRequirementFactory.of(currencyPair), seriesPeriod);
 
-    return result.isResultAvailable() ?
-        success(calculateReturnSeries((LocalDateDoubleTimeSeries) result.getResult().getOnlySeries())) :
+    return result.isValueAvailable() ?
+        success(calculateReturnSeries((LocalDateDoubleTimeSeries) result.getValue().getOnlySeries())) :
         propagateFailure(result);
   }
 
@@ -75,7 +75,7 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
     return _timeSeriesConverter.convert(reciprocalSeries);
   }
 
-  private FunctionResult<LocalDateDoubleTimeSeries> propagateFailure(FunctionResult<MarketDataSeries> result) {
-    return FunctionResultGenerator.propagateFailure(result);
+  private Result<LocalDateDoubleTimeSeries> propagateFailure(Result<MarketDataSeries> result) {
+    return ResultGenerator.propagateFailure(result);
   }
 }

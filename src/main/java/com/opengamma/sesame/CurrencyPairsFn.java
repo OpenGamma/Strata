@@ -8,7 +8,7 @@ package com.opengamma.sesame;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public interface CurrencyPairsFn {
 
@@ -22,7 +22,7 @@ public interface CurrencyPairsFn {
    * @param currency2 the second currency, not null
    * @return the market convention currency pair for the two currencies, a failure result if not found
    */
-  FunctionResult<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2);
+  Result<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2);
 
   /**
    * Finds the currency pair instance for the supplied pair assuming it is one
@@ -34,5 +34,5 @@ public interface CurrencyPairsFn {
    * @param pair the currencies to be checked, not null
    * @return the market convention currency pair for the two currencies, a failure result if not found
    */
-  FunctionResult<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair);
+  Result<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair);
 }

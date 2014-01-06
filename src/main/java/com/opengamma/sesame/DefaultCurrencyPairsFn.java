@@ -6,8 +6,8 @@
 package com.opengamma.sesame;
 
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +17,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 
 public class DefaultCurrencyPairsFn implements CurrencyPairsFn {
 
@@ -33,13 +33,13 @@ public class DefaultCurrencyPairsFn implements CurrencyPairsFn {
   }
 
   @Override
-  public FunctionResult<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
+  public Result<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
 
     return getCurrencyPair(UnorderedCurrencyPair.of(currency1, currency2));
   }
 
   @Override
-  public FunctionResult<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair) {
+  public Result<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair) {
 
     ArgumentChecker.notNull(pair, "pair");
 

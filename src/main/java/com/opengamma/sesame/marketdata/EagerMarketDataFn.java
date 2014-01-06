@@ -13,7 +13,7 @@ import org.threeten.bp.Period;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -34,12 +34,12 @@ public class EagerMarketDataFn implements MarketDataFn {
   }
 
   @Override
-  public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
+  public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
     return requestData(Collections.singleton(requirement));
   }
 
   @Override
-  public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
+  public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
     MarketDataValuesResultBuilder resultBuilder = new MarketDataValuesResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       MarketDataItem item = getValue(requirement);
@@ -71,12 +71,12 @@ public class EagerMarketDataFn implements MarketDataFn {
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
     return requestData(Collections.singleton(requirement), dateRange);
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
     MarketDataSeriesResultBuilder resultBuilder = new MarketDataSeriesResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
       MarketDataItem item = getSeries(requirement, dateRange);
@@ -108,12 +108,12 @@ public class EagerMarketDataFn implements MarketDataFn {
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
     return requestData(requirement, _rawDataSource.calculateDateRange(seriesPeriod));
   }
 
   @Override
-  public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
+  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
     return requestData(requirements, _rawDataSource.calculateDateRange(seriesPeriod));
   }
 }

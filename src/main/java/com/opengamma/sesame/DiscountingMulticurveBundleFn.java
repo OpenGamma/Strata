@@ -11,12 +11,12 @@ import com.opengamma.sesame.cache.CacheLifetime;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
 public interface DiscountingMulticurveBundleFn {
 
   @Cacheable(CacheLifetime.NEXT_FUTURE_ROLL)
   @Output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE)
-  FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName);
+  Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName);
 }

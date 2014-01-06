@@ -8,9 +8,9 @@ package com.opengamma.sesame;
 
 import static com.opengamma.financial.convention.businessday.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-import static com.opengamma.util.result.FunctionResultGenerator.failure;
-import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
-import static com.opengamma.util.result.FunctionResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,7 +88,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
@@ -147,7 +147,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   }
 
   @Override
-  public FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName) {
+  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName) {
 
     final CurveConstructionConfiguration curveConstructionConfiguration =
         _curveConstructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
@@ -166,8 +166,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
       // todo check for cycles in the config
 
-      FunctionResult<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConstructionConfiguration);
-      FunctionResult<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConstructionConfiguration, fxMatrixResult);
+      Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConstructionConfiguration);
+      Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConstructionConfiguration, fxMatrixResult);
       return getCurves(curveConstructionConfiguration, exogenousBundles, fxMatrixResult);
 
     } else {
@@ -183,10 +183,10 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         _rootFinderConfiguration.getMaxIterations());
   }
 
-  private FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> getCurves(
+  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> getCurves(
       CurveConstructionConfiguration config,
-      FunctionResult<MulticurveProviderDiscount> exogenousBundle,
-      FunctionResult<FXMatrix> fxMatrixResult) {
+      Result<MulticurveProviderDiscount> exogenousBundle,
+      Result<FXMatrix> fxMatrixResult) {
 
     final int nGroups = config.getCurveGroups().size();
 
@@ -219,12 +219,12 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
 
         final String curveName = entry.getKey();
-        FunctionResult<CurveDefinition> curveDefResult = _curveDefinitionProvider.getCurveDefinition(curveName);
+        Result<CurveDefinition> curveDefResult = _curveDefinitionProvider.getCurveDefinition(curveName);
 
         if (_impliedCurveNames.containsKey(curveName)) {
-          if (curveDefResult.isResultAvailable()) {
+          if (curveDefResult.isValueAvailable()) {
 
-            if (exogenousBundle.isResultAvailable()) {
+            if (exogenousBundle.isValueAvailable()) {
               // todo error handling if curve is not in bundle
 
               Currency currency = null;
@@ -239,7 +239,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 }
               }
 
-              singleCurves[j++] = buildImpliedDepositCurve(currency, curveDefResult.getResult(), exogenousBundle.getResult());
+              singleCurves[j++] = buildImpliedDepositCurve(currency, curveDefResult.getValue(), exogenousBundle.getValue());
               // todo note we do this below as well, refactor it to be common
               discountingMap.put(curveName, currency);
 
@@ -253,32 +253,32 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
           final List<IndexON> overnightIndex = new ArrayList<>();
 
           // TODO - curve def and spec are closely related and the curveSec provider should probably use the curveDef provider underneath
-          FunctionResult<CurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(curveName);
+          Result<CurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(curveName);
 
-          if (curveSpecResult.isResultAvailable()) {
+          if (curveSpecResult.isValueAvailable()) {
 
-            final CurveSpecification specification = curveSpecResult.getResult();
+            final CurveSpecification specification = curveSpecResult.getValue();
 
             // todo - this can now come from market data provider
             DefaultResettableMarketDataFn provider;
-            final FunctionResult<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(specification);
-            FunctionResult<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
+            final Result<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(specification);
+            Result<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
 
             // Only proceed if we have all market data values available to us
-            if (curveDefResult.isResultAvailable() && htsResult.isResultAvailable() && fxMatrixResult.isResultAvailable() &&
+            if (curveDefResult.isValueAvailable() && htsResult.isValueAvailable() && fxMatrixResult.isValueAvailable() &&
                 marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
 
-              CurveDefinition curveDefinition = curveDefResult.getResult();
-              FXMatrix fxMatrix = fxMatrixResult.getResult();
+              CurveDefinition curveDefinition = curveDefResult.getValue();
+              FXMatrix fxMatrix = fxMatrixResult.getValue();
 
               // todo this is temporary to allow us to get up and running fast
-              final SnapshotDataBundle snapshot = marketDataResult.getResult().toSnapshot();
+              final SnapshotDataBundle snapshot = marketDataResult.getValue().toSnapshot();
 
               final int nNodes = specification.getNodes().size();
               final double[] parameterGuessForCurves = new double[nNodes];
               Arrays.fill(parameterGuessForCurves, 0.02);  // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
 
-              final InstrumentDerivative[] derivativesForCurve = extractInstrumentDerivatives(specification, snapshot, htsResult.getResult(), fxMatrix);
+              final InstrumentDerivative[] derivativesForCurve = extractInstrumentDerivatives(specification, snapshot, htsResult.getValue(), fxMatrix);
 
               for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
                 if (type instanceof DiscountingCurveTypeConfiguration) {
@@ -335,9 +335,9 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       }
     } // Group - end
 
-    if (exogenousBundle.isResultAvailable() && curveBundlesComplete) {
+    if (exogenousBundle.isValueAvailable() && curveBundlesComplete) {
 
-      MulticurveProviderDiscount multicurves = adjustMulticurveBundle(curvesToRemove, exogenousBundle.getResult());
+      MulticurveProviderDiscount multicurves = adjustMulticurveBundle(curvesToRemove, exogenousBundle.getValue());
       return success(createBuilder().makeCurvesFromDerivatives(curveBundles,
                                                                multicurves,
                                                                discountingMap,
@@ -449,8 +449,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
   }
 
-  private FunctionResult<MulticurveProviderDiscount> buildExogenousBundles(CurveConstructionConfiguration curveConstructionConfiguration,
-                                                                           FunctionResult<FXMatrix> fxMatrixResult) {
+  private Result<MulticurveProviderDiscount> buildExogenousBundles(CurveConstructionConfiguration curveConstructionConfiguration,
+                                                                           Result<FXMatrix> fxMatrixResult) {
 
     ResultStatus exogenousStatus = SuccessStatus.SUCCESS;
     Set<MulticurveProviderDiscount> exogenousBundles = new HashSet<>();
@@ -461,20 +461,20 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     if (exogenousConfigurations != null) {
       for (String configName : exogenousConfigurations) {
 
-        FunctionResult<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
+        Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
             generateBundle(configName);
 
         if (bundleResult.getStatus().isResultAvailable()) {
-          exogenousBundles.add(bundleResult.getResult().getFirst());
+          exogenousBundles.add(bundleResult.getValue().getFirst());
         } else {
           exogenousStatus = bundleResult.getStatus();
         }
       }
     }
 
-    if (exogenousStatus.isResultAvailable() && fxMatrixResult.isResultAvailable()) {
+    if (exogenousStatus.isResultAvailable() && fxMatrixResult.isValueAvailable()) {
 
-      FXMatrix fxMatrix = fxMatrixResult.getResult();
+      FXMatrix fxMatrix = fxMatrixResult.getValue();
       if (exogenousBundles.isEmpty()) {
         return success(new MulticurveProviderDiscount(fxMatrix));
       } else {

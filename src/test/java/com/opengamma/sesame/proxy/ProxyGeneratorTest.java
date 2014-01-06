@@ -23,7 +23,7 @@ import org.threeten.bp.Period;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.CurrencyPairsFn;
-import com.opengamma.util.result.FunctionResult;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
@@ -68,12 +68,12 @@ public class ProxyGeneratorTest {
     final String message = "Oops, thrown my toys out";
     CurrencyPairsFn cpf = new CurrencyPairsFn() {
       @Override
-      public FunctionResult<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
+      public Result<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public FunctionResult<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair) {
+      public Result<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair) {
         return null;
       }
     };
@@ -86,7 +86,7 @@ public class ProxyGeneratorTest {
     }
 
     CurrencyPairsFn proxy = _proxyGenerator.generate(cpf, CurrencyPairsFn.class);
-    FunctionResult<CurrencyPair> result = proxy.getCurrencyPair(Currency.USD, Currency.GBP);
+    Result<CurrencyPair> result = proxy.getCurrencyPair(Currency.USD, Currency.GBP);
     assertThat(result.getStatus(), is((ResultStatus) ERROR));
     assertThat(result.getFailureMessage(), containsString(message));
   }
@@ -97,32 +97,32 @@ public class ProxyGeneratorTest {
     final String message = "Oops, thrown my toys out";
     MarketDataFn mdpf = new MarketDataFn() {
       @Override
-      public FunctionResult<MarketDataValues> requestData(MarketDataRequirement requirement) {
+      public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public FunctionResult<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
+      public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+      public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+      public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public FunctionResult<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
+      public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
         throw new RuntimeException(message);
       }
 
       @Override
-      public FunctionResult<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements,
+      public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements,
                                                           Period seriesPeriod) {
         throw new RuntimeException(message);
       }
@@ -136,7 +136,7 @@ public class ProxyGeneratorTest {
     }
 
     MarketDataFn proxy = _proxyGenerator.generate(mdpf, MarketDataFn.class);
-    FunctionResult<MarketDataValues> result = proxy.requestData((MarketDataRequirement) null);
+    Result<MarketDataValues> result = proxy.requestData((MarketDataRequirement) null);
     assertThat(result.getStatus(), is((ResultStatus) ERROR));
     assertThat(result.getFailureMessage(), containsString(message));
   }

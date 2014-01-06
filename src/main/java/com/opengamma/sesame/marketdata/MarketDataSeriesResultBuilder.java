@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.FunctionResult;
-import com.opengamma.util.result.FunctionResultGenerator;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.timeseries.date.DateTimeSeries;
 
 /**
@@ -54,11 +54,11 @@ public class MarketDataSeriesResultBuilder {
   }
 
   // TODO what's the correct behaviour here? is getting some of the data success or failure?
-  public FunctionResult<MarketDataSeries> build() {
+  public Result<MarketDataSeries> build() {
     if (!_results.isEmpty()) {
-      return FunctionResultGenerator.success(new MarketDataSeries(_results, _missing));
+      return ResultGenerator.success(new MarketDataSeries(_results, _missing));
     } else {
-      return FunctionResultGenerator.failure(FailureStatus.MISSING_DATA, "Missing market data: {}", _missing);
+      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "Missing market data: {}", _missing);
     }
   }
 }
