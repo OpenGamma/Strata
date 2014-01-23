@@ -7,6 +7,8 @@ package com.opengamma.sesame;
 
 import java.util.Set;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.cache.CacheLifetime;
@@ -23,5 +25,5 @@ public interface FXMatrixFn {
   Result<FXMatrix> getFXMatrix(Set<Currency> currencies);
 
   @Cacheable(CacheLifetime.FOREVER)
-  Result<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration);
+  Result<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration, ZonedDateTime valuationTime);
 }

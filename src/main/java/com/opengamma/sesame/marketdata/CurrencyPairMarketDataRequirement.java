@@ -51,15 +51,15 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return "CurrencyPairMarketDataRequirement [" + _currencyPair + "]";
   }
 
-  /* package */ MarketDataItem getSpotRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
-    return getRate(currencyMatrix, dataSource, _currencyPair.getBase(), _currencyPair.getCounter());
+  /* package */ MarketDataItem getFxRate(CurrencyMatrix currencyMatrix, RawMarketDataSource dataSource) {
+    return getFxRate(currencyMatrix, dataSource, _currencyPair.getBase(), _currencyPair.getCounter());
   }
 
   // TODO does this logic belong in this class? maybe not. move it if there turns out to be a better place
-  private MarketDataItem getRate(final CurrencyMatrix currencyMatrix,
-                                 final RawMarketDataSource dataSource,
-                                 final Currency base,
-                                 final Currency counter) {
+  private MarketDataItem getFxRate(final CurrencyMatrix currencyMatrix,
+                                   final RawMarketDataSource dataSource,
+                                   final Currency base,
+                                   final Currency counter) {
     CurrencyMatrixValue value = currencyMatrix.getConversion(base, counter);
     if (value == null) {
       return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
@@ -90,8 +90,8 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
 
       @Override
       public MarketDataItem visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        MarketDataItem baseCrossRate = getRate(currencyMatrix, dataSource, base, cross.getCrossCurrency());
-        MarketDataItem crossCounterRate = getRate(currencyMatrix, dataSource, cross.getCrossCurrency(), counter);
+        MarketDataItem baseCrossRate = getFxRate(currencyMatrix, dataSource, base, cross.getCrossCurrency());
+        MarketDataItem crossCounterRate = getFxRate(currencyMatrix, dataSource, cross.getCrossCurrency(), counter);
         if (!baseCrossRate.isAvailable() || !crossCounterRate.isAvailable()) {
           // TODO should this be pending?
           return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
@@ -105,18 +105,22 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
     return value.accept(visitor);
   }
 
-  /* package */ MarketDataItem getSpotRateSeries(LocalDateRange dateRange,
-                                                 CurrencyMatrix currencyMatrix,
-                                                 RawMarketDataSource rawDataSource) {
-    return getSpotRateSeries(dateRange, currencyMatrix, rawDataSource, _currencyPair.getBase(), _currencyPair.getCounter());
+  /* package */ MarketDataItem getFxRateSeries(LocalDateRange dateRange,
+                                               CurrencyMatrix currencyMatrix,
+                                               RawMarketDataSource rawDataSource) {
+    return getFxRateSeries(dateRange,
+                           currencyMatrix,
+                           rawDataSource,
+                           _currencyPair.getBase(),
+                           _currencyPair.getCounter());
   }
 
-  private MarketDataItem getSpotRateSeries(final LocalDateRange dateRange,
-                                           final CurrencyMatrix currencyMatrix,
-                                           final RawMarketDataSource dataSource,
-                                           final Currency base,
-                                           final Currency counter) {
-    // TODO needs to look a lot like getRate. see CurrencyMatrixSeriesSourcingFunction.getRate
+  private MarketDataItem getFxRateSeries(final LocalDateRange dateRange,
+                                         final CurrencyMatrix currencyMatrix,
+                                         final RawMarketDataSource dataSource,
+                                         final Currency base,
+                                         final Currency counter) {
+    // TODO needs to look a lot like getFxRate. see CurrencyMatrixSeriesSourcingFunction.getFxRate
     CurrencyMatrixValue value = currencyMatrix.getConversion(base, counter);
     if (value == null) {
       return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
@@ -149,8 +153,16 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
 
       @Override
       public MarketDataItem visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        MarketDataItem baseCrossRate = getSpotRateSeries(dateRange, currencyMatrix, dataSource, base, cross.getCrossCurrency());
-        MarketDataItem crossCounterRate = getSpotRateSeries(dateRange, currencyMatrix, dataSource, cross.getCrossCurrency(), counter);
+        MarketDataItem baseCrossRate = getFxRateSeries(dateRange,
+                                                       currencyMatrix,
+                                                       dataSource,
+                                                       base,
+                                                       cross.getCrossCurrency());
+        MarketDataItem crossCounterRate = getFxRateSeries(dateRange,
+                                                          currencyMatrix,
+                                                          dataSource,
+                                                          cross.getCrossCurrency(),
+                                                          counter);
         if (!baseCrossRate.isAvailable() || !crossCounterRate.isAvailable()) {
           // TODO should this ever be pending?
           return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);

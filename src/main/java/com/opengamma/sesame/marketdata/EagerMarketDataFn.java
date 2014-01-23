@@ -61,7 +61,7 @@ public class EagerMarketDataFn implements MarketDataFn {
         throw new IllegalArgumentException("No currency matrix found named " + _currencyMatrixName);
       }
       CurrencyPairMarketDataRequirement ccyReq = (CurrencyPairMarketDataRequirement) requirement;
-      return ccyReq.getSpotRate(currencyMatrix, _rawDataSource);
+      return ccyReq.getFxRate(currencyMatrix, _rawDataSource);
     } else if (requirement instanceof CurveNodeMarketDataRequirement) {
 
       CurveNodeMarketDataRequirement nodeReq = (CurveNodeMarketDataRequirement) requirement;
@@ -98,7 +98,7 @@ public class EagerMarketDataFn implements MarketDataFn {
         throw new IllegalArgumentException("No currency matrix found named " + _currencyMatrixName);
       }
       CurrencyPairMarketDataRequirement ccyReq = (CurrencyPairMarketDataRequirement) requirement;
-      return ccyReq.getSpotRateSeries(dateRange, currencyMatrix, _rawDataSource);
+      return ccyReq.getFxRateSeries(dateRange, currencyMatrix, _rawDataSource);
     } else if (requirement instanceof CurveNodeMarketDataRequirement) {
 
       CurveNodeMarketDataRequirement nodeReq = (CurveNodeMarketDataRequirement) requirement;

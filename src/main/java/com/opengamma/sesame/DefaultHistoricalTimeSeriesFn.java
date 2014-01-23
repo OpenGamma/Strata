@@ -80,14 +80,17 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
   @Override
   public Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve) {
+    return getHtsForCurve(curve, _valuationTimeFn.getDate());
+  }
 
+  @Override
+  public Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve, LocalDate valuationDate) {
     // For expediency we will mirror the current ways of working out dates which is
     // pretty much to take 1 year before the valuation date. This is blunt and
     // returns more data than is actually required
     // todo - could we manage HTS lookup in the same way as market data? i.e. request the values needed look them up so they are available next time
 
-    final LocalDate endDate = _valuationTimeFn.getDate();
-    final LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
+    final LocalDate startDate = valuationDate.minus(_htsRetrievalPeriod);
     final boolean includeStart = true;
     final boolean includeEnd = true;
 
@@ -98,7 +101,8 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
       ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
       String dataField = node.getDataField();
       HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id,
-                                                                           _resolutionKey, startDate, includeStart, endDate, includeEnd);
+                                                                           _resolutionKey, startDate, includeStart,
+                                                                           valuationDate, includeEnd);
       if (timeSeries != null) {
         if (timeSeries.getTimeSeries().isEmpty()) {
           s_logger.info("Time series for {} is empty", id);
@@ -114,7 +118,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
         id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
         dataField = pointsNode.getUnderlyingDataField();
         timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id,
-                                                        _resolutionKey, startDate, includeStart, endDate, includeEnd);
+                                                        _resolutionKey, startDate, includeStart, valuationDate, includeEnd);
         if (timeSeries != null) {
           if (timeSeries.getTimeSeries().isEmpty()) {
             s_logger.info("Time series for {} is empty", id);
@@ -135,7 +139,8 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
         final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
         final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
         final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField, priceIndexId,
-                                                                                         _resolutionKey, startDate, includeStart, endDate, includeEnd);
+                                                                                         _resolutionKey, startDate, includeStart,
+                                                                                         valuationDate, includeEnd);
         if (priceIndexSeries != null) {
           if (priceIndexSeries.getTimeSeries().isEmpty()) {
             s_logger.info("Time series for {} is empty", priceIndexId);

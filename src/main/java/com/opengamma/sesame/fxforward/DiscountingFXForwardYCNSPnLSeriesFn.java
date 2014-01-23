@@ -10,11 +10,20 @@ import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailures;
 import static com.opengamma.util.result.ResultGenerator.success;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+
 import com.google.common.base.Optional;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -27,20 +36,25 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveSpecificationFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Triple;
 
 public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeriesFn {
 
   private final FXForwardCalculatorFn _calculatorProvider;
 
   private final String _curveName;
+  private final String _curveConfigurationName;
   private final boolean _payLeg;
 
   /**
@@ -54,24 +68,35 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
   private final CurveSpecificationFn _curveSpecificationFunction;
   private final CurrencyPairsFn _currencyPairsFn;
+  private final Set<String> _impliedCurveNames;
+  private final ValuationTimeFn _valuationTimeFn;
+  private final DiscountingMulticurveBundleFn _discountingMulticurveBundleFn;
 
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
                                              final String curveName,
+                                             final String curveConfigurationName,
                                              final boolean payLeg,
                                              final Optional<Currency> outputCurrency,
                                              final FXReturnSeriesFn fxReturnSeriesProvider,
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                              final CurveSpecificationFn curveSpecificationFunction,
-                                             final CurrencyPairsFn currencyPairsFn) {
+                                             final CurrencyPairsFn currencyPairsFn,
+                                             final Set<String> impliedCurveNames,
+                                             final ValuationTimeFn valuationTimeFn,
+                                             final DiscountingMulticurveBundleFn discountingMulticurveBundleFn) {
     _calculatorProvider = calculatorProvider;
     _curveName = curveName;
+    _curveConfigurationName = curveConfigurationName;
     _payLeg = payLeg;
     _outputCurrency = outputCurrency;
     _fxReturnSeriesProvider = fxReturnSeriesProvider;
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
+    _impliedCurveNames = impliedCurveNames;
+    _valuationTimeFn = valuationTimeFn;
+    _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
   }
 
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
@@ -80,13 +105,28 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final FXReturnSeriesFn fxReturnSeriesProvider,
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                              final CurveSpecificationFn curveSpecificationFunction,
-                                             final CurrencyPairsFn currencyPairsFn) {
-    this(calculatorProvider, curveName, payLeg, Optional.<Currency>absent(), fxReturnSeriesProvider,
-        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn);
+                                             final CurrencyPairsFn currencyPairsFn,
+                                             final Set<String> impliedCurveNames,
+                                             final ValuationTimeFn valuationTimeFn,
+                                             final DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
+                                             String curveConfigurationName) {
+    this(calculatorProvider, curveName,
+         curveConfigurationName,
+         payLeg, Optional.<Currency>absent(), fxReturnSeriesProvider,
+        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, impliedCurveNames, valuationTimeFn,
+        discountingMulticurveBundleFn);
   }
 
   @Override
   public Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateYCNSPnlSeries(final FXForwardSecurity security) {
+
+    // If this is for an Implied Deposit curve we need to behave differently
+    // 1. We need to calculate the multicurve bundle for each day that
+    // we're interested in by moving the valuation date.
+    // 2. This will have created multiple Implied Deposit curves, we need to
+    // iterate across them generating a timeseries bundle from the nodal
+    // values (or do this as we're generating them
+    // 3. Then use the timeseries bundles as we do for a standard curve
 
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
@@ -94,6 +134,132 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
 
     final Result<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
+
+    // todo - these should probably be separate classes as there is little commonality in the methods
+    return _impliedCurveNames.contains(_curveName) ?
+        calculateForImpliedCurve(security, curveCurrency, cpResult) :
+        calculateForNonImpliedCurve(security, curveCurrency, cpResult);
+  }
+
+  private Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateForImpliedCurve(FXForwardSecurity security,
+                                                                                          Currency curveCurrency,
+                                                                                          Result<CurrencyPair> cpResult) {
+
+    // We need the calculator so we can get the block curve sensitivities
+    final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
+
+    if (calculatorResult.isValueAvailable() && cpResult.isValueAvailable()) {
+
+      final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities();
+
+      LocalDate end = _valuationTimeFn.getDate();
+      LocalDate start = end.minusMonths(6);
+
+      // Generate our version of an HTS Bundle
+      ImpliedCurveHtsBundleBuilder builder = new ImpliedCurveHtsBundleBuilder();
+
+      // todo - how do we adjust for holidays?
+      for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+
+        // build multicurve for the date
+        Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =
+            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(_curveConfigurationName, date.atStartOfDay(ZoneOffset.UTC));
+
+        if (result.isValueAvailable()) {
+          Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> resultValue = result.getValue();
+          List<Tenor> tenors = resultValue.getFirst();
+          List<Double> nodalValues = resultValue.getSecond();
+
+          for (int i = 0; i < tenors.size(); i++) {
+            builder.add(date, tenors.get(i), nodalValues.get(i));
+          }
+        }
+      }
+
+      TenorLabelledLocalDateDoubleTimeSeriesMatrix1D series = builder.toTimeSeries();
+
+      final DoubleMatrix1D sensitivities = bcs.getSensitivity(_curveName, curveCurrency);
+      final Tenor[] tenors = series.getKeys();
+      final int sensitivitiesSize = sensitivities.getNumberOfElements();
+      final int tenorsSize = tenors.length;
+
+      if (sensitivitiesSize != tenorsSize) {
+        return failure(FailureStatus.ERROR,
+                       "Unequal number of sensitivities ({}) and curve tenors ({})", sensitivitiesSize, tenorsSize);
+      }
+
+      LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(curveCurrency);
+
+      final LocalDateDoubleTimeSeries[] values = new LocalDateDoubleTimeSeries[tenorsSize];
+
+      for (int i = 0; i < tenorsSize; i++) {
+
+        Series seriesForTenor = builder.getSeriesForTenor(tenors[i]);
+        final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(seriesForTenor._dates, seriesForTenor._values);
+        final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(ts, conversionSeries);
+        values[i] = returnSeries.multiply(sensitivities.getEntry(i));
+      }
+
+      return success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(tenors, tenors, values));
+    } else {
+      return propagateFailures(calculatorResult, cpResult);
+    }
+  }
+
+  private static class Series {
+
+    private final List<LocalDate> _dates = new ArrayList<>();
+    private final List<Double> _values = new ArrayList<>();
+
+    public void add(LocalDate date, Double value) {
+      _dates.add(date);
+      _values.add(value);
+    }
+  }
+
+  private static class ImpliedCurveHtsBundleBuilder {
+
+    private final Map<Tenor, Series> _series = new HashMap<>();
+
+    public void add(LocalDate date, Tenor tenor, Double aDouble) {
+      getSeriesForTenor(tenor).add(date, aDouble);
+    }
+
+    private Series getSeriesForTenor(Tenor tenor) {
+      if (_series.containsKey(tenor)) {
+        return _series.get(tenor);
+      } else {
+        Series series = new Series();
+        _series.put(tenor, series);
+        return series;
+      }
+    }
+
+    public TenorLabelledLocalDateDoubleTimeSeriesMatrix1D toTimeSeries() {
+
+      ArrayList<Tenor> sortedTenors = new ArrayList<>(_series.keySet());
+      Collections.sort(sortedTenors);
+      int size = sortedTenors.size();
+
+      Tenor[] tenors = new Tenor[size];
+      LocalDateDoubleTimeSeries[] series = new LocalDateDoubleTimeSeries[size];
+
+      for (int i = 0; i < size; i++) {
+
+        Tenor tenor = sortedTenors.get(i);
+        tenors[i] = tenor;
+        Series tenorSeries = _series.get(tenor);
+        series[i] = ImmutableLocalDateDoubleTimeSeries.of(tenorSeries._dates, tenorSeries._values);
+      }
+
+      return new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(tenors, series);
+    }
+  }
+
+
+  private Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateForNonImpliedCurve(FXForwardSecurity security,
+                                                                                                     Currency curveCurrency,
+                                                                                                     Result<CurrencyPair> cpResult) {
     final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
     final Result<CurveSpecification> curveSpecificationResult =
         _curveSpecificationFunction.getCurveSpecification(_curveName);
@@ -187,7 +353,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
   private boolean conversionIsRequired(final Currency baseCurrency) {
 
-    // No output currency property or it's the same as base
+    // No output currency property or it's the same as base means we don't need to convert
     return _outputCurrency.or(baseCurrency) != baseCurrency;
   }
 }
