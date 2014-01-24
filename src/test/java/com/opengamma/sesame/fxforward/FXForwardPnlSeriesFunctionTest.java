@@ -235,7 +235,7 @@ public class FXForwardPnlSeriesFunctionTest {
                          // will need string conversion for values like this which can be parsed
                          argument("htsRetrievalPeriod", Period.ofYears(1))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", Collections.emptyMap()))),
+                         argument("impliedCurveNames", Collections.emptySet()))),
             implementations(FXForwardPnLSeriesFn.class,
                             DiscountingFXForwardSpotPnLSeriesFn.class,
                             FXReturnSeriesFn.class,

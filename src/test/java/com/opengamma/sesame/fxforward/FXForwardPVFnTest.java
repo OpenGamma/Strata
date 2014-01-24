@@ -409,7 +409,7 @@ public class FXForwardPVFnTest {
                          argument("resolutionKey", "DEFAULT_TSS"),
                          argument("htsRetrievalPeriod", Period.ofYears(1))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", Collections.emptyMap()))),
+                         argument("impliedCurveNames", Collections.emptySet()))),
             implementations(FXForwardPVFn.class,
                             DiscountingFXForwardPVFn.class,
                             FXForwardCalculatorFn.class,
