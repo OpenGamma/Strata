@@ -14,6 +14,18 @@
   <packaging>jar</packaging>
   <name>sesame</name>
   <description>Alternative OpenGamma calculation engine</description>
+  <distributionManagement>
+    <repository>
+      <id>og-sesame-release</id>
+      <name>OpenGamma sesame maven repository</name>
+      <url>${og-sesame-release.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>og-sesame-snapshot</id>
+      <name>OpenGamma sesame snapshot maven repository</name>
+      <url>${og-sesame-snapshot.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <dependencies>
 
