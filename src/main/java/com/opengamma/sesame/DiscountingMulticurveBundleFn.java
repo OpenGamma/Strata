@@ -28,6 +28,6 @@ public interface DiscountingMulticurveBundleFn {
   Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName);
 
   @Cacheable(CacheLifetime.FOREVER)
-  Result<Triple<List<Tenor>,List<Double>,List<InstrumentDerivative>>> extractImpliedDepositCurveData(String curveConstructionConfigurationName,
+  Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(String curveConstructionConfigurationName,
                                                                                                      ZonedDateTime valuationTime);
 }
