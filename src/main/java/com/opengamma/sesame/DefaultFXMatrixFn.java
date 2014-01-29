@@ -66,15 +66,6 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
     _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
   }
 
-  @Override
-  public Result<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration,
-                                              ZonedDateTime valuationTime) {
-
-    // todo - should this actually be another function or set of functions
-    final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource));
-    return buildResult(currencies, valuationTime);
-  }
-
   private Set<Currency> extractCurrencies(CurveConstructionConfiguration configuration,
                                           CurveNodeCurrencyVisitor curveNodeCurrencyVisitor) {
 
@@ -82,7 +73,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
 
       for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
 
-        for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
 
           final String curveName = entry.getKey();
           final AbstractCurveDefinition curveDefinition = findCurveDefinition(curveName);
@@ -127,6 +118,15 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   }
 
   @Override
+  public Result<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration,
+                                      ZonedDateTime valuationTime) {
+
+    // todo - should this actually be another function or set of functions
+    final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource));
+    return buildResult(currencies, valuationTime);
+  }
+
+  @Override
   public Result<FXMatrix> getFXMatrix(Set<Currency> currencies) {
     return buildResult(currencies, _valuationTimeFn.getTime());
   }
@@ -144,7 +144,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         refCurr = currency;
       } else {
         MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(refCurr, currency));
-        Result<MarketDataValues> marketDataResult = _marketDataFn.requestData(spotReqmt);
+        Result<MarketDataValues> marketDataResult = _marketDataFn.requestData(spotReqmt);//, valuationTime);
         MarketDataValues marketDataValues = marketDataResult.getValue();
         if (marketDataValues.getStatus(spotReqmt) == MarketDataStatus.AVAILABLE) {
           double spotRate = (Double) marketDataValues.getValue(spotReqmt);

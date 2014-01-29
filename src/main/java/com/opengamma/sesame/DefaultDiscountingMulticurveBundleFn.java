@@ -180,7 +180,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime);
 
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
-    Map.Entry<String, List<CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
+    Map.Entry<String, List<? extends CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
     Result<CurveDefinition> curveDefinition = _curveDefinitionProvider.getCurveDefinition(type.getKey());
     DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
     Currency currency = Currency.of(typeConfiguration.getReference());
@@ -258,7 +258,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
       int j = 0;
 
-      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+      for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
 
         final String curveName = entry.getKey();
         Result<CurveDefinition> curveDefResult = _curveDefinitionProvider.getCurveDefinition(curveName);
