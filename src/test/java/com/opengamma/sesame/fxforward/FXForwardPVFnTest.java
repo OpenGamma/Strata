@@ -69,6 +69,7 @@ import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
@@ -251,7 +252,10 @@ public class FXForwardPVFnTest {
         FunctionModel.build(DiscountingMulticurveBundleFn.class, graphConfig);
     Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
     try {
-      result = bundleProvider.generateBundle("Z-Marc JPY Dsc - FX USD");
+      ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
+      CurveConstructionConfiguration curveConfig = configSource.get(CurveConstructionConfiguration.class, "Z-Marc JPY Dsc - FX USD", VersionCorrection.LATEST)
+          .iterator().next().getValue();
+      result = bundleProvider.generateBundle(curveConfig);
     } catch (Exception e) {
       logMarketData(marketDataFn.getCollectedRequests());
       throw e;

@@ -12,13 +12,17 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctionFactory;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,12 +35,14 @@ import com.opengamma.util.ArgumentChecker;
 public class MarketExposureSelector {
 
   private final SecuritySource _securitySource;
+  private final ConfigSource _configSource;
 
   private final List<ExposureFunction> _exposureFunctions;
   private final Map<ExternalId, String> _idsToNames;
 
-  public MarketExposureSelector(ExposureFunctions exposure, SecuritySource securitySource) {
+  public MarketExposureSelector(ExposureFunctions exposure, SecuritySource securitySource, ConfigSource configSource) {
     _securitySource = securitySource;
+    _configSource = configSource;
     ArgumentChecker.notNull(exposure, "exposure");
 
     _exposureFunctions = extractFunctions(exposure.getExposureFunctions());
@@ -59,7 +65,7 @@ public class MarketExposureSelector {
    * @param security the security to find curves for, not null
    * @return the set of names of the required curves, not null
    */
-  public Set<String> determineCurveConfigurationsForSecurity(FinancialSecurity security) {
+  public Set<CurveConstructionConfiguration> determineCurveConfigurationsForSecurity(FinancialSecurity security) {
 
     for (ExposureFunction exposureFunction : _exposureFunctions) {
 
@@ -67,22 +73,26 @@ public class MarketExposureSelector {
 
       if (ids != null && !ids.isEmpty()) {
 
-        Set<String> curveNames = new HashSet<>();
+        Set<CurveConstructionConfiguration> curveConfigs = new HashSet<>();
 
         for (final ExternalId id : ids) {
 
           final String name = _idsToNames.get(id);
           if (name != null) {
-            curveNames.add(name);
+            curveConfigs.add(resolve(name));
           } else {
             break;
           }
         }
 
-        return curveNames;
+        return curveConfigs;
       }
     }
 
     return ImmutableSet.of();
+  }
+
+  private CurveConstructionConfiguration resolve(String name) {
+    return Iterables.getOnlyElement(_configSource.get(CurveConstructionConfiguration.class, name, VersionCorrection.LATEST)).getValue();
   }
 }

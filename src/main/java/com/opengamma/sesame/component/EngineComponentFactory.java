@@ -30,6 +30,10 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
@@ -74,9 +78,13 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     // TODO allow the thread pool to grow to allow for threads that block waiting for a cache value to be calculated?
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
-    ComponentMap componentMap = initComponentMap(repo, configuration);
+    Map<Class<?>, Object> components = getComponents(repo, configuration);
+    ComponentMap componentMap = ComponentMap.of(components);
+
     // Indicate remaining configuration has been used
     configuration.clear();
+
+    initServiceContext(components);
 
     AvailableOutputs availableOutputs = initAvailableOutputs();
     AvailableImplementations availableImplementations = initAvailableImplementations();
@@ -99,7 +107,24 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     repo.registerComponent(implsInfo, availableImplementations);
   }
 
-  protected ComponentMap initComponentMap(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  private void initServiceContext(Map<Class<?>, Object> components) {
+
+    VersionCorrectionProvider vcProvider = new VersionCorrectionProvider() {
+      @Override
+      public VersionCorrection getPortfolioVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+
+      @Override
+      public VersionCorrection getConfigVersionCorrection() {
+        return VersionCorrection.LATEST;
+      }
+    };
+    final ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
+    ThreadLocalServiceContext.init(serviceContext);
+  }
+
+  private Map<Class<?>, Object> getComponents(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     Map<Class<?>, Object> components = new HashMap<>();
     for (Map.Entry<String, String> entry : configuration.entrySet()) {
       String key = entry.getKey();
@@ -116,7 +141,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
       final Object instance = repo.getInstance(info);
       components.put(info.getType(), instance);
     }
-    return ComponentMap.of(components);
+    return components;
   }
 
   protected AvailableOutputs initAvailableOutputs() {

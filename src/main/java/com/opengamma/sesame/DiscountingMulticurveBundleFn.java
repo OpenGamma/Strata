@@ -12,6 +12,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.cache.CacheLifetime;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.example.OutputNames;
@@ -25,9 +26,10 @@ public interface DiscountingMulticurveBundleFn {
 
   @Cacheable(CacheLifetime.NEXT_FUTURE_ROLL)
   @Output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE)
-  Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName);
+  Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
+      CurveConstructionConfiguration curveConfig);
 
   @Cacheable(CacheLifetime.FOREVER)
-  Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(String curveConstructionConfigurationName,
-                                                                                                     ZonedDateTime valuationTime);
+  Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
+      CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime);
 }

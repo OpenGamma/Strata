@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXMatrixFn;
@@ -65,21 +66,21 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
       CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
 
       MarketExposureSelector selector = mesResult.getValue();
-      Set<String> curveConfigNames = selector.determineCurveConfigurationsForSecurity(security);
+      Set<CurveConstructionConfiguration> curveConfigNames = selector.determineCurveConfigurationsForSecurity(security);
 
       // todo - we may also want to cache the merged bundle at the level of the curveConfig names
       // e.g. MergedBundleProvider.getMergedBundle(curveConfigNames)
-      for (String name : curveConfigNames) {
+      for (CurveConstructionConfiguration curveConfig : curveConfigNames) {
 
         Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
-            _multicurveBundleProviderFunction.generateBundle(name);
+            _multicurveBundleProviderFunction.generateBundle(curveConfig);
 
         if (bundle.isValueAvailable()) {
           Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getValue();
           bundles.add(result.getFirst());
           mergedJacobianBundle.addAll(result.getSecond());
         } else {
-          incompleteBundles.add(name);
+          incompleteBundles.add(curveConfig.getName());
         }
       }
 

@@ -7,6 +7,7 @@ package com.opengamma.sesame.config;
 
 import org.apache.commons.lang.ClassUtils;
 
+import com.opengamma.core.link.config.ConfigLink;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.graph.Node;
@@ -44,6 +45,14 @@ public class GraphConfig {
     // this takes into account boxing of primitives which Class.isAssignableFrom() doesn't
     } else if (ClassUtils.isAssignable(arg.getClass(), parameter.getType(), true)) {
       return arg;
+    } else if (arg instanceof ConfigLink) {
+      final ConfigLink link = (ConfigLink) arg;
+      if (ClassUtils.isAssignable(link.getType(), parameter.getType(), true)) {
+        return link.getConfig();
+      } else {
+        throw new IllegalArgumentException("Link argument (" + link + ") doesn't resolve to the " +
+                                               "required type for " + parameter.getFullName());
+      }
     } else {
       throw new IllegalArgumentException("Argument (" + arg + ": " + arg.getClass().getSimpleName() + ") isn't of the " +
                                              "required type for " + parameter.getFullName());

@@ -37,7 +37,7 @@ public class ConfigDbMarketExposureSelectorFn implements MarketExposureSelectorF
     // todo - we should not be using latest
     ExposureFunctions exposures = _configSource.getLatestByName(ExposureFunctions.class, _exposureConfigName);
     if (exposures != null) {
-      return success(new MarketExposureSelector(exposures, _securitySource));
+      return success(new MarketExposureSelector(exposures, _securitySource, _configSource));
     } else {
       return failure(MISSING_DATA, "Could not get instrument exposure configuration called: {}", _exposureConfigName);
     }

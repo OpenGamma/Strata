@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -54,7 +55,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final FXForwardCalculatorFn _calculatorProvider;
 
   private final String _curveName;
-  private final String _curveConfigurationName;
+  private final CurveConstructionConfiguration _curveConfig;
   private final boolean _payLeg;
 
   /**
@@ -75,7 +76,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
                                              final String curveName,
-                                             final String curveConfigurationName,
+                                             final CurveConstructionConfiguration curveConfig,
                                              final boolean payLeg,
                                              final Optional<Currency> outputCurrency,
                                              final FXReturnSeriesFn fxReturnSeriesProvider,
@@ -87,7 +88,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final DiscountingMulticurveBundleFn discountingMulticurveBundleFn) {
     _calculatorProvider = calculatorProvider;
     _curveName = curveName;
-    _curveConfigurationName = curveConfigurationName;
+    _curveConfig = curveConfig;
     _payLeg = payLeg;
     _outputCurrency = outputCurrency;
     _fxReturnSeriesProvider = fxReturnSeriesProvider;
@@ -100,7 +101,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   }
 
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-                                             final String curveName,
+                                             final CurveConstructionConfiguration curveConfig, final String curveName,
                                              final boolean payLeg,
                                              final FXReturnSeriesFn fxReturnSeriesProvider,
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
@@ -108,10 +109,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final CurrencyPairsFn currencyPairsFn,
                                              final Set<String> impliedCurveNames,
                                              final ValuationTimeFn valuationTimeFn,
-                                             final DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
-                                             String curveConfigurationName) {
+                                             final DiscountingMulticurveBundleFn discountingMulticurveBundleFn) {
     this(calculatorProvider, curveName,
-         curveConfigurationName,
+         curveConfig,
          payLeg, Optional.<Currency>absent(), fxReturnSeriesProvider,
         historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, impliedCurveNames, valuationTimeFn,
         discountingMulticurveBundleFn);
@@ -163,7 +163,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
         // build multicurve for the date
         Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =
-            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(_curveConfigurationName, date.atStartOfDay(ZoneOffset.UTC));
+            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(_curveConfig, date.atStartOfDay(ZoneOffset.UTC));
 
         if (result.isValueAvailable()) {
           Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> resultValue = result.getValue();

@@ -145,68 +145,50 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   }
 
   @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName) {
+  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
+      CurveConstructionConfiguration curveConfig) {
 
-    return generateBundle(curveConstructionConfigurationName, _valuationTimeProvider.getTime());
+    return generateBundle(curveConfig, _valuationTimeProvider.getTime());
   }
 
-  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(String curveConstructionConfigurationName,
-                                                                                                    ZonedDateTime valuationTime) {
-    final CurveConstructionConfiguration curveConstructionConfiguration =
-        _configSource.getLatestByName(CurveConstructionConfiguration.class, curveConstructionConfigurationName);
+  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
+      CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime) {
 
-    if (curveConstructionConfiguration != null) {
+    // Each curve config may have one or more exogenous requirements which basically should
+    // point to another curve config (which may point to one or more configs ...)
+    // We need a depth-first evaluation of the tree formed by these configs as (direct) child
+    // MulticurveProviderInterface instances are required to be passed into their parent's
+    // evaluation via the known data parameter
 
+    // If we can't build due to insufficient market data, then we keep going but don't call
+    // the final build step. This way we ensure that market data requirements have been captured.
 
-      // Each curve config may have one or more exogenous requirements which basically should
-      // point to another curve config (which may point to one or more configs ...)
-      // We need a depth-first evaluation of the tree formed by these configs as (direct) child
-      // MulticurveProviderInterface instances are required to be passed into their parent's
-      // evaluation via the known data parameter
+    // todo check for cycles in the config
 
-      // If we can't build due to insufficient market data, then we keep going but don't call
-      // the final build step. This way we ensure that market data requirements have been captured.
+    Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConfig, valuationTime);
+    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime);
+    return getCurves(curveConfig, exogenousBundles, fxMatrixResult, valuationTime);
 
-      // todo check for cycles in the config
-
-      Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConstructionConfiguration, valuationTime);
-      Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConstructionConfiguration, fxMatrixResult, valuationTime);
-      return getCurves(curveConstructionConfiguration, exogenousBundles, fxMatrixResult, valuationTime);
-
-    } else {
-      return failure(MISSING_DATA, "CurveConstructionConfiguration named {} was not found",
-                     curveConstructionConfigurationName);
-    }
   }
 
   @Override
-  public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(String curveConstructionConfigurationName,
-                                                                                                              ZonedDateTime valuationTime) {
+  public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
+      CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime) {
 
-    final CurveConstructionConfiguration curveConstructionConfiguration =
-        _configSource.getLatestByName(CurveConstructionConfiguration.class, curveConstructionConfigurationName);
+    // todo - this implementation is nowhere near complete
+    Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConfig, valuationTime);
+    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime);
 
-    if (curveConstructionConfiguration != null) {
+    CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
+    Map.Entry<String, List<CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
+    Result<CurveDefinition> curveDefinition = _curveDefinitionProvider.getCurveDefinition(type.getKey());
+    DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
+    Currency currency = Currency.of(typeConfiguration.getReference());
 
-      // todo - this implementation is nowhere near complete
-      Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConstructionConfiguration, valuationTime);
-      Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConstructionConfiguration, fxMatrixResult, valuationTime);
-
-      CurveGroupConfiguration group = curveConstructionConfiguration.getCurveGroups().get(0);
-      Map.Entry<String, List<CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
-      Result<CurveDefinition> curveDefinition = _curveDefinitionProvider.getCurveDefinition(type.getKey());
-      DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
-      Currency currency = Currency.of(typeConfiguration.getReference());
-
-      return success(extractImpliedDepositCurveData(currency,
-                                                    curveDefinition.getValue(),
-                                                    exogenousBundles.getValue(),
-                                                    valuationTime));
-
-    } else {
-      return failure(MISSING_DATA, "CurveConstructionConfiguration named {} was not found",
-                     curveConstructionConfigurationName);
-    }
+    return success(extractImpliedDepositCurveData(currency,
+                                                  curveDefinition.getValue(),
+                                                  exogenousBundles.getValue(),
+                                                  valuationTime));
   }
 
   private Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> extractImpliedDepositCurveData(Currency currency,
@@ -311,7 +293,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         } else {
 
           // TODO - curve def and spec are closely related and the curveSec provider should probably use the curveDef provider underneath
-          Result<CurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(curveName);
+          Result<CurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(curveName, valuationTime);
 
           if (curveSpecResult.isValueAvailable()) {
 
@@ -370,7 +352,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
               }
 
-              final GeneratorYDCurve generator = getGenerator(curveDefinition);
+              final GeneratorYDCurve generator = getGenerator(curveDefinition, _valuationTimeProvider.getDate());
               singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
             } else {
               curveBundlesComplete = false;
@@ -446,7 +428,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
     Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> data =
         extractImpliedDepositCurveData(currency, impliedCurveDefinition, multicurves, valuationDate);
-    GeneratorYDCurve generator = getGenerator(impliedCurveDefinition);
+    GeneratorYDCurve generator = getGenerator(impliedCurveDefinition, valuationDate.toLocalDate());
     List<InstrumentDerivative> instrumentDerivatives = data.getThird();
     return new SingleCurveBundle<>(impliedCurveDefinition.getName(),
                                    instrumentDerivatives.toArray(new InstrumentDerivative[instrumentDerivatives.size()]),
@@ -484,7 +466,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     return derivativesForCurve;
   }
 
-  private GeneratorYDCurve getGenerator(final CurveDefinition definition) {
+  private GeneratorYDCurve getGenerator(final CurveDefinition definition, LocalDate valuationDate) {
 
     if (definition instanceof InterpolatedCurveDefinition) {
       final InterpolatedCurveDefinition interpolatedDefinition = (InterpolatedCurveDefinition) definition;
@@ -498,7 +480,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         final FixedDateInterpolatedCurveDefinition fixedDateDefinition = (FixedDateInterpolatedCurveDefinition) definition;
         final List<LocalDate> fixedDates = fixedDateDefinition.getFixedDates();
         final DoubleArrayList nodePoints = new DoubleArrayList(fixedDates.size()); //TODO what about equal node points?
-        LocalDate valuationDate = _valuationTimeProvider.getDate();
         for (final LocalDate fixedDate : fixedDates) {
           nodePoints.add(TimeCalculator.getTimeBetween(valuationDate, fixedDate)); //TODO what to do if the fixed date is before the valuation date?
         }
@@ -511,27 +492,22 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
   }
 
-  private Result<MulticurveProviderDiscount> buildExogenousBundles(CurveConstructionConfiguration curveConstructionConfiguration,
+  private Result<MulticurveProviderDiscount> buildExogenousBundles(CurveConstructionConfiguration curveConfig,
                                                                            Result<FXMatrix> fxMatrixResult,
                                                                            ZonedDateTime valuationTime) {
 
     ResultStatus exogenousStatus = SuccessStatus.SUCCESS;
     Set<MulticurveProviderDiscount> exogenousBundles = new HashSet<>();
 
-    List<String> exogenousConfigurations = curveConstructionConfiguration.getExogenousConfigurations();
+    for (CurveConstructionConfiguration exogenousConfig : curveConfig.getResolvedCurveConfigurations()) {
 
-    // This null check should not be required but currently null can be returned - see PLAT-5047
-    if (exogenousConfigurations != null) {
-      for (String configName : exogenousConfigurations) {
+      Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
+          generateBundle(exogenousConfig, valuationTime);
 
-        Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-            generateBundle(configName, valuationTime);
-
-        if (bundleResult.getStatus().isResultAvailable()) {
-          exogenousBundles.add(bundleResult.getValue().getFirst());
-        } else {
-          exogenousStatus = bundleResult.getStatus();
-        }
+      if (bundleResult.getStatus().isResultAvailable()) {
+        exogenousBundles.add(bundleResult.getValue().getFirst());
+      } else {
+        exogenousStatus = bundleResult.getStatus();
       }
     }
 
