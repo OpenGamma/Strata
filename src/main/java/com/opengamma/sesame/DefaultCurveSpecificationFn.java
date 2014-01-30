@@ -8,6 +8,9 @@ package com.opengamma.sesame;
 import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -37,6 +40,11 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
 
   @Override
   public Result<CurveSpecification> getCurveSpecification(String curveName) {
+    return getCurveSpecification(curveName, _valuationTimeFn.getTime());
+  }
+
+  @Override
+  public Result<CurveSpecification> getCurveSpecification(String curveName, ZonedDateTime valuationTime) {
 
     final CurveDefinition curveDefinition =
         _curveDefinitionSource.getCurveDefinition(curveName, VersionCorrection.LATEST);
@@ -45,8 +53,8 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
       return failure(FailureStatus.MISSING_DATA, "Could not get curve definition called: {}", curveName);
     } else {
       return success(_curveSpecificationBuilder.buildCurve(
-          _valuationTimeFn.getTime().toInstant(),
-          _valuationTimeFn.getDate(),
+          valuationTime.toInstant(),
+          LocalDate.now(), // Want the current curves (is that what this represents)
           curveDefinition));
     }
   }
