@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
@@ -87,6 +88,11 @@ public class EagerMarketDataFn implements MarketDataFn {
       }
     }
     return resultBuilder.build();
+  }
+
+  @Override
+  public Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime) {
+    return null;
   }
 
   private MarketDataItem getSeries(MarketDataRequirement requirement, LocalDateRange dateRange) {

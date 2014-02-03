@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import org.threeten.bp.LocalDate;
@@ -15,10 +14,6 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
-import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
-import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -26,7 +21,6 @@ import com.opengamma.util.result.Result;
  */
 public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
 
-  private final CurveDefinitionSource _curveDefinitionSource;
   private final ConfigDBCurveSpecificationBuilder _curveSpecificationBuilder;
   private final ValuationTimeFn _valuationTimeFn;
 
@@ -34,28 +28,24 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
                                      ValuationTimeFn valuationTimeFn) {
 
     _valuationTimeFn = valuationTimeFn;
-    _curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
     _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
   }
 
   @Override
-  public Result<CurveSpecification> getCurveSpecification(String curveName) {
-    return getCurveSpecification(curveName, _valuationTimeFn.getTime());
+  public Result<CurveSpecification> getCurveSpecification(CurveDefinition curveDefinition) {
+    return buildSpecification(curveDefinition, _valuationTimeFn.getTime());
   }
 
   @Override
-  public Result<CurveSpecification> getCurveSpecification(String curveName, ZonedDateTime valuationTime) {
+  public Result<CurveSpecification> getCurveSpecification(CurveDefinition curveDefinition, ZonedDateTime valuationTime) {
+    return buildSpecification(curveDefinition, valuationTime);
+  }
 
-    final CurveDefinition curveDefinition =
-        _curveDefinitionSource.getCurveDefinition(curveName, VersionCorrection.LATEST);
-
-    if (curveDefinition == null) {
-      return failure(FailureStatus.MISSING_DATA, "Could not get curve definition called: {}", curveName);
-    } else {
-      return success(_curveSpecificationBuilder.buildCurve(
-          valuationTime.toInstant(),
-          LocalDate.now(), // Want the current curves (is that what this represents)
-          curveDefinition));
-    }
+  private Result<CurveSpecification> buildSpecification(CurveDefinition curveDefinition,
+                                                        ZonedDateTime valuationTime) {
+    return success(_curveSpecificationBuilder.buildCurve(
+        valuationTime.toInstant(),
+        LocalDate.now(), // Want the current curves (is that what this represents)
+        curveDefinition));
   }
 }

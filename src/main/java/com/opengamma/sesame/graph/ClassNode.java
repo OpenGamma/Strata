@@ -34,7 +34,7 @@ public class ClassNode extends DependentNode {
   protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
     try {
       return _constructor.newInstance(dependencies.toArray());
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
       throw new OpenGammaRuntimeException("Failed to create of " + _constructor.getDeclaringClass().getName(), e);
     }
   }

@@ -17,26 +17,21 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForwardYieldCurveNodeSensitivitiesFn {
 
   private final FXForwardCalculatorFn _fxForwardCalculatorFn;
 
-  private final CurveDefinitionFn _curveDefinitionProvider;
-
-  private final String _curveName;
+  private final CurveDefinition _curveDefinition;
 
   public DiscountingFXForwardYieldCurveNodeSensitivitiesFn(FXForwardCalculatorFn fxForwardCalculatorFn,
-                                                           CurveDefinitionFn curveDefinitionProvider,
-                                                           String curveName) {
+                                                           CurveDefinition curveDefinition) {
     _fxForwardCalculatorFn = fxForwardCalculatorFn;
-    _curveDefinitionProvider = curveDefinitionProvider;
-    _curveName = curveName;
+    _curveDefinition = curveDefinition;
   }
 
   @Override
@@ -50,26 +45,20 @@ public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForw
       FXForwardCalculator fxForwardCalculator = forwardCalculatorResult.getValue();
       final MultipleCurrencyParameterSensitivity sensitivities = fxForwardCalculator.generateBlockCurveSensitivities();
 
-      Result<CurveDefinition> cdResult = _curveDefinitionProvider.getCurveDefinition(_curveName);
-
-      if (cdResult.isValueAvailable()) {
-        return findMatchingSensitivities(sensitivities, cdResult.getValue());
-      } else {
-        return propagateFailure(cdResult);
-      }
+      return findMatchingSensitivities(sensitivities);
     } else {
       return propagateFailure(forwardCalculatorResult);
     }
   }
 
-  private Result<DoubleLabelledMatrix1D> findMatchingSensitivities(MultipleCurrencyParameterSensitivity sensitivities,
-                                                                           CurveDefinition curveDefinition) {
+  private Result<DoubleLabelledMatrix1D> findMatchingSensitivities(MultipleCurrencyParameterSensitivity sensitivities) {
 
+    final String curveName = _curveDefinition.getName();
     for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivities.getSensitivities().entrySet()) {
-      if (_curveName.equals(entry.getKey().getFirst())) {
-        return success(MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition));
+      if (curveName.equals(entry.getKey().getFirst())) {
+        return success(MultiCurveUtils.getLabelledMatrix(entry.getValue(), _curveDefinition));
       }
     }
-    return failure(FailureStatus.MISSING_DATA, "No sensitivities found for curve name: {}", _curveName);
+    return failure(FailureStatus.MISSING_DATA, "No sensitivities found for curve name: {}", curveName);
   }
 }

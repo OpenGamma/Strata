@@ -8,6 +8,7 @@ package com.opengamma.sesame.marketdata;
 import java.util.Set;
 
 import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
@@ -27,6 +28,18 @@ public interface MarketDataFn {
    * available and the value if it is.
    */
   Result<MarketDataValues> requestData(MarketDataRequirement requirement);
+
+  /**
+   * Request a single item of market data.
+   *
+   * @param requirement the item of market data being requested
+   * @param valuationTime the valuation time for the market data (which may necessitate
+   * retrieving it from a historical source)
+   * @return a result object containing an indication of whether the data is (currently)
+   * available and the value if it is.
+   */
+  Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime);
+
 
   /**
    * Request multiple items of market data.

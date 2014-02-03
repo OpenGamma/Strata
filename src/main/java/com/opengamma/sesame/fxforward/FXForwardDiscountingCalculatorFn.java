@@ -66,11 +66,11 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
       CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
 
       MarketExposureSelector selector = mesResult.getValue();
-      Set<CurveConstructionConfiguration> curveConfigNames = selector.determineCurveConfigurationsForSecurity(security);
+      Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurationsForSecurity(security);
 
       // todo - we may also want to cache the merged bundle at the level of the curveConfig names
-      // e.g. MergedBundleProvider.getMergedBundle(curveConfigNames)
-      for (CurveConstructionConfiguration curveConfig : curveConfigNames) {
+      // e.g. MergedBundleProvider.getMergedBundle(curveConfigs)
+      for (CurveConstructionConfiguration curveConfig : curveConfigs) {
 
         Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
             _multicurveBundleProviderFunction.generateBundle(curveConfig);
@@ -84,12 +84,12 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
         }
       }
 
-      if (!curveConfigNames.isEmpty() && incompleteBundles.isEmpty() && fxmResult.isValueAvailable()) {
+      if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty() && fxmResult.isValueAvailable()) {
 
         MulticurveProviderDiscount bundle = mergeBundlesAndMatrix(bundles, fxmResult.getValue());
         return success(_factory.createCalculator(security, bundle, mergedJacobianBundle));
 
-      } else if (curveConfigNames.isEmpty()) {
+      } else if (curveConfigs.isEmpty()) {
         return failure(FailureStatus.MISSING_DATA, "No matching curves found for security: {}", security);
       } else if (!incompleteBundles.isEmpty()) {
         return failure(FailureStatus.MISSING_DATA, "Missing complete curve bundles(s) for: {}", incompleteBundles);

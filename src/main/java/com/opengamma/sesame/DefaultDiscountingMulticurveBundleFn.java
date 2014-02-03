@@ -47,7 +47,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -103,7 +102,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private final FXMatrixFn _fxMatrixProvider;
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
 
-  private final ConfigSource _configSource;
   private final ConventionSource _conventionSource;
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
@@ -115,6 +113,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
    * Map indicating which curves should be implied, and if so which curves they should
    * be implied from.
    */
+  // todo - this is only a temporary solution to determine the implied deposit curves
   private final Set<String> _impliedCurveNames;
 
   public DefaultDiscountingMulticurveBundleFn(CurveDefinitionFn curveDefinitionProvider,
@@ -123,7 +122,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                               ValuationTimeFn valuationTimeProvider,
                                               FXMatrixFn fxMatrixProvider,
                                               HistoricalTimeSeriesFn historicalTimeSeriesProvider,
-                                              ConfigSource configSource,
                                               ConventionSource conventionSource,
                                               HolidaySource holidaySource,
                                               RegionSource regionSource,
@@ -136,7 +134,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     _valuationTimeProvider = valuationTimeProvider;
     _fxMatrixProvider = fxMatrixProvider;
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
-    _configSource = configSource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -258,42 +255,39 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
       int j = 0;
 
-      for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+      for (final Map.Entry<CurveDefinition, List<? extends CurveTypeConfiguration>> entry : group.resolveTypesForCurves().entrySet()) {
 
-        final String curveName = entry.getKey();
-        Result<CurveDefinition> curveDefResult = _curveDefinitionProvider.getCurveDefinition(curveName);
+        CurveDefinition curve = entry.getKey();
+        String curveName = curve.getName();
 
         if (_impliedCurveNames.contains(curveName)) {
-          if (curveDefResult.isValueAvailable()) {
 
-            if (exogenousBundle.isValueAvailable()) {
-              // todo error handling if curve is not in bundle
+          if (exogenousBundle.isValueAvailable()) {
+            // todo error handling if curve is not in bundle
 
-              Currency currency = null;
-              for (CurveTypeConfiguration type : entry.getValue()) {
-                if (type instanceof DiscountingCurveTypeConfiguration) {
-                  final String reference = ((DiscountingCurveTypeConfiguration) type).getReference();
-                  try {
-                    currency = Currency.of(reference);
-                  } catch (final IllegalArgumentException e) {
-                    throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for discounting curves");
-                  }
+            Currency currency = null;
+            for (CurveTypeConfiguration type : entry.getValue()) {
+              if (type instanceof DiscountingCurveTypeConfiguration) {
+                final String reference = ((DiscountingCurveTypeConfiguration) type).getReference();
+                try {
+                  currency = Currency.of(reference);
+                } catch (final IllegalArgumentException e) {
+                  throw new OpenGammaRuntimeException("Cannot handle reference type " + reference + " for discounting curves");
                 }
               }
-
-              singleCurves[j] = buildImpliedDepositCurve(currency, curveDefResult.getValue(), exogenousBundle.getValue(),
-                                                           valuationTime);
-              // todo note we do this below as well, refactor it to be common
-              discountingMap.put(curveName, currency);
-
-              // This curve needs to replace the existing discounting curve of the same currency
-              curvesToRemove.add(currency);
             }
+
+            singleCurves[j] = buildImpliedDepositCurve(currency, curve, exogenousBundle.getValue(),
+                                                         valuationTime);
+            // todo note we do this below as well, refactor it to be common
+            discountingMap.put(curveName, currency);
+
+            // This curve needs to replace the existing discounting curve of the same currency
+            curvesToRemove.add(currency);
           }
         } else {
 
-          // TODO - curve def and spec are closely related and the curveSec provider should probably use the curveDef provider underneath
-          Result<CurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(curveName, valuationTime);
+          Result<CurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(curve, valuationTime);
 
           if (curveSpecResult.isValueAvailable()) {
 
@@ -305,10 +299,9 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
             Result<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
 
             // Only proceed if we have all market data values available to us
-            if (curveDefResult.isValueAvailable() && htsResult.isValueAvailable() && fxMatrixResult.isValueAvailable() &&
+            if (htsResult.isValueAvailable() && fxMatrixResult.isValueAvailable() &&
                 marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
 
-              CurveDefinition curveDefinition = curveDefResult.getValue();
               FXMatrix fxMatrix = fxMatrixResult.getValue();
 
               // todo this is temporary to allow us to get up and running fast
@@ -352,7 +345,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
               }
 
-              final GeneratorYDCurve generator = getGenerator(curveDefinition, _valuationTimeProvider.getDate());
+              final GeneratorYDCurve generator = getGenerator(curve, _valuationTimeProvider.getDate());
               singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
             } else {
               curveBundlesComplete = false;
@@ -499,7 +492,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     ResultStatus exogenousStatus = SuccessStatus.SUCCESS;
     Set<MulticurveProviderDiscount> exogenousBundles = new HashSet<>();
 
-    for (CurveConstructionConfiguration exogenousConfig : curveConfig.getResolvedCurveConfigurations()) {
+    for (CurveConstructionConfiguration exogenousConfig : curveConfig.resolveCurveConfigurations()) {
 
       Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
           generateBundle(exogenousConfig, valuationTime);

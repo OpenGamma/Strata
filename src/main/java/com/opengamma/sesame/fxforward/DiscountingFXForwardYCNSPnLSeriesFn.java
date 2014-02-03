@@ -29,6 +29,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -54,7 +55,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
   private final FXForwardCalculatorFn _calculatorProvider;
 
-  private final String _curveName;
+  private final CurveDefinition _curveDefinition;
   private final CurveConstructionConfiguration _curveConfig;
   private final boolean _payLeg;
 
@@ -69,13 +70,15 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
   private final CurveSpecificationFn _curveSpecificationFunction;
   private final CurrencyPairsFn _currencyPairsFn;
+
+  // todo - this is only a temporary solution to determine the implied deposit curves
   private final Set<String> _impliedCurveNames;
   private final ValuationTimeFn _valuationTimeFn;
   private final DiscountingMulticurveBundleFn _discountingMulticurveBundleFn;
 
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-                                             final String curveName,
+                                             final CurveDefinition curveDefinition,
                                              final CurveConstructionConfiguration curveConfig,
                                              final boolean payLeg,
                                              final Optional<Currency> outputCurrency,
@@ -87,7 +90,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final ValuationTimeFn valuationTimeFn,
                                              final DiscountingMulticurveBundleFn discountingMulticurveBundleFn) {
     _calculatorProvider = calculatorProvider;
-    _curveName = curveName;
+    _curveDefinition = curveDefinition;
     _curveConfig = curveConfig;
     _payLeg = payLeg;
     _outputCurrency = outputCurrency;
@@ -101,7 +104,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   }
 
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-                                             final CurveConstructionConfiguration curveConfig, final String curveName,
+                                             final CurveConstructionConfiguration curveConfig,
+                                             final CurveDefinition curveDefinition,
                                              final boolean payLeg,
                                              final FXReturnSeriesFn fxReturnSeriesProvider,
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
@@ -110,7 +114,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final Set<String> impliedCurveNames,
                                              final ValuationTimeFn valuationTimeFn,
                                              final DiscountingMulticurveBundleFn discountingMulticurveBundleFn) {
-    this(calculatorProvider, curveName,
+    this(calculatorProvider, curveDefinition,
          curveConfig,
          payLeg, Optional.<Currency>absent(), fxReturnSeriesProvider,
         historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, impliedCurveNames, valuationTimeFn,
@@ -136,7 +140,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     final Result<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
 
     // todo - these should probably be separate classes as there is little commonality in the methods
-    return _impliedCurveNames.contains(_curveName) ?
+    return _impliedCurveNames.contains(_curveDefinition.getName()) ?
         calculateForImpliedCurve(security, curveCurrency, cpResult) :
         calculateForNonImpliedCurve(security, curveCurrency, cpResult);
   }
@@ -178,7 +182,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
       TenorLabelledLocalDateDoubleTimeSeriesMatrix1D series = builder.toTimeSeries();
 
-      final DoubleMatrix1D sensitivities = bcs.getSensitivity(_curveName, curveCurrency);
+      final DoubleMatrix1D sensitivities = bcs.getSensitivity(_curveDefinition.getName(), curveCurrency);
       final Tenor[] tenors = series.getKeys();
       final int sensitivitiesSize = sensitivities.getNumberOfElements();
       final int tenorsSize = tenors.length;
@@ -262,7 +266,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                                                                                      Result<CurrencyPair> cpResult) {
     final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
     final Result<CurveSpecification> curveSpecificationResult =
-        _curveSpecificationFunction.getCurveSpecification(_curveName);
+        _curveSpecificationFunction.getCurveSpecification(_curveDefinition);
 
     if (calculatorResult.isValueAvailable() && curveSpecificationResult.isValueAvailable() &&
         cpResult.isValueAvailable()) {
@@ -276,7 +280,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       if (curveSeriesBundleResult.isValueAvailable()) {
 
         final HistoricalTimeSeriesBundle curveSeriesBundle = curveSeriesBundleResult.getValue();
-        final DoubleMatrix1D sensitivities = bcs.getSensitivity(_curveName, curveCurrency);
+        final DoubleMatrix1D sensitivities = bcs.getSensitivity(_curveDefinition.getName(), curveCurrency);
         final Set<CurveNodeWithIdentifier> nodes = curveSpecification.getNodes();
 
         final int sensitivitiesSize = sensitivities.getNumberOfElements();

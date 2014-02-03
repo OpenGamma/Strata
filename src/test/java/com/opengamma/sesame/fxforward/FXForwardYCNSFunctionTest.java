@@ -48,13 +48,16 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -122,18 +125,22 @@ public class FXForwardYCNSFunctionTest {
 
   @Test
   public void buildGraph() {
+    final Map<Class<?>, Object> components = createComponents(ConfigSource.class,
+                                                              ConventionSource.class,
+                                                              ConventionBundleSource.class,
+                                                              HistoricalTimeSeriesResolver.class,
+                                                              SecuritySource.class,
+                                                              HolidaySource.class,
+                                                              HistoricalTimeSeriesSource.class,
+                                                              MarketDataFn.class,
+                                                              RegionSource.class,
+                                                              ValuationTimeFn.class);
+
+    ComponentMap componentMap = componentMap(components);
+
     FunctionMetadata calculateYCNS = ConfigUtils.createMetadata(FXForwardYieldCurveNodeSensitivitiesFn.class, "calculateYieldCurveNodeSensitivities");
     FunctionConfig config = createFunctionConfig();
-    ComponentMap componentMap = componentMap(ConfigSource.class,
-                                             ConventionSource.class,
-                                             ConventionBundleSource.class,
-                                             HistoricalTimeSeriesResolver.class,
-                                             SecuritySource.class,
-                                             HolidaySource.class,
-                                             HistoricalTimeSeriesSource.class,
-                                             MarketDataFn.class,
-                                             RegionSource.class,
-                                             ValuationTimeFn.class);
+
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculateYCNS, graphConfig);
     Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
@@ -202,9 +209,9 @@ public class FXForwardYCNSFunctionTest {
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfigName", exposureConfig)),
+                         argument("exposureConfig", ConfigLink.of(exposureConfig, mock(ExposureFunctions.class)))),
                 function(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
-                         argument("curveName", "Discounting")),
+                         argument("curveDefinition", ConfigLink.of("Discounting", mock(CurveDefinition.class)))),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),
@@ -248,12 +255,16 @@ public class FXForwardYCNSFunctionTest {
                             DefaultHistoricalTimeSeriesFn.class));
   }
 
-  private static ComponentMap componentMap(Class<?>... componentTypes) {
+  private static ComponentMap componentMap(Map<Class<?>, Object> components) {
+    return ComponentMap.of(components);
+  }
+
+  private static Map<Class<?>, Object> createComponents(Class<?>... componentTypes) {
     Map<Class<?>, Object> compMap = Maps.newHashMap();
     for (Class<?> componentType : componentTypes) {
       compMap.put(componentType, mock(componentType));
     }
-    return ComponentMap.of(compMap);
+    return compMap;
   }
 
   // TODO move this somewhere else now it's shared with the engine test

@@ -51,12 +51,14 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -206,12 +208,14 @@ public class FXForwardPnlSeriesFunctionTest {
 
 
   private static FunctionConfig createFunctionConfig() {
-    String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
+    ConfigLink<ExposureFunctions> exposureConfig =
+        ConfigLink.of("EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS",
+                      mock(ExposureFunctions.class));
     return
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfigName", exposureConfig)),
+                         argument("exposureConfig", exposureConfig)),
                 function(DiscountingFXForwardSpotPnLSeriesFn.class,
                          argument("seriesPeriod", Period.ofYears(5)),
                          argument("outputCurrency", Optional.of(Currency.USD))),

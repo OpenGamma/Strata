@@ -61,6 +61,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
@@ -72,6 +73,7 @@ import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigur
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -280,7 +282,7 @@ public class FXForwardPVFnTest {
       trades.add(createRandomFxForwardTrade());
     }
     s_logger.info("created {} trades in {}ms", nTrades, System.currentTimeMillis() - startTrades);
-    String exposureConfig = "Temple USD-EUR-JPY";
+    ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.of("Temple USD-EUR-JPY", mock(ExposureFunctions.class));
     ViewDef viewDef =
         viewDef("FX forward PV view",
                 column("Present Value",
@@ -288,7 +290,7 @@ public class FXForwardPVFnTest {
                               config(
                                   arguments(
                                       function(ConfigDbMarketExposureSelectorFn.class,
-                                               argument("exposureConfigName", exposureConfig)),
+                                               argument("exposureConfig", exposureConfig)),
                                       function(RootFinderConfiguration.class,
                                                argument("rootFinderAbsoluteTolerance", 1e-9),
                                                argument("rootFinderRelativeTolerance", 1e-9),
@@ -400,7 +402,7 @@ public class FXForwardPVFnTest {
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfigName", exposureConfig)),
+                         argument("exposureConfig", ConfigLink.of(exposureConfig, mock(ExposureFunctions.class)))),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),

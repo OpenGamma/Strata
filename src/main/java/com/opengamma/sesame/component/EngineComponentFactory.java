@@ -22,6 +22,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
@@ -53,6 +54,7 @@ import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
 import com.opengamma.sesame.fxforward.FXForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.fxforward.FXForwardPVFn;
+import com.opengamma.util.ArgumentChecker;
 
 import net.sf.ehcache.CacheManager;
 
@@ -109,17 +111,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
   private void initServiceContext(Map<Class<?>, Object> components) {
 
-    VersionCorrectionProvider vcProvider = new VersionCorrectionProvider() {
-      @Override
-      public VersionCorrection getPortfolioVersionCorrection() {
-        return VersionCorrection.LATEST;
-      }
-
-      @Override
-      public VersionCorrection getConfigVersionCorrection() {
-        return VersionCorrection.LATEST;
-      }
-    };
+    VersionCorrectionProvider vcProvider = new EngineVersionCorrectionProvider(Instant.now());
     final ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
   }
@@ -396,6 +388,27 @@ public class EngineComponentFactory extends AbstractComponentFactory {
       super.validate(bean);
     }
 
+  }
+
+  private static class EngineVersionCorrectionProvider implements VersionCorrectionProvider {
+
+    private final Instant _versionAsOf;
+
+    public EngineVersionCorrectionProvider(Instant versionAsOf) {
+      _versionAsOf = ArgumentChecker.notNull(versionAsOf, "versionAsOf");
+    }
+
+    @Override
+    public VersionCorrection getPortfolioVersionCorrection() {
+      // todo - this needs to be integrated with the new engine caching, atm this will not respond to portfolio updates
+      return VersionCorrection.ofVersionAsOf(_versionAsOf);
+    }
+
+    @Override
+    public VersionCorrection getConfigVersionCorrection() {
+      // todo - this needs to be integrated with the new engine caching, atm this will not respond to config updates
+      return VersionCorrection.ofVersionAsOf(_versionAsOf);
+    }
   }
 
   ///CLOVER:ON

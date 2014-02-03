@@ -12,6 +12,7 @@ import java.util.Objects;
 
 import javax.inject.Provider;
 
+import com.opengamma.core.link.Link;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
@@ -44,15 +45,15 @@ public abstract class Node {
 
   public Object create(ComponentMap componentMap, List<Object> dependencies) {
     Object object = doCreate(componentMap, dependencies);
-    if (!(object instanceof Provider)) {
-      return object;
-    }
-    // TODO some slightly more robust checking of compatibility of types
-    // TODO what's the logic I actually need here?
-    if (Provider.class.isAssignableFrom(_type)) {
-      return object;
+    if (object instanceof Provider) {
+      // TODO some slightly more robust checking of compatibility of types
+      // TODO what's the logic I actually need here?
+      return Provider.class.isAssignableFrom(_type) ? object : ((Provider) object).get();
+    } else if (object instanceof Link) {
+      // Might we want to supply a Link as an argument?
+      return ((Link) object).resolve();
     } else {
-      return ((Provider) object).get();
+      return object;
     }
   }
 

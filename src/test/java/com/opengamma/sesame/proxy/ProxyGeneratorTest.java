@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -98,6 +99,11 @@ public class ProxyGeneratorTest {
     MarketDataFn mdpf = new MarketDataFn() {
       @Override
       public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
+        throw new RuntimeException(message);
+      }
+
+      @Override
+      public Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime) {
         throw new RuntimeException(message);
       }
 

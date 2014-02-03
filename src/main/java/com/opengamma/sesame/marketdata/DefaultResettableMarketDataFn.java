@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import static com.opengamma.util.result.ResultGenerator.map;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +18,9 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.util.result.Result;
 import com.opengamma.sesame.ResettableMarketDataFn;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -52,6 +55,21 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
   @Override
   public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
     return requestData(ImmutableSet.of(requirement));
+  }
+
+  @Override
+  public Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime) {
+    final LocalDate valuationDate = valuationTime.toLocalDate();
+    final Result<MarketDataSeries> marketDataSeriesResult = requestData(ImmutableSet.of(requirement),
+                                                                        LocalDateRange.of(valuationDate,
+                                                                                          valuationDate,
+                                                                                          true));
+    return map(marketDataSeriesResult, new ResultGenerator.ResultMapper<MarketDataSeries, MarketDataValues>() {
+      @Override
+      public Result<MarketDataValues> map(MarketDataSeries result) {
+        return null;//success(result.getOnlySeries().getValue(valuationDate));
+      }
+    });
   }
 
   @Override
