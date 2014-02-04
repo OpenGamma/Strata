@@ -20,7 +20,6 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForwardYieldCurveNodeSensitivitiesFn {
 
@@ -54,11 +53,13 @@ public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForw
   private Result<DoubleLabelledMatrix1D> findMatchingSensitivities(MultipleCurrencyParameterSensitivity sensitivities) {
 
     final String curveName = _curveDefinition.getName();
-    for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivities.getSensitivities().entrySet()) {
-      if (curveName.equals(entry.getKey().getFirst())) {
-        return success(MultiCurveUtils.getLabelledMatrix(entry.getValue(), _curveDefinition));
-      }
+    final Map<Currency, DoubleMatrix1D> matches = sensitivities.getSensitivityByName(curveName);
+
+    if (matches.isEmpty()) {
+      return failure(FailureStatus.MISSING_DATA, "No sensitivities found for curve name: {}", curveName);
+    } else {
+      final DoubleMatrix1D sensitivity = matches.values().iterator().next();
+      return success(MultiCurveUtils.getLabelledMatrix(sensitivity, _curveDefinition));
     }
-    return failure(FailureStatus.MISSING_DATA, "No sensitivities found for curve name: {}", curveName);
   }
 }
