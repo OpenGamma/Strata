@@ -25,44 +25,81 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
 
 // TODO is it worth including a lookup by ID instead of row index?
-// TODO is it worth including a lookup by column name as well as column index?
 // TODO Iterable<Row>?
 // TODO column types
 @BeanDefinition
 public final class Results implements ImmutableBean {
 
+  /** The column names. */
   @PropertyDefinition(validate = "notNull")
   private final List<String> _columnNames;
 
+  /** The rows containing the results */
   @PropertyDefinition(validate = "notNull")
   private final List<ResultRow> _rows;
+
+  /** Column indices keyed by name. */
+  private final Map<String, Integer> _columnIndices = Maps.newHashMap();
 
   @ImmutableConstructor
   /* package */ Results(List<String> columnNames, List<ResultRow> rows) {
     _rows = ImmutableList.copyOf(ArgumentChecker.notNull(rows, "rows"));
     _columnNames = ImmutableList.copyOf(ArgumentChecker.notNull(columnNames, "columnNames"));
+    int colIndex = 0;
+    for (String columnName : columnNames) {
+      Integer prevValue = _columnIndices.put(columnName, colIndex++);
+      if (prevValue != null) {
+        throw new IllegalArgumentException("Column names must be unique, " + columnName + " is duplicated");
+      }
+    }
   }
 
+  /**
+   * Returns the row at the specified index.
+   * @param rowIndex The row index
+   * @return The row
+   * @throws IndexOutOfBoundsException If there is no row at the specified index
+   */
   public ResultRow get(int rowIndex) {
-    checkRowIndex(rowIndex);
-    return _rows.get(rowIndex);
-  }
-
-  private void checkRowIndex(int rowIndex) {
     if (rowIndex < 0 || rowIndex >= _rows.size()) {
       throw new IndexOutOfBoundsException("Index " + rowIndex + " is out of bounds. row count = " + _rows.size());
     }
+    return _rows.get(rowIndex);
   }
 
+  /**
+   * Returns a value from a row and column
+   * @param rowIndex The row index
+   * @param columnIndex The column index
+   * @return The value
+   * @throws IndexOutOfBoundsException If the indices aren't valid
+   */
   public ResultItem get(int rowIndex, int columnIndex) {
-    checkRowIndex(rowIndex);
     if (columnIndex < 0 || columnIndex >= _columnNames.size()) {
       throw new IndexOutOfBoundsException("Index " + columnIndex + " is out of bounds. column count = " + _columnNames.size());
     }
-    return _rows.get(rowIndex).get(columnIndex);
+    return get(rowIndex).get(columnIndex);
+  }
+
+  /**
+   * Returns a value from a row and a named column
+   * @param rowIndex The row index
+   * @param columnName The column name
+   * @return The value
+   * @throws DataNotFoundException If there is no column with the specified name
+   * @throws IllegalArgumentException If the row index is invalid
+   */
+  public ResultItem get(int rowIndex, String columnName) {
+    Integer columnIndex = _columnIndices.get(columnName);
+    if (columnIndex == null) {
+      throw new IllegalArgumentException("No column found named " + columnName);
+    }
+    return get(rowIndex).get(columnIndex);
   }
 
   @Override
