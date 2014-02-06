@@ -67,7 +67,7 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
     return map(marketDataSeriesResult, new ResultGenerator.ResultMapper<MarketDataSeries, MarketDataValues>() {
       @Override
       public Result<MarketDataValues> map(MarketDataSeries result) {
-        return null;//success(result.getOnlySeries().getValue(valuationDate));
+        return null; //success(result.getOnlySeries().getValue(valuationDate));
       }
     });
   }
