@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -24,8 +25,8 @@ public class ResultsTest {
 
   @Test
   public void getByIndex() {
-    assertEquals("item11", RESULTS.get(0, 0).getOutput());
-    assertEquals("item22", RESULTS.get(1, 1).getOutput());
+    assertEquals("item11", RESULTS.get(0, 0).getResult().getValue());
+    assertEquals("item22", RESULTS.get(1, 1).getResult().getValue());
   }
 
   @Test(expectedExceptions = IndexOutOfBoundsException.class)
@@ -45,8 +46,8 @@ public class ResultsTest {
 
   @Test
   public void getByColumnName() {
-    assertEquals("item11", RESULTS.get(0, "col1").getOutput());
-    assertEquals("item22", RESULTS.get(1, "col2").getOutput());
+    assertEquals("item11", RESULTS.get(0, "col1").getResult().getValue());
+    assertEquals("item22", RESULTS.get(1, "col2").getResult().getValue());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -62,7 +63,7 @@ public class ResultsTest {
   private static ResultRow row(Object input, Object... results) {
     List<ResultItem> items = Lists.newArrayListWithCapacity(results.length);
     for (Object result : results) {
-      items.add(new ResultItem(result, null));
+      items.add(new ResultItem(ResultGenerator.success(result), null));
     }
     return new ResultRow(input, items);
   }

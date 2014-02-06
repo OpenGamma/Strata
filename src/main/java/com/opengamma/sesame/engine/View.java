@@ -56,12 +56,15 @@ import com.opengamma.sesame.trace.NoOpTracer;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
-*
-*/
+ *
+ */
 public class View implements AutoCloseable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
@@ -116,6 +119,7 @@ public class View implements AutoCloseable {
     int colIndex = 0;
     List<ViewColumn> columns = _viewDef.getColumns();
     List<String> columnNames = Lists.newArrayListWithCapacity(columns.size());
+    // TODO need to handle non-portfolio outputs, e.g. yield curves. these have no inputs but can have arguments
     for (ViewColumn column : columns) {
       String columnName = column.getName();
       columnNames.add(columnName);
@@ -269,10 +273,10 @@ public class View implements AutoCloseable {
 
     private final int _rowIndex;
     private final int _columnIndex;
-    private final Object _result;
+    private final Result<?> _result;
     private final CallGraph _callGraph;
 
-    private TaskResult(int rowIndex, int columnIndex, Object result, CallGraph callGraph) {
+    private TaskResult(int rowIndex, int columnIndex, Result<?> result, CallGraph callGraph) {
       _rowIndex = rowIndex;
       _columnIndex = columnIndex;
       _result = result;
@@ -306,13 +310,14 @@ public class View implements AutoCloseable {
 
     @Override
     public TaskResult call() throws Exception {
-      Object result;
+      Result<?> result;
       TracingProxy.start(_tracer);
       try {
-        result = _invokableFunction.invoke(_input, _args);
+        result = ResultGenerator.success(_invokableFunction.invoke(_input, _args));
       } catch (Exception e) {
         s_logger.warn("Failed to execute function", e);
-        result = e;
+        // TODO ResultGenerator needs to handle exceptions properly. fix this when it does
+        result = ResultGenerator.failure(FailureStatus.ERROR, e.getMessage());
       }
       CallGraph callGraph = TracingProxy.end();
       return new TaskResult(_rowIndex, _columnIndex, result, callGraph);

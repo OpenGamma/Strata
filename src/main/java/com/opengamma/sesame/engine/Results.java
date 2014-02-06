@@ -150,7 +150,7 @@ public final class Results implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the columnNames.
+   * Gets the column names.
    * @return the value of the property, not null
    */
   public List<String> getColumnNames() {
@@ -159,7 +159,7 @@ public final class Results implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rows.
+   * Gets the rows containing the results
    * @return the value of the property, not null
    */
   public List<ResultRow> getRows() {

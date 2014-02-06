@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import com.opengamma.sesame.trace.CallGraph;
+import com.opengamma.util.result.Result;
 
 /**
 *
@@ -27,7 +28,7 @@ import com.opengamma.sesame.trace.CallGraph;
     _columnNames = columnNames;
   }
 
-  /* package */ void add(int rowIndex, int columnIndex, Object result, CallGraph callGraph) {
+  /* package */ void add(int rowIndex, int columnIndex, Result<?> result, CallGraph callGraph) {
     _table.put(rowIndex, columnIndex, new ResultItem(result, callGraph));
   }
 

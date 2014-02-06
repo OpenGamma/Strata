@@ -113,7 +113,7 @@ public class EngineTest {
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
-    assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
+    assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
 
@@ -131,7 +131,7 @@ public class EngineTest {
     List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
     View view = engine.createView(viewDef, securities);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
-    assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
+    assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
 
@@ -172,7 +172,7 @@ public class EngineTest {
     View view = engine.createView(viewDef, trades);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, marketDataFactory);
     Results results = view.run(cycleArguments);
-    assertEquals(123.45, ((Result) results.get(0, 0).getOutput()).getValue());
+    assertEquals(123.45, ((Result) results.get(0, 0).getResult().getValue()).getValue());
     System.out.println(results);
   }
 
@@ -191,7 +191,7 @@ public class EngineTest {
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
-    assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
+    assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
 
@@ -242,13 +242,13 @@ public class EngineTest {
     View view = engine.createView(viewDef, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
 
-    assertEquals(EQUITY_NAME, results.get(0, 0).getOutput());
-    assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getOutput());
-    assertEquals(EQUITY_ACTIV_SYMBOL, results.get(0, 2).getOutput());
+    assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
+    assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getResult().getValue());
+    assertEquals(EQUITY_ACTIV_SYMBOL, results.get(0, 2).getResult().getValue());
 
-    assertEquals(CASH_FLOW_NAME, results.get(1, 0).getOutput());
-    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, results.get(1, 1).getOutput());
-    assertEquals(CASH_FLOW_ACTIV_SYMBOL, results.get(1, 2).getOutput());
+    assertEquals(CASH_FLOW_NAME, results.get(1, 0).getResult().getValue());
+    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, results.get(1, 1).getResult().getValue());
+    assertEquals(CASH_FLOW_ACTIV_SYMBOL, results.get(1, 2).getResult().getValue());
 
     System.out.println(results);
   }
