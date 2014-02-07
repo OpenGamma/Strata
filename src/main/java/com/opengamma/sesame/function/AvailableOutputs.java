@@ -7,6 +7,8 @@ package com.opengamma.sesame.function;
 
 import java.util.Set;
 
+import com.opengamma.DataNotFoundException;
+
 /**
  *
  */
@@ -21,13 +23,30 @@ public interface AvailableOutputs {
   // for when the user is configuring outputs that aren't derived from the portfolio
   Set<String> getAvailableOutputs();
 
-  // TODO should this return multiple functions?
-  // function for outputs that take an input from the portfolio
+  /**
+   * Returns metadata for the function that provides an output for an input type.
+   * An output is provided by a method annotated with {@link Output}.
+   * @param outputName The output name
+   * @param inputType The type of the input
+   * @return The function that can provide the output
+   * @throws DataNotFoundException If nothing can provide the requested output for the target type
+   * TODO should this return multiple functions?
+   */
   FunctionMetadata getOutputFunction(String outputName, Class<?> inputType);
 
-  // TODO should this return multiple functions?
-  // function for outputs that have no parameters or only use configuration parameters
+
+  /**
+   * Returns metadata for a functions that provide an output that isn't calculated for items in the portfolio.
+   * e.g. curves, surfaces or other intermediate values
+   * @param outputName The output name
+   * @return The function that can provide the output
+   * TODO should this return multiple functions?
+   */
   FunctionMetadata getOutputFunction(String outputName);
 
-  void register(Class<?>... types);
+  /**
+   * Registers functions that can produce outputs from methods annotated with {@link Output}.
+   * @param functionInterfaces The function types to register
+   */
+  void register(Class<?>... functionInterfaces);
 }

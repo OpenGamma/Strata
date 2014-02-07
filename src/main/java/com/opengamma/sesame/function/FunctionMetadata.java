@@ -78,6 +78,8 @@ public class FunctionMetadata {
   }
 
   public InvokableFunction getInvokableFunction(Object receiver) {
+    // TODO can we get the method parameter names from the receiver method? will it be a class? a proxy?
+    // if it's a proxy can I drill through to the underlying object and get the class?
     return new MethodInvokableFunction(ArgumentChecker.notNull(receiver, "receiver"));
   }
 

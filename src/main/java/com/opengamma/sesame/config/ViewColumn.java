@@ -21,22 +21,22 @@ public final class ViewColumn {
   private final String _name;
 
   /** Default output details for input types that don't specify any. */
-  private final ColumnOutput _defaultOutput;
+  private final ViewOutput _defaultOutput;
 
   /** Requirements keyed by target type. */
-  private final Map<Class<?>, ColumnOutput> _outputs;
+  private final Map<Class<?>, ViewOutput> _outputs;
 
   @ImmutableConstructor
-  public ViewColumn(String name, ColumnOutput defaultOutput, Map<Class<?>, ColumnOutput> outputs) {
+  public ViewColumn(String name, ViewOutput defaultOutput, Map<Class<?>, ViewOutput> outputs) {
     _name = ArgumentChecker.notEmpty(name, "name");
     _outputs = ImmutableMap.copyOf(ArgumentChecker.notNull(outputs, "outputs"));
     _defaultOutput = defaultOutput;
   }
 
   public String getOutputName(Class<?> inputType) {
-    ColumnOutput columnOutput = _outputs.get(inputType);
-    if (columnOutput != null && columnOutput.getOutputName() != null) {
-      return columnOutput.getOutputName();
+    ViewOutput viewOutput = _outputs.get(inputType);
+    if (viewOutput != null && viewOutput.getOutputName() != null) {
+      return viewOutput.getOutputName();
     } else if (_defaultOutput != null) {
       return _defaultOutput.getOutputName();
     } else {
@@ -45,17 +45,17 @@ public final class ViewColumn {
   }
 
   public FunctionConfig getFunctionConfig(Class<?> inputType) {
-    ColumnOutput columnOutput = _outputs.get(inputType);
-    if (columnOutput == null && _defaultOutput == null) {
+    ViewOutput viewOutput = _outputs.get(inputType);
+    if (viewOutput == null && _defaultOutput == null) {
       return FunctionConfig.EMPTY;
     }
-    if (columnOutput == null) {
+    if (viewOutput == null) {
       return _defaultOutput.getFunctionConfig();
     }
     if (_defaultOutput == null) {
-      return columnOutput.getFunctionConfig();
+      return viewOutput.getFunctionConfig();
     }
-    return new CompositeFunctionConfig(columnOutput.getFunctionConfig(), _defaultOutput.getFunctionConfig());
+    return new CompositeFunctionConfig(viewOutput.getFunctionConfig(), _defaultOutput.getFunctionConfig());
   }
 
   public String getName() {

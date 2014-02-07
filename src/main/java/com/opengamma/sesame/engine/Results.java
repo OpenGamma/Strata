@@ -6,6 +6,7 @@
 package com.opengamma.sesame.engine;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -25,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
@@ -35,6 +37,8 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class Results implements ImmutableBean {
 
+  // TODO should some of these have private getters?
+
   /** The column names. */
   @PropertyDefinition(validate = "notNull")
   private final List<String> _columnNames;
@@ -43,13 +47,18 @@ public final class Results implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final List<ResultRow> _rows;
 
+  /** Arbitrary outputs that aren't calculated for a particular position or trade, e.g. a curve or surface. */
+  @PropertyDefinition(validate = "notNull")
+  private final Map<String, ResultItem> _nonPortfolioResults;
+
   /** Column indices keyed by name. */
   private final Map<String, Integer> _columnIndices = Maps.newHashMap();
 
   @ImmutableConstructor
-  /* package */ Results(List<String> columnNames, List<ResultRow> rows) {
+  /* package */ Results(List<String> columnNames, List<ResultRow> rows, Map<String, ResultItem> nonPortfolioResults) {
     _rows = ImmutableList.copyOf(ArgumentChecker.notNull(rows, "rows"));
     _columnNames = ImmutableList.copyOf(ArgumentChecker.notNull(columnNames, "columnNames"));
+    _nonPortfolioResults = ImmutableMap.copyOf(ArgumentChecker.notNull(nonPortfolioResults, "nonPortfolioResults"));
     int colIndex = 0;
     for (String columnName : columnNames) {
       Integer prevValue = _columnIndices.put(columnName, colIndex++);
@@ -100,6 +109,14 @@ public final class Results implements ImmutableBean {
       throw new IllegalArgumentException("No column found named " + columnName);
     }
     return get(rowIndex).get(columnIndex);
+  }
+
+  public ResultItem get(String nonPortfolioOutputName) {
+    ResultItem item = _nonPortfolioResults.get(nonPortfolioOutputName);
+    if (item == null) {
+      throw new IllegalArgumentException("No result found named '" + nonPortfolioOutputName + "'");
+    }
+    return item;
   }
 
   @Override
@@ -168,6 +185,15 @@ public final class Results implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the nonPortfolioResults.
+   * @return the value of the property, not null
+   */
+  public Map<String, ResultItem> getNonPortfolioResults() {
+    return _nonPortfolioResults;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -188,7 +214,8 @@ public final class Results implements ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       Results other = (Results) obj;
       return JodaBeanUtils.equal(getColumnNames(), other.getColumnNames()) &&
-          JodaBeanUtils.equal(getRows(), other.getRows());
+          JodaBeanUtils.equal(getRows(), other.getRows()) &&
+          JodaBeanUtils.equal(getNonPortfolioResults(), other.getNonPortfolioResults());
     }
     return false;
   }
@@ -198,6 +225,7 @@ public final class Results implements ImmutableBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getColumnNames());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRows());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNonPortfolioResults());
     return hash;
   }
 
@@ -224,12 +252,19 @@ public final class Results implements ImmutableBean {
     private final MetaProperty<List<ResultRow>> _rows = DirectMetaProperty.ofImmutable(
         this, "rows", Results.class, (Class) List.class);
     /**
+     * The meta-property for the {@code nonPortfolioResults} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, ResultItem>> _nonPortfolioResults = DirectMetaProperty.ofImmutable(
+        this, "nonPortfolioResults", Results.class, (Class) Map.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "columnNames",
-        "rows");
+        "rows",
+        "nonPortfolioResults");
 
     /**
      * Restricted constructor.
@@ -244,6 +279,8 @@ public final class Results implements ImmutableBean {
           return _columnNames;
         case 3506649:  // rows
           return _rows;
+        case -1919647109:  // nonPortfolioResults
+          return _nonPortfolioResults;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -280,6 +317,14 @@ public final class Results implements ImmutableBean {
       return _rows;
     }
 
+    /**
+     * The meta-property for the {@code nonPortfolioResults} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Map<String, ResultItem>> nonPortfolioResults() {
+      return _nonPortfolioResults;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -288,6 +333,8 @@ public final class Results implements ImmutableBean {
           return ((Results) bean).getColumnNames();
         case 3506649:  // rows
           return ((Results) bean).getRows();
+        case -1919647109:  // nonPortfolioResults
+          return ((Results) bean).getNonPortfolioResults();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -311,6 +358,7 @@ public final class Results implements ImmutableBean {
 
     private List<String> _columnNames = new ArrayList<String>();
     private List<ResultRow> _rows = new ArrayList<ResultRow>();
+    private Map<String, ResultItem> _nonPortfolioResults = new HashMap<String, ResultItem>();
 
     /**
      * Restricted constructor.
@@ -325,6 +373,7 @@ public final class Results implements ImmutableBean {
     private Builder(Results beanToCopy) {
       this._columnNames = new ArrayList<String>(beanToCopy.getColumnNames());
       this._rows = new ArrayList<ResultRow>(beanToCopy.getRows());
+      this._nonPortfolioResults = new HashMap<String, ResultItem>(beanToCopy.getNonPortfolioResults());
     }
 
     //-----------------------------------------------------------------------
@@ -337,6 +386,9 @@ public final class Results implements ImmutableBean {
           break;
         case 3506649:  // rows
           this._rows = (List<ResultRow>) newValue;
+          break;
+        case -1919647109:  // nonPortfolioResults
+          this._nonPortfolioResults = (Map<String, ResultItem>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -372,7 +424,8 @@ public final class Results implements ImmutableBean {
     public Results build() {
       return new Results(
           _columnNames,
-          _rows);
+          _rows,
+          _nonPortfolioResults);
     }
 
     //-----------------------------------------------------------------------
@@ -398,13 +451,25 @@ public final class Results implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code nonPortfolioResults} property in the builder.
+     * @param nonPortfolioResults  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder nonPortfolioResults(Map<String, ResultItem> nonPortfolioResults) {
+      JodaBeanUtils.notNull(nonPortfolioResults, "nonPortfolioResults");
+      this._nonPortfolioResults = nonPortfolioResults;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("Results.Builder{");
       buf.append("columnNames").append('=').append(JodaBeanUtils.toString(_columnNames)).append(',').append(' ');
-      buf.append("rows").append('=').append(JodaBeanUtils.toString(_rows));
+      buf.append("rows").append('=').append(JodaBeanUtils.toString(_rows)).append(',').append(' ');
+      buf.append("nonPortfolioResults").append('=').append(JodaBeanUtils.toString(_nonPortfolioResults));
       buf.append('}');
       return buf.toString();
     }

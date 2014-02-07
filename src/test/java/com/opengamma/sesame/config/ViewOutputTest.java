@@ -13,7 +13,7 @@ import com.opengamma.util.test.TestGroup;
  *
  */
 @Test(groups = TestGroup.UNIT)
-public class ColumnOutputTest {
+public class ViewOutputTest {
 
   // TODO merging of default and specific config
   // TODO handling of subtyping when looking up config

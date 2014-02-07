@@ -12,12 +12,19 @@ import org.apache.commons.lang.ClassUtils;
 import com.opengamma.core.link.Link;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Configuration for creating a model of the graph of functions.
+ * Contains configuration for:
+ * <ul>
+ *   <li>The individual functions ({@link FunctionModel})
+ *   <li>The components provided by the engine ({@link ComponentMap})
+ *   <li>The decorators that insert proxies between the functions to provide engine services ({@link NodeDecorator})
+ * </ul>
  */
 public class GraphConfig {
 

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.sesame.function.InvokableFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * TODO this class seems to be pointless and nothing but a wrapper for a map. maybe Graph.build should return the map of fns
@@ -22,15 +23,29 @@ public final class Graph {
   /** Map of column names -> map of input type -> function. */
   private final Map<String, Map<Class<?>, InvokableFunction>> _functions;
 
-  /* package */ Graph(Map<String, Map<Class<?>, InvokableFunction>> functions) {
-    _functions = functions;
+  /** Functions for non-portfolio outputs, keyed by name */
+  private final Map<String, InvokableFunction> _nonPortfolioFunctions;
+
+  /* package */ Graph(Map<String, Map<Class<?>, InvokableFunction>> functions,
+                      Map<String, InvokableFunction> nonPortfolioFunctions) {
+    _functions = ArgumentChecker.notNull(functions, "functions");
+    _nonPortfolioFunctions = ArgumentChecker.notNull(nonPortfolioFunctions, "nonPortfolioFunctions");
   }
 
   public Map<Class<?>, InvokableFunction> getFunctionsForColumn(String columnName) {
     Map<Class<?>, InvokableFunction> functions = _functions.get(columnName);
     if (functions == null) {
+      // TODO IllegalArgumentException?
       throw new DataNotFoundException("No column found with name " + columnName);
     }
     return functions;
+  }
+
+  public InvokableFunction getNonPortfolioFunction(String name) {
+    InvokableFunction function = _nonPortfolioFunctions.get(name);
+    if (function == null) {
+      throw new IllegalArgumentException("No function found for output named '" + name + "'");
+    }
+    return function;
   }
 }

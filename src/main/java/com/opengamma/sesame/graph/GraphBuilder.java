@@ -19,6 +19,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.sesame.config.CompositeFunctionConfig;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
+import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -120,7 +121,26 @@ public final class GraphBuilder {
       }
       builder.put(column.getName(), Collections.unmodifiableMap(functions));
     }
-    return new GraphModel(builder.build());
+
+    // build the function models for non-portfolio outputs
+    ImmutableMap.Builder<String, FunctionModel> nonPortfolioFunctionModels = ImmutableMap.builder();
+    for (NonPortfolioOutput output : viewDef.getNonPortfolioOutputs()) {
+      String outputName = output.getOutput().getOutputName();
+      FunctionMetadata function = _availableOutputs.getOutputFunction(outputName);
+      FunctionModel functionModel;
+      if (function != null) {
+        FunctionConfig functionConfig = output.getOutput().getFunctionConfig();
+        FunctionConfig config = CompositeFunctionConfig.compose(functionConfig, defaultConfig);
+        GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
+        functionModel = FunctionModel.forFunction(function, graphConfig);
+      } else {
+        s_logger.warn("Failed to find function to provide output named {}", outputName);
+        functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);
+      }
+      nonPortfolioFunctionModels.put(output.getName(), functionModel);
+    }
+
+    return new GraphModel(builder.build(), nonPortfolioFunctionModels.build());
   }
 
 }

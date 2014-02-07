@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.InvokableFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Lightweight model of the functions needed to generate the outputs for a view.
@@ -23,33 +24,55 @@ public final class GraphModel {
 
   // TODO for this to be useful in the UI it needs to be map(column -> map((outputName,inputType) -> functionModel))
   // it will probably be better to have a real class than a rats' nest of generics
-  private final Map<String, Map<Class<?>, FunctionModel>> _functionTrees;
 
-  /* package */ GraphModel(Map<String, Map<Class<?>, FunctionModel>> functionTrees) {
-    _functionTrees = functionTrees;
+  /** Function models for portfolio output. The outer map is keyed by column name, the inner map by input type. */
+  private final Map<String, Map<Class<?>, FunctionModel>> _portfolioFunctionModels;
+
+  /** Function models for non-portfolio outputs, keyed by name */
+  private final Map<String, FunctionModel> _nonPortfolioFunctionModels;
+
+  /* package */ GraphModel(Map<String, Map<Class<?>, FunctionModel>> portfolioFunctionModels,
+                           Map<String, FunctionModel> nonPortfolioFunctionModels) {
+    _portfolioFunctionModels = ArgumentChecker.notNull(portfolioFunctionModels, "portfolioFunctionModels");
+    _nonPortfolioFunctionModels = ArgumentChecker.notNull(nonPortfolioFunctionModels, "nonPortfolioFunctionModels");
   }
 
   /**
    * @return A graph containing the built function instances
    */
   public Graph build(ComponentMap components) {
-    ImmutableMap.Builder<String, Map<Class<?>, InvokableFunction>> builder = ImmutableMap.builder();
     FunctionBuilder functionBuilder = new FunctionBuilder();
-    for (Map.Entry<String, Map<Class<?>, FunctionModel>> entry : _functionTrees.entrySet()) {
+
+    // build the functions for the portfolio outputs
+    ImmutableMap.Builder<String, Map<Class<?>, InvokableFunction>> portfolioFunctions = ImmutableMap.builder();
+    for (Map.Entry<String, Map<Class<?>, FunctionModel>> entry : _portfolioFunctionModels.entrySet()) {
       Map<Class<?>, FunctionModel> functionsByTargetId = entry.getValue();
       ImmutableMap.Builder<Class<?>, InvokableFunction> columnBuilder = ImmutableMap.builder();
       for (Map.Entry<Class<?>, FunctionModel> columnEntry : functionsByTargetId.entrySet()) {
         Class<?> inputType = columnEntry.getKey();
         FunctionModel functionModel = columnEntry.getValue();
-        if (!functionModel.isValid()) {
-          // TODO it's pretty bad manners to log a multi line message. but useful in this case
+        if (functionModel.isValid()) {
+          columnBuilder.put(inputType, functionModel.build(functionBuilder, components));
+        } else {
           s_logger.warn("Can't build invalid function model{}", functionModel.prettyPrint());
         }
-        columnBuilder.put(inputType, functionModel.build(functionBuilder, components));
       }
       String columnName = entry.getKey();
-      builder.put(columnName, columnBuilder.build());
+      portfolioFunctions.put(columnName, columnBuilder.build());
     }
-    return new Graph(builder.build());
+
+    // build the functions for the non-portfolio outputs
+    ImmutableMap.Builder<String, InvokableFunction> nonPortfolioFunctions = ImmutableMap.builder();
+    for (Map.Entry<String, FunctionModel> entry : _nonPortfolioFunctionModels.entrySet()) {
+      String name = entry.getKey();
+      FunctionModel functionModel = entry.getValue();
+      if (functionModel.isValid()) {
+        nonPortfolioFunctions.put(name, functionModel.build(functionBuilder, components));
+      } else {
+        s_logger.warn("Can't build invalid function model{}", functionModel.prettyPrint());
+      }
+    }
+
+    return new Graph(portfolioFunctions.build(), nonPortfolioFunctions.build());
   }
 }

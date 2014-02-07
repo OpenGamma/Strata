@@ -45,6 +45,7 @@ import com.opengamma.sesame.cache.source.CacheAwareSecuritySource;
 import com.opengamma.sesame.config.CompositeFunctionConfig;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.InvokableFunction;
@@ -81,6 +82,7 @@ public class View implements AutoCloseable {
   private final CacheInvalidator _cacheInvalidator;
   private final SourceListener _sourceListener = new SourceListener();
   private final Collection<ChangeManager> _changeManagers;
+  private final List<String> _columnNames;
 
   // TODO this has too many parameters. does that matter? it's only called by the engine
   /* package */ View(ViewDef viewDef,
@@ -106,6 +108,7 @@ public class View implements AutoCloseable {
         decorateSources(ArgumentChecker.notNull(components, "components"), _cacheInvalidator, _sourceListener);
     _components = pair.getFirst();
     _changeManagers = pair.getSecond();
+    _columnNames = columnNames(_viewDef);
   }
 
   /**
@@ -116,14 +119,32 @@ public class View implements AutoCloseable {
   public synchronized Results run(CycleArguments cycleArguments) {
     initializeCycle(cycleArguments);
     List<Task> tasks = Lists.newArrayList();
+    tasks.addAll(portfolioTasks(cycleArguments));
+    tasks.addAll(nonPortfolioTasks(cycleArguments));
+    List<Future<TaskResult>> futures;
+    try {
+      futures = _executor.invokeAll(tasks);
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted", e);
+    }
+    ResultBuilder resultsBuilder = Results.builder(_inputs, _columnNames);
+    for (Future<TaskResult> future : futures) {
+      try {
+        TaskResult result = future.get();
+        result.addToResults(resultsBuilder);
+      } catch (InterruptedException | ExecutionException e) {
+        s_logger.warn("Failed to get result from task", e);
+      }
+    }
+    return resultsBuilder.build();
+  }
+
+  private List<Task> portfolioTasks(CycleArguments cycleArguments) {
+    // create tasks for the portfolio outputs
     int colIndex = 0;
-    List<ViewColumn> columns = _viewDef.getColumns();
-    List<String> columnNames = Lists.newArrayListWithCapacity(columns.size());
-    // TODO need to handle non-portfolio outputs, e.g. yield curves. these have no inputs but can have arguments
-    for (ViewColumn column : columns) {
-      String columnName = column.getName();
-      columnNames.add(columnName);
-      Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(columnName);
+    List<Task> portfolioTasks = Lists.newArrayList();
+    for (ViewColumn column : _viewDef.getColumns()) {
+      Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(column.getName());
       int rowIndex = 0;
       for (Object input : _inputs) {
         InvokableFunction function;
@@ -146,32 +167,42 @@ public class View implements AutoCloseable {
                                                                         _systemDefaultConfig);
         FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
         Tracer tracer;
-        if (cycleArguments.getTraceFunctions().contains(Pairs.of(rowIndex, colIndex))) {
+        if (cycleArguments.isTracingEnabled(rowIndex, colIndex)) {
           tracer = new FullTracer();
         } else {
           tracer = NoOpTracer.INSTANCE;
         }
-        tasks.add(new Task(functionInput, args, rowIndex++, colIndex, function, tracer));
+        portfolioTasks.add(new PortfolioTask(functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
     }
-    List<Future<TaskResult>> futures;
-    try {
-      futures = _executor.invokeAll(tasks);
-    } catch (InterruptedException e) {
-      throw new OpenGammaRuntimeException("Interrupted", e);
-    }
-    ResultBuilder resultsBuilder = Results.builder(_inputs, columnNames);
-    for (Future<TaskResult> future : futures) {
-      try {
-        // TODO this probably won't do as a long term solution, it will block indefinitely if a function blocks
-        TaskResult result = future.get();
-        resultsBuilder.add(result._rowIndex, result._columnIndex, result._result, result._callGraph);
-      } catch (InterruptedException | ExecutionException e) {
-        s_logger.warn("Failed to get result from task", e);
+    return portfolioTasks;
+  }
+
+  // create tasks for the non-portfolio outputs
+  private List<Task> nonPortfolioTasks(CycleArguments cycleArguments) {
+    List<Task> tasks = Lists.newArrayList();
+    for (NonPortfolioOutput output : _viewDef.getNonPortfolioOutputs()) {
+      InvokableFunction function = _graph.getNonPortfolioFunction(output.getName());
+      Tracer tracer;
+      if (cycleArguments.isTracingEnabled(output.getName())) {
+        tracer = new FullTracer();
+      } else {
+        tracer = NoOpTracer.INSTANCE;
       }
+      FunctionConfig functionConfig = output.getOutput().getFunctionConfig();
+      FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
+      tasks.add(new NonPortfolioTask(args, output.getName(), function, tracer));
+    } return tasks;
+  }
+
+  private static List<String> columnNames(ViewDef viewDef) {
+    List<String> columnNames = Lists.newArrayListWithCapacity(viewDef.getColumns().size());
+    for (ViewColumn column : viewDef.getColumns()) {
+      String columnName = column.getName();
+      columnNames.add(columnName);
     }
-    return resultsBuilder.build();
+    return columnNames;
   }
 
   /**
@@ -269,41 +300,25 @@ public class View implements AutoCloseable {
   //   3) new list of inputs
 
   //----------------------------------------------------------
-  private static class TaskResult {
+  private interface TaskResult {
 
-    private final int _rowIndex;
-    private final int _columnIndex;
-    private final Result<?> _result;
-    private final CallGraph _callGraph;
-
-    private TaskResult(int rowIndex, int columnIndex, Result<?> result, CallGraph callGraph) {
-      _rowIndex = rowIndex;
-      _columnIndex = columnIndex;
-      _result = result;
-      _callGraph = callGraph;
-    }
+    void addToResults(ResultBuilder resultBuilder);
   }
 
   //----------------------------------------------------------
-  private static class Task implements Callable<TaskResult> {
+  private static abstract class Task implements Callable<TaskResult> {
 
     private final Object _input;
-    private final int _rowIndex;
-    private final int _columnIndex;
     private final InvokableFunction _invokableFunction;
     private final Tracer _tracer;
     private final FunctionArguments _args;
 
     private Task(Object input,
                  FunctionArguments args,
-                 int rowIndex,
-                 int columnIndex,
                  InvokableFunction invokableFunction,
                  Tracer tracer) {
       _input = input;
       _args = args;
-      _rowIndex = rowIndex;
-      _columnIndex = columnIndex;
       _invokableFunction = invokableFunction;
       _tracer = tracer;
     }
@@ -320,10 +335,65 @@ public class View implements AutoCloseable {
         result = ResultGenerator.failure(FailureStatus.ERROR, e.getMessage());
       }
       CallGraph callGraph = TracingProxy.end();
-      return new TaskResult(_rowIndex, _columnIndex, result, callGraph);
+      return createResult(result, callGraph);
+    }
+
+    protected abstract TaskResult createResult(Result<?> result, CallGraph callGraph);
+  }
+
+  //----------------------------------------------------------
+  private static class PortfolioTask extends Task {
+
+    private final int _rowIndex;
+    private final int _columnIndex;
+
+    private PortfolioTask(Object input,
+                          FunctionArguments args,
+                          int rowIndex,
+                          int columnIndex,
+                          InvokableFunction invokableFunction,
+                          Tracer tracer) {
+      super(input, args, invokableFunction, tracer);
+      _rowIndex = rowIndex;
+      _columnIndex = columnIndex;
+    }
+
+    @Override
+    protected TaskResult createResult(final Result<?> result, final CallGraph callGraph) {
+      return new TaskResult() {
+        @Override
+        public void addToResults(ResultBuilder resultBuilder) {
+          resultBuilder.add(_rowIndex, _columnIndex, result, callGraph);
+        }
+      };
     }
   }
 
+  //----------------------------------------------------------
+  private static class NonPortfolioTask extends Task {
+
+    private final String _outputValueName;
+
+    private NonPortfolioTask(FunctionArguments args,
+                             String outputValueName,
+                             InvokableFunction invokableFunction,
+                             Tracer tracer) {
+      super(null, args, invokableFunction, tracer);
+      _outputValueName = ArgumentChecker.notEmpty(outputValueName, "outputValueName");
+    }
+
+    @Override
+    protected TaskResult createResult(final Result<?> result, final CallGraph callGraph) {
+      return new TaskResult() {
+        @Override
+        public void addToResults(ResultBuilder resultBuilder) {
+          resultBuilder.add(_outputValueName, result, callGraph);
+        }
+      };
+    }
+  }
+
+  //----------------------------------------------------------
   /**
    * Listens to sources and records the IDs of any objects that are updated or removed.
    * This information is used to invalidate cache entries between cycles. Cached values are discarded if they were

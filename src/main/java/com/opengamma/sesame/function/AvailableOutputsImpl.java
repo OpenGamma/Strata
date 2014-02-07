@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
@@ -53,6 +52,8 @@ public class AvailableOutputsImpl implements AvailableOutputs {
    * the target type querying {@link #_outputsByInputType}.
    */
   private final Map<Class<?>, Set<String>> _allOutputsByInputType = Maps.newHashMap();
+
+  private final Map<String, FunctionMetadata> _nonPortfolioFunctions = Maps.newHashMap();
 
   public AvailableOutputsImpl() {
     this(s_defaultInputTypes);
@@ -95,15 +96,6 @@ public class AvailableOutputsImpl implements AvailableOutputs {
     throw new UnsupportedOperationException("getAvailableOutputs not implemented");
   }
 
-  /**
-   * Returns metadata for the function that provides an output for an input type.
-   * An output is provided by a method annotated with {@link Output}.
-   *
-   * @param outputName The output name
-   * @param inputType The type of the input
-   * @return The function that can provide the output
-   * @throws DataNotFoundException If nothing can provide the requested output for the target type
-   */
   @Override
   public synchronized FunctionMetadata getOutputFunction(String outputName, Class<?> inputType) {
     Pair<String, Class<?>> targetKey = Pairs.<String, Class<?>>of(outputName, inputType);
@@ -123,26 +115,30 @@ public class AvailableOutputsImpl implements AvailableOutputs {
   }
 
   @Override
-  public FunctionMetadata getOutputFunction(String outputName) {
-    // TODO implement getOutputFunction()
-    throw new UnsupportedOperationException("getOutputFunction not implemented");
+  public synchronized FunctionMetadata getOutputFunction(String outputName) {
+    return _nonPortfolioFunctions.get(outputName);
   }
 
   @Override
-  public synchronized void register(Class<?>... types) {
-    for (Class<?> type : types) {
-      List<FunctionMetadata> outputs = getOutputFunctions(type);
-      for (FunctionMetadata function : outputs) {
+  public synchronized void register(Class<?>... functionInterfaces) {
+    for (Class<?> functionInterface : functionInterfaces) {
+      List<FunctionMetadata> functions = getOutputFunctions(functionInterface);
+      for (FunctionMetadata function : functions) {
         String outputName = function.getOutputName();
         Set<String> outputNames;
         Class<?> targetType = function.getInputType();
-        if (_outputsByInputType.containsKey(targetType)) {
-          _outputsByInputType.get(targetType).add(outputName);
-        } else {
-          outputNames = Sets.newHashSet(outputName);
-          _outputsByInputType.put(targetType, outputNames);
+
+        if (targetType != null) { // portfolio output
+          if (_outputsByInputType.containsKey(targetType)) {
+            _outputsByInputType.get(targetType).add(outputName);
+          } else {
+            outputNames = Sets.newHashSet(outputName);
+            _outputsByInputType.put(targetType, outputNames);
+          }
+          _functionsForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), function);
+        } else { // non-portfolio output
+          _nonPortfolioFunctions.put(outputName, function);
         }
-        _functionsForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), function);
       }
     }
   }

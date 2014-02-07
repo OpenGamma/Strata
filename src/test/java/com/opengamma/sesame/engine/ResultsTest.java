@@ -7,6 +7,7 @@ package com.opengamma.sesame.engine;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.Test;
@@ -21,7 +22,8 @@ public class ResultsTest {
 
   private static final Results RESULTS = new Results(ImmutableList.of("col1", "col2"),
                                                      ImmutableList.of(row("input1", "item11", "item12"),
-                                                                      row("input2", "item21", "item22")));
+                                                                      row("input2", "item21", "item22")),
+                                                     Collections.<String, ResultItem>emptyMap());
 
   @Test
   public void getByIndex() {

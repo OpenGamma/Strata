@@ -6,7 +6,8 @@
 package com.opengamma.sesame.config;
 
 /**
- *
+ * Configuration for individual functions in the function model.
+ * Provides the implementation types for function interfaces and the arguments for creating function instances.
  */
 public interface FunctionConfig {
 

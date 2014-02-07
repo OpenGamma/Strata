@@ -15,9 +15,10 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * TODO this will probably need to be a joda bean for serialization
  */
 public final class CycleArguments {
 
@@ -29,38 +30,49 @@ public final class CycleArguments {
   private final MarketDataFactory _marketDataFactory;
   private final VersionCorrection _configVersionCorrection;
   // TODO this isn't part of the key used for caching. put in a subclass or something?
-  private final Set<Pair<Integer, Integer>> _traceFunctions;
+  private final Set<Pair<Integer, Integer>> _traceCells;
+  private final Set<String> _traceOutputs;
 
+  // TODO use a Cell class instead of Pair<Integer, Integer>
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
                         MarketDataFactory marketDataFactory) {
-    this(valuationTime, marketDataFactory, configVersionCorrection, Collections.<Pair<Integer, Integer>>emptySet());
+    this(valuationTime,
+         marketDataFactory,
+         configVersionCorrection,
+         Collections.<Pair<Integer, Integer>>emptySet(),
+         Collections.<String>emptySet());
   }
 
   public CycleArguments(ZonedDateTime valuationTime,
                         MarketDataFactory marketDataFactory,
                         VersionCorrection configVersionCorrection,
-                        Set<Pair<Integer, Integer>> traceFunctions) {
+                        Set<Pair<Integer, Integer>> traceCells,
+                        Set<String> traceOutputs) {
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataSpecification");
-    _traceFunctions = ImmutableSet.copyOf(ArgumentChecker.notNull(traceFunctions, "traceFunctions"));
+    _traceCells = ImmutableSet.copyOf(ArgumentChecker.notNull(traceCells, "traceCells"));
+    _traceOutputs = ImmutableSet.copyOf(ArgumentChecker.notNull(traceOutputs, "traceOutputs"));
   }
 
-  public ZonedDateTime getValuationTime() {
+  /* package */ ZonedDateTime getValuationTime() {
     return _valuationTime;
   }
 
-  public MarketDataFactory getMarketDataFactory() {
+  /* package */ MarketDataFactory getMarketDataFactory() {
     return _marketDataFactory;
   }
 
-  // TODO this is an awful name
-  public Set<Pair<Integer, Integer>> getTraceFunctions() {
-    return _traceFunctions;
+  /* package */ boolean isTracingEnabled(String output) {
+    return _traceOutputs.contains(output);
   }
 
-  public VersionCorrection getConfigVersionCorrection() {
+  /* package */ boolean isTracingEnabled(int rowIndex, int colIndex) {
+    return _traceCells.contains(Pairs.of(rowIndex, colIndex));
+  }
+
+  /* package */ VersionCorrection getConfigVersionCorrection() {
     return _configVersionCorrection;
   }
 }

@@ -9,27 +9,34 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import com.opengamma.sesame.trace.CallGraph;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
-*
-*/ /* package */ final class ResultBuilder {
+ * Mutable builder for the immutable {@link Results} class.
+ */
+/* package */ final class ResultBuilder {
 
   private final Table<Integer, Integer, ResultItem> _table = TreeBasedTable.create();
   private final List<?> _inputs;
   private final List<String> _columnNames;
-  // TODO list of inputs
+  private final Map<String, ResultItem> _nonPortfolioResults = Maps.newHashMap();
 
-  public ResultBuilder(List<?> inputs, List<String> columnNames) {
+  /* package */ ResultBuilder(List<?> inputs, List<String> columnNames) {
     _inputs = inputs;
     _columnNames = columnNames;
   }
 
   /* package */ void add(int rowIndex, int columnIndex, Result<?> result, CallGraph callGraph) {
     _table.put(rowIndex, columnIndex, new ResultItem(result, callGraph));
+  }
+
+  /* package */ void add(String outputName, Result<?> result, CallGraph callGraph) {
+    _nonPortfolioResults.put(ArgumentChecker.notEmpty(outputName, "outputName"), new ResultItem(result, callGraph));
   }
 
   /* package */ Results build() {
@@ -39,6 +46,6 @@ import com.opengamma.util.result.Result;
     for (Map<Integer, ResultItem> row : rowMap.values()) {
       rows.add(new ResultRow(_inputs.get(index++), Lists.newArrayList(row.values())));
     }
-    return new Results(_columnNames, rows);
+    return new Results(_columnNames, rows, _nonPortfolioResults);
   }
 }

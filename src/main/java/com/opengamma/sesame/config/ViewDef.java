@@ -5,26 +5,44 @@
  */
 package com.opengamma.sesame.config;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Defines what columns and outputs are required in a view.
+ * TODO this will need to be a Joda bean for serialization
  */
 public final class ViewDef {
-
-  // TODO non-column outputs
 
   private final String _name;
   private final FunctionConfig _defaultConfig;
   private final List<ViewColumn> _columns;
+  private final List<NonPortfolioOutput> _nonPortfolioOutputs;
 
-  /* package */ ViewDef(String name, FunctionConfig defaultConfig, List<ViewColumn> columns) {
+  /* package */ ViewDef(String name,
+                        FunctionConfig defaultConfig,
+                        List<ViewColumn> columns,
+                        List<NonPortfolioOutput> nonPortfolioOutputs) {
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _name = ArgumentChecker.notEmpty(name, "name");
     _columns = ImmutableList.copyOf(ArgumentChecker.notNull(columns, "columns"));
+    _nonPortfolioOutputs = ImmutableList.copyOf(ArgumentChecker.notNull(nonPortfolioOutputs, "nonPortfolioOutputs"));
+
+    Set<String> nonPortfolioOutputNames = Sets.newHashSetWithExpectedSize(nonPortfolioOutputs.size());
+    for (NonPortfolioOutput output : nonPortfolioOutputs) {
+      if (!nonPortfolioOutputNames.add(output.getName())) {
+        throw new IllegalArgumentException("Non-portfolio output names must be unique, '" + output.getName() + "' is repeated");
+      }
+    }
+  }
+
+  /* package */ ViewDef(String name, FunctionConfig defaultConfig, List<ViewColumn> columns) {
+    this(name, defaultConfig, columns, Collections.<NonPortfolioOutput>emptyList());
   }
 
   public List<ViewColumn> getColumns() {
@@ -37,5 +55,9 @@ public final class ViewDef {
 
   public String getName() {
     return _name;
+  }
+
+  public List<NonPortfolioOutput> getNonPortfolioOutputs() {
+    return _nonPortfolioOutputs;
   }
 }

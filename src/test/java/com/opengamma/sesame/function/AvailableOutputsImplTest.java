@@ -20,6 +20,8 @@ public class AvailableOutputsImplTest {
 
   private static final String O1 = "O1";
   private static final String O2 = "O2";
+  private static final String O3 = "O3";
+  private static final String O4 = "O4";
   private static final ImmutableSet<Class<?>> s_inputTypes =
       ImmutableSet.<Class<?>>of(Target1.class, Target2.class, Target3.class);
 
@@ -36,12 +38,14 @@ public class AvailableOutputsImplTest {
   @Test
   public void getFunctionType() {
     AvailableOutputs outputs = new AvailableOutputsImpl(s_inputTypes);
-    outputs.register(F1.class, F2.class);
+    outputs.register(F1.class, F2.class, F3.class, F4.class);
     assertEquals(F1.class, outputs.getOutputFunction(O1, Target1.class).getDeclaringType());
     assertEquals(F1.class, outputs.getOutputFunction(O1, Target2.class).getDeclaringType());
     assertEquals(F1.class, outputs.getOutputFunction(O1, Target3.class).getDeclaringType());
     assertEquals(F2.class, outputs.getOutputFunction(O2, Target2.class).getDeclaringType());
     assertEquals(F2.class, outputs.getOutputFunction(O2, Target3.class).getDeclaringType());
+    assertEquals(F3.class, outputs.getOutputFunction(O3).getDeclaringType());
+    assertEquals(F4.class, outputs.getOutputFunction(O4).getDeclaringType());
   }
 
   class Target1 { }
@@ -58,5 +62,17 @@ public class AvailableOutputsImplTest {
 
     @Output(O2)
     Object execute(Target2 target);
+  }
+
+  interface F3 {
+
+    @Output(O3)
+    Object execute();
+  }
+
+  interface F4 {
+
+    @Output(O4)
+    Object execute(String notTheTarget);
   }
 }

@@ -42,7 +42,7 @@ public final class ConfigBuilder {
                                           function(DefaultIdSchemeFn.class,
                                                    argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
                 column("Bloomberg Ticker",
-                       columnOutput(OutputNames.DESCRIPTION),
+                       defaultConfig(OutputNames.DESCRIPTION),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class))),
@@ -50,7 +50,7 @@ public final class ConfigBuilder {
                               config(
                                   implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
                 column("ACTIV Symbol",
-                       columnOutput(OutputNames.DESCRIPTION),
+                       defaultConfig(OutputNames.DESCRIPTION),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
@@ -66,6 +66,11 @@ public final class ConfigBuilder {
     System.out.println(viewDef);
   }
 
+  // TODO alternative viewDef overloads
+  //   * taking portfolio and non-portfolio outputs - probably need a wrapper class for each set of configs
+  //   * taking only non-portfolio outputs
+  // TODO NonPortfolioOutput class, name and ViewOutput fields
+
   public static ViewDef viewDef(String name, ViewColumn... columns) {
     return new ViewDef(name, FunctionConfig.EMPTY, Arrays.asList(columns));
   }
@@ -74,8 +79,12 @@ public final class ConfigBuilder {
     return new ViewDef(name, defaultConfig, Arrays.asList(columns));
   }
 
-  private static Map<Class<?>, ColumnOutput> createTargetOutputs(TargetOutput... outputs) {
-    Map<Class<?>, ColumnOutput> targetOutputs = Maps.newHashMap();
+  public static ViewDef viewDef(String name, NonPortfolioOutput... nonPortfolioOutputs) {
+    return new ViewDef(name, FunctionConfig.EMPTY, Collections.<ViewColumn>emptyList(), Arrays.asList(nonPortfolioOutputs));
+  }
+
+  private static Map<Class<?>, ViewOutput> createTargetOutputs(TargetOutput... outputs) {
+    Map<Class<?>, ViewOutput> targetOutputs = Maps.newHashMap();
     for (TargetOutput output : outputs) {
       targetOutputs.put(output._inputType, output._output);
     }
@@ -86,46 +95,58 @@ public final class ConfigBuilder {
     return new ViewColumn(name, null, createTargetOutputs(outputs));
   }
 
-  public static ViewColumn column(String name, ColumnOutput defaultOutput) {
-    return new ViewColumn(name, defaultOutput, Collections.<Class<?>, ColumnOutput>emptyMap());
+  public static ViewColumn column(String name, ViewOutput defaultOutput) {
+    return new ViewColumn(name, defaultOutput, Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
   public static ViewColumn column(String name) {
-    return new ViewColumn(name, new ColumnOutput(name), Collections.<Class<?>, ColumnOutput>emptyMap());
+    return new ViewColumn(name, new ViewOutput(name), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  public static ViewColumn column(ColumnOutput defaultOutput) {
-    return new ViewColumn(defaultOutput.getOutputName(), defaultOutput, Collections.<Class<?>, ColumnOutput>emptyMap());
+  public static ViewColumn column(ViewOutput defaultOutput) {
+    return new ViewColumn(defaultOutput.getOutputName(), defaultOutput, Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  public static ViewColumn column(String name, ColumnOutput defaultOutput, TargetOutput... targetOutputs) {
+  public static ViewColumn column(String name, ViewOutput defaultOutput, TargetOutput... targetOutputs) {
     return new ViewColumn(name, defaultOutput, createTargetOutputs(targetOutputs));
   }
 
   // for the default column output
-  public static ColumnOutput columnOutput(String outputName) {
-    return new ColumnOutput(outputName);
+  public static ViewOutput defaultConfig(String outputName) {
+    return new ViewOutput(outputName);
   }
 
   // TODO this is really badly named
   // for the default column output
-  public static ColumnOutput defaultConfig(String outputName, FunctionConfig config) {
-    return new ColumnOutput(outputName, config);
+  public static ViewOutput defaultConfig(String outputName, FunctionConfig config) {
+    return new ViewOutput(outputName, config);
   }
 
   public static TargetOutput output(String outputName, Class<?> targetType) {
-    return new TargetOutput(new ColumnOutput(outputName), targetType);
+    return new TargetOutput(new ViewOutput(outputName), targetType);
   }
 
   public static TargetOutput output(String outputName, Class<?> targetType, FunctionConfig config) {
-    return new TargetOutput(new ColumnOutput(outputName, config), targetType);
+    return new TargetOutput(new ViewOutput(outputName, config), targetType);
+  }
+
+  public static ViewOutput output(String outputName, FunctionConfig config) {
+    return new ViewOutput(outputName, config);
+  }
+
+  public static ViewOutput output(String outputName) {
+    return new ViewOutput(outputName, FunctionConfig.EMPTY);
+  }
+
+  public static NonPortfolioOutput nonPortfolioOutput(String name, ViewOutput output) {
+    return new NonPortfolioOutput(name, output);
   }
 
   // TODO this is a bad name
   // TODO this needs to inherit the output name from the column. not sure that's going to be easy
   // maybe column output needs to allow a null output name
   public static TargetOutput output(Class<?> targetType, FunctionConfig config) {
-    return new TargetOutput(new ColumnOutput(null, config), targetType);
+    return new TargetOutput(new ViewOutput(null, config), targetType);
   }
 
   public static FunctionConfig config(Implementations implementations, Arguments arguments) {
@@ -167,7 +188,6 @@ public final class ConfigBuilder {
     return new Arg(name, value);
   }
 
-  // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
   public static class Implementations {
 
     private final Map<Class<?>, Class<?>> _implementations = Maps.newHashMap();
@@ -221,10 +241,10 @@ public final class ConfigBuilder {
   }
 
   public static class TargetOutput {
-    private final ColumnOutput _output;
+    private final ViewOutput _output;
     private final Class<?> _inputType;
 
-    public TargetOutput(ColumnOutput output, Class<?> inputType) {
+    public TargetOutput(ViewOutput output, Class<?> inputType) {
       _output = output;
       _inputType = inputType;
     }

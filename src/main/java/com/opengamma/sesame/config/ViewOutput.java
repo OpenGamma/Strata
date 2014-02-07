@@ -8,19 +8,20 @@ package com.opengamma.sesame.config;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO is there a better name for this?
+ * Defines an output value in a view.
+ * Contains the output name and the
  */
-public final class ColumnOutput {
+public final class ViewOutput {
 
   private final String _outputName;
 
   private final FunctionConfig _functionConfig;
 
-  public ColumnOutput(String outputName) {
+  public ViewOutput(String outputName) {
     this(outputName, FunctionConfig.EMPTY);
   }
 
-  public ColumnOutput(String outputName, FunctionConfig functionConfig) {
+  public ViewOutput(String outputName, FunctionConfig functionConfig) {
     _functionConfig = ArgumentChecker.notNull(functionConfig, "functionConfig");
     _outputName = outputName;
   }
@@ -43,7 +44,7 @@ public final class ColumnOutput {
 
   @Override
   public String toString() {
-    return "ColumnOutput [" +
+    return "ViewOutput [" +
         "_outputName='" + _outputName + "'" +
         ", _functionConfig=" + _functionConfig +
         "]";
