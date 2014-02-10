@@ -14,5 +14,12 @@ import com.opengamma.util.result.Result;
 public interface CurveDefinitionFn {
 
   // TODO @Output
+  /**
+   * Gets the curve definition by name.
+   * 
+   * @param curveName  the curve name, not null
+   * @return the curve definition, a failure result if not found
+   */
   Result<CurveDefinition> getCurveDefinition(String curveName);
+
 }

@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * Responsible for taking the set of available exposure functions and determining the
  * set of curve configurations that are applicable for a particular security.
  *
- * Note that this functionality should really be provided byt he ExposureFunctions config
+ * Note that this functionality should really be provided by the ExposureFunctions config
  * object i.e. obeying tell, don't ask.
  */
 public class MarketExposureSelector {
@@ -95,4 +95,5 @@ public class MarketExposureSelector {
   private CurveConstructionConfiguration resolve(String name) {
     return Iterables.getOnlyElement(_configSource.get(CurveConstructionConfiguration.class, name, VersionCorrection.LATEST)).getValue();
   }
+
 }

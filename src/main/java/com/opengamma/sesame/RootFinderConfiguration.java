@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame;
 
+/**
+ * Configuartion for a root finder.
+ */
 public class RootFinderConfiguration {
 
   private final double _rootFinderAbsoluteTolerance;
@@ -19,6 +22,7 @@ public class RootFinderConfiguration {
     _rootFinderMaxIterations = rootFinderMaxIterations;
   }
 
+  //-------------------------------------------------------------------------
   public double getAbsoluteTolerance() {
     return _rootFinderAbsoluteTolerance;
   }
@@ -30,4 +34,5 @@ public class RootFinderConfiguration {
   public int getMaxIterations() {
     return _rootFinderMaxIterations;
   }
+
 }

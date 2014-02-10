@@ -10,9 +10,16 @@ import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.result.Result;
 
 /**
- * Gets the market data required for a curve specification.
+ * Function capable of getting the market data required for a curve specification.
  */
 public interface CurveSpecificationMarketDataFn {
 
+  /**
+   * Requests the data for a curve specification.
+   * 
+   * @param curveSpecification  the curve specification, not null
+   * @return the market data values, a failure result if not found
+   */
   Result<MarketDataValues> requestData(CurveSpecification curveSpecification);
+
 }

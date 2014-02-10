@@ -14,10 +14,17 @@ import java.util.EnumSet;
  */
 public enum EngineService {
 
+  /**
+   * The caching service.
+   */
   CACHING,
-
+  /**
+   * The tracing service.
+   */
   TRACING,
-
+  /**
+   * The timing service.
+   */
   TIMING;
 
   /**
@@ -30,4 +37,5 @@ public enum EngineService {
    * Useful for debugging as there are no proxies between functions and every method call is direct.
    */
   public static final EnumSet<EngineService> NONE = EnumSet.noneOf(EngineService.class);
+
 }

@@ -13,11 +13,22 @@ import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
+/**
+ * Function implementation that provides a market exposure selector.
+ */
 public class ConfigDbMarketExposureSelectorFn implements MarketExposureSelectorFn {
 
-  /** The exposure config, not null */
+  /**
+   * The exposure config.
+   */
   private final ExposureFunctions _exposures;
+  /**
+   * The underlying config source.
+   */
   private final ConfigSource _configSource;
+  /**
+   * The underlying security source.
+   */
   private final SecuritySource _securitySource;
 
   public ConfigDbMarketExposureSelectorFn(ExposureFunctions exposureConfig,
@@ -28,8 +39,10 @@ public class ConfigDbMarketExposureSelectorFn implements MarketExposureSelectorF
     _configSource = ArgumentChecker.notNull(configSource, "configSource");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Result<MarketExposureSelector> getMarketExposureSelector() {
     return success(new MarketExposureSelector(_exposures, _securitySource, _configSource));
   }
+
 }

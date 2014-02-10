@@ -12,8 +12,14 @@ import com.opengamma.util.ArgumentChecker;
 
 // TODO this will need to support thread local binding for full reval
 // TODO cache invalidation. decorate or put it in here?
+/**
+ * Function implementation that provides the injected valuation time.
+ */
 public class DefaultValuationTimeFn implements ValuationTimeFn {
 
+  /**
+   * The valuation time.
+   */
   private ZonedDateTime _valuationTime;
 
   public DefaultValuationTimeFn() {
@@ -27,6 +33,7 @@ public class DefaultValuationTimeFn implements ValuationTimeFn {
     _valuationTime = valuationTime;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate getDate() {
     return _valuationTime.toLocalDate();
@@ -36,4 +43,5 @@ public class DefaultValuationTimeFn implements ValuationTimeFn {
   public ZonedDateTime getTime() {
     return _valuationTime;
   }
+
 }

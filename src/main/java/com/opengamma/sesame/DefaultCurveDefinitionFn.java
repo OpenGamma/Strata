@@ -17,17 +17,22 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
- * Returns a curve definition from the configured source. If not available, the
- * return Result will indicate the reason why.
+ * Function implementation that returns a curve definition from the configured source.
+ * <p>
+ * If not available, the return Result will indicate the reason why.
  */
 public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
 
+  /**
+   * The underlying source.
+   */
   private final CurveDefinitionSource _curveDefinitionSource;
 
   public DefaultCurveDefinitionFn(ConfigSource configSource) {
     _curveDefinitionSource = new ConfigDBCurveDefinitionSource(ArgumentChecker.notNull(configSource, "configSource"));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Result<CurveDefinition> getCurveDefinition(String curveName) {
 
@@ -38,4 +43,5 @@ public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
       return failure(FailureStatus.MISSING_DATA, "Could not get curve definition called {}", curveName);
     }
   }
+
 }

@@ -19,6 +19,7 @@ public final class TimeSeriesReturnConverterFactory {
   private TimeSeriesReturnConverterFactory() {
   }
 
+  //-------------------------------------------------------------------------
   public static TimeSeriesReturnConverter absolute() {
     return new DifferenceOperatorReturnConverter(new TimeSeriesDifferenceOperator());
   }
@@ -30,4 +31,5 @@ public final class TimeSeriesReturnConverterFactory {
   public static TimeSeriesReturnConverter volatilityWeighted(double lambda) {
     return new VolatilityWeightedReturnConverter(lambda);
   }
+
 }

@@ -12,8 +12,18 @@ import com.opengamma.util.result.Result;
 
 // todo the Result<> bit is probably always there, would be nice if we could say OutputFunction<CashFlowSecurity, Double>
 
+/**
+ * Function capable of providing present value for equities.
+ */
 public interface EquityPresentValueFn {
 
+  /**
+   * Calculates present value for equities.
+   * 
+   * @param security  the equity, not null
+   * @return the present value, a failure result if unable to calculate
+   */
   @Output(OutputNames.PRESENT_VALUE)
   Result<Double> presentValue(EquitySecurity security);
+
 }

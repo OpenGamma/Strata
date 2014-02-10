@@ -10,6 +10,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.result.Result;
 
+/**
+ * Function capable of providing an ordered currency pair.
+ */
 public interface CurrencyPairsFn {
 
   /**
@@ -19,7 +22,7 @@ public interface CurrencyPairsFn {
    * The returned pair will be either 'currency1-currency2' or 'currency2-currency1'.
    *
    * @param currency1  the first currency, not null
-   * @param currency2 the second currency, not null
+   * @param currency2  the second currency, not null
    * @return the market convention currency pair for the two currencies, a failure result if not found
    */
   Result<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2);
@@ -31,8 +34,9 @@ public interface CurrencyPairsFn {
    * Note that if a matching pair is available, then it will be in a specific order
    * as opposed to the pair passed.
    *
-   * @param pair the currencies to be checked, not null
+   * @param pair  the currencies to be checked, not null
    * @return the market convention currency pair for the two currencies, a failure result if not found
    */
   Result<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair);
+
 }

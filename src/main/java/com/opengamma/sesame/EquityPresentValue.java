@@ -19,14 +19,21 @@ import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
+/**
+ * Function implementation that provides present value for equities.
+ */
 public class EquityPresentValue implements EquityPresentValueFn {
 
+  /**
+   * The market data function.
+   */
   private final MarketDataFn _marketDataFn;
 
   public EquityPresentValue(MarketDataFn marketDataFn) {
     _marketDataFn = marketDataFn;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Result<Double> presentValue(EquitySecurity security) {
 
@@ -45,4 +52,5 @@ public class EquityPresentValue implements EquityPresentValueFn {
       return propagateFailure(result);
     }
   }
+
 }

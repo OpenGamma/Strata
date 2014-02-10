@@ -11,11 +11,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Annotation allowing a method to indicate a desire to be cached.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Cacheable {
 
+  /**
+   * The lifetime of the cache.
+   */
   CacheLifetime value() default CacheLifetime.INSTANT;
+
 }

@@ -31,4 +31,5 @@ public class VolatilityWeightedReturnConverter implements TimeSeriesReturnConver
         (LocalDateDoubleTimeSeries) _weightedVolatilityOperator.evaluate(spotSeries);
     return (LocalDateDoubleTimeSeries) RELATIVE_WEIGHTED_DIFFERENCE.evaluate(spotSeries, weightedVolSeries);
   }
+
 }

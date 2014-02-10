@@ -23,20 +23,31 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 
+/**
+ * Function implementation that provides an FX return series for currency pairs.
+ */
 public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
 
   /** Removes weekends */
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
-
   /** A weekend calendar */
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
 
+  /**
+   * The market data function.
+   */
   private final MarketDataFn _marketDataFn;
-
+  /**
+   * The time-series converter.
+   */
   private final TimeSeriesReturnConverter _timeSeriesConverter;
-
+  /**
+   * The time-series sampling function.
+   */
   private final TimeSeriesSamplingFunction _timeSeriesSamplingFunction;
-
+  /**
+   * The schedule.
+   */
   private final Schedule _scheduleCalculator;
 
   public DefaultFXReturnSeriesFn(MarketDataFn marketDataFn,
@@ -49,6 +60,7 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
     _scheduleCalculator = schedule;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Result<LocalDateDoubleTimeSeries> calculateReturnSeries(Period seriesPeriod, CurrencyPair currencyPair) {
 
@@ -78,4 +90,5 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
   private Result<LocalDateDoubleTimeSeries> propagateFailure(Result<MarketDataSeries> result) {
     return ResultGenerator.propagateFailure(result);
   }
+
 }

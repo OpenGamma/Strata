@@ -19,7 +19,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
  * Implementations of this interface will collect the market data requests
  * as they are being made which can be queried once requests have been completed.
  * Additionally, the currently available market data can be replaced with new data.
- *
+ * <p>
  * The intention is that an empty provider function is used on the first engine
  * cycle. This will get populated with the market data requirements for the
  * calculations being used as client functions call the {@link #requestData(MarketDataRequirement)}
@@ -44,9 +44,10 @@ public interface ResettableMarketDataFn extends MarketDataFn {
    * Reset the data about which requests have been made and the market availability data. The latter
    * will be replaced by the data passed in.
    *
-   * @param valuationTime
-   * @param replacementData the new map of availability data
+   * @param valuationTime  the valuation time, not null
+   * @param replacementData  the new map of availability data
    */
   void resetMarketData(ZonedDateTime valuationTime,
                        Map<MarketDataRequirement, MarketDataItem> replacementData);
+
 }

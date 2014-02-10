@@ -93,6 +93,9 @@ import com.opengamma.util.tuple.Triple;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
+/**
+ * Function implementation that provides a discounting multi-curve bundle.
+ */
 public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticurveBundleFn {
 
   private final CurveDefinitionFn _curveDefinitionProvider;
@@ -141,6 +144,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     _impliedCurveNames = impliedCurveNames;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
       CurveConstructionConfiguration curveConfig) {

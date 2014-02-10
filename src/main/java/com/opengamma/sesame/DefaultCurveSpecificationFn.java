@@ -17,20 +17,26 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.util.result.Result;
 
 /**
- * Provides a curve specification.
+ * Function implementation that provides a curve specification.
  */
 public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
 
+  /**
+   * The curve specification builder.
+   */
   private final ConfigDBCurveSpecificationBuilder _curveSpecificationBuilder;
+  /**
+   * The valuation time function.
+   */
   private final ValuationTimeFn _valuationTimeFn;
 
   public DefaultCurveSpecificationFn(ConfigSource configSource,
                                      ValuationTimeFn valuationTimeFn) {
-
     _valuationTimeFn = valuationTimeFn;
     _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Result<CurveSpecification> getCurveSpecification(CurveDefinition curveDefinition) {
     return buildSpecification(curveDefinition, _valuationTimeFn.getTime());
@@ -48,4 +54,5 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
         LocalDate.now(), // Want the current curves (is that what this represents)
         curveDefinition));
   }
+
 }

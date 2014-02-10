@@ -37,6 +37,9 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
+/**
+ * Function implementation that provides a historical time-series bundle.
+ */
 public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalTimeSeriesFn.class);
@@ -62,6 +65,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     _marketDataProvider = marketDataProvider;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair) {
     MarketDataRequirement requirement = MarketDataRequirementFactory.of(currencyPair);
@@ -154,4 +158,5 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     }
     return success(bundle);
   }
+
 }

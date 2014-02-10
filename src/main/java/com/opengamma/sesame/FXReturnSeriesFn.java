@@ -12,20 +12,25 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.Result;
 
 /**
- * Provides FX return series for currency pairs.
+ * Function capable of providing an FX return series for currency pairs.
  */
 public interface FXReturnSeriesFn {
 
   /**
    * Get the return series for the supplied currency pair.
    *
-   *
-   *
-   * @param seriesPeriod
-   * @param currencyPair the pair to get the return series for, not null
-   * @return the return series for the currency pair if available, not null
+   * @param seriesPeriod  the period of the series, not null
+   * @param currencyPair  the pair to get the return series for, not null
+   * @return the return series for the currency pair, a failure result if not found
    */
   Result<LocalDateDoubleTimeSeries> calculateReturnSeries(Period seriesPeriod, CurrencyPair currencyPair);
 
+  /**
+   * Calculates the return series based on another time-series.
+   * 
+   * @param timeSeries  the input time-series, not null
+   * @return the return series, a failure result if not found
+   */
   LocalDateDoubleTimeSeries calculateReturnSeries(LocalDateDoubleTimeSeries timeSeries);
+
 }

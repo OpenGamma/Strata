@@ -41,17 +41,29 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.SuccessStatus;
 
 /**
+ * Function implementation that provides a FX matrix.
  */
 public class DefaultFXMatrixFn implements FXMatrixFn {
 
+  /**
+   * The convention source.
+   */
   private final ConventionSource _conventionSource;
-
+  /**
+   * The currency pairs function.
+   */
   private final CurrencyPairsFn _currencyPairsFn;
-
+  /**
+   * The market data function.
+   */
   private final MarketDataFn _marketDataFn;
-
+  /**
+   * The valuation time function.
+   */
   private final ValuationTimeFn _valuationTimeFn;
-
+  /**
+   * The config source.
+   */
   private final ConfigSource _configSource;
 
   public DefaultFXMatrixFn(ConfigSource configSource,
@@ -66,41 +78,42 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
     _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
   }
 
+  //-------------------------------------------------------------------------
   private Set<Currency> extractCurrencies(CurveConstructionConfiguration configuration,
                                           CurveNodeCurrencyVisitor curveNodeCurrencyVisitor) {
 
-      final Set<Currency> currencies = new TreeSet<>();
+    final Set<Currency> currencies = new TreeSet<>();
 
-      for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
+    for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
 
-        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+      for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
 
-          final String curveName = entry.getKey();
-          final AbstractCurveDefinition curveDefinition = findCurveDefinition(curveName);
+        final String curveName = entry.getKey();
+        final AbstractCurveDefinition curveDefinition = findCurveDefinition(curveName);
 
-          if (curveDefinition == null) {
-            throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
+        if (curveDefinition == null) {
+          throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
+        }
+        if (curveDefinition instanceof CurveDefinition) {
+          for (final CurveNode node : ((CurveDefinition) curveDefinition).getNodes()) {
+            currencies.addAll(node.accept(curveNodeCurrencyVisitor));
           }
-          if (curveDefinition instanceof CurveDefinition) {
-            for (final CurveNode node : ((CurveDefinition) curveDefinition).getNodes()) {
-              currencies.addAll(node.accept(curveNodeCurrencyVisitor));
-            }
-          } else {
-            return Collections.emptySet();
-          }
+        } else {
+          return Collections.emptySet();
         }
       }
-      final List<String> exogenousConfigurations = configuration.getExogenousConfigurations();
+    }
+    final List<String> exogenousConfigurations = configuration.getExogenousConfigurations();
 
-      if (exogenousConfigurations != null) {
-        for (final String name : exogenousConfigurations) {
+    if (exogenousConfigurations != null) {
+      for (final String name : exogenousConfigurations) {
 
-          final CurveConstructionConfiguration exogenousConfiguration =
-              _configSource.getLatestByName(CurveConstructionConfiguration.class, name);
-          currencies.addAll(extractCurrencies(exogenousConfiguration, curveNodeCurrencyVisitor));
-        }
+        final CurveConstructionConfiguration exogenousConfiguration =
+            _configSource.getLatestByName(CurveConstructionConfiguration.class, name);
+        currencies.addAll(extractCurrencies(exogenousConfiguration, curveNodeCurrencyVisitor));
       }
-      return currencies;
+    }
+    return currencies;
   }
 
   private AbstractCurveDefinition findCurveDefinition(String curveName) {
@@ -159,4 +172,5 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
     }
     return success(matrix);
   }
+
 }

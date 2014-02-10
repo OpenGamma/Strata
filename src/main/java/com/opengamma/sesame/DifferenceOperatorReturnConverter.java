@@ -11,8 +11,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Converts a spot series to a return series based on the supplied
- * difference operator.
+ * Converts a spot series to a return series based on the supplied difference operator.
  */
 public class DifferenceOperatorReturnConverter implements TimeSeriesReturnConverter {
 
@@ -34,4 +33,5 @@ public class DifferenceOperatorReturnConverter implements TimeSeriesReturnConver
   public LocalDateDoubleTimeSeries convert(LocalDateDoubleTimeSeries spotSeries) {
     return (LocalDateDoubleTimeSeries) _differenceOperator.evaluate(spotSeries);
   }
+
 }

@@ -25,14 +25,21 @@ import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.result.Result;
 
+/**
+ * Function implementation that provides market data for a curve specification.
+ */
 public class DefaultCurveSpecificationMarketDataFn implements CurveSpecificationMarketDataFn {
 
+  /**
+   * The market data function.
+   */
   private final MarketDataFn _marketDataFn;
 
   public DefaultCurveSpecificationMarketDataFn(MarketDataFn marketDataFn) {
     _marketDataFn = marketDataFn;
   }
 
+  //-------------------------------------------------------------------------
   // TODO we're looping over the set of nodes twice, do it in one go? not sure that's possible
   @Override
   public Result<MarketDataValues> requestData(CurveSpecification curveSpecification) {
@@ -67,4 +74,5 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
     }
     return success(new MarketDataValues(items, Collections.<MarketDataRequirement>emptySet()));
   }
+
 }

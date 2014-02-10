@@ -19,8 +19,14 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.result.Result;
 
+/**
+ * Function implementation returning ordered currency pairs.
+ */
 public class DefaultCurrencyPairsFn implements CurrencyPairsFn {
 
+  /**
+   * The map of unordered to ordered currency pairs/
+   */
   private final Map<UnorderedCurrencyPair, CurrencyPair> _currencyPairs;
 
   public DefaultCurrencyPairsFn(Set<CurrencyPair> currencyPairs) {
@@ -32,6 +38,7 @@ public class DefaultCurrencyPairsFn implements CurrencyPairsFn {
     _currencyPairs = builder.build();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Result<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
 
@@ -49,4 +56,5 @@ public class DefaultCurrencyPairsFn implements CurrencyPairsFn {
       return failure(MISSING_DATA, "No currency pair matching {} was found", pair);
     }
   }
+
 }

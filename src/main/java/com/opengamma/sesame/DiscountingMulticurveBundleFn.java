@@ -22,6 +22,9 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
+/**
+ * Function capable of providing a discounting multi-curve bundle.
+ */
 public interface DiscountingMulticurveBundleFn {
 
   @Cacheable(CacheLifetime.NEXT_FUTURE_ROLL)
@@ -32,4 +35,5 @@ public interface DiscountingMulticurveBundleFn {
   @Cacheable(CacheLifetime.FOREVER)
   Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
       CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime);
+
 }

@@ -17,13 +17,27 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
 /**
- * Provides an FX Matrix.
+ * Function capable of providing an FX Matrix.
  */
 public interface FXMatrixFn {
 
+  /**
+   * Finds an FX matrix for a set of currencies.
+   * 
+   * @param currencies  the currencies, not null
+   * @return the FX matrix, a failure result if not found
+   */
   @Cacheable(CacheLifetime.FOREVER)
   Result<FXMatrix> getFXMatrix(Set<Currency> currencies);
 
+  /**
+   * Finds an FX matrix for a set of currencies.
+   * 
+   * @param configuration  the curve construction configuration, not null
+   * @param valuationTime  the valuation time to use, not null
+   * @return the FX matrix, a failure result if not found
+   */
   @Cacheable(CacheLifetime.FOREVER)
   Result<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration, ZonedDateTime valuationTime);
+
 }
