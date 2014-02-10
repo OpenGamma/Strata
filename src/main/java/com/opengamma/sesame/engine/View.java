@@ -306,7 +306,7 @@ public class View implements AutoCloseable {
   }
 
   //----------------------------------------------------------
-  private static abstract class Task implements Callable<TaskResult> {
+  private abstract static class Task implements Callable<TaskResult> {
 
     private final Object _input;
     private final InvokableFunction _invokableFunction;
