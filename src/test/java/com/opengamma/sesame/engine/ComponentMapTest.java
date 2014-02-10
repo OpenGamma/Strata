@@ -14,8 +14,8 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -37,7 +37,7 @@ public class ComponentMapTest {
     assertNotNull(componentMap.getComponent(ConventionSource.class));
     assertNotNull(componentMap.getComponent(ExchangeSource.class));
     assertNotNull(componentMap.getComponent(HolidaySource.class));
-    assertNotNull(componentMap.getComponent(OrganizationSource.class));
+    assertNotNull(componentMap.getComponent(LegalEntitySource.class));
     assertNotNull(componentMap.getComponent(PositionSource.class));
     assertNotNull(componentMap.getComponent(RegionSource.class));
     assertNotNull(componentMap.getComponent(SecuritySource.class));

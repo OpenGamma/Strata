@@ -19,8 +19,8 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -61,7 +61,7 @@ public final class ComponentMap {
     builder.put(ConventionSource.class, toolContext.getConventionSource());
     builder.put(ExchangeSource.class, toolContext.getExchangeSource());
     builder.put(HolidaySource.class, toolContext.getHolidaySource());
-    builder.put(OrganizationSource.class, toolContext.getOrganizationSource());
+    builder.put(LegalEntitySource.class, toolContext.getLegalEntitySource());
     builder.put(PositionSource.class, toolContext.getPositionSource());
     builder.put(RegionSource.class, toolContext.getRegionSource());
     builder.put(SecuritySource.class, toolContext.getSecuritySource());
