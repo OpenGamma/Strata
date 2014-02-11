@@ -11,6 +11,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static com.opengamma.util.money.Currency.EUR;
@@ -46,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -84,6 +86,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
@@ -105,7 +110,7 @@ import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
-import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewDef;
@@ -113,6 +118,9 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.EngineService;
+import com.opengamma.sesame.engine.EngineTest;
+import com.opengamma.sesame.engine.ResultItem;
+import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.AvailableImplementations;
@@ -133,7 +141,7 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.sesame.proxy.TimingProxy;
-import com.opengamma.sesame.trace.TracingProxy;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -159,7 +167,7 @@ public class FXForwardPVFnTest {
 
   @Test
   public void buildGraph() {
-    FunctionMetadata calculatePV = ConfigUtils.createMetadata(FXForwardPVFn.class, "calculatePV");
+    FunctionMetadata calculatePV = EngineFunctionUtils.createMetadata(FXForwardPVFn.class, "calculatePV");
     FunctionConfig config = createFunctionConfig();
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
@@ -270,6 +278,83 @@ public class FXForwardPVFnTest {
 
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
+  public void curveBundleOnly() throws IOException {
+    ViewDef viewDef =
+        viewDef("Curve Bundle only",
+                nonPortfolioOutput("Curve Bundle",
+                                   output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
+                                          config(
+                                              arguments(
+                                                  function(RootFinderConfiguration.class,
+                                                           argument("rootFinderAbsoluteTolerance", 1e-9),
+                                                           argument("rootFinderRelativeTolerance", 1e-9),
+                                                           argument("rootFinderMaxIterations", 1000)),
+                                                  function(DefaultCurrencyPairsFn.class,
+                                                           argument("currencyPairs",
+                                                                    ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                                                    CurrencyPair.of(EUR, USD),
+                                                                                    CurrencyPair.of(GBP, USD)))),
+                                                  function(DefaultHistoricalTimeSeriesFn.class,
+                                                           argument("resolutionKey", "DEFAULT_TSS"),
+                                                           argument("htsRetrievalPeriod", Period.ofYears(1))),
+                                                  function(DefaultDiscountingMulticurveBundleFn.class,
+                                                           argument("impliedCurveNames", Collections.emptySet()),
+                                                           argument("curveConfig",
+                                                                    ConfigLink.of("Temple Base",
+                                                                                  CurveConstructionConfiguration.class))))))));
+
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(DiscountingMulticurveBundleFn.class);
+    AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
+    availableImplementations.register(DiscountingFXForwardPVFn.class,
+                                      DefaultCurrencyPairsFn.class,
+                                      FXForwardSecurityConverter.class,
+                                      ConfigDBInstrumentExposuresProvider.class,
+                                      DefaultCurveSpecificationMarketDataFn.class,
+                                      DefaultFXMatrixFn.class,
+                                      DefaultCurveDefinitionFn.class,
+                                      DefaultDiscountingMulticurveBundleFn.class,
+                                      DefaultCurveSpecificationFn.class,
+                                      ConfigDBCurveConstructionConfigurationSource.class,
+                                      DefaultHistoricalTimeSeriesFn.class,
+                                      FXForwardDiscountingCalculatorFn.class,
+                                      ConfigDbMarketExposureSelectorFn.class);
+
+    String serverUrl = "http://devsvr-lx-2:8080";
+    URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
+    HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
+    Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
+    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+    VersionCorrectionProvider vcProvider = new TestVersionCorrectionProvider(Instant.now());
+    ServiceContext serviceContext =
+        ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
+    ThreadLocalServiceContext.init(serviceContext);
+
+    Engine engine = new Engine(new EngineTest.DirectExecutorService(),
+                               componentMap,
+                               availableOutputs,
+                               availableImplementations,
+                               FunctionConfig.EMPTY,
+                               CacheManager.getInstance(),
+                               EnumSet.noneOf(EngineService.class));
+    View view = engine.createView(viewDef, Collections.emptyList());
+    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
+    DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
+    marketDataFn.resetMarketData(valuationTime, FXForwardPVFnTest.loadMarketDataForForward());
+    MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
+    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory);
+    Results results = view.run(cycleArguments);
+    System.out.println(results);
+    ResultItem resultItem = results.get("Curve Bundle");
+    Result<?> result = resultItem.getResult();
+    assertTrue(result.isValueAvailable());
+    Object value = result.getValue();
+    assertNotNull(value);
+    System.out.println(value);
+  }
+
+  //@Test(groups = TestGroup.INTEGRATION)
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void engine() throws Exception {
     //int nTrades = 1_000_000;
     //int nTrades = 10_000;
@@ -282,7 +367,7 @@ public class FXForwardPVFnTest {
       trades.add(createRandomFxForwardTrade());
     }
     s_logger.info("created {} trades in {}ms", nTrades, System.currentTimeMillis() - startTrades);
-    ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.of("Temple USD-EUR-JPY", mock(ExposureFunctions.class));
+    ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.of("Temple USD-EUR-JPY", ExposureFunctions.class);
     ViewDef viewDef =
         viewDef("FX forward PV view",
                 column("Present Value",
@@ -301,12 +386,11 @@ public class FXForwardPVFnTest {
                                                                                          CurrencyPair.of(GBP, USD)))),
                                       function(DefaultHistoricalTimeSeriesFn.class,
                                                argument("resolutionKey", "DEFAULT_TSS"),
-                                               argument("htsRetrievalPeriod", Period.ofYears(1))))))));
+                                               argument("htsRetrievalPeriod", Period.ofYears(1))),
+                                      function(DefaultDiscountingMulticurveBundleFn.class,
+                                               argument("impliedCurveNames", Collections.emptySet())))))));
 
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
-    //ExecutorService executor = new EngineTest.DirectExecutorService();
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(cachingDecorator, TracingProxy.INSTANCE);
     String serverUrl = "http://devsvr-lx-2:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -335,6 +419,11 @@ public class FXForwardPVFnTest {
                                       FXForwardDiscountingCalculatorFn.class,
                                       ConfigDbMarketExposureSelectorFn.class);
     long startEngine = System.currentTimeMillis();
+    VersionCorrectionProvider vcProvider = new TestVersionCorrectionProvider(Instant.now());
+    ServiceContext serviceContext =
+        ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
+    ThreadLocalServiceContext.init(serviceContext);
+
     Engine engine = new Engine(executor,
                                componentMap,
                                availableOutputs,
@@ -494,6 +583,25 @@ public class FXForwardPVFnTest {
       } else {
         System.out.println(requirement);
       }
+    }
+  }
+
+  private static class TestVersionCorrectionProvider implements VersionCorrectionProvider {
+
+    private final Instant _versionAsOf;
+
+    public TestVersionCorrectionProvider(Instant versionAsOf) {
+      _versionAsOf = ArgumentChecker.notNull(versionAsOf, "versionAsOf");
+    }
+
+    @Override
+    public VersionCorrection getPortfolioVersionCorrection() {
+      return VersionCorrection.ofVersionAsOf(_versionAsOf);
+    }
+
+    @Override
+    public VersionCorrection getConfigVersionCorrection() {
+      return VersionCorrection.ofVersionAsOf(_versionAsOf);
     }
   }
 }

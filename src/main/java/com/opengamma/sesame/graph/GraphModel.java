@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.function.ConfigurationErrorFunction;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -55,6 +56,9 @@ public final class GraphModel {
           columnBuilder.put(inputType, functionModel.build(functionBuilder, components));
         } else {
           s_logger.warn("Can't build invalid function model{}", functionModel.prettyPrint());
+          // put in a placeholder function that produces no output
+          FunctionModel noOutputFunctionModel = FunctionModel.forFunction(ConfigurationErrorFunction.METADATA);
+          columnBuilder.put(inputType, noOutputFunctionModel.build(functionBuilder, components));
         }
       }
       String columnName = entry.getKey();
@@ -70,6 +74,9 @@ public final class GraphModel {
         nonPortfolioFunctions.put(name, functionModel.build(functionBuilder, components));
       } else {
         s_logger.warn("Can't build invalid function model{}", functionModel.prettyPrint());
+        // put in a placeholder function that produces no output
+        FunctionModel noOutputFunctionModel = FunctionModel.forFunction(ConfigurationErrorFunction.METADATA);
+        nonPortfolioFunctions.put(name, noOutputFunctionModel.build(functionBuilder, components));
       }
     }
 

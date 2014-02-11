@@ -15,6 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Metadata for a method or constructor parameter.
+ * TODO [SSM-108] use generic types for parameters, will allow for nicer error messages
  */
 public final class Parameter {
 

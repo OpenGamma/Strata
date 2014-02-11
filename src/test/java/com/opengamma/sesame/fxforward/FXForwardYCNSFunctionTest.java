@@ -88,7 +88,7 @@ import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
-import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -138,7 +138,8 @@ public class FXForwardYCNSFunctionTest {
 
     ComponentMap componentMap = componentMap(components);
 
-    FunctionMetadata calculateYCNS = ConfigUtils.createMetadata(FXForwardYieldCurveNodeSensitivitiesFn.class, "calculateYieldCurveNodeSensitivities");
+    FunctionMetadata calculateYCNS = EngineFunctionUtils.createMetadata(FXForwardYieldCurveNodeSensitivitiesFn.class,
+                                                                        "calculateYieldCurveNodeSensitivities");
     FunctionConfig config = createFunctionConfig();
 
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);

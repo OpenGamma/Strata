@@ -328,7 +328,12 @@ public class View implements AutoCloseable {
       Result<?> result;
       TracingProxy.start(_tracer);
       try {
-        result = ResultGenerator.success(_invokableFunction.invoke(_input, _args));
+        Object retVal = _invokableFunction.invoke(_input, _args);
+        if (retVal instanceof Result) {
+          result = (Result) retVal;
+        } else {
+          result = ResultGenerator.success(retVal);
+        }
       } catch (Exception e) {
         s_logger.warn("Failed to execute function", e);
         // TODO ResultGenerator needs to handle exceptions properly. fix this when it does

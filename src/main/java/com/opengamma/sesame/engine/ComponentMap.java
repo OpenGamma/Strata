@@ -108,4 +108,11 @@ public final class ComponentMap {
     ArgumentChecker.notNull(components, "components");
     return new ComponentMap(ImmutableMap.copyOf(components));
   }
+
+  /**
+   * @return The components keyed by type
+   */
+  public Map<Class<?>, Object> getComponents() {
+    return _components;
+  }
 }

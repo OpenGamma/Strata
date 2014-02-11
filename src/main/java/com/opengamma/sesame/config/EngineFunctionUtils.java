@@ -31,7 +31,7 @@ import com.thoughtworks.paranamer.CachingParanamer;
 import com.thoughtworks.paranamer.Paranamer;
 import com.thoughtworks.paranamer.PositionalParanamer;
 
-public final class ConfigUtils {
+public final class EngineFunctionUtils {
 
   /** Cache of the results of {@link #getSupertypes} */
   private static ConcurrentMap<Class<?>, Set<Class<?>>> s_supertypes = Maps.newConcurrentMap();
@@ -43,7 +43,7 @@ public final class ConfigUtils {
           new AdaptiveParanamer(
               new BytecodeReadingParanamer(), new AnnotationParanamer(), new PositionalParanamer()));
 
-  private ConfigUtils() {
+  private EngineFunctionUtils() {
   }
 
   /**
@@ -92,6 +92,7 @@ public final class ConfigUtils {
   public static List<Parameter> getParameters(Method method) {
     return getParameters(method,
                          method.getDeclaringClass(),
+                         // TODO [SSM-108] use generic types for parameters, will allow for nicer error messages
                          method.getParameterTypes(),
                          method.getParameterAnnotations());
   }
@@ -100,6 +101,7 @@ public final class ConfigUtils {
   public static List<Parameter> getParameters(Constructor<?> constructor) {
     return getParameters(constructor,
                          constructor.getDeclaringClass(),
+                         // TODO [SSM-108] use generic types for parameters, will allow for nicer error messages
                          constructor.getParameterTypes(),
                          constructor.getParameterAnnotations());
   }

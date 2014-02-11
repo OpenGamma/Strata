@@ -15,7 +15,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -25,9 +25,8 @@ import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.proxy.ProxyNode;
 
 /**
- * A lightweight representation of the dependency tree for a single function.
+ * A lightweight representation of the tree of functions for a single output.
  * TODO joda bean? needs to be serializable along with all Node subclasses.
- * TODO flag to indicate whether it's valid. probably need to ask all the nodes
  */
 public final class FunctionModel {
 
@@ -127,14 +126,14 @@ public final class FunctionModel {
     }
     Constructor<?> constructor;
     try {
-      constructor = ConfigUtils.getConstructor(implType);
+      constructor = EngineFunctionUtils.getConstructor(implType);
     } catch (IllegalArgumentException e) {
       // TODO this isn't very nice. rename ExceptionNode->FailureNode and create directly without exceptions
       NoSuitableConstructorException exception =
           new NoSuitableConstructorException(path, implType.getName() + " has no suitable constructors");
       return new ExceptionNode(type, exception, parentParameter);
     }
-    List<Parameter> parameters = ConfigUtils.getParameters(constructor);
+    List<Parameter> parameters = EngineFunctionUtils.getParameters(constructor);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
     for (Parameter parameter : parameters) {
       // this isn't terribly efficient but unlikely to be a problem. alternatively could use a stack but nasty and mutable

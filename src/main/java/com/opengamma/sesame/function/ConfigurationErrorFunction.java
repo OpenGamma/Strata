@@ -8,22 +8,23 @@ package com.opengamma.sesame.function;
 import java.lang.reflect.Method;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.position.PositionOrTrade;
+import com.opengamma.sesame.graph.Graph;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 
 /**
- * A function that takes a {@link PositionOrTrade} and returns null.
+ * If a function can't be built because of a configuration error an instance of this function is used in the
+ * {@link Graph} instead.
  */
-public class NoOutputFunction {
+public class ConfigurationErrorFunction {
 
-  public static final String NO_OUTPUT = "No Output";
+  public static final String CONFIG_ERROR = "Configuration Error";
   public static final FunctionMetadata METADATA;
   
   static {
     try {
-      Method doNothing = NoOutputFunction.class.getMethod("doNothing");
+      Method doNothing = ConfigurationErrorFunction.class.getMethod("doNothing");
       METADATA = new FunctionMetadata(doNothing);
     } catch (NoSuchMethodException e) {
       // won't happen but need to throw the exception to convince the compiler
@@ -31,9 +32,8 @@ public class NoOutputFunction {
     }
   }
 
-  @Output(NO_OUTPUT)
+  @Output(CONFIG_ERROR)
   public Result<?> doNothing() {
-    // TODO new status needed for this
-    return ResultGenerator.failure(FailureStatus.CALCULATION_FAILED, "No Calculation Possible");
+    return ResultGenerator.failure(FailureStatus.ERROR, CONFIG_ERROR);
   }
 }

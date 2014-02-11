@@ -7,6 +7,8 @@ package com.opengamma.sesame;
 
 import java.util.List;
 
+import javax.inject.Named;
+
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -30,7 +32,8 @@ public interface DiscountingMulticurveBundleFn {
   @Cacheable(CacheLifetime.NEXT_FUTURE_ROLL)
   @Output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE)
   Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
-      CurveConstructionConfiguration curveConfig);
+      // TODO the annotation is a temporary workaround for SSM-107
+      @Named("curveConfig") CurveConstructionConfiguration curveConfig);
 
   @Cacheable(CacheLifetime.FOREVER)
   Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(

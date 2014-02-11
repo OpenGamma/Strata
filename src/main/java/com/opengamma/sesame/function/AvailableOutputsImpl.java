@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
-import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -79,7 +79,7 @@ public class AvailableOutputsImpl implements AvailableOutputs {
     if (_allOutputsByInputType.containsKey(inputType)) {
       return _allOutputsByInputType.get(inputType);
     }
-    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(inputType);
+    Set<Class<?>> supertypes = EngineFunctionUtils.getSupertypes(inputType);
     Set<String> outputs = Sets.newTreeSet();
     for (Class<?> supertype : supertypes) {
       if (_outputsByInputType.containsKey(supertype)) {
@@ -102,7 +102,7 @@ public class AvailableOutputsImpl implements AvailableOutputs {
     if (_allFunctionsForOutputs.containsKey(targetKey)) {
       return _allFunctionsForOutputs.get(targetKey);
     }
-    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(inputType);
+    Set<Class<?>> supertypes = EngineFunctionUtils.getSupertypes(inputType);
     for (Class<?> supertype : supertypes) {
       Pair<String, Class<?>> key = Pairs.<String, Class<?>>of(outputName, supertype);
       if (_functionsForOutputs.containsKey(key)) {

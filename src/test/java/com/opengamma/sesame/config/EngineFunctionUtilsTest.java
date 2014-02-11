@@ -16,7 +16,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class ConfigUtilsTest {
+public class EngineFunctionUtilsTest {
 
   interface I1 {}
   interface I2 {}
@@ -39,10 +39,10 @@ public class ConfigUtilsTest {
     expectedSupertypes.add(I3.class);
     expectedSupertypes.add(I4.class);
     expectedSupertypes.add(I5.class);
-    Set<Class<?>> supertypes = ConfigUtils.getSupertypes(C1.class);
+    Set<Class<?>> supertypes = EngineFunctionUtils.getSupertypes(C1.class);
     assertEquals(expectedSupertypes, supertypes);
     // check that results are cached
-    assertSame(supertypes, ConfigUtils.getSupertypes(C1.class));
+    assertSame(supertypes, EngineFunctionUtils.getSupertypes(C1.class));
   }
 
   @Test
@@ -53,9 +53,9 @@ public class ConfigUtilsTest {
     expectedInterfaces.add(I3.class);
     expectedInterfaces.add(I4.class);
     expectedInterfaces.add(I5.class);
-    Set<Class<?>> interfaces = ConfigUtils.getInterfaces(C1.class);
+    Set<Class<?>> interfaces = EngineFunctionUtils.getInterfaces(C1.class);
     assertEquals(expectedInterfaces, interfaces);
     // check that results are cached
-    assertSame(interfaces, ConfigUtils.getInterfaces(C1.class));
+    assertSame(interfaces, EngineFunctionUtils.getInterfaces(C1.class));
   }
 }

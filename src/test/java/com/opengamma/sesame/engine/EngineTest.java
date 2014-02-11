@@ -81,7 +81,6 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.sesame.trace.CallGraph;
-import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -179,7 +178,7 @@ public class EngineTest {
     View view = engine.createView(viewDef, trades);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, marketDataFactory);
     Results results = view.run(cycleArguments);
-    assertEquals(123.45, ((Result) results.get(0, 0).getResult().getValue()).getValue());
+    assertEquals(123.45, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
 

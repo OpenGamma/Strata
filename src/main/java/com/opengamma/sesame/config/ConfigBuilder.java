@@ -7,6 +7,7 @@ package com.opengamma.sesame.config;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -30,9 +31,9 @@ public final class ConfigBuilder {
   private ConfigBuilder() {
   }
 
-  public static void main(String[] args) {
-    ViewDef viewDef =
-        viewDef("view name",
+  public void main(String[] args) {
+    ViewDef example1 =
+        viewDef("columns only",
                 column(OutputNames.DESCRIPTION),
                 column(
                     defaultConfig(OutputNames.DESCRIPTION,
@@ -63,7 +64,51 @@ public final class ConfigBuilder {
                                   arguments(
                                       function(DefaultIdSchemeFn.class,
                                                argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
-    System.out.println(viewDef);
+    System.out.println(example1);
+
+    ViewDef example2 =
+        viewDef("columns and other outputs",
+                columns(
+                    column(OutputNames.DESCRIPTION),
+                    column(
+                        defaultConfig(OutputNames.DESCRIPTION,
+                                      config(
+                                          implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
+                                          arguments(
+                                              function(DefaultIdSchemeFn.class,
+                                                       argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
+                    column("Bloomberg Ticker",
+                           defaultConfig(OutputNames.DESCRIPTION),
+                           output(EquitySecurity.class,
+                                  config(
+                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class))),
+                           output(CashFlowSecurity.class,
+                                  config(
+                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
+                    column("ACTIV Symbol",
+                           defaultConfig(OutputNames.DESCRIPTION),
+                           output(EquitySecurity.class,
+                                  config(
+                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
+                                      arguments(
+                                          function(DefaultIdSchemeFn.class,
+                                                   argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                           output(CashFlowSecurity.class,
+                                  config(
+                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
+                                      arguments(
+                                          function(DefaultIdSchemeFn.class,
+                                                   argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))))),
+                nonPortfolioOutputs(
+                    nonPortfolioOutput("USD Discounting Curve",
+                                       output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE))));
+    System.out.println(example2);
+
+    ViewDef example3 =
+        viewDef("other outputs only",
+                nonPortfolioOutput("USD Discounting Curve",
+                                   output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE))); // TODO some function config
+    System.out.println(example3);
   }
 
   // TODO alternative viewDef overloads
@@ -81,6 +126,22 @@ public final class ConfigBuilder {
 
   public static ViewDef viewDef(String name, NonPortfolioOutput... nonPortfolioOutputs) {
     return new ViewDef(name, FunctionConfig.EMPTY, Collections.<ViewColumn>emptyList(), Arrays.asList(nonPortfolioOutputs));
+  }
+
+  public static ViewDef viewDef(String name, Columns columns, OtherOutputs otherOutputs) {
+    return new ViewDef(name, columns.getDefaultConfig(), columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
+  }
+
+  public static ViewDef viewDef(String name, FunctionConfig defaultConfig, Columns columns, OtherOutputs otherOutputs) {
+    return new ViewDef(name, defaultConfig, columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
+  }
+
+  public static Columns columns(ViewColumn... columns) {
+    return new Columns(FunctionConfig.EMPTY, columns);
+  }
+
+  public static OtherOutputs nonPortfolioOutputs(NonPortfolioOutput... nonPortfolioOutputs) {
+    return new OtherOutputs(nonPortfolioOutputs);
   }
 
   private static Map<Class<?>, ViewOutput> createTargetOutputs(TargetOutput... outputs) {
@@ -247,6 +308,38 @@ public final class ConfigBuilder {
     public TargetOutput(ViewOutput output, Class<?> inputType) {
       _output = output;
       _inputType = inputType;
+    }
+  }
+
+  private static class Columns {
+
+    private final FunctionConfig _defaultConfig;
+    private final List<ViewColumn> _viewColumns;
+
+    private Columns(FunctionConfig defaultConfig, ViewColumn... viewColumns) {
+      _defaultConfig = defaultConfig;
+      _viewColumns = Arrays.asList(viewColumns);
+    }
+
+    public FunctionConfig getDefaultConfig() {
+      return _defaultConfig;
+    }
+
+    public List<ViewColumn> getViewColumns() {
+      return _viewColumns;
+    }
+  }
+  
+  private static class OtherOutputs {
+
+    private final List<NonPortfolioOutput> _nonPortfolioOutputs;
+
+    private OtherOutputs(NonPortfolioOutput... nonPortfolioOutputs) {
+      _nonPortfolioOutputs = Arrays.asList(nonPortfolioOutputs);
+    }
+
+    public List<NonPortfolioOutput> getNonPortfolioOutputs() {
+      return _nonPortfolioOutputs;
     }
   }
 }

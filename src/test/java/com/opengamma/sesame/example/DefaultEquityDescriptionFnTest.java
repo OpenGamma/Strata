@@ -18,7 +18,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -35,7 +35,7 @@ public class DefaultEquityDescriptionFnTest {
   private static final String BLOOMBERG_VALUE = "AAPL US Equity";
   private static final String ACTIV_VALUE = "AAPL.";
   private static final FunctionMetadata METADATA =
-      ConfigUtils.createMetadata(EquityDescriptionFn.class, "getDescription");
+      EngineFunctionUtils.createMetadata(EquityDescriptionFn.class, "getDescription");
 
   static {
     SECURITY = new EquitySecurity("Exchange Name", "EXH", "Apple", Currency.USD);

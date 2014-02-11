@@ -26,7 +26,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.SpecificationMarketDataFactory;
 import com.opengamma.util.test.TestGroup;
@@ -63,7 +63,7 @@ public class CacheInvalidatorTest {
   }
 
   private static MethodInvocationKey methodKey(Object receiver, String methodName, Object[] args) {
-    Method method = ConfigUtils.getMethod(receiver.getClass(), methodName);
+    Method method = EngineFunctionUtils.getMethod(receiver.getClass(), methodName);
     return new MethodInvocationKey(receiver, method, args);
   }
 

@@ -11,7 +11,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.sesame.cache.Cacheable;
-import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.engine.ComponentMap;
 
 /**
@@ -27,8 +27,8 @@ public final class FunctionBuilder {
     // TODO cache this info if it proves expensive to do it over and over for the same classes
     boolean cacheable =
         node instanceof InterfaceNode &&
-            (ConfigUtils.hasMethodAnnotation(((InterfaceNode) node).getImplementationType(), Cacheable.class) ||
-                (ConfigUtils.hasMethodAnnotation(((InterfaceNode) node).getType(), Cacheable.class)));
+            (EngineFunctionUtils.hasMethodAnnotation(((InterfaceNode) node).getImplementationType(), Cacheable.class) ||
+                (EngineFunctionUtils.hasMethodAnnotation(((InterfaceNode) node).getType(), Cacheable.class)));
     if (cacheable) {
       Object existing = _sharedNodeObjects.get(node);
       if (existing != null) {

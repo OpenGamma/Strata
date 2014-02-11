@@ -121,7 +121,11 @@ public final class Results implements ImmutableBean {
 
   @Override
   public String toString() {
-    return "Results [_columnNames=" + _columnNames + ", _rows=" + _rows + "]";
+    return "Results [" +
+        " _rows=" + _rows +
+        ", _nonPortfolioResults=" + _nonPortfolioResults +
+        ", _columnNames=" + _columnNames +
+        "]";
   }
 
   /* package */ static ResultBuilder builder(List<?> inputs, List<String> columnNames) {
