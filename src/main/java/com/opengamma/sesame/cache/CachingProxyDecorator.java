@@ -7,7 +7,6 @@ package com.opengamma.sesame.cache;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -19,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.sesame.config.ConfigUtils;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -73,8 +72,8 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
       implementationType = ((ProxyNode) node).getImplementationType();
       interfaceType = ((ProxyNode) node).getType();
     }
-    if (ConfigUtils.hasMethodAnnotation(interfaceType, Cacheable.class) ||
-        ConfigUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
+    if (EngineFunctionUtils.hasMethodAnnotation(interfaceType, Cacheable.class) ||
+        EngineFunctionUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
       CachingHandlerFactory handlerFactory = new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods);
       return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
@@ -123,7 +122,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
           // the proxy will always see the interface method. no point caching the instance method
           // need to go up the inheritance hierarchy and find all interface methods implemented by this method
           // and cache those
-          for (Class<?> iface : ConfigUtils.getInterfaces(_implementationType)) {
+          for (Class<?> iface : EngineFunctionUtils.getInterfaces(_implementationType)) {
             try {
               Method ifaceMethod = iface.getMethod(method.getName(), method.getParameterTypes());
               cachedMethods.add(ifaceMethod);
@@ -185,7 +184,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
-      _proxiedObject = getProxiedObject(delegate);
+      _proxiedObject = EngineFunctionUtils.getProxiedObject(delegate);
     }
 
     @SuppressWarnings("unchecked")
@@ -228,15 +227,6 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
           throw e.getCause();
         }
       }
-    }
-
-    private static Object getProxiedObject(Object delegate) {
-      // if delegate isn't a proxy then we've reached the end of the chain of proxies
-      if (!Proxy.isProxyClass(delegate.getClass())) {
-        return delegate;
-      }
-      ProxyInvocationHandler invocationHandler = (ProxyInvocationHandler) Proxy.getInvocationHandler(delegate);
-      return getProxiedObject(invocationHandler.getReceiver());
     }
 
     /** Visible for testing */

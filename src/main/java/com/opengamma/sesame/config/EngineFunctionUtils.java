@@ -10,6 +10,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.sesame.proxy.ProxyInvocationHandler;
 import com.thoughtworks.paranamer.AdaptiveParanamer;
 import com.thoughtworks.paranamer.AnnotationParanamer;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
@@ -212,5 +214,22 @@ public final class EngineFunctionUtils {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns the real object behind a proxy.
+   * If object isn't a proxy it is returned. If it's a proxy the underlying object is returned. If there are multiple
+   * proxies this method recurses until it finds the real object.
+   * All proxies must have an invocation handler of type {@link ProxyInvocationHandler}.
+   * @param object An object, possibly a proxy
+   * @return The real object behind the proxy
+   */
+  public static Object getProxiedObject(Object object) {
+    // if object isn't a proxy then we've reached the end of the chain of proxies
+    if (!Proxy.isProxyClass(object.getClass())) {
+      return object;
+    }
+    ProxyInvocationHandler invocationHandler = (ProxyInvocationHandler) Proxy.getInvocationHandler(object);
+    return getProxiedObject(invocationHandler.getReceiver());
   }
 }

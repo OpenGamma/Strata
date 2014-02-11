@@ -32,8 +32,6 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Named;
-
 import org.mockito.Matchers;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZoneOffset;
@@ -472,9 +470,8 @@ public class EngineTest {
 
   public interface NonPortfolioFunctionWithArgs {
 
-    // TODO annotating the params is a workaround for [SSM-107]
     @Output("Foo")
-    String foo(@Named("notTheTarget") String notTheTarget);
+    String foo(String notTheTarget);
   }
 
   public static class NonPortfolioFunctionWithArgsImpl implements NonPortfolioFunctionWithArgs {

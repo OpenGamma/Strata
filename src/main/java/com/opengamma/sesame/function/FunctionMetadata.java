@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.function;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -15,12 +14,12 @@ import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.sesame.config.ConfigUtils;
-import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- * TODO should this be called OutputMetadata?
  * TODO joda bean?
  */
 public class FunctionMetadata {
@@ -38,11 +37,15 @@ public class FunctionMetadata {
   /** The name of the output produced by the function. */
   private final String _outputName;
 
+  /** The types of arguments provided by the engine, e.g. trades, positions etc. */
+  private final Set<Class<?>> _inputTypes;
+
   public FunctionMetadata(FunctionMetadata copyFrom) {
     _method = copyFrom._method;
     _parameters = copyFrom._parameters;
     _inputParameter = copyFrom._inputParameter;
     _outputName = copyFrom._outputName;
+    _inputTypes = copyFrom._inputTypes;
   }
 
   public FunctionMetadata(Method method) {
@@ -50,17 +53,24 @@ public class FunctionMetadata {
   }
 
   public FunctionMetadata(Method method, Set<Class<?>> inputTypes) {
-    _method = method;
-    _parameters = Maps.newHashMap();
+    _inputTypes = inputTypes;
+    _method = ArgumentChecker.notNull(method, "method");
     Output annotation = method.getAnnotation(Output.class);
     if (annotation == null) {
       throw new IllegalArgumentException("method " + method + " isn't annotated with @Output");
     }
     _outputName = annotation.value();
-    List<Parameter> parameters = ConfigUtils.getParameters(method);
+    Pair<Map<String, Parameter>, Parameter> parameters = getParameters(method, inputTypes);
+    _parameters = parameters.getFirst();
+    _inputParameter = parameters.getSecond();
+  }
+
+  private static Pair<Map<String, Parameter>, Parameter> getParameters(Method method, Set<Class<?>> inputTypes) {
+    Map<String, Parameter> parameterMap = Maps.newHashMap();
+    List<Parameter> parameters = EngineFunctionUtils.getParameters(method);
     Parameter inputParameter = null;
     params: for (Parameter parameter : parameters) {
-      _parameters.put(parameter.getName(), parameter);
+      parameterMap.put(parameter.getName(), parameter);
       // TODO this logic is broken
       for (Class<?> allowedInputType : inputTypes) {
         if (allowedInputType.isAssignableFrom(parameter.getType())) {
@@ -74,13 +84,26 @@ public class FunctionMetadata {
         }
       }
     }
-    _inputParameter = inputParameter;
+    return Pairs.of(parameterMap, inputParameter);
   }
-
+  
   public InvokableFunction getInvokableFunction(Object receiver) {
-    // TODO can we get the method parameter names from the receiver method? will it be a class? a proxy?
-    // if it's a proxy can I drill through to the underlying object and get the class?
-    return new MethodInvokableFunction(ArgumentChecker.notNull(receiver, "receiver"));
+    // receiver might be a proxy. we need the real object so we can get the parameter names from the bytecode
+    Object realReceiver = EngineFunctionUtils.getProxiedObject(receiver);
+    if (_method.getDeclaringClass().isInterface()) {
+      Class<?> receiverClass = realReceiver.getClass();
+      Method method;
+      try {
+        method = receiverClass.getMethod(_method.getName(), _method.getParameterTypes());
+      } catch (NoSuchMethodException e) {
+        // this shouldn't happen - the receiver must have the same method as the proxy
+        throw new OpenGammaRuntimeException("Unexpected exception", e);
+      }
+      Pair<Map<String, Parameter>, Parameter> parameters = getParameters(method, _inputTypes);
+      return new MethodInvokableFunction(receiver, parameters.getFirst(), parameters.getSecond(), _outputName, _method);
+    } else {
+      return new MethodInvokableFunction(receiver, _parameters, _inputParameter, _outputName, _method);
+    }
   }
 
   public Class<?> getDeclaringType() {
@@ -130,43 +153,4 @@ public class FunctionMetadata {
         "]";
   }
 
-  // TODO return value wrapped in metadata (output name, trade/security etc)? for scaling, aggregation, ccy conversion
-  private class MethodInvokableFunction implements InvokableFunction {
-
-    private final Object _receiver;
-
-    private MethodInvokableFunction(Object receiver) {
-      // TODO check the receiver is compatible with _declaringType
-      _receiver = receiver;
-    }
-
-    @Override
-    public Object getReceiver() {
-      return _receiver;
-    }
-
-    @Override
-    public String getOutputName() {
-      return _outputName;
-    }
-
-    @Override
-    public Object invoke(Object input, FunctionArguments args) {
-      Object[] argArray = new Object[_parameters.size()];
-      for (Parameter parameter : _parameters.values()) {
-        argArray[parameter.getOrdinal()] = args.getArgument(parameter.getName());
-      }
-      if (_inputParameter != null) {
-        argArray[_inputParameter.getOrdinal()] = input;
-      }
-      // TODO check for nulls provided for non-nullable parameters, including target?
-      // TODO check for unexpected parameters?
-      // TODO use @Nullable / @NotNull / @Nonnull
-      try {
-        return _method.invoke(_receiver, argArray);
-      } catch (IllegalAccessException | InvocationTargetException e) {
-        throw new OpenGammaRuntimeException("Failed to invoke method", e);
-      }
-    }
-  }
 }
