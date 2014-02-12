@@ -31,7 +31,6 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
 
-// TODO is it worth including a lookup by ID instead of row index?
 // TODO Iterable<Row>?
 // TODO column types
 @BeanDefinition
@@ -104,11 +103,7 @@ public final class Results implements ImmutableBean {
    * @throws IllegalArgumentException If the row index is invalid
    */
   public ResultItem get(int rowIndex, String columnName) {
-    Integer columnIndex = _columnIndices.get(columnName);
-    if (columnIndex == null) {
-      throw new IllegalArgumentException("No column found named " + columnName);
-    }
-    return get(rowIndex).get(columnIndex);
+    return get(rowIndex).get(getColumnIndex(columnName));
   }
 
   public ResultItem get(String nonPortfolioOutputName) {
@@ -117,6 +112,20 @@ public final class Results implements ImmutableBean {
       throw new IllegalArgumentException("No result found named '" + nonPortfolioOutputName + "'");
     }
     return item;
+  }
+
+  /**
+   * Returns the index of the column with the specified name
+   * @param columnName The column name
+   * @return The column index
+   * @throws IllegalArgumentException If there is no column with the specified name
+   */
+  public int getColumnIndex(String columnName) {
+    Integer columnIndex = _columnIndices.get(columnName);
+    if (columnIndex == null) {
+      throw new IllegalArgumentException("No column found named " + columnName);
+    }
+    return columnIndex;
   }
 
   @Override

@@ -52,6 +52,17 @@ public class ResultsTest {
     assertEquals("item22", RESULTS.get(1, "col2").getResult().getValue());
   }
 
+  @Test
+  public void getColumnIndex() {
+    assertEquals(0, RESULTS.getColumnIndex("col1"));
+    assertEquals(1, RESULTS.getColumnIndex("col2"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void getInvalidColumnIndex() {
+    RESULTS.getColumnIndex("foo");
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getByUnknownColumnName() {
     RESULTS.get(0, "col3");

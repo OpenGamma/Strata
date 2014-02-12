@@ -89,7 +89,8 @@ public final class GraphBuilder {
               GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
               FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
               functions.put(input.getClass(), functionModel);
-              s_logger.debug("created function for {}/{}", column.getName(), input.getClass().getSimpleName());
+              s_logger.debug("created function for {}/{}\n{}",
+                             column.getName(), input.getClass().getSimpleName(), functionModel.prettyPrint());
             }
             continue;
           }
@@ -109,7 +110,8 @@ public final class GraphBuilder {
                 GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
                 FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
                 functions.put(security.getClass(), functionModel);
-                s_logger.debug("created function for {}/{}", column.getName(), security.getClass().getSimpleName());
+                s_logger.debug("created function for {}/{}\n{}",
+                               column.getName(), security.getClass().getSimpleName(), functionModel.prettyPrint());
               }
               continue;
             }
@@ -138,6 +140,7 @@ public final class GraphBuilder {
         functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);
       }
       nonPortfolioFunctionModels.put(output.getName(), functionModel);
+      s_logger.debug("created function for {}/{}\n{}", output.getName(), functionModel.prettyPrint());
     }
 
     return new GraphModel(builder.build(), nonPortfolioFunctionModels.build());
