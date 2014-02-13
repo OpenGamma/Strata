@@ -47,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.threeten.bp.Instant;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -119,6 +118,7 @@ import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.EngineService;
 import com.opengamma.sesame.engine.EngineTest;
+import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
@@ -141,7 +141,6 @@ import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.sesame.proxy.TimingProxy;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -325,7 +324,7 @@ public class FXForwardPVFnTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    VersionCorrectionProvider vcProvider = new TestVersionCorrectionProvider(Instant.now());
+    VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider();
     ServiceContext serviceContext =
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
@@ -419,7 +418,7 @@ public class FXForwardPVFnTest {
                                       FXForwardDiscountingCalculatorFn.class,
                                       ConfigDbMarketExposureSelectorFn.class);
     long startEngine = System.currentTimeMillis();
-    VersionCorrectionProvider vcProvider = new TestVersionCorrectionProvider(Instant.now());
+    VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider();
     ServiceContext serviceContext =
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
@@ -583,25 +582,6 @@ public class FXForwardPVFnTest {
       } else {
         System.out.println(requirement);
       }
-    }
-  }
-
-  private static class TestVersionCorrectionProvider implements VersionCorrectionProvider {
-
-    private final Instant _versionAsOf;
-
-    public TestVersionCorrectionProvider(Instant versionAsOf) {
-      _versionAsOf = ArgumentChecker.notNull(versionAsOf, "versionAsOf");
-    }
-
-    @Override
-    public VersionCorrection getPortfolioVersionCorrection() {
-      return VersionCorrection.ofVersionAsOf(_versionAsOf);
-    }
-
-    @Override
-    public VersionCorrection getConfigVersionCorrection() {
-      return VersionCorrection.ofVersionAsOf(_versionAsOf);
     }
   }
 }
