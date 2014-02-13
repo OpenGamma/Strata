@@ -9,7 +9,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
-import static com.opengamma.sesame.config.ConfigBuilder.defaultConfig;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
@@ -143,10 +142,9 @@ public class EngineTest {
   public void simpleFunctionWithMarketData() {
     ViewDef viewDef =
         viewDef("Equity PV",
-                column(PRESENT_VALUE_HEADER,
-                       defaultConfig(OutputNames.PRESENT_VALUE,
-                                     config(
-                                         implementations(EquityPresentValueFn.class, EquityPresentValue.class)))));
+                column(PRESENT_VALUE_HEADER, OutputNames.PRESENT_VALUE,
+                       config(
+                           implementations(EquityPresentValueFn.class, EquityPresentValue.class))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityPresentValueFn.class);
@@ -184,10 +182,9 @@ public class EngineTest {
   public void defaultColumnOutput() {
     ViewDef viewDef =
         viewDef("Trivial Test View",
-                column(DESCRIPTION_HEADER,
-                       defaultConfig(OutputNames.DESCRIPTION,
-                                     config(
-                                         implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
+                column(DESCRIPTION_HEADER, OutputNames.DESCRIPTION,
+                       config(
+                           implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
@@ -204,24 +201,22 @@ public class EngineTest {
     ViewDef viewDef =
         viewDef("name",
                 column(OutputNames.DESCRIPTION),
-                column(BLOOMBERG_HEADER,
-                       defaultConfig(OutputNames.DESCRIPTION,
-                                     config(
-                                         arguments(
-                                             function(DefaultIdSchemeFn.class,
-                                                      argument("scheme", ExternalSchemes.BLOOMBERG_TICKER))))),
+                column(BLOOMBERG_HEADER, OutputNames.DESCRIPTION,
+                       config(
+                           arguments(
+                               function(DefaultIdSchemeFn.class,
+                                        argument("scheme", ExternalSchemes.BLOOMBERG_TICKER)))),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFn.class, EquityIdDescriptionFn.class))),
                        output(CashFlowSecurity.class,
                               config(
                                   implementations(CashFlowDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
-                column(ACTIV_HEADER,
-                       defaultConfig(OutputNames.DESCRIPTION,
-                                     config(
-                                         arguments(
-                                             function(DefaultIdSchemeFn.class,
-                                                      argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                column(ACTIV_HEADER, OutputNames.DESCRIPTION,
+                       config(
+                           arguments(
+                               function(DefaultIdSchemeFn.class,
+                                        argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))),
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFn.class, EquityIdDescriptionFn.class))),

@@ -35,23 +35,20 @@ public final class ConfigBuilder {
     ViewDef example1 =
         viewDef("columns only",
                 column(OutputNames.DESCRIPTION),
-                column(
-                    defaultConfig(OutputNames.DESCRIPTION,
-                                  config(
-                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
-                                      arguments(
-                                          function(DefaultIdSchemeFn.class,
-                                                   argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
-                column("Bloomberg Ticker",
-                       defaultConfig(OutputNames.DESCRIPTION),
+                column(OutputNames.DESCRIPTION,
+                       config(
+                           implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
+                           arguments(
+                               function(DefaultIdSchemeFn.class,
+                                        argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                column("Bloomberg Ticker", OutputNames.DESCRIPTION,
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class))),
                        output(CashFlowSecurity.class,
                               config(
                                   implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
-                column("ACTIV Symbol",
-                       defaultConfig(OutputNames.DESCRIPTION),
+                column("ACTIV Symbol", OutputNames.DESCRIPTION,
                        output(EquitySecurity.class,
                               config(
                                   implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
@@ -70,23 +67,20 @@ public final class ConfigBuilder {
         viewDef("columns and other outputs",
                 columns(
                     column(OutputNames.DESCRIPTION),
-                    column(
-                        defaultConfig(OutputNames.DESCRIPTION,
-                                      config(
-                                          implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
-                                          arguments(
-                                              function(DefaultIdSchemeFn.class,
-                                                       argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))),
-                    column("Bloomberg Ticker",
-                           defaultConfig(OutputNames.DESCRIPTION),
+                    column(OutputNames.DESCRIPTION,
+                           config(
+                               implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
+                               arguments(
+                                   function(DefaultIdSchemeFn.class,
+                                            argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
+                    column("Bloomberg Ticker", OutputNames.DESCRIPTION,
                            output(EquitySecurity.class,
                                   config(
                                       implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class))),
                            output(CashFlowSecurity.class,
                                   config(
                                       implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
-                    column("ACTIV Symbol",
-                           defaultConfig(OutputNames.DESCRIPTION),
+                    column("ACTIV Symbol", OutputNames.DESCRIPTION,
                            output(EquitySecurity.class,
                                   config(
                                       implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
@@ -152,35 +146,36 @@ public final class ConfigBuilder {
     return targetOutputs;
   }
 
-  public static ViewColumn column(String name, TargetOutput... outputs) {
-    return new ViewColumn(name, null, createTargetOutputs(outputs));
-  }
-
-  public static ViewColumn column(String name, ViewOutput defaultOutput) {
-    return new ViewColumn(name, defaultOutput, Collections.<Class<?>, ViewOutput>emptyMap());
-  }
-
   public static ViewColumn column(String name) {
     return new ViewColumn(name, new ViewOutput(name), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  public static ViewColumn column(ViewOutput defaultOutput) {
-    return new ViewColumn(defaultOutput.getOutputName(), defaultOutput, Collections.<Class<?>, ViewOutput>emptyMap());
+  public static ViewColumn column(String name, String outputName) {
+    return new ViewColumn(name, new ViewOutput(outputName), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  public static ViewColumn column(String name, ViewOutput defaultOutput, TargetOutput... targetOutputs) {
-    return new ViewColumn(name, defaultOutput, createTargetOutputs(targetOutputs));
+  public static ViewColumn column(String name, FunctionConfig config) {
+    return new ViewColumn(name, new ViewOutput(name, config), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  // for the default column output
-  public static ViewOutput defaultConfig(String outputName) {
-    return new ViewOutput(outputName);
+  public static ViewColumn column(String name, TargetOutput... outputs) {
+    return new ViewColumn(name, new ViewOutput(name), createTargetOutputs(outputs));
   }
 
-  // TODO this is really badly named
-  // for the default column output
-  public static ViewOutput defaultConfig(String outputName, FunctionConfig config) {
-    return new ViewOutput(outputName, config);
+  public static ViewColumn column(String name, String outputName, TargetOutput... outputs) {
+    return new ViewColumn(name, new ViewOutput(outputName), createTargetOutputs(outputs));
+  }
+
+  public static ViewColumn column(String name, String outputName, FunctionConfig config) {
+    return new ViewColumn(name, new ViewOutput(outputName, config), Collections.<Class<?>, ViewOutput>emptyMap());
+  }
+
+  public static ViewColumn column(String name, FunctionConfig config, TargetOutput... targetOutputs) {
+    return new ViewColumn(name, new ViewOutput(name, config), createTargetOutputs(targetOutputs));
+  }
+
+  public static ViewColumn column(String name, String outputName, FunctionConfig config, TargetOutput... targetOutputs) {
+    return new ViewColumn(name, new ViewOutput(outputName, config), createTargetOutputs(targetOutputs));
   }
 
   public static TargetOutput output(String outputName, Class<?> targetType) {
