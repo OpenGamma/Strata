@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 
 import com.google.common.base.Optional;
@@ -50,6 +51,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
@@ -79,6 +81,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final ValuationTimeFn _valuationTimeFn;
   private final DiscountingMulticurveBundleFn _discountingMulticurveBundleFn;
 
+  private final Period _seriesPeriod;
+
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
                                              final CurveDefinition curveDefinition,
@@ -90,7 +94,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final CurrencyPairsFn currencyPairsFn,
                                              final Set<String> impliedCurveNames,
                                              final ValuationTimeFn valuationTimeFn,
-                                             final DiscountingMulticurveBundleFn discountingMulticurveBundleFn) {
+                                             final DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
+                                             final Period seriesPeriod) {
     _calculatorProvider = calculatorProvider;
     _curveDefinition = curveDefinition;
     _curveConfig = curveConfig;
@@ -102,6 +107,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _impliedCurveNames = impliedCurveNames;
     _valuationTimeFn = valuationTimeFn;
     _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
+    _seriesPeriod = seriesPeriod;
   }
 
   public DiscountingFXForwardYCNSPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
@@ -113,11 +119,12 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final CurrencyPairsFn currencyPairsFn,
                                              final Set<String> impliedCurveNames,
                                              final ValuationTimeFn valuationTimeFn,
-                                             final DiscountingMulticurveBundleFn discountingMulticurveBundleFn) {
+                                             final DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
+                                             final Period seriesPeriod) {
     this(calculatorProvider, curveDefinition,
          curveConfig, Optional.<Currency>absent(), fxReturnSeriesProvider,
         historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, impliedCurveNames, valuationTimeFn,
-        discountingMulticurveBundleFn);
+        discountingMulticurveBundleFn, seriesPeriod);
   }
 
   @Override
@@ -152,9 +159,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     if (calculatorResult.isValueAvailable() && cpResult.isValueAvailable()) {
 
       final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities();
-
+      
       LocalDate end = _valuationTimeFn.getDate();
-      LocalDate start = end.minusMonths(6);
+      LocalDate start = end.minus(_seriesPeriod);
 
       // Generate our version of an HTS Bundle
       ImpliedCurveHtsBundleBuilder builder = new ImpliedCurveHtsBundleBuilder();

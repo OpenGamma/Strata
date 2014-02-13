@@ -7,12 +7,14 @@ package com.opengamma.sesame;
 
 import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
+import static com.opengamma.util.result.ResultGenerator.failure;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
@@ -22,7 +24,9 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
+import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValues;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -59,8 +63,12 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
     Map<MarketDataRequirement, MarketDataItem> items = Maps.newHashMap();
     for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
       MarketDataRequirement fwdReq = MarketDataRequirementFactory.of(id);
-      // TODO check result is available
-      Double fwd = (Double) result.getValue().getValue(fwdReq);
+      MarketDataValues value = result.getValue();
+      if (value.getStatus(fwdReq) != MarketDataStatus.AVAILABLE) {
+        //TODO return a set of failures (see SSM-115)
+        return failure(FailureStatus.MISSING_DATA, "Unavailable market data: {}", fwdReq);
+      }
+      Double fwd = (Double) value.getValue(fwdReq);
       if (id instanceof PointsCurveNodeWithIdentifier) {
         PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
         CurveNodeMarketDataRequirement spotReq = new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(),

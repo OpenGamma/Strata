@@ -367,7 +367,7 @@ public class FXForwardPVFnTest {
       trades.add(createRandomFxForwardTrade());
     }
     s_logger.info("created {} trades in {}ms", nTrades, System.currentTimeMillis() - startTrades);
-    ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.of("Temple USD-EUR-JPY", ExposureFunctions.class);
+    ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.of("Temple Exposure Config", ExposureFunctions.class);
     ViewDef viewDef =
         viewDef("FX forward PV view",
                 column("Present Value",
@@ -486,7 +486,7 @@ public class FXForwardPVFnTest {
   }
 
   private static FunctionConfig createFunctionConfig() {
-    String exposureConfig = "Temple USD-EUR-JPY";
+    String exposureConfig = "Temple Exposure Config";
     return
         config(
             arguments(
