@@ -336,7 +336,7 @@ public class LiveDataManager implements LiveDataListener {
 
       // Check if this client is waiting on data completion
       final CountDownLatch latch = _latches.get(listener);
-      if (latch!= null && latch.getCount() > 0 && clientsRequirementsAreSatisfied(listener)) {
+      if (latch != null && latch.getCount() > 0 && clientsRequirementsAreSatisfied(listener)) {
           latch.countDown();
       }
     }
