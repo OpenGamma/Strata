@@ -300,7 +300,7 @@ public class FXForwardPVFnTest {
                                                   function(DefaultDiscountingMulticurveBundleFn.class,
                                                            argument("impliedCurveNames", Collections.emptySet()),
                                                            argument("curveConfig",
-                                                                    ConfigLink.of("Temple Base",
+                                                                    ConfigLink.of("Temple USD",
                                                                                   CurveConstructionConfiguration.class))))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
