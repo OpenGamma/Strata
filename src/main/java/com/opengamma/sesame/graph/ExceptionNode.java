@@ -30,9 +30,20 @@ import com.opengamma.util.ArgumentChecker;
     throw new OpenGammaRuntimeException("Can't build an invalid graph", _exception);
   }
 
+  /**
+   * @return false
+   */
   @Override
   public boolean isValid() {
     return false;
+  }
+
+  /**
+   * @return true
+   */
+  @Override
+  public boolean isError() {
+    return true;
   }
 
   /* package */ AbstractGraphBuildException getException() {

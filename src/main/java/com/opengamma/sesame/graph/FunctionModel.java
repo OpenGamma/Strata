@@ -16,6 +16,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -106,11 +107,29 @@ public final class FunctionModel {
 
   // TODO I don't think this will work if the root is an infrastructure component. is that important?
   // TODO this is ugly, simplify / beautify
+  /**
+   * <p>Creates a node in the function model representing a single object.
+   * If the object has dependencies this method is called recursively and descends down the dependency tree
+   * creating child nodes until all dependencies are satisfied. If a dependency can't be satisfied an error node is
+   * created.</p>
+   *
+   * <p>There are 3 ways a dependency can be satisfied. They are tried in order:
+   * <ol>
+   *   <li>A component provided by the engine. The component is matched to the type of the parameter</li>
+   *   <li>A value provided by the user in the configuration. This is specified in {@link FunctionArguments} by
+   *   the implementation class of the function and the parameter name</li>
+   *   <li>A function built by recursively calling this method</li>
+   * </ol>
+   * </p>
+   * @param type The type of the object
+   * @param config The configuration for building the graph
+   * @param path The chain of dependencies from the root of the tree of functions to this node. In the event of a
+   * failure this allows the exact location in the graph to be identified
+   * @param parentParameter The constructor parameter this object must satisfy.
+   * @return A node in the function graph, not null
+   */
   @SuppressWarnings("unchecked")
-  private static Node createNode(Class<?> type,
-                                 GraphConfig config,
-                                 List<Parameter> path,
-                                 Parameter parentParameter) {
+  private static Node createNode(Class<?> type, GraphConfig config, List<Parameter> path, Parameter parentParameter) {
     if (!isEligibleForBuilding(type)) {
       return null;
     }
@@ -135,6 +154,10 @@ public final class FunctionModel {
     }
     List<Parameter> parameters = EngineFunctionUtils.getParameters(constructor);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
+    // create a node to satisfy each of the constructor parameters. this can come from 3 sources:
+    //   1) a component provided by the engine. this is looked up by type
+    //   2) a value provided by the user. this is specified in FunctionArguments by implementation class and parameter name
+    //   3) a function built by recursively calling this method
     for (Parameter parameter : parameters) {
       // this isn't terribly efficient but unlikely to be a problem. alternatively could use a stack but nasty and mutable
       List<Parameter> newPath = Lists.newArrayList(path);
@@ -142,11 +165,14 @@ public final class FunctionModel {
       Node argNode;
       try {
         if (config.getComponent(parameter.getType()) != null) {
+          // the parameter can be satisfied by a component supplied by the engine
           argNode = config.decorateNode(new ComponentNode(parameter));
         } else {
+          // check if the user has provided a value in the config for this argument
           Object argument = config.getConstructorArgument(implType, parameter);
           if (argument == null) {
             // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't?
+            // there's no argument, try to build an instance by recursing
             Node createdNode = createNode(parameter.getType(), config, newPath, parameter);
             if (createdNode != null) {
               argNode = createdNode;
@@ -157,6 +183,7 @@ public final class FunctionModel {
                                                            parameter.getFullName());
             }
           } else {
+            // there's a value in the config for this argument, use it
             argNode = config.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
           }
         }
@@ -202,14 +229,15 @@ public final class FunctionModel {
                                            String childIndent,
                                            boolean showProxies) {
     Node realNode = getRealNode(node, showProxies);
+    // prefix the line with an asterisk if the node is an error node for easier debugging
+    String errorPrefix = node.isError() ? "->" : "  ";
     // TODO can this method deal with prepending the property name so Node doesn't need to know the parameter?
-    builder.append('\n').append(indent).append(realNode.prettyPrint());
+    builder.append('\n').append(errorPrefix).append(indent).append(realNode.prettyPrint());
     for (Iterator<Node> itr = realNode.getDependencies().iterator(); itr.hasNext(); ) {
       Node child = itr.next();
       String newIndent;
       String newChildIndent;
       boolean isFinalChild = !itr.hasNext();
-      // these are unicode characters for box drawing
       if (!isFinalChild) {
         newIndent = childIndent + " |--";
         newChildIndent = childIndent + " |  ";
@@ -217,8 +245,8 @@ public final class FunctionModel {
         newIndent = childIndent + " `--";
         newChildIndent = childIndent + "    ";
       }
-      /*
-      if (!isFinalChild) {
+      // these are unicode characters for box drawing
+      /*if (!isFinalChild) {
         newIndent = childIndent + " \u251c\u2500\u2500";
         newChildIndent = childIndent + " \u2502  ";
       } else {

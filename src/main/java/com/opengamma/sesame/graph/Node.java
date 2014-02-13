@@ -98,8 +98,20 @@ public abstract class Node {
     return _type;
   }
 
+  /**
+   * Returns true if this node represents a valid object that can be constructed.
+   * It implies this node all nodes below it in the dependency tree are valid.
+   * @return True if this node and all its dependencies are valid.
+   */
   public boolean isValid() {
     return true;
+  }
+
+  /**
+   * @return true if this node represents an object that is the source of an error.
+   */
+  public boolean isError() {
+    return false;
   }
 
   @Override

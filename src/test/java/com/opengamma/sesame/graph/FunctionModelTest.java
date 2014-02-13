@@ -47,7 +47,8 @@ public class FunctionModelTest {
 
   @Test
   public void infrastructure() {
-    ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
+    ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class,
+                                                                                    INFRASTRUCTURE_COMPONENT));
     FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
@@ -82,7 +83,9 @@ public class FunctionModelTest {
     FunctionConfig config = config(implementations(PrivateConstructor.class, PrivateConstructorProvider.class),
                                    arguments(
                                        function(PrivateConstructorProvider.class,
-                                                argument("providerName", providerName))));
+                                                argument("providerName", providerName))
+                                   )
+    );
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
     PrivateConstructor fn = (PrivateConstructor) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertEquals(providerName, fn.getName());
@@ -131,7 +134,8 @@ public class FunctionModelTest {
 
   @Test
   public void buildDirectly3() {
-    ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class, INFRASTRUCTURE_COMPONENT));
+    ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class,
+                                                                                    INFRASTRUCTURE_COMPONENT));
     FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
     TestFn fn = FunctionModel.build(TestFn.class, graphConfig);
@@ -161,6 +165,32 @@ public class FunctionModelTest {
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(NoSuitableConstructor.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
     assertFalse(functionModel.isValid());
+  }
+
+  /** test that error nodes are marked in the pretty printed output */
+  @Test
+  public void prettyPrintErrors() {
+    FunctionConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
+                                                   CollaboratorFn.class, BrokenCollaborator.class));
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
+    String tree = functionModel.prettyPrint();
+    String[] lines = tree.split("\n");
+    assertEquals(4, lines.length);
+    System.out.println(tree);
+    assertTrue(lines[3].startsWith("->"));
+  }
+
+  /** test that non-error nodes aren't marked in the pretty printed output */
+  @Test
+  public void prettyPrintNoErrors() {
+    FunctionConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
+                                                   CollaboratorFn.class, Collaborator.class));
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
+    String tree = functionModel.prettyPrint();
+    String[] lines = tree.split("\n");
+    assertEquals(3, lines.length);
+    assertFalse(lines[2].startsWith("->"));
+    System.out.println(tree);
   }
 
   @Test
@@ -226,6 +256,12 @@ public class FunctionModelTest {
 /* package */ class Collaborator implements CollaboratorFn {
 
   public Collaborator() {
+  }
+}
+
+/* package */ class BrokenCollaborator implements CollaboratorFn {
+
+  public BrokenCollaborator(Object unsatisfiedArg) {
   }
 }
 
