@@ -25,7 +25,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
@@ -96,7 +95,6 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.test.TestProperties;
 
 import net.sf.ehcache.CacheManager;
 
@@ -289,7 +287,6 @@ liveDataClient.heartbeatTopic = BloombergHeartbeatTopic
 
     public RemoteProviderTestUtils() {
       _fudgeContext = OpenGammaFudgeContext.getInstance();
-      final Properties props = TestProperties.getTestProperties();
       final String baseUrl = "http://devsvr-lx-2:8080/jax";
           //new StringBuilder("http://")
           //.append(System.getProperty("web.host", props.getProperty("opengamma.provider.host"))).append(':')
