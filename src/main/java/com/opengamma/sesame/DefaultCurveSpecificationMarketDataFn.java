@@ -5,16 +5,15 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
-import static com.opengamma.util.result.ResultGenerator.failure;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;

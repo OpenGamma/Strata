@@ -7,13 +7,12 @@ package com.opengamma.sesame.fra;
 
 import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailures;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.tools.ant.types.Mapper;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -129,7 +128,7 @@ public class DiscountingFRAPVFn implements FRAPVFn {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
     if (mesResult.isValueAvailable()) {
-      Set<String> incompleteBundles = new HashSet<>();
+      Set<Result<?>> incompleteBundles = new HashSet<>();
       Set<MulticurveProviderDiscount> bundles = new HashSet<>();
       MarketExposureSelector selector = mesResult.getValue();
       Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurationsForSecurity(security);
@@ -140,7 +139,7 @@ public class DiscountingFRAPVFn implements FRAPVFn {
           Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getValue();
           bundles.add(result.getFirst());
         } else {
-          incompleteBundles.add(curveConfig.getName());
+          incompleteBundles.add(bundle);
         }
       }
 
@@ -149,7 +148,7 @@ public class DiscountingFRAPVFn implements FRAPVFn {
       } else if (curveConfigs.isEmpty()) {
         return failure(FailureStatus.MISSING_DATA, "No matching curves found for security: {}", security);
       } else {
-        return failure(FailureStatus.MISSING_DATA, "Missing complete curve bundles(s) for: {}", incompleteBundles);
+        return propagateFailures(incompleteBundles);
       }
     } else {
       return propagateFailure(mesResult);
