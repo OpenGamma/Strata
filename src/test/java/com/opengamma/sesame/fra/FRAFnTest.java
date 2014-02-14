@@ -218,6 +218,8 @@ public class FRAFnTest {
     availableImplementations.register(DiscountingFRAPVFn.class,
                                       DefaultCurrencyPairsFn.class,
                                       ConfigDBInstrumentExposuresProvider.class,
+                                      FRADiscountingCalculatorFn.class,
+                                      FRACalculatorFactory.class,
                                       DefaultCurveSpecificationMarketDataFn.class,
                                       DefaultFXMatrixFn.class,
                                       DefaultCurveDefinitionFn.class,
@@ -253,7 +255,7 @@ public class FRAFnTest {
   @Test
   public void discountingFRAPV() {
     Result<?> resultPV = _results.get(0, 0).getResult();
-    assertThat(resultPV.isValueAvailable(), is((true)));
+    assertThat(resultPV.getFailureMessage(), resultPV.isValueAvailable(), is((true)));
 
     MultipleCurrencyAmount mca = (MultipleCurrencyAmount) resultPV.getValue();
     assertEquals(mca.getCurrencyAmount(Currency.USD).getAmount(), 23182.5437, STD_TOLERANCE_PV);
@@ -262,7 +264,7 @@ public class FRAFnTest {
   @Test
   public void parRateFRA() {
     Result<?> resultParRate = _results.get(0, 1).getResult();
-    assertThat(resultParRate.isValueAvailable(), is((true)));
+    assertThat(resultParRate.getFailureMessage(), resultParRate.isValueAvailable(), is((true)));
 
     Double parRate = (Double) resultParRate.getValue();
     assertEquals(0.003315, parRate, STD_TOLERANCE_RATE);

@@ -24,7 +24,6 @@ import static org.hamcrest.core.IsNot.not;
 import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Map;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
@@ -35,7 +34,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentServer;
@@ -49,8 +47,6 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.JmsLiveDataClient;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.provider.livedata.LiveDataMetaData;
 import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.provider.livedata.LiveDataServerTypes;
@@ -144,11 +140,7 @@ public class CurveBuildingIntegrationTest {
                                       DefaultHistoricalTimeSeriesFn.class,
                                       ConfigDbMarketExposureSelectorFn.class);
 
-    String serverUrl = "http://devsvr-lx-2:8080";
-    URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
-    HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
-    Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
-    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+    ComponentMap componentMap = ComponentMap.loadComponents("http://devsvr-lx-2:8080");
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider();
     ServiceContext serviceContext =
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
@@ -191,7 +183,8 @@ public class CurveBuildingIntegrationTest {
     ResultItem item = results.get("Curve Bundle");
     Result<?> successResult = item.getResult();
     assertThat(successResult.isValueAvailable(), is(true));
-    assertThat(successResult.getValue(), is(not(nullValue())));
+    final Object value = successResult.getValue();
+    assertThat(value, is(not(nullValue())));
   }
 
   private ResettableLiveRawMarketDataSource buildRawDataSource() {
@@ -200,37 +193,7 @@ public class CurveBuildingIntegrationTest {
 
   private LiveDataClient buildLiveDataClient() {
 
-
-
-    /*
-
-      <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <constructor-arg value="${activeMQ.brokerURL}" />
-    <property name="watchTopicAdvisories" value="false" /> <!-- IGN-94 -->
-  </bean>
-  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
-    <constructor-arg ref="activeMQConnectionFactory"/>
-    <property name="idleTimeout" value="0" /> <!-- AMQ-4366 -->
-  </bean>
-  <bean id="standardJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
-    <property name="name" value="StandardJms"/>
-    <property name="connectionFactory" ref="jmsConnectionFactory"/>
-    <property name="clientBrokerUri" value="${activeMQ.brokerURL}"/>
-  </bean>
-
-component.remoteProviders.baseUri = http://marketdataserver-lx-1:8090/jax
-
-    activeMQ.brokerURL=failover:(tcp://activemq.hq.opengamma.com:61616?daemon=true)?timeout=3000
-
-# For Excel via old-style configuration
-liveDataClient.subscriptionTopic = BloombergSubscriptionRequestTopic
-liveDataClient.entitlementTopic = BloombergEntitlementRequestTopic
-liveDataClient.heartbeatTopic = BloombergHeartbeatTopic
-     */
-
-
     final LiveDataMetaDataProvider dataProvider = TEST_UTILS.getLiveDataMetaDataProvider("bloomberg");
-
 
     LiveDataMetaData metaData =  dataProvider.metaData();
     URI jmsUri = metaData.getJmsBrokerUri();
@@ -238,7 +201,6 @@ liveDataClient.heartbeatTopic = BloombergHeartbeatTopic
     if (metaData.getServerType() != LiveDataServerTypes.STANDARD || jmsUri == null) {
       throw new OpenGammaRuntimeException("Unsupported live data server type " + metaData.getServerType() + " for " + metaData.getDescription());
     }
-
 
     JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
 
