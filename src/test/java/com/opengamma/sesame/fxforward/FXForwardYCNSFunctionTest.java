@@ -81,6 +81,8 @@ import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
@@ -242,6 +244,8 @@ public class FXForwardYCNSFunctionTest {
                             ConfigDBInstrumentExposuresProvider.class,
                             CurveSpecificationMarketDataFn.class,
                             DefaultCurveSpecificationMarketDataFn.class,
+                            DiscountingMulticurveCombinerFn.class,
+                            ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                             FXMatrixFn.class,
                             DefaultFXMatrixFn.class,
                             CurveDefinitionFn.class,

@@ -83,6 +83,8 @@ import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -246,6 +248,8 @@ public class FXForwardPnlSeriesFunctionTest {
                             DefaultFXReturnSeriesFn.class,
                             FXForwardCalculatorFn.class,
                             FXForwardDiscountingCalculatorFn.class,
+                            DiscountingMulticurveCombinerFn.class,
+                            ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                             MarketExposureSelectorFn.class,
                             ConfigDbMarketExposureSelectorFn.class,
                             CurrencyPairsFn.class,

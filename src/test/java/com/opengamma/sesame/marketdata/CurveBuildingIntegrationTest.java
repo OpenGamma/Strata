@@ -94,7 +94,7 @@ import com.opengamma.util.test.TestGroup;
 
 import net.sf.ehcache.CacheManager;
 
-@Test(groups = TestGroup.INTEGRATION)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class CurveBuildingIntegrationTest {
 
   private static final RemoteProviderTestUtils TEST_UTILS = new RemoteProviderTestUtils();

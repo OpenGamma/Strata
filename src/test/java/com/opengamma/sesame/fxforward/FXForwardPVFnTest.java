@@ -102,6 +102,8 @@ import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
@@ -310,6 +312,7 @@ public class FXForwardPVFnTest {
                                       FXForwardSecurityConverter.class,
                                       ConfigDBInstrumentExposuresProvider.class,
                                       DefaultCurveSpecificationMarketDataFn.class,
+                                      ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                                       DefaultFXMatrixFn.class,
                                       DefaultCurveDefinitionFn.class,
                                       DefaultDiscountingMulticurveBundleFn.class,
@@ -412,6 +415,7 @@ public class FXForwardPVFnTest {
                                       DefaultFXMatrixFn.class,
                                       DefaultCurveDefinitionFn.class,
                                       DefaultDiscountingMulticurveBundleFn.class,
+                                      ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                                       DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
@@ -524,6 +528,8 @@ public class FXForwardPVFnTest {
                             DefaultCurveDefinitionFn.class,
                             DiscountingMulticurveBundleFn.class,
                             DefaultDiscountingMulticurveBundleFn.class,
+                            DiscountingMulticurveCombinerFn.class,
+                            ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                             CurveSpecificationFn.class,
                             DefaultCurveSpecificationFn.class,
                             CurveConstructionConfigurationSource.class,

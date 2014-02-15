@@ -102,6 +102,7 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;
@@ -222,6 +223,7 @@ public class FRAFnTest {
                                       FRACalculatorFactory.class,
                                       DefaultCurveSpecificationMarketDataFn.class,
                                       DefaultFXMatrixFn.class,
+                                      ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                                       DefaultCurveDefinitionFn.class,
                                       DefaultDiscountingMulticurveBundleFn.class,
                                       DefaultCurveSpecificationFn.class,
