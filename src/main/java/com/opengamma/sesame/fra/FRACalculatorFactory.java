@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.util.ArgumentChecker;
 
 public class FRACalculatorFactory {
 
@@ -25,8 +26,8 @@ public class FRACalculatorFactory {
 
   public FRACalculatorFactory(FRASecurityConverter fraConverter,
                               ValuationTimeFn valuationTimeFn) {
-    _fraConverter = fraConverter;
-    _valuationTimeFn = valuationTimeFn;
+    _fraConverter = ArgumentChecker.notNull(fraConverter, "fraConverter");
+    _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
   }
 
   public FRACalculator createCalculator(FRASecurity security,

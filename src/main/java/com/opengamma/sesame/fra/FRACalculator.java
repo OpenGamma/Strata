@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.fra;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
@@ -45,27 +47,15 @@ public class FRACalculator {
    */
   private final CurveBuildingBlockBundle _mergedJacobianBundle;
 
-  /**
-   * Converter for a FRA.
-   */
-  private final FRASecurityConverter _fraConverter;
-
-  /**
-   * Provides the valuation time to perform calculations as at.
-   */
-  private final ValuationTimeFn _valuationTimeFn;
-
   public FRACalculator(FRASecurity security,
                        MulticurveProviderDiscount bundle,
                        CurveBuildingBlockBundle mergedJacobianBundle,
                        FRASecurityConverter fraConverter,
                        ValuationTimeFn valuationTimeFn) {
 
-    _derivative = createInstrumentDerivative(security);
+    _derivative = createInstrumentDerivative(security, fraConverter, valuationTimeFn.getTime());
     _bundle = bundle;
     _mergedJacobianBundle = mergedJacobianBundle;
-    _fraConverter = fraConverter;
-    _valuationTimeFn = valuationTimeFn;
   }
 
   public MultipleCurrencyAmount calculatePV() {
@@ -80,8 +70,10 @@ public class FRACalculator {
     return _derivative.accept(calculator, _bundle);
   }
 
-  private InstrumentDerivative createInstrumentDerivative(FRASecurity security) {
-    InstrumentDefinition<?> definition = security.accept(_fraConverter);
-    return definition.toDerivative(_valuationTimeFn.getTime());
+  private InstrumentDerivative createInstrumentDerivative(FRASecurity security,
+                                                          FRASecurityConverter fraConverter,
+                                                          ZonedDateTime valuationTime) {
+    InstrumentDefinition<?> definition = security.accept(fraConverter);
+    return definition.toDerivative(valuationTime);
   }
 }
