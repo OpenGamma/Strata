@@ -25,6 +25,7 @@ import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
+import com.opengamma.sesame.marketdata.ResettableMarketDataFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;

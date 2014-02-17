@@ -3,16 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.marketdata;
 
 import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
-
-import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
 
 /**
  * Extension to the MarketDataProviderFunction which adds management methods.

@@ -18,7 +18,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.sesame.ResettableMarketDataFn;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.time.LocalDateRange;

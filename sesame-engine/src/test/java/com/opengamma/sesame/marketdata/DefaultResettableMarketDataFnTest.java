@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.marketdata;
 
 import static com.opengamma.sesame.marketdata.MarketDataStatus.AVAILABLE;
 import static com.opengamma.sesame.marketdata.MarketDataStatus.PENDING;
@@ -28,6 +28,7 @@ import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataValues;
+import com.opengamma.sesame.marketdata.ResettableMarketDataFn;
 import com.opengamma.util.test.TestGroup;
 
 
