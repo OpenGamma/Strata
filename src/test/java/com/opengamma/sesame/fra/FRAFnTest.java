@@ -20,17 +20,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -59,7 +54,6 @@ import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
@@ -68,7 +62,6 @@ import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
-import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
@@ -118,11 +111,9 @@ import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
-import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
-import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketdataResourcesLoader;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -218,7 +209,6 @@ public class FRAFnTest {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(DiscountingFRAPVFn.class,
                                       DefaultCurrencyPairsFn.class,
-                                      ConfigDBInstrumentExposuresProvider.class,
                                       FRADiscountingCalculatorFn.class,
                                       FRACalculatorFactory.class,
                                       DefaultCurveSpecificationMarketDataFn.class,
@@ -227,9 +217,9 @@ public class FRAFnTest {
                                       DefaultCurveDefinitionFn.class,
                                       DefaultDiscountingMulticurveBundleFn.class,
                                       DefaultCurveSpecificationFn.class,
-                                      ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
-                                      ConfigDbMarketExposureSelectorFn.class);
+                                      ConfigDbMarketExposureSelectorFn.class
+                                      );
 
     Engine engine = new Engine(executor,
                                ComponentMap.of(componentMap),
@@ -242,7 +232,10 @@ public class FRAFnTest {
 
     ZonedDateTime valuationTime = DateUtils.getUTCDate(2014, 1, 22);
     DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-    marketDataFn.resetMarketData(valuationTime, loadMarketDataForFra());
+    marketDataFn.resetMarketData(valuationTime,
+                                 MarketdataResourcesLoader.getData("usdMarketQuotes.properties",
+                                                                   FRAPVFn.class,
+                                                                   "Ticker"));
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory);
     _results = view.run(cycleArguments);
@@ -279,34 +272,6 @@ public class FRAFnTest {
     return new ExposureFunctions("USD_ON-OIS_LIBOR3M-FRAIRS", exposureFunctions, idsToNames);
   }
 
-  //TODO this should be shared as used by engine and FXForwardPVFnTest
-  private Map<MarketDataRequirement, MarketDataItem> loadMarketDataForFra()  throws IOException {
-    Properties properties = new Properties();
-    try (InputStream stream = FRAPVFn.class.getResourceAsStream("/usdMarketQuotes.properties");
-         Reader reader = new BufferedReader(new InputStreamReader(stream))) {
-      properties.load(reader);
-    }
-    Map<MarketDataRequirement, MarketDataItem> data = Maps.newHashMap();
-    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-      String id = (String) entry.getKey();
-      String value = (String) entry.getValue();
-      addValue(data, id, Double.valueOf(value));
-    }
-    return data;
-  }
-
-  //TODO this should be shared as used by engine and FXForwardPVFnTest
-  private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData, String ticker, double value) {
-    return addValue(marketData, new CurveNodeMarketDataRequirement(ExternalId.of("Ticker", ticker), "Market_Value"), value);
-  }
-
-  //TODO this should be shared as used by engine and FXForwardPVFnTest
-  private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData,
-                                         MarketDataRequirement requirement,
-                                         double value) {
-    return marketData.put(requirement, MarketDataItem.available(value));
-  }
-
   private RegionSource mockRegionSource() {
     RegionSource mock = mock(RegionSource.class);
     SimpleRegion region = new SimpleRegion();
@@ -334,12 +299,8 @@ public class FRAFnTest {
     when(mock.getSingle(_discPayLegConventionId, FinancialConvention.class))
         .thenReturn(descPayLegConvention);
 
-    OvernightIndexConvention onConvention = new OvernightIndexConvention(USD_OVERNIGHT_CONVENTION,
-                                                                         _onConventionId.toBundle(),
-                                                                         act360,
-                                                                         1,
-                                                                         s_USD,
-                                                                         s_USID);
+    OvernightIndexConvention onConvention =
+        new OvernightIndexConvention(USD_OVERNIGHT_CONVENTION, _onConventionId.toBundle(), act360, 1, s_USD, s_USID);
     when(mock.getSingle(_onConventionId, FinancialConvention.class))
         .thenReturn(onConvention);
     when(mock.getSingle(_onConventionId, OvernightIndexConvention.class))
@@ -372,18 +333,9 @@ public class FRAFnTest {
     when(mock.getSingle(_liborReceiveLegConventionId, FinancialConvention.class))
         .thenReturn(liborReceiveLegConvention);
 
-    IborIndexConvention liborConvention = new IborIndexConvention(LIBOR_CONVENTION,
-                                                                  _liborConventionId.toBundle(),
-                                                                  act360,
-                                                                  modifiedFollowing,
-                                                                  2,
-                                                                  true,
-                                                                  s_USD,
-                                                                  LocalTime.of(11, 0),
-                                                                  "Europe/London",
-                                                                  s_USGBID,
-                                                                  s_USID,
-                                                                  "");
+    IborIndexConvention liborConvention =
+        new IborIndexConvention(LIBOR_CONVENTION, _liborConventionId.toBundle(), act360, modifiedFollowing, 2,
+                                true, s_USD, LocalTime.of(11, 0), "Europe/London", s_USGBID, s_USID, "");
     when(mock.getSingle(_liborConventionId, FinancialConvention.class))
         .thenReturn(liborConvention);
     when(mock.getSingle(any(ExternalId.class), eq(IborIndexConvention.class)))

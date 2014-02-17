@@ -26,17 +26,12 @@ import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -141,6 +136,7 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
+import com.opengamma.sesame.marketdata.MarketdataResourcesLoader;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -199,7 +195,10 @@ public class FXForwardPVFnTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
-    Result<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(loadMarketDataForForward());
+    Result<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(MarketdataResourcesLoader.getData(
+                                                                      "marketdata.properties",
+                                                                      FXForwardPVFn.class,
+                                                                      ExternalSchemes.BLOOMBERG_TICKER));
     assertNotNull(pv);
     assertThat(pv.getStatus(), is((ResultStatus) SUCCESS));
   }
@@ -248,8 +247,11 @@ public class FXForwardPVFnTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-    Map<MarketDataRequirement, MarketDataItem> marketData = loadMarketDataForYieldCurve();
-    addValue(marketData, MarketDataRequirementFactory.of(CurrencyPair.of(USD, JPY)), 98.86);
+    Map<MarketDataRequirement, MarketDataItem> marketData = MarketdataResourcesLoader.getData(
+                                                              "yield-curve-marketdata.properties",
+                                                              FXForwardPVFn.class,
+                                                              ExternalSchemes.BLOOMBERG_TICKER);
+    MarketdataResourcesLoader.addValue(marketData, MarketDataRequirementFactory.of(CurrencyPair.of(USD, JPY)), 98.86);
     marketDataFn.resetMarketData(valuationTime, marketData);
     Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
                                                   // TODO this is provided by the engine. SSM-59
@@ -342,7 +344,10 @@ public class FXForwardPVFnTest {
     View view = engine.createView(viewDef, Collections.emptyList());
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-    marketDataFn.resetMarketData(valuationTime, FXForwardPVFnTest.loadMarketDataForForward());
+    marketDataFn.resetMarketData(valuationTime, MarketdataResourcesLoader.getData(
+                                                  "marketdata.properties",
+                                                  FXForwardPVFn.class,
+                                                  ExternalSchemes.BLOOMBERG_TICKER));
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory);
     Results results = view.run(cycleArguments);
@@ -398,7 +403,10 @@ public class FXForwardPVFnTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-    marketDataFn.resetMarketData(valuationTime, FXForwardPVFnTest.loadMarketDataForForward());
+    marketDataFn.resetMarketData(valuationTime, MarketdataResourcesLoader.getData(
+                                                  "marketdata.properties",
+                                                  FXForwardPVFn.class,
+                                                  ExternalSchemes.BLOOMBERG_TICKER));
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
     long startComponents = System.currentTimeMillis();
@@ -544,40 +552,6 @@ public class FXForwardPVFnTest {
       compMap.put(componentType, mock(componentType));
     }
     return ComponentMap.of(compMap);
-  }
-
-  // TODO move this somewhere else now it's shared with the engine test
-  public static Map<MarketDataRequirement, MarketDataItem> loadMarketDataForForward() throws IOException {
-    return loadMarketData("/marketdata.properties");
-  }
-
-  private static Map<MarketDataRequirement, MarketDataItem> loadMarketDataForYieldCurve() throws IOException {
-    return loadMarketData("/yield-curve-marketdata.properties");
-  }
-
-  private static Map<MarketDataRequirement, MarketDataItem> loadMarketData(String fileName) throws IOException {
-    Properties properties = new Properties();
-    try (InputStream stream = FXForwardPVFn.class.getResourceAsStream(fileName);
-         Reader reader = new BufferedReader(new InputStreamReader(stream))) {
-      properties.load(reader);
-    }
-    Map<MarketDataRequirement, MarketDataItem> data = Maps.newHashMap();
-    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-      String id = (String) entry.getKey();
-      String value = (String) entry.getValue();
-      addValue(data, id, Double.valueOf(value) / 100);
-    }
-    return data;
-  }
-
-  private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData, String ticker, double value) {
-    return addValue(marketData, new CurveNodeMarketDataRequirement(ExternalSchemes.bloombergTickerSecurityId(ticker), "Market_Value"), value);
-  }
-
-  private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData,
-                                         MarketDataRequirement requirement,
-                                         double value) {
-    return marketData.put(requirement, MarketDataItem.available(value));
   }
 
   private static void logMarketData(Set<MarketDataRequirement> requirements) {

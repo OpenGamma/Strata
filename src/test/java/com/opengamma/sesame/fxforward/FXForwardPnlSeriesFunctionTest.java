@@ -22,15 +22,10 @@ import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
 
@@ -105,12 +100,9 @@ import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.NodeDecorator;
-import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
 import com.opengamma.sesame.marketdata.EagerMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalRawMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -282,50 +274,4 @@ public class FXForwardPnlSeriesFunctionTest {
     return ComponentMap.of(compMap);
   }
 
-  // TODO move this somewhere else now it's shared with the engine test
-  public static Map<MarketDataRequirement, MarketDataItem> loadMarketDataForForward() throws IOException {
-    return loadMarketData("/marketdata.properties");
-  }
-
-  /*private static Map<MarketDataRequirement, MarketDataItem> loadMarketDataForYieldCurve() throws IOException {
-    return loadMarketData("/yield-curve-marketdata.properties");
-  }*/
-
-  // TODO move to a test helper class
-  private static Map<MarketDataRequirement, MarketDataItem> loadMarketData(String fileName) throws IOException {
-    Properties properties = new Properties();
-    try (InputStream stream = FXForwardPVFn.class.getResourceAsStream(fileName);
-         Reader reader = new BufferedReader(new InputStreamReader(stream))) {
-      properties.load(reader);
-    }
-    Map<MarketDataRequirement, MarketDataItem> data = Maps.newHashMap();
-    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-      String id = (String) entry.getKey();
-      String value = (String) entry.getValue();
-      addValue(data, id, Double.valueOf(value) / 100);
-    }
-    return data;
-  }
-
-  private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData, String ticker, double value) {
-
-    return addValue(marketData, new CurveNodeMarketDataRequirement(ExternalSchemes.bloombergTickerSecurityId(ticker), "Market_Value"), value);
-  }
-
-  private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData,
-                                            MarketDataRequirement requirement,
-                                            double value) {
-    return marketData.put(requirement, MarketDataItem.available(value));
-  }
-
-  /*private static void logMarketData(Set<MarketDataRequirement> requirements) {
-    for (MarketDataRequirement requirement : requirements) {
-      if (requirement instanceof CurveNodeMarketDataRequirement) {
-        ExternalId id = ((CurveNodeMarketDataRequirement) requirement).getExternalId();
-        System.out.println(id);
-      } else {
-        System.out.println(requirement);
-      }
-    }
-  }*/
 }
