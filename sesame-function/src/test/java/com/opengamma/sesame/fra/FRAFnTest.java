@@ -7,11 +7,9 @@ package com.opengamma.sesame.fra;
 
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
-import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
@@ -22,16 +20,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -44,6 +37,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -56,7 +50,9 @@ import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
@@ -64,7 +60,9 @@ import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
+import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
@@ -90,6 +88,10 @@ import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.CurrencyPairsFn;
+import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveSpecificationFn;
+import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
@@ -97,26 +99,24 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DefaultValuationTimeFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.MarketdataResourcesLoader;
-import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.config.FunctionConfig;
-import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.engine.CycleArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.EngineService;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
-import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.engine.View;
-import com.opengamma.sesame.function.AvailableImplementations;
-import com.opengamma.sesame.function.AvailableImplementationsImpl;
-import com.opengamma.sesame.function.AvailableOutputs;
-import com.opengamma.sesame.function.AvailableOutputsImpl;
+import com.opengamma.sesame.graph.FunctionModel;
+import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataFactory;
-import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -164,11 +164,15 @@ public class FRAFnTest {
   private static ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
   private static Currency s_USD = Currency.USD;
 
-  private Results _results;
+  private FRAPVFn _fraFunction;
+  private FRASecurity _fraSecurity = createSingleFra();
 
 
   @BeforeClass
   public void setUpClass() throws IOException {
+
+    ZonedDateTime valuationTime = DateUtils.getUTCDate(2014, 1, 22);
+
     FunctionConfig config = config(
         arguments(
             function(ConfigDbMarketExposureSelectorFn.class,
@@ -184,84 +188,77 @@ public class FRAFnTest {
                      argument("htsRetrievalPeriod", Period.ofYears(1))),
             function(DefaultDiscountingMulticurveBundleFn.class,
                      argument("impliedCurveNames", ImmutableSet.of()))
-        ));
-    ViewDef viewDef =
-        viewDef("FX forward PV view",
-                column("Present Value", output(OutputNames.PRESENT_VALUE, FRASecurity.class, config)),
-                column("Par Rate", output(OutputNames.PAR_RATE, FRASecurity.class, config))
-        );
-
-    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
+        ),
+        implementations(FRAPVFn.class, DiscountingFRAPVFn.class,
+                        CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                        InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                        FRACalculatorFn.class, FRADiscountingCalculatorFn.class,
+                        FRACalculatorFactory.class, FRACalculatorFactory.class,
+                        CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                        FXMatrixFn.class, DefaultFXMatrixFn.class,
+                        DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
 
     Map<Class<?>, Object> componentMap = generateComponentMap(mockHolidaySource(),
                                                               mockRegionSource(),
                                                               mockConventionSource(),
                                                               mockConfigSource(),
                                                               mockSecuritySource(),
-                                                              mockHistoricalTimeSeriesSource());
+                                                              mockHistoricalTimeSeriesSource(),
+                                                              createValuationTimeFn(valuationTime));
+
+    // Needed as the above method returns the wrong interface type for this market data function
+    final ImmutableMap<Class<?>, Object> components =
+        ImmutableMap.<Class<?>, Object>builder()
+            .putAll(componentMap)
+            .put(MarketDataFn.class, createMarketDataFn(valuationTime))
+            .build();
 
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
-    final ServiceContext serviceContext = ServiceContext.of(componentMap).with(VersionCorrectionProvider.class, vcProvider);
+    ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(FRAPVFn.class);
-    AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
-    availableImplementations.register(DiscountingFRAPVFn.class,
-                                      DefaultCurrencyPairsFn.class,
-                                      FRADiscountingCalculatorFn.class,
-                                      FRACalculatorFactory.class,
-                                      DefaultCurveSpecificationMarketDataFn.class,
-                                      DefaultFXMatrixFn.class,
-                                      ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                                      DefaultCurveDefinitionFn.class,
-                                      DefaultDiscountingMulticurveBundleFn.class,
-                                      DefaultCurveSpecificationFn.class,
-                                      DefaultHistoricalTimeSeriesFn.class,
-                                      ConfigDbMarketExposureSelectorFn.class
-                                      );
-
-    Engine engine = new Engine(executor,
-                               ComponentMap.of(componentMap),
-                               availableOutputs,
-                               availableImplementations,
-                               FunctionConfig.EMPTY,
-                               CacheManager.getInstance(),
-                               EnumSet.of(EngineService.CACHING, EngineService.TRACING));
-    View view = engine.createView(viewDef, createSingleFra());
-
-    ZonedDateTime valuationTime = DateUtils.getUTCDate(2014, 1, 22);
-    DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-    marketDataFn.resetMarketData(valuationTime,
-                                 MarketdataResourcesLoader.getData("usdMarketQuotes.properties",
-                                                                   FRAPVFn.class,
-                                                                   "Ticker"));
-    MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory);
-    _results = view.run(cycleArguments);
+    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.of(components), NodeDecorator.IDENTITY);
+    _fraFunction = FunctionModel.build(FRAPVFn.class, graphConfig);
   }
 
-  @Test
-  public void resultsFRA() {
-    assertThat(_results.getRows().size(), is(1)); //Single FRA
-    assertThat(_results.getColumnNames().size(), is(2)); //Columns PV and Par Rate
+  private ValuationTimeFn createValuationTimeFn(ZonedDateTime valuationTime) {
+    return new DefaultValuationTimeFn(valuationTime);
+  }
+
+  private MarketDataFn createMarketDataFn(ZonedDateTime valuationTime) {
+    try {
+      DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
+      marketDataFn.resetMarketData(valuationTime,
+                                   MarketdataResourcesLoader.getData("usdMarketQuotes.properties",
+                                                                     FRAPVFn.class,
+                                                                     "Ticker"));
+      return marketDataFn;
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Exception whilst loading file", e);
+    }
   }
 
   @Test
   public void discountingFRAPV() {
-    Result<?> resultPV = _results.get(0, 0).getResult();
+    Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(_fraSecurity);
     assertThat(resultPV.isValueAvailable(), is((true)));
 
-    MultipleCurrencyAmount mca = (MultipleCurrencyAmount) resultPV.getValue();
+    MultipleCurrencyAmount mca = resultPV.getValue();
     assertEquals(mca.getCurrencyAmount(Currency.USD).getAmount(), 23182.5437, STD_TOLERANCE_PV);
   }
 
   @Test
   public void parRateFRA() {
-    Result<?> resultParRate = _results.get(0, 1).getResult();
+    Result<Double> resultParRate = _fraFunction.calculateRate(_fraSecurity);
     assertThat(resultParRate.isValueAvailable(), is((true)));
 
-    Double parRate = (Double) resultParRate.getValue();
+    Double parRate = resultParRate.getValue();
     assertEquals(0.003315, parRate, STD_TOLERANCE_RATE);
   }
 
@@ -372,9 +369,9 @@ public class FRAFnTest {
 
     //return curve definitions via mock
     when(mock.get(eq(Object.class), eq(ON_CURVE_NAME), any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.<ConfigItem<Object>>of(ConfigItem.<Object>of(getUSDDiscountingCurveDefinition())));
+        .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(getUSDDiscountingCurveDefinition())));
     when(mock.get(eq(Object.class), eq(LIBOR_CURVE_NAME), any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.<ConfigItem<Object>>of(ConfigItem.<Object>of(get3MLiborCurveDefinition())));
+        .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(get3MLiborCurveDefinition())));
 
     //return node mappers via mock
     when(mock.getSingle(CurveNodeIdMapper.class, USD_DISC_MAPPER, VersionCorrection.LATEST))
@@ -535,12 +532,11 @@ public class FRAFnTest {
     return builder.build();
   }
 
-  private List<FRASecurity> createSingleFra() {
+  private FRASecurity createSingleFra() {
     ExternalId regionId = ExternalId.of("Reg", "123");
     ExternalId underlyingId = ExternalId.of("Und", "321");
-    FRASecurity security = new FRASecurity(s_USD, regionId, STD_ACCRUAL_START_DATE, STD_ACCRUAL_END_DATE,
+    return new FRASecurity(s_USD, regionId, STD_ACCRUAL_START_DATE, STD_ACCRUAL_END_DATE,
                                            0.0125, -10000000, underlyingId, STD_REFERENCE_DATE);
-    return ImmutableList.of(security);
   }
 
 
