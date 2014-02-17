@@ -8,25 +8,36 @@ package com.opengamma.sesame.proxy;
 import java.lang.reflect.Method;
 
 /**
- * TODO print the implementing class, not the interface type
- * TODO more sophisticated - selectively enable for specific inputs or threads
- * TODO log rather than printing to stdout
- * TODO include thread name so output can be interleaved
+ * A proxy that records the time taken by each method call.
  */
-public class TimingProxy extends ProxyNodeDecorator {
+public final class TimingProxy extends ProxyNodeDecorator {
+// TODO print the implementing class, not the interface type
+// TODO more sophisticated - selectively enable for specific inputs or threads
+// TODO log rather than printing to stdout
+// TODO include thread name so output can be interleaved
 
+  /**
+   * Singleton instance of the timing proxy.
+   */
   public static final TimingProxy INSTANCE = new TimingProxy();
 
-  private static ThreadLocal<Integer> _depth = new ThreadLocal<Integer>() {
+  /**
+   * The thread-local storing the current call depth.
+   */
+  private static ThreadLocal<Integer> s_depth = new ThreadLocal<Integer>() {
     @Override
     protected Integer initialValue() {
       return -1;
     }
   };
 
+  /**
+   * Restricted constructor.
+   */
   private TimingProxy() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected boolean decorate(Class<?> interfaceType, Class<?> implementationType) {
     return true;
@@ -36,15 +47,9 @@ public class TimingProxy extends ProxyNodeDecorator {
   protected Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Throwable {
     long start = System.nanoTime();
     try {
-      _depth.set(_depth.get() + 1);
-      /*StringBuilder entryBuilder = new StringBuilder();
-      indent(entryBuilder);
-      entryBuilder
-          .append(method.getDeclaringClass().getSimpleName())
-          .append(".")
-          .append(method.getName());
-      System.out.println(entryBuilder);*/
+      s_depth.set(s_depth.get() + 1);
       return method.invoke(delegate, args);
+      
     } finally {
       StringBuilder exitBuilder = new StringBuilder();
       indent(exitBuilder);
@@ -55,13 +60,14 @@ public class TimingProxy extends ProxyNodeDecorator {
           .append(".")
           .append(method.getName());
       System.out.println(exitBuilder);
-      _depth.set(_depth.get() - 1);
+      s_depth.set(s_depth.get() - 1);
     }
   }
 
   private void indent(StringBuilder builder) {
-    for (int i = 0; i < _depth.get(); i++) {
+    for (int i = 0; i < s_depth.get(); i++) {
       builder.append("  ");
     }
   }
+
 }

@@ -13,18 +13,22 @@ public interface NodeDecorator {
   /**
    * Returns its argument.
    */
-  public static NodeDecorator IDENTITY = new NodeDecorator() {
+  NodeDecorator IDENTITY = new NodeDecorator() {
     @Override
     public Node decorateNode(Node node) {
       return node;
     }
   };
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a node after optionally wrapping it in a proxy node.
+   * <p>
    * If the factory doesn't insert a proxy it must return the original node.
-   * @param node A node
-   * @return A node, possibly wrapped in a proxy, not null
+   * 
+   * @param node  a node, not null
+   * @return a node, possibly wrapped in a proxy, not null
    */
   Node decorateNode(Node node);
+
 }

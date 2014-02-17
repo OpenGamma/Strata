@@ -11,12 +11,20 @@ import com.opengamma.sesame.proxy.ProxyNodeDecorator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Inserts a proxy in front of all interface nodes that records method calls, arguments and return values.
+ * A proxy that records method calls, arguments and return values.
+ * <p>
+ * This can be used in front of all interface nodes.
  */
 public final class TracingProxy extends ProxyNodeDecorator {
 
+  /**
+   * Singleton instance of the tracing proxy.
+   */
   public static final TracingProxy INSTANCE = new TracingProxy();
 
+  /**
+   * The thread-local for the tracer.
+   */
   private static final ThreadLocal<Tracer> s_tracer = new ThreadLocal<Tracer>() {
     @Override
     protected Tracer initialValue() {
@@ -24,9 +32,35 @@ public final class TracingProxy extends ProxyNodeDecorator {
     }
   };
 
+  //-------------------------------------------------------------------------
+  /**
+   * Starts the process of tracing.
+   * 
+   * @param tracer  the tracer to use, not null
+   */
+  public static void start(Tracer tracer) {
+    s_tracer.set(ArgumentChecker.notNull(tracer, "tracer"));
+  }
+
+  /**
+   * Ends the process of tracing.
+   * 
+   * @return the call graph, null if not available
+   */
+  public static CallGraph end() {
+    Tracer tracer = s_tracer.get();
+    s_tracer.remove();
+    return tracer.getRoot();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor.
+   */
   private TracingProxy() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   protected boolean decorate(Class<?> interfaceType, Class<?> implementationType) {
     return true;
@@ -44,20 +78,11 @@ public final class TracingProxy extends ProxyNodeDecorator {
       Object retVal = method.invoke(delegate, args);
       tracer.returned(retVal);
       return retVal;
-    } catch (Exception e) {
-      Throwable cause = e.getCause();
+    } catch (Exception ex) {
+      Throwable cause = ex.getCause();
       tracer.threw(cause);
       throw cause;
     }
   }
 
-  public static void start(Tracer tracer) {
-    s_tracer.set(ArgumentChecker.notNull(tracer, "tracer"));
-  }
-
-  public static CallGraph end() {
-    Tracer tracer = s_tracer.get();
-    s_tracer.remove();
-    return tracer.getRoot();
-  }
 }

@@ -14,23 +14,46 @@ import java.util.Objects;
 import com.google.common.collect.Lists;
 
 /**
- * TODO maybe an interface instead? abstract class? different tracers will need similar functionality
- * TODO joda bean so it can be serialized as part of the results
+ * Graph representing the calls made to calculate a single result.
  */
 public class CallGraph {
+// TODO maybe an interface instead? abstract class? different tracers will need similar functionality
+// TODO joda bean so it can be serialized as part of the results
+// there are no getters here currently
 
+  /**
+   * The invoked method.
+   */
   private final Method _method;
+  /**
+   * The method arguments.
+   */
   private final Object[] _args;
+  /**
+   * The child call graphs.
+   */
   private final List<CallGraph> _callGraphs = Lists.newArrayList();
-
+  /**
+   * The return value.
+   */
   private Object _returnValue;
+  /**
+   * The throwable.
+   */
   private Throwable _throwable;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param method  the invoked method, not null
+   * @param args  the method arguments, not null
+   */
   /* package */ CallGraph(Method method, Object... args) {
     _method = method;
     _args = args;
   }
 
+  //-------------------------------------------------------------------------
   /* package */ void called(CallGraph callGraph) {
     _callGraphs.add(callGraph);
   }
@@ -47,6 +70,12 @@ public class CallGraph {
     return _callGraphs;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Provides a pretty-printed version of the call graph as a string.
+   * 
+   * @return a string representation of the call graph, not null
+   */
   public String prettyPrint() {
     return prettyPrint(new StringBuilder(), this, "", "").toString();
   }
@@ -80,18 +109,7 @@ public class CallGraph {
     return builder;
   }
 
-  @Override
-  public String toString() {
-    return _method.getDeclaringClass().getSimpleName() + "." + _method.getName() + "()" +
-        (_throwable == null ? " -> " + _returnValue : " threw " + _throwable) +
-        (_args == null ? "" : ", args: " + Arrays.deepToString(_args));
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(_method, Arrays.deepHashCode(_args), _callGraphs, _returnValue, _throwable);
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -108,4 +126,17 @@ public class CallGraph {
         Objects.equals(this._returnValue, other._returnValue) &&
         Objects.equals(this._throwable, other._throwable);
   }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_method, Arrays.deepHashCode(_args), _callGraphs, _returnValue, _throwable);
+  }
+
+  @Override
+  public String toString() {
+    return _method.getDeclaringClass().getSimpleName() + "." + _method.getName() + "()" +
+        (_throwable == null ? " -> " + _returnValue : " threw " + _throwable) +
+        (_args == null ? "" : ", args: " + Arrays.deepToString(_args));
+  }
+
 }

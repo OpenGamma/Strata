@@ -10,14 +10,20 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 /**
- *
+ * Tracer implementation that creates a full call graph.
  */
 public class FullTracer implements Tracer {
 
+  /**
+   * The stack of calls.
+   */
   private final Deque<CallGraph> _stack = new LinkedList<>();
-
+  /**
+   * The root of the call graph.
+   */
   private CallGraph _root;
 
+  //-------------------------------------------------------------------------
   @Override
   public void called(Method method, Object[] args) {
     CallGraph callGraph = new CallGraph(method, args);
@@ -35,12 +41,13 @@ public class FullTracer implements Tracer {
   }
 
   @Override
-  public void threw(Throwable e) {
-    _stack.pop().threw(e);
+  public void threw(Throwable ex) {
+    _stack.pop().threw(ex);
   }
 
   @Override
   public CallGraph getRoot() {
     return _root;
   }
+
 }
