@@ -37,6 +37,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.sf.ehcache.CacheManager;
+
 import org.hamcrest.MatcherAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +98,7 @@ import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DefaultValuationTimeFn;
+import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
@@ -114,7 +117,6 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.EngineService;
-import com.opengamma.sesame.engine.EngineTest;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
@@ -145,8 +147,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFnTest {
@@ -334,7 +334,7 @@ public class FXForwardPVFnTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    Engine engine = new Engine(new EngineTest.DirectExecutorService(),
+    Engine engine = new Engine(new DirectExecutorService(),
                                componentMap,
                                availableOutputs,
                                availableImplementations,

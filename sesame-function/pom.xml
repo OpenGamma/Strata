@@ -10,10 +10,10 @@
     <version>2.2.0-SNAPSHOT</version>
     <relativePath></relativePath>
   </parent>
-  <artifactId>sesame-engine</artifactId>
+  <artifactId>sesame-function</artifactId>
   <packaging>jar</packaging>
-  <name>Sesame-Engine</name>
-  <description>Alternative OpenGamma calculation engine</description>
+  <name>Sesame-Function</name>
+  <description>Functions for the Sesame calculation engine</description>
 
   <!-- ==================================================================== -->
   <inceptionYear>2013</inceptionYear>
@@ -44,78 +44,16 @@
 
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-financial</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-financial-types</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-engine</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-component</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>examples-simulated</artifactId>
+      <artifactId>sesame-engine</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <!-- 3rd party dependencies -->
 
     <dependency>
-      <groupId>org.joda</groupId>
-      <artifactId>joda-beans</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.joda</groupId>
-      <artifactId>joda-convert</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>com.thoughtworks.paranamer</groupId>
       <artifactId>paranamer</artifactId>
       <version>2.6</version>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <version>1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>1.3.9</version>
     </dependency>
 
     <!-- test dependencies -->

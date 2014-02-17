@@ -24,7 +24,6 @@ public class EquityIdDescriptionFn implements EquityDescriptionFn {
   }
 
   /**
-   * @param marketData Not used
    * @param security A security
    * @return The value of one of the security's external IDs
    */
