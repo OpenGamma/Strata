@@ -11,13 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.security.cashflow.CashFlowSecurity;
-import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.example.CashFlowIdDescriptionFn;
-import com.opengamma.sesame.example.DefaultIdSchemeFn;
-import com.opengamma.sesame.example.EquityDescriptionFn;
 
 /**
  * Mini DSL for building instances of {@link ViewDef} and related classes in code. See the
@@ -29,80 +22,6 @@ public final class ConfigBuilder {
   private static final Map<Class<?>, Class<?>> EMPTY_OVERRIDES = Collections.emptyMap();
 
   private ConfigBuilder() {
-  }
-
-  public void main(String[] args) {
-    ViewDef example1 =
-        viewDef("columns only",
-                column(OutputNames.DESCRIPTION),
-                column(OutputNames.DESCRIPTION,
-                       config(
-                           implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
-                           arguments(
-                               function(DefaultIdSchemeFn.class,
-                                        argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                column("Bloomberg Ticker", OutputNames.DESCRIPTION,
-                       output(EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class))),
-                       output(CashFlowSecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
-                column("ACTIV Symbol", OutputNames.DESCRIPTION,
-                       output(EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
-                                  arguments(
-                                      function(DefaultIdSchemeFn.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                       output(CashFlowSecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
-                                  arguments(
-                                      function(DefaultIdSchemeFn.class,
-                                               argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))))));
-    System.out.println(example1);
-
-    ViewDef example2 =
-        viewDef("columns and other outputs",
-                columns(
-                    column(OutputNames.DESCRIPTION),
-                    column(OutputNames.DESCRIPTION,
-                           config(
-                               implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
-                               arguments(
-                                   function(DefaultIdSchemeFn.class,
-                                            argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                    column("Bloomberg Ticker", OutputNames.DESCRIPTION,
-                           output(EquitySecurity.class,
-                                  config(
-                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class))),
-                           output(CashFlowSecurity.class,
-                                  config(
-                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
-                    column("ACTIV Symbol", OutputNames.DESCRIPTION,
-                           output(EquitySecurity.class,
-                                  config(
-                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
-                                      arguments(
-                                          function(DefaultIdSchemeFn.class,
-                                                   argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))),
-                           output(CashFlowSecurity.class,
-                                  config(
-                                      implementations(EquityDescriptionFn.class, CashFlowIdDescriptionFn.class),
-                                      arguments(
-                                          function(DefaultIdSchemeFn.class,
-                                                   argument("scheme", ExternalSchemes.ACTIVFEED_TICKER))))))),
-                nonPortfolioOutputs(
-                    nonPortfolioOutput("USD Discounting Curve",
-                                       output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE))));
-    System.out.println(example2);
-
-    ViewDef example3 =
-        viewDef("other outputs only",
-                nonPortfolioOutput("USD Discounting Curve",
-                                   output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE))); // TODO some function config
-    System.out.println(example3);
   }
 
   // TODO alternative viewDef overloads

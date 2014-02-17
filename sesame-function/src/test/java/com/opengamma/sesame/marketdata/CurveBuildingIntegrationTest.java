@@ -25,6 +25,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -62,6 +64,7 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
@@ -71,7 +74,6 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.EngineService;
-import com.opengamma.sesame.engine.EngineTest;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
@@ -91,8 +93,6 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class CurveBuildingIntegrationTest {
@@ -146,7 +146,7 @@ public class CurveBuildingIntegrationTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    Engine engine = new Engine(new EngineTest.DirectExecutorService(),
+    Engine engine = new Engine(new DirectExecutorService(),
                                componentMap,
                                availableOutputs,
                                availableImplementations,
