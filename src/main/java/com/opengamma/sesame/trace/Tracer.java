@@ -12,13 +12,39 @@ import java.lang.reflect.Method;
  * <p>
  * When processing functions, tracing can be added to monitor what is occurring.
  */
-public interface Tracer {
+public abstract class Tracer {
 //  possible implementations
 //  AggregatingTracer - counts invocations to the same method. linked map impl
 //  MergingTracer - merges adjacent invocations that are the same (e.g. loops)
 //  might need an incremental stateful version if we need to show live updating call graphs in the UI.
 //  need to assign a stable ID to nodes so the UI can keep track of node state as the graph is updated
+//  possible change to have an 'empty' call graph rather than null
 
+  /**
+   * Creates a tracer, which is either active or inactive.
+   * <p>
+   * An active tracer will trace the call graph.
+   * An inactive tracer will do nothing and return no call graph.
+   * 
+   * @param active  whether tracing should be activated
+   * @return the tracer, not null
+   */
+  public static Tracer create(boolean active) {
+    if (active) {
+      return new FullTracer();
+    } else {
+      return NoOpTracer.INSTANCE;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor.
+   */
+  Tracer() {
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Handles the tracing event when a method is about to be called.
    * <p>
@@ -27,7 +53,7 @@ public interface Tracer {
    * @param method  the method being called, not null
    * @param args  the method arguments, not null
    */
-  void called(Method method, Object[] args);
+  abstract void called(Method method, Object[] args);
 
   /**
    * Handles the tracing event when a method call completed.
@@ -39,7 +65,7 @@ public interface Tracer {
    * 
    * @param returnValue  the return value of the method, may be null
    */
-  void returned(Object returnValue);
+  abstract void returned(Object returnValue);
 
   /**
    * Handles the tracing event when a method call threw an exception.
@@ -48,7 +74,7 @@ public interface Tracer {
    * 
    * @param ex  the exception that was thrown
    */
-  void threw(Throwable ex);
+  abstract void threw(Throwable ex);
 
   /**
    * Gets the root of the call graph.
@@ -57,6 +83,6 @@ public interface Tracer {
    * 
    * @return the call graph root, null if not providing a call graph
    */
-  CallGraph getRoot();
+  public abstract CallGraph getRoot();
 
 }

@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
+import net.sf.ehcache.CacheManager;
+
 import org.hamcrest.MatcherAssert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -110,7 +112,7 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.proxy.TimingProxy;
-import com.opengamma.sesame.trace.FullTracer;
+import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -118,8 +120,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPnlSeriesFunctionTest {
@@ -196,7 +196,7 @@ public class FXForwardPnlSeriesFunctionTest {
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
     security.setUniqueId(UniqueId.of("sec", "123"));
-    TracingProxy.start(new FullTracer());
+    TracingProxy.start(Tracer.create(true));
     Result<LocalDateDoubleTimeSeries> result = null;
     int nRuns = 100;
     //int nRuns = 1;

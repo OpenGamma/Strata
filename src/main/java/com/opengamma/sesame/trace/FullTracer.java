@@ -12,7 +12,7 @@ import java.util.LinkedList;
 /**
  * Tracer implementation that creates a full call graph.
  */
-public class FullTracer implements Tracer {
+class FullTracer extends Tracer {
 
   /**
    * The stack of calls.
@@ -25,7 +25,7 @@ public class FullTracer implements Tracer {
 
   //-------------------------------------------------------------------------
   @Override
-  public void called(Method method, Object[] args) {
+  void called(Method method, Object[] args) {
     CallGraph callGraph = new CallGraph(method, args);
     if (_root == null) {
       _root = callGraph;
@@ -36,12 +36,12 @@ public class FullTracer implements Tracer {
   }
 
   @Override
-  public void returned(Object returnValue) {
+  void returned(Object returnValue) {
     _stack.pop().returned(returnValue);
   }
 
   @Override
-  public void threw(Throwable ex) {
+  void threw(Throwable ex) {
     _stack.pop().threw(ex);
   }
 

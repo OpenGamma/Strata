@@ -52,8 +52,6 @@ import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.trace.CallGraph;
-import com.opengamma.sesame.trace.FullTracer;
-import com.opengamma.sesame.trace.NoOpTracer;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
@@ -166,12 +164,7 @@ public class View implements AutoCloseable {
                                                                         _viewDef.getDefaultConfig(),
                                                                         _systemDefaultConfig);
         FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
-        Tracer tracer;
-        if (cycleArguments.isTracingEnabled(rowIndex, colIndex)) {
-          tracer = new FullTracer();
-        } else {
-          tracer = NoOpTracer.INSTANCE;
-        }
+        Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(rowIndex, colIndex));
         portfolioTasks.add(new PortfolioTask(functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
@@ -184,12 +177,7 @@ public class View implements AutoCloseable {
     List<Task> tasks = Lists.newArrayList();
     for (NonPortfolioOutput output : _viewDef.getNonPortfolioOutputs()) {
       InvokableFunction function = _graph.getNonPortfolioFunction(output.getName());
-      Tracer tracer;
-      if (cycleArguments.isTracingEnabled(output.getName())) {
-        tracer = new FullTracer();
-      } else {
-        tracer = NoOpTracer.INSTANCE;
-      }
+      Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(output.getName()));
       FunctionConfig functionConfig = output.getOutput().getFunctionConfig();
       FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
       tasks.add(new NonPortfolioTask(args, output.getName(), function, tracer));

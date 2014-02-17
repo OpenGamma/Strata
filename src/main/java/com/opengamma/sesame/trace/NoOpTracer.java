@@ -10,12 +10,12 @@ import java.lang.reflect.Method;
 /**
  * Tracer implementation that does nothing.
  */
-public final class NoOpTracer implements Tracer {
+final class NoOpTracer extends Tracer {
 
   /**
    * Singleton implementation of the tracer.
    */
-  public static final Tracer INSTANCE = new NoOpTracer();
+  static final Tracer INSTANCE = new NoOpTracer();
 
   /**
    * Restricted constructor.
@@ -25,17 +25,17 @@ public final class NoOpTracer implements Tracer {
 
   //-------------------------------------------------------------------------
   @Override
-  public void called(Method method, Object[] args) {
+  void called(Method method, Object[] args) {
     // do nothing
   }
 
   @Override
-  public void returned(Object returnValue) {
+  void returned(Object returnValue) {
     // do nothing
   }
 
   @Override
-  public void threw(Throwable ex) {
+  void threw(Throwable ex) {
     // do nothing
   }
 
