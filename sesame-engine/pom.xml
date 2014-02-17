@@ -9,11 +9,21 @@
     <artifactId>og-platform-public</artifactId>
     <version>2.2.0-SNAPSHOT</version>
   </parent>
-
   <artifactId>sesame</artifactId>
   <packaging>jar</packaging>
-  <name>sesame</name>
+  <name>Sesame</name>
   <description>Alternative OpenGamma calculation engine</description>
+
+  <!-- ==================================================================== -->
+  <inceptionYear>2013</inceptionYear>
+  <licenses>
+    <license>
+      <name>Proprietary OpenGamma licensing</name>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- ==================================================================== -->
   <distributionManagement>
     <repository>
       <id>og-sesame-release</id>
@@ -27,8 +37,8 @@
     </snapshotRepository>
   </distributionManagement>
 
+  <!-- ==================================================================== -->
   <dependencies>
-
     <!-- OpenGamma dependencies -->
 
     <dependency>
@@ -72,19 +82,16 @@
     <dependency>
       <groupId>org.joda</groupId>
       <artifactId>joda-beans</artifactId>
-      <version>0.9.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.joda</groupId>
       <artifactId>joda-convert</artifactId>
-      <version>1.5</version>
     </dependency>
 
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>14.0.1</version>
     </dependency>
 
     <dependency>
@@ -102,7 +109,6 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
-      <version>2.6.3</version>
     </dependency>
 
     <dependency>
@@ -117,14 +123,12 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
-      <version>1.8.5</version>
     </dependency>
 
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <scope>test</scope>
-      <version>6.8.5</version>
     </dependency>
 
     <!-- TODO should we be using these or TestNG asserts? -->
