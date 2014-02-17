@@ -204,20 +204,7 @@ public class FRAFnTest {
                         HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
 
-    Map<Class<?>, Object> componentMap = generateComponentMap(mockHolidaySource(),
-                                                              mockRegionSource(),
-                                                              mockConventionSource(),
-                                                              mockConfigSource(),
-                                                              mockSecuritySource(),
-                                                              mockHistoricalTimeSeriesSource(),
-                                                              createValuationTimeFn(valuationTime));
-
-    // Needed as the above method returns the wrong interface type for this market data function
-    final ImmutableMap<Class<?>, Object> components =
-        ImmutableMap.<Class<?>, Object>builder()
-            .putAll(componentMap)
-            .put(MarketDataFn.class, createMarketDataFn(valuationTime))
-            .build();
+    final ImmutableMap<Class<?>, Object> components = generateComponentMap(valuationTime);
 
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
@@ -225,23 +212,6 @@ public class FRAFnTest {
 
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.of(components), NodeDecorator.IDENTITY);
     _fraFunction = FunctionModel.build(FRAPVFn.class, graphConfig);
-  }
-
-  private ValuationTimeFn createValuationTimeFn(ZonedDateTime valuationTime) {
-    return new DefaultValuationTimeFn(valuationTime);
-  }
-
-  private MarketDataFn createMarketDataFn(ZonedDateTime valuationTime) {
-    try {
-      DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-      marketDataFn.resetMarketData(valuationTime,
-                                   MarketdataResourcesLoader.getData("usdMarketQuotes.properties",
-                                                                     FRAPVFn.class,
-                                                                     "Ticker"));
-      return marketDataFn;
-    } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Exception whilst loading file", e);
-    }
   }
 
   @Test
@@ -260,6 +230,40 @@ public class FRAFnTest {
 
     Double parRate = resultParRate.getValue();
     assertEquals(0.003315, parRate, STD_TOLERANCE_RATE);
+  }
+
+  private ImmutableMap<Class<?>, Object> generateComponentMap(ZonedDateTime valuationTime) {
+
+    Map<Class<?>, Object> componentMap = generateComponentMap(mockHolidaySource(),
+                                                              mockRegionSource(),
+                                                              mockConventionSource(),
+                                                              mockConfigSource(),
+                                                              mockSecuritySource(),
+                                                              mockHistoricalTimeSeriesSource(),
+                                                              createValuationTimeFn(valuationTime));
+
+    // Needed as the above method returns the wrong interface type for this market data function
+    return ImmutableMap.<Class<?>, Object>builder()
+        .putAll(componentMap)
+        .put(MarketDataFn.class, createMarketDataFn(valuationTime))
+        .build();
+  }
+
+  private ValuationTimeFn createValuationTimeFn(ZonedDateTime valuationTime) {
+    return new DefaultValuationTimeFn(valuationTime);
+  }
+
+  private MarketDataFn createMarketDataFn(ZonedDateTime valuationTime) {
+    try {
+      DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
+      marketDataFn.resetMarketData(valuationTime,
+                                   MarketdataResourcesLoader.getData("usdMarketQuotes.properties",
+                                                                     FRAPVFn.class,
+                                                                     "Ticker"));
+      return marketDataFn;
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Exception whilst loading file", e);
+    }
   }
 
   private ExposureFunctions mockExposureFunctions() {
