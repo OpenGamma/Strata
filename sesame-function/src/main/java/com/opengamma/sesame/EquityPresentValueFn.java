@@ -6,7 +6,6 @@
 package com.opengamma.sesame;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.util.result.Result;
 

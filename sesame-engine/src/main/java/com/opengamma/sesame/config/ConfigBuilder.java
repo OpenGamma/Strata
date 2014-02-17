@@ -14,10 +14,10 @@ import com.google.common.collect.Maps;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.example.CashFlowIdDescriptionFn;
 import com.opengamma.sesame.example.DefaultIdSchemeFn;
 import com.opengamma.sesame.example.EquityDescriptionFn;
-import com.opengamma.sesame.example.OutputNames;
 
 /**
  * Mini DSL for building instances of {@link ViewDef} and related classes in code. See the

@@ -6,7 +6,7 @@
 package com.opengamma.sesame.fra;
 
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.sesame.example.OutputNames;
+import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;

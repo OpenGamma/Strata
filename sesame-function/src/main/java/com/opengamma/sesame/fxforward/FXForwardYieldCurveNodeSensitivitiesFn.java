@@ -8,7 +8,7 @@ package com.opengamma.sesame.fxforward;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.result.Result;
-import com.opengamma.sesame.example.OutputNames;
+import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
 
 /**

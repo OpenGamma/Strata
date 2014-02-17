@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.cache.CacheLifetime;
 import com.opengamma.sesame.cache.Cacheable;
-import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;

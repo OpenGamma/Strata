@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.example;
+package com.opengamma.sesame;
 
 /**
  *
