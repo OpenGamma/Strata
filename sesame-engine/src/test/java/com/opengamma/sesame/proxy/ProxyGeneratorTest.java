@@ -22,16 +22,14 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.sesame.CurrencyPairsFn;
-import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultStatus;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.sesame.example.MockResultFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.sesame.marketdata.MarketDataValues;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -67,27 +65,22 @@ public class ProxyGeneratorTest {
   public void methodReturningFunctionResultWillHaveExceptionsIntercepted() {
 
     final String message = "Oops, thrown my toys out";
-    CurrencyPairsFn cpf = new CurrencyPairsFn() {
+    MockResultFn cpf = new MockResultFn() {
       @Override
-      public Result<CurrencyPair> getCurrencyPair(Currency currency1, Currency currency2) {
+      public Result<ExternalScheme> getScheme() {
         throw new RuntimeException(message);
-      }
-
-      @Override
-      public Result<CurrencyPair> getCurrencyPair(UnorderedCurrencyPair pair) {
-        return null;
       }
     };
 
     try {
-      cpf.getCurrencyPair(Currency.USD, Currency.GBP);
+      cpf.getScheme();
       fail("Should have thrown an exception");
     } catch (Exception e) {
       assertThat(e.getMessage(), containsString(message));
     }
 
-    CurrencyPairsFn proxy = _proxyGenerator.generate(cpf, CurrencyPairsFn.class);
-    Result<CurrencyPair> result = proxy.getCurrencyPair(Currency.USD, Currency.GBP);
+    MockResultFn proxy = _proxyGenerator.generate(cpf, MockResultFn.class);
+    Result<ExternalScheme> result = proxy.getScheme();
     assertThat(result.getStatus(), is((ResultStatus) ERROR));
     assertThat(result.getFailureMessage(), containsString(message));
   }

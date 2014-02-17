@@ -31,6 +31,8 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import net.sf.ehcache.CacheManager;
+
 import org.mockito.Matchers;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZoneOffset;
@@ -52,8 +54,6 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.EquityPresentValue;
-import com.opengamma.sesame.EquityPresentValueFn;
 import com.opengamma.sesame.ResettableMarketDataFn;
 import com.opengamma.sesame.config.FunctionConfig;
 import com.opengamma.sesame.config.ViewDef;
@@ -64,6 +64,8 @@ import com.opengamma.sesame.example.DefaultEquityDescriptionFn;
 import com.opengamma.sesame.example.DefaultIdSchemeFn;
 import com.opengamma.sesame.example.EquityDescriptionFn;
 import com.opengamma.sesame.example.EquityIdDescriptionFn;
+import com.opengamma.sesame.example.MockEquityPresentValue;
+import com.opengamma.sesame.example.MockEquityPresentValueFn;
 import com.opengamma.sesame.example.OutputNames;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
@@ -81,8 +83,6 @@ import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class EngineTest {
@@ -144,10 +144,10 @@ public class EngineTest {
         viewDef("Equity PV",
                 column(PRESENT_VALUE_HEADER, OutputNames.PRESENT_VALUE,
                        config(
-                           implementations(EquityPresentValueFn.class, EquityPresentValue.class))));
+                           implementations(MockEquityPresentValueFn.class, MockEquityPresentValue.class))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(EquityPresentValueFn.class);
+    availableOutputs.register(MockEquityPresentValueFn.class);
 
     Engine engine = new Engine(new DirectExecutorService(),
                                ComponentMap.EMPTY,
