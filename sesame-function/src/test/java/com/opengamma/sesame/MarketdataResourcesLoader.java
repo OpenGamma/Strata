@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.marketdata;
+package com.opengamma.sesame;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +16,9 @@ import java.util.Properties;
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
+import com.opengamma.sesame.marketdata.MarketDataItem;
+import com.opengamma.sesame.marketdata.MarketDataRequirement;
 
 /**
  * Load key/value pair marketdata resources as a map of MarketDataRequirement and MarketDataItem

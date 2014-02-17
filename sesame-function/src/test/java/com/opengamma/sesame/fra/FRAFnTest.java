@@ -31,6 +31,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.sf.ehcache.CacheManager;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -96,6 +98,7 @@ import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.MarketdataResourcesLoader;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.config.FunctionConfig;
@@ -113,7 +116,6 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
-import com.opengamma.sesame.marketdata.MarketdataResourcesLoader;
 import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -121,8 +123,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FRAFnTest {
