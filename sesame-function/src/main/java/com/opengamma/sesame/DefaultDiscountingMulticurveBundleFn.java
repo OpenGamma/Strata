@@ -11,7 +11,6 @@ import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,9 +49,10 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.link.ConventionLink;
+import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
@@ -95,6 +95,8 @@ import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
+
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
@@ -388,25 +390,15 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   }
 
   private IndexON createIndexON(OvernightCurveTypeConfiguration type) {
-    final Security sec = _securitySource.getSingle(type.getConvention().toBundle());
-    if (sec == null) {
-      throw new OpenGammaRuntimeException("Overnight index with id " + type.getConvention() + " was null");
-    }
-    final OvernightIndex index = (OvernightIndex) sec;
-    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
+    OvernightIndex index  = SecurityLink.<OvernightIndex>of(type.getConvention().toBundle()).resolve();
+    OvernightIndexConvention indexConvention = ConventionLink.<OvernightIndexConvention>of(index.getConventionId()).resolve();
     return ConverterUtils.indexON(index.getName(), indexConvention);
   }
 
   private IborIndex createIborIndex(IborCurveTypeConfiguration type) {
-    final Security sec = _securitySource.getSingle(type.getConvention().toBundle()); 
-    if (sec == null) {
-      throw new OpenGammaRuntimeException("Ibor index with id " + type.getConvention() + " was null");
-    }
-    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec; 
-    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + indexSecurity.getConventionId() + " was null");
-    }
+    com.opengamma.financial.security.index.IborIndex indexSecurity =
+        SecurityLink.<com.opengamma.financial.security.index.IborIndex>of(type.getConvention().toBundle()).resolve();
+    IborIndexConvention indexConvention = ConventionLink.<IborIndexConvention>of(indexSecurity.getConventionId()).resolve();
     return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
   }
 
