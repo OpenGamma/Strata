@@ -6,19 +6,24 @@
 package com.opengamma.sesame.graph;
 
 import java.lang.reflect.Constructor;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Provider;
+
+import org.apache.commons.lang.ClassUtils;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.core.link.Link;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
@@ -63,32 +68,57 @@ public final class FunctionModel {
     return _root.getExceptions();
   }
 
-  // TODO GraphConfig doesn't belong here. replace with Set<Class<?>> and FunctionConfig
-  public static FunctionModel forFunction(FunctionMetadata function, GraphConfig config) {
-    return new FunctionModel(createNode(function.getDeclaringType(), config), function);
+  private static NodeDecorator getNodeDecorator(NodeDecorator[] nodeDecorators) {
+    switch (nodeDecorators.length) {
+      case 0:
+        return NodeDecorator.IDENTITY;
+      case 1:
+        return nodeDecorators[0];
+      default:
+        return new CompositeNodeDecorator(nodeDecorators);
+    }
+  }
+
+  public static FunctionModel forFunction(FunctionMetadata function,
+                                          FunctionModelConfig config,
+                                          Set<Class<?>> availableComponents,
+                                          NodeDecorator... nodeDecorators) {
+    NodeDecorator nodeDecorator = getNodeDecorator(nodeDecorators);
+    Node node = createNode(function.getDeclaringType(), config, availableComponents, nodeDecorator);
+    return new FunctionModel(node, function);
   }
 
   public static FunctionModel forFunction(FunctionMetadata function, FunctionModelConfig config) {
-    return new FunctionModel(createNode(function.getDeclaringType(), new GraphConfig(config)), function);
+    Node node = createNode(function.getDeclaringType(), config, Collections.<Class<?>>emptySet(), NodeDecorator.IDENTITY);
+    return new FunctionModel(node, function);
   }
 
   public static FunctionModel forFunction(FunctionMetadata function) {
-    return new FunctionModel(createNode(function.getDeclaringType(), GraphConfig.EMPTY), function);
+    Node node = createNode(function.getDeclaringType(),
+                           FunctionModelConfig.EMPTY,
+                           Collections.<Class<?>>emptySet(),
+                           NodeDecorator.IDENTITY);
+    return new FunctionModel(node, function);
   }
 
   // TODO make it clear this is for one-off building, testing etc, not for the engine (because FunctionBuilder isn't shared)
-  public static <T> T build(Class<T> functionType, GraphConfig config) {
+  public static <T> T build(Class<T> functionType,
+                            FunctionModelConfig config,
+                            ComponentMap componentMap,
+                            NodeDecorator... nodeDecorators) {
     FunctionBuilder functionBuilder = new FunctionBuilder();
-    Object function = functionBuilder.create(createNode(functionType, config), config.getComponents());
+    NodeDecorator nodeDecorator = getNodeDecorator(nodeDecorators);
+    Node node = createNode(functionType, config, componentMap.getComponentTypes(), nodeDecorator);
+    Object function = functionBuilder.create(node, componentMap);
     return functionType.cast(function);
   }
 
   public static <T> T build(Class<T> functionType, FunctionModelConfig config) {
-    return build(functionType, new GraphConfig(config));
+    return build(functionType, config, ComponentMap.EMPTY);
   }
 
   public static <T> T build(Class<T> functionType) {
-    return build(functionType, GraphConfig.EMPTY);
+    return build(functionType, FunctionModelConfig.EMPTY);
   }
 
   // TODO need to pass in config that merges default from system, view, (calc config), column, input type
@@ -102,8 +132,11 @@ public final class FunctionModel {
   // in the engine we'll need to go up the class hierarchy and check everything
   // for implementation class it just needs to go up the set of defaults looking for the first one that matches
 
-  private static Node createNode(Class<?> type, GraphConfig config) {
-    return createNode(type, config, Lists.<Parameter>newArrayList(), null);
+  private static Node createNode(Class<?> type,
+                                 FunctionModelConfig config,
+                                 Set<Class<?>> availableComponents,
+                                 NodeDecorator nodeDecorator) {
+    return createNode(type, config, availableComponents, nodeDecorator, Lists.<Parameter>newArrayList(), null);
   }
 
   // TODO I don't think this will work if the root is an infrastructure component. is that important?
@@ -130,11 +163,16 @@ public final class FunctionModel {
    * @return A node in the function graph, not null
    */
   @SuppressWarnings("unchecked")
-  private static Node createNode(Class<?> type, GraphConfig config, List<Parameter> path, Parameter parentParameter) {
+  private static Node createNode(Class<?> type,
+                                 FunctionModelConfig config,
+                                 Set<Class<?>> availableComponents,
+                                 NodeDecorator nodeDecorator,
+                                 List<Parameter> path,
+                                 Parameter parentParameter) {
     if (!isEligibleForBuilding(type)) {
       return null;
     }
-    Class<?> implType = config.getImplementationType(type);
+    Class<?> implType = config.getFunctionImplementation(type);
     if (implType == null && !type.isInterface()) {
       implType = type;
     }
@@ -165,27 +203,27 @@ public final class FunctionModel {
       newPath.add(parameter);
       Node argNode;
       try {
-        if (config.getComponent(parameter.getType()) != null) {
+        if (availableComponents.contains(parameter.getType())) {
           // the parameter can be satisfied by a component supplied by the engine
-          argNode = config.decorateNode(new ComponentNode(parameter));
+          argNode = nodeDecorator.decorateNode(new ComponentNode(parameter));
         } else {
           // check if the user has provided a value in the config for this argument
-          Object argument = config.getConstructorArgument(implType, parameter);
+          Object argument = getConstructorArgument(config, implType, parameter);
           if (argument == null) {
             // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't?
             // there's no argument, try to build an instance by recursing
-            Node createdNode = createNode(parameter.getType(), config, newPath, parameter);
+            Node createdNode = createNode(parameter.getType(), config, availableComponents, nodeDecorator, newPath, parameter);
             if (createdNode != null) {
               argNode = createdNode;
             } else if (parameter.isNullable()) {
-              argNode = config.decorateNode(new ArgumentNode(parameter.getType(), null, parameter));
+              argNode = nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), null, parameter));
             } else {
               throw new NoConstructorArgumentException(newPath, "No value available for non-nullable parameter " +
                                                            parameter.getFullName());
             }
           } else {
             // there's a value in the config for this argument, use it
-            argNode = config.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
+            argNode = nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
           }
         }
       } catch (AbstractGraphBuildException e) {
@@ -199,7 +237,7 @@ public final class FunctionModel {
     } else {
       node = new ClassNode(type, implType, constructorArguments, parentParameter);
     }
-    return config.decorateNode(node);
+    return nodeDecorator.decorateNode(node);
   }
 
   /**
@@ -222,6 +260,34 @@ public final class FunctionModel {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Checks the type of the constructor argument matches the expected type. Handles {@link Link}s and {@link Provider}s
+   */
+  private static Object getConstructorArgument(FunctionModelConfig functionModelConfig,
+                                               Class<?> objectType,
+                                               Parameter parameter) {
+    FunctionArguments args = functionModelConfig.getFunctionArguments(objectType);
+    Object arg = args.getArgument(parameter.getName());
+    if (arg == null) {
+      return null;
+      // this takes into account boxing of primitives which Class.isAssignableFrom() doesn't
+    } else if (ClassUtils.isAssignable(arg.getClass(), parameter.getType(), true)) {
+      return arg;
+    } else if (arg instanceof Provider) {
+      return arg;
+    } else if (arg instanceof Link) {
+      if (ClassUtils.isAssignable(((Link) arg).getType(), parameter.getType(), true)) {
+        return arg;
+      } else {
+        throw new IllegalArgumentException("Link argument (" + arg + ") doesn't resolve to the " +
+                                               "required type for " + parameter.getFullName());
+      }
+    } else {
+      throw new IllegalArgumentException("Argument (" + arg + ": " + arg.getClass().getSimpleName() + ") isn't of the " +
+                                             "required type for " + parameter.getFullName());
+    }
   }
 
   private static StringBuilder prettyPrint(StringBuilder builder,

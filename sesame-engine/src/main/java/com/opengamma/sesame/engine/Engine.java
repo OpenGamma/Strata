@@ -149,7 +149,7 @@ public class Engine {
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(_availableOutputs,
                                                  _availableImplementations,
-                                                 components,
+                                                 components.getComponentTypes(),
                                                  _defaultConfig,
                                                  decorator);
     GraphModel graphModel = graphBuilder.build(viewDef, inputs);

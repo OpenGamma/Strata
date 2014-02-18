@@ -8,6 +8,7 @@ package com.opengamma.sesame.graph;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,9 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
-import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.DefaultImplementationProvider;
@@ -38,18 +37,18 @@ public final class GraphBuilder {
   private static final Logger s_logger = LoggerFactory.getLogger(GraphBuilder.class);
 
   private final AvailableOutputs _availableOutputs;
-  private final ComponentMap _componentMap;
   private final FunctionModelConfig _defaultConfig;
   private final NodeDecorator _nodeDecorator;
   private final DefaultImplementationProvider _defaultImplProvider;
+  private final Set<Class<?>> _availableComponents;
 
   public GraphBuilder(AvailableOutputs availableOutputs,
                       AvailableImplementations availableImplementations,
-                      ComponentMap componentMap,
+                      Set<Class<?>>  availableComponents,
                       FunctionModelConfig defaultConfig,
                       NodeDecorator nodeDecorator) {
     _availableOutputs = ArgumentChecker.notNull(availableOutputs, "functionRepo");
-    _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
+    _availableComponents = ArgumentChecker.notNull(availableComponents, "availableComponents");
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _nodeDecorator = ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
     // TODO should this be an argument?
@@ -88,8 +87,7 @@ public final class GraphBuilder {
             if (existingFunction == null) {
               FunctionModelConfig columnConfig = column.getFunctionConfig(input.getClass());
               FunctionModelConfig config = CompositeFunctionModelConfig.compose(columnConfig, defaultConfig);
-              GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
-              FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
+              FunctionModel functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
               functions.put(input.getClass(), functionModel);
               s_logger.debug("created function for {}/{}\n{}",
                              column.getName(), input.getClass().getSimpleName(), functionModel.prettyPrint());
@@ -109,8 +107,7 @@ public final class GraphBuilder {
               if (existingFunction == null) {
                 FunctionModelConfig columnConfig = column.getFunctionConfig(security.getClass());
                 FunctionModelConfig config = CompositeFunctionModelConfig.compose(columnConfig, defaultConfig);
-                GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
-                FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
+                FunctionModel functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
                 functions.put(security.getClass(), functionModel);
                 s_logger.debug("created function for {}/{}\n{}",
                                column.getName(), security.getClass().getSimpleName(), functionModel.prettyPrint());
@@ -135,8 +132,7 @@ public final class GraphBuilder {
       if (function != null) {
         FunctionModelConfig functionModelConfig = output.getOutput().getFunctionModelConfig();
         FunctionModelConfig config = CompositeFunctionModelConfig.compose(functionModelConfig, defaultConfig);
-        GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
-        functionModel = FunctionModel.forFunction(function, graphConfig);
+        functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
       } else {
         s_logger.warn("Failed to find function to provide output named {}", outputName);
         functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);

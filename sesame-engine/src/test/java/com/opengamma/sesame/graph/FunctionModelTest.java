@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -50,8 +49,7 @@ public class FunctionModelTest {
     ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class,
                                                                                     INFRASTRUCTURE_COMPONENT));
     FunctionModelConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
-    GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
-    FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config, infrastructure.getComponentTypes());
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), infrastructure).getReceiver();
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
@@ -110,8 +108,7 @@ public class FunctionModelTest {
       }
     };
     FunctionModelConfig config = config(implementations(TestFn.class, BasicImpl.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, decorator);
-    FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config, ComponentMap.EMPTY.getComponentTypes(), decorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     // the basic method just returns "foo"
     assertEquals(Lists.newArrayList("decorated", "foo"), fn.foo());
@@ -135,8 +132,7 @@ public class FunctionModelTest {
     ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class,
                                                                                     INFRASTRUCTURE_COMPONENT));
     FunctionModelConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
-    GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
-    TestFn fn = FunctionModel.build(TestFn.class, graphConfig);
+    TestFn fn = FunctionModel.build(TestFn.class, config, infrastructure);
     assertTrue(fn instanceof InfrastructureImpl);
     //noinspection ConstantConditions
     assertEquals(INFRASTRUCTURE_COMPONENT, ((InfrastructureImpl) fn)._infrastructureComponent);
@@ -153,8 +149,7 @@ public class FunctionModelTest {
   @Test
   public void infrastructureNotFound() {
     FunctionModelConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, NodeDecorator.IDENTITY);
-    FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config, ComponentMap.EMPTY.getComponentTypes());
     assertFalse(functionModel.isValid());
   }
 

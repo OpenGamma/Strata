@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -40,8 +39,7 @@ public class FullTracerTest {
 
   private I1 buildFunction() {
     FunctionModelConfig functionModelConfig = config(implementations(I1.class, C1.class, I2.class, C2.class));
-    GraphConfig graphConfig = new GraphConfig(functionModelConfig, ComponentMap.EMPTY, TracingProxy.INSTANCE);
-    return FunctionModel.build(I1.class, graphConfig);
+    return FunctionModel.build(I1.class, functionModelConfig, ComponentMap.EMPTY, TracingProxy.INSTANCE);
   }
 
   @Test

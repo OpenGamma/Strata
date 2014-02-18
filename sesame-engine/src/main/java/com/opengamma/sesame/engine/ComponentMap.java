@@ -7,6 +7,7 @@ package com.opengamma.sesame.engine;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,5 +115,12 @@ public final class ComponentMap {
    */
   public Map<Class<?>, Object> getComponents() {
     return _components;
+  }
+
+  /**
+   * @return The types of the available components
+   */
+  public Set<Class<?>> getComponentTypes() {
+    return _components.keySet();
   }
 }

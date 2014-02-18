@@ -110,11 +110,9 @@ import com.opengamma.sesame.MarketdataResourcesLoader;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.money.Currency;
@@ -210,8 +208,7 @@ public class FRAFnTest {
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.of(components), NodeDecorator.IDENTITY);
-    _fraFunction = FunctionModel.build(FRAPVFn.class, graphConfig);
+    _fraFunction = FunctionModel.build(FRAPVFn.class, config, ComponentMap.of(components));
   }
 
   @Test

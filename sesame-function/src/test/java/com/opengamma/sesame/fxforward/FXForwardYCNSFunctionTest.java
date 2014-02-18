@@ -87,13 +87,10 @@ import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
-import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.marketdata.EagerMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalRawMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
@@ -136,8 +133,7 @@ public class FXForwardYCNSFunctionTest {
                                                                         "calculateYieldCurveNodeSensitivities");
     FunctionModelConfig config = createFunctionConfig();
 
-    GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
-    FunctionModel functionModel = FunctionModel.forFunction(calculateYCNS, graphConfig);
+    FunctionModel functionModel = FunctionModel.forFunction(calculateYCNS, config, componentMap.getComponentTypes());
     Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
     assertTrue(fn instanceof FXForwardYieldCurveNodeSensitivitiesFn);
     System.out.println(functionModel.prettyPrint(true));
@@ -178,10 +174,12 @@ public class FXForwardYCNSFunctionTest {
     ComponentMap componentMap = serverComponents.with(comps);
 
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    CompositeNodeDecorator decorator = new CompositeNodeDecorator(TimingProxy.INSTANCE, cachingDecorator);
-    GraphConfig graphConfig = new GraphConfig(createFunctionConfig(), componentMap, decorator);
     FXForwardYieldCurveNodeSensitivitiesFn ycnsFunction =
-        FunctionModel.build(FXForwardYieldCurveNodeSensitivitiesFn.class, graphConfig);
+        FunctionModel.build(FXForwardYieldCurveNodeSensitivitiesFn.class,
+                            createFunctionConfig(),
+                            componentMap,
+                            TimingProxy.INSTANCE,
+                            cachingDecorator);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);

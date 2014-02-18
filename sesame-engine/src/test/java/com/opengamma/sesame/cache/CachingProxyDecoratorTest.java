@@ -18,6 +18,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.FutureTask;
 
 import org.testng.annotations.BeforeClass;
@@ -27,7 +28,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -44,6 +44,7 @@ import net.sf.ehcache.Element;
 @Test(groups = TestGroup.UNIT)
 public class CachingProxyDecoratorTest {
 
+  private static final Set<Class<?>> NO_COMPONENTS = ComponentMap.EMPTY.getComponentTypes();
   private CacheManager _cacheManager;
 
   @BeforeClass
@@ -57,9 +58,8 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
-    FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
+    FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     Method foo = EngineFunctionUtils.getMethod(TestFn.class, "foo");
     CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
@@ -80,14 +80,13 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
     FunctionBuilder functionBuilder = new FunctionBuilder();
 
-    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig);
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn1 = (TestFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
 
-    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig);
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn2 = (TestFn) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
 
     assertSame(fn1.foo("bar"), fn2.foo("bar"));
@@ -102,9 +101,8 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
-    FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
+    FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertSame(fn.foo("bar"), fn.foo("bar"));
   }
@@ -117,13 +115,11 @@ public class CachingProxyDecoratorTest {
                                          arguments(function(Impl.class, argument("s", "a different string"))));
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
-    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
-    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config1, NO_COMPONENTS, cachingDecorator);
     TestFn fn1 = (TestFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
-    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, config2, NO_COMPONENTS, cachingDecorator);
     TestFn fn2 = (TestFn) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
 
     Object val1 = fn1.foo("bar");
@@ -215,19 +211,19 @@ public class CachingProxyDecoratorTest {
   public void sameFunctionDifferentDependencyInstances() {
     FunctionModelConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
                                                          DelegateFn.class, Delegate1.class),
-                                         arguments(function(Delegate1.class, argument("s", "a string"))));
+                                         arguments(function(Delegate1.class, argument("s", "a string")))
+    );
     FunctionModelConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
                                                          DelegateFn.class, Delegate1.class),
-                                         arguments(function(Delegate1.class, argument("s", "a different string"))));
+                                         arguments(function(Delegate1.class, argument("s", "a different string")))
+    );
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
-    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
-    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config1, NO_COMPONENTS, cachingDecorator);
     TopLevelFn fn1 = (TopLevelFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
-    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, config2, NO_COMPONENTS, cachingDecorator);
     TopLevelFn fn2 = (TopLevelFn) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
 
     Object val1 = fn1.fn();
@@ -243,19 +239,19 @@ public class CachingProxyDecoratorTest {
   public void sameFunctionDifferentDependencyTypes() {
     FunctionModelConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
                                                          DelegateFn.class, Delegate1.class),
-                                         arguments(function(Delegate1.class, argument("s", "a string"))));
+                                         arguments(function(Delegate1.class, argument("s", "a string")))
+    );
     FunctionModelConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
                                                          DelegateFn.class, Delegate2.class),
-                                         arguments(function(Delegate2.class, argument("s", "a string"))));
+                                         arguments(function(Delegate2.class, argument("s", "a string")))
+    );
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
-    GraphConfig graphConfig2 = new GraphConfig(config2, ComponentMap.EMPTY, cachingDecorator);
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
-    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, graphConfig1);
+    FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config1, NO_COMPONENTS, cachingDecorator);
     TopLevelFn fn1 = (TopLevelFn) functionModel1.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
-    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, graphConfig2);
+    FunctionModel functionModel2 = FunctionModel.forFunction(metadata, config2, NO_COMPONENTS, cachingDecorator);
     TopLevelFn fn2 = (TopLevelFn) functionModel2.build(functionBuilder, ComponentMap.EMPTY).getReceiver();
 
     Object val1 = fn1.fn();
@@ -268,9 +264,8 @@ public class CachingProxyDecoratorTest {
   public void annotationOnClass() throws Exception {
     FunctionModelConfig config = config(implementations(TestFn2.class, Impl2.class));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn2.class, "foo");
-    FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);
+    FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn2 fn = (TestFn2) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     Method foo = EngineFunctionUtils.getMethod(TestFn2.class, "foo");
     CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
@@ -308,8 +303,8 @@ public class CachingProxyDecoratorTest {
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
     ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
                                                                                 executingMethods));
-    GraphConfig graphConfig = new GraphConfig(config, components, new CachingProxyDecorator(_cacheManager, executingMethods));
-    ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class, graphConfig);
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, executingMethods);
+    ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class, config, components, cachingDecorator);
     i1.fn("s", 1);
   }
 
