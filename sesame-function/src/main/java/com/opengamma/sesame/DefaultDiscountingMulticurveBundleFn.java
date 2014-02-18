@@ -11,6 +11,7 @@ import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,9 +52,12 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
+import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -81,6 +85,7 @@ import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.money.Currency;
@@ -90,8 +95,6 @@ import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
@@ -105,6 +108,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private final FXMatrixFn _fxMatrixProvider;
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
 
+  private final SecuritySource _securitySource;
   private final ConventionSource _conventionSource;
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
@@ -125,6 +129,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                               ValuationTimeFn valuationTimeProvider,
                                               FXMatrixFn fxMatrixProvider,
                                               HistoricalTimeSeriesFn historicalTimeSeriesProvider,
+                                              SecuritySource securitySource,
                                               ConventionSource conventionSource,
                                               HolidaySource holidaySource,
                                               RegionSource regionSource,
@@ -137,6 +142,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     _valuationTimeProvider = valuationTimeProvider;
     _fxMatrixProvider = fxMatrixProvider;
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+    _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
@@ -382,26 +388,26 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   }
 
   private IndexON createIndexON(OvernightCurveTypeConfiguration type) {
-
-    final OvernightIndexConvention overnightConvention =
-        _conventionSource.getSingle(type.getConvention(), OvernightIndexConvention.class);
-
-    return new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(),
-                              overnightConvention.getDayCount(), overnightConvention.getPublicationLag());
+    final Security sec = _securitySource.getSingle(type.getConvention().toBundle());
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Overnight index with id " + type.getConvention() + " was null");
+    }
+    final OvernightIndex index = (OvernightIndex) sec;
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(index.getConventionId(), OvernightIndexConvention.class);
+    return ConverterUtils.indexON(index.getName(), indexConvention);
   }
 
   private IborIndex createIborIndex(IborCurveTypeConfiguration type) {
-
-    final IborIndexConvention iborIndexConvention =
-        _conventionSource.getSingle(type.getConvention(), IborIndexConvention.class);
-
-    return new IborIndex(iborIndexConvention.getCurrency(),
-                                type.getTenor().getPeriod(),
-                                iborIndexConvention.getSettlementDays(),
-                                iborIndexConvention.getDayCount(),
-                                iborIndexConvention.getBusinessDayConvention(),
-                                iborIndexConvention.isIsEOM(),
-                                iborIndexConvention.getName());
+    final Security sec = _securitySource.getSingle(type.getConvention().toBundle()); 
+    if (sec == null) {
+      throw new OpenGammaRuntimeException("Ibor index with id " + type.getConvention() + " was null");
+    }
+    final com.opengamma.financial.security.index.IborIndex indexSecurity = (com.opengamma.financial.security.index.IborIndex) sec; 
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(indexSecurity.getConventionId(), IborIndexConvention.class);
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("Convention with id " + indexSecurity.getConventionId() + " was null");
+    }
+    return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
   }
 
   private MulticurveProviderDiscount adjustMulticurveBundle(Set<Currency> curvesToRemove,
@@ -533,9 +539,10 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                                                            ZonedDateTime valuationTime,
                                                                            FXMatrix fxMatrix) {
     return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashNodeVisitor(new CashNodeConverter(_conventionSource, _holidaySource, _regionSource,
+        .cashNodeVisitor(new CashNodeConverter(_securitySource, _conventionSource, _holidaySource, _regionSource,
                                                marketData, dataId, valuationTime))
-        .fraNode(new FRANodeConverter(_conventionSource,
+        .fraNode(new FRANodeConverter(_securitySource,
+                                      _conventionSource,
                                       _holidaySource,
                                       _regionSource,
                                       marketData,
@@ -543,37 +550,42 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                       valuationTime))
         .fxForwardNode(new FXForwardNodeConverter(_conventionSource, _holidaySource, _regionSource,
                                                   marketData, dataId, valuationTime))
-        .immFRANode(new RollDateFRANodeConverter(_conventionSource,
+        .immFRANode(new RollDateFRANodeConverter(_securitySource,
+                                                 _conventionSource,
                                                  _holidaySource,
                                                  _regionSource,
                                                  marketData,
                                                  dataId,
                                                  valuationTime))
-        .immSwapNode(new RollDateSwapNodeConverter(_conventionSource,
+        .immSwapNode(new RollDateSwapNodeConverter(_securitySource,
+                                                   _conventionSource,
                                                    _holidaySource,
                                                    _regionSource,
                                                    marketData,
                                                    dataId,
                                                    valuationTime))
-        .rateFutureNode(new RateFutureNodeConverter(_conventionSource,
+        .rateFutureNode(new RateFutureNodeConverter(_securitySource,
+                                                    _conventionSource,
                                                     _holidaySource,
                                                     _regionSource,
                                                     marketData,
                                                     dataId,
                                                     valuationTime))
-        .swapNode(new SwapNodeConverter(_conventionSource,
+        .swapNode(new SwapNodeConverter(_securitySource,
+                                        _conventionSource,
                                         _holidaySource,
                                         _regionSource,
                                         marketData,
                                         dataId,
                                         valuationTime,
                                         fxMatrix))
-        .threeLegBasisSwapNode(new ThreeLegBasisSwapNodeConverter(_conventionSource,
-                                                                          _holidaySource,
-                                                                          _regionSource,
-                                                                          marketData,
-                                                                          dataId,
-                                                                          valuationTime))
+        .threeLegBasisSwapNode(new ThreeLegBasisSwapNodeConverter(_securitySource,
+                                                                  _conventionSource,
+                                                                  _holidaySource,
+                                                                  _regionSource,
+                                                                  marketData,
+                                                                  dataId,
+                                                                  valuationTime))
         .create();
   }
 }

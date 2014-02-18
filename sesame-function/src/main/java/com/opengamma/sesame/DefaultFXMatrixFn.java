@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -50,6 +51,10 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
    */
   private final ConventionSource _conventionSource;
   /**
+   * The security source.
+   */
+  private final SecuritySource _securitySource;
+  /**
    * The currency pairs function.
    */
   private final CurrencyPairsFn _currencyPairsFn;
@@ -68,11 +73,13 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
 
   public DefaultFXMatrixFn(ConfigSource configSource,
                            ConventionSource conventionSource,
+                           SecuritySource securitySource,
                            CurrencyPairsFn currencyPairsFn,
                            MarketDataFn marketDataFn,
                            ValuationTimeFn valuationTimeFn) {
     _configSource = ArgumentChecker.notNull(configSource, "configSource");
     _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
+    _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
     _currencyPairsFn = ArgumentChecker.notNull(currencyPairsFn, "currencyPairsFunction");
     _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataProviderFunction");
     _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
@@ -135,7 +142,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
                                       ZonedDateTime valuationTime) {
 
     // todo - should this actually be another function or set of functions
-    final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource));
+    final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource, _securitySource));
     return buildResult(currencies, valuationTime);
   }
 
