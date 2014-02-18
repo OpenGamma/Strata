@@ -163,17 +163,16 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
       if (refCurr == null) {
         refCurr = currency;
       } else {
-        MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(refCurr, currency));
+        Currency base = refCurr;
+        Currency counter = currency;
+        //note - currency matrix will ensure the spotRate returned is interpreted correctly,
+        //depending on the order base and counter are specified in.
+        MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(base, counter));
         Result<MarketDataValues> marketDataResult = _marketDataFn.requestData(spotReqmt); //, valuationTime);
         MarketDataValues marketDataValues = marketDataResult.getValue();
         if (marketDataValues.getStatus(spotReqmt) == MarketDataStatus.AVAILABLE) {
           double spotRate = (Double) marketDataValues.getValue(spotReqmt);
-
-          Result<CurrencyPair> result = _currencyPairsFn.getCurrencyPair(refCurr, currency);
-          if (result.getStatus() == SuccessStatus.SUCCESS) {
-            boolean inversionRequired = result.getValue().getCounter().equals(refCurr);
-            matrix.addCurrency(currency, refCurr, inversionRequired ? 1 / spotRate : spotRate);
-          }
+          matrix.addCurrency(counter, base, spotRate);
         }
       }
     }
