@@ -19,7 +19,7 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.config.EngineFunctionUtils;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionBuilder;
@@ -48,7 +48,7 @@ public class DefaultEquityDescriptionFnTest {
 
   @Test
   public void defaultImpl() {
-    FunctionConfig config = config(implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class));
+    FunctionModelConfig config = config(implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     EquityDescriptionFn fn = (EquityDescriptionFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     String description = fn.getDescription(SECURITY);
@@ -57,7 +57,7 @@ public class DefaultEquityDescriptionFnTest {
 
   @Test
   public void idImplOverriddenArgs() {
-    FunctionConfig config =
+    FunctionModelConfig config =
         config(implementations(EquityDescriptionFn.class, EquityIdDescriptionFn.class,
                                IdSchemeFn.class, DefaultIdSchemeFn.class),
                arguments(

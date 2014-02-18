@@ -42,9 +42,9 @@ import com.opengamma.sesame.cache.source.CacheAwareConventionSource;
 import com.opengamma.sesame.cache.source.CacheAwareHistoricalTimeSeriesSource;
 import com.opengamma.sesame.cache.source.CacheAwareRegionSource;
 import com.opengamma.sesame.cache.source.CacheAwareSecuritySource;
-import com.opengamma.sesame.config.CompositeFunctionConfig;
+import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionArguments;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
@@ -75,7 +75,7 @@ public class View implements AutoCloseable {
   private final DelegatingMarketDataFn _marketDataFn;
   private final DefaultValuationTimeFn _valuationTimeFn;
   private final ComponentMap _components;
-  private final FunctionConfig _systemDefaultConfig;
+  private final FunctionModelConfig _systemDefaultConfig;
   private final CompositeNodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
   private final SourceListener _sourceListener = new SourceListener();
@@ -90,7 +90,7 @@ public class View implements AutoCloseable {
                      DelegatingMarketDataFn marketDataFn,
                      DefaultValuationTimeFn valuationTimeFn,
                      ComponentMap components,
-                     FunctionConfig systemDefaultConfig,
+                     FunctionModelConfig systemDefaultConfig,
                      CompositeNodeDecorator decorator,
                      CacheInvalidator cacheInvalidator) {
     _viewDef = ArgumentChecker.notNull(viewDef, "viewDef");
@@ -160,10 +160,10 @@ public class View implements AutoCloseable {
           // this shouldn't happen if the graph is built correctly
           throw new OpenGammaRuntimeException("No function found for column " + column + " and " + input);
         }
-        FunctionConfig functionConfig = CompositeFunctionConfig.compose(column.getFunctionConfig(functionInput.getClass()),
-                                                                        _viewDef.getDefaultConfig(),
-                                                                        _systemDefaultConfig);
-        FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
+        FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(column.getFunctionConfig(functionInput.getClass()),
+                                                                                       _viewDef.getDefaultConfig(),
+                                                                                       _systemDefaultConfig);
+        FunctionArguments args = functionModelConfig.getFunctionArguments(function.getReceiver().getClass());
         Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(rowIndex, colIndex));
         portfolioTasks.add(new PortfolioTask(functionInput, args, rowIndex++, colIndex, function, tracer));
       }
@@ -178,8 +178,8 @@ public class View implements AutoCloseable {
     for (NonPortfolioOutput output : _viewDef.getNonPortfolioOutputs()) {
       InvokableFunction function = _graph.getNonPortfolioFunction(output.getName());
       Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(output.getName()));
-      FunctionConfig functionConfig = output.getOutput().getFunctionConfig();
-      FunctionArguments args = functionConfig.getFunctionArguments(function.getReceiver().getClass());
+      FunctionModelConfig functionModelConfig = output.getOutput().getFunctionModelConfig();
+      FunctionArguments args = functionModelConfig.getFunctionArguments(function.getReceiver().getClass());
       tasks.add(new NonPortfolioTask(args, output.getName(), function, tracer));
     } return tasks;
   }

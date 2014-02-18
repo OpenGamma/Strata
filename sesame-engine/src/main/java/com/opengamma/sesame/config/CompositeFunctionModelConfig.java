@@ -10,12 +10,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class CompositeFunctionConfig implements FunctionConfig {
+public class CompositeFunctionModelConfig implements FunctionModelConfig {
 
-  private final FunctionConfig _config1;
-  private final FunctionConfig _config2;
+  private final FunctionModelConfig _config1;
+  private final FunctionModelConfig _config2;
 
-  public CompositeFunctionConfig(FunctionConfig config1, FunctionConfig config2) {
+  public CompositeFunctionModelConfig(FunctionModelConfig config1, FunctionModelConfig config2) {
     _config1 = ArgumentChecker.notNull(config1, "config1");
     _config2 = ArgumentChecker.notNull(config2, "config2");
   }
@@ -36,16 +36,16 @@ public class CompositeFunctionConfig implements FunctionConfig {
                                           _config2.getFunctionArguments(functionType));
   }
 
-  public static FunctionConfig compose(FunctionConfig... configs) {
+  public static FunctionModelConfig compose(FunctionModelConfig... configs) {
     if (configs.length == 0) {
       return EMPTY;
     }
     if (configs.length == 1) {
       return configs[0];
     }
-    FunctionConfig config = configs[0];
+    FunctionModelConfig config = configs[0];
     for (int i = 1; i < configs.length; i++) {
-      config = new CompositeFunctionConfig(config, configs[i]);
+      config = new CompositeFunctionModelConfig(config, configs[i]);
     }
     return config;
   }

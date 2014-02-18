@@ -20,12 +20,12 @@ import com.opengamma.util.ArgumentChecker;
 public final class ViewDef {
 
   private final String _name;
-  private final FunctionConfig _defaultConfig;
+  private final FunctionModelConfig _defaultConfig;
   private final List<ViewColumn> _columns;
   private final List<NonPortfolioOutput> _nonPortfolioOutputs;
 
   /* package */ ViewDef(String name,
-                        FunctionConfig defaultConfig,
+                        FunctionModelConfig defaultConfig,
                         List<ViewColumn> columns,
                         List<NonPortfolioOutput> nonPortfolioOutputs) {
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
@@ -41,7 +41,7 @@ public final class ViewDef {
     }
   }
 
-  /* package */ ViewDef(String name, FunctionConfig defaultConfig, List<ViewColumn> columns) {
+  /* package */ ViewDef(String name, FunctionModelConfig defaultConfig, List<ViewColumn> columns) {
     this(name, defaultConfig, columns, Collections.<NonPortfolioOutput>emptyList());
   }
 
@@ -49,7 +49,7 @@ public final class ViewDef {
     return _columns;
   }
 
-  public FunctionConfig getDefaultConfig() {
+  public FunctionModelConfig getDefaultConfig() {
     return _defaultConfig;
   }
 

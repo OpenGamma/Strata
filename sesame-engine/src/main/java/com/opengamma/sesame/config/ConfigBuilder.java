@@ -30,27 +30,27 @@ public final class ConfigBuilder {
   // TODO NonPortfolioOutput class, name and ViewOutput fields
 
   public static ViewDef viewDef(String name, ViewColumn... columns) {
-    return new ViewDef(name, FunctionConfig.EMPTY, Arrays.asList(columns));
+    return new ViewDef(name, FunctionModelConfig.EMPTY, Arrays.asList(columns));
   }
 
-  public static ViewDef viewDef(String name, FunctionConfig defaultConfig, ViewColumn... columns) {
+  public static ViewDef viewDef(String name, FunctionModelConfig defaultConfig, ViewColumn... columns) {
     return new ViewDef(name, defaultConfig, Arrays.asList(columns));
   }
 
   public static ViewDef viewDef(String name, NonPortfolioOutput... nonPortfolioOutputs) {
-    return new ViewDef(name, FunctionConfig.EMPTY, Collections.<ViewColumn>emptyList(), Arrays.asList(nonPortfolioOutputs));
+    return new ViewDef(name, FunctionModelConfig.EMPTY, Collections.<ViewColumn>emptyList(), Arrays.asList(nonPortfolioOutputs));
   }
 
   public static ViewDef viewDef(String name, Columns columns, OtherOutputs otherOutputs) {
     return new ViewDef(name, columns.getDefaultConfig(), columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
   }
 
-  public static ViewDef viewDef(String name, FunctionConfig defaultConfig, Columns columns, OtherOutputs otherOutputs) {
+  public static ViewDef viewDef(String name, FunctionModelConfig defaultConfig, Columns columns, OtherOutputs otherOutputs) {
     return new ViewDef(name, defaultConfig, columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
   }
 
   public static Columns columns(ViewColumn... columns) {
-    return new Columns(FunctionConfig.EMPTY, columns);
+    return new Columns(FunctionModelConfig.EMPTY, columns);
   }
 
   public static OtherOutputs nonPortfolioOutputs(NonPortfolioOutput... nonPortfolioOutputs) {
@@ -73,7 +73,7 @@ public final class ConfigBuilder {
     return new ViewColumn(name, new ViewOutput(outputName), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  public static ViewColumn column(String name, FunctionConfig config) {
+  public static ViewColumn column(String name, FunctionModelConfig config) {
     return new ViewColumn(name, new ViewOutput(name, config), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
@@ -85,15 +85,15 @@ public final class ConfigBuilder {
     return new ViewColumn(name, new ViewOutput(outputName), createTargetOutputs(outputs));
   }
 
-  public static ViewColumn column(String name, String outputName, FunctionConfig config) {
+  public static ViewColumn column(String name, String outputName, FunctionModelConfig config) {
     return new ViewColumn(name, new ViewOutput(outputName, config), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
-  public static ViewColumn column(String name, FunctionConfig config, TargetOutput... targetOutputs) {
+  public static ViewColumn column(String name, FunctionModelConfig config, TargetOutput... targetOutputs) {
     return new ViewColumn(name, new ViewOutput(name, config), createTargetOutputs(targetOutputs));
   }
 
-  public static ViewColumn column(String name, String outputName, FunctionConfig config, TargetOutput... targetOutputs) {
+  public static ViewColumn column(String name, String outputName, FunctionModelConfig config, TargetOutput... targetOutputs) {
     return new ViewColumn(name, new ViewOutput(outputName, config), createTargetOutputs(targetOutputs));
   }
 
@@ -101,16 +101,16 @@ public final class ConfigBuilder {
     return new TargetOutput(new ViewOutput(outputName), targetType);
   }
 
-  public static TargetOutput output(String outputName, Class<?> targetType, FunctionConfig config) {
+  public static TargetOutput output(String outputName, Class<?> targetType, FunctionModelConfig config) {
     return new TargetOutput(new ViewOutput(outputName, config), targetType);
   }
 
-  public static ViewOutput output(String outputName, FunctionConfig config) {
+  public static ViewOutput output(String outputName, FunctionModelConfig config) {
     return new ViewOutput(outputName, config);
   }
 
   public static ViewOutput output(String outputName) {
-    return new ViewOutput(outputName, FunctionConfig.EMPTY);
+    return new ViewOutput(outputName, FunctionModelConfig.EMPTY);
   }
 
   public static NonPortfolioOutput nonPortfolioOutput(String name, ViewOutput output) {
@@ -120,30 +120,30 @@ public final class ConfigBuilder {
   // TODO this is a bad name
   // TODO this needs to inherit the output name from the column. not sure that's going to be easy
   // maybe column output needs to allow a null output name
-  public static TargetOutput output(Class<?> targetType, FunctionConfig config) {
+  public static TargetOutput output(Class<?> targetType, FunctionModelConfig config) {
     return new TargetOutput(new ViewOutput(null, config), targetType);
   }
 
-  public static FunctionConfig config(Implementations implementations, Arguments arguments) {
-    return new SimpleFunctionConfig(implementations._implementations, arguments._arguments);
+  public static FunctionModelConfig config(Implementations implementations, Arguments arguments) {
+    return new SimpleFunctionModelConfig(implementations._implementations, arguments._arguments);
   }
 
-  public static FunctionConfig config() {
-    return new SimpleFunctionConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
+  public static FunctionModelConfig config() {
+    return new SimpleFunctionModelConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
   }
 
 
-  public static FunctionConfig config(Implementations implementations) {
-    return new SimpleFunctionConfig(implementations._implementations, EMPTY_ARGUMENTS);
+  public static FunctionModelConfig config(Implementations implementations) {
+    return new SimpleFunctionModelConfig(implementations._implementations, EMPTY_ARGUMENTS);
   }
 
-  public static FunctionConfig config(Arguments arguments) {
-    return new SimpleFunctionConfig(EMPTY_OVERRIDES, arguments._arguments);
+  public static FunctionModelConfig config(Arguments arguments) {
+    return new SimpleFunctionModelConfig(EMPTY_OVERRIDES, arguments._arguments);
 
   }
 
-  public static FunctionConfig config(Arguments arguments, Implementations implementations) {
-    return new SimpleFunctionConfig(implementations._implementations, arguments._arguments);
+  public static FunctionModelConfig config(Arguments arguments, Implementations implementations) {
+    return new SimpleFunctionModelConfig(implementations._implementations, arguments._arguments);
   }
 
   // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
@@ -227,15 +227,15 @@ public final class ConfigBuilder {
 
   private static class Columns {
 
-    private final FunctionConfig _defaultConfig;
+    private final FunctionModelConfig _defaultConfig;
     private final List<ViewColumn> _viewColumns;
 
-    private Columns(FunctionConfig defaultConfig, ViewColumn... viewColumns) {
+    private Columns(FunctionModelConfig defaultConfig, ViewColumn... viewColumns) {
       _defaultConfig = defaultConfig;
       _viewColumns = Arrays.asList(viewColumns);
     }
 
-    public FunctionConfig getDefaultConfig() {
+    public FunctionModelConfig getDefaultConfig() {
       return _defaultConfig;
     }
 

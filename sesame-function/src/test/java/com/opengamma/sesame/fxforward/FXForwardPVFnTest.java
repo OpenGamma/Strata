@@ -37,8 +37,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.sf.ehcache.CacheManager;
-
 import org.hamcrest.MatcherAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +110,7 @@ import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.EngineFunctionUtils;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -148,6 +146,8 @@ import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
+import net.sf.ehcache.CacheManager;
+
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFnTest {
 
@@ -165,7 +165,7 @@ public class FXForwardPVFnTest {
   @Test
   public void buildGraph() {
     FunctionMetadata calculatePV = EngineFunctionUtils.createMetadata(FXForwardPVFn.class, "calculatePV");
-    FunctionConfig config = createFunctionConfig();
+    FunctionModelConfig config = createFunctionConfig();
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
                                              ConventionBundleSource.class,
@@ -338,7 +338,7 @@ public class FXForwardPVFnTest {
                                componentMap,
                                availableOutputs,
                                availableImplementations,
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.noneOf(EngineService.class));
     View view = engine.createView(viewDef, Collections.emptyList());
@@ -439,7 +439,7 @@ public class FXForwardPVFnTest {
                                componentMap,
                                availableOutputs,
                                availableImplementations,
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.of(EngineService.CACHING, EngineService.TRACING));
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
@@ -496,7 +496,7 @@ public class FXForwardPVFnTest {
     return trade;
   }
 
-  private static FunctionConfig createFunctionConfig() {
+  private static FunctionModelConfig createFunctionConfig() {
     String exposureConfig = "Temple Exposure Config";
     return
         config(

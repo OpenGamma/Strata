@@ -43,7 +43,7 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.Engine;
 import com.opengamma.sesame.engine.EngineService;
@@ -105,7 +105,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
                                componentMap,
                                availableOutputs,
                                availableImplementations,
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                getCacheManager(),
                                //EnumSet.of(EngineService.CACHING, EngineService.TIMING));
                                EngineService.DEFAULT_SERVICES);

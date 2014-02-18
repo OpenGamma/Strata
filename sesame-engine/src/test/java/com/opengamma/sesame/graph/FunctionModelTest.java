@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.EngineFunctionUtils;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -39,7 +39,7 @@ public class FunctionModelTest {
 
   @Test
   public void basicImpl() {
-    FunctionConfig config = config(implementations(TestFn.class, BasicImpl.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, BasicImpl.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof BasicImpl);
@@ -49,7 +49,7 @@ public class FunctionModelTest {
   public void infrastructure() {
     ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class,
                                                                                     INFRASTRUCTURE_COMPONENT));
-    FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), infrastructure).getReceiver();
@@ -60,8 +60,8 @@ public class FunctionModelTest {
 
   @Test
   public void functionCallingOtherFunction() {
-    FunctionConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
-                                                   CollaboratorFn.class, Collaborator.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
+                                                        CollaboratorFn.class, Collaborator.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertTrue(fn instanceof CallsOtherFn);
@@ -80,12 +80,10 @@ public class FunctionModelTest {
   public void provider() {
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(PrivateConstructor.class, "getName");
     String providerName = "the provider name";
-    FunctionConfig config = config(implementations(PrivateConstructor.class, PrivateConstructorProvider.class),
+    FunctionModelConfig config = config(implementations(PrivateConstructor.class, PrivateConstructorProvider.class),
                                    arguments(
                                        function(PrivateConstructorProvider.class,
-                                                argument("providerName", providerName))
-                                   )
-    );
+                                                argument("providerName", providerName))));
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
     PrivateConstructor fn = (PrivateConstructor) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertEquals(providerName, fn.getName());
@@ -111,7 +109,7 @@ public class FunctionModelTest {
         };
       }
     };
-    FunctionConfig config = config(implementations(TestFn.class, BasicImpl.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, BasicImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, decorator);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
@@ -127,7 +125,7 @@ public class FunctionModelTest {
 
   @Test
   public void buildDirectly2() {
-    FunctionConfig config = config(implementations(TestFn.class, BasicImpl.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, BasicImpl.class));
     TestFn fn = FunctionModel.build(TestFn.class, config);
     assertTrue(fn instanceof BasicImpl);
   }
@@ -136,7 +134,7 @@ public class FunctionModelTest {
   public void buildDirectly3() {
     ComponentMap infrastructure = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(String.class,
                                                                                     INFRASTRUCTURE_COMPONENT));
-    FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, infrastructure, NodeDecorator.IDENTITY);
     TestFn fn = FunctionModel.build(TestFn.class, graphConfig);
     assertTrue(fn instanceof InfrastructureImpl);
@@ -147,14 +145,14 @@ public class FunctionModelTest {
   @Test
   public void noVisibleConstructors() {
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(PrivateConstructor.class, "getName");
-    FunctionConfig config = config(arguments(function(PrivateConstructor.class, argument("name", "the name"))));
+    FunctionModelConfig config = config(arguments(function(PrivateConstructor.class, argument("name", "the name"))));
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
     assertFalse(functionModel.isValid());
   }
 
   @Test
   public void infrastructureNotFound() {
-    FunctionConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, InfrastructureImpl.class));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, graphConfig);
     assertFalse(functionModel.isValid());
@@ -170,8 +168,8 @@ public class FunctionModelTest {
   /** test that error nodes are marked in the pretty printed output */
   @Test
   public void prettyPrintErrors() {
-    FunctionConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
-                                                   CollaboratorFn.class, BrokenCollaborator.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
+                                                        CollaboratorFn.class, BrokenCollaborator.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     String tree = functionModel.prettyPrint();
     String[] lines = tree.split("\n");
@@ -183,8 +181,8 @@ public class FunctionModelTest {
   /** test that non-error nodes aren't marked in the pretty printed output */
   @Test
   public void prettyPrintNoErrors() {
-    FunctionConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
-                                                   CollaboratorFn.class, Collaborator.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, CallsOtherFn.class,
+                                                        CollaboratorFn.class, Collaborator.class));
     FunctionModel functionModel = FunctionModel.forFunction(METADATA, config);
     String tree = functionModel.prettyPrint();
     String[] lines = tree.split("\n");

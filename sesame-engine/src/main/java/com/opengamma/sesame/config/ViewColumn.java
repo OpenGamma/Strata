@@ -44,18 +44,18 @@ public final class ViewColumn {
     }
   }
 
-  public FunctionConfig getFunctionConfig(Class<?> inputType) {
+  public FunctionModelConfig getFunctionConfig(Class<?> inputType) {
     ViewOutput viewOutput = _outputs.get(inputType);
     if (viewOutput == null && _defaultOutput == null) {
-      return FunctionConfig.EMPTY;
+      return FunctionModelConfig.EMPTY;
     }
     if (viewOutput == null) {
-      return _defaultOutput.getFunctionConfig();
+      return _defaultOutput.getFunctionModelConfig();
     }
     if (_defaultOutput == null) {
-      return viewOutput.getFunctionConfig();
+      return viewOutput.getFunctionModelConfig();
     }
-    return new CompositeFunctionConfig(viewOutput.getFunctionConfig(), _defaultOutput.getFunctionConfig());
+    return new CompositeFunctionModelConfig(viewOutput.getFunctionModelConfig(), _defaultOutput.getFunctionModelConfig());
   }
 
   public String getName() {

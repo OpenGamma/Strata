@@ -31,8 +31,6 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.CacheManager;
-
 import org.mockito.Matchers;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZoneOffset;
@@ -55,7 +53,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.example.CashFlowDescriptionFn;
 import com.opengamma.sesame.example.CashFlowIdDescriptionFn;
@@ -83,6 +81,8 @@ import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+
+import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class EngineTest {
@@ -153,7 +153,7 @@ public class EngineTest {
                                ComponentMap.EMPTY,
                                availableOutputs,
                                new AvailableImplementationsImpl(),
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EngineService.DEFAULT_SERVICES);
     Trade trade = createEquityTrade();
@@ -224,7 +224,7 @@ public class EngineTest {
                               config(
                                   implementations(CashFlowDescriptionFn.class, CashFlowIdDescriptionFn.class)))));
 
-    FunctionConfig defaultConfig = config(implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class,
+    FunctionModelConfig defaultConfig = config(implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class,
                                                           CashFlowDescriptionFn.class, DefaultCashFlowDescriptionFn.class));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class, CashFlowDescriptionFn.class);
@@ -266,7 +266,7 @@ public class EngineTest {
                                ComponentMap.EMPTY,
                                availableOutputs,
                                new AvailableImplementationsImpl(),
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.of(EngineService.TRACING));
     List<Trade> trades = ImmutableList.of(createEquityTrade());
@@ -298,7 +298,7 @@ public class EngineTest {
                                ComponentMap.EMPTY,
                                availableOutputs,
                                availableImplementations,
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.noneOf(EngineService.class));
     View view = engine.createView(viewDef, Collections.emptyList());
@@ -333,7 +333,7 @@ public class EngineTest {
                                ComponentMap.EMPTY,
                                availableOutputs,
                                availableImplementations,
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.noneOf(EngineService.class));
     View view = engine.createView(viewDef, Collections.emptyList());
@@ -363,7 +363,7 @@ public class EngineTest {
                                ComponentMap.EMPTY,
                                availableOutputs,
                                availableImplementations,
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.of(EngineService.TRACING));
     View view = engine.createView(viewDef, Collections.emptyList());

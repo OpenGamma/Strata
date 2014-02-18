@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public final class SimpleFunctionConfig implements FunctionConfig {
+public final class SimpleFunctionModelConfig implements FunctionModelConfig {
 
   /** Map of function types to their implementing classes where the implementing class isn't the default. */
   private final Map<Class<?>, Class<?>> _implementationOverrides;
@@ -21,8 +21,8 @@ public final class SimpleFunctionConfig implements FunctionConfig {
   /** User-specified function arguments, keyed by the function implementation type. */
   private final Map<Class<?>, FunctionArguments> _arguments;
 
-  public SimpleFunctionConfig(Map<Class<?>, Class<?>> implementationOverrides,
-                              Map<Class<?>, FunctionArguments> arguments) {
+  public SimpleFunctionModelConfig(Map<Class<?>, Class<?>> implementationOverrides,
+                                   Map<Class<?>, FunctionArguments> arguments) {
     _implementationOverrides = ImmutableMap.copyOf(ArgumentChecker.notNull(implementationOverrides, "implementationOverrides"));
     _arguments = ImmutableMap.copyOf(ArgumentChecker.notNull(arguments, "arguments"));
   }

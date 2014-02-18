@@ -17,7 +17,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.config.FunctionArguments;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -63,11 +63,12 @@ public final class FunctionModel {
     return _root.getExceptions();
   }
 
+  // TODO GraphConfig doesn't belong here. replace with Set<Class<?>> and FunctionConfig
   public static FunctionModel forFunction(FunctionMetadata function, GraphConfig config) {
     return new FunctionModel(createNode(function.getDeclaringType(), config), function);
   }
 
-  public static FunctionModel forFunction(FunctionMetadata function, FunctionConfig config) {
+  public static FunctionModel forFunction(FunctionMetadata function, FunctionModelConfig config) {
     return new FunctionModel(createNode(function.getDeclaringType(), new GraphConfig(config)), function);
   }
 
@@ -82,7 +83,7 @@ public final class FunctionModel {
     return functionType.cast(function);
   }
 
-  public static <T> T build(Class<T> functionType, FunctionConfig config) {
+  public static <T> T build(Class<T> functionType, FunctionModelConfig config) {
     return build(functionType, new GraphConfig(config));
   }
 

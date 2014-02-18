@@ -86,7 +86,7 @@ import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.EngineFunctionUtils;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -134,7 +134,7 @@ public class FXForwardYCNSFunctionTest {
 
     FunctionMetadata calculateYCNS = EngineFunctionUtils.createMetadata(FXForwardYieldCurveNodeSensitivitiesFn.class,
                                                                         "calculateYieldCurveNodeSensitivities");
-    FunctionConfig config = createFunctionConfig();
+    FunctionModelConfig config = createFunctionConfig();
 
     GraphConfig graphConfig = new GraphConfig(config, componentMap, NodeDecorator.IDENTITY);
     FunctionModel functionModel = FunctionModel.forFunction(calculateYCNS, graphConfig);
@@ -197,7 +197,7 @@ public class FXForwardYCNSFunctionTest {
   }
 
 
-  private static FunctionConfig createFunctionConfig() {
+  private static FunctionModelConfig createFunctionConfig() {
     String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
 
     return

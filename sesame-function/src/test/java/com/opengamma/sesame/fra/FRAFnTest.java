@@ -109,7 +109,7 @@ import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.MarketdataResourcesLoader;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.ValuationTimeFn;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -173,7 +173,7 @@ public class FRAFnTest {
 
     ZonedDateTime valuationTime = DateUtils.getUTCDate(2014, 1, 22);
 
-    FunctionConfig config = config(
+    FunctionModelConfig config = config(
         arguments(
             function(ConfigDbMarketExposureSelectorFn.class,
                      argument("exposureConfig", ConfigLink.of("Test USD", mockExposureFunctions()))),

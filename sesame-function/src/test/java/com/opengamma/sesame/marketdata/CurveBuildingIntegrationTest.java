@@ -25,8 +25,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.EnumSet;
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -68,7 +66,7 @@ import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
@@ -93,6 +91,8 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
+
+import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class CurveBuildingIntegrationTest {
@@ -150,7 +150,7 @@ public class CurveBuildingIntegrationTest {
                                componentMap,
                                availableOutputs,
                                availableImplementations,
-                               FunctionConfig.EMPTY,
+                               FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.noneOf(EngineService.class));
 

@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.EngineFunctionUtils;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -54,8 +54,8 @@ public class CachingProxyDecoratorTest {
   /** check the cache contains the item returns from the function */
   @Test
   public void oneLookup() throws Exception {
-    FunctionConfig config = config(implementations(TestFn.class, Impl.class),
-                                   arguments(function(Impl.class, argument("s", "s"))));
+    FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
+                                        arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
@@ -77,8 +77,8 @@ public class CachingProxyDecoratorTest {
   /** check that multiple instances of the same function return the cached value when invoked with the same args */
   @Test
   public void multipleFunctions() {
-    FunctionConfig config = config(implementations(TestFn.class, Impl.class),
-                                   arguments(function(Impl.class, argument("s", "s"))));
+    FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
+                                        arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
@@ -99,8 +99,8 @@ public class CachingProxyDecoratorTest {
    */
   @Test
   public void multipleCalls() {
-    FunctionConfig config = config(implementations(TestFn.class, Impl.class),
-                                   arguments(function(Impl.class, argument("s", "s"))));
+    FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
+                                        arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
@@ -111,10 +111,10 @@ public class CachingProxyDecoratorTest {
 
   @Test
   public void sameFunctionDifferentConstructorArgs() {
-    FunctionConfig config1 = config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "a string"))));
-    FunctionConfig config2 = config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "a different string"))));
+    FunctionModelConfig config1 = config(implementations(TestFn.class, Impl.class),
+                                         arguments(function(Impl.class, argument("s", "a string"))));
+    FunctionModelConfig config2 = config(implementations(TestFn.class, Impl.class),
+                                         arguments(function(Impl.class, argument("s", "a different string"))));
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
@@ -213,12 +213,12 @@ public class CachingProxyDecoratorTest {
    */
   @Test
   public void sameFunctionDifferentDependencyInstances() {
-    FunctionConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
-                                                    DelegateFn.class, Delegate1.class),
-                                    arguments(function(Delegate1.class, argument("s", "a string"))));
-    FunctionConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
-                                                    DelegateFn.class, Delegate1.class),
-                                    arguments(function(Delegate1.class, argument("s", "a different string"))));
+    FunctionModelConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
+                                                         DelegateFn.class, Delegate1.class),
+                                         arguments(function(Delegate1.class, argument("s", "a string"))));
+    FunctionModelConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
+                                                         DelegateFn.class, Delegate1.class),
+                                         arguments(function(Delegate1.class, argument("s", "a different string"))));
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
@@ -241,12 +241,12 @@ public class CachingProxyDecoratorTest {
    */
   @Test
   public void sameFunctionDifferentDependencyTypes() {
-    FunctionConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
-                                                    DelegateFn.class, Delegate1.class),
-                                    arguments(function(Delegate1.class, argument("s", "a string"))));
-    FunctionConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
-                                                    DelegateFn.class, Delegate2.class),
-                                    arguments(function(Delegate2.class, argument("s", "a string"))));
+    FunctionModelConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
+                                                         DelegateFn.class, Delegate1.class),
+                                         arguments(function(Delegate1.class, argument("s", "a string"))));
+    FunctionModelConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
+                                                         DelegateFn.class, Delegate2.class),
+                                         arguments(function(Delegate2.class, argument("s", "a string"))));
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig1 = new GraphConfig(config1, ComponentMap.EMPTY, cachingDecorator);
@@ -266,7 +266,7 @@ public class CachingProxyDecoratorTest {
   /** check caching works when the class method is annotated and the interface isn't */
   @Test
   public void annotationOnClass() throws Exception {
-    FunctionConfig config = config(implementations(TestFn2.class, Impl2.class));
+    FunctionModelConfig config = config(implementations(TestFn2.class, Impl2.class));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, cachingDecorator);
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn2.class, "foo");
@@ -303,8 +303,8 @@ public class CachingProxyDecoratorTest {
   /** Check the expected cache keys are pushed onto a thread local stack while a cacheable method executes. */
   @Test
   public void executingMethods() {
-    FunctionConfig config = config(implementations(ExecutingMethodsI1.class, ExecutingMethodsC1.class,
-                                                   ExecutingMethodsI2.class, ExecutingMethodsC2.class));
+    FunctionModelConfig config = config(implementations(ExecutingMethodsI1.class, ExecutingMethodsC1.class,
+                                                        ExecutingMethodsI2.class, ExecutingMethodsC2.class));
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
     ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
                                                                                 executingMethods));

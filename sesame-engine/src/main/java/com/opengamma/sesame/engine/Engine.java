@@ -25,7 +25,7 @@ import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.DefaultCacheInvalidator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
@@ -55,7 +55,7 @@ public class Engine {
   private final AvailableImplementations _availableImplementations;
   private final EnumSet<EngineService> _defaultServices;
   private final CacheManager _cacheManager;
-  private final FunctionConfig _defaultConfig;
+  private final FunctionModelConfig _defaultConfig;
 
   /* package */ Engine(ExecutorService executor,
                        AvailableOutputs availableOutputs,
@@ -64,7 +64,7 @@ public class Engine {
          ComponentMap.EMPTY,
          availableOutputs,
          availableImplementations,
-         FunctionConfig.EMPTY,
+         FunctionModelConfig.EMPTY,
          CacheManager.getInstance(),
          EngineService.DEFAULT_SERVICES);
   }
@@ -74,7 +74,7 @@ public class Engine {
                 ComponentMap components,
                 AvailableOutputs availableOutputs,
                 AvailableImplementations availableImplementations,
-                FunctionConfig defaultConfig,
+                FunctionModelConfig defaultConfig,
                 CacheManager cacheManager,
                 EnumSet<EngineService> defaultServices) {
     _availableOutputs = ArgumentChecker.notNull(availableOutputs, "availableOutputs");

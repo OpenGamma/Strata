@@ -14,15 +14,15 @@ import org.testng.annotations.Test;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class CompositeFunctionConfigTest {
+public class CompositeFunctionModelConfigTest {
 
   @Test
   public void compose2() {
-    FunctionConfig config1 = config(implementations(Object.class, String.class,
-                                                    Float.class, Character.class));
-    FunctionConfig config2 = config(implementations(Object.class, Integer.class,
-                                                    Long.class, Double.class));
-    CompositeFunctionConfig config = new CompositeFunctionConfig(config1, config2);
+    FunctionModelConfig config1 = config(implementations(Object.class, String.class,
+                                                         Float.class, Character.class));
+    FunctionModelConfig config2 = config(implementations(Object.class, Integer.class,
+                                                         Long.class, Double.class));
+    CompositeFunctionModelConfig config = new CompositeFunctionModelConfig(config1, config2);
     assertEquals(String.class, config.getFunctionImplementation(Object.class));
     assertEquals(Double.class, config.getFunctionImplementation(Long.class));
     assertEquals(Character.class, config.getFunctionImplementation(Float.class));
@@ -30,13 +30,13 @@ public class CompositeFunctionConfigTest {
 
   @Test
   public void composeMultiple() {
-    FunctionConfig config1 = config(implementations(Object.class, String.class,
-                                                    Float.class, Character.class));
-    FunctionConfig config2 = config(implementations(Object.class, Integer.class,
-                                                    Long.class, Double.class));
-    FunctionConfig config3 = config(implementations(Number.class, Integer.class,
-                                                    Long.class, Short.class));
-    FunctionConfig config = CompositeFunctionConfig.compose(config1, config2, config3);
+    FunctionModelConfig config1 = config(implementations(Object.class, String.class,
+                                                         Float.class, Character.class));
+    FunctionModelConfig config2 = config(implementations(Object.class, Integer.class,
+                                                         Long.class, Double.class));
+    FunctionModelConfig config3 = config(implementations(Number.class, Integer.class,
+                                                         Long.class, Short.class));
+    FunctionModelConfig config = CompositeFunctionModelConfig.compose(config1, config2, config3);
     assertEquals(String.class, config.getFunctionImplementation(Object.class));
     assertEquals(Double.class, config.getFunctionImplementation(Long.class));
     assertEquals(Character.class, config.getFunctionImplementation(Float.class));

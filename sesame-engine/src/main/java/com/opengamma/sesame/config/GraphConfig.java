@@ -28,26 +28,27 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class GraphConfig {
 
-  public static final GraphConfig EMPTY = new GraphConfig(FunctionConfig.EMPTY);
+  public static final GraphConfig EMPTY = new GraphConfig(FunctionModelConfig.EMPTY);
 
-  private final FunctionConfig _functionConfig;
+  private final FunctionModelConfig _functionModelConfig;
   private final ComponentMap _components;
   private final NodeDecorator _nodeDecorator;
 
-  public GraphConfig(FunctionConfig functionConfig, ComponentMap components, NodeDecorator nodeDecorator) {
-    _functionConfig = ArgumentChecker.notNull(functionConfig, "functionConfig");
+  public GraphConfig(FunctionModelConfig functionModelConfig, ComponentMap components, NodeDecorator nodeDecorator) {
+    _functionModelConfig = ArgumentChecker.notNull(functionModelConfig, "functionConfig");
     _components = ArgumentChecker.notNull(components, "components");
     _nodeDecorator = ArgumentChecker.notNull(nodeDecorator, "nodeDecorator");
   }
 
-  public GraphConfig(FunctionConfig functionConfig) {
-    _functionConfig = functionConfig;
+  public GraphConfig(FunctionModelConfig functionModelConfig) {
+    _functionModelConfig = functionModelConfig;
     _components = ComponentMap.EMPTY;
     _nodeDecorator = NodeDecorator.IDENTITY;
   }
 
+  // TODO where does this logic belong? FunctionArguments? it doesn't use any state from here
   public Object getConstructorArgument(Class<?> objectType, Parameter parameter) {
-    FunctionArguments args = _functionConfig.getFunctionArguments(objectType);
+    FunctionArguments args = _functionModelConfig.getFunctionArguments(objectType);
     Object arg = args.getArgument(parameter.getName());
     if (arg == null) {
       return null;
@@ -71,7 +72,7 @@ public class GraphConfig {
   }
 
   public Class<?> getImplementationType(Class<?> interfaceType) {
-    return _functionConfig.getFunctionImplementation(interfaceType);
+    return _functionModelConfig.getFunctionImplementation(interfaceType);
   }
 
   public Object getComponent(Class<?> type) {

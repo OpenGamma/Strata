@@ -6,13 +6,13 @@
 package com.opengamma.sesame.function;
 
 import com.opengamma.sesame.config.FunctionArguments;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-public class DefaultImplementationProvider implements FunctionConfig {
+public class DefaultImplementationProvider implements FunctionModelConfig {
 
   private final AvailableImplementations _availableImplementations;
 

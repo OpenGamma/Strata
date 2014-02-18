@@ -16,8 +16,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
-import com.opengamma.sesame.config.CompositeFunctionConfig;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.CompositeFunctionModelConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
@@ -39,14 +39,14 @@ public final class GraphBuilder {
 
   private final AvailableOutputs _availableOutputs;
   private final ComponentMap _componentMap;
-  private final FunctionConfig _defaultConfig;
+  private final FunctionModelConfig _defaultConfig;
   private final NodeDecorator _nodeDecorator;
   private final DefaultImplementationProvider _defaultImplProvider;
 
   public GraphBuilder(AvailableOutputs availableOutputs,
                       AvailableImplementations availableImplementations,
                       ComponentMap componentMap,
-                      FunctionConfig defaultConfig,
+                      FunctionModelConfig defaultConfig,
                       NodeDecorator nodeDecorator) {
     _availableOutputs = ArgumentChecker.notNull(availableOutputs, "functionRepo");
     _componentMap = ArgumentChecker.notNull(componentMap, "componentMap");
@@ -65,8 +65,10 @@ public final class GraphBuilder {
     ArgumentChecker.notNull(inputs, "inputs");
     ImmutableMap.Builder<String, Map<Class<?>, FunctionModel>> builder = ImmutableMap.builder();
     // TODO each column could easily be done in parallel
-    FunctionConfig viewConfig = viewDef.getDefaultConfig();
-    FunctionConfig defaultConfig = CompositeFunctionConfig.compose(viewConfig, _defaultConfig, _defaultImplProvider);
+    FunctionModelConfig viewConfig = viewDef.getDefaultConfig();
+    FunctionModelConfig defaultConfig = CompositeFunctionModelConfig.compose(viewConfig,
+                                                                             _defaultConfig,
+                                                                             _defaultImplProvider);
     for (ViewColumn column : viewDef.getColumns()) {
       Map<Class<?>, FunctionModel> functions = Maps.newHashMap();
       for (Object input : inputs) {
@@ -84,8 +86,8 @@ public final class GraphBuilder {
           if (function != null) {
             FunctionModel existingFunction = functions.get(input.getClass());
             if (existingFunction == null) {
-              FunctionConfig columnConfig = column.getFunctionConfig(input.getClass());
-              FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, defaultConfig);
+              FunctionModelConfig columnConfig = column.getFunctionConfig(input.getClass());
+              FunctionModelConfig config = CompositeFunctionModelConfig.compose(columnConfig, defaultConfig);
               GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
               FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
               functions.put(input.getClass(), functionModel);
@@ -105,8 +107,8 @@ public final class GraphBuilder {
             if (function != null) {
               FunctionModel existingFunction = functions.get(security.getClass());
               if (existingFunction == null) {
-                FunctionConfig columnConfig = column.getFunctionConfig(security.getClass());
-                FunctionConfig config = CompositeFunctionConfig.compose(columnConfig, defaultConfig);
+                FunctionModelConfig columnConfig = column.getFunctionConfig(security.getClass());
+                FunctionModelConfig config = CompositeFunctionModelConfig.compose(columnConfig, defaultConfig);
                 GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
                 FunctionModel functionModel = FunctionModel.forFunction(function, graphConfig);
                 functions.put(security.getClass(), functionModel);
@@ -131,8 +133,8 @@ public final class GraphBuilder {
       FunctionMetadata function = _availableOutputs.getOutputFunction(outputName);
       FunctionModel functionModel;
       if (function != null) {
-        FunctionConfig functionConfig = output.getOutput().getFunctionConfig();
-        FunctionConfig config = CompositeFunctionConfig.compose(functionConfig, defaultConfig);
+        FunctionModelConfig functionModelConfig = output.getOutput().getFunctionModelConfig();
+        FunctionModelConfig config = CompositeFunctionModelConfig.compose(functionModelConfig, defaultConfig);
         GraphConfig graphConfig = new GraphConfig(config, _componentMap, _nodeDecorator);
         functionModel = FunctionModel.forFunction(function, graphConfig);
       } else {

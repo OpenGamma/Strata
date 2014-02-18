@@ -15,14 +15,14 @@ public final class ViewOutput {
 
   private final String _outputName;
 
-  private final FunctionConfig _functionConfig;
+  private final FunctionModelConfig _functionModelConfig;
 
   public ViewOutput(String outputName) {
-    this(outputName, FunctionConfig.EMPTY);
+    this(outputName, FunctionModelConfig.EMPTY);
   }
 
-  public ViewOutput(String outputName, FunctionConfig functionConfig) {
-    _functionConfig = ArgumentChecker.notNull(functionConfig, "functionConfig");
+  public ViewOutput(String outputName, FunctionModelConfig functionModelConfig) {
+    _functionModelConfig = ArgumentChecker.notNull(functionModelConfig, "functionConfig");
     _outputName = outputName;
   }
 
@@ -38,15 +38,15 @@ public final class ViewOutput {
   /**
    * @return The configuration for this output, not null
    */
-  public FunctionConfig getFunctionConfig() {
-    return _functionConfig;
+  public FunctionModelConfig getFunctionModelConfig() {
+    return _functionModelConfig;
   }
 
   @Override
   public String toString() {
     return "ViewOutput [" +
         "_outputName='" + _outputName + "'" +
-        ", _functionConfig=" + _functionConfig +
+        ", _functionConfig=" + _functionModelConfig +
         "]";
   }
 }

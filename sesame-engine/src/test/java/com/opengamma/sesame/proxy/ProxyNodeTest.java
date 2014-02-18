@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.EngineFunctionUtils;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -29,7 +29,7 @@ public class ProxyNodeTest {
 
   @Test
   public void proxy() {
-    FunctionConfig config = config(implementations(TestFn.class, Impl.class));
+    FunctionModelConfig config = config(implementations(TestFn.class, Impl.class));
     GraphConfig graphConfig = new GraphConfig(config, ComponentMap.EMPTY, new Decorator());
     FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, graphConfig);

@@ -9,12 +9,12 @@ package com.opengamma.sesame.config;
  * Configuration for individual functions in the function model.
  * Provides the implementation types for function interfaces and the arguments for creating function instances.
  */
-public interface FunctionConfig {
+public interface FunctionModelConfig {
 
   /**
    * Always returns a null implementation class and empty arguments.
    */
-  public static final FunctionConfig EMPTY = new FunctionConfig() {
+  public static final FunctionModelConfig EMPTY = new FunctionModelConfig() {
     @Override
     public Class<?> getFunctionImplementation(Class<?> functionInterface) {
       return null;

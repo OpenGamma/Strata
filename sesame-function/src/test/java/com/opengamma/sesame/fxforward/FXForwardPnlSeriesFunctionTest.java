@@ -27,8 +27,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
-import net.sf.ehcache.CacheManager;
-
 import org.hamcrest.MatcherAssert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -92,7 +90,7 @@ import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.EngineFunctionUtils;
-import com.opengamma.sesame.config.FunctionConfig;
+import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.GraphConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -113,6 +111,8 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
+import net.sf.ehcache.CacheManager;
+
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPnlSeriesFunctionTest {
 
@@ -128,7 +128,7 @@ public class FXForwardPnlSeriesFunctionTest {
   @Test
   public void buildGraph() {
     FunctionMetadata calculatePnl = EngineFunctionUtils.createMetadata(FXForwardPnLSeriesFn.class, "calculatePnlSeries");
-    FunctionConfig config = createFunctionConfig();
+    FunctionModelConfig config = createFunctionConfig();
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
                                              ConventionBundleSource.class,
@@ -201,7 +201,7 @@ public class FXForwardPnlSeriesFunctionTest {
   }
 
 
-  private static FunctionConfig createFunctionConfig() {
+  private static FunctionModelConfig createFunctionConfig() {
     ConfigLink<ExposureFunctions> exposureConfig =
         ConfigLink.of("EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS",
                       mock(ExposureFunctions.class));
