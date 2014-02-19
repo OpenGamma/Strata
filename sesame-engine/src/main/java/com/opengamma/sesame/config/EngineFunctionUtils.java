@@ -56,7 +56,7 @@ public final class EngineFunctionUtils {
    * @param <T> Tye type
    * @return The constructor the engine should use for building instances, not null
    * @throws IllegalArgumentException If there isn't a valid constructor
-   * TODO return null or throw specific exception?
+   * TODO this belongs in the graph package and it can throw
    */
   @SuppressWarnings("unchecked")
   public static <T> Constructor<T> getConstructor(Class<T> type) {
