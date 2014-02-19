@@ -13,15 +13,21 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
+import com.opengamma.sesame.OutputName;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
 public class AvailableOutputsImplTest {
 
   private static final String O1 = "O1";
+  private static final OutputName O1_NAME = OutputName.of(O1);
   private static final String O2 = "O2";
+  private static final OutputName O2_NAME = OutputName.of(O2);
   private static final String O3 = "O3";
+  private static final OutputName O3_NAME = OutputName.of(O3);
   private static final String O4 = "O4";
+  private static final OutputName O4_NAME = OutputName.of(O4);
+
   private static final ImmutableSet<Class<?>> s_inputTypes =
       ImmutableSet.<Class<?>>of(Target1.class, Target2.class, Target3.class);
 
@@ -29,9 +35,9 @@ public class AvailableOutputsImplTest {
   public void getAvailableOutputs() {
     AvailableOutputs outputs = new AvailableOutputsImpl(s_inputTypes);
     outputs.register(F1.class, F2.class);
-    assertEquals(ImmutableSortedSet.of(O1, O2), outputs.getAvailableOutputs(Target3.class));
-    assertEquals(ImmutableSortedSet.of(O1, O2), outputs.getAvailableOutputs(Target2.class));
-    assertEquals(ImmutableSortedSet.of(O1), outputs.getAvailableOutputs(Target1.class));
+    assertEquals(ImmutableSortedSet.of(O1_NAME, O2_NAME), outputs.getAvailableOutputs(Target3.class));
+    assertEquals(ImmutableSortedSet.of(O1_NAME, O2_NAME), outputs.getAvailableOutputs(Target2.class));
+    assertEquals(ImmutableSortedSet.of(O1_NAME), outputs.getAvailableOutputs(Target1.class));
     assertEquals(Collections.<String>emptySet(), outputs.getAvailableOutputs(Object.class));
   }
 
@@ -39,13 +45,13 @@ public class AvailableOutputsImplTest {
   public void getFunctionType() {
     AvailableOutputs outputs = new AvailableOutputsImpl(s_inputTypes);
     outputs.register(F1.class, F2.class, F3.class, F4.class);
-    assertEquals(F1.class, outputs.getOutputFunction(O1, Target1.class).getDeclaringType());
-    assertEquals(F1.class, outputs.getOutputFunction(O1, Target2.class).getDeclaringType());
-    assertEquals(F1.class, outputs.getOutputFunction(O1, Target3.class).getDeclaringType());
-    assertEquals(F2.class, outputs.getOutputFunction(O2, Target2.class).getDeclaringType());
-    assertEquals(F2.class, outputs.getOutputFunction(O2, Target3.class).getDeclaringType());
-    assertEquals(F3.class, outputs.getOutputFunction(O3).getDeclaringType());
-    assertEquals(F4.class, outputs.getOutputFunction(O4).getDeclaringType());
+    assertEquals(F1.class, outputs.getOutputFunction(O1_NAME, Target1.class).getDeclaringType());
+    assertEquals(F1.class, outputs.getOutputFunction(O1_NAME, Target2.class).getDeclaringType());
+    assertEquals(F1.class, outputs.getOutputFunction(O1_NAME, Target3.class).getDeclaringType());
+    assertEquals(F2.class, outputs.getOutputFunction(O2_NAME, Target2.class).getDeclaringType());
+    assertEquals(F2.class, outputs.getOutputFunction(O2_NAME, Target3.class).getDeclaringType());
+    assertEquals(F3.class, outputs.getOutputFunction(O3_NAME).getDeclaringType());
+    assertEquals(F4.class, outputs.getOutputFunction(O4_NAME).getDeclaringType());
   }
 
   class Target1 { }

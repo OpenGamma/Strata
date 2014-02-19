@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
+import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
@@ -79,7 +80,7 @@ public final class GraphBuilder {
         // TODO extract a method for the logic below. it's almost exactly the same twice except adapting the security function
 
         // look for an output for the position or trade
-        String outputName = column.getOutputName(input.getClass());
+        OutputName outputName = column.getOutputName(input.getClass());
         if (outputName != null) {
           FunctionMetadata function = _availableOutputs.getOutputFunction(outputName, input.getClass());
           if (function != null) {
@@ -99,7 +100,7 @@ public final class GraphBuilder {
         // look for an output for the security type
         if (input instanceof PositionOrTrade) {
           Security security = ((PositionOrTrade) input).getSecurity();
-          String securityOutput = column.getOutputName(security.getClass());
+          OutputName securityOutput = column.getOutputName(security.getClass());
           if (securityOutput != null) {
             FunctionMetadata function = _availableOutputs.getOutputFunction(securityOutput, security.getClass());
             if (function != null) {
@@ -126,7 +127,7 @@ public final class GraphBuilder {
     // build the function models for non-portfolio outputs
     ImmutableMap.Builder<String, FunctionModel> nonPortfolioFunctionModels = ImmutableMap.builder();
     for (NonPortfolioOutput output : viewDef.getNonPortfolioOutputs()) {
-      String outputName = output.getOutput().getOutputName();
+      OutputName outputName = output.getOutput().getOutputName();
       FunctionMetadata function = _availableOutputs.getOutputFunction(outputName);
       FunctionModel functionModel;
       if (function != null) {

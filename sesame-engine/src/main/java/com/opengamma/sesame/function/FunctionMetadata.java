@@ -14,6 +14,7 @@ import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -35,7 +36,7 @@ public class FunctionMetadata {
   private final Parameter _inputParameter;
 
   /** The name of the output produced by the function. */
-  private final String _outputName;
+  private final OutputName _outputName;
 
   /** The types of arguments provided by the engine, e.g. trades, positions etc. */
   private final Set<Class<?>> _inputTypes;
@@ -59,7 +60,7 @@ public class FunctionMetadata {
     if (annotation == null) {
       throw new IllegalArgumentException("method " + method + " isn't annotated with @Output");
     }
-    _outputName = annotation.value();
+    _outputName = OutputName.of(annotation.value());
     Pair<Map<String, Parameter>, Parameter> parameters = getParameters(method, inputTypes);
     _parameters = parameters.getFirst();
     _inputParameter = parameters.getSecond();
@@ -110,7 +111,7 @@ public class FunctionMetadata {
     return _method.getDeclaringClass();
   }
 
-  public String getOutputName() {
+  public OutputName getOutputName() {
     return _outputName;
   }
 

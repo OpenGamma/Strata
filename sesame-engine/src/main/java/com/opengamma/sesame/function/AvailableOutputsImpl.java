@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
+import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -34,26 +35,26 @@ public class AvailableOutputsImpl implements AvailableOutputs {
   private final Set<Class<?>> _inputTypes;
 
   /** Output names registered for an input type. */
-  private final Map<Class<?>, Set<String>> _outputsByInputType = Maps.newHashMap();
+  private final Map<Class<?>, Set<OutputName>> _outputsByInputType = Maps.newHashMap();
 
   /** Map of output name / target type to the function type that provides it. */
   // TODO create OutputKey instead of Pair<String, Class>?
-  private final Map<Pair<String, Class<?>>, FunctionMetadata> _functionsForOutputs = Maps.newHashMap();
+  private final Map<Pair<OutputName, Class<?>>, FunctionMetadata> _functionsForOutputs = Maps.newHashMap();
 
   /**
    * The same as {@link #_functionsForOutputs} but includes the function types for the target type's supertypes.
    * This is lazily populated by walking up the type hierarchy from the target type querying
    * {@link #_functionsForOutputs}.
    */
-  private final Map<Pair<String, Class<?>>, FunctionMetadata> _allFunctionsForOutputs = Maps.newHashMap();
+  private final Map<Pair<OutputName, Class<?>>, FunctionMetadata> _allFunctionsForOutputs = Maps.newHashMap();
 
   /**
    * All output names available for a target type. This is lazily populated by walking up the type hierarchy from
    * the target type querying {@link #_outputsByInputType}.
    */
-  private final Map<Class<?>, Set<String>> _allOutputsByInputType = Maps.newHashMap();
+  private final Map<Class<?>, Set<OutputName>> _allOutputsByInputType = Maps.newHashMap();
 
-  private final Map<String, FunctionMetadata> _nonPortfolioFunctions = Maps.newHashMap();
+  private final Map<OutputName, FunctionMetadata> _nonPortfolioFunctions = Maps.newHashMap();
 
   public AvailableOutputsImpl() {
     this(s_defaultInputTypes);
@@ -64,7 +65,7 @@ public class AvailableOutputsImpl implements AvailableOutputs {
   }
 
   @Override
-  public Set<Class<?>> getInputTypes(String outputName) {
+  public Set<Class<?>> getInputTypes(OutputName outputName) {
     // TODO need the reverse of _outputsByInputType
     throw new UnsupportedOperationException("getInputTypes not implemented");
   }
@@ -75,12 +76,12 @@ public class AvailableOutputsImpl implements AvailableOutputs {
    * @return All outputs that can be calculated for the target type
    */
   @Override
-  public synchronized Set<String> getAvailableOutputs(Class<?> inputType) {
+  public synchronized Set<OutputName> getAvailableOutputs(Class<?> inputType) {
     if (_allOutputsByInputType.containsKey(inputType)) {
       return _allOutputsByInputType.get(inputType);
     }
     Set<Class<?>> supertypes = EngineFunctionUtils.getSupertypes(inputType);
-    Set<String> outputs = Sets.newTreeSet();
+    Set<OutputName> outputs = Sets.newTreeSet();
     for (Class<?> supertype : supertypes) {
       if (_outputsByInputType.containsKey(supertype)) {
         outputs.addAll(_outputsByInputType.get(supertype));
@@ -91,20 +92,20 @@ public class AvailableOutputsImpl implements AvailableOutputs {
   }
 
   @Override
-  public Set<String> getAvailableOutputs() {
+  public Set<OutputName> getAvailableOutputs() {
     // TODO implement getAvailableOutputs()
     throw new UnsupportedOperationException("getAvailableOutputs not implemented");
   }
 
   @Override
-  public synchronized FunctionMetadata getOutputFunction(String outputName, Class<?> inputType) {
-    Pair<String, Class<?>> targetKey = Pairs.<String, Class<?>>of(outputName, inputType);
+  public synchronized FunctionMetadata getOutputFunction(OutputName outputName, Class<?> inputType) {
+    Pair<OutputName, Class<?>> targetKey = Pairs.<OutputName, Class<?>>of(outputName, inputType);
     if (_allFunctionsForOutputs.containsKey(targetKey)) {
       return _allFunctionsForOutputs.get(targetKey);
     }
     Set<Class<?>> supertypes = EngineFunctionUtils.getSupertypes(inputType);
     for (Class<?> supertype : supertypes) {
-      Pair<String, Class<?>> key = Pairs.<String, Class<?>>of(outputName, supertype);
+      Pair<OutputName, Class<?>> key = Pairs.<OutputName, Class<?>>of(outputName, supertype);
       if (_functionsForOutputs.containsKey(key)) {
         FunctionMetadata function = _functionsForOutputs.get(key);
         _allFunctionsForOutputs.put(targetKey, function);
@@ -115,7 +116,7 @@ public class AvailableOutputsImpl implements AvailableOutputs {
   }
 
   @Override
-  public synchronized FunctionMetadata getOutputFunction(String outputName) {
+  public synchronized FunctionMetadata getOutputFunction(OutputName outputName) {
     return _nonPortfolioFunctions.get(outputName);
   }
 
@@ -124,8 +125,8 @@ public class AvailableOutputsImpl implements AvailableOutputs {
     for (Class<?> functionInterface : functionInterfaces) {
       List<FunctionMetadata> functions = getOutputFunctions(functionInterface);
       for (FunctionMetadata function : functions) {
-        String outputName = function.getOutputName();
-        Set<String> outputNames;
+        OutputName outputName = function.getOutputName();
+        Set<OutputName> outputNames;
         Class<?> targetType = function.getInputType();
 
         if (targetType != null) { // portfolio output
@@ -135,7 +136,7 @@ public class AvailableOutputsImpl implements AvailableOutputs {
             outputNames = Sets.newHashSet(outputName);
             _outputsByInputType.put(targetType, outputNames);
           }
-          _functionsForOutputs.put(Pairs.<String, Class<?>>of(outputName, targetType), function);
+          _functionsForOutputs.put(Pairs.<OutputName, Class<?>>of(outputName, targetType), function);
         } else { // non-portfolio output
           _nonPortfolioFunctions.put(outputName, function);
         }

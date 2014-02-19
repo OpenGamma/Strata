@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.opengamma.sesame.OutputName;
 
 /**
  * Mini DSL for building instances of {@link ViewDef} and related classes in code. See the
@@ -66,51 +67,51 @@ public final class ConfigBuilder {
   }
 
   public static ViewColumn column(String name) {
-    return new ViewColumn(name, new ViewOutput(name), Collections.<Class<?>, ViewOutput>emptyMap());
+    return new ViewColumn(name, new ViewOutput(OutputName.of(name)), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
   public static ViewColumn column(String name, String outputName) {
-    return new ViewColumn(name, new ViewOutput(outputName), Collections.<Class<?>, ViewOutput>emptyMap());
+    return new ViewColumn(name, new ViewOutput(OutputName.of(outputName)), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
   public static ViewColumn column(String name, FunctionModelConfig config) {
-    return new ViewColumn(name, new ViewOutput(name, config), Collections.<Class<?>, ViewOutput>emptyMap());
+    return new ViewColumn(name, new ViewOutput(OutputName.of(name), config), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
   public static ViewColumn column(String name, TargetOutput... outputs) {
-    return new ViewColumn(name, new ViewOutput(name), createTargetOutputs(outputs));
+    return new ViewColumn(name, new ViewOutput(OutputName.of(name)), createTargetOutputs(outputs));
   }
 
   public static ViewColumn column(String name, String outputName, TargetOutput... outputs) {
-    return new ViewColumn(name, new ViewOutput(outputName), createTargetOutputs(outputs));
+    return new ViewColumn(name, new ViewOutput(OutputName.of(outputName)), createTargetOutputs(outputs));
   }
 
   public static ViewColumn column(String name, String outputName, FunctionModelConfig config) {
-    return new ViewColumn(name, new ViewOutput(outputName, config), Collections.<Class<?>, ViewOutput>emptyMap());
+    return new ViewColumn(name, new ViewOutput(OutputName.of(outputName), config), Collections.<Class<?>, ViewOutput>emptyMap());
   }
 
   public static ViewColumn column(String name, FunctionModelConfig config, TargetOutput... targetOutputs) {
-    return new ViewColumn(name, new ViewOutput(name, config), createTargetOutputs(targetOutputs));
+    return new ViewColumn(name, new ViewOutput(OutputName.of(name), config), createTargetOutputs(targetOutputs));
   }
 
   public static ViewColumn column(String name, String outputName, FunctionModelConfig config, TargetOutput... targetOutputs) {
-    return new ViewColumn(name, new ViewOutput(outputName, config), createTargetOutputs(targetOutputs));
+    return new ViewColumn(name, new ViewOutput(OutputName.of(outputName), config), createTargetOutputs(targetOutputs));
   }
 
   public static TargetOutput output(String outputName, Class<?> targetType) {
-    return new TargetOutput(new ViewOutput(outputName), targetType);
+    return new TargetOutput(new ViewOutput(OutputName.of(outputName)), targetType);
   }
 
   public static TargetOutput output(String outputName, Class<?> targetType, FunctionModelConfig config) {
-    return new TargetOutput(new ViewOutput(outputName, config), targetType);
+    return new TargetOutput(new ViewOutput(OutputName.of(outputName), config), targetType);
   }
 
   public static ViewOutput output(String outputName, FunctionModelConfig config) {
-    return new ViewOutput(outputName, config);
+    return new ViewOutput(OutputName.of(outputName), config);
   }
 
   public static ViewOutput output(String outputName) {
-    return new ViewOutput(outputName, FunctionModelConfig.EMPTY);
+    return new ViewOutput(OutputName.of(outputName), FunctionModelConfig.EMPTY);
   }
 
   public static NonPortfolioOutput nonPortfolioOutput(String name, ViewOutput output) {
@@ -121,7 +122,7 @@ public final class ConfigBuilder {
   // TODO this needs to inherit the output name from the column. not sure that's going to be easy
   // maybe column output needs to allow a null output name
   public static TargetOutput output(Class<?> targetType, FunctionModelConfig config) {
-    return new TargetOutput(new ViewOutput(null, config), targetType);
+    return new TargetOutput(new ViewOutput(config), targetType);
   }
 
   public static FunctionModelConfig config(Implementations implementations, Arguments arguments) {

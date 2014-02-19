@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.link.Link;
+import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.util.ArgumentChecker;
 
@@ -33,12 +34,12 @@ import com.opengamma.util.ArgumentChecker;
   private final Parameter _inputParameter;
 
   /** The name of the output produced by the function. */
-  private final String _outputName;
+  private final OutputName _outputName;
 
   /* package */ MethodInvokableFunction(Object receiver,
                                         Map<String, Parameter> parameters,
                                         Parameter inputParameter,
-                                        String outputName,
+                                        OutputName outputName,
                                         Method method) {
     _method = ArgumentChecker.notNull(method, "method");
     // TODO check the receiver is compatible with _declaringType
@@ -99,7 +100,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public String getOutputName() {
+  public OutputName getOutputName() {
     return _outputName;
   }
 }

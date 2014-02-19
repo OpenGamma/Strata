@@ -8,6 +8,7 @@ package com.opengamma.sesame.function;
 import java.util.Set;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.sesame.OutputName;
 
 /**
  *
@@ -15,13 +16,13 @@ import com.opengamma.DataNotFoundException;
 public interface AvailableOutputs {
 
   // for when the user is configuring a column with a default output name. this shows which types it can handle
-  Set<Class<?>> getInputTypes(String outputName);
+  Set<Class<?>> getInputTypes(OutputName outputName);
 
   // for when the user is configuring a column
-  Set<String> getAvailableOutputs(Class<?> inputType);
+  Set<OutputName> getAvailableOutputs(Class<?> inputType);
 
   // for when the user is configuring outputs that aren't derived from the portfolio
-  Set<String> getAvailableOutputs();
+  Set<OutputName> getAvailableOutputs();
 
   /**
    * Returns metadata for the function that provides an output for an input type.
@@ -32,7 +33,7 @@ public interface AvailableOutputs {
    * @throws DataNotFoundException If nothing can provide the requested output for the target type
    * TODO should this return multiple functions?
    */
-  FunctionMetadata getOutputFunction(String outputName, Class<?> inputType);
+  FunctionMetadata getOutputFunction(OutputName outputName, Class<?> inputType);
 
 
   /**
@@ -42,7 +43,7 @@ public interface AvailableOutputs {
    * @return The function that can provide the output
    * TODO should this return multiple functions?
    */
-  FunctionMetadata getOutputFunction(String outputName);
+  FunctionMetadata getOutputFunction(OutputName outputName);
 
   /**
    * Registers functions that can produce outputs from methods annotated with {@link Output}.

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.function;
 
+import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.FunctionArguments;
 
 /**
@@ -14,7 +15,8 @@ public interface InvokableFunction {
 
   Object invoke(Object input, FunctionArguments args);
 
-  String getOutputName();
+  OutputName getOutputName();
 
   Object getReceiver();
+
 }
