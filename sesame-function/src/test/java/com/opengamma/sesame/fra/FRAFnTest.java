@@ -82,6 +82,8 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.index.IborIndex;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.service.ServiceContext;
@@ -222,7 +224,7 @@ public class FRAFnTest {
 
   @Test
   public void parRateFRA() {
-    Result<Double> resultParRate = _fraFunction.calculateRate(_fraSecurity);
+    Result<Double> resultParRate = _fraFunction.calculateParRate(_fraSecurity);
     assertThat(resultParRate.isValueAvailable(), is((true)));
 
     Double parRate = resultParRate.getValue();
@@ -280,7 +282,7 @@ public class FRAFnTest {
     return mock;
   }
 
-  private ConventionSource mockConventionSource() {
+ private ConventionSource mockConventionSource() {
     BusinessDayConvention modifiedFollowing = BusinessDayConventions.MODIFIED_FOLLOWING;
     BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     DayCount thirtyU360 = DayCounts.THIRTY_U_360;
@@ -303,6 +305,8 @@ public class FRAFnTest {
         .thenReturn(onConvention);
     when(mock.getSingle(_onConventionId, OvernightIndexConvention.class))
         .thenReturn(onConvention);
+    when(mock.getSingle(eq(_onConventionId.toBundle()), any(VersionCorrection.class)))
+       .thenReturn(onConvention);
 
     OISLegConvention descReceiveLegConvention =
         new OISLegConvention(DISC_RECEIVE_LEG_CONVENTION, _discReceiveLegConventionId.toBundle(),
@@ -340,6 +344,27 @@ public class FRAFnTest {
         .thenReturn(liborConvention);
     when(mock.getSingle(_liborConventionId))
         .thenReturn(liborConvention);
+   when(mock.getSingle(eq(_liborConventionId.toBundle()), any(VersionCorrection.class)))
+       .thenReturn(liborConvention);
+
+    return mock;
+  }
+
+  private SecuritySource mockSecuritySource() {
+    SecuritySource mock = mock(SecuritySource.class);
+    when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
+
+    OvernightIndex onIndex = new OvernightIndex(USD_OVERNIGHT_CONVENTION, _onConventionId);
+    when(mock.getSingle(_onConventionId.toBundle()))
+        .thenReturn(onIndex);
+    when(mock.getSingle(eq(_onConventionId.toBundle()), any(VersionCorrection.class)))
+        .thenReturn(onIndex);
+
+    IborIndex iIndex = new IborIndex(LIBOR_CONVENTION, Tenor.THREE_MONTHS, _liborConventionId);
+    when(mock.getSingle(_liborConventionId.toBundle()))
+        .thenReturn(iIndex);
+    when(mock.getSingle(eq(_liborConventionId.toBundle()), any(VersionCorrection.class)))
+        .thenReturn(iIndex);
 
     return mock;
   }
@@ -509,12 +534,6 @@ public class FRAFnTest {
     return new InterpolatedCurveDefinition(LIBOR_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 
-  private SecuritySource mockSecuritySource() {
-    SecuritySource mock = mock(SecuritySource.class);
-    when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
-    return mock;
-  }
-
   private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
     HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
@@ -534,10 +553,8 @@ public class FRAFnTest {
   }
 
   private FRASecurity createSingleFra() {
-    ExternalId regionId = ExternalId.of("Reg", "123");
-    ExternalId underlyingId = ExternalId.of("Und", "321");
-    return new FRASecurity(s_USD, regionId, STD_ACCRUAL_START_DATE, STD_ACCRUAL_END_DATE,
-                                           0.0125, -10000000, underlyingId, STD_REFERENCE_DATE);
+    return new FRASecurity(s_USD, s_USID, STD_ACCRUAL_START_DATE, STD_ACCRUAL_END_DATE,
+                                           0.0125, -10000000, _liborConventionId, STD_REFERENCE_DATE);
   }
 
 

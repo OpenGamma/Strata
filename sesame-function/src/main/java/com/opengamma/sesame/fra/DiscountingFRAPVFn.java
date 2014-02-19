@@ -42,7 +42,7 @@ public class DiscountingFRAPVFn implements FRAPVFn {
   }
 
   @Override
-  public Result<Double> calculateRate(FRASecurity security) {
+  public Result<Double> calculateParRate(FRASecurity security) {
 
     return calculate(security, new ResultGenerator.ResultMapper<FRACalculator, Double>() {
       @Override

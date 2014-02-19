@@ -23,7 +23,7 @@ public interface FRAPVFn {
    * @return result containing the rate if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PAR_RATE)
-  Result<Double> calculateRate(FRASecurity security);
+  Result<Double> calculateParRate(FRASecurity security);
 
   /**
    * Calculate the present value for a FRA security.
