@@ -9,7 +9,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,18 +32,30 @@ import com.thoughtworks.paranamer.CachingParanamer;
 import com.thoughtworks.paranamer.Paranamer;
 import com.thoughtworks.paranamer.PositionalParanamer;
 
+/**
+ * Utilities to assist working with functions in the calculation engine.
+ */
 public final class EngineFunctionUtils {
 
-  /** Cache of the results of {@link #getSupertypes} */
+  /**
+   * Cache of the results of {@link #getSupertypes}.
+   */
   private static ConcurrentMap<Class<?>, Set<Class<?>>> s_supertypes = Maps.newConcurrentMap();
-  /** Cache of the results of {@link #getInterfaces} */
+  /**
+   * Cache of the results of {@link #getInterfaces}.
+   */
   private static ConcurrentMap<Class<?>, Set<Class<?>>> s_interfaces = Maps.newConcurrentMap();
-
+  /**
+   * Paranamer instance.
+   */
   private static Paranamer s_paranamer =
       new CachingParanamer(
           new AdaptiveParanamer(
               new BytecodeReadingParanamer(), new AnnotationParanamer(), new PositionalParanamer()));
 
+  /**
+   * Restricted constructor.
+   */
   private EngineFunctionUtils() {
   }
 
@@ -90,6 +101,13 @@ public final class EngineFunctionUtils {
     return injectableConstructor;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the parameters of the method.
+   * 
+   * @param method  the method to examine, not null
+   * @return the list of parameters, not null
+   */
   public static List<Parameter> getParameters(Method method) {
     return getParameters(method,
                          method.getDeclaringClass(),
@@ -98,6 +116,12 @@ public final class EngineFunctionUtils {
                          method.getParameterAnnotations());
   }
 
+  /**
+   * Gets the parameters of the constructor.
+   * 
+   * @param constructor  the constructor to examine, not null
+   * @return the list of parameters, not null
+   */
   // TODO won't work for non-static inner classes. throw exception. how do I know?
   public static List<Parameter> getParameters(Constructor<?> constructor) {
     return getParameters(constructor,
@@ -125,26 +149,33 @@ public final class EngineFunctionUtils {
     return parameters;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates function metadata for a named method on a class.
-   * This is for testing and isn't intended to be robust. e.g. If there are multiple methods with the same name
-   * the first one will be used.
-   * @param functionType The interface declaring the function method
-   * @param methodName The name of the method
-   * @return Metadata for the function
+   * <p>
+   * This is for testing and isn't intended to be robust.
+   * 
+   * @param functionType  the interface declaring the function method, not null
+   * @param methodName  the name of the method, not null
+   * @return the meta-data for the function, not null
    */
   public static FunctionMetadata createMetadata(Class<?> functionType, String methodName) {
     return new FunctionMetadata(getMethod(functionType, methodName));
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a named method on a class.
-   * This only works if there is exactly one method with a matching name. If there are zero or multiple methods
-   * with a matching name an exception is thrown.
-   * @param type The type declaring the method
-   * @param methodName The name of the method
-   * @return The method
-   * @throws IllegalArgumentException If there isn't exactly one method in the class with a matching name
+   * Returns a named method on a type.
+   * <p>
+   * Only public methods are considered.
+   * This only works if there is exactly one method with a matching name.
+   * If there are zero or multiple methods with a matching name an exception is thrown.
+   * 
+   * @param type  the type declaring the method, not null
+   * @param methodName  the name of the method, not null
+   * @return the method, not null
+   * @throws IllegalArgumentException if the method is not found,
+   *  or there is more than one method in the class with a matching name
    */
   public static Method getMethod(Class<?> type, String methodName) {
     Method[] methods = type.getMethods();
@@ -154,16 +185,25 @@ public final class EngineFunctionUtils {
         if (found == null) {
           found = method;
         } else {
-          throw new IllegalArgumentException("Multiple methods found named " + methodName);
+          throw new IllegalArgumentException("Multiple methods found matching name: " + methodName);
         }
       }
     }
     if (found != null) {
       return found;
     }
-    throw new IllegalArgumentException("No method found named " + methodName);
+    throw new IllegalArgumentException("No method found: " + methodName);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the complete set of supertypes of a class.
+   * <p>
+   * This includes superclasses and all interfaces.
+   * 
+   * @param type  the type to examine, not null
+   * @return the set of supertypes, not null
+   */
   public static Set<Class<?>> getSupertypes(Class<?> type) {
     Set<Class<?>> existingSupertypes = s_supertypes.get(type);
     if (existingSupertypes != null) {
@@ -178,6 +218,12 @@ public final class EngineFunctionUtils {
     return cachedSupertypes;
   }
 
+  /**
+   * Gets the complete set of interfaces of a type.
+   * 
+   * @param type  the type to examine, not null
+   * @return the set of interfaces, not null
+   */
   public static Set<Class<?>> getInterfaces(Class<?> type) {
     Set<Class<?>> existingInterfaces = s_interfaces.get(type);
     if (existingInterfaces != null) {
@@ -206,6 +252,14 @@ public final class EngineFunctionUtils {
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if at least one method has the specified annotation.
+   * 
+   * @param type  the type to examine, not null
+   * @param annotation  the annotation to find, not null
+   * @return true if at least one method has the annotation
+   */
   public static boolean hasMethodAnnotation(Class<?> type, Class<? extends Annotation> annotation) {
     for (Method method : type.getMethods()) {
       if (method.getAnnotation(annotation) != null) {
@@ -215,13 +269,16 @@ public final class EngineFunctionUtils {
     return false;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns the real object behind a proxy.
+   * <p>
    * If object isn't a proxy it is returned. If it's a proxy the underlying object is returned. If there are multiple
    * proxies this method recurses until it finds the real object.
    * All proxies must have an invocation handler of type {@link ProxyInvocationHandler}.
-   * @param object An object, possibly a proxy
-   * @return The real object behind the proxy
+   * 
+   * @param object  an object, possibly a proxy, not null
+   * @return the real object behind the proxy, not null
    */
   public static Object getProxiedObject(Object object) {
     // if object isn't a proxy then we've reached the end of the chain of proxies
@@ -231,4 +288,5 @@ public final class EngineFunctionUtils {
     ProxyInvocationHandler invocationHandler = (ProxyInvocationHandler) Proxy.getInvocationHandler(object);
     return getProxiedObject(invocationHandler.getReceiver());
   }
+
 }

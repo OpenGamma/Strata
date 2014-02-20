@@ -11,22 +11,33 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Basic function configuration implementation providing implementations and arguments.
  */
 public final class SimpleFunctionModelConfig implements FunctionModelConfig {
 
-  /** Map of function types to their implementing classes where the implementing class isn't the default. */
-  private final Map<Class<?>, Class<?>> _implementationOverrides;
+  /**
+   * The function implementation classes keyed by function interface.
+   * This only needs to be populated if the implementation is not the default.
+   */
+  private final ImmutableMap<Class<?>, Class<?>> _implementationOverrides;
+  /**
+   * The user-specified function arguments keyed by function implementation.
+   */
+  private final ImmutableMap<Class<?>, FunctionArguments> _arguments;
 
-  /** User-specified function arguments, keyed by the function implementation type. */
-  private final Map<Class<?>, FunctionArguments> _arguments;
-
+  /**
+   * Creates an instance.
+   * 
+   * @param implementationOverrides  the map of function implementation keyed by function interface, not null
+   * @param arguments  the map of arguments keyed by function implementation, not null
+   */
   public SimpleFunctionModelConfig(Map<Class<?>, Class<?>> implementationOverrides,
                                    Map<Class<?>, FunctionArguments> arguments) {
     _implementationOverrides = ImmutableMap.copyOf(ArgumentChecker.notNull(implementationOverrides, "implementationOverrides"));
     _arguments = ImmutableMap.copyOf(ArgumentChecker.notNull(arguments, "arguments"));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Class<?> getFunctionImplementation(Class<?> functionType) {
     return _implementationOverrides.get(functionType);
@@ -42,6 +53,7 @@ public final class SimpleFunctionModelConfig implements FunctionModelConfig {
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public String toString() {
     return "SimpleFunctionConfig [" +
@@ -49,4 +61,5 @@ public final class SimpleFunctionModelConfig implements FunctionModelConfig {
         "_implementationOverrides=" + _implementationOverrides +
         "]";
   }
+
 }

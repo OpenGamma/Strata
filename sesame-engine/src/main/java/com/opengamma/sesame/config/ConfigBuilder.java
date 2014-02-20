@@ -164,7 +164,11 @@ public final class ConfigBuilder {
     return new Arg(name, value);
   }
 
-  public static class Implementations {
+  //-------------------------------------------------------------------------
+  /**
+   * Builder class for implementations.
+   */
+  public static final class Implementations {
 
     private final Map<Class<?>, Class<?>> _implementations = Maps.newHashMap();
 
@@ -178,7 +182,11 @@ public final class ConfigBuilder {
     }
   }
 
-  public static class Arguments {
+  //-------------------------------------------------------------------------
+  /**
+   * Builder class for arguments.
+   */
+  public static final class Arguments {
 
     private final Map<Class<?>, FunctionArguments> _arguments = Maps.newHashMap();
 
@@ -189,7 +197,11 @@ public final class ConfigBuilder {
     }
   }
 
-  public static class FnArgs {
+  //-------------------------------------------------------------------------
+  /**
+   * Builder class for function arguments.
+   */
+  public static final class FnArgs {
 
     private final Class<?> _function;
     private final FunctionArguments _args;
@@ -204,7 +216,11 @@ public final class ConfigBuilder {
     }
   }
 
-  public static class Arg {
+  //-------------------------------------------------------------------------
+  /**
+   * Builder class for argument.
+   */
+  public static final class Arg {
 
     private final String _name;
     private final Object _value;
@@ -216,17 +232,25 @@ public final class ConfigBuilder {
     }
   }
 
-  public static class TargetOutput {
+  //-------------------------------------------------------------------------
+  /**
+   * Builder class for target outputs.
+   */
+  public static final class TargetOutput {
     private final ViewOutput _output;
     private final Class<?> _inputType;
 
-    public TargetOutput(ViewOutput output, Class<?> inputType) {
+    private TargetOutput(ViewOutput output, Class<?> inputType) {
       _output = output;
       _inputType = inputType;
     }
   }
 
-  private static class Columns {
+  //-------------------------------------------------------------------------
+  /**
+   * Builder class for columns.
+   */
+  private static final class Columns {
 
     private final FunctionModelConfig _defaultConfig;
     private final List<ViewColumn> _viewColumns;
@@ -244,8 +268,12 @@ public final class ConfigBuilder {
       return _viewColumns;
     }
   }
-  
-  private static class OtherOutputs {
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builder class for other outputs.
+   */
+  private static final class OtherOutputs {
 
     private final List<NonPortfolioOutput> _nonPortfolioOutputs;
 
@@ -257,4 +285,5 @@ public final class ConfigBuilder {
       return _nonPortfolioOutputs;
     }
   }
+
 }

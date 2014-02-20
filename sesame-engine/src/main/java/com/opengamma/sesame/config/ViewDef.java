@@ -45,7 +45,7 @@ public final class ViewDef {
    * @param defaultConfig  the default configuration, not null
    * @param columns  the list of columns, not null
    */
-  /* package */ ViewDef(String name, FunctionModelConfig defaultConfig, List<ViewColumn> columns) {
+  public ViewDef(String name, FunctionModelConfig defaultConfig, List<ViewColumn> columns) {
     this(name, defaultConfig, columns, ImmutableList.<NonPortfolioOutput>of());
   }
 
@@ -57,7 +57,7 @@ public final class ViewDef {
    * @param columns  the list of columns, not null
    * @param nonPortfolioOutputs  the list of stand-alone outputs, not null
    */
-  /* package */ ViewDef(String name,
+  public ViewDef(String name,
                         FunctionModelConfig defaultConfig,
                         List<ViewColumn> columns,
                         List<NonPortfolioOutput> nonPortfolioOutputs) {

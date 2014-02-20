@@ -9,14 +9,17 @@ import javax.inject.Provider;
 
 /**
  * Configuration for individual functions in the function model.
- * Provides the implementation types for function interfaces and the arguments for creating function instances.
+ * <p>
+ * Provides the implementation types for function interfaces and the
+ * arguments for creating function instances.
  */
 public interface FunctionModelConfig {
 
   /**
+   * Singleton instance of an empty configuration.
    * Always returns a null implementation class and empty arguments.
    */
-  public static final FunctionModelConfig EMPTY = new FunctionModelConfig() {
+  FunctionModelConfig EMPTY = new FunctionModelConfig() {
     @Override
     public Class<?> getFunctionImplementation(Class<?> functionType) {
       return null;
@@ -28,22 +31,27 @@ public interface FunctionModelConfig {
     }
   };
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns the implementation that should be used for creating instances of a type.
-   * This can be:
+   * Gets the implementation that should be used for creating instances of a type.
+   * <p>
+   * The result implementation can be:
    * <ul>
-   *   <li>The implementation of an interface</li>
-   *   <li>A {@link Provider}</li>
+   * <li>An implementation of an interface</li>
+   * <li>A {@link Provider} that can provide the implementation</li>
    * </ul>
-   * @param functionType The type
-   * @return The implementation that should be used, null if unknown
+   * 
+   * @param functionType  the type to lookup, not null
+   * @return the implementation that should be used, null if unknown
    */
   Class<?> getFunctionImplementation(Class<?> functionType);
 
   /**
-   * Returns the arguments for a function.
-   * @param functionType The type of function
-   * @return The arguments, not null, but possibly empty
+   * Gets the arguments for a function.
+   * 
+   * @param functionType  the type of function, not null
+   * @return the arguments, empty if not found, not null
    */
   FunctionArguments getFunctionArguments(Class<?> functionType);
+
 }
