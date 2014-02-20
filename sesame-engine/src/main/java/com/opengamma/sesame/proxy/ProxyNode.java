@@ -16,15 +16,34 @@ import com.opengamma.sesame.graph.Node;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A graph model node that inserts a dynamic proxy in front of a component.
+ * A node in the function model that inserts a dynamic proxy.
+ * <p>
+ * Dynamic proxies are used to add additional behaviour to the node tree.
  */
 public class ProxyNode extends DependentNode {
 
+  /**
+   * The implementation type.
+   */
   private final Class<?> _implementationType;
+  /**
+   * The node that is wrapped by the proxy.
+   */
   private final Node _delegateNode;
+  /**
+   * The proxy invocation factory.
+   */
   // TODO should this be a Class<?> and the instance can be retrieved from the ComponentMap? that could be serialized
   private final InvocationHandlerFactory _handlerFactory;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param delegateNode  the delegate node, not null
+   * @param interfaceType  the expected type of the object created by this node, not null
+   * @param implementationType  the implementation type to create, may be null
+   * @param handlerFactory  the proxy invocation factory, not null
+   */
   public ProxyNode(Node delegateNode,
                    Class<?> interfaceType,
                    Class<?> implementationType,
@@ -35,6 +54,26 @@ public class ProxyNode extends DependentNode {
     _handlerFactory = ArgumentChecker.notNull(handlerFactory, "handlerFactory");
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the delegate node.
+   * 
+   * @return the delegate node, not null
+   */
+  public Node getDelegate() {
+    return _delegateNode;
+  }
+
+  /**
+   * Gets the implementation type.
+   * 
+   * @return the implementation type, not null
+   */
+  public Class<?> getImplementationType() {
+    return _implementationType;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
     // TODO can I use ProxyGenerator here? or extract its logic?
@@ -47,22 +86,10 @@ public class ProxyNode extends DependentNode {
 
   @Override
   public String prettyPrint() {
-    return getParameterName() + "proxy " + getType().getSimpleName() + "(" + _handlerFactory.getClass().getSimpleName() + ")";
+    return getPrettyPrintParameterName() + "proxy " + getType().getSimpleName() + "(" + _handlerFactory.getClass().getSimpleName() + ")";
   }
 
-  public Node getDelegate() {
-    return _delegateNode;
-  }
-
-  public Class<?> getImplementationType() {
-    return _implementationType;
-  }
-
-  @Override
-  public int hashCode() {
-    return 31 * super.hashCode() + Objects.hash(_implementationType, _delegateNode, _handlerFactory);
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -80,4 +107,10 @@ public class ProxyNode extends DependentNode {
         Objects.equals(this._delegateNode, other._delegateNode) &&
         Objects.equals(this._handlerFactory, other._handlerFactory);
   }
+
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(_implementationType, _delegateNode, _handlerFactory);
+  }
+
 }

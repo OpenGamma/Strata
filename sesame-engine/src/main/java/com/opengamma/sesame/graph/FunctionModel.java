@@ -33,39 +33,93 @@ import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.proxy.ProxyNode;
 
 /**
- * A lightweight representation of the tree of functions for a single output.
- * TODO joda bean? needs to be serializable along with all Node subclasses.
+ * Lightweight representation of the tree of functions for a single output.
+ * <p>
+ * Each node in the tree is represented by {@link Node}.
+ * There are nodes for each function that must be created and for each
+ * parameter passed to the constructor of the function.
+ * Proxy nodes may be added to insert additional behaviour.
+ * An error node can be added if there is a problem.
  */
 public final class FunctionModel {
+// TODO joda bean? needs to be serializable along with all Node subclasses.
 
+  /**
+   * A set of ineligible types.
+   */
   private static final Set<Class<?>> INELIGIBLE_TYPES =
       Sets.<Class<?>>newHashSet(UniqueId.class, ExternalId.class, ExternalIdBundle.class);
 
+  /**
+   * The root node.
+   */
   private final Node _root;
+  /**
+   * The function meta-data.
+   */
   private final FunctionMetadata _rootMetadata;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param root  the root node, not null
+   * @param rootMetadata  the meta-data, not null
+   */
   private FunctionModel(Node root, FunctionMetadata rootMetadata) {
     _root = root;
     _rootMetadata = rootMetadata;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Builds the function defined by this model.
+   * 
+   * @param builder  the builder to use, not null
+   * @param components  the map of components, not null
+   * @return the function created from this model, not null
+   * @throws GraphBuildException if the function cannot be built
+   */
   public InvokableFunction build(FunctionBuilder builder, ComponentMap components) {
     Object receiver = builder.create(_root, components);
     return _rootMetadata.getInvokableFunction(receiver);
   }
 
-  public String prettyPrint(boolean showProxies) {
-    return prettyPrint(new StringBuilder(), _root, "", "", showProxies).toString();
-  }
-
-  public String prettyPrint() {
-    return prettyPrint(false);
-  }
-
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if this model is valid such that a function can be constructed.
+   * 
+   * @return true if this model is valid
+   */
   public boolean isValid() {
     return _root.isValid();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Pretty prints this model without proxies.
+   * 
+   * @return the tree structure, not null
+   */
+  public String prettyPrint() {
+    return prettyPrint(false);
+  }
+
+  /**
+   * Pretty prints this model.
+   * 
+   * @param showProxies  true to include proxy nodes
+   * @return the tree structure, not null
+   */
+  public String prettyPrint(boolean showProxies) {
+    return prettyPrint(new StringBuilder(), _root, "", "", showProxies).toString();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the complete set of exceptions in the model.
+   * 
+   * @return the list of exceptions, not null
+   */
   /* package */ List<AbstractGraphBuildException> getExceptions() {
     return _root.getExceptions();
   }
@@ -190,19 +244,19 @@ public final class FunctionModel {
 
   /**
    * Returns the implementation that should be used for creating instances of a type.
-   * This can be:
+   * <p>
+   * The result can be:
    * <ul>
-   *   <li>The implementation of an interface</li>
-   *   <li>A {@link Provider}</li>
-   *   <li>The type itself, if it's a concrete class</li>
+   * <li>An implementation of the specified interface</li>
+   * <li>A {@link Provider} that provides the implementation</li>
+   * <li>The input type itself, if it is a concrete class</li>
    * </ul>
-   * @param type The type
-   * @return The implementation that should be used, not null
-   * @throws NoImplementationException If there's no implementation available
+   * @param type  the type to find the implementation type for, not null
+   * @return the implementation type that should be used, not null
+   * @throws NoImplementationException if there is no implementation available
    */
   private static Class<?> getImplementationType(Class<?> type, FunctionModelConfig config, List<Parameter> path) {
     Class<?> implType = config.getFunctionImplementation(type);
-
     if (implType != null) {
       return implType;
     }
@@ -283,8 +337,10 @@ public final class FunctionModel {
   }
 
   /**
-   * @param type A type
-   * @return true If the system should try to build an instance
+   * Checks if the type is eligible for building.
+   * 
+   * @param type  the type, not null
+   * @return true if valid
    */
   private static boolean isEligibleForBuilding(Class<?> type) {
     if (INELIGIBLE_TYPES.contains(type)) {

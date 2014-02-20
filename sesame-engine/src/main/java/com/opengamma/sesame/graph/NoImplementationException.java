@@ -10,11 +10,21 @@ import java.util.List;
 import com.opengamma.sesame.function.Parameter;
 
 /**
- *
+ * Exception used when no implementation can be found.
  */
 /* package */ class NoImplementationException extends AbstractGraphBuildException {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * Creates an instance
+   * 
+   * @param path  the path of parameters to the problem, not null
+   * @param message  the descriptive message, not null
+   */
   /* package */ NoImplementationException(List<Parameter> path, String message) {
     super(path, message);
   }
+
 }

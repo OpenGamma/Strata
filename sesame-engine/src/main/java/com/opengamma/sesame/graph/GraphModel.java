@@ -17,10 +17,15 @@ import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Lightweight model of the functions needed to generate the outputs for a view.
+ * Lightweight representation of the function models needed for a view.
+ * <p>
+ * A view is formed from a grid of cells, each of which generates a desired output.
+ * The function for each cell is represented by a {@link FunctionModel}.
+ * The complete model for all cells is represented by this class.
  */
 public final class GraphModel {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(GraphModel.class);
 
   // TODO for this to be useful in the UI it needs to be map(column -> map((outputName,inputType) -> functionModel))

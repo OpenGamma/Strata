@@ -5,5 +5,9 @@
  */
 /**
  * Configuration used to define the output required from the calculation engine.
+ * <p>
+ * The first step in using the engine is to define the output that is required
+ * using the data structure in this package.
+ * The root of the structure is {@link com.opengamma.sesame.config.ViewDef ViewDef}.
  */
 package com.opengamma.sesame.config;

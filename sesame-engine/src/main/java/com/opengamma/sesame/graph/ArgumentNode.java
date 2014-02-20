@@ -12,17 +12,40 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
 
 /**
-*
-*/
+ * A node in the function model that supplies a fixed object value.
+ * <p>
+ * This represents an argument value.
+ */
 public final class ArgumentNode extends Node {
 
+  /**
+   * The argument value.
+   */
   private final Object _value;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param type  the expected type of the object created by this node, not null
+   * @param parameter  the parameter this node satisfies, null if it's the root node
+   * @param value  the argument value, may be null
+   */
   /* package */ ArgumentNode(Class<?> type, Object value, Parameter parameter) {
     super(type, parameter);
     _value = value;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the argument value.
+   * 
+   * @return the argument value, may be null
+   */
+  public Object getValue() {
+    return _value;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
     return _value;
@@ -30,18 +53,10 @@ public final class ArgumentNode extends Node {
 
   @Override
   public String prettyPrint() {
-    return getParameterName() + getType().getSimpleName() + " " + _value;
+    return getPrettyPrintParameterName() + getType().getSimpleName() + " " + _value;
   }
 
-  public Object getValue() {
-    return _value;
-  }
-
-  @Override
-  public int hashCode() {
-    return 31 * super.hashCode() + Objects.hash(_value);
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -56,4 +71,10 @@ public final class ArgumentNode extends Node {
     final ArgumentNode other = (ArgumentNode) obj;
     return Objects.equals(this._value, other._value);
   }
+
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(_value);
+  }
+
 }

@@ -14,31 +14,41 @@ import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * A node in the function model with dependencies.
  */
 public abstract class DependentNode extends Node {
 
+  /**
+   * The list of dependent nodes.
+   */
   private final List<Node> _dependencies;
+  /**
+   * Whether the node if valid.
+   */
   private boolean _valid;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param type  the expected type of the object created by this node, not null
+   * @param parameter  the parameter this node satisfies, null if it's the root node
+   * @param dependencies  the array of dependencies, not null
+   */
   protected DependentNode(Class<?> type, Parameter parameter, Node... dependencies) {
     this(type, parameter, Arrays.asList(dependencies));
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param type  the expected type of the object created by this node, not null
+   * @param parameter  the parameter this node satisfies, null if it's the root node
+   * @param dependencies  the list of dependencies, not null
+   */
   protected DependentNode(Class<?> type, Parameter parameter, List<Node> dependencies) {
     super(type, parameter);
     _dependencies = ImmutableList.copyOf(ArgumentChecker.notNull(dependencies, "dependencies"));
     _valid = isValid(_dependencies);
-  }
-
-  @Override
-  public List<Node> getDependencies() {
-    return _dependencies;
-  }
-
-  @Override
-  public boolean isValid() {
-    return _valid;
   }
 
   private static boolean isValid(List<Node> dependencies) {
@@ -50,11 +60,18 @@ public abstract class DependentNode extends Node {
     return true;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public int hashCode() {
-    return 31 * super.hashCode() + Objects.hash(_dependencies);
+  public List<Node> getDependencies() {
+    return _dependencies;
   }
 
+  @Override
+  public boolean isValid() {
+    return _valid;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -69,4 +86,10 @@ public abstract class DependentNode extends Node {
     final DependentNode other = (DependentNode) obj;
     return Objects.equals(this._dependencies, other._dependencies);
   }
+
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(_dependencies);
+  }
+
 }

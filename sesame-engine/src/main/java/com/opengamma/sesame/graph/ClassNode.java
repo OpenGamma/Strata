@@ -17,19 +17,47 @@ import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A node in the dependency model an object referred to by its concrete class that must be created by the injection framework.
+ * A node in the function model defined as a concrete class.
+ * <p>
+ * This is used for an object that is referred to by its concrete class
+ * The implementation is created by the injection framework.
  */
 public class ClassNode extends DependentNode {
 
+  /**
+   * The implementation type.
+   */
   private final Class<?> _implementationType;
+  /**
+   * The constructor.
+   */
   private Constructor<?> _constructor;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param type  the expected type of the object created by this node, not null
+   * @param parameter  the parameter this node satisfies, null if it's the root node
+   * @param implementationType  the implementation type to create, may be null
+   * @param arguments  the list of nodes representing the arguments to the constructor, not null
+   */
   public ClassNode(Class<?> type, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
     super(type, parameter, arguments);
     _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
     _constructor = EngineFunctionUtils.getConstructor(_implementationType);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the implementation type.
+   * 
+   * @return the implementation type, not null
+   */
+  public Class<?> getImplementationType() {
+    return _implementationType;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
     try {
@@ -39,20 +67,12 @@ public class ClassNode extends DependentNode {
     }
   }
 
-  public Class<?> getImplementationType() {
-    return _implementationType;
-  }
-
   @Override
   public String prettyPrint() {
-    return getParameterName() + "new " + _implementationType.getSimpleName();
+    return getPrettyPrintParameterName() + "new " + _implementationType.getSimpleName();
   }
 
-  @Override
-  public int hashCode() {
-    return 31 * super.hashCode() + Objects.hash(_implementationType);
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -67,4 +87,10 @@ public class ClassNode extends DependentNode {
     final ClassNode other = (ClassNode) obj;
     return Objects.equals(this._implementationType, other._implementationType);
   }
+
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(_implementationType);
+  }
+
 }
