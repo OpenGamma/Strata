@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.config;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -14,16 +13,50 @@ import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Defines what columns and outputs are required in a view.
- * TODO this will need to be a Joda bean for serialization
+ * Configuration object that defines the columns and outputs in a view.
+ * <p>
+ * A view is defined in terms of {@link ViewColumn} objects, each of
+ * which has a {@link ViewOutput} for each target input type.
+ * Stand-alone outputs, not associated with input targets, can also be specified.
  */
 public final class ViewDef {
 
+  /**
+   * The view name.
+   */
   private final String _name;
+  /**
+   * The default configuration for the entire view.
+   */
   private final FunctionModelConfig _defaultConfig;
-  private final List<ViewColumn> _columns;
-  private final List<NonPortfolioOutput> _nonPortfolioOutputs;
+  /**
+   * The columns in the view.
+   */
+  private final ImmutableList<ViewColumn> _columns;
+  /**
+   * The list of outputs that stand-alone and are not connected to a column.
+   */
+  private final ImmutableList<NonPortfolioOutput> _nonPortfolioOutputs;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the view name, not null
+   * @param defaultConfig  the default configuration, not null
+   * @param columns  the list of columns, not null
+   */
+  /* package */ ViewDef(String name, FunctionModelConfig defaultConfig, List<ViewColumn> columns) {
+    this(name, defaultConfig, columns, ImmutableList.<NonPortfolioOutput>of());
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the view name, not null
+   * @param defaultConfig  the default configuration, not null
+   * @param columns  the list of columns, not null
+   * @param nonPortfolioOutputs  the list of stand-alone outputs, not null
+   */
   /* package */ ViewDef(String name,
                         FunctionModelConfig defaultConfig,
                         List<ViewColumn> columns,
@@ -41,23 +74,48 @@ public final class ViewDef {
     }
   }
 
-  /* package */ ViewDef(String name, FunctionModelConfig defaultConfig, List<ViewColumn> columns) {
-    this(name, defaultConfig, columns, Collections.<NonPortfolioOutput>emptyList());
-  }
-
-  public List<ViewColumn> getColumns() {
-    return _columns;
-  }
-
-  public FunctionModelConfig getDefaultConfig() {
-    return _defaultConfig;
-  }
-
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the view name.
+   * 
+   * @return the view name, not null
+   */
   public String getName() {
     return _name;
   }
 
-  public List<NonPortfolioOutput> getNonPortfolioOutputs() {
+  /**
+   * Gets the default configuration.
+   * 
+   * @return the default configuration, not null
+   */
+  public FunctionModelConfig getDefaultConfig() {
+    return _defaultConfig;
+  }
+
+  /**
+   * Gets the list of columns in the view.
+   * 
+   * @return the list of columns, not null
+   */
+  public ImmutableList<ViewColumn> getColumns() {
+    return _columns;
+  }
+
+  /**
+   * Gets the list of stand-alone outputs, not null
+   * 
+   * @return the stand-alone outputs, not null
+   */
+  public ImmutableList<NonPortfolioOutput> getNonPortfolioOutputs() {
     return _nonPortfolioOutputs;
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "ViewDef [_name='" + _name + "', _defaultConfig=" + _defaultConfig +
+        ", _columns=" + _columns + ", _nonPortfolioOutputs=" + _nonPortfolioOutputs + "]";
+  }
+
 }

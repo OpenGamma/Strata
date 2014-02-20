@@ -21,15 +21,15 @@ import com.opengamma.util.ArgumentChecker;
 public final class ViewColumn {
 
   /**
-   * Column name.
+   * The column name.
    */
   private final String _name;
   /**
-   * Default output details for input types that don't specify any.
+   * The default configuration for the entire column.
    */
   private final ViewOutput _defaultOutput;
   /**
-   * Requirements keyed by target type.
+   * The outputs keyed by target input type.
    */
   private final ImmutableMap<Class<?>, ViewOutput> _outputs;
 
