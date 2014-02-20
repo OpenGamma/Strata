@@ -48,47 +48,46 @@ public final class EngineFunctionUtils {
   private EngineFunctionUtils() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns a constructor for the engine to build instances of type.
-   * If there is only one constructor it's returned. If there are multiple constructors and one is annotated with
-   * {@link Inject} it's returned. Otherwise an {@link IllegalArgumentException} is thrown.
-   * @param type The type
-   * @param <T> Tye type
-   * @return The constructor the engine should use for building instances, not null
-   * @throws IllegalArgumentException If there isn't a valid constructor
-   * TODO this belongs in the graph package and it can throw
+   * <p>
+   * Only public constructors are considered.
+   * If there is only one constructor it is used. If there are multiple constructors
+   * then one, and only one, must be annotated with {@link Inject}.
+   * 
+   * @param <T> the type
+   * @param type  the type to find the constructor for, not null
+   * @return the constructor the engine should use for building instances, not null
+   * @throws IllegalArgumentException if there isn't a valid constructor
    */
-  @SuppressWarnings("unchecked")
   public static <T> Constructor<T> getConstructor(Class<T> type) {
-    Constructor<?>[] constructors = type.getDeclaredConstructors();
+    @SuppressWarnings("unchecked")
+    Constructor<T>[] constructors = (Constructor<T>[]) type.getConstructors();
     if (constructors.length == 0) {
-      throw new IllegalArgumentException("No constructors found for " + type.getName());
+      throw new IllegalArgumentException("No public constructor found: " + type.getName());
     }
+    // one constructor
     if (constructors.length == 1) {
       Constructor<T> constructor = (Constructor<T>) constructors[0];
-      if (!Modifier.isPublic(constructor.getModifiers())) {
-        throw new IllegalArgumentException(type.getName() + " has no public constructors");
-      }
       return constructor;
     }
-    Constructor<?> injectableConstructor = null;
-    for (Constructor<?> constructor : constructors) {
+    // many constructors
+    Constructor<T> injectableConstructor = null;
+    for (Constructor<T> constructor : constructors) {
       Inject annotation = constructor.getAnnotation(Inject.class);
       if (annotation != null) {
         if (injectableConstructor == null) {
           injectableConstructor = constructor;
         } else {
-          throw new IllegalArgumentException("Only one constructor should be annotated with @Inject in " + type.getName());
+          throw new IllegalArgumentException("Multiple public constructors annotated with @Inject, but only one is allowed: " + type.getName());
         }
       }
     }
     if (injectableConstructor == null) {
-      throw new IllegalArgumentException(type.getName() + " has multiple constructors but none have an @Inject annotation");
+      throw new IllegalArgumentException("Multiple public constructors found but none annotated with @Inject: " + type.getName());
     }
-    if (!Modifier.isPublic(injectableConstructor.getModifiers())) {
-      throw new IllegalArgumentException(type.getName() + " has no public constructors");
-    }
-    return (Constructor<T>) injectableConstructor;
+    return injectableConstructor;
   }
 
   public static List<Parameter> getParameters(Method method) {
