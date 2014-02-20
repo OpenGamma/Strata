@@ -28,8 +28,8 @@ public final class SimpleFunctionModelConfig implements FunctionModelConfig {
   }
 
   @Override
-  public Class<?> getFunctionImplementation(Class<?> functionInterface) {
-    return _implementationOverrides.get(functionInterface);
+  public Class<?> getFunctionImplementation(Class<?> functionType) {
+    return _implementationOverrides.get(functionType);
   }
 
   @Override

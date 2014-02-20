@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.config;
 
+import javax.inject.Provider;
+
 /**
  * Configuration for individual functions in the function model.
  * Provides the implementation types for function interfaces and the arguments for creating function instances.
@@ -16,7 +18,7 @@ public interface FunctionModelConfig {
    */
   public static final FunctionModelConfig EMPTY = new FunctionModelConfig() {
     @Override
-    public Class<?> getFunctionImplementation(Class<?> functionInterface) {
+    public Class<?> getFunctionImplementation(Class<?> functionType) {
       return null;
     }
 
@@ -27,11 +29,16 @@ public interface FunctionModelConfig {
   };
 
   /**
-   * Returns the implementation that should be used for an interface.
-   * @param functionInterface The interface
+   * Returns the implementation that should be used for creating instances of a type.
+   * This can be:
+   * <ul>
+   *   <li>The implementation of an interface</li>
+   *   <li>A {@link Provider}</li>
+   * </ul>
+   * @param functionType The type
    * @return The implementation that should be used, null if unknown
    */
-  Class<?> getFunctionImplementation(Class<?> functionInterface);
+  Class<?> getFunctionImplementation(Class<?> functionType);
 
   /**
    * Returns the arguments for a function.

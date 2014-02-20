@@ -6,11 +6,13 @@
 package com.opengamma.sesame.graph;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 
 import org.apache.commons.lang.ClassUtils;
@@ -101,7 +103,8 @@ public final class FunctionModel {
     return new FunctionModel(node, function);
   }
 
-  // TODO make it clear this is for one-off building, testing etc, not for the engine (because FunctionBuilder isn't shared)
+  // functions built with this method will have a cache that's not shared with any other functions
+  // if that's required an overloaded version will be needed with a FunctionBuilder parameter
   public static <T> T build(Class<T> functionType,
                             FunctionModelConfig config,
                             ComponentMap componentMap,
@@ -140,28 +143,6 @@ public final class FunctionModel {
   }
 
   // TODO I don't think this will work if the root is an infrastructure component. is that important?
-  // TODO this is ugly, simplify / beautify
-  /**
-   * <p>Creates a node in the function model representing a single object.
-   * If the object has dependencies this method is called recursively and descends down the dependency tree
-   * creating child nodes until all dependencies are satisfied. If a dependency can't be satisfied an error node is
-   * created.</p>
-   *
-   * <p>There are 3 ways a dependency can be satisfied. They are tried in order:
-   * <ol>
-   *   <li>A component provided by the engine. The component is matched to the type of the parameter</li>
-   *   <li>A value provided by the user in the configuration. This is specified in {@link FunctionArguments} by
-   *   the implementation class of the function and the parameter name</li>
-   *   <li>A function built by recursively calling this method</li>
-   * </ol>
-   * </p>
-   * @param type The type of the object
-   * @param config The configuration for building the graph
-   * @param path The chain of dependencies from the root of the tree of functions to this node. In the event of a
-   * failure this allows the exact location in the graph to be identified
-   * @param parentParameter The constructor parameter this object must satisfy.
-   * @return A node in the function graph, not null
-   */
   @SuppressWarnings("unchecked")
   private static Node createNode(Class<?> type,
                                  FunctionModelConfig config,
@@ -172,72 +153,133 @@ public final class FunctionModel {
     if (!isEligibleForBuilding(type)) {
       return null;
     }
-    Class<?> implType = config.getFunctionImplementation(type);
-    if (implType == null && !type.isInterface()) {
-      implType = type;
-    }
-    if (implType == null) {
-      // TODO this isn't very nice. rename ExceptionNode->FailureNode and create directly without exceptions
-      NoImplementationException e = new NoImplementationException(path, "No implementation or provider available for " +
-                                                                    type.getSimpleName());
+
+    Class<?> implType;
+    try {
+      implType = getImplementationType(type, config, path);
+    } catch (NoImplementationException e) {
       return new ExceptionNode(type, e, parentParameter);
     }
+
     Constructor<?> constructor;
     try {
-      constructor = EngineFunctionUtils.getConstructor(implType);
-    } catch (IllegalArgumentException e) {
-      // TODO this isn't very nice. rename ExceptionNode->FailureNode and create directly without exceptions
-      NoSuitableConstructorException exception =
-          new NoSuitableConstructorException(path, implType.getName() + " has no suitable constructors");
-      return new ExceptionNode(type, exception, parentParameter);
+      constructor = getConstructor(implType, path);
+    } catch (NoSuitableConstructorException e) {
+      return new ExceptionNode(type, e, parentParameter);
     }
+
     List<Parameter> parameters = EngineFunctionUtils.getParameters(constructor);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
-    // create a node to satisfy each of the constructor parameters. this can come from 3 sources:
-    //   1) a component provided by the engine. this is looked up by type
-    //   2) a value provided by the user. this is specified in FunctionArguments by implementation class and parameter name
-    //   3) a function built by recursively calling this method
+
     for (Parameter parameter : parameters) {
-      // this isn't terribly efficient but unlikely to be a problem. alternatively could use a stack but nasty and mutable
+      // this isn't terribly efficient but unlikely to be a problem. could use a stack but that's nasty and mutable
       List<Parameter> newPath = Lists.newArrayList(path);
       newPath.add(parameter);
-      Node argNode;
-      try {
-        if (availableComponents.contains(parameter.getType())) {
-          // the parameter can be satisfied by a component supplied by the engine
-          argNode = nodeDecorator.decorateNode(new ComponentNode(parameter));
-        } else {
-          // check if the user has provided a value in the config for this argument
-          Object argument = getConstructorArgument(config, implType, parameter);
-          if (argument == null) {
-            // TODO don't ever return null. if it's eligible for building it's a failure if it doesn't?
-            // there's no argument, try to build an instance by recursing
-            Node createdNode = createNode(parameter.getType(), config, availableComponents, nodeDecorator, newPath, parameter);
-            if (createdNode != null) {
-              argNode = createdNode;
-            } else if (parameter.isNullable()) {
-              argNode = nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), null, parameter));
-            } else {
-              throw new NoConstructorArgumentException(newPath, "No value available for non-nullable parameter " +
-                                                           parameter.getFullName());
-            }
-          } else {
-            // there's a value in the config for this argument, use it
-            argNode = nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
-          }
-        }
-      } catch (AbstractGraphBuildException e) {
-        argNode = new ExceptionNode(type, e, parameter);
-      }
+      Node argNode = createArgumentNode(type, config, availableComponents, nodeDecorator, implType, parameter, newPath);
       constructorArguments.add(argNode);
     }
     Node node;
+
     if (type.isInterface()) {
       node = new InterfaceNode(type, implType, constructorArguments, parentParameter);
     } else {
       node = new ClassNode(type, implType, constructorArguments, parentParameter);
     }
     return nodeDecorator.decorateNode(node);
+  }
+
+  /**
+   * Returns the implementation that should be used for creating instances of a type.
+   * This can be:
+   * <ul>
+   *   <li>The implementation of an interface</li>
+   *   <li>A {@link Provider}</li>
+   *   <li>The type itself, if it's a concrete class</li>
+   * </ul>
+   * @param type The type
+   * @return The implementation that should be used, not null
+   * @throws NoImplementationException If there's no implementation available
+   */
+  private static Class<?> getImplementationType(Class<?> type, FunctionModelConfig config, List<Parameter> path) {
+    Class<?> implType = config.getFunctionImplementation(type);
+
+    if (implType != null) {
+      return implType;
+    }
+    if (!type.isInterface() && !Modifier.isAbstract(type.getModifiers())) {
+      return type;
+    }
+    throw new NoImplementationException(path, "No implementation or provider available for " + type.getSimpleName());
+  }
+
+  /**
+   * Returns a constructor for the engine to build instances of type.
+   * If there is only one constructor it's returned. If there are multiple constructors and one is annotated with
+   * {@link Inject} it's returned. Otherwise an {@link IllegalArgumentException} is thrown.
+   * @param type The type
+   * @return The constructor the engine should use for building instances, not null
+   * @throws IllegalArgumentException If there isn't a valid constructor
+   */
+  private static Constructor<?> getConstructor(Class<?> type, List<Parameter> path) {
+    try {
+      return EngineFunctionUtils.getConstructor(type);
+    } catch (IllegalArgumentException e) {
+      throw new NoSuitableConstructorException(path, type.getName() + " has no suitable constructors");
+    }
+  }
+
+  /**
+   * <p>Creates a node in the function model representing a single constructor argument.
+   * If the object has dependencies this method is called recursively and descends down the dependency tree
+   * creating child nodes until all dependencies are satisfied. If a dependency can't be satisfied an error node is
+   * created.</p>
+   *
+   * <p>There are 3 ways a dependency can be satisfied. They are tried in order:
+   * <ol>
+   *   <li>A component provided by the configuration. The component is matched to the type of the parameter</li>
+   *   <li>A value provided by the user in the configuration. This is specified in {@link FunctionArguments} by
+   *   the implementation class of the function and the parameter name</li>
+   *   <li>A function built by recursively calling
+   *   {@link #createNode(Class, FunctionModelConfig, Set, NodeDecorator, List, Parameter)}</li>
+   * </ol>
+   * </p>
+   * @param type The type of the argument
+   * @param config The configuration for building the model
+   * @param path The chain of dependencies from the root of the tree of functions to this parameter. In the event of a
+   * failure this allows the exact location in the graph to be identified
+   * @param parameter The constructor parameter this node must satisfy.
+   * @return A node in the function graph, not null
+   */
+  private static Node createArgumentNode(Class<?> type,
+                                         FunctionModelConfig config,
+                                         Set<Class<?>> availableComponents,
+                                         NodeDecorator nodeDecorator,
+                                         Class<?> implType,
+                                         Parameter parameter,
+                                         List<Parameter> path) {
+    try {
+      if (availableComponents.contains(parameter.getType())) {
+        // the parameter can be satisfied by an existing component, no need to build it or look up a user argument
+        return nodeDecorator.decorateNode(new ComponentNode(parameter));
+      }
+      Object argument = getConstructorArgument(config, implType, parameter);
+      if (argument == null) {
+        // there's no argument, try to build an instance by recursing
+        Node createdNode = createNode(parameter.getType(), config, availableComponents, nodeDecorator, path, parameter);
+
+        if (createdNode != null) {
+          return createdNode;
+        }
+        if (parameter.isNullable()) {
+          return nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), null, parameter));
+        }
+        throw new NoConstructorArgumentException(path, "No value available for non-nullable parameter " +
+                                                     parameter.getFullName());
+      }
+      return nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
+    } catch (AbstractGraphBuildException e) {
+      return new ExceptionNode(type, e, parameter);
+    }
   }
 
   /**
@@ -263,7 +305,9 @@ public final class FunctionModel {
   }
 
   /**
-   * Checks the type of the constructor argument matches the expected type. Handles {@link Link}s and {@link Provider}s
+   * Checks the type of the constructor argument matches the expected type and returns it.
+   * Handles {@link Link}s and {@link Provider}s by checking the parameter type is a {@link Link} or {@link Provider}
+   * or that its type is compatible with the linked / provided object.
    */
   private static Object getConstructorArgument(FunctionModelConfig functionModelConfig,
                                                Class<?> objectType,

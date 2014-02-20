@@ -22,12 +22,12 @@ public class DefaultImplementationProvider implements FunctionModelConfig {
 
   /**
    * Returns the default implementation from some {@link AvailableImplementations}.
-   * @param functionInterface The interface
+   * @param functionType The interface
    * @return The implementation from {@link AvailableImplementations#getDefaultImplementation}
    */
   @Override
-  public Class<?> getFunctionImplementation(Class<?> functionInterface) {
-    return _availableImplementations.getDefaultImplementation(functionInterface);
+  public Class<?> getFunctionImplementation(Class<?> functionType) {
+    return _availableImplementations.getDefaultImplementation(functionType);
   }
 
   /**
