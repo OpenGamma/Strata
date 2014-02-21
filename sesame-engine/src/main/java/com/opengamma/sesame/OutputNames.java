@@ -47,6 +47,10 @@ public final class OutputNames {
    * Output name when providing Par Rate.
    */
   public static final String PAR_RATE = "Par Rate";
+  /**
+   * The PV01 of a cash-flow based fixed-income instrument.
+   */
+  public static final String PV01 = "PV01";
 
   /**
    * Restricted constructor.

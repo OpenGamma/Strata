@@ -9,15 +9,20 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.tuple.Pair;
 
 public class InterestRateSwapCalculator {
 
@@ -32,6 +37,12 @@ public class InterestRateSwapCalculator {
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
 
   /**
+   * Calculator for PV01
+   */
+  private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01C =
+      new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
+
+  /**
    * Derivative form of the security.
    */
   private final InstrumentDerivative _derivative;
@@ -39,10 +50,10 @@ public class InterestRateSwapCalculator {
   /**
    * The multicurve bundle.
    */
-  private final MulticurveProviderDiscount _bundle;
+  private final MulticurveProviderInterface _bundle;
 
   public InterestRateSwapCalculator(InterestRateSwapSecurity security,
-                                    MulticurveProviderDiscount bundle,
+                                    MulticurveProviderInterface bundle,
                                     InterestRateSwapSecurityConverter swapConverter,
                                     ValuationTimeFn valuationTimeFn) {
 
@@ -58,10 +69,17 @@ public class InterestRateSwapCalculator {
     return calculateResult(PRDC);
   }
 
+  public ReferenceAmount<Pair<String, Currency>> calculatePV01() {
+    return calculateResult(PV01C);
+  }
+
   private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, T> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
 
+  private ReferenceAmount<Pair<String, Currency>> calculateResult(InstrumentDerivativeVisitor<MulticurveProviderInterface, ReferenceAmount<Pair<String, Currency>>> calculator) {
+    return _derivative.accept(calculator, _bundle);
+  }
 
   private InstrumentDerivative createInstrumentDerivative(InterestRateSwapSecurity security,
                                                           InterestRateSwapSecurityConverter swapConverter,
@@ -69,5 +87,6 @@ public class InterestRateSwapCalculator {
     InstrumentDefinition<?> definition = security.accept(swapConverter);
     return definition.toDerivative(valuationTime);
   }
+
 
 }

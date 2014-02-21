@@ -17,6 +17,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.BeforeClass;
@@ -29,6 +30,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -82,15 +84,19 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.tuple.Pair;
 
-@Test(groups = TestGroup.UNIT, enabled = false)
+@Test(groups = TestGroup.UNIT)
 public class InterestRateSwapFnTest {
 
   private static final double STD_TOLERANCE_PV = 1.0E-2;
   private static final double STD_TOLERANCE_RATE = 1.0E-5; //TODO What is the correct tolerance here
+  private static final double STD_TOLERANCE_PV01 = 1.0E-5; //TODO What is the correct tolerance here
 
   private static final double EXPECTED_PV = 0.0000; //TODO What is the correct PV here
   private static final double EXPECTED_PAR_RATE = 0.0000; //TODO What is the correct par rate here
+  private static final double EXPECTED_PV01 = 0.0000; //TODO What is the correct PV here
+
 
   private InterestRateSwapFn _swapFunction;
   private InterestRateSwapSecurity _swapSecurity = createSingleSwap();
@@ -166,6 +172,21 @@ public class InterestRateSwapFnTest {
 
     Double parRate = resultParRate.getValue();
     assertEquals(EXPECTED_PAR_RATE, parRate, STD_TOLERANCE_RATE);
+  }
+
+  @Test(enabled = false)
+  public void interestRateSwapPV01() {
+    Result<ReferenceAmount<Pair<String,Currency>>> resultPV01 = _swapFunction.calculatePV01(_swapSecurity);
+    assertThat(resultPV01.isValueAvailable(), is((true)));
+
+    ReferenceAmount<Pair<String,Currency>> pv01s = resultPV01.getValue();
+    double pv01 = 0;
+    for (final Map.Entry<Pair<String, Currency>, Double> entry : pv01s.getMap().entrySet()) {
+      if (entry.getKey().getSecond().equals(Currency.USD)) {
+        pv01 += entry.getValue();
+      }
+    }
+    assertEquals(EXPECTED_PV01, pv01, STD_TOLERANCE_PV01);
   }
 
   @BeforeClass
