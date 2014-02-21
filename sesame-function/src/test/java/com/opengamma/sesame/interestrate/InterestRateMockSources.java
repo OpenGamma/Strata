@@ -71,7 +71,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.MarketdataResourcesLoader;
 import com.opengamma.sesame.ValuationTimeFn;
-import com.opengamma.sesame.fra.FRAPVFn;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.money.Currency;
@@ -122,7 +121,7 @@ public class InterestRateMockSources {
     return _liborIndexId;
   }
 
-  public static ImmutableMap<Class<?>, Object> generateComponentMap(ZonedDateTime valuationTime) {
+  public static ImmutableMap<Class<?>, Object> generateComponentMap(ZonedDateTime valuationTime, Class clazz) {
 
     Map<Class<?>, Object> componentMap = generateComponentMap(mockHolidaySource(),
                                                               mockRegionSource(),
@@ -135,16 +134,16 @@ public class InterestRateMockSources {
     // Needed as the above method returns the wrong interface type for this market data function
     return ImmutableMap.<Class<?>, Object>builder()
         .putAll(componentMap)
-        .put(MarketDataFn.class, createMarketDataFn(valuationTime))
+        .put(MarketDataFn.class, createMarketDataFn(valuationTime, clazz))
         .build();
   }
 
-  private static MarketDataFn createMarketDataFn(ZonedDateTime valuationTime) {
+  private static MarketDataFn createMarketDataFn(ZonedDateTime valuationTime, Class clazz) {
     try {
       DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
       marketDataFn.resetMarketData(valuationTime,
                                    MarketdataResourcesLoader.getData("usdMarketQuotes.properties",
-                                                                     FRAPVFn.class,
+                                                                     clazz,
                                                                      "Ticker"));
       return marketDataFn;
     } catch (IOException e) {

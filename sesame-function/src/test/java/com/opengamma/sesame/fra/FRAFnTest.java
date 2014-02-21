@@ -113,7 +113,7 @@ public class FRAFnTest {
                         HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
 
-    final ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateComponentMap(valuationTime);
+    final ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateComponentMap(valuationTime, FRAPVFn.class);
 
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
