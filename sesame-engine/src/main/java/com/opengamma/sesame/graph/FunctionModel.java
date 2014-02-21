@@ -122,22 +122,11 @@ public final class FunctionModel {
   }
 
   //-------------------------------------------------------------------------
-  private static NodeDecorator getNodeDecorator(NodeDecorator[] nodeDecorators) {
-    switch (nodeDecorators.length) {
-      case 0:
-        return NodeDecorator.IDENTITY;
-      case 1:
-        return nodeDecorators[0];
-      default:
-        return new CompositeNodeDecorator(nodeDecorators);
-    }
-  }
-
   public static FunctionModel forFunction(FunctionMetadata function,
                                           FunctionModelConfig config,
                                           Set<Class<?>> availableComponents,
                                           NodeDecorator... nodeDecorators) {
-    NodeDecorator nodeDecorator = getNodeDecorator(nodeDecorators);
+    NodeDecorator nodeDecorator = CompositeNodeDecorator.compose(nodeDecorators);
     Node node = createNode(function.getDeclaringType(), config, availableComponents, nodeDecorator);
     return new FunctionModel(node, function);
   }
@@ -162,7 +151,7 @@ public final class FunctionModel {
                             ComponentMap componentMap,
                             NodeDecorator... nodeDecorators) {
     FunctionBuilder functionBuilder = new FunctionBuilder();
-    NodeDecorator nodeDecorator = getNodeDecorator(nodeDecorators);
+    NodeDecorator nodeDecorator = CompositeNodeDecorator.compose(nodeDecorators);
     Node node = createNode(functionType, config, componentMap.getComponentTypes(), nodeDecorator);
     Object function = functionBuilder.create(node, componentMap);
     return functionType.cast(function);

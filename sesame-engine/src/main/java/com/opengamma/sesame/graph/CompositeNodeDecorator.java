@@ -29,6 +29,25 @@ public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
    */
   private final List<NodeDecorator> _decorators;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Composes a list of decorators.
+   * 
+   * @param decorators  the array of decorators, not null
+   * @return the composite decorators, not null
+   */
+  public static NodeDecorator compose(NodeDecorator... decorators) {
+    switch (decorators.length) {
+      case 0:
+        return NodeDecorator.IDENTITY;
+      case 1:
+        return decorators[0];
+      default:
+        return new CompositeNodeDecorator(decorators);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance.
    * 
