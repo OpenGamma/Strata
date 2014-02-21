@@ -20,6 +20,9 @@ import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
 @Test(groups = TestGroup.UNIT)
 public class FunctionBuilderTest {
 
@@ -79,15 +82,8 @@ public class FunctionBuilderTest {
   }
 
   public static class RootFn {
-
-    private final ChildFn _childFn;
-    private final NoPublicConstructor _noPublicConstructor;
-
     public RootFn(ChildFn childFn, NoPublicConstructor noPublicConstructor) {
-      _childFn = childFn;
-      _noPublicConstructor = noPublicConstructor;
     }
-
     @Output("Foo")
     public Object foo() {
       return null;
@@ -95,11 +91,8 @@ public class FunctionBuilderTest {
   }
 
   public static class ChildFn {
-
-    private final NoSuitableConstructor _noSuitableConstructor;
-
     public ChildFn(NoSuitableConstructor noSuitableConstructor) {
-      _noSuitableConstructor = noSuitableConstructor;
     }
   }
+
 }

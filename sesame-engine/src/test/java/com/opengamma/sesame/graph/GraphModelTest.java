@@ -27,6 +27,9 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
 @Test(groups = TestGroup.UNIT)
 public class GraphModelTest {
 
@@ -65,14 +68,13 @@ public class GraphModelTest {
   }
 
   public static interface PortfolioFn {
-
     @Output("Foo")
     String foo(FXForwardSecurity security);
   }
 
   public static interface NonPortfolioFn {
-
     @Output("Foo")
     String foo();
   }
+
 }

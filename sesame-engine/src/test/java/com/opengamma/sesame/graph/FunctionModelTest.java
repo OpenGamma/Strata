@@ -30,6 +30,9 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
 @Test(groups = TestGroup.UNIT)
 public class FunctionModelTest {
 
@@ -331,4 +334,5 @@ public class FunctionModelTest {
   public Object foo() {
     return null;
   }
+
 }
