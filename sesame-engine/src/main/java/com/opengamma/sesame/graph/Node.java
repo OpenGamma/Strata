@@ -114,13 +114,13 @@ public abstract class Node {
    * 
    * @return the list of exceptions, not null
    */
-  /* package */ List<AbstractGraphBuildException> getExceptions() {
-    return getExceptions(this, new ArrayList<AbstractGraphBuildException>());
+  /* package */ List<InvalidGraphException> getExceptions() {
+    return getExceptions(this, new ArrayList<InvalidGraphException>());
   }
 
-  private static List<AbstractGraphBuildException> getExceptions(Node node, List<AbstractGraphBuildException> accumulator) {
+  private static List<InvalidGraphException> getExceptions(Node node, List<InvalidGraphException> accumulator) {
     if (node instanceof ExceptionNode) {
-      AbstractGraphBuildException exception = ((ExceptionNode) node).getException();
+      InvalidGraphException exception = ((ExceptionNode) node).getException();
       accumulator.add(exception);
       return accumulator;
     } else {

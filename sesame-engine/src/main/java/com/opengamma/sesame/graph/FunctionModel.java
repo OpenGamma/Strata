@@ -120,7 +120,7 @@ public final class FunctionModel {
    * 
    * @return the list of exceptions, not null
    */
-  /* package */ List<AbstractGraphBuildException> getExceptions() {
+  /* package */ List<InvalidGraphException> getExceptions() {
     return _root.getExceptions();
   }
 
@@ -334,7 +334,7 @@ public final class FunctionModel {
                                                      parameter.getFullName());
       }
       return nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
-    } catch (AbstractGraphBuildException e) {
+    } catch (InvalidGraphException e) {
       return new ExceptionNode(type, e, parameter);
     }
   }

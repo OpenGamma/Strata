@@ -12,7 +12,7 @@ import com.opengamma.sesame.function.Parameter;
 /**
  * Exception used when there is no argument for a constructor.
  */
-/* package */ class NoConstructorArgumentException extends AbstractGraphBuildException {
+/* package */ class NoConstructorArgumentException extends InvalidGraphException {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

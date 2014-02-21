@@ -5,16 +5,16 @@
  */
 package com.opengamma.sesame.graph;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Base class for graph building exceptions.
+ * Base class for function model graph exceptions.
  */
-/* package */ abstract class AbstractGraphBuildException extends OpenGammaRuntimeException {
+/* package */ abstract class InvalidGraphException extends OpenGammaRuntimeException {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -27,21 +27,12 @@ import com.opengamma.sesame.function.Parameter;
   /**
    * Creates an instance
    * 
-   * @param message  the descriptive message, not null
-   */
-  /* package */ AbstractGraphBuildException(String message) {
-    this(Collections.<Parameter>emptyList(), message);
-  }
-
-  /**
-   * Creates an instance
-   * 
    * @param path  the path of parameters to the problem, not null
    * @param message  the descriptive message, not null
    */
-  /* package */ AbstractGraphBuildException(List<Parameter> path, String message) {
+  InvalidGraphException(List<Parameter> path, String message) {
     super(message);
-    _path = path;
+    _path = ArgumentChecker.notNull(path, "path");
   }
 
   //-------------------------------------------------------------------------

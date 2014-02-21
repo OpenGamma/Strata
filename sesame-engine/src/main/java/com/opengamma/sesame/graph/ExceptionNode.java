@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * The error that occurred.
    */
-  private final AbstractGraphBuildException _exception;
+  private final InvalidGraphException _exception;
 
   /**
    * Creates an instance.
@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param parameter  the parameter this node satisfies, null if it's the root node
    * @param exception  the exception that occurred, not null
    */
-  /* package */ ExceptionNode(Class<?> type, AbstractGraphBuildException exception, Parameter parameter) {
+  /* package */ ExceptionNode(Class<?> type, InvalidGraphException exception, Parameter parameter) {
     super(type, parameter);
     _exception = ArgumentChecker.notNull(exception, "exception");
   }
@@ -41,7 +41,7 @@ import com.opengamma.util.ArgumentChecker;
    * 
    * @return the exception, not null
    */
-  public AbstractGraphBuildException getException() {
+  public InvalidGraphException getException() {
     return _exception;
   }
 

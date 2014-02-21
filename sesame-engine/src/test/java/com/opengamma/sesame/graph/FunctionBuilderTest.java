@@ -38,10 +38,10 @@ public class FunctionBuilderTest {
     assertFalse(functionModel.isValid());
     System.out.println(functionModel.prettyPrint(false));
 
-    List<AbstractGraphBuildException> exceptions = functionModel.getExceptions();
+    List<InvalidGraphException> exceptions = functionModel.getExceptions();
     assertEquals(2, exceptions.size());
 
-    AbstractGraphBuildException ex0 = exceptions.get(0);
+    InvalidGraphException ex0 = exceptions.get(0);
     assertTrue(ex0 instanceof NoSuitableConstructorException);
     List<Parameter> path0 = ex0.getPath();
     assertEquals(2, path0.size());
@@ -50,7 +50,7 @@ public class FunctionBuilderTest {
     assertEquals(NoSuitableConstructor.class, path0.get(1).getType());
     assertEquals("noSuitableConstructor", path0.get(1).getName());
 
-    AbstractGraphBuildException ex1 = exceptions.get(1);
+    InvalidGraphException ex1 = exceptions.get(1);
     assertTrue(ex1 instanceof NoSuitableConstructorException);
     List<Parameter> path1 = ex1.getPath();
     assertEquals(1, path1.size());

@@ -12,7 +12,7 @@ import com.opengamma.sesame.function.Parameter;
 /**
  * Exception used when no implementation can be found.
  */
-/* package */ class NoImplementationException extends AbstractGraphBuildException {
+/* package */ class NoImplementationException extends InvalidGraphException {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
