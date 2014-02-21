@@ -77,7 +77,7 @@ public class FRAFnTest {
   private static final double EXPECTED_PV = 23182.5437;
   private static final double EXPECTED_PAR_RATE = 0.003315;
 
-  private FRAPVFn _fraFunction;
+  private FRAFn _fraFunction;
   private FRASecurity _fraSecurity = createSingleFra();
 
   @BeforeClass
@@ -101,7 +101,7 @@ public class FRAFnTest {
             function(DefaultDiscountingMulticurveBundleFn.class,
                      argument("impliedCurveNames", ImmutableSet.of()))
         ),
-        implementations(FRAPVFn.class, DiscountingFRAPVFn.class,
+        implementations(FRAFn.class, DiscountingFRAFn.class,
                         CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
                         FRACalculatorFn.class, FRADiscountingCalculatorFn.class,
@@ -116,13 +116,13 @@ public class FRAFnTest {
                         HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
 
-    final ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateComponentMap(valuationTime, FRAPVFn.class);
+    final ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateComponentMap(valuationTime, FRAFn.class);
 
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    _fraFunction = FunctionModel.build(FRAPVFn.class, config, ComponentMap.of(components));
+    _fraFunction = FunctionModel.build(FRAFn.class, config, ComponentMap.of(components));
   }
 
   @Test

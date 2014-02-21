@@ -14,7 +14,7 @@ import com.opengamma.util.result.Result;
 /**
  * Calculate PV and a par rate for a FRA.
  */
-public interface FRAPVFn {
+public interface FRAFn {
 
   /**
    * Calculate the par rate for a FRA security.

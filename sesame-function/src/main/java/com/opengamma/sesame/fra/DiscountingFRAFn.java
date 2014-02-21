@@ -17,7 +17,7 @@ import com.opengamma.util.result.ResultGenerator;
 /**
  * Calculate discounting PV and par rate for a FRA.
  */
-public class DiscountingFRAPVFn implements FRAPVFn {
+public class DiscountingFRAFn implements FRAFn {
 
   private final FRACalculatorFn _FRACalculatorFn;
 
@@ -26,7 +26,7 @@ public class DiscountingFRAPVFn implements FRAPVFn {
    *
    * @param FRACalculatorFn function to generate the calculator for the security
    */
-  public DiscountingFRAPVFn(FRACalculatorFn FRACalculatorFn) {
+  public DiscountingFRAFn(FRACalculatorFn FRACalculatorFn) {
     _FRACalculatorFn = FRACalculatorFn;
   }
 
