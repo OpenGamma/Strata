@@ -257,13 +257,16 @@ public final class FunctionModel {
    */
   private static Class<?> getImplementationType(Class<?> type, FunctionModelConfig config, List<Parameter> path) {
     Class<?> implType = config.getFunctionImplementation(type);
-    if (implType != null) {
-      return implType;
+    if (implType == null) {
+      if (type.isInterface()) {
+        throw new NoImplementationException(path, "No implementation or provider found: " + type.getSimpleName());
+      }
+      implType = type;
     }
-    if (!type.isInterface() && !Modifier.isAbstract(type.getModifiers())) {
-      return type;
+    if (isValidType(implType) == false) {
+      throw new NoImplementationException(path, "Function implementation is invalid: " + type.getSimpleName());
     }
-    throw new NoImplementationException(path, "No implementation or provider available for " + type.getSimpleName());
+    return implType;
   }
 
   /**
@@ -350,11 +353,27 @@ public final class FunctionModel {
       return false;
     }
     Package pkg = type.getPackage();
-    String packageName = pkg.getName();
-    if (packageName.startsWith("java")) {
+    if (pkg != null) {
+      String packageName = pkg.getName();
+      if (packageName.startsWith("java") || packageName.startsWith("javax") || packageName.startsWith("org.threeten")) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Checks if the type is invalid and cannot be constructed.
+   * 
+   * @param type  the type, not null
+   * @return true if valid
+   */
+  private static boolean isValidType(Class<?> type) {
+    if (type.isInterface() || type.isAnnotation() || type.isPrimitive() || type.isArray() || type.isEnum() || type.isSynthetic() ||
+        Modifier.isAbstract(type.getModifiers()) || type.isAnonymousClass() || type.isLocalClass()) {
       return false;
     }
-    if (packageName.startsWith("org.threeten")) {
+    if (type.isMemberClass() && Modifier.isStatic(type.getModifiers()) == false) {  // inner class (vs nested class)
       return false;
     }
     return true;
@@ -435,4 +454,5 @@ public final class FunctionModel {
       return node;
     }
   }
+
 }
