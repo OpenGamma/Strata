@@ -41,12 +41,13 @@ public class InterestRateSwapDiscountingCalculatorFn implements InterestRateSwap
   @Override
   public Result<InterestRateSwapCalculator> generateCalculator(final InterestRateSwapSecurity security) {
 
-    return map(createBundle(security), new ResultGenerator.ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, InterestRateSwapCalculator>() {
-       @Override
-       public Result<InterestRateSwapCalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
-         return success(_factory.createCalculator(security, result.getFirst()));
-       }
-     });
+    return map(createBundle(security),
+               new ResultGenerator.ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, InterestRateSwapCalculator>() {
+        @Override
+        public Result<InterestRateSwapCalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
+          return success(_factory.createCalculator(security, result.getFirst()));
+        }
+      });
   }
 
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(InterestRateSwapSecurity security) {

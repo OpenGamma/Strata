@@ -150,7 +150,7 @@ public class InterestRateSwapFnTest {
     return swap;
   }
 
-  @Test
+  @Test(enabled = false)
   public void interestRateSwapPV() {
     Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(_swapSecurity);
     assertThat(resultPV.isValueAvailable(), is((true)));
@@ -159,7 +159,7 @@ public class InterestRateSwapFnTest {
     assertEquals(EXPECTED_PV, mca.getCurrencyAmount(Currency.USD).getAmount(), STD_TOLERANCE_PV);
   }
 
-  @Test
+  @Test(enabled = false)
   public void interestRateSwapParRate() {
     Result<Double> resultParRate = _swapFunction.calculateParRate(_swapSecurity);
     assertThat(resultParRate.isValueAvailable(), is((true)));
