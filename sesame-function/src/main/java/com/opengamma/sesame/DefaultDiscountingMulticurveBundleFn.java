@@ -7,10 +7,13 @@ package com.opengamma.sesame;
 
 
 import static com.opengamma.financial.convention.businessday.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +50,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.link.ConventionLink;
@@ -80,11 +84,13 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.marketdata.MarketDataValues;
@@ -95,8 +101,6 @@ import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
@@ -205,7 +209,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                                                                         MulticurveProviderDiscount multicurves,
                                                                                         ZonedDateTime valuationTime) {
 
-    final DayCount dayCount = DayCounts.ACT_365; //TODO
+    final DayCount dayCount = DayCounts.ACT_360; //TODO
 
     final ParRateDiscountingCalculator parRateDiscountingCalculator = ParRateDiscountingCalculator.getInstance();
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
@@ -213,17 +217,24 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     final List<Tenor> tenors = new ArrayList<>();
     final List<Double> parRates = new ArrayList<>();
     final List<InstrumentDerivative> cashNodes = new ArrayList<>();
-
+    
+    ConventionLink<Convention> conventionLink = getConventionLink(currency, DEPOSIT);
+    DepositConvention currencyDepositConvention = (DepositConvention) conventionLink.resolve();
+    int spotLag = currencyDepositConvention.getSettlementDays();
+    ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(valuationTime, spotLag, calendar);
+    
     for (final CurveNode node : impliedCurveDefinition.getNodes()) {
+
       final Tenor tenor = node.getResolvedMaturity();
       final ZonedDateTime paymentDate =
-          ScheduleCalculator.getAdjustedDate(valuationTime, tenor.getPeriod(), MODIFIED_FOLLOWING, calendar, true);
+          ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MODIFIED_FOLLOWING, calendar, true);
+      final double startTime = TimeCalculator.getTimeBetween(valuationTime, spotDate);
       final double endTime = TimeCalculator.getTimeBetween(valuationTime, paymentDate);
-      final double accrualFactor = dayCount.getDayCountFraction(valuationTime, valuationTime.plus(tenor.getPeriod()), calendar);
-      final Cash cashDepositNode = new Cash(currency, 0, endTime, 1, 0, accrualFactor);
+      final double accrualFactor = dayCount.getDayCountFraction(spotDate, paymentDate, calendar);
+      final Cash cashDepositNode = new Cash(currency, startTime, endTime, 1, 0, accrualFactor);
       final double parRate = parRateDiscountingCalculator.visitCash(cashDepositNode, multicurves);
       tenors.add(tenor);
-      cashNodes.add(new Cash(currency, 0, endTime, 1, parRate, accrualFactor));
+      cashNodes.add(new Cash(currency, startTime, endTime, 1, parRate, accrualFactor));
       parRates.add(parRate);
     }
 
