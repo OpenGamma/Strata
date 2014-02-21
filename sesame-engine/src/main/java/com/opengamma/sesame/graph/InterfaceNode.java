@@ -25,7 +25,7 @@ public final class InterfaceNode extends ClassNode {
    * @param implementationType  the implementation type to create, may be null
    * @param arguments  the list of nodes representing the arguments to the constructor, not null
    */
-  public InterfaceNode(Class<?> interfaceType, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
+  InterfaceNode(Class<?> interfaceType, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
     super(interfaceType, implementationType, arguments, parameter);
   }
 

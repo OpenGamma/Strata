@@ -49,8 +49,8 @@ import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.InvokableFunction;
-import com.opengamma.sesame.graph.CompositeNodeDecorator;
 import com.opengamma.sesame.graph.Graph;
+import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -76,7 +76,7 @@ public class View implements AutoCloseable {
   private final DefaultValuationTimeFn _valuationTimeFn;
   private final ComponentMap _components;
   private final FunctionModelConfig _systemDefaultConfig;
-  private final CompositeNodeDecorator _decorator;
+  private final NodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
   private final SourceListener _sourceListener = new SourceListener();
   private final Collection<ChangeManager> _changeManagers;
@@ -91,7 +91,7 @@ public class View implements AutoCloseable {
                      DefaultValuationTimeFn valuationTimeFn,
                      ComponentMap components,
                      FunctionModelConfig systemDefaultConfig,
-                     CompositeNodeDecorator decorator,
+                     NodeDecorator decorator,
                      CacheInvalidator cacheInvalidator) {
     _viewDef = ArgumentChecker.notNull(viewDef, "viewDef");
     _inputs = ArgumentChecker.notNull(inputs, "inputs");

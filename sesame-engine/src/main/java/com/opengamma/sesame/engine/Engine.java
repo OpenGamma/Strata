@@ -109,10 +109,10 @@ public class Engine {
    * TODO should this logic be in View?
    */
   public View createView(ViewDef viewDef, List<?> inputs, EnumSet<EngineService> services) {
-    CompositeNodeDecorator decorator;
+    NodeDecorator decorator;
     CacheInvalidator cacheInvalidator;
     if (services.isEmpty()) {
-      decorator = new CompositeNodeDecorator(NodeDecorator.IDENTITY);
+      decorator = NodeDecorator.IDENTITY;
       cacheInvalidator = new NoOpCacheInvalidator();
     } else {
       List<NodeDecorator> decorators = Lists.newArrayListWithCapacity(services.size());
@@ -130,7 +130,7 @@ public class Engine {
       if (services.contains(EngineService.TRACING)) {
         decorators.add(TracingProxy.INSTANCE);
       }
-      decorator = new CompositeNodeDecorator(decorators);
+      decorator = CompositeNodeDecorator.compose(decorators);
     }
 
     // TODO everything below here could move into the View constructor

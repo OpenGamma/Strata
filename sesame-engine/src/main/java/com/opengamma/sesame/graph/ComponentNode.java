@@ -24,7 +24,7 @@ public final class ComponentNode extends Node {
    * 
    * @param parameter  the parameter this node satisfies, null if it's the root node
    */
-  /* package */ ComponentNode(Parameter parameter) {
+  ComponentNode(Parameter parameter) {
     super(ArgumentChecker.notNull(parameter, "parameter").getType(), parameter);
   }
 

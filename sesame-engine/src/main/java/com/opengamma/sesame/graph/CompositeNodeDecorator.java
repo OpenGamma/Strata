@@ -5,21 +5,20 @@
  */
 package com.opengamma.sesame.graph;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Node decorator that composes other decorators.
  */
-public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
-  // TODO this badly needs a test, it was quietly broken
+public final class CompositeNodeDecorator
+    extends NodeDecorator
+    implements AutoCloseable {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CompositeNodeDecorator.class);
@@ -27,7 +26,7 @@ public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
   /**
    * The underlying decorators.
    */
-  private final List<NodeDecorator> _decorators;
+  private final ImmutableList<NodeDecorator> _decorators;
 
   //-------------------------------------------------------------------------
   /**
@@ -37,13 +36,32 @@ public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
    * @return the composite decorators, not null
    */
   public static NodeDecorator compose(NodeDecorator... decorators) {
+    ArgumentChecker.noNulls(decorators, "decorators");
     switch (decorators.length) {
       case 0:
         return NodeDecorator.IDENTITY;
       case 1:
         return decorators[0];
       default:
-        return new CompositeNodeDecorator(decorators);
+        return new CompositeNodeDecorator(ImmutableList.copyOf(decorators));
+    }
+  }
+
+  /**
+   * Composes a list of decorators.
+   * 
+   * @param decorators  the list of decorators, not null
+   * @return the composite decorators, not null
+   */
+  public static NodeDecorator compose(List<NodeDecorator> decorators) {
+    ArgumentChecker.noNulls(decorators, "decorators");
+    switch (decorators.size()) {
+      case 0:
+        return NodeDecorator.IDENTITY;
+      case 1:
+        return decorators.get(0);
+      default:
+        return new CompositeNodeDecorator(ImmutableList.copyOf(decorators));
     }
   }
 
@@ -53,21 +71,8 @@ public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
    * 
    * @param decorators  the decorators, not null
    */
-  public CompositeNodeDecorator(List<NodeDecorator> decorators) {
-    this(decorators.toArray(new NodeDecorator[decorators.size()]));
-  }
-
-  /**
-   * Creates an instance.
-   * 
-   * @param decorators  the decorators, not null
-   */
-  public CompositeNodeDecorator(NodeDecorator... decorators) {
-    // reverse the decorators so the first decorator is the first one presented with the argument
-    // it's arguable which way round is least surprising. this makes most sense to me
-    List<NodeDecorator> reversed = Lists.newArrayList(ArgumentChecker.notNull(decorators, "decorators"));
-    Collections.reverse(reversed);
-    _decorators = ImmutableList.copyOf(reversed);
+  private CompositeNodeDecorator(ImmutableList<NodeDecorator> decorators) {
+    _decorators = decorators.reverse();
   }
 
   //-------------------------------------------------------------------------

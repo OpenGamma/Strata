@@ -22,10 +22,10 @@ import com.opengamma.sesame.config.EngineFunctionUtils;
 import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.graph.ProxyNode;
 import com.opengamma.sesame.proxy.AbstractProxyInvocationHandler;
 import com.opengamma.sesame.proxy.InvocationHandlerFactory;
 import com.opengamma.sesame.proxy.ProxyInvocationHandler;
-import com.opengamma.sesame.proxy.ProxyNode;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -37,7 +37,9 @@ import net.sf.ehcache.Element;
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  * TODO thorough docs for the basis of caching, i.e. has to be the same function instance but instances are shared
  */
-public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
+public class CachingProxyDecorator
+    extends NodeDecorator
+    implements AutoCloseable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 
@@ -75,7 +77,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
     if (EngineFunctionUtils.hasMethodAnnotation(interfaceType, Cacheable.class) ||
         EngineFunctionUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
       CachingHandlerFactory handlerFactory = new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods);
-      return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
+      return createProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
     return node;
   }
@@ -85,7 +87,7 @@ public class CachingProxyDecorator implements NodeDecorator, AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     _cacheManager.removeCache(_cacheName);
   }
 

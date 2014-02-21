@@ -35,7 +35,7 @@ public abstract class DependentNode extends Node {
    * @param parameter  the parameter this node satisfies, null if it's the root node
    * @param dependencies  the array of dependencies, not null
    */
-  protected DependentNode(Class<?> type, Parameter parameter, Node... dependencies) {
+  DependentNode(Class<?> type, Parameter parameter, Node... dependencies) {
     this(type, parameter, Arrays.asList(dependencies));
   }
 
@@ -46,7 +46,7 @@ public abstract class DependentNode extends Node {
    * @param parameter  the parameter this node satisfies, null if it's the root node
    * @param dependencies  the list of dependencies, not null
    */
-  protected DependentNode(Class<?> type, Parameter parameter, List<Node> dependencies) {
+  DependentNode(Class<?> type, Parameter parameter, List<Node> dependencies) {
     super(type, parameter);
     _dependencies = ImmutableList.copyOf(ArgumentChecker.notNull(dependencies, "dependencies"));
     _valid = isValid(_dependencies);

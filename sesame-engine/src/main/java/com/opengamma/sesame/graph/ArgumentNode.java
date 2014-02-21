@@ -30,7 +30,7 @@ public final class ArgumentNode extends Node {
    * @param parameter  the parameter this node satisfies, null if it's the root node
    * @param value  the argument value, may be null
    */
-  /* package */ ArgumentNode(Class<?> type, Object value, Parameter parameter) {
+  ArgumentNode(Class<?> type, Object value, Parameter parameter) {
     super(type, parameter);
     _value = value;
   }

@@ -37,7 +37,7 @@ public abstract class Node {
    * @param type  the expected type of the object created by this node, not null
    * @param parameter  the parameter this node satisfies, null if it's the root node
    */
-  protected Node(Class<?> type, Parameter parameter) {
+  Node(Class<?> type, Parameter parameter) {
     _type = ArgumentChecker.notNull(type, "type");
     _parameter = parameter;
   }

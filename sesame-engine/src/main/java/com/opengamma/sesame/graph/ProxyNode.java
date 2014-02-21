@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.proxy;
+package com.opengamma.sesame.graph;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.graph.DependentNode;
-import com.opengamma.sesame.graph.Node;
+import com.opengamma.sesame.proxy.InvocationHandlerFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -44,10 +43,7 @@ public class ProxyNode extends DependentNode {
    * @param implementationType  the implementation type to create, may be null
    * @param handlerFactory  the proxy invocation factory, not null
    */
-  public ProxyNode(Node delegateNode,
-                   Class<?> interfaceType,
-                   Class<?> implementationType,
-                   InvocationHandlerFactory handlerFactory) {
+  ProxyNode(Node delegateNode, Class<?> interfaceType, Class<?> implementationType, InvocationHandlerFactory handlerFactory) {
     super(interfaceType, delegateNode.getParameter(), delegateNode);
     _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
     _delegateNode = ArgumentChecker.notNull(delegateNode, "delegate");

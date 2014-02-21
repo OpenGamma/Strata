@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.proxy;
 
+import com.opengamma.sesame.graph.ProxyNode;
+
 /**
  * Factory for objects that provide the behaviour of a proxy.
  * This class is necessary because node decorators are invoked when the graph model is built but
