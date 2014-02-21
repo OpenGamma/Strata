@@ -74,6 +74,9 @@ public class FRAFnTest {
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final double STD_TOLERANCE_RATE = 1.0E-5;
 
+  private static final double EXPECTED_PV = 23182.5437;
+  private static final double EXPECTED_PAR_RATE = 0.003315;
+
   private FRAPVFn _fraFunction;
   private FRASecurity _fraSecurity = createSingleFra();
 
@@ -128,7 +131,7 @@ public class FRAFnTest {
     assertThat(resultPV.isValueAvailable(), is((true)));
 
     MultipleCurrencyAmount mca = resultPV.getValue();
-    assertEquals(mca.getCurrencyAmount(Currency.USD).getAmount(), 23182.5437, STD_TOLERANCE_PV);
+    assertEquals(EXPECTED_PV, mca.getCurrencyAmount(Currency.USD).getAmount(), STD_TOLERANCE_PV);
   }
 
   @Test
@@ -137,7 +140,7 @@ public class FRAFnTest {
     assertThat(resultParRate.isValueAvailable(), is((true)));
 
     Double parRate = resultParRate.getValue();
-    assertEquals(0.003315, parRate, STD_TOLERANCE_RATE);
+    assertEquals(EXPECTED_PAR_RATE, parRate, STD_TOLERANCE_RATE);
   }
 
   private FRASecurity createSingleFra() {

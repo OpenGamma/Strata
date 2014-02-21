@@ -386,13 +386,13 @@ public class InterestRateMockSources {
     SecuritySource mock = mock(SecuritySource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 
-    OvernightIndex onIndex = new OvernightIndex(USD_OVERNIGHT_CONVENTION, _onConventionId);
+    OvernightIndex onIndex = new OvernightIndex(USD_OVERNIGHT_INDEX, _onConventionId);
     when(mock.getSingle(_onIndexId.toBundle()))
         .thenReturn(onIndex);
     when(mock.getSingle(eq(_onIndexId.toBundle()), any(VersionCorrection.class)))
         .thenReturn(onIndex);
 
-    IborIndex iIndex = new IborIndex(LIBOR_CONVENTION, Tenor.THREE_MONTHS, _liborConventionId);
+    IborIndex iIndex = new IborIndex(LIBOR_INDEX, Tenor.THREE_MONTHS, _liborConventionId);
     when(mock.getSingle(_liborIndexId.toBundle()))
         .thenReturn(iIndex);
     when(mock.getSingle(eq(_liborIndexId.toBundle()), any(VersionCorrection.class)))
