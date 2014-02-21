@@ -7,6 +7,7 @@ package com.opengamma.sesame.graph;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,6 +60,18 @@ public abstract class Node {
    */
   public Parameter getParameter() {
     return _parameter;
+  }
+
+  /**
+   * Gets the concrete, non-proxy, node.
+   * <p>
+   * This is used to access the concrete node that has been proxied.
+   * Most nodes simply return {@code this}.
+   * 
+   * @return the parameter, not null
+   */
+  Node getConcreteNode() {
+    return this;
   }
 
   //-------------------------------------------------------------------------
@@ -157,23 +170,53 @@ public abstract class Node {
    * <p>
    * Implementations should override this to perform the pretty print.
    * 
+   * @param showProxies  true to include proxy nodes
    * @return the node structure, not null
    */
-  public String prettyPrint() {
-    return toString();
+  public String prettyPrint(boolean showProxies) {
+    return prettyPrint(new StringBuilder(), "", "", showProxies).toString();
   }
 
   /**
    * Provides the name of the parameter being satisfied ready for pretty printing.
    * 
-   * @return the parameter name, not null
+   * @return a description of the node, not null
    */
-  protected final String getPrettyPrintParameterName() {
-    if (getParameter() == null) {
-      return "";
-    } else {
-      return getParameter().getName() + ": ";
+  protected abstract String prettyPrintLine();
+
+  /**
+   * Performs the pretty print.
+   * 
+   * @param builder  the builder to add to, not null
+   * @param indent  the current indent, not null
+   * @param childIndent  the child indent, not null
+   * @param showProxies  true to include proxy nodes
+   * @return the node structure, not null
+   */
+  private StringBuilder prettyPrint(StringBuilder builder,
+      String indent, String childIndent, boolean showProxies) {
+    
+    Node realNode = (showProxies ? this : getConcreteNode());
+    // prefix the line with an indicator if the node is an error node for easier debugging
+    String errorPrefix = isError() ? "->" : "  ";
+    // prefix the line with the parameter name
+    String paramPrefix = (realNode.getParameter() != null ? realNode.getParameter().getName() + ": " : "");
+    builder.append('\n').append(errorPrefix).append(indent).append(paramPrefix).append(realNode.prettyPrintLine());
+    for (Iterator<Node> it = realNode.getDependencies().iterator(); it.hasNext();) {
+      Node child = it.next();
+      String newIndent;
+      String newChildIndent;
+      boolean isFinalChild = !it.hasNext();
+      if (!isFinalChild) {
+        newIndent = childIndent + " |--";  // Unicode boxes: \u251c\u2500\u2500
+        newChildIndent = childIndent + " |  ";  // Unicode boxes: \u2502
+      } else {
+        newIndent = childIndent + " `--";  // Unicode boxes: \u2514\u2500\u2500
+        newChildIndent = childIndent + "    ";
+      }
+      child.prettyPrint(builder, newIndent, newChildIndent, showProxies);
     }
+    return builder;
   }
 
   //-------------------------------------------------------------------------
@@ -192,6 +235,12 @@ public abstract class Node {
   @Override
   public int hashCode() {
     return Objects.hash(_type);
+  }
+
+  @Override
+  public String toString() {
+    String paramPrefix = (getParameter() != null ? getParameter().getName() + ": " : "");
+    return paramPrefix + prettyPrintLine();
   }
 
 }

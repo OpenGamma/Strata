@@ -8,7 +8,6 @@ package com.opengamma.sesame.graph;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +29,6 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Parameter;
-import com.opengamma.sesame.proxy.ProxyNode;
 
 /**
  * Lightweight representation of the tree of functions for a single output.
@@ -111,7 +109,7 @@ public final class FunctionModel {
    * @return the tree structure, not null
    */
   public String prettyPrint(boolean showProxies) {
-    return prettyPrint(new StringBuilder(), _root, "", "", showProxies).toString();
+    return _root.prettyPrint(showProxies);
   }
 
   //-------------------------------------------------------------------------
@@ -406,52 +404,6 @@ public final class FunctionModel {
     } else {
       throw new IllegalArgumentException("Argument (" + arg + ": " + arg.getClass().getSimpleName() + ") isn't of the " +
                                              "required type for " + parameter.getFullName());
-    }
-  }
-
-  private static StringBuilder prettyPrint(StringBuilder builder,
-                                           Node node,
-                                           String indent,
-                                           String childIndent,
-                                           boolean showProxies) {
-    Node realNode = getRealNode(node, showProxies);
-    // prefix the line with an asterisk if the node is an error node for easier debugging
-    String errorPrefix = node.isError() ? "->" : "  ";
-    // TODO can this method deal with prepending the property name so Node doesn't need to know the parameter?
-    builder.append('\n').append(errorPrefix).append(indent).append(realNode.prettyPrint());
-    for (Iterator<Node> itr = realNode.getDependencies().iterator(); itr.hasNext(); ) {
-      Node child = itr.next();
-      String newIndent;
-      String newChildIndent;
-      boolean isFinalChild = !itr.hasNext();
-      if (!isFinalChild) {
-        newIndent = childIndent + " |--";
-        newChildIndent = childIndent + " |  ";
-      } else {
-        newIndent = childIndent + " `--";
-        newChildIndent = childIndent + "    ";
-      }
-      // these are unicode characters for box drawing
-      /*if (!isFinalChild) {
-        newIndent = childIndent + " \u251c\u2500\u2500";
-        newChildIndent = childIndent + " \u2502  ";
-      } else {
-        newIndent = childIndent + " \u2514\u2500\u2500";
-        newChildIndent = childIndent + "    ";
-      }*/
-      prettyPrint(builder, child, newIndent, newChildIndent, showProxies);
-    }
-    return builder;
-  }
-
-  private static Node getRealNode(Node node, boolean showProxies) {
-    if (showProxies) {
-      return node;
-    }
-    if (node instanceof ProxyNode) {
-      return getRealNode(((ProxyNode) node).getDelegate(), false);
-    } else {
-      return node;
     }
   }
 

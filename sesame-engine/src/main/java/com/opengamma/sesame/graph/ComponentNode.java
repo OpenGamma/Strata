@@ -35,8 +35,8 @@ public final class ComponentNode extends Node {
   }
 
   @Override
-  public String prettyPrint() {
-    return getPrettyPrintParameterName() + "component " + getType().getSimpleName();
+  protected String prettyPrintLine() {
+    return "component " + getType().getSimpleName();
   }
 
 }

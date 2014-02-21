@@ -52,8 +52,8 @@ public final class ArgumentNode extends Node {
   }
 
   @Override
-  public String prettyPrint() {
-    return getPrettyPrintParameterName() + getType().getSimpleName() + " " + _value;
+  protected String prettyPrintLine() {
+    return getType().getSimpleName() + " " + _value;
   }
 
   //-------------------------------------------------------------------------

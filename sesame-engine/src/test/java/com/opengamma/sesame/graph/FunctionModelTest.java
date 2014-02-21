@@ -104,6 +104,10 @@ public class FunctionModelTest {
               }
             };
           }
+          @Override
+          protected String prettyPrintLine() {
+            return "";
+          }
         };
       }
     };

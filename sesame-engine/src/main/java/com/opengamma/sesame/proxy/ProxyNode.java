@@ -73,6 +73,18 @@ public class ProxyNode extends DependentNode {
     return _implementationType;
   }
 
+  /**
+   * Gets the underlying concrete node.
+   * <p>
+   * This is the node that the proxy decorates.
+   * 
+   * @return the delegate node, not null
+   */
+  @Override
+  public Node getConcreteNode() {
+    return _delegateNode.getConcreteNode();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
@@ -85,8 +97,8 @@ public class ProxyNode extends DependentNode {
   }
 
   @Override
-  public String prettyPrint() {
-    return getPrettyPrintParameterName() + "proxy " + getType().getSimpleName() + "(" + _handlerFactory.getClass().getSimpleName() + ")";
+  protected String prettyPrintLine() {
+    return "proxy " + getType().getSimpleName() + "(" + _handlerFactory.getClass().getSimpleName() + ")";
   }
 
   //-------------------------------------------------------------------------

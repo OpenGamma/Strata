@@ -68,8 +68,8 @@ public class ClassNode extends DependentNode {
   }
 
   @Override
-  public String prettyPrint() {
-    return getPrettyPrintParameterName() + "new " + _implementationType.getSimpleName();
+  protected String prettyPrintLine() {
+    return "new " + _implementationType.getSimpleName();
   }
 
   //-------------------------------------------------------------------------
