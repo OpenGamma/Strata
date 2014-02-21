@@ -261,25 +261,29 @@ public final class FunctionModel {
       }
       implType = type;
     }
-    if (isValidType(implType) == false) {
-      throw new NoImplementationException(path, "Function implementation is invalid: " + type.getSimpleName());
+    if (isValidImplementationType(implType) == false) {
+      throw new InvalidImplementationException(path, "Function implementation is invalid: " + type.getSimpleName());
     }
     return implType;
   }
 
   /**
    * Returns a constructor for the engine to build instances of type.
-   * If there is only one constructor it's returned. If there are multiple constructors and one is annotated with
-   * {@link Inject} it's returned. Otherwise an {@link IllegalArgumentException} is thrown.
-   * @param type The type
-   * @return The constructor the engine should use for building instances, not null
-   * @throws IllegalArgumentException If there isn't a valid constructor
+   * <p>
+   * Only public constructors are considered.
+   * If there is only one constructor it is used. If there are multiple constructors
+   * then one, and only one, must be annotated with {@link Inject}.
+   * 
+   * @param <T> the type
+   * @param type  the type to find the constructor for, not null
+   * @return the constructor the engine should use for building instances, not null
+   * @throws NoSuitableConstructorException if there isn't a valid constructor
    */
   private static Constructor<?> getConstructor(Class<?> type, List<Parameter> path) {
     try {
       return EngineFunctionUtils.getConstructor(type);
-    } catch (IllegalArgumentException e) {
-      throw new NoSuitableConstructorException(path, type.getName() + " has no suitable constructors");
+    } catch (IllegalArgumentException ex) {
+      throw new NoSuitableConstructorException(path, "No suitable constructor: " + type.getName());
     }
   }
 
@@ -366,7 +370,7 @@ public final class FunctionModel {
    * @param type  the type, not null
    * @return true if valid
    */
-  private static boolean isValidType(Class<?> type) {
+  private static boolean isValidImplementationType(Class<?> type) {
     if (type.isInterface() || type.isAnnotation() || type.isPrimitive() || type.isArray() || type.isEnum() || type.isSynthetic() ||
         Modifier.isAbstract(type.getModifiers()) || type.isAnonymousClass() || type.isLocalClass()) {
       return false;
