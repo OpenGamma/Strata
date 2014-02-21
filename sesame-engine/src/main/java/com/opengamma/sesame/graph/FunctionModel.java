@@ -84,6 +84,15 @@ public final class FunctionModel {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the root node of the function model tree.
+   * 
+   * @return the root node
+   */
+  public Node getRoot() {
+    return _root;
+  }
+
+  /**
    * Checks if this model is valid such that a function can be constructed.
    * 
    * @return true if this model is valid
@@ -113,15 +122,6 @@ public final class FunctionModel {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the complete set of exceptions in the model.
-   * 
-   * @return the list of exceptions, not null
-   */
-  /* package */ List<InvalidGraphException> getExceptions() {
-    return _root.getExceptions();
-  }
-
   private static NodeDecorator getNodeDecorator(NodeDecorator[] nodeDecorators) {
     switch (nodeDecorators.length) {
       case 0:

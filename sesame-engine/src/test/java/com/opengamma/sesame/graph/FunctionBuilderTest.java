@@ -41,7 +41,7 @@ public class FunctionBuilderTest {
     assertFalse(functionModel.isValid());
     System.out.println(functionModel.prettyPrint(false));
 
-    List<InvalidGraphException> exceptions = functionModel.getExceptions();
+    List<InvalidGraphException> exceptions = functionModel.getRoot().getExceptions();
     assertEquals(2, exceptions.size());
 
     InvalidGraphException ex0 = exceptions.get(0);
