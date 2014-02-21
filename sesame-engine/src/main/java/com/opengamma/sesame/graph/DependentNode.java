@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.graph;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -69,6 +70,15 @@ public abstract class DependentNode extends Node {
   @Override
   public boolean isValid() {
     return _valid;
+  }
+
+  @Override
+  public List<InvalidGraphException> getExceptions() {
+    ArrayList<InvalidGraphException> list = new ArrayList<InvalidGraphException>();
+    for (Node childNode : getDependencies()) {
+      list.addAll(childNode.getExceptions());
+    }
+    return list;
   }
 
   //-------------------------------------------------------------------------

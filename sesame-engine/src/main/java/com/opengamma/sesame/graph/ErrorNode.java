@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.graph;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A node in the function model representing an error.
  */
-/* package */ class ExceptionNode extends Node {
+/* package */ class ErrorNode extends Node {
 
   /**
    * The error that occurred.
@@ -30,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param parameter  the parameter this node satisfies, null if it's the root node
    * @param exception  the exception that occurred, not null
    */
-  /* package */ ExceptionNode(Class<?> type, InvalidGraphException exception, Parameter parameter) {
+  ErrorNode(Class<?> type, InvalidGraphException exception, Parameter parameter) {
     super(type, parameter);
     _exception = ArgumentChecker.notNull(exception, "exception");
   }
@@ -43,6 +44,11 @@ import com.opengamma.util.ArgumentChecker;
    */
   public InvalidGraphException getException() {
     return _exception;
+  }
+
+  @Override
+  public List<InvalidGraphException> getExceptions() {
+    return Collections.singletonList(_exception);
   }
 
   //-------------------------------------------------------------------------
@@ -78,7 +84,7 @@ import com.opengamma.util.ArgumentChecker;
     if (!super.equals(obj)) {
       return false;
     }
-    final ExceptionNode other = (ExceptionNode) obj;
+    final ErrorNode other = (ErrorNode) obj;
     return Objects.equals(this._exception, other._exception);
   }
 

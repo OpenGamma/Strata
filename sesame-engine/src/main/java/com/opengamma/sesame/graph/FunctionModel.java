@@ -210,14 +210,14 @@ public final class FunctionModel {
     try {
       implType = getImplementationType(type, config, path);
     } catch (NoImplementationException e) {
-      return new ExceptionNode(type, e, parentParameter);
+      return new ErrorNode(type, e, parentParameter);
     }
 
     Constructor<?> constructor;
     try {
       constructor = getConstructor(implType, path);
     } catch (NoSuitableConstructorException e) {
-      return new ExceptionNode(type, e, parentParameter);
+      return new ErrorNode(type, e, parentParameter);
     }
 
     List<Parameter> parameters = EngineFunctionUtils.getParameters(constructor);
@@ -333,7 +333,7 @@ public final class FunctionModel {
       }
       return nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
     } catch (InvalidGraphException e) {
-      return new ExceptionNode(type, e, parameter);
+      return new ErrorNode(type, e, parameter);
     }
   }
 

@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.graph;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -127,21 +126,8 @@ public abstract class Node {
    * 
    * @return the list of exceptions, not null
    */
-  /* package */ List<InvalidGraphException> getExceptions() {
-    return getExceptions(this, new ArrayList<InvalidGraphException>());
-  }
-
-  private static List<InvalidGraphException> getExceptions(Node node, List<InvalidGraphException> accumulator) {
-    if (node instanceof ExceptionNode) {
-      InvalidGraphException exception = ((ExceptionNode) node).getException();
-      accumulator.add(exception);
-      return accumulator;
-    } else {
-      for (Node childNode : node.getDependencies()) {
-        getExceptions(childNode, accumulator);
-      }
-      return accumulator;
-    }
+  public List<InvalidGraphException> getExceptions() {
+    return Collections.emptyList();
   }
 
   /**
