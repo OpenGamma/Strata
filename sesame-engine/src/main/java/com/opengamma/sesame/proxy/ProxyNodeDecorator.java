@@ -14,6 +14,7 @@ import com.opengamma.sesame.graph.NodeDecorator;
 
 /**
  * Decorates node in the graph with a proxy.
+ * <p>
  * Subclasses should be stateless and thread safe as there is only one instance shared between all proxied objects.
  */
 public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHandlerFactory {
@@ -53,23 +54,28 @@ public abstract class ProxyNodeDecorator implements NodeDecorator, InvocationHan
     };
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Indicates whether a node should be wrapped in a proxy.
+   * <p>
+   * Note that the implementation type is not necessarily the type of the delegate
+   * as the delegate could be another proxy, ie. it is the type of the real object.
    *
-   * @param interfaceType The type of the interface being decorated
-   * @param implementationType The implementation type being decorated. This isn't necessarily the type of the
-   * delegate as the delegate could be another proxy. This is the type of the real object.
+   * @param interfaceType  the type of the interface being decorated, not null
+   * @param implementationType  the implementation type being decorated, not null
+   * @return true if decoration should occur
    */
   protected abstract boolean decorate(Class<?> interfaceType, Class<?> implementationType);
 
   /**
    * Called when a method on the proxy is invoked.
-   * @param proxy The proxy whose method was invoked
-   * @param delegate The object being proxied
-   * @param method The method that was invoked
-   * @param args The method arguments
-   * @return The return value of the call
-   * @throws Exception If something goes wrong with the underlying call
+   * 
+   * @param proxy  the proxy whose method was invoked, not null
+   * @param delegate  the object being proxied, not null
+   * @param method  the method that was invoked, not null
+   * @param args  the method arguments, not null
+   * @return the return value of the call
+   * @throws Throwable if something goes wrong with the underlying call
    * TODO param for the concrete type? or the proxy node itself?
    */
   protected abstract Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Throwable;

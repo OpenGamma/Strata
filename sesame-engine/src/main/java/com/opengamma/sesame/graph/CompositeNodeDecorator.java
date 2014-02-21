@@ -16,18 +16,33 @@ import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO this badly needs a test, it was quietly broken
+ * Node decorator that composes other decorators.
  */
 public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
+  // TODO this badly needs a test, it was quietly broken
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CompositeNodeDecorator.class);
 
+  /**
+   * The underlying decorators.
+   */
   private final List<NodeDecorator> _decorators;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param decorators  the decorators, not null
+   */
   public CompositeNodeDecorator(List<NodeDecorator> decorators) {
     this(decorators.toArray(new NodeDecorator[decorators.size()]));
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param decorators  the decorators, not null
+   */
   public CompositeNodeDecorator(NodeDecorator... decorators) {
     // reverse the decorators so the first decorator is the first one presented with the argument
     // it's arguable which way round is least surprising. this makes most sense to me
@@ -36,6 +51,7 @@ public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
     _decorators = ImmutableList.copyOf(reversed);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Node decorateNode(Node node) {
     Node wrappedNode = node;
@@ -51,10 +67,11 @@ public class CompositeNodeDecorator implements NodeDecorator, AutoCloseable {
       if (decorator instanceof AutoCloseable) {
         try {
           ((AutoCloseable) decorator).close();
-        } catch (Exception e) {
-          s_logger.warn("Exception closing decorator", e);
+        } catch (Exception ex) {
+          s_logger.warn("Exception closing decorator", ex);
         }
       }
     }
   }
+
 }

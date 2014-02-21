@@ -195,7 +195,6 @@ public final class FunctionModel {
   }
 
   // TODO I don't think this will work if the root is an infrastructure component. is that important?
-  @SuppressWarnings("unchecked")
   private static Node createNode(Class<?> type,
                                  FunctionModelConfig config,
                                  Set<Class<?>> availableComponents,
@@ -399,7 +398,7 @@ public final class FunctionModel {
     } else if (arg instanceof Provider) {
       return arg;
     } else if (arg instanceof Link) {
-      if (ClassUtils.isAssignable(((Link) arg).getType(), parameter.getType(), true)) {
+      if (ClassUtils.isAssignable(((Link<?, ?>) arg).getType(), parameter.getType(), true)) {
         return arg;
       } else {
         throw new IllegalArgumentException("Link argument (" + arg + ") doesn't resolve to the " +

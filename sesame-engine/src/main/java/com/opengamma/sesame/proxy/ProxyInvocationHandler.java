@@ -8,12 +8,15 @@ package com.opengamma.sesame.proxy;
 import java.lang.reflect.InvocationHandler;
 
 /**
- * Invoked when methods are called on proxies in the function graph.
+ * Handler that is invoked when methods are called on proxies in the function graph.
  */
 public interface ProxyInvocationHandler extends InvocationHandler {
 
   /**
-   * @return The object to which the handler delegates method calls. May be a proxy instance.
+   * Gets the receiver object.
+   * 
+   * @return the object to which the handler delegates method calls, may be a proxy instance, not null
    */
   Object getReceiver();
+
 }

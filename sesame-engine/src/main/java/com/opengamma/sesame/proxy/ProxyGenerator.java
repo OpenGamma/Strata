@@ -18,30 +18,26 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Generates a proxy which
+ * Generates a proxy matching an interface.
  */
 public class ProxyGenerator {
 
   @SuppressWarnings("unchecked")
   public <T> T generate(final T delegate, Class<T> iface) {
-
     ArgumentChecker.notNull(delegate, "delegate");
     ArgumentChecker.notNull(iface, "iface");
     ArgumentChecker.isTrue(iface.isInterface(), "Can only generate proxies for interfaces");
 
     Class<?> delegateClass = delegate.getClass();
-
     InvocationHandler handler = new InvocationHandler() {
-
       @Override
       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
           return method.invoke(delegate, args);
-        } catch (InvocationTargetException e) {
+        } catch (InvocationTargetException ex) {
           // We got an exception from the underlying call but the proxy mechanism
           // automatically wraps it, so pull it out
-          Throwable cause = e.getCause();
-
+          Throwable cause = ex.getCause();
           if (method.getReturnType() == Result.class) {
             return failure(FailureStatus.ERROR, "Received exception: {}", cause);
           } else {
@@ -53,4 +49,5 @@ public class ProxyGenerator {
 
     return (T) Proxy.newProxyInstance(delegateClass.getClassLoader(), new Class[] {iface}, handler);
   }
+
 }
