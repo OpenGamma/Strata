@@ -18,9 +18,7 @@ import com.opengamma.sesame.graph.ProxyNode;
  * <p>
  * Subclasses should be stateless and thread safe as there is only one instance shared between all proxied objects.
  */
-public abstract class ProxyNodeDecorator
-    extends NodeDecorator
-    implements InvocationHandlerFactory {
+public abstract class ProxyNodeDecorator extends NodeDecorator implements InvocationHandlerFactory {
 
   @Override
   public Node decorateNode(Node node) {

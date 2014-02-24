@@ -122,6 +122,17 @@ public final class FunctionModel {
   }
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Builds a {@link FunctionModel} representing a function implementation and its dependencies.
+   * @param function The function's metadata
+   * @param config Configuration specifying the implementations and arguments for building the function and its
+   * dependencies
+   * @param availableComponents Component types available for injecting into function implementations
+   * @param nodeDecorators For inserting nodes in the model between functions to add functionality, e.g. caching,
+   * logging, tracing
+   * @return A model of the function implementation and its dependencies
+   */
   public static FunctionModel forFunction(FunctionMetadata function,
                                           FunctionModelConfig config,
                                           Set<Class<?>> availableComponents,
@@ -131,11 +142,27 @@ public final class FunctionModel {
     return new FunctionModel(node, function);
   }
 
+  /**
+   * Builds a {@link FunctionModel} representing a function implementation and its dependencies.
+   * This is suitable for building functions that require user specified constructor arguments but don't require
+   * components provided by the system.
+   * @param function The function's metadata
+   * @param config Configuration specifying the implementations and arguments for building the function and its
+   * dependencies
+   * logging, tracing
+   * @return A model of the function implementation and its dependencies
+   */
   public static FunctionModel forFunction(FunctionMetadata function, FunctionModelConfig config) {
     Node node = createNode(function.getDeclaringType(), config, Collections.<Class<?>>emptySet(), NodeDecorator.IDENTITY);
     return new FunctionModel(node, function);
   }
 
+  /**
+   * Builds a {@link FunctionModel} representing a function implementation and its dependencies.
+   * This is only suitable for building the simplest of functions that require no arguments or components.
+   * @param function The function's metadata
+   * @return A model of the function implementation and its dependencies
+   */
   public static FunctionModel forFunction(FunctionMetadata function) {
     Node node = createNode(function.getDeclaringType(),
                            FunctionModelConfig.EMPTY,
@@ -146,6 +173,16 @@ public final class FunctionModel {
 
   // functions built with this method will have a cache that's not shared with any other functions
   // if that's required an overloaded version will be needed with a FunctionBuilder parameter
+  /**
+   * Creates a {@link Node} for a function and its dependencies, builds it and returns the constructed function object.
+   * @param functionType The type of the function, can be an interface or implementation class
+   * @param config Configuration for building the function and its dependencies
+   * @param componentMap Components available for injecting into the function and its dependencies
+   * @param nodeDecorators For inserting nodes between functions to add functionality, e.g. caching,
+   * logging, tracing
+   * @param <T> The type of the function
+   * @return The constructed function, not null
+   */
   public static <T> T build(Class<T> functionType,
                             FunctionModelConfig config,
                             ComponentMap componentMap,
@@ -157,10 +194,26 @@ public final class FunctionModel {
     return functionType.cast(function);
   }
 
+  /**
+   * Creates a {@link Node} for a function and its dependencies, builds it and returns the constructed function object.
+   * This is suitable for building functions that require user specified constructor arguments but don't require
+   * components provided by the system.
+   * @param functionType The type of the function, can be an interface or implementation class
+   * @param config Configuration for building the function and its dependencies
+   * @param <T> The type of the function
+   * @return The constructed function, not null
+   */
   public static <T> T build(Class<T> functionType, FunctionModelConfig config) {
     return build(functionType, config, ComponentMap.EMPTY);
   }
 
+  /**
+   * Creates a {@link Node} for a function and its dependencies, builds it and returns the constructed function object.
+   * This is only suitable for building the simplest of functions that require no arguments or components.
+   * @param functionType The type of the function, can be an interface or implementation class
+   * @param <T> The type of the function
+   * @return The constructed function, not null
+   */
   public static <T> T build(Class<T> functionType) {
     return build(functionType, FunctionModelConfig.EMPTY);
   }
@@ -189,7 +242,7 @@ public final class FunctionModel {
                                  Set<Class<?>> availableComponents,
                                  NodeDecorator nodeDecorator,
                                  List<Parameter> path,
-                                 Parameter parentParameter) {
+                                 Parameter parameter) {
     if (!isEligibleForBuilding(type)) {
       return null;
     }
@@ -198,32 +251,32 @@ public final class FunctionModel {
     try {
       implType = getImplementationType(type, config, path);
     } catch (NoImplementationException e) {
-      return new ErrorNode(type, e, parentParameter);
+      return new ErrorNode(type, e, parameter);
     }
 
     Constructor<?> constructor;
     try {
       constructor = getConstructor(implType, path);
     } catch (NoSuitableConstructorException e) {
-      return new ErrorNode(type, e, parentParameter);
+      return new ErrorNode(type, e, parameter);
     }
 
-    List<Parameter> parameters = EngineFunctionUtils.getParameters(constructor);
-    List<Node> constructorArguments = Lists.newArrayListWithCapacity(parameters.size());
+    List<Parameter> constructorParameters = EngineFunctionUtils.getParameters(constructor);
+    List<Node> constructorArguments = Lists.newArrayListWithCapacity(constructorParameters.size());
 
-    for (Parameter parameter : parameters) {
+    for (Parameter constructorParameter : constructorParameters) {
       // this isn't terribly efficient but unlikely to be a problem. could use a stack but that's nasty and mutable
       List<Parameter> newPath = Lists.newArrayList(path);
-      newPath.add(parameter);
-      Node argNode = createArgumentNode(type, config, availableComponents, nodeDecorator, implType, parameter, newPath);
+      newPath.add(constructorParameter);
+      Node argNode = createArgumentNode(type, config, availableComponents, nodeDecorator, implType, constructorParameter, newPath);
       constructorArguments.add(argNode);
     }
     Node node;
 
     if (type.isInterface()) {
-      node = new InterfaceNode(type, implType, constructorArguments, parentParameter);
+      node = new InterfaceNode(type, implType, constructorArguments, parameter);
     } else {
-      node = new ClassNode(type, implType, constructorArguments, parentParameter);
+      node = new ClassNode(type, implType, constructorArguments, parameter);
     }
     return nodeDecorator.decorateNode(node);
   }
@@ -249,7 +302,7 @@ public final class FunctionModel {
       }
       implType = type;
     }
-    if (isValidImplementationType(implType) == false) {
+    if (!isValidImplementationType(implType)) {
       throw new InvalidImplementationException(path, "Function implementation is invalid: " + type.getSimpleName());
     }
     return implType;
@@ -262,7 +315,6 @@ public final class FunctionModel {
    * If there is only one constructor it is used. If there are multiple constructors
    * then one, and only one, must be annotated with {@link Inject}.
    * 
-   * @param <T> the type
    * @param type  the type to find the constructor for, not null
    * @return the constructor the engine should use for building instances, not null
    * @throws NoSuitableConstructorException if there isn't a valid constructor
@@ -363,7 +415,7 @@ public final class FunctionModel {
         Modifier.isAbstract(type.getModifiers()) || type.isAnonymousClass() || type.isLocalClass()) {
       return false;
     }
-    if (type.isMemberClass() && Modifier.isStatic(type.getModifiers()) == false) {  // inner class (vs nested class)
+    if (type.isMemberClass() && !Modifier.isStatic(type.getModifiers())) {  // inner class (vs nested class)
       return false;
     }
     return true;

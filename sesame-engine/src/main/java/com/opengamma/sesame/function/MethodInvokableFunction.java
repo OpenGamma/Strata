@@ -14,6 +14,7 @@ import com.opengamma.core.link.Link;
 import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.ResultGenerator;
 
 /**
  *
@@ -65,8 +66,10 @@ import com.opengamma.util.ArgumentChecker;
     // TODO use @Nullable / @NotNull / @Nonnull
     try {
       return _method.invoke(_receiver, argArray);
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new OpenGammaRuntimeException("Failed to invoke method", e);
+    } catch (IllegalAccessException e) {
+      throw new OpenGammaRuntimeException("Unable to access method", e);
+    } catch (InvocationTargetException e) {
+      return ResultGenerator.failure(e);
     }
   }
 

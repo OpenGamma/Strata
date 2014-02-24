@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.trace;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.opengamma.sesame.proxy.ProxyNodeDecorator;
@@ -78,7 +79,7 @@ public final class TracingProxy extends ProxyNodeDecorator {
       Object retVal = method.invoke(delegate, args);
       tracer.returned(retVal);
       return retVal;
-    } catch (Exception ex) {
+    } catch (InvocationTargetException ex) {
       Throwable cause = ex.getCause();
       tracer.threw(cause);
       throw cause;
