@@ -11,9 +11,11 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.id.UniqueId;
+import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.util.ArgumentChecker;
@@ -29,8 +31,9 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
   public SpecificationMarketDataFactory(MarketDataSpecification marketDataSpecification) {
     _marketDataSpecification = ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
     if (!(_marketDataSpecification instanceof FixedHistoricalMarketDataSpecification) &&
-        !(_marketDataSpecification instanceof UserMarketDataSpecification)) {
-      throw new IllegalArgumentException("Only fixed historical and snapshot data sources are currently supported");
+        !(_marketDataSpecification instanceof UserMarketDataSpecification) &&
+        !(_marketDataSpecification instanceof LiveMarketDataSpecification)) {
+      throw new IllegalArgumentException("Only live, fixed historical and snapshot data sources are currently supported");
     }
   }
 
@@ -52,6 +55,9 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
       UniqueId snapshotId = ((UserMarketDataSpecification) _marketDataSpecification).getUserSnapshotId();
       ValuationTimeFn valuationTimeFn = components.getComponent(ValuationTimeFn.class);
       return new SnapshotRawMarketDataSource(snapshotSource, snapshotId, timeSeriesSource, valuationTimeFn, "BLOOMBERG", "Market_Value");
+    } else if (_marketDataSpecification instanceof LiveMarketDataSpecification) {
+      LiveDataClient liveDataClient = components.getComponent(LiveDataClient.class);
+      return new ResettableLiveRawMarketDataSource(new LiveDataManager(liveDataClient));
     } else {
       throw new IllegalArgumentException("Unexpected spec type " + _marketDataSpecification);
     }

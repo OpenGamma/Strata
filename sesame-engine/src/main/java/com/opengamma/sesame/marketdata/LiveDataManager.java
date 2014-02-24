@@ -36,7 +36,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Responsible for the management of live market data subscriptions
  * for a single live data supplier. Reference counts the number of clients
- * interested in a paricular LiveDataSpecification and automatcially unsubscribes
+ * interested in a particular LiveDataSpecification and automatically unsubscribes
  * some time after all clients have disconnected (this is not done immediately to
  * allow for cases where multiple clients connect once and quickly disconnect).
  */
