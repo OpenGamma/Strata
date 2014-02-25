@@ -69,4 +69,9 @@ import com.opengamma.util.time.LocalDateRange;
   public Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime) {
     return  _delegate.requestData(requirement, valuationTime);
   }
+
+  @Override
+  public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime) {
+    return _delegate.requestData(requirements, valuationTime);
+  }
 }

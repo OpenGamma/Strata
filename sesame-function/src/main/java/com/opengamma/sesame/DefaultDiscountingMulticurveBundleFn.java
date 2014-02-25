@@ -213,12 +213,12 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                                                                         CurveDefinition impliedCurveDefinition,
                                                                                         MulticurveProviderDiscount multicurves,
                                                                                         ZonedDateTime valuationTime) {
-
+  
     final DayCount dayCount = DayCounts.ACT_360; //TODO
-
+  
     final ParRateDiscountingCalculator parRateDiscountingCalculator = ParRateDiscountingCalculator.getInstance();
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
-
+  
     final List<Tenor> tenors = new ArrayList<>();
     final List<Double> parRates = new ArrayList<>();
     final List<InstrumentDerivative> cashNodes = new ArrayList<>();
@@ -229,7 +229,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(valuationTime, spotLag, calendar);
     
     for (final CurveNode node : impliedCurveDefinition.getNodes()) {
-
+  
       final Tenor tenor = node.getResolvedMaturity();
       final ZonedDateTime paymentDate =
           ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MODIFIED_FOLLOWING, calendar, true);
@@ -242,7 +242,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       cashNodes.add(new Cash(currency, startTime, endTime, 1, parRate, accrualFactor));
       parRates.add(parRate);
     }
-
+  
     return Triple.of(tenors, parRates, cashNodes);
   }
 
@@ -323,8 +323,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
             // todo - this lookup is not needed for all curves but we get it for all, can we restrict so we only get it when we need it?
             final Result<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(
-                specification);
-            Result<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification);
+                specification, valuationTime.toLocalDate());
+            Result<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification, valuationTime);
 
             // Only proceed if we have all market data values available to us
             if (htsResult.isValueAvailable() && fxMatrixResult.isValueAvailable() &&

@@ -125,6 +125,11 @@ public class ProxyGeneratorTest {
                                                           Period seriesPeriod) {
         throw new RuntimeException(message);
       }
+
+      @Override
+      public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime) {
+        throw new RuntimeException(message);
+      }
     };
 
     try {

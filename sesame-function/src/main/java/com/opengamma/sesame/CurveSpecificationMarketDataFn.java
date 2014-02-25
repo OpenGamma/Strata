@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.result.Result;
@@ -21,5 +23,14 @@ public interface CurveSpecificationMarketDataFn {
    * @return the market data values, a failure result if not found
    */
   Result<MarketDataValues> requestData(CurveSpecification curveSpecification);
+
+  /**
+   * Requests the data for a curve specification.
+   * 
+   * @param curveSpecification  the curve specification, not null
+   * @param valuationTime the valuation time
+   * @return the market data values, a failure result if not found
+   */
+  Result<MarketDataValues> requestData(CurveSpecification curveSpecification, ZonedDateTime valuationTime);
 
 }

@@ -50,6 +50,17 @@ public interface MarketDataFn {
    */
   Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements);
 
+  /**
+   * Request multiple items of market data.
+   *
+   * @param requirements the items of market data being requested
+   * @param valuationTime the valuation time for the market data (which may necessitate
+   * retrieval from a historical source)
+   * @return a result object containing an indication of whether each item of data is (currently)
+   * available and the value if it is.
+   */
+  Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime);
+
   Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
 
   Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);

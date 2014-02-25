@@ -132,4 +132,12 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
     _valuationTime = valuationTime;
     _requestedMarketData.putAll(replacementData);
   }
+
+  @Override
+  public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime) {
+    if (!valuationTime.equals(_valuationTime)) {
+      throw new IllegalStateException("Passed valuation time " + valuationTime + " not equal to internal valuation time " + _valuationTime);
+    }
+    return requestData(requirements);
+  }
 }
