@@ -34,6 +34,7 @@ public final class ResultItem implements ImmutableBean {
 
   // TODO include OutputName, in the current engine it's used for number formatting
 
+  // TODO can this be non-nullable now? if we can't calculate a result do we return a failure?
   @PropertyDefinition
   private final Result<?> _result;
 
@@ -272,6 +273,18 @@ public final class ResultItem implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -934426595:  // result
+          return _result;
+        case -1068293744:  // callGraph
+          return _callGraph;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {

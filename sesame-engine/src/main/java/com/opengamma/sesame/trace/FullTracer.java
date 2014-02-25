@@ -17,22 +17,22 @@ class FullTracer extends Tracer {
   /**
    * The stack of calls.
    */
-  private final Deque<CallGraph> _stack = new LinkedList<>();
+  private final Deque<CallGraphBuilder> _stack = new LinkedList<>();
   /**
    * The root of the call graph.
    */
-  private CallGraph _root;
+  private CallGraphBuilder _root;
 
   //-------------------------------------------------------------------------
   @Override
   void called(Method method, Object[] args) {
-    CallGraph callGraph = new CallGraph(method, args);
+    CallGraphBuilder callGraphBuilder = new CallGraphBuilder(method, args);
     if (_root == null) {
-      _root = callGraph;
+      _root = callGraphBuilder;
     } else {
-      _stack.peek().called(callGraph);
+      _stack.peek().called(callGraphBuilder);
     }
-    _stack.push(callGraph);
+    _stack.push(callGraphBuilder);
   }
 
   @Override
@@ -46,7 +46,7 @@ class FullTracer extends Tracer {
   }
 
   @Override
-  public CallGraph getRoot() {
+  public CallGraphBuilder getRoot() {
     return _root;
   }
 

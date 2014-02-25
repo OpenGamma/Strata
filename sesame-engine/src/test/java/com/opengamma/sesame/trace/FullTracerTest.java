@@ -11,10 +11,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.fail;
 
-import java.lang.reflect.Method;
-
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -25,17 +24,8 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class FullTracerTest {
 
-  private static final Method METHOD1;
-  private static final Method METHOD2;
-
-  static {
-    try {
-      METHOD1 = I1.class.getMethod("method1", Integer.TYPE);
-      METHOD2 = I2.class.getMethod("method2", Boolean.TYPE);
-    } catch (NoSuchMethodException e) {
-      throw new OpenGammaRuntimeException("", e);
-    }
-  }
+  private static final String METHOD1 = "method1";
+  private static final String METHOD2 = "method2";
 
   private I1 buildFunction() {
     FunctionModelConfig functionModelConfig = config(implementations(I1.class, C1.class, I2.class, C2.class));
@@ -47,11 +37,18 @@ public class FullTracerTest {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(0);
-    CallGraph callGraph = TracingProxy.end();
-    CallGraph expected = new CallGraph(METHOD1, 0);
-    expected.returned("foo");
-    assertEquals(expected, callGraph);
-    System.out.println(callGraph.prettyPrint());
+    CallGraph trace = TracingProxy.end();
+
+    CallGraph expected = CallGraph.builder()
+        .receiverClass(I1.class)
+        .methodName(METHOD1)
+        .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
+        .arguments(ImmutableList.<Object>of(0))
+        .returnValue("foo")
+        .build();
+
+    assertEquals(expected, trace);
+    System.out.println(trace.prettyPrint());
   }
 
   @Test
@@ -59,14 +56,26 @@ public class FullTracerTest {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(1);
-    CallGraph callGraph1 = TracingProxy.end();
-    CallGraph expected = new CallGraph(METHOD1, 1);
-    expected.returned("foo 42");
-    CallGraph callGraph2 = new CallGraph(METHOD2, true);
-    callGraph2.returned(42);
-    expected.called(callGraph2);
-    assertEquals(expected, callGraph1);
-    System.out.println(callGraph1.prettyPrint());
+    CallGraph trace = TracingProxy.end();
+
+    CallGraph expected = CallGraph.builder()
+        .receiverClass(I1.class)
+        .methodName(METHOD1)
+        .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
+        .arguments(ImmutableList.<Object>of(1))
+        .returnValue("foo 42")
+        .calls(ImmutableList.of(
+            CallGraph.builder()
+                .receiverClass(I2.class)
+                .methodName(METHOD2)
+                .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
+                .arguments(ImmutableList.<Object>of(true))
+                .returnValue(42)
+                .build()))
+        .build();
+
+    assertEquals(expected, trace);
+    System.out.println(trace.prettyPrint());
   }
 
   @Test
@@ -74,17 +83,33 @@ public class FullTracerTest {
     I1 i1 = buildFunction();
     TracingProxy.start(new FullTracer());
     i1.method1(2);
-    CallGraph expected = new CallGraph(METHOD1, 2);
-    expected.returned("bar 42 84");
-    CallGraph callGraph2 = new CallGraph(METHOD2, true);
-    callGraph2.returned(42);
-    CallGraph callGraph3 = new CallGraph(METHOD2, true);
-    callGraph3.returned(42);
-    expected.called(callGraph2);
-    expected.called(callGraph3);
-    CallGraph callGraph = TracingProxy.end();
-    assertEquals(expected, callGraph);
-    System.out.println(callGraph.prettyPrint());
+    CallGraph trace = TracingProxy.end();
+
+    CallGraph expected = CallGraph.builder()
+        .receiverClass(I1.class)
+        .methodName(METHOD1)
+        .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
+        .arguments(ImmutableList.<Object>of(2))
+        .returnValue("bar 42 84")
+        .calls(ImmutableList.of(
+            CallGraph.builder()
+                .receiverClass(I2.class)
+                .methodName(METHOD2)
+                .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
+                .arguments(ImmutableList.<Object>of(true))
+                .returnValue(42)
+                .build(),
+            CallGraph.builder()
+                .receiverClass(I2.class)
+                .methodName(METHOD2)
+                .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
+                .arguments(ImmutableList.<Object>of(true))
+                .returnValue(42)
+                .build()))
+        .build();
+
+    assertEquals(expected, trace);
+    System.out.println(trace.prettyPrint());
   }
 
   @Test
@@ -97,13 +122,28 @@ public class FullTracerTest {
     } catch (OpenGammaRuntimeException e) {
       // expected
     }
-    CallGraph expected = new CallGraph(METHOD1, 3);
-    expected.threw(new OpenGammaRuntimeException("an exception"));
-    CallGraph callGraph2 = new CallGraph(METHOD2, true);
-    callGraph2.threw(new OpenGammaRuntimeException("an exception"));
-    expected.called(callGraph2);
-    CallGraph callGraph = TracingProxy.end();
-    System.out.println(callGraph.prettyPrint());
+    CallGraph trace = TracingProxy.end();
+
+    CallGraph expected = CallGraph.builder()
+        .receiverClass(I1.class)
+        .methodName(METHOD1)
+        .parameterTypes(ImmutableList.<Class<?>>of(Integer.TYPE))
+        .arguments(ImmutableList.<Object>of(3))
+        .throwableClass(OpenGammaRuntimeException.class)
+        .errorMessage("an exception")
+        .calls(ImmutableList.of(
+            CallGraph.builder()
+                .receiverClass(I2.class)
+                .methodName(METHOD2)
+                .parameterTypes(ImmutableList.<Class<?>>of(Boolean.TYPE))
+                .arguments(ImmutableList.<Object>of(false))
+                .throwableClass(OpenGammaRuntimeException.class)
+                .errorMessage("an exception")
+                .build()))
+        .build();
+
+    assertEquals(expected, trace);
+    System.out.println(trace.prettyPrint());
   }
 
   @Test

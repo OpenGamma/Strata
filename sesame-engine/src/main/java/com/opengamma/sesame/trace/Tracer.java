@@ -83,6 +83,6 @@ public abstract class Tracer {
    * 
    * @return the call graph root, null if not providing a call graph
    */
-  public abstract CallGraph getRoot();
+  public abstract CallGraphBuilder getRoot();
 
 }

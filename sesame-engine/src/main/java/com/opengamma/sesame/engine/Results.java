@@ -198,7 +198,7 @@ public final class Results implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the nonPortfolioResults.
+   * Gets arbitrary outputs that aren't calculated for a particular position or trade, e.g. a curve or surface.
    * @return the value of the property, not null
    */
   public Map<String, ResultItem> getNonPortfolioResults() {
@@ -390,6 +390,20 @@ public final class Results implements ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -851002990:  // columnNames
+          return _columnNames;
+        case 3506649:  // rows
+          return _rows;
+        case -1919647109:  // nonPortfolioResults
+          return _nonPortfolioResults;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {

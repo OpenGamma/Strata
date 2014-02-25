@@ -279,9 +279,9 @@ public class EngineTest {
                                                        traceCells,
                                                        Collections.<String>emptySet());
     Results results = view.run(cycleArguments);
-    CallGraph callGraph = results.get(0, 0).getCallGraph();
-    assertNotNull(callGraph);
-    System.out.println(callGraph.prettyPrint());
+    CallGraph trace = results.get(0, 0).getCallGraph();
+    assertNotNull(trace);
+    System.out.println(trace.prettyPrint());
   }
 
   @Test

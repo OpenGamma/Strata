@@ -40,7 +40,7 @@ final class NoOpTracer extends Tracer {
   }
 
   @Override
-  public CallGraph getRoot() {
+  public CallGraphBuilder getRoot() {
     return null;
   }
 

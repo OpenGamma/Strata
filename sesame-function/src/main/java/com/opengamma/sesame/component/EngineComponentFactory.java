@@ -243,6 +243,31 @@ public class EngineComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets for obtaining the live market data provider names.
+   * @return the value of the property
+   */
+  public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
+    return _liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Sets for obtaining the live market data provider names.
+   * @param liveMarketDataProviderFactory  the new value of the property
+   */
+  public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
+    this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Gets the the {@code liveMarketDataProviderFactory} property.
+   * @return the property, not null
+   */
+  public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+    return metaBean().liveMarketDataProviderFactory().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public EngineComponentFactory clone() {
     return (EngineComponentFactory) super.clone();
@@ -257,6 +282,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
       EngineComponentFactory other = (EngineComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           super.equals(obj);
     }
     return false;
@@ -267,12 +293,13 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("EngineComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -288,6 +315,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -311,12 +339,18 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
         this, "cacheManager", EngineComponentFactory.class, CacheManager.class);
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     */
+    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
+        this, "liveMarketDataProviderFactory", EngineComponentFactory.class, LiveMarketDataProviderFactory.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "cacheManager");
+        "cacheManager",
+        "liveMarketDataProviderFactory");
 
     /**
      * Restricted constructor.
@@ -331,6 +365,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
           return _classifier;
         case -1452875317:  // cacheManager
           return _cacheManager;
+        case -301472921:  // liveMarketDataProviderFactory
+          return _liveMarketDataProviderFactory;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -367,6 +403,14 @@ public class EngineComponentFactory extends AbstractComponentFactory {
       return _cacheManager;
     }
 
+    /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+      return _liveMarketDataProviderFactory;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -375,6 +419,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
           return ((EngineComponentFactory) bean).getClassifier();
         case -1452875317:  // cacheManager
           return ((EngineComponentFactory) bean).getCacheManager();
+        case -301472921:  // liveMarketDataProviderFactory
+          return ((EngineComponentFactory) bean).getLiveMarketDataProviderFactory();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -387,6 +433,9 @@ public class EngineComponentFactory extends AbstractComponentFactory {
           return;
         case -1452875317:  // cacheManager
           ((EngineComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case -301472921:  // liveMarketDataProviderFactory
+          ((EngineComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
