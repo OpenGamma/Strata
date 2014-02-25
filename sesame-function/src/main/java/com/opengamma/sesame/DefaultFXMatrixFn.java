@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Collection;
@@ -38,7 +40,9 @@ import com.opengamma.sesame.marketdata.MarketDataStatus;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.result.SuccessStatus;
 
 /**
@@ -168,11 +172,17 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         //note - currency matrix will ensure the spotRate returned is interpreted correctly,
         //depending on the order base and counter are specified in.
         MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(base, counter));
-        Result<MarketDataValues> marketDataResult = _marketDataFn.requestData(spotReqmt); //, valuationTime);
+        Result<MarketDataValues> marketDataResult = _marketDataFn.requestData(spotReqmt, valuationTime);
+        if (!marketDataResult.isValueAvailable()) {
+          return propagateFailure(marketDataResult);
+        }
         MarketDataValues marketDataValues = marketDataResult.getValue();
         if (marketDataValues.getStatus(spotReqmt) == MarketDataStatus.AVAILABLE) {
           double spotRate = (Double) marketDataValues.getValue(spotReqmt);
           matrix.addCurrency(counter, base, spotRate);
+        } else {
+          //logging an error/warning might be more appropriate here?
+          return failure(FailureStatus.MISSING_DATA, "Unable to source {} spot rate for date {} ", spotReqmt, valuationTime);
         }
       }
     }

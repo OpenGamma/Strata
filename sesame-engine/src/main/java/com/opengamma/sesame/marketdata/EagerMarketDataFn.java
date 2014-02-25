@@ -8,14 +8,16 @@ package com.opengamma.sesame.marketdata;
 import java.util.Collections;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.result.Result;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -92,7 +94,23 @@ public class EagerMarketDataFn implements MarketDataFn {
 
   @Override
   public Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime) {
-    return null;
+    //requests timeseries for a period of a single date, then plucks the result from the series.
+    MarketDataValuesResultBuilder resultBuilder = new MarketDataValuesResultBuilder();
+    getValueForDate(requirement, valuationTime, resultBuilder);
+    return resultBuilder.build();
+  }
+
+  private void getValueForDate(MarketDataRequirement requirement, ZonedDateTime valuationTime, MarketDataValuesResultBuilder resultBuilder) {
+    LocalDate singleDate = valuationTime.toLocalDate();
+    LocalDateRange dateRange = LocalDateRange.of(singleDate, singleDate, true);
+    MarketDataItem series = getSeries(requirement, dateRange);
+    if (series.isAvailable()) {
+      LocalDateDoubleTimeSeries ts = (LocalDateDoubleTimeSeries) series.getValue();
+      Double value = ts.getValue(singleDate);
+      resultBuilder.foundData(requirement, MarketDataItem.available(value));
+    } else {
+      resultBuilder.missingData(requirement, MarketDataStatus.UNAVAILABLE);
+    }
   }
 
   private MarketDataItem getSeries(MarketDataRequirement requirement, LocalDateRange dateRange) {
@@ -121,5 +139,14 @@ public class EagerMarketDataFn implements MarketDataFn {
   @Override
   public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
     return requestData(requirements, _rawDataSource.calculateDateRange(seriesPeriod));
+  }
+
+  @Override
+  public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime) {
+    MarketDataValuesResultBuilder builder = new MarketDataValuesResultBuilder();
+    for (MarketDataRequirement requirement : requirements) {
+      getValueForDate(requirement, valuationTime, builder);
+    }
+    return builder.build();
   }
 }

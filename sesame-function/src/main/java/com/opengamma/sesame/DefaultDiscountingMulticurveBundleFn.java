@@ -26,6 +26,7 @@ import java.util.Set;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.base.Joiner;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolatedAnchorNode;
@@ -96,6 +97,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
@@ -190,6 +192,9 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
     // todo - this implementation is nowhere near complete
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConfig, valuationTime);
+    if (!fxMatrixResult.isValueAvailable()) {
+      return propagateFailure(fxMatrixResult);
+    }
     Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime);
 
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
