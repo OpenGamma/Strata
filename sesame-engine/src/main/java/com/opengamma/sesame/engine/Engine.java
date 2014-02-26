@@ -157,6 +157,6 @@ public class Engine {
     Graph graph = graphModel.build(components);
     s_logger.debug("graph complete");
     return new View(viewDef, graph, inputs, _executor, marketDataFn, valuationTimeFn,
-                    components, _defaultConfig, decorator, cacheInvalidator);
+                    components, _defaultConfig, decorator, cacheInvalidator, graphModel);
   }
 }

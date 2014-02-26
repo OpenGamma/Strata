@@ -49,7 +49,9 @@ import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.function.InvokableFunction;
+import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.Graph;
+import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
@@ -81,6 +83,7 @@ public class View implements AutoCloseable {
   private final SourceListener _sourceListener = new SourceListener();
   private final Collection<ChangeManager> _changeManagers;
   private final List<String> _columnNames;
+  private final GraphModel _graphModel;
 
   // TODO this has too many parameters. does that matter? it's only called by the engine
   /* package */ View(ViewDef viewDef,
@@ -92,7 +95,9 @@ public class View implements AutoCloseable {
                      ComponentMap components,
                      FunctionModelConfig systemDefaultConfig,
                      NodeDecorator decorator,
-                     CacheInvalidator cacheInvalidator) {
+                     CacheInvalidator cacheInvalidator,
+                     GraphModel graphModel) {
+    _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");
     _viewDef = ArgumentChecker.notNull(viewDef, "viewDef");
     _inputs = ArgumentChecker.notNull(inputs, "inputs");
     _graph = ArgumentChecker.notNull(graph, "graph");
@@ -135,6 +140,27 @@ public class View implements AutoCloseable {
       }
     }
     return resultsBuilder.build();
+  }
+
+  /**
+   * Returns the {@link FunctionModel} of the function used to calculate the value in a column.
+   * @param columnName the name of the column
+   * @param inputType type of input (i.e. the security, trade or position type) for the row
+   * @return the function model or null if there isn't one for the specified input type
+   * @throws IllegalArgumentException if the column name isn't found
+   */
+  public FunctionModel getFunctionModel(String columnName, Class<?> inputType) {
+    return _graphModel.getFunctionModel(columnName, inputType);
+  }
+
+  /**
+   * Returns the {@link FunctionModel} of the function used to calculate a non-portfolio output.
+   * @param outputName The name of the output
+   * @return the function model
+   * @throws IllegalArgumentException if the output name isn't found
+   */
+  public FunctionModel getFunctionModel(String outputName) {
+    return _graphModel.getFunctionModel(outputName);
   }
 
   private List<Task> portfolioTasks(CycleArguments cycleArguments) {

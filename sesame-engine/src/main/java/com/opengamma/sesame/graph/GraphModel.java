@@ -87,4 +87,38 @@ public final class GraphModel {
 
     return new Graph(portfolioFunctions.build(), nonPortfolioFunctions.build());
   }
+
+  /**
+   * Returns the {@link FunctionModel} of the function used to calculate the value in a column.
+   * @param columnName the name of the column
+   * @param inputType type of input (i.e. the security, trade or position type) for the row
+   * @return the function model or null if there isn't one for the specified input type
+   * @throws IllegalArgumentException if the column name isn't found
+   */
+  public FunctionModel getFunctionModel(String columnName, Class<?> inputType) {
+    ArgumentChecker.notEmpty(columnName, "columnName");
+    Map<Class<?>, FunctionModel> columnFns = _portfolioFunctionModels.get(columnName);
+
+    if (columnFns == null) {
+      throw new IllegalArgumentException("There is no column named " + columnName);
+    } else {
+      return columnFns.get(inputType);
+    }
+  }
+
+  /**
+   * Returns the {@link FunctionModel} of the function used to calculate a non-portfolio output.
+   * @param outputName the name of the output
+   * @return the function model
+   * @throws IllegalArgumentException if the output name isn't found
+   */
+  public FunctionModel getFunctionModel(String outputName) {
+    FunctionModel model = _nonPortfolioFunctionModels.get(ArgumentChecker.notEmpty(outputName, "outputName"));
+
+    if (model == null) {
+      throw new IllegalArgumentException("There is no output named " + outputName);
+    } else {
+      return model;
+    }
+  }
 }
