@@ -109,7 +109,10 @@ public final class ConfigBuilder {
   }
 
   public static NonPortfolioOutput nonPortfolioOutput(String name, ViewOutput output) {
-    return new NonPortfolioOutput(name, output);
+    return NonPortfolioOutput.builder()
+        .name(name)
+        .output(output)
+        .build();
   }
 
   // TODO this is a bad name
@@ -120,25 +123,31 @@ public final class ConfigBuilder {
   }
 
   public static FunctionModelConfig config(Implementations implementations, Arguments arguments) {
-    return new SimpleFunctionModelConfig(implementations._implementations, arguments._arguments);
+    return createConfig(implementations._implementations, arguments._arguments);
   }
 
   public static FunctionModelConfig config() {
-    return new SimpleFunctionModelConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
+    return createConfig(EMPTY_OVERRIDES, EMPTY_ARGUMENTS);
   }
 
-
   public static FunctionModelConfig config(Implementations implementations) {
-    return new SimpleFunctionModelConfig(implementations._implementations, EMPTY_ARGUMENTS);
+    return createConfig(implementations._implementations, EMPTY_ARGUMENTS);
   }
 
   public static FunctionModelConfig config(Arguments arguments) {
-    return new SimpleFunctionModelConfig(EMPTY_OVERRIDES, arguments._arguments);
-
+    return createConfig(EMPTY_OVERRIDES, arguments._arguments);
   }
 
   public static FunctionModelConfig config(Arguments arguments, Implementations implementations) {
-    return new SimpleFunctionModelConfig(implementations._implementations, arguments._arguments);
+    return createConfig(implementations._implementations, arguments._arguments);
+  }
+
+  private static FunctionModelConfig createConfig(Map<Class<?>, Class<?>> implementations,
+                                                  Map<Class<?>, FunctionArguments> arguments) {
+    return SimpleFunctionModelConfig.builder()
+        .implementationOverrides(implementations)
+        .arguments(arguments)
+        .build();
   }
 
   // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
