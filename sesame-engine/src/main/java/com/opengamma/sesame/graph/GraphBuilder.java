@@ -22,7 +22,7 @@ import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
-import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.DefaultImplementationProvider;
@@ -60,16 +60,16 @@ public final class GraphBuilder {
    * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
    * in future.
    */
-  public GraphModel build(ViewDef viewDef, Collection<?> inputs) {
-    ArgumentChecker.notNull(viewDef, "viewDef");
+  public GraphModel build(ViewConfig viewConfig, Collection<?> inputs) {
+    ArgumentChecker.notNull(viewConfig, "viewConfig");
     ArgumentChecker.notNull(inputs, "inputs");
     ImmutableMap.Builder<String, Map<Class<?>, FunctionModel>> builder = ImmutableMap.builder();
     // TODO each column could easily be done in parallel
-    FunctionModelConfig viewConfig = viewDef.getDefaultConfig();
-    FunctionModelConfig defaultConfig = CompositeFunctionModelConfig.compose(viewConfig,
+    FunctionModelConfig modelConfig = viewConfig.getDefaultConfig();
+    FunctionModelConfig defaultConfig = CompositeFunctionModelConfig.compose(modelConfig,
                                                                              _defaultConfig,
                                                                              _defaultImplProvider);
-    for (ViewColumn column : viewDef.getColumns()) {
+    for (ViewColumn column : viewConfig.getColumns()) {
       Map<Class<?>, FunctionModel> functions = Maps.newHashMap();
       for (Object input : inputs) {
         // if we need to support stateful functions this is the place to do it.
@@ -126,7 +126,7 @@ public final class GraphBuilder {
 
     // build the function models for non-portfolio outputs
     ImmutableMap.Builder<String, FunctionModel> nonPortfolioFunctionModels = ImmutableMap.builder();
-    for (NonPortfolioOutput output : viewDef.getNonPortfolioOutputs()) {
+    for (NonPortfolioOutput output : viewConfig.getNonPortfolioOutputs()) {
       OutputName outputName = output.getOutput().getOutputName();
       FunctionMetadata function = _availableOutputs.getOutputFunction(outputName);
       FunctionModel functionModel;

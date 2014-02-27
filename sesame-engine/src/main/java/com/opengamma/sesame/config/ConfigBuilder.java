@@ -14,7 +14,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.sesame.OutputName;
 
 /**
- * Mini DSL for building instances of {@link ViewDef} and related classes in code.
+ * Mini DSL for building instances of {@link ViewConfig} and related classes in code.
  */
 public final class ConfigBuilder {
 
@@ -24,24 +24,27 @@ public final class ConfigBuilder {
   private ConfigBuilder() {
   }
 
-  public static ViewDef viewDef(String name, ViewColumn... columns) {
-    return new ViewDef(name, FunctionModelConfig.EMPTY, Arrays.asList(columns));
+  public static ViewConfig configureView(String name, ViewColumn... columns) {
+    return new ViewConfig(name, FunctionModelConfig.EMPTY, Arrays.asList(columns));
   }
 
-  public static ViewDef viewDef(String name, FunctionModelConfig defaultConfig, ViewColumn... columns) {
-    return new ViewDef(name, defaultConfig, Arrays.asList(columns));
+  public static ViewConfig configureView(String name, FunctionModelConfig defaultConfig, ViewColumn... columns) {
+    return new ViewConfig(name, defaultConfig, Arrays.asList(columns));
   }
 
-  public static ViewDef viewDef(String name, NonPortfolioOutput... nonPortfolioOutputs) {
-    return new ViewDef(name, FunctionModelConfig.EMPTY, Collections.<ViewColumn>emptyList(), Arrays.asList(nonPortfolioOutputs));
+  public static ViewConfig configureView(String name, NonPortfolioOutput... nonPortfolioOutputs) {
+    return new ViewConfig(name, FunctionModelConfig.EMPTY, Collections.<ViewColumn>emptyList(), Arrays.asList(nonPortfolioOutputs));
   }
 
-  public static ViewDef viewDef(String name, Columns columns, OtherOutputs otherOutputs) {
-    return new ViewDef(name, columns.getDefaultConfig(), columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
+  public static ViewConfig configureView(String name, Columns columns, OtherOutputs otherOutputs) {
+    return new ViewConfig(name, columns.getDefaultConfig(), columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
   }
 
-  public static ViewDef viewDef(String name, FunctionModelConfig defaultConfig, Columns columns, OtherOutputs otherOutputs) {
-    return new ViewDef(name, defaultConfig, columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
+  public static ViewConfig configureView(String name,
+                                         FunctionModelConfig defaultConfig,
+                                         Columns columns,
+                                         OtherOutputs otherOutputs) {
+    return new ViewConfig(name, defaultConfig, columns.getViewColumns(), otherOutputs.getNonPortfolioOutputs());
   }
 
   public static Columns columns(ViewColumn... columns) {

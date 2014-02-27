@@ -9,11 +9,11 @@ import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.JPY;
@@ -111,7 +111,7 @@ import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -277,29 +277,31 @@ public class FXForwardPVFnTest {
   //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void curveBundleOnly() throws IOException {
-    ViewDef viewDef =
-        viewDef("Curve Bundle only",
-                nonPortfolioOutput("Curve Bundle",
-                                   output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
-                                          config(
-                                              arguments(
-                                                  function(RootFinderConfiguration.class,
-                                                           argument("rootFinderAbsoluteTolerance", 1e-9),
-                                                           argument("rootFinderRelativeTolerance", 1e-9),
-                                                           argument("rootFinderMaxIterations", 1000)),
-                                                  function(DefaultCurrencyPairsFn.class,
-                                                           argument("currencyPairs",
-                                                                    ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                                    CurrencyPair.of(EUR, USD),
-                                                                                    CurrencyPair.of(GBP, USD)))),
-                                                  function(DefaultHistoricalTimeSeriesFn.class,
-                                                           argument("resolutionKey", "DEFAULT_TSS"),
-                                                           argument("htsRetrievalPeriod", Period.ofYears(1))),
-                                                  function(DefaultDiscountingMulticurveBundleFn.class,
-                                                           argument("impliedCurveNames", Collections.emptySet()),
-                                                           argument("curveConfig",
-                                                                    ConfigLink.of("Temple USD",
-                                                                                  CurveConstructionConfiguration.class))))))));
+    ViewConfig viewConfig =
+        configureView("Curve Bundle only",
+                  nonPortfolioOutput("Curve Bundle",
+                       output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
+                              config(
+                                  arguments(
+                                      function(RootFinderConfiguration.class,
+                                               argument("rootFinderAbsoluteTolerance", 1e-9),
+                                               argument("rootFinderRelativeTolerance", 1e-9),
+                                               argument("rootFinderMaxIterations", 1000)),
+                                      function(DefaultCurrencyPairsFn.class,
+                                               argument("currencyPairs",
+                                                        ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                                        CurrencyPair.of(EUR, USD),
+                                                                        CurrencyPair.of(GBP, USD)))),
+                                      function(DefaultHistoricalTimeSeriesFn.class,
+                                               argument("resolutionKey", "DEFAULT_TSS"),
+                                               argument("htsRetrievalPeriod",
+                                                        Period.ofYears(1))),
+                                      function(DefaultDiscountingMulticurveBundleFn.class,
+                                               argument("impliedCurveNames",
+                                                        Collections.emptySet()),
+                                               argument("curveConfig",
+                                                        ConfigLink.of("Temple USD",
+                                                                      CurveConstructionConfiguration.class))))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);
@@ -336,7 +338,7 @@ public class FXForwardPVFnTest {
                                FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
-    View view = viewFactory.createView(viewDef, Collections.emptyList());
+    View view = viewFactory.createView(viewConfig, Collections.emptyList());
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
     marketDataFn.resetMarketData(valuationTime, MarketdataResourcesLoader.getData(
@@ -370,27 +372,29 @@ public class FXForwardPVFnTest {
     }
     s_logger.info("created {} trades in {}ms", nTrades, System.currentTimeMillis() - startTrades);
     ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.of("Temple Exposure Config", ExposureFunctions.class);
-    ViewDef viewDef =
-        viewDef("FX forward PV view",
-                column("Present Value",
-                       output(OutputNames.FX_PRESENT_VALUE, FXForwardSecurity.class,
-                              config(
-                                  arguments(
-                                      function(ConfigDbMarketExposureSelectorFn.class,
-                                               argument("exposureConfig", exposureConfig)),
-                                      function(RootFinderConfiguration.class,
-                                               argument("rootFinderAbsoluteTolerance", 1e-9),
-                                               argument("rootFinderRelativeTolerance", 1e-9),
-                                               argument("rootFinderMaxIterations", 1000)),
-                                      function(DefaultCurrencyPairsFn.class,
-                                               argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                                         CurrencyPair.of(EUR, USD),
-                                                                                         CurrencyPair.of(GBP, USD)))),
-                                      function(DefaultHistoricalTimeSeriesFn.class,
-                                               argument("resolutionKey", "DEFAULT_TSS"),
-                                               argument("htsRetrievalPeriod", Period.ofYears(1))),
-                                      function(DefaultDiscountingMulticurveBundleFn.class,
-                                               argument("impliedCurveNames", Collections.emptySet())))))));
+    ViewConfig viewConfig =
+        configureView("FX forward PV view",
+                      column("Present Value",
+                             output(OutputNames.FX_PRESENT_VALUE, FXForwardSecurity.class,
+                                    config(
+                                        arguments(
+                                            function(ConfigDbMarketExposureSelectorFn.class,
+                                                     argument("exposureConfig", exposureConfig)),
+                                            function(RootFinderConfiguration.class,
+                                                     argument("rootFinderAbsoluteTolerance", 1e-9),
+                                                     argument("rootFinderRelativeTolerance", 1e-9),
+                                                     argument("rootFinderMaxIterations", 1000)),
+                                            function(DefaultCurrencyPairsFn.class,
+                                                     argument("currencyPairs",
+                                                              ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                                              CurrencyPair.of(EUR, USD),
+                                                                              CurrencyPair.of(GBP, USD)))),
+                                            function(DefaultHistoricalTimeSeriesFn.class,
+                                                     argument("resolutionKey", "DEFAULT_TSS"),
+                                                     argument("htsRetrievalPeriod", Period.ofYears(1))),
+                                            function(DefaultDiscountingMulticurveBundleFn.class,
+                                                     argument("impliedCurveNames",
+                                                              Collections.emptySet())))))));
 
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     String serverUrl = "http://devsvr-lx-2:8080";
@@ -439,7 +443,7 @@ public class FXForwardPVFnTest {
                                EnumSet.of(FunctionService.CACHING, FunctionService.TRACING));
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
-    View view = viewFactory.createView(viewDef, trades);
+    View view = viewFactory.createView(viewConfig, trades);
     s_logger.info("view built in {}ms", System.currentTimeMillis() - graphStart);
     //@SuppressWarnings("unchecked")
     //Set<Pair<Integer, Integer>> traceFunctions = Sets.newHashSet(Pairs.of(0, 0), Pairs.of(1, 0));

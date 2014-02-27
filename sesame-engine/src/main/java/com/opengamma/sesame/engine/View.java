@@ -30,7 +30,7 @@ import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
-import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.Graph;
@@ -52,7 +52,7 @@ public class View implements AutoCloseable {
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
 
   private final Graph _graph;
-  private final ViewDef _viewDef;
+  private final ViewConfig _viewConfig;
   private final List<?> _inputs;
   private final ExecutorService _executor;
   private final DelegatingMarketDataFn _marketDataFn;
@@ -67,7 +67,7 @@ public class View implements AutoCloseable {
   private final GraphModel _graphModel;
 
   // TODO this has too many parameters. does that matter? it's only called by the engine
-  /* package */ View(ViewDef viewDef,
+  /* package */ View(ViewConfig viewConfig,
                      Graph graph,
                      List<?> inputs,
                      ExecutorService executor,
@@ -82,7 +82,7 @@ public class View implements AutoCloseable {
                      Collection<ChangeManager> changeManagers) {
     _sourceListener = ArgumentChecker.notNull(sourceListener, "sourceListener");
     _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");
-    _viewDef = ArgumentChecker.notNull(viewDef, "viewDef");
+    _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _inputs = ArgumentChecker.notNull(inputs, "inputs");
     _graph = ArgumentChecker.notNull(graph, "graph");
     _executor = ArgumentChecker.notNull(executor, "executor");
@@ -93,7 +93,7 @@ public class View implements AutoCloseable {
     _decorator = ArgumentChecker.notNull(decorator, "decorator");
     _components = ArgumentChecker.notNull(components, "components");
     _changeManagers = ArgumentChecker.notNull(changeManagers, "changeManagers");
-    _columnNames = columnNames(_viewDef);
+    _columnNames = columnNames(_viewConfig);
   }
 
   /**
@@ -149,7 +149,7 @@ public class View implements AutoCloseable {
     // create tasks for the portfolio outputs
     int colIndex = 0;
     List<Task> portfolioTasks = Lists.newArrayList();
-    for (ViewColumn column : _viewDef.getColumns()) {
+    for (ViewColumn column : _viewConfig.getColumns()) {
       Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(column.getName());
       int rowIndex = 0;
       for (Object input : _inputs) {
@@ -169,7 +169,7 @@ public class View implements AutoCloseable {
           throw new OpenGammaRuntimeException("No function found for column " + column + " and " + input);
         }
         FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(column.getFunctionConfig(functionInput.getClass()),
-                                                                                       _viewDef.getDefaultConfig(),
+                                                                                       _viewConfig.getDefaultConfig(),
                                                                                        _systemDefaultConfig);
         FunctionArguments args = functionModelConfig.getFunctionArguments(function.getReceiver().getClass());
         Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(rowIndex, colIndex));
@@ -183,7 +183,7 @@ public class View implements AutoCloseable {
   // create tasks for the non-portfolio outputs
   private List<Task> nonPortfolioTasks(CycleArguments cycleArguments) {
     List<Task> tasks = Lists.newArrayList();
-    for (NonPortfolioOutput output : _viewDef.getNonPortfolioOutputs()) {
+    for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
       InvokableFunction function = _graph.getNonPortfolioFunction(output.getName());
       Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(output.getName()));
       FunctionModelConfig functionModelConfig = output.getOutput().getFunctionModelConfig();
@@ -192,9 +192,9 @@ public class View implements AutoCloseable {
     } return tasks;
   }
 
-  private static List<String> columnNames(ViewDef viewDef) {
-    List<String> columnNames = Lists.newArrayListWithCapacity(viewDef.getColumns().size());
-    for (ViewColumn column : viewDef.getColumns()) {
+  private static List<String> columnNames(ViewConfig viewConfig) {
+    List<String> columnNames = Lists.newArrayListWithCapacity(viewConfig.getColumns().size());
+    for (ViewColumn column : viewConfig.getColumns()) {
       String columnName = column.getName();
       columnNames.add(columnName);
     }

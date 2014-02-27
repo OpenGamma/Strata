@@ -8,6 +8,6 @@
  * <p>
  * The first step in using the engine is to define the output that is required
  * using the data structure in this package.
- * The root of the structure is {@link com.opengamma.sesame.config.ViewDef ViewDef}.
+ * The root of the structure is {@link com.opengamma.sesame.config.ViewConfig ViewConfig}.
  */
 package com.opengamma.sesame.config;

@@ -44,7 +44,7 @@ import com.opengamma.sesame.cache.source.CacheAwareHistoricalTimeSeriesSource;
 import com.opengamma.sesame.cache.source.CacheAwareRegionSource;
 import com.opengamma.sesame.cache.source.CacheAwareSecuritySource;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
@@ -112,8 +112,8 @@ public class ViewFactory {
    * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
    * in future.
    */
-  public View createView(ViewDef viewDef, List<?> inputs) {
-    return createView(viewDef, inputs, _defaultServices);
+  public View createView(ViewConfig viewConfig, List<?> inputs) {
+    return createView(viewConfig, inputs, _defaultServices);
   }
 
   /**
@@ -122,7 +122,7 @@ public class ViewFactory {
    * TODO parameter to allow arbitrary NodeDecorators to be passed in?
    * TODO should this logic be in View?
    */
-  public View createView(ViewDef viewDef, List<?> inputs, EnumSet<FunctionService> services) {
+  public View createView(ViewConfig viewConfig, List<?> inputs, EnumSet<FunctionService> services) {
     NodeDecorator decorator;
     CacheInvalidator cacheInvalidator;
 
@@ -172,14 +172,14 @@ public class ViewFactory {
                                                  components.getComponentTypes(),
                                                  _defaultConfig,
                                                  decorator);
-    GraphModel graphModel = graphBuilder.build(viewDef, inputs);
+    GraphModel graphModel = graphBuilder.build(viewConfig, inputs);
 
     s_logger.debug("graph model complete, building graph");
     Graph graph = graphModel.build(components);
     s_logger.debug("graph complete");
 
     Collection<ChangeManager> changeManagers = pair.getSecond();
-    return new View(viewDef, graph, inputs, _executor, marketDataFn, valuationTimeFn, components, _defaultConfig,
+    return new View(viewConfig, graph, inputs, _executor, marketDataFn, valuationTimeFn, components, _defaultConfig,
                     decorator, cacheInvalidator, graphModel, sourceListener, changeManagers);
   }
 

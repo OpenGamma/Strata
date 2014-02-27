@@ -9,11 +9,11 @@ import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.sesame.config.ConfigBuilder.viewDef;
 import static com.opengamma.util.money.Currency.AUD;
 import static com.opengamma.util.money.Currency.GBP;
 import static org.mockito.Mockito.mock;
@@ -54,7 +54,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.ViewDef;
+import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.example.CashFlowDescriptionFn;
 import com.opengamma.sesame.example.CashFlowIdDescriptionFn;
 import com.opengamma.sesame.example.DefaultCashFlowDescriptionFn;
@@ -104,17 +104,18 @@ public class ViewFactoryTest {
 
   @Test
   public void basicFunctionWithTrade() {
-    ViewDef viewDef =
-        viewDef("Trivial Test View",
-                column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
+    ViewConfig viewConfig =
+        configureView("Trivial Test View",
+                      column(DESCRIPTION_HEADER,
+                             output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                                    config(
+                                        implementations(EquityDescriptionFn.class,
+                                                        DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    View view = viewFactory.createView(viewDef, trades);
+    View view = viewFactory.createView(viewConfig, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -122,17 +123,18 @@ public class ViewFactoryTest {
 
   @Test
   public void basicFunctionWithSecurity() {
-    ViewDef viewDef =
-        viewDef("Trivial Test View",
-                column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
+    ViewConfig viewConfig =
+        configureView("Trivial Test View",
+                      column(DESCRIPTION_HEADER,
+                             output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                                    config(
+                                        implementations(EquityDescriptionFn.class,
+                                                        DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
-    View view = viewFactory.createView(viewDef, securities);
+    View view = viewFactory.createView(viewConfig, securities);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -140,11 +142,12 @@ public class ViewFactoryTest {
 
   @Test
   public void simpleFunctionWithMarketData() {
-    ViewDef viewDef =
-        viewDef("Equity PV",
-                column(PRESENT_VALUE_HEADER, OutputNames.PRESENT_VALUE,
-                       config(
-                           implementations(MockEquityPresentValueFn.class, MockEquityPresentValue.class))));
+    ViewConfig viewConfig =
+        configureView("Equity PV",
+                      column(PRESENT_VALUE_HEADER, OutputNames.PRESENT_VALUE,
+                             config(
+                                 implementations(MockEquityPresentValueFn.class,
+                                                 MockEquityPresentValue.class))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(MockEquityPresentValueFn.class);
@@ -171,7 +174,7 @@ public class ViewFactoryTest {
     marketDataProvider.resetMarketData(valuationTime, marketData);
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataProvider);
 
-    View view = viewFactory.createView(viewDef, trades);
+    View view = viewFactory.createView(viewConfig, trades);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, marketDataFactory);
     Results results = view.run(cycleArguments);
     assertEquals(123.45, results.get(0, 0).getResult().getValue());
@@ -180,17 +183,18 @@ public class ViewFactoryTest {
 
   @Test
   public void defaultColumnOutput() {
-    ViewDef viewDef =
-        viewDef("Trivial Test View",
-                column(DESCRIPTION_HEADER, OutputNames.DESCRIPTION,
-                       config(
-                           implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class))));
+    ViewConfig viewConfig =
+        configureView("Trivial Test View",
+                      column(DESCRIPTION_HEADER, OutputNames.DESCRIPTION,
+                             config(
+                                 implementations(EquityDescriptionFn.class,
+                                                 DefaultEquityDescriptionFn.class))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    View view = viewFactory.createView(viewDef, trades);
+    View view = viewFactory.createView(viewConfig, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -198,31 +202,35 @@ public class ViewFactoryTest {
 
   @Test
   public void overridesAndConfig() {
-    ViewDef viewDef =
-        viewDef("name",
-                column(OutputNames.DESCRIPTION),
-                column(BLOOMBERG_HEADER, OutputNames.DESCRIPTION,
-                       config(
-                           arguments(
-                               function(DefaultIdSchemeFn.class,
-                                        argument("scheme", ExternalSchemes.BLOOMBERG_TICKER)))),
-                       output(EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, EquityIdDescriptionFn.class))),
-                       output(CashFlowSecurity.class,
-                              config(
-                                  implementations(CashFlowDescriptionFn.class, CashFlowIdDescriptionFn.class)))),
-                column(ACTIV_HEADER, OutputNames.DESCRIPTION,
-                       config(
-                           arguments(
-                               function(DefaultIdSchemeFn.class,
-                                        argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))),
-                       output(EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, EquityIdDescriptionFn.class))),
-                       output(CashFlowSecurity.class,
-                              config(
-                                  implementations(CashFlowDescriptionFn.class, CashFlowIdDescriptionFn.class)))));
+    ViewConfig viewConfig =
+        configureView("name",
+                      column(OutputNames.DESCRIPTION),
+                      column(BLOOMBERG_HEADER, OutputNames.DESCRIPTION,
+                             config(
+                                 arguments(
+                                     function(DefaultIdSchemeFn.class,
+                                              argument("scheme", ExternalSchemes.BLOOMBERG_TICKER)))),
+                             output(EquitySecurity.class,
+                                    config(
+                                        implementations(EquityDescriptionFn.class,
+                                                        EquityIdDescriptionFn.class))),
+                             output(CashFlowSecurity.class,
+                                    config(
+                                        implementations(CashFlowDescriptionFn.class,
+                                                        CashFlowIdDescriptionFn.class)))),
+                      column(ACTIV_HEADER, OutputNames.DESCRIPTION,
+                             config(
+                                 arguments(
+                                     function(DefaultIdSchemeFn.class,
+                                              argument("scheme", ExternalSchemes.ACTIVFEED_TICKER)))),
+                             output(EquitySecurity.class,
+                                    config(
+                                        implementations(EquityDescriptionFn.class,
+                                                        EquityIdDescriptionFn.class))),
+                             output(CashFlowSecurity.class,
+                                    config(
+                                        implementations(CashFlowDescriptionFn.class,
+                                                        CashFlowIdDescriptionFn.class)))));
 
     FunctionModelConfig defaultConfig = config(implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class,
                                                           CashFlowDescriptionFn.class, DefaultCashFlowDescriptionFn.class));
@@ -238,7 +246,7 @@ public class ViewFactoryTest {
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
-    View view = viewFactory.createView(viewDef, trades);
+    View view = viewFactory.createView(viewConfig, trades);
     Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFactory()));
 
     assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
@@ -254,12 +262,13 @@ public class ViewFactoryTest {
 
   @Test
   public void portfolioOutputsCallTracing() {
-    ViewDef viewDef =
-        viewDef("Trivial Test View",
-                column(DESCRIPTION_HEADER,
-                       output(OutputNames.DESCRIPTION, EquitySecurity.class,
-                              config(
-                                  implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class)))));
+    ViewConfig viewConfig =
+        configureView("Trivial Test View",
+                      column(DESCRIPTION_HEADER,
+                             output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                                    config(
+                                        implementations(EquityDescriptionFn.class,
+                                                        DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
@@ -270,7 +279,7 @@ public class ViewFactoryTest {
                                CacheManager.getInstance(),
                                EnumSet.of(FunctionService.TRACING));
     List<Trade> trades = ImmutableList.of(createEquityTrade());
-    View view = viewFactory.createView(viewDef, trades);
+    View view = viewFactory.createView(viewConfig, trades);
     @SuppressWarnings("unchecked")
     Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
@@ -287,9 +296,9 @@ public class ViewFactoryTest {
   @Test
   public void nonPortfolioOutputWithNoArgs() {
     String name = "the unique output name";
-    ViewDef viewDef =
-        viewDef("Non portfolio output with no args",
-                nonPortfolioOutput(name, output("Foo")));
+    ViewConfig viewConfig =
+        configureView("Non portfolio output with no args",
+                      nonPortfolioOutput(name, output("Foo")));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(NonPortfolioFunctionWithNoArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
@@ -301,7 +310,7 @@ public class ViewFactoryTest {
                                FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
-    View view = viewFactory.createView(viewDef, Collections.emptyList());
+    View view = viewFactory.createView(viewConfig, Collections.emptyList());
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        mockMarketDataFactory(),
                                                        VersionCorrection.LATEST,
@@ -317,14 +326,14 @@ public class ViewFactoryTest {
   @Test
   public void nonPortfolioOutputWithArgs() {
     String name = "the unique output name";
-    ViewDef viewDef =
-        viewDef("Non portfolio output with args",
-                nonPortfolioOutput(name,
-                                   output("Foo",
-                                          config(
-                                              arguments(
-                                                  function(NonPortfolioFunctionWithArgsImpl.class,
-                                                           argument("notTheTarget", "bar")))))));
+    ViewConfig viewConfig =
+        configureView("Non portfolio output with args",
+                      nonPortfolioOutput(name,
+                                         output("Foo",
+                                                config(
+                                                    arguments(
+                                                        function(NonPortfolioFunctionWithArgsImpl.class,
+                                                                 argument("notTheTarget", "bar")))))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(NonPortfolioFunctionWithArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
@@ -336,7 +345,7 @@ public class ViewFactoryTest {
                                FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
-    View view = viewFactory.createView(viewDef, Collections.emptyList());
+    View view = viewFactory.createView(viewConfig, Collections.emptyList());
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        mockMarketDataFactory(),
                                                        VersionCorrection.LATEST,
@@ -352,9 +361,9 @@ public class ViewFactoryTest {
   @Test
   public void nonPortfolioOutputsCallTracing() {
     String name = "the unique output name";
-    ViewDef viewDef =
-        viewDef("Non portfolio output with no args",
-                nonPortfolioOutput(name, output("Foo")));
+    ViewConfig viewConfig =
+        configureView("Non portfolio output with no args",
+                      nonPortfolioOutput(name, output("Foo")));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(NonPortfolioFunctionWithNoArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
@@ -366,7 +375,7 @@ public class ViewFactoryTest {
                                FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.of(FunctionService.TRACING));
-    View view = viewFactory.createView(viewDef, Collections.emptyList());
+    View view = viewFactory.createView(viewConfig, Collections.emptyList());
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        mockMarketDataFactory(),
                                                        VersionCorrection.LATEST,
