@@ -34,6 +34,8 @@ public class SnapshotRawMarketDataSource extends AbstractRawMarketDataSource {
   private static final Logger s_logger = LoggerFactory.getLogger(SnapshotRawMarketDataSource.class);
   
   private final UnstructuredMarketDataSnapshot _snapshot;
+  
+  // REVIEW jonathan 2014-02-27 -- this is only here because of the methods which take a Period, and these should be removed anyway
   private final ValuationTimeFn _valuationTimeFn;
 
   public SnapshotRawMarketDataSource(MarketDataSnapshotSource snapshotSource,
