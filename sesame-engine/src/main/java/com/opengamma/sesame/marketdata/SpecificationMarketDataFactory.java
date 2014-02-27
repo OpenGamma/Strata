@@ -40,26 +40,26 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
   @Override
   public MarketDataFn create(ComponentMap components) {
     ConfigSource configSource = components.getComponent(ConfigSource.class);
-    RawMarketDataSource rawDataSource = createRawDataSource(components);
+    RawMarketDataSource rawDataSource = createRawDataSource(components, _marketDataSpecification);
     return new EagerMarketDataFn(rawDataSource, configSource, "BloombergLiveData");
   }
 
-  private RawMarketDataSource createRawDataSource(ComponentMap components) {
+  public static RawMarketDataSource createRawDataSource(ComponentMap components, MarketDataSpecification marketDataSpec) {
     // TODO use time series rating instead of hard coding the data source and field
     HistoricalTimeSeriesSource timeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
-    if (_marketDataSpecification instanceof FixedHistoricalMarketDataSpecification) {
-      LocalDate date = ((FixedHistoricalMarketDataSpecification) _marketDataSpecification).getSnapshotDate();
+    if (marketDataSpec instanceof FixedHistoricalMarketDataSpecification) {
+      LocalDate date = ((FixedHistoricalMarketDataSpecification) marketDataSpec).getSnapshotDate();
       return new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
-    } else if (_marketDataSpecification instanceof UserMarketDataSpecification) {
+    } else if (marketDataSpec instanceof UserMarketDataSpecification) {
       MarketDataSnapshotSource snapshotSource = components.getComponent(MarketDataSnapshotSource.class);
-      UniqueId snapshotId = ((UserMarketDataSpecification) _marketDataSpecification).getUserSnapshotId();
+      UniqueId snapshotId = ((UserMarketDataSpecification) marketDataSpec).getUserSnapshotId();
       ValuationTimeFn valuationTimeFn = components.getComponent(ValuationTimeFn.class);
       return new SnapshotRawMarketDataSource(snapshotSource, snapshotId, timeSeriesSource, valuationTimeFn, "BLOOMBERG", "Market_Value");
-    } else if (_marketDataSpecification instanceof LiveMarketDataSpecification) {
+    } else if (marketDataSpec instanceof LiveMarketDataSpecification) {
       LiveDataClient liveDataClient = components.getComponent(LiveDataClient.class);
       return new ResettableLiveRawMarketDataSource(new LiveDataManager(liveDataClient));
     } else {
-      throw new IllegalArgumentException("Unexpected spec type " + _marketDataSpecification);
+      throw new IllegalArgumentException("Unexpected spec type " + marketDataSpec);
     }
   }
 

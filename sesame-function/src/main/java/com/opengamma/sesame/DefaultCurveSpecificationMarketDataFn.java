@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.ZonedDateTime;
-
 import com.google.common.collect.Maps;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
@@ -40,26 +38,19 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
    */
   private final MarketDataFn _marketDataFn;
 
-  /**
-   * Valuation time provider
-   */
-  private final ValuationTimeFn _valuationTimeProvider;
-
-  public DefaultCurveSpecificationMarketDataFn(MarketDataFn marketDataFn, ValuationTimeFn valuationTimeProvider) {
+  public DefaultCurveSpecificationMarketDataFn(MarketDataFn marketDataFn) {
     _marketDataFn = marketDataFn;
-    _valuationTimeProvider = valuationTimeProvider;
   }
 
   @Override
   public Result<MarketDataValues> requestData(CurveSpecification curveSpecification) {
-    ZonedDateTime time = _valuationTimeProvider.getTime();
-    return requestData(curveSpecification, time);
+    return requestData(curveSpecification, _marketDataFn);
   }
 
   //-------------------------------------------------------------------------
 
   @Override
-  public Result<MarketDataValues> requestData(CurveSpecification curveSpecification, ZonedDateTime valuationTime) {
+  public Result<MarketDataValues> requestData(CurveSpecification curveSpecification, MarketDataFn marketDataFn) {
     // TODO we're looping over the set of nodes twice, do it in one go? not sure that's possible
     Set<MarketDataRequirement> requirements = new HashSet<>();
     for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
@@ -70,7 +61,7 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
         requirements.add(new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(), node.getUnderlyingDataField()));
       }
     }
-    Result<MarketDataValues> result = _marketDataFn.requestData(requirements, valuationTime);
+    Result<MarketDataValues> result = marketDataFn.requestData(requirements);
     if (!result.isValueAvailable()) {
       return propagateFailure(result);
     }

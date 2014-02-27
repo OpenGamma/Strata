@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalScheme;
@@ -94,12 +93,7 @@ public class ProxyGeneratorTest {
       public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
         throw new RuntimeException(message);
       }
-
-      @Override
-      public Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime) {
-        throw new RuntimeException(message);
-      }
-
+      
       @Override
       public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
         throw new RuntimeException(message);
@@ -126,10 +120,6 @@ public class ProxyGeneratorTest {
         throw new RuntimeException(message);
       }
 
-      @Override
-      public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime) {
-        throw new RuntimeException(message);
-      }
     };
 
     try {
