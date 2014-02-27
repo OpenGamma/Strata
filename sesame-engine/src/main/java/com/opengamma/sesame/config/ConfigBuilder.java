@@ -112,10 +112,7 @@ public final class ConfigBuilder {
   }
 
   public static NonPortfolioOutput nonPortfolioOutput(String name, ViewOutput output) {
-    return NonPortfolioOutput.builder()
-        .name(name)
-        .output(output)
-        .build();
+    return new NonPortfolioOutput(name, output);
   }
 
   // TODO this is a bad name
@@ -147,10 +144,7 @@ public final class ConfigBuilder {
 
   private static FunctionModelConfig createConfig(Map<Class<?>, Class<?>> implementations,
                                                   Map<Class<?>, FunctionArguments> arguments) {
-    return SimpleFunctionModelConfig.builder()
-        .implementationOverrides(implementations)
-        .arguments(arguments)
-        .build();
+    return new SimpleFunctionModelConfig(implementations, arguments);
   }
 
   // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
