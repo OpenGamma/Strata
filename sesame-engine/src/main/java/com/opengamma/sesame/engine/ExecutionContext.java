@@ -141,14 +141,5 @@ import com.opengamma.util.time.LocalDateRange;
       return getContext()._marketDataFn.requestData(requirements, seriesPeriod);
     }
 
-    @Override
-    public Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime) {
-      return getContext()._marketDataFn.requestData(requirement, valuationTime);
-    }
-
-    @Override
-    public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime) {
-      return getContext()._marketDataFn.requestData(requirements, valuationTime);
-    }
   }
 }

@@ -36,6 +36,7 @@ public interface ResettableMarketDataFn extends MarketDataFn {
    */
   Set<MarketDataRequirement> getCollectedRequests();
 
+  // REVIEW jonathan 2014-02-27 -- market data should have no concept of a 'valuation time'.
   /**
    * Reset the data about which requests have been made and the market availability data. The latter
    * will be replaced by the data passed in.

@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import static com.opengamma.util.result.ResultGenerator.map;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +17,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -49,26 +46,12 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
   private final Set<MarketDataRequirement> _marketDataRequests =
       Collections.newSetFromMap(new ConcurrentHashMap<MarketDataRequirement, Boolean>());
 
+  // REVIEW jonathan 2014-02-27 -- market data should have no concept of a 'valuation time'.
   private ZonedDateTime _valuationTime;
 
   @Override
   public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
     return requestData(ImmutableSet.of(requirement));
-  }
-
-  @Override
-  public Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime) {
-    final LocalDate valuationDate = valuationTime.toLocalDate();
-    final Result<MarketDataSeries> marketDataSeriesResult = requestData(ImmutableSet.of(requirement),
-                                                                        LocalDateRange.of(valuationDate,
-                                                                                          valuationDate,
-                                                                                          true));
-    return map(marketDataSeriesResult, new ResultGenerator.ResultMapper<MarketDataSeries, MarketDataValues>() {
-      @Override
-      public Result<MarketDataValues> map(MarketDataSeries result) {
-        return null; //success(result.getOnlySeries().getValue(valuationDate));
-      }
-    });
   }
 
   @Override
@@ -133,11 +116,4 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
     _requestedMarketData.putAll(replacementData);
   }
 
-  @Override
-  public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime) {
-    if (!valuationTime.equals(_valuationTime)) {
-      throw new IllegalStateException("Passed valuation time " + valuationTime + " not equal to internal valuation time " + _valuationTime);
-    }
-    return requestData(requirements);
-  }
 }

@@ -30,6 +30,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -45,13 +47,14 @@ import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataFnFactory;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
@@ -75,6 +78,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
   private final CurveSpecificationFn _curveSpecificationFunction;
   private final CurrencyPairsFn _currencyPairsFn;
+  private final MarketDataFnFactory _marketDataFnFactory;
 
   // todo - this is only a temporary solution to determine the implied deposit curves
   private final Set<String> _impliedCurveNames;
@@ -92,6 +96,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                              final CurveSpecificationFn curveSpecificationFunction,
                                              final CurrencyPairsFn currencyPairsFn,
+                                             final MarketDataFnFactory marketDataFnFactory,
                                              final Set<String> impliedCurveNames,
                                              final ValuationTimeFn valuationTimeFn,
                                              final DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
@@ -104,6 +109,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
+    _marketDataFnFactory = marketDataFnFactory;
     _impliedCurveNames = impliedCurveNames;
     _valuationTimeFn = valuationTimeFn;
     _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
@@ -117,14 +123,15 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                              final CurveSpecificationFn curveSpecificationFunction,
                                              final CurrencyPairsFn currencyPairsFn,
+                                             final MarketDataFnFactory marketDataFnFactory,
                                              final Set<String> impliedCurveNames,
                                              final ValuationTimeFn valuationTimeFn,
                                              final DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
                                              final Period seriesPeriod) {
     this(calculatorProvider, curveDefinition,
          curveConfig, Optional.<Currency>absent(), fxReturnSeriesProvider,
-        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, impliedCurveNames, valuationTimeFn,
-        discountingMulticurveBundleFn, seriesPeriod);
+        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, marketDataFnFactory,
+        impliedCurveNames, valuationTimeFn, discountingMulticurveBundleFn, seriesPeriod);
   }
 
   @Override
@@ -168,10 +175,12 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
       // todo - how do we adjust for holidays?
       for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-
+        MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(date);
+        MarketDataFn marketDataFn = _marketDataFnFactory.create(marketDataSpec);
+        
         // build multicurve for the date
         Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =
-            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(_curveConfig, date.atStartOfDay(ZoneOffset.UTC));
+            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(_curveConfig, date.atStartOfDay(ZoneOffset.UTC), marketDataFn);
 
         if (result.isValueAvailable()) {
           Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> resultValue = result.getValue();

@@ -8,7 +8,6 @@ package com.opengamma.sesame.marketdata;
 import java.util.Set;
 
 import org.threeten.bp.Period;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
@@ -30,18 +29,6 @@ public interface MarketDataFn {
   Result<MarketDataValues> requestData(MarketDataRequirement requirement);
 
   /**
-   * Request a single item of market data.
-   *
-   * @param requirement the item of market data being requested
-   * @param valuationTime the valuation time for the market data (which may necessitate
-   * retrieving it from a historical source)
-   * @return a result object containing an indication of whether the data is (currently)
-   * available and the value if it is.
-   */
-  Result<MarketDataValues> requestData(MarketDataRequirement requirement, ZonedDateTime valuationTime);
-
-
-  /**
    * Request multiple items of market data.
    *
    * @param requirements the items of market data being requested
@@ -50,22 +37,17 @@ public interface MarketDataFn {
    */
   Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements);
 
-  /**
-   * Request multiple items of market data.
-   *
-   * @param requirements the items of market data being requested
-   * @param valuationTime the valuation time for the market data (which may necessitate
-   * retrieval from a historical source)
-   * @return a result object containing an indication of whether each item of data is (currently)
-   * available and the value if it is.
-   */
-  Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements, ZonedDateTime valuationTime);
-
-  Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
+  // REVIEW jonathan 2014-02-27 -- the methods above and below here feel like two different concepts which should be
+  // separated - those below always imply historical data access whereas those above could source data from any
+  // consistent snapshot.
+  // Perhaps need to move those below to an interface like HistoricalMarketDataFn. Functions can then depend on this to
+  // access historical data, while using the same MarketDataRequirements to describe the data.
+    Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
 
   Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
 
   Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod);
 
   Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod);
+
 }

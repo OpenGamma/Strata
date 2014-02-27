@@ -24,11 +24,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataValues;
-import com.opengamma.sesame.marketdata.ResettableMarketDataFn;
 import com.opengamma.util.test.TestGroup;
 
 

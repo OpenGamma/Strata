@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.threeten.bp.ZonedDateTime;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.core.config.ConfigSource;
@@ -42,8 +40,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
-import com.opengamma.util.result.SuccessStatus;
 
 /**
  * Function implementation that provides a FX matrix.
@@ -67,10 +63,6 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
    */
   private final MarketDataFn _marketDataFn;
   /**
-   * The valuation time function.
-   */
-  private final ValuationTimeFn _valuationTimeFn;
-  /**
    * The config source.
    */
   private final ConfigSource _configSource;
@@ -79,14 +71,12 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
                            ConventionSource conventionSource,
                            SecuritySource securitySource,
                            CurrencyPairsFn currencyPairsFn,
-                           MarketDataFn marketDataFn,
-                           ValuationTimeFn valuationTimeFn) {
+                           MarketDataFn marketDataFn) {
     _configSource = ArgumentChecker.notNull(configSource, "configSource");
     _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
     _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
     _currencyPairsFn = ArgumentChecker.notNull(currencyPairsFn, "currencyPairsFunction");
     _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataProviderFunction");
-    _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
   }
 
   //-------------------------------------------------------------------------
@@ -143,19 +133,19 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
 
   @Override
   public Result<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration,
-                                      ZonedDateTime valuationTime) {
+                                      MarketDataFn marketDataFn) {
 
     // todo - should this actually be another function or set of functions
     final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource, _securitySource));
-    return buildResult(currencies, valuationTime);
+    return buildResult(currencies, marketDataFn);
   }
 
   @Override
   public Result<FXMatrix> getFXMatrix(Set<Currency> currencies) {
-    return buildResult(currencies, _valuationTimeFn.getTime());
+    return buildResult(currencies, _marketDataFn);
   }
 
-  private Result<FXMatrix> buildResult(Set<Currency> currencies, ZonedDateTime valuationTime) {
+  private Result<FXMatrix> buildResult(Set<Currency> currencies, MarketDataFn marketDataFn) {
     // todo - if we don't have all the data, do we return a partial/empty fx matrix or an error, doing the latter
 
     final FXMatrix matrix = new FXMatrix();
@@ -172,7 +162,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         //note - currency matrix will ensure the spotRate returned is interpreted correctly,
         //depending on the order base and counter are specified in.
         MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(base, counter));
-        Result<MarketDataValues> marketDataResult = _marketDataFn.requestData(spotReqmt, valuationTime);
+        Result<MarketDataValues> marketDataResult = marketDataFn.requestData(spotReqmt);
         if (!marketDataResult.isValueAvailable()) {
           return propagateFailure(marketDataResult);
         }
@@ -182,7 +172,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
           matrix.addCurrency(counter, base, spotRate);
         } else {
           //logging an error/warning might be more appropriate here?
-          return failure(FailureStatus.MISSING_DATA, "Unable to source {} spot rate for date {} ", spotReqmt, valuationTime);
+          return failure(FailureStatus.MISSING_DATA, "Unable to source {} spot rate using market data function {} ", spotReqmt, marketDataFn);
         }
       }
     }

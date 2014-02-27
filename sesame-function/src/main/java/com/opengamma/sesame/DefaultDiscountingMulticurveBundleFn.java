@@ -26,7 +26,6 @@ import java.util.Set;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.base.Joiner;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolatedAnchorNode;
@@ -91,13 +90,12 @@ import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
@@ -115,6 +113,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private final ValuationTimeFn _valuationTimeProvider;
   private final FXMatrixFn _fxMatrixProvider;
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
+  private final MarketDataFn _marketDataFn;
 
   private final SecuritySource _securitySource;
   private final ConventionSource _conventionSource;
@@ -137,6 +136,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                               ValuationTimeFn valuationTimeProvider,
                                               FXMatrixFn fxMatrixProvider,
                                               HistoricalTimeSeriesFn historicalTimeSeriesProvider,
+                                              MarketDataFn marketDataFn,
                                               SecuritySource securitySource,
                                               ConventionSource conventionSource,
                                               HolidaySource holidaySource,
@@ -150,6 +150,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     _valuationTimeProvider = valuationTimeProvider;
     _fxMatrixProvider = fxMatrixProvider;
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+    _marketDataFn = marketDataFn;
     _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
@@ -163,11 +164,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
       CurveConstructionConfiguration curveConfig) {
 
-    return generateBundle(curveConfig, _valuationTimeProvider.getTime());
+    return generateBundle(curveConfig, _valuationTimeProvider.getTime(), _marketDataFn);
   }
 
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
-      CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime) {
+      CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime, MarketDataFn marketDataFn) {
 
     // Each curve config may have one or more exogenous requirements which basically should
     // point to another curve config (which may point to one or more configs ...)
@@ -180,22 +181,22 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
     // todo check for cycles in the config
 
-    Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConfig, valuationTime);
-    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime);
-    return getCurves(curveConfig, exogenousBundles, fxMatrixResult, valuationTime);
+    Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConfig, marketDataFn);
+    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime, marketDataFn);
+    return getCurves(curveConfig, exogenousBundles, fxMatrixResult, valuationTime, marketDataFn);
 
   }
 
   @Override
   public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
-      CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime) {
+      CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime, MarketDataFn marketDataFn) {
 
     // todo - this implementation is nowhere near complete
-    Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConfig, valuationTime);
+    Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConfig, marketDataFn);
     if (!fxMatrixResult.isValueAvailable()) {
       return propagateFailure(fxMatrixResult);
     }
-    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime);
+    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime, marketDataFn);
 
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
     Map.Entry<String, List<? extends CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
@@ -256,7 +257,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> getCurves(
       CurveConstructionConfiguration config,
       Result<MulticurveProviderDiscount> exogenousBundle,
-      Result<FXMatrix> fxMatrixResult, ZonedDateTime valuationTime) {
+      Result<FXMatrix> fxMatrixResult, ZonedDateTime valuationTime, MarketDataFn marketDataFn) {
 
     final int nGroups = config.getCurveGroups().size();
 
@@ -305,8 +306,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               }
             }
 
-            singleCurves[j] = buildImpliedDepositCurve(currency, curve, exogenousBundle.getValue(),
-                                                         valuationTime);
+            singleCurves[j] = buildImpliedDepositCurve(currency, curve, exogenousBundle.getValue(), valuationTime);
             // todo note we do this below as well, refactor it to be common
             discountingMap.put(curveName, currency);
 
@@ -324,7 +324,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
             // todo - this lookup is not needed for all curves but we get it for all, can we restrict so we only get it when we need it?
             final Result<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurve(
                 specification, valuationTime.toLocalDate());
-            Result<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification, valuationTime);
+            Result<MarketDataValues> marketDataResult = _curveSpecificationMarketDataProvider.requestData(specification, marketDataFn);
 
             // Only proceed if we have all market data values available to us
             if (htsResult.isValueAvailable() && fxMatrixResult.isValueAvailable() &&
@@ -435,11 +435,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private SingleCurveBundle<GeneratorYDCurve> buildImpliedDepositCurve(Currency currency,
                                                                        CurveDefinition impliedCurveDefinition,
                                                                        MulticurveProviderDiscount multicurves,
-                                                                       ZonedDateTime valuationDate) {
+                                                                       ZonedDateTime valuationTime) {
 
     Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> data =
-        extractImpliedDepositCurveData(currency, impliedCurveDefinition, multicurves, valuationDate);
-    GeneratorYDCurve generator = getGenerator(impliedCurveDefinition, valuationDate.toLocalDate());
+        extractImpliedDepositCurveData(currency, impliedCurveDefinition, multicurves, valuationTime);
+    GeneratorYDCurve generator = getGenerator(impliedCurveDefinition, valuationTime.toLocalDate());
     List<InstrumentDerivative> instrumentDerivatives = data.getThird();
     return new SingleCurveBundle<>(impliedCurveDefinition.getName(),
                                    instrumentDerivatives.toArray(new InstrumentDerivative[instrumentDerivatives.size()]),
@@ -457,7 +457,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private InstrumentDerivative[] extractInstrumentDerivatives(CurveSpecification specification,
                                                               SnapshotDataBundle snapshot,
                                                               HistoricalTimeSeriesBundle htsBundle,
-                                                              FXMatrix fxMatrix, ZonedDateTime valuationDate) {
+                                                              FXMatrix fxMatrix, ZonedDateTime valuationTime) {
 
     Set<CurveNodeWithIdentifier> nodes = specification.getNodes();
     final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nodes.size()];
@@ -466,11 +466,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     for (final CurveNodeWithIdentifier node : nodes) {
 
       final InstrumentDefinition<?> definitionForNode =
-          node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationDate, fxMatrix));
+          node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationTime, fxMatrix));
 
       // todo - we may need to allow the node converter implementation to be changed
       derivativesForCurve[i] =
-          (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, valuationDate, htsBundle);
+          (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, valuationTime, htsBundle);
       i++;
     }
 
@@ -505,7 +505,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
   private Result<MulticurveProviderDiscount> buildExogenousBundles(CurveConstructionConfiguration curveConfig,
                                                                            Result<FXMatrix> fxMatrixResult,
-                                                                           ZonedDateTime valuationTime) {
+                                                                           ZonedDateTime valuationTime,
+                                                                           MarketDataFn marketDataFn) {
 
     ResultStatus exogenousStatus = SuccessStatus.SUCCESS;
     Set<MulticurveProviderDiscount> exogenousBundles = new HashSet<>();
@@ -513,7 +514,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     for (CurveConstructionConfiguration exogenousConfig : curveConfig.resolveCurveConfigurations()) {
 
       Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-          generateBundle(exogenousConfig, valuationTime);
+          generateBundle(exogenousConfig, valuationTime, marketDataFn);
 
       if (bundleResult.getStatus().isResultAvailable()) {
         exogenousBundles.add(bundleResult.getValue().getFirst());
