@@ -14,8 +14,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.sesame.OutputName;
 
 /**
- * Mini DSL for building instances of {@link ViewDef} and related classes in code. See the
- * {@link #main} method for an example.
+ * Mini DSL for building instances of {@link ViewDef} and related classes in code.
  */
 public final class ConfigBuilder {
 
@@ -24,11 +23,6 @@ public final class ConfigBuilder {
 
   private ConfigBuilder() {
   }
-
-  // TODO alternative viewDef overloads
-  //   * taking portfolio and non-portfolio outputs - probably need a wrapper class for each set of configs
-  //   * taking only non-portfolio outputs
-  // TODO NonPortfolioOutput class, name and ViewOutput fields
 
   public static ViewDef viewDef(String name, ViewColumn... columns) {
     return new ViewDef(name, FunctionModelConfig.EMPTY, Arrays.asList(columns));

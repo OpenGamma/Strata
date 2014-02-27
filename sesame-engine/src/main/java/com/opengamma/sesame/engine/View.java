@@ -9,9 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -20,28 +18,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.ChangeType;
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.PositionOrTrade;
-import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.cache.CacheInvalidator;
-import com.opengamma.sesame.cache.source.CacheAwareConfigSource;
-import com.opengamma.sesame.cache.source.CacheAwareConventionSource;
-import com.opengamma.sesame.cache.source.CacheAwareHistoricalTimeSeriesSource;
-import com.opengamma.sesame.cache.source.CacheAwareRegionSource;
-import com.opengamma.sesame.cache.source.CacheAwareSecuritySource;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -60,8 +43,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -80,7 +61,7 @@ public class View implements AutoCloseable {
   private final FunctionModelConfig _systemDefaultConfig;
   private final NodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
-  private final SourceListener _sourceListener = new SourceListener();
+  private final Engine.SourceListener _sourceListener;
   private final Collection<ChangeManager> _changeManagers;
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
@@ -96,7 +77,10 @@ public class View implements AutoCloseable {
                      FunctionModelConfig systemDefaultConfig,
                      NodeDecorator decorator,
                      CacheInvalidator cacheInvalidator,
-                     GraphModel graphModel) {
+                     GraphModel graphModel,
+                     Engine.SourceListener sourceListener,
+                     Collection<ChangeManager> changeManagers) {
+    _sourceListener = ArgumentChecker.notNull(sourceListener, "sourceListener");
     _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");
     _viewDef = ArgumentChecker.notNull(viewDef, "viewDef");
     _inputs = ArgumentChecker.notNull(inputs, "inputs");
@@ -107,10 +91,8 @@ public class View implements AutoCloseable {
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
     _decorator = ArgumentChecker.notNull(decorator, "decorator");
-    Pair<ComponentMap, Collection<ChangeManager>> pair =
-        decorateSources(ArgumentChecker.notNull(components, "components"), _cacheInvalidator, _sourceListener);
-    _components = pair.getFirst();
-    _changeManagers = pair.getSecond();
+    _components = ArgumentChecker.notNull(components, "components");
+    _changeManagers = ArgumentChecker.notNull(changeManagers, "changeManagers");
     _columnNames = columnNames(_viewDef);
   }
 
@@ -252,62 +234,6 @@ public class View implements AutoCloseable {
     }
   }
 
-  /**
-   * Decorates the sources with cache aware versions that invalidate cache entries when the data changes.
-   * The returned component map contains the cache aware sources in place of the originals.
-   * The returns collection contains the change managers for all decorated sources. This allows listeners to
-   * be removed when the view closes and prevents a resource leak.
-   * @param components Platform components used by functions
-   * @param cacheInvalidator For registering dependencies between values in the cache and the values used to calculate them
-   * @param sourceListener Listens for changes in items in the database
-   * @return A map of components containing the decorated sources instead of the originals, and a collection of
-   * change managers which had a listener added to them
-   */
-  private Pair<ComponentMap, Collection<ChangeManager>> decorateSources(ComponentMap components,
-                                                                        CacheInvalidator cacheInvalidator,
-                                                                        SourceListener sourceListener) {
-    Map<Class<?>, Object> sources = Maps.newHashMap();
-    // need to record which ChangeManagers we're listening to so we can remove the listeners and avoid leaks
-    Collection<ChangeManager> changeManagers = Lists.newArrayList();
-
-    ConfigSource configSource = components.findComponent(ConfigSource.class);
-    if (configSource != null) {
-      changeManagers.add(configSource.changeManager());
-      sources.put(ConfigSource.class, new CacheAwareConfigSource(configSource, cacheInvalidator));
-    }
-
-    RegionSource regionSource = components.findComponent(RegionSource.class);
-    if (regionSource != null) {
-      changeManagers.add(regionSource.changeManager());
-      sources.put(RegionSource.class, new CacheAwareRegionSource(regionSource, cacheInvalidator));
-    }
-
-    SecuritySource securitySource = components.findComponent(SecuritySource.class);
-    if (securitySource != null) {
-      changeManagers.add(securitySource.changeManager());
-      sources.put(SecuritySource.class, new CacheAwareSecuritySource(securitySource, cacheInvalidator));
-    }
-
-    ConventionSource conventionSource = components.findComponent(ConventionSource.class);
-    if (conventionSource != null) {
-      changeManagers.add(conventionSource.changeManager());
-      sources.put(ConventionSource.class, new CacheAwareConventionSource(conventionSource, cacheInvalidator));
-    }
-
-    HistoricalTimeSeriesSource timeSeriesSource = components.findComponent(HistoricalTimeSeriesSource.class);
-    if (timeSeriesSource != null) {
-      changeManagers.add(timeSeriesSource.changeManager());
-      sources.put(HistoricalTimeSeriesSource.class, new CacheAwareHistoricalTimeSeriesSource(timeSeriesSource, cacheInvalidator));
-    }
-
-    // TODO HolidaySource (which has a horrible design WRT decorating)
-
-    for (ChangeManager changeManager : changeManagers) {
-      changeManager.addChangeListener(sourceListener);
-    }
-    return Pairs.of(components, changeManagers);
-  }
-
   // TODO run() variants that take:
   //   1) cycle and listener (for multiple execution)
   //   2) listener (for single async or infinite execution)
@@ -409,33 +335,6 @@ public class View implements AutoCloseable {
           resultBuilder.add(_outputValueName, result, callGraph);
         }
       };
-    }
-  }
-
-  //----------------------------------------------------------
-  /**
-   * Listens to sources and records the IDs of any objects that are updated or removed.
-   * This information is used to invalidate cache entries between cycles. Cached values are discarded if they were
-   * calculated using objects that have since been updated.
-   */
-  private static class SourceListener implements ChangeListener {
-
-    private final Queue<ObjectId> _ids = new ConcurrentLinkedQueue<>();
-
-    @Override
-    public void entityChanged(ChangeEvent event) {
-      if (event.getType() == ChangeType.ADDED) {
-        return;
-      }
-      _ids.add(event.getObjectId());
-    }
-
-    private Collection<ObjectId> getIds() {
-      return _ids;
-    }
-
-    private void clear() {
-      _ids.clear();
     }
   }
 }
