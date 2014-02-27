@@ -12,7 +12,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.hamcrest.Matchers.closeTo;
 
 import java.io.IOException;
 
@@ -131,7 +131,7 @@ public class FRAFnTest {
     assertThat(resultPV.isValueAvailable(), is((true)));
 
     MultipleCurrencyAmount mca = resultPV.getValue();
-    assertEquals(EXPECTED_PV, mca.getCurrencyAmount(Currency.USD).getAmount(), STD_TOLERANCE_PV);
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
   }
 
   @Test
@@ -140,7 +140,7 @@ public class FRAFnTest {
     assertThat(resultParRate.isValueAvailable(), is((true)));
 
     Double parRate = resultParRate.getValue();
-    assertEquals(EXPECTED_PAR_RATE, parRate, STD_TOLERANCE_RATE);
+    assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
   }
 
   private FRASecurity createSingleFra() {
