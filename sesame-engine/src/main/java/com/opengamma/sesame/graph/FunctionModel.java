@@ -22,7 +22,7 @@ import com.opengamma.core.link.Link;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -40,7 +40,12 @@ import com.opengamma.sesame.function.Parameter;
  * An error node can be added if there is a problem.
  */
 public final class FunctionModel {
-// TODO joda bean? needs to be serializable along with all Node subclasses.
+
+  // TODO replace Set<Class<?>> component types with AvailableComponents
+  // TODO wrap FunctionModelConfig and AvailableComponents in a class for easier decoration by scenarios. name?
+  // TODO wrap FunctionModelConfig and ComponentMap in a class for easier decoration by scenarios. name?
+  // TODO do scenarios need to add additional proxies too?
+  // TODO should scenarios build the function models rather than decorating the config and components?
 
   /**
    * A set of ineligible types.
@@ -48,18 +53,13 @@ public final class FunctionModel {
   private static final Set<Class<?>> INELIGIBLE_TYPES =
       Sets.<Class<?>>newHashSet(UniqueId.class, ExternalId.class, ExternalIdBundle.class);
 
-  /**
-   * The root node.
-   */
+  /** The root node of the tree of functions and dependencies. */
   private final Node _root;
-  /**
-   * The function meta-data.
-   */
+
+  /** The function meta-data for the root function. */
   private final FunctionMetadata _rootMetadata;
 
   /**
-   * Creates an instance.
-   * 
    * @param root  the root node, not null
    * @param rootMetadata  the meta-data, not null
    */
@@ -261,7 +261,7 @@ public final class FunctionModel {
       return new ErrorNode(type, e, parameter);
     }
 
-    List<Parameter> constructorParameters = EngineFunctionUtils.getParameters(constructor);
+    List<Parameter> constructorParameters = EngineUtils.getParameters(constructor);
     List<Node> constructorArguments = Lists.newArrayListWithCapacity(constructorParameters.size());
 
     for (Parameter constructorParameter : constructorParameters) {
@@ -321,7 +321,7 @@ public final class FunctionModel {
    */
   private static Constructor<?> getConstructor(Class<?> type, List<Parameter> path) {
     try {
-      return EngineFunctionUtils.getConstructor(type);
+      return EngineUtils.getConstructor(type);
     } catch (IllegalArgumentException ex) {
       throw new NoSuitableConstructorException(path, "No suitable constructor: " + type.getName());
     }
