@@ -69,7 +69,9 @@ import com.opengamma.util.result.ResultGenerator;
     } catch (IllegalAccessException e) {
       throw new OpenGammaRuntimeException("Unable to access method", e);
     } catch (InvocationTargetException e) {
-      return ResultGenerator.failure(e);
+      Exception cause;
+      cause = e.getCause() != null && e.getCause() instanceof Exception ? (Exception) e.getCause() : e;
+      return ResultGenerator.failure(cause);
     }
   }
 
