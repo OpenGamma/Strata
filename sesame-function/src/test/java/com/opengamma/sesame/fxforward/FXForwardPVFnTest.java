@@ -109,17 +109,17 @@ import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.EngineService;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
+import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
+import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
@@ -161,7 +161,7 @@ public class FXForwardPVFnTest {
 
   @Test
   public void buildGraph() {
-    FunctionMetadata calculatePV = EngineFunctionUtils.createMetadata(FXForwardPVFn.class, "calculatePV");
+    FunctionMetadata calculatePV = EngineUtils.createMetadata(FXForwardPVFn.class, "calculatePV");
     FunctionModelConfig config = createFunctionConfig();
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
@@ -329,14 +329,14 @@ public class FXForwardPVFnTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    Engine engine = new Engine(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
                                componentMap,
                                availableOutputs,
                                availableImplementations,
                                FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
-                               EnumSet.noneOf(EngineService.class));
-    View view = engine.createView(viewDef, Collections.emptyList());
+                               EnumSet.noneOf(FunctionService.class));
+    View view = viewFactory.createView(viewDef, Collections.emptyList());
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
     marketDataFn.resetMarketData(valuationTime, MarketdataResourcesLoader.getData(
@@ -430,16 +430,16 @@ public class FXForwardPVFnTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    Engine engine = new Engine(executor,
+    ViewFactory viewFactory = new ViewFactory(executor,
                                componentMap,
                                availableOutputs,
                                availableImplementations,
                                FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
-                               EnumSet.of(EngineService.CACHING, EngineService.TRACING));
+                               EnumSet.of(FunctionService.CACHING, FunctionService.TRACING));
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
-    View view = engine.createView(viewDef, trades);
+    View view = viewFactory.createView(viewDef, trades);
     s_logger.info("view built in {}ms", System.currentTimeMillis() - graphStart);
     //@SuppressWarnings("unchecked")
     //Set<Pair<Integer, Integer>> traceFunctions = Sets.newHashSet(Pairs.of(0, 0), Pairs.of(1, 0));

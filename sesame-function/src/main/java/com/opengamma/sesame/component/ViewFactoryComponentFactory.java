@@ -45,9 +45,9 @@ import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.EngineService;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
+import com.opengamma.sesame.engine.FunctionService;
+import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
@@ -62,7 +62,7 @@ import net.sf.ehcache.CacheManager;
  * Component factory for the engine.
  */
 @BeanDefinition
-public class EngineComponentFactory extends AbstractComponentFactory {
+public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -75,15 +75,11 @@ public class EngineComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private CacheManager _cacheManager;
-
-
   /**
    * For obtaining the live market data provider names.
    */
   @PropertyDefinition
   private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
-
-
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -101,17 +97,17 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     AvailableOutputs availableOutputs = initAvailableOutputs();
     AvailableImplementations availableImplementations = initAvailableImplementations();
 
-    Engine engine = new Engine(executor,
-                               componentMap,
-                               availableOutputs,
-                               availableImplementations,
-                               FunctionModelConfig.EMPTY,
-                               getCacheManager(),
-                               //EnumSet.of(EngineService.CACHING, EngineService.TIMING));
-                               EngineService.DEFAULT_SERVICES);
+    ViewFactory viewFactory = new ViewFactory(executor,
+                                              componentMap,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              getCacheManager(),
+                                              //EnumSet.of(EngineService.CACHING, EngineService.TIMING));
+                                              FunctionService.DEFAULT_SERVICES);
 
-    ComponentInfo engineInfo = new ComponentInfo(Engine.class, getClassifier());
-    repo.registerComponent(engineInfo, engine);
+    ComponentInfo engineInfo = new ComponentInfo(ViewFactory.class, getClassifier());
+    repo.registerComponent(engineInfo, viewFactory);
 
     ComponentInfo outputsInfo = new ComponentInfo(AvailableOutputs.class, getClassifier());
     repo.registerComponent(outputsInfo, availableOutputs);
@@ -177,17 +173,17 @@ public class EngineComponentFactory extends AbstractComponentFactory {
    * The meta-bean for {@code EngineComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static EngineComponentFactory.Meta meta() {
-    return EngineComponentFactory.Meta.INSTANCE;
+  public static ViewFactoryComponentFactory.Meta meta() {
+    return ViewFactoryComponentFactory.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(EngineComponentFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ViewFactoryComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public EngineComponentFactory.Meta metaBean() {
-    return EngineComponentFactory.Meta.INSTANCE;
+  public ViewFactoryComponentFactory.Meta metaBean() {
+    return ViewFactoryComponentFactory.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -269,8 +265,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   @Override
-  public EngineComponentFactory clone() {
-    return (EngineComponentFactory) super.clone();
+  public ViewFactoryComponentFactory clone() {
+    return (ViewFactoryComponentFactory) super.clone();
   }
 
   @Override
@@ -279,7 +275,7 @@ public class EngineComponentFactory extends AbstractComponentFactory {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      EngineComponentFactory other = (EngineComponentFactory) obj;
+      ViewFactoryComponentFactory other = (ViewFactoryComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
@@ -332,17 +328,17 @@ public class EngineComponentFactory extends AbstractComponentFactory {
      * The meta-property for the {@code classifier} property.
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", EngineComponentFactory.class, String.class);
+        this, "classifier", ViewFactoryComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code cacheManager} property.
      */
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
-        this, "cacheManager", EngineComponentFactory.class, CacheManager.class);
+        this, "cacheManager", ViewFactoryComponentFactory.class, CacheManager.class);
     /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
      */
     private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
-        this, "liveMarketDataProviderFactory", EngineComponentFactory.class, LiveMarketDataProviderFactory.class);
+        this, "liveMarketDataProviderFactory", ViewFactoryComponentFactory.class, LiveMarketDataProviderFactory.class);
     /**
      * The meta-properties.
      */
@@ -372,13 +368,13 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     }
 
     @Override
-    public BeanBuilder<? extends EngineComponentFactory> builder() {
-      return new DirectBeanBuilder<EngineComponentFactory>(new EngineComponentFactory());
+    public BeanBuilder<? extends ViewFactoryComponentFactory> builder() {
+      return new DirectBeanBuilder<ViewFactoryComponentFactory>(new ViewFactoryComponentFactory());
     }
 
     @Override
-    public Class<? extends EngineComponentFactory> beanType() {
-      return EngineComponentFactory.class;
+    public Class<? extends ViewFactoryComponentFactory> beanType() {
+      return ViewFactoryComponentFactory.class;
     }
 
     @Override
@@ -416,11 +412,11 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
-          return ((EngineComponentFactory) bean).getClassifier();
+          return ((ViewFactoryComponentFactory) bean).getClassifier();
         case -1452875317:  // cacheManager
-          return ((EngineComponentFactory) bean).getCacheManager();
+          return ((ViewFactoryComponentFactory) bean).getCacheManager();
         case -301472921:  // liveMarketDataProviderFactory
-          return ((EngineComponentFactory) bean).getLiveMarketDataProviderFactory();
+          return ((ViewFactoryComponentFactory) bean).getLiveMarketDataProviderFactory();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -429,13 +425,13 @@ public class EngineComponentFactory extends AbstractComponentFactory {
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
-          ((EngineComponentFactory) bean).setClassifier((String) newValue);
+          ((ViewFactoryComponentFactory) bean).setClassifier((String) newValue);
           return;
         case -1452875317:  // cacheManager
-          ((EngineComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          ((ViewFactoryComponentFactory) bean).setCacheManager((CacheManager) newValue);
           return;
         case -301472921:  // liveMarketDataProviderFactory
-          ((EngineComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
+          ((ViewFactoryComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -443,8 +439,8 @@ public class EngineComponentFactory extends AbstractComponentFactory {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((EngineComponentFactory) bean)._classifier, "classifier");
-      JodaBeanUtils.notNull(((EngineComponentFactory) bean)._cacheManager, "cacheManager");
+      JodaBeanUtils.notNull(((ViewFactoryComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((ViewFactoryComponentFactory) bean)._cacheManager, "cacheManager");
       super.validate(bean);
     }
 

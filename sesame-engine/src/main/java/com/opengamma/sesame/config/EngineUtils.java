@@ -35,7 +35,7 @@ import com.thoughtworks.paranamer.PositionalParanamer;
 /**
  * Utilities to assist working with functions in the calculation engine.
  */
-public final class EngineFunctionUtils {
+public final class EngineUtils {
 
   /**
    * Cache of the results of {@link #getSupertypes}.
@@ -56,7 +56,7 @@ public final class EngineFunctionUtils {
   /**
    * Restricted constructor.
    */
-  private EngineFunctionUtils() {
+  private EngineUtils() {
   }
 
   //-------------------------------------------------------------------------
@@ -80,8 +80,7 @@ public final class EngineFunctionUtils {
     }
     // one constructor
     if (constructors.length == 1) {
-      Constructor<T> constructor = (Constructor<T>) constructors[0];
-      return constructor;
+      return constructors[0];
     }
     // many constructors
     Constructor<T> injectableConstructor = null;

@@ -89,7 +89,7 @@ import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -124,7 +124,7 @@ public class FXForwardPnlSeriesFunctionTest {
 
   @Test
   public void buildGraph() {
-    FunctionMetadata calculatePnl = EngineFunctionUtils.createMetadata(FXForwardPnLSeriesFn.class, "calculatePnlSeries");
+    FunctionMetadata calculatePnl = EngineUtils.createMetadata(FXForwardPnLSeriesFn.class, "calculatePnlSeries");
     FunctionModelConfig config = createFunctionConfig();
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,

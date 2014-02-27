@@ -70,12 +70,12 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewDef;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
-import com.opengamma.sesame.engine.Engine;
-import com.opengamma.sesame.engine.EngineService;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
+import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
+import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
@@ -146,15 +146,15 @@ public class CurveBuildingIntegrationTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    Engine engine = new Engine(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
                                componentMap,
                                availableOutputs,
                                availableImplementations,
                                FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
-                               EnumSet.noneOf(EngineService.class));
+                               EnumSet.noneOf(FunctionService.class));
 
-    View view = engine.createView(viewDef, Collections.emptyList());
+    View view = viewFactory.createView(viewDef, Collections.emptyList());
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
     ResettableLiveRawMarketDataSource rawDataSource = buildRawDataSource();

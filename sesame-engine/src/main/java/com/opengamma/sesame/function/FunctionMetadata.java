@@ -15,7 +15,7 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.OutputName;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -68,7 +68,7 @@ public class FunctionMetadata {
 
   private static Pair<Map<String, Parameter>, Parameter> getParameters(Method method, Set<Class<?>> inputTypes) {
     Map<String, Parameter> parameterMap = Maps.newHashMap();
-    List<Parameter> parameters = EngineFunctionUtils.getParameters(method);
+    List<Parameter> parameters = EngineUtils.getParameters(method);
     Parameter inputParameter = null;
     params: for (Parameter parameter : parameters) {
       parameterMap.put(parameter.getName(), parameter);
@@ -90,7 +90,7 @@ public class FunctionMetadata {
   
   public InvokableFunction getInvokableFunction(Object receiver) {
     // receiver might be a proxy. we need the real object so we can get the parameter names from the bytecode
-    Object realReceiver = EngineFunctionUtils.getProxiedObject(receiver);
+    Object realReceiver = EngineUtils.getProxiedObject(receiver);
     if (_method.getDeclaringClass().isInterface()) {
       Class<?> receiverClass = realReceiver.getClass();
       Method method;

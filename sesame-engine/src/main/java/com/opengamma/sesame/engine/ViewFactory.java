@@ -65,38 +65,38 @@ import net.sf.ehcache.CacheManager;
  * TODO does the engine actually need to exist? all it does is store a couple of fields and create a view
  * could the views be created directly? or should it just be renamed ViewFactory?
  */
-public class Engine {
+public class ViewFactory {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(Engine.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewFactory.class);
 
   private final ExecutorService _executor;
   private final ComponentMap _components;
   private final AvailableOutputs _availableOutputs;
   private final AvailableImplementations _availableImplementations;
-  private final EnumSet<EngineService> _defaultServices;
+  private final EnumSet<FunctionService> _defaultServices;
   private final CacheManager _cacheManager;
   private final FunctionModelConfig _defaultConfig;
 
-  /* package */ Engine(ExecutorService executor,
-                       AvailableOutputs availableOutputs,
-                       AvailableImplementations availableImplementations) {
+  /* package */ ViewFactory(ExecutorService executor,
+                            AvailableOutputs availableOutputs,
+                            AvailableImplementations availableImplementations) {
     this(executor,
          ComponentMap.EMPTY,
          availableOutputs,
          availableImplementations,
          FunctionModelConfig.EMPTY,
          CacheManager.getInstance(),
-         EngineService.DEFAULT_SERVICES);
+         FunctionService.DEFAULT_SERVICES);
   }
 
   // TODO parameter to allow arbitrary NodeDecorators to be passed in?
-  public Engine(ExecutorService executor,
-                ComponentMap components,
-                AvailableOutputs availableOutputs,
-                AvailableImplementations availableImplementations,
-                FunctionModelConfig defaultConfig,
-                CacheManager cacheManager,
-                EnumSet<EngineService> defaultServices) {
+  public ViewFactory(ExecutorService executor,
+                     ComponentMap components,
+                     AvailableOutputs availableOutputs,
+                     AvailableImplementations availableImplementations,
+                     FunctionModelConfig defaultConfig,
+                     CacheManager cacheManager,
+                     EnumSet<FunctionService> defaultServices) {
     _availableOutputs = ArgumentChecker.notNull(availableOutputs, "availableOutputs");
     _availableImplementations = ArgumentChecker.notNull(availableImplementations, "availableImplementations");
     _defaultServices = ArgumentChecker.notNull(defaultServices, "defaultServices");
@@ -122,7 +122,7 @@ public class Engine {
    * TODO parameter to allow arbitrary NodeDecorators to be passed in?
    * TODO should this logic be in View?
    */
-  public View createView(ViewDef viewDef, List<?> inputs, EnumSet<EngineService> services) {
+  public View createView(ViewDef viewDef, List<?> inputs, EnumSet<FunctionService> services) {
     NodeDecorator decorator;
     CacheInvalidator cacheInvalidator;
 
@@ -131,7 +131,7 @@ public class Engine {
       cacheInvalidator = new NoOpCacheInvalidator();
     } else {
       List<NodeDecorator> decorators = Lists.newArrayListWithCapacity(services.size());
-      if (services.contains(EngineService.CACHING)) {
+      if (services.contains(FunctionService.CACHING)) {
         ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
         CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, executingMethods);
         decorators.add(cachingDecorator);
@@ -139,10 +139,10 @@ public class Engine {
       } else {
         cacheInvalidator = new NoOpCacheInvalidator();
       }
-      if (services.contains(EngineService.TIMING)) {
+      if (services.contains(FunctionService.TIMING)) {
         decorators.add(TimingProxy.INSTANCE);
       }
-      if (services.contains(EngineService.TRACING)) {
+      if (services.contains(FunctionService.TRACING)) {
         decorators.add(TracingProxy.INSTANCE);
       }
       decorator = CompositeNodeDecorator.compose(decorators);

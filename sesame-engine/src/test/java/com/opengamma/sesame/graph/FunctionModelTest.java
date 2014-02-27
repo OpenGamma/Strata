@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -37,7 +37,7 @@ import com.opengamma.util.test.TestGroup;
 public class FunctionModelTest {
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
-  private static final FunctionMetadata METADATA = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
+  private static final FunctionMetadata METADATA = EngineUtils.createMetadata(TestFn.class, "foo");
 
   @Test
   public void basicImpl() {
@@ -72,14 +72,14 @@ public class FunctionModelTest {
 
   @Test
   public void concreteTypes() {
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(Concrete1.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(Concrete1.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
     Concrete1 fn = (Concrete1) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertNotNull(fn._concrete);
   }
 
   public void provider() {
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(PrivateConstructor.class, "getName");
+    FunctionMetadata metadata = EngineUtils.createMetadata(PrivateConstructor.class, "getName");
     String providerName = "the provider name";
     FunctionModelConfig config = config(implementations(PrivateConstructor.class, PrivateConstructorProvider.class),
                                    arguments(
@@ -147,7 +147,7 @@ public class FunctionModelTest {
 
   @Test
   public void noVisibleConstructors() {
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(PrivateConstructor.class, "getName");
+    FunctionMetadata metadata = EngineUtils.createMetadata(PrivateConstructor.class, "getName");
     FunctionModelConfig config = config(arguments(function(PrivateConstructor.class, argument("name", "the name"))));
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
     assertFalse(functionModel.isValid());
@@ -162,7 +162,7 @@ public class FunctionModelTest {
 
   @Test
   public void multipleInjectableConstructors() {
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(NoSuitableConstructor.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(NoSuitableConstructor.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
     assertFalse(functionModel.isValid());
   }

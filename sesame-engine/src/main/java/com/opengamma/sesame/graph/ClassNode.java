@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
@@ -44,7 +44,7 @@ public class ClassNode extends DependentNode {
   ClassNode(Class<?> type, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
     super(type, parameter, arguments);
     _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
-    _constructor = EngineFunctionUtils.getConstructor(_implementationType);
+    _constructor = EngineUtils.getConstructor(_implementationType);
   }
 
   //-------------------------------------------------------------------------

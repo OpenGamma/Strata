@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 
 /**
  *
@@ -52,7 +52,7 @@ public class AvailableImplementationsImpl implements AvailableImplementations {
       if (type.isInterface() || type.isPrimitive()) {
         return;
       }
-      Set<Class<?>> interfaces = EngineFunctionUtils.getInterfaces(type);
+      Set<Class<?>> interfaces = EngineUtils.getInterfaces(type);
       for (Class<?> iface : interfaces) {
         _interfaceToImplementations.put(iface, type);
       }

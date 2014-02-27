@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -30,7 +30,7 @@ public class ProxyNodeTest {
   public void proxy() {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class));
     Decorator nodeDecorator = new Decorator();
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, ComponentMap.EMPTY.getComponentTypes(), nodeDecorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertEquals(Lists.newArrayList("proxied", "foo"), fn.foo());

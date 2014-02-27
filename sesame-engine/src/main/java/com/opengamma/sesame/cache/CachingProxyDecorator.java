@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -74,8 +74,8 @@ public class CachingProxyDecorator
       implementationType = ((ProxyNode) node).getImplementationType();
       interfaceType = ((ProxyNode) node).getType();
     }
-    if (EngineFunctionUtils.hasMethodAnnotation(interfaceType, Cacheable.class) ||
-        EngineFunctionUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
+    if (EngineUtils.hasMethodAnnotation(interfaceType, Cacheable.class) ||
+        EngineUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
       CachingHandlerFactory handlerFactory = new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods);
       return createProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
@@ -124,7 +124,7 @@ public class CachingProxyDecorator
           // the proxy will always see the interface method. no point caching the instance method
           // need to go up the inheritance hierarchy and find all interface methods implemented by this method
           // and cache those
-          for (Class<?> iface : EngineFunctionUtils.getInterfaces(_implementationType)) {
+          for (Class<?> iface : EngineUtils.getInterfaces(_implementationType)) {
             try {
               Method ifaceMethod = iface.getMethod(method.getName(), method.getParameterTypes());
               cachedMethods.add(ifaceMethod);
@@ -186,7 +186,7 @@ public class CachingProxyDecorator
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
       _cachedMethods = ArgumentChecker.notNull(cachedMethods, "cachedMethods");
-      _proxiedObject = EngineFunctionUtils.getProxiedObject(delegate);
+      _proxiedObject = EngineUtils.getProxiedObject(delegate);
     }
 
     @SuppressWarnings("unchecked")

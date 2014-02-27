@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -58,10 +58,10 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
-    Method foo = EngineFunctionUtils.getMethod(TestFn.class, "foo");
+    Method foo = EngineUtils.getMethod(TestFn.class, "foo");
     CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
     Impl delegate = (Impl) invocationHandler.getDelegate();
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
@@ -80,7 +80,7 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionBuilder functionBuilder = new FunctionBuilder();
 
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
@@ -101,7 +101,7 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertSame(fn.foo("bar"), fn.foo("bar"));
@@ -113,7 +113,7 @@ public class CachingProxyDecoratorTest {
                                          arguments(function(Impl.class, argument("s", "a string"))));
     FunctionModelConfig config2 = config(implementations(TestFn.class, Impl.class),
                                          arguments(function(Impl.class, argument("s", "a different string"))));
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
@@ -217,7 +217,7 @@ public class CachingProxyDecoratorTest {
                                                          DelegateFn.class, Delegate1.class),
                                          arguments(function(Delegate1.class, argument("s", "a different string")))
     );
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TopLevelFn.class, "fn");
+    FunctionMetadata metadata = EngineUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
@@ -245,7 +245,7 @@ public class CachingProxyDecoratorTest {
                                                          DelegateFn.class, Delegate2.class),
                                          arguments(function(Delegate2.class, argument("s", "a string")))
     );
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TopLevelFn.class, "fn");
+    FunctionMetadata metadata = EngineUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
@@ -264,10 +264,10 @@ public class CachingProxyDecoratorTest {
   public void annotationOnClass() throws Exception {
     FunctionModelConfig config = config(implementations(TestFn2.class, Impl2.class));
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(TestFn2.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn2 fn = (TestFn2) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
-    Method foo = EngineFunctionUtils.getMethod(TestFn2.class, "foo");
+    Method foo = EngineUtils.getMethod(TestFn2.class, "foo");
     CachingProxyDecorator.Handler invocationHandler = (CachingProxyDecorator.Handler) Proxy.getInvocationHandler(fn);
     Impl2 delegate = (Impl2) invocationHandler.getDelegate();
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
@@ -331,7 +331,7 @@ public class CachingProxyDecoratorTest {
 
     @Override
     public Object fn(String s, int i) {
-      Method fn = EngineFunctionUtils.getMethod(ExecutingMethodsI1.class, "fn");
+      Method fn = EngineUtils.getMethod(ExecutingMethodsI1.class, "fn");
       MethodInvocationKey key = new MethodInvocationKey(this, fn, new Object[]{s, i});
       LinkedList<MethodInvocationKey> expected = Lists.newLinkedList();
       expected.add(key);
@@ -360,9 +360,9 @@ public class CachingProxyDecoratorTest {
 
     @Override
     public Object fn(String s, int i, String s2) {
-      Method fn1 = EngineFunctionUtils.getMethod(ExecutingMethodsI1.class, "fn");
+      Method fn1 = EngineUtils.getMethod(ExecutingMethodsI1.class, "fn");
       MethodInvocationKey key1 = new MethodInvocationKey(_c1, fn1, new Object[]{s, i});
-      Method fn2 = EngineFunctionUtils.getMethod(ExecutingMethodsI2.class, "fn");
+      Method fn2 = EngineUtils.getMethod(ExecutingMethodsI2.class, "fn");
       MethodInvocationKey key2 = new MethodInvocationKey(this, fn2, new Object[]{s, i, s2});
       LinkedList<MethodInvocationKey> expected = Lists.newLinkedList();
       expected.add(key2);

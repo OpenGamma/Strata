@@ -61,7 +61,7 @@ public class View implements AutoCloseable {
   private final FunctionModelConfig _systemDefaultConfig;
   private final NodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
-  private final Engine.SourceListener _sourceListener;
+  private final ViewFactory.SourceListener _sourceListener;
   private final Collection<ChangeManager> _changeManagers;
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
@@ -78,7 +78,7 @@ public class View implements AutoCloseable {
                      NodeDecorator decorator,
                      CacheInvalidator cacheInvalidator,
                      GraphModel graphModel,
-                     Engine.SourceListener sourceListener,
+                     ViewFactory.SourceListener sourceListener,
                      Collection<ChangeManager> changeManagers) {
     _sourceListener = ArgumentChecker.notNull(sourceListener, "sourceListener");
     _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");

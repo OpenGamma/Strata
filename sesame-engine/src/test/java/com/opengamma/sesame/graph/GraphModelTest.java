@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.ConfigurationErrorFunction;
@@ -36,7 +36,7 @@ public class GraphModelTest {
   /** Tests that an invalid portfolio function build a placeholder with an error message. */
   @Test
   public void invalidPortfolioFunction() {
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(PortfolioFn.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(PortfolioFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
     Map<Class<?>, FunctionModel> fnMap = ImmutableMap.<Class<?>, FunctionModel>of(FXForwardSecurity.class, functionModel);
     String columnName = "col name";
@@ -54,7 +54,7 @@ public class GraphModelTest {
   /** Tests that an invalid non-portfolio function build a placeholder with an error message. */
   @Test
   public void invalidNonPortfolioFunction() {
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(NonPortfolioFn.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(NonPortfolioFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
     Map<String, Map<Class<?>, FunctionModel>> portfolioFunctionModels = Collections.emptyMap();
     String outputName = "output name";

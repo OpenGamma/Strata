@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.sesame.config.EngineFunctionUtils;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -28,7 +28,7 @@ public class FunctionBuilderTest {
 
   @Test(expectedExceptions = GraphBuildException.class)
   public void invalidGraph() {
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(NoPublicConstructor.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(NoPublicConstructor.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
     assertFalse(functionModel.isValid());
     functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY);
@@ -36,7 +36,7 @@ public class FunctionBuilderTest {
 
   @Test
   public void multipleInvalidNodes() {
-    FunctionMetadata metadata = EngineFunctionUtils.createMetadata(RootFn.class, "foo");
+    FunctionMetadata metadata = EngineUtils.createMetadata(RootFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata);
     assertFalse(functionModel.isValid());
     System.out.println(functionModel.prettyPrint(false));
