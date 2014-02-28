@@ -26,8 +26,8 @@ public class FixedHistoricalMarketDataFnFactory implements MarketDataFnFactory {
     _configSource = ArgumentChecker.notNull(configSource, "configSource");
     _historicalTimeSeriesSource = ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     _currencyMatrixConfigName = ArgumentChecker.notNull(currencyMatrixConfigName, "currencyMatrixConfigName");
-    _dataSource = dataSource;
-    _dataProvider = dataProvider;
+    _dataSource = "null".equals(dataSource) ? null : dataSource;
+    _dataProvider = "null".equals(dataProvider) ? null : dataProvider;
   }
   
   @Override
