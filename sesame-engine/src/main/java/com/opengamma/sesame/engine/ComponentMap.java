@@ -39,6 +39,9 @@ public final class ComponentMap {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ComponentMap.class);
 
+  /**
+   * The empty component map.
+   */
   public static final ComponentMap EMPTY = new ComponentMap(Collections.<Class<?>, Object>emptyMap());
   private final ImmutableMap<Class<?>, Object> _components;
 
