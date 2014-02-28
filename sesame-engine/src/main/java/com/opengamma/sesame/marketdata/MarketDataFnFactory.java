@@ -8,7 +8,7 @@ package com.opengamma.sesame.marketdata;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**
- * 
+ * Factory for {@link MarketDataFn}.
  */
 public interface MarketDataFnFactory {
 

@@ -12,7 +12,7 @@ import com.opengamma.util.time.LocalDateRange;
  * TODO should this have bulk methods?
  * TODO is there any reason to have this and MarketDataFn any more?
  */
-/* package */ interface RawMarketDataSource extends DateRangeCalculator {
+public interface RawMarketDataSource extends DateRangeCalculator {
 
   // TODO is dataField needed for all impls? what about live?
   MarketDataItem get(ExternalIdBundle idBundle, String dataField);

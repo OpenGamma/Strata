@@ -12,7 +12,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Factory for {@link MarketDataFn} instances which use historical data from a fixed date.
  */
 public class FixedHistoricalMarketDataFnFactory implements MarketDataFnFactory {
 
