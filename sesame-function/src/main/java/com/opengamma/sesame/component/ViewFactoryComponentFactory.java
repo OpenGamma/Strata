@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -43,6 +45,7 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -55,8 +58,7 @@ import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
 import com.opengamma.sesame.fxforward.FXForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.fxforward.FXForwardPVFn;
-
-import net.sf.ehcache.CacheManager;
+import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFnFactory;
 
 /**
  * Component factory for the engine.
@@ -163,7 +165,9 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
                                       FXForwardDiscountingCalculatorFn.class,
-                                      ConfigDbMarketExposureSelectorFn.class);
+                                      ConfigDbMarketExposureSelectorFn.class,
+                                      ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                                      FixedHistoricalMarketDataFnFactory.class);
     return availableImplementations;
   }
 
