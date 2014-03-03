@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.ResultGenerator;
 
 /**
- *
+ * TODO javadocs
  */
 /* package */ class MethodInvokableFunction implements InvokableFunction {
 
@@ -53,6 +53,7 @@ import com.opengamma.util.result.ResultGenerator;
   @Override
   public Object invoke(Object input, FunctionArguments args) {
     Object[] argArray = new Object[_parameters.size()];
+
     for (Parameter parameter : _parameters.values()) {
       Object arg = args.getArgument(parameter.getName());
       Object resolvedArg = resolveArgument(parameter, arg);

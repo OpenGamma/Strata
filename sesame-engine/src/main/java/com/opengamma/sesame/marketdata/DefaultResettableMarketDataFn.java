@@ -11,13 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
-import org.threeten.bp.ZonedDateTime;
-
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Provides market data and stores the requests which have been made. By starting with an empty
@@ -46,9 +41,6 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
   private final Set<MarketDataRequirement> _marketDataRequests =
       Collections.newSetFromMap(new ConcurrentHashMap<MarketDataRequirement, Boolean>());
 
-  // REVIEW jonathan 2014-02-27 -- market data should have no concept of a 'valuation time'.
-  private ZonedDateTime _valuationTime;
-
   @Override
   public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
     return requestData(ImmutableSet.of(requirement));
@@ -69,50 +61,14 @@ public class DefaultResettableMarketDataFn implements ResettableMarketDataFn {
   }
 
   @Override
-  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
-    return requestData(ImmutableSet.of(requirement), dateRange);
-  }
-
-  @Override
-  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
-    MarketDataSeriesResultBuilder builder = new MarketDataSeriesResultBuilder();
-    for (MarketDataRequirement requirement : requirements) {
-      if (_requestedMarketData.containsKey(requirement)) {
-        builder.foundData(requirement, _requestedMarketData.get(requirement));
-      } else {
-        _marketDataRequests.add(requirement);
-        builder.missingData(requirement, MarketDataStatus.PENDING);
-      }
-    }
-    return builder.build();
-  }
-
-  @Override
-  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
-    return requestData(requirement, calculateDateRange(seriesPeriod));
-  }
-
-  private LocalDateRange calculateDateRange(Period seriesPeriod) {
-    LocalDate end = _valuationTime.toLocalDate();
-    LocalDate start = end.minus(seriesPeriod);
-    return LocalDateRange.of(start, end, true);
-  }
-
-  @Override
-  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
-    return requestData(requirements, calculateDateRange(seriesPeriod));
-  }
-
-  @Override
   public Set<MarketDataRequirement> getCollectedRequests() {
     return _marketDataRequests;
   }
 
   @Override
-  public void resetMarketData(ZonedDateTime valuationTime, Map<MarketDataRequirement, MarketDataItem> replacementData) {
+  public void resetMarketData(Map<MarketDataRequirement, MarketDataItem> replacementData) {
     _marketDataRequests.clear();
     _requestedMarketData.clear();
-    _valuationTime = valuationTime;
     _requestedMarketData.putAll(replacementData);
   }
 

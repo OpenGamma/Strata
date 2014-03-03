@@ -5,10 +5,11 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,14 +17,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FixedHistoricalMarketDataFnFactory implements MarketDataFnFactory {
 
-  private final ConfigSource _configSource;
   private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private final String _currencyMatrixConfigName;
   private final String _dataSource;
   private final String _dataProvider;
-  
-  public FixedHistoricalMarketDataFnFactory(ConfigSource configSource, HistoricalTimeSeriesSource historicalTimeSeriesSource, String currencyMatrixConfigName, String dataSource, String dataProvider) {
-    _configSource = ArgumentChecker.notNull(configSource, "configSource");
+
+  public FixedHistoricalMarketDataFnFactory(HistoricalTimeSeriesSource historicalTimeSeriesSource,
+                                            String currencyMatrixConfigName,
+                                            String dataSource,
+                                            String dataProvider) {
     _historicalTimeSeriesSource = ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     _currencyMatrixConfigName = ArgumentChecker.notNull(currencyMatrixConfigName, "currencyMatrixConfigName");
     _dataSource = "null".equals(dataSource) ? null : dataSource;
@@ -37,7 +39,8 @@ public class FixedHistoricalMarketDataFnFactory implements MarketDataFnFactory {
     }
     FixedHistoricalMarketDataSpecification fixedHistoricalMarketDataSpec = (FixedHistoricalMarketDataSpecification) spec;
     RawMarketDataSource dataSource = new HistoricalRawMarketDataSource(_historicalTimeSeriesSource, fixedHistoricalMarketDataSpec.getSnapshotDate(), _dataSource, _dataProvider);
-    return new EagerMarketDataFn(dataSource, _configSource, _currencyMatrixConfigName);
+    ConfigLink<CurrencyMatrix> configLink = ConfigLink.of(_currencyMatrixConfigName, CurrencyMatrix.class);
+    return new EagerMarketDataFn(configLink.resolve(), dataSource);
   }
 
 }

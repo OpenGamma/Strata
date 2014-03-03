@@ -108,6 +108,13 @@ public final class ComponentMap {
     return new ComponentMap(builder.putAll(_components).putAll(components).build());
   }
 
+  public <T, U extends T> ComponentMap with(Class<T> type, U component) {
+    ArgumentChecker.notNull(type, "type");
+    ArgumentChecker.notNull(component, "component");
+    ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
+    return new ComponentMap(builder.putAll(_components).put(type, component).build());
+  }
+
   public static ComponentMap of(Map<Class<?>, Object> components) {
     ArgumentChecker.notNull(components, "components");
     return new ComponentMap(ImmutableMap.copyOf(components));

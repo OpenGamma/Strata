@@ -9,10 +9,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
@@ -22,31 +19,19 @@ import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.LocalDateRange;
 
 /**
  * TODO needs to support a listener in case the snapshot is changed in the DB. presumably same mechanism as live data
  */
-public class SnapshotRawMarketDataSource extends AbstractRawMarketDataSource {
+public class SnapshotRawMarketDataSource implements RawMarketDataSource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SnapshotRawMarketDataSource.class);
   
   private final UnstructuredMarketDataSnapshot _snapshot;
-  
-  // REVIEW jonathan 2014-02-27 -- this is only here because of the methods which take a Period, and these should be removed anyway
-  private final ValuationTimeFn _valuationTimeFn;
 
-  public SnapshotRawMarketDataSource(MarketDataSnapshotSource snapshotSource,
-                                            UniqueId snapshotId,
-                                            HistoricalTimeSeriesSource timeSeriesSource,
-                                            ValuationTimeFn valuationTimeFn,
-                                            String dataProvider,
-                                            String dataSource) {
-    super(timeSeriesSource, dataProvider, dataSource);
+  public SnapshotRawMarketDataSource(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
-    _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
     // TODO if ID is unversioned need to get the VC from the engine to ensure consistency across the cycle
     _snapshot = getFlattenedSnapshot(snapshotSource.get(snapshotId));
   }
@@ -68,13 +53,6 @@ public class SnapshotRawMarketDataSource extends AbstractRawMarketDataSource {
       return MarketDataItem.available(marketValue);
     }
     return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
-  }
-
-  @Override
-  public LocalDateRange calculateDateRange(Period period) {
-    LocalDate date = _valuationTimeFn.getDate();
-    LocalDate start = date.minus(period);
-    return LocalDateRange.of(start, date, true);
   }
   
   private UnstructuredMarketDataSnapshot getFlattenedSnapshot(StructuredMarketDataSnapshot snapshot) {

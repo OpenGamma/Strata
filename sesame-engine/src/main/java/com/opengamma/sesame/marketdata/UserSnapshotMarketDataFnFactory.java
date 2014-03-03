@@ -5,12 +5,11 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
-import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -18,19 +17,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class UserSnapshotMarketDataFnFactory implements MarketDataFnFactory {
 
-  private final ConfigSource _configSource;
   private final MarketDataSnapshotSource _snapshotSource;
-  private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
-  private final ValuationTimeFn _valuationTimeFn;
   private final String _currencyMatrixConfigName;
-  
-  public UserSnapshotMarketDataFnFactory(ConfigSource configSource, MarketDataSnapshotSource snapshotSource,
-      HistoricalTimeSeriesSource historicalTimeSeriesSource, ValuationTimeFn valuationTimeFn, String currencyMatrixConfigName) {
-    _configSource = configSource;
-    _snapshotSource = snapshotSource;
-    _historicalTimeSeriesSource = historicalTimeSeriesSource;
-    _valuationTimeFn = valuationTimeFn;
-    _currencyMatrixConfigName = currencyMatrixConfigName;
+
+  public UserSnapshotMarketDataFnFactory(MarketDataSnapshotSource snapshotSource, String currencyMatrixConfigName) {
+    _snapshotSource = ArgumentChecker.notNull(snapshotSource, "snapshotSource");
+    _currencyMatrixConfigName = ArgumentChecker.notEmpty(currencyMatrixConfigName, "currencyMatrixConfigName");
   }
   
   @Override
@@ -39,8 +31,8 @@ public class UserSnapshotMarketDataFnFactory implements MarketDataFnFactory {
       throw new IllegalArgumentException("Expected " + UserMarketDataSpecification.class + " but was " + spec.getClass());
     }
     UserMarketDataSpecification snapshotMarketDataSpec = (UserMarketDataSpecification) spec;
-    RawMarketDataSource dataSource = new SnapshotRawMarketDataSource(_snapshotSource, snapshotMarketDataSpec.getUserSnapshotId(), _historicalTimeSeriesSource, _valuationTimeFn, "", "");
-    return new EagerMarketDataFn(dataSource, _configSource, _currencyMatrixConfigName);
+    RawMarketDataSource dataSource = new SnapshotRawMarketDataSource(_snapshotSource, snapshotMarketDataSpec.getUserSnapshotId());
+    ConfigLink<CurrencyMatrix> configLink = ConfigLink.of(_currencyMatrixConfigName, CurrencyMatrix.class);
+    return new EagerMarketDataFn(configLink.resolve(), dataSource);
   }
-
 }

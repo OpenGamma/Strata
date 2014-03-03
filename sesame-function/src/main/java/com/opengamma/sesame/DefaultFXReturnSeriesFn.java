@@ -8,7 +8,6 @@ package com.opengamma.sesame;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.analytics.financial.schedule.Schedule;
@@ -16,12 +15,13 @@ import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
+import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Function implementation that provides an FX return series for currency pairs.
@@ -36,7 +36,7 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
   /**
    * The market data function.
    */
-  private final MarketDataFn _marketDataFn;
+  private final HistoricalMarketDataFn _historicalMarketDataFn;
   /**
    * The time-series converter.
    */
@@ -50,11 +50,11 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
    */
   private final Schedule _scheduleCalculator;
 
-  public DefaultFXReturnSeriesFn(MarketDataFn marketDataFn,
+  public DefaultFXReturnSeriesFn(HistoricalMarketDataFn historicalMarketDataFn,
                                  TimeSeriesReturnConverter timeSeriesConverter,
                                  TimeSeriesSamplingFunction timeSeriesSamplingFunction,
                                  Schedule schedule) {
-    _marketDataFn = marketDataFn;
+    _historicalMarketDataFn = historicalMarketDataFn;
     _timeSeriesConverter = timeSeriesConverter;
     _timeSeriesSamplingFunction = timeSeriesSamplingFunction;
     _scheduleCalculator = schedule;
@@ -62,10 +62,10 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
 
   //-------------------------------------------------------------------------
   @Override
-  public Result<LocalDateDoubleTimeSeries> calculateReturnSeries(Period seriesPeriod, CurrencyPair currencyPair) {
+  public Result<LocalDateDoubleTimeSeries> calculateReturnSeries(LocalDateRange dateRange, CurrencyPair currencyPair) {
 
     Result<MarketDataSeries> result =
-        _marketDataFn.requestData(MarketDataRequirementFactory.of(currencyPair), seriesPeriod);
+        _historicalMarketDataFn.requestData(MarketDataRequirementFactory.of(currencyPair), dateRange);
 
     return result.isValueAvailable() ?
         success(calculateReturnSeries((LocalDateDoubleTimeSeries) result.getValue().getOnlySeries())) :

@@ -27,7 +27,7 @@ import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.MarketDataSeries;
@@ -36,6 +36,7 @@ import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Function implementation that provides a historical time-series bundle.
@@ -47,29 +48,28 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   private final HistoricalTimeSeriesSource _htsSource;
   private final String _resolutionKey;
   private final ConventionSource _conventionSource;
-  private final ValuationTimeFn _valuationTimeFn;
   private final Period _htsRetrievalPeriod;
-  private final MarketDataFn _marketDataProvider;
+  private final HistoricalMarketDataFn _historicalMarketDataFn;
 
   public DefaultHistoricalTimeSeriesFn(HistoricalTimeSeriesSource htsSource,
                                        String resolutionKey,
                                        ConventionSource conventionSource,
-                                       ValuationTimeFn valuationTimeFn,
-                                       MarketDataFn marketDataProvider,
+                                       HistoricalMarketDataFn historicalMarketDataFn,
                                        Period htsRetrievalPeriod) {
     _htsSource = htsSource;
     _resolutionKey = resolutionKey;
     _conventionSource = conventionSource;
-    _valuationTimeFn = valuationTimeFn;
     _htsRetrievalPeriod = htsRetrievalPeriod;
-    _marketDataProvider = marketDataProvider;
+    _historicalMarketDataFn = historicalMarketDataFn;
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair) {
+  public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair, LocalDate endDate) {
+    LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
+    LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
     MarketDataRequirement requirement = MarketDataRequirementFactory.of(currencyPair);
-    Result<MarketDataSeries> result = _marketDataProvider.requestData(requirement, _htsRetrievalPeriod);
+    Result<MarketDataSeries> result = _historicalMarketDataFn.requestData(requirement, dateRange);
     if (!result.isValueAvailable()) {
       return propagateFailure(result);
     }
@@ -83,18 +83,13 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   }
 
   @Override
-  public Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve) {
-    return getHtsForCurve(curve, _valuationTimeFn.getDate());
-  }
-
-  @Override
-  public Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve, LocalDate valuationDate) {
+  public Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve, LocalDate endDate) {
     // For expediency we will mirror the current ways of working out dates which is
     // pretty much to take 1 year before the valuation date. This is blunt and
     // returns more data than is actually required
     // todo - could we manage HTS lookup in the same way as market data? i.e. request the values needed look them up so they are available next time
 
-    final LocalDate startDate = valuationDate.minus(_htsRetrievalPeriod);
+    final LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
     final boolean includeStart = true;
     final boolean includeEnd = true;
 
@@ -104,9 +99,8 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
       ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
       String dataField = node.getDataField();
-      HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id,
-                                                                           _resolutionKey, startDate, includeStart,
-                                                                           valuationDate, includeEnd);
+      HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate,
+                                                                           includeStart, endDate, includeEnd);
       if (timeSeries != null) {
         if (timeSeries.getTimeSeries().isEmpty()) {
           s_logger.info("Time series for {} is empty", id);
@@ -121,8 +115,8 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
         final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
         id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
         dataField = pointsNode.getUnderlyingDataField();
-        timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id,
-                                                        _resolutionKey, startDate, includeStart, valuationDate, includeEnd);
+        timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate, includeStart,
+                                                        endDate, includeEnd);
         if (timeSeries != null) {
           if (timeSeries.getTimeSeries().isEmpty()) {
             s_logger.info("Time series for {} is empty", id);
@@ -142,9 +136,13 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
                                                                                 PriceIndexConvention.class);
         final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
         final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
-        final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField, priceIndexId,
-                                                                                         _resolutionKey, startDate, includeStart,
-                                                                                         valuationDate, includeEnd);
+        final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField,
+                                                                                         priceIndexId,
+                                                                                         _resolutionKey,
+                                                                                         startDate,
+                                                                                         includeStart,
+                                                                                         endDate,
+                                                                                         includeEnd);
         if (priceIndexSeries != null) {
           if (priceIndexSeries.getTimeSeries().isEmpty()) {
             s_logger.info("Time series for {} is empty", priceIndexId);

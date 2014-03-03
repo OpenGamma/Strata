@@ -55,6 +55,7 @@ import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposu
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -92,6 +93,7 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.EagerMarketDataFn;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalRawMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.proxy.TimingProxy;
@@ -124,6 +126,7 @@ public class FXForwardYCNSFunctionTest {
                                                               HolidaySource.class,
                                                               HistoricalTimeSeriesSource.class,
                                                               MarketDataFn.class,
+                                                              HistoricalMarketDataFn.class,
                                                               RegionSource.class,
                                                               ValuationTimeFn.class);
 
@@ -158,13 +161,15 @@ public class FXForwardYCNSFunctionTest {
   private Result<DoubleLabelledMatrix1D> executeAgainstRemoteServer() {
     String serverUrl = "http://localhost:8080";
     ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
-    ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
     HistoricalRawMarketDataSource rawDataSource =
         new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
-    MarketDataFn marketDataProvider =
-        new EagerMarketDataFn(rawDataSource, configSource, "BloombergLiveData");
+
+    // TODO initialize service context and do this with a link
+    ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
+    CurrencyMatrix currencyMatrix = configSource.getLatestByName(CurrencyMatrix.class, "BloombergLiveData");
+    MarketDataFn marketDataProvider = new EagerMarketDataFn(currencyMatrix, rawDataSource);
 
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -215,8 +220,6 @@ public class FXForwardYCNSFunctionTest {
                                                                    CurrencyPair.of(GBP, USD)))),
                 function(DefaultHistoricalTimeSeriesFn.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
-                         // TODO will need to handle this differently when arg values are strings and primitives
-                         // will need string conversion for values like this which can be parsed
                          argument("htsRetrievalPeriod", Period.ofYears(1))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
                          argument("impliedCurveNames", Collections.emptySet()))),

@@ -9,10 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeMsg;
-import org.threeten.bp.Period;
 
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.time.LocalDateRange;
 
 public class ResettableLiveRawMarketDataSource implements RawMarketDataSource, LiveDataManager.LDListener {
 
@@ -57,16 +55,6 @@ public class ResettableLiveRawMarketDataSource implements RawMarketDataSource, L
           new LiveDataManager.SubscriptionRequest<>(this, LiveDataManager.RequestType.SUBSCRIBE, idBundle));
       return MarketDataItem.PENDING;
     }
-  }
-
-  @Override
-  public MarketDataItem get(ExternalIdBundle idBundle, String dataField, LocalDateRange dateRange) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public LocalDateRange calculateDateRange(Period period) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -12,6 +12,7 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/../Temple/pom.xml" />
+        <option value="$PROJECT_DIR$/../SesameExcel/pom.xml" />
       </list>
     </option>
   </component>

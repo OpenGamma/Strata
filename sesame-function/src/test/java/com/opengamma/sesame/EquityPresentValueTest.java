@@ -15,8 +15,6 @@ import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -34,7 +32,6 @@ public class EquityPresentValueTest {
 
   private EquityPresentValueFn _equityPresentValueFn;
   private ResettableMarketDataFn _marketDataProviderFunction;
-  private ZonedDateTime _valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
   @BeforeMethod
   public void setUp() {
@@ -60,7 +57,7 @@ public class EquityPresentValueTest {
     Map<MarketDataRequirement, MarketDataItem> marketData = new HashMap<>();
     MarketDataRequirement requirement = MarketDataRequirementFactory.of(security, MarketDataRequirementNames.MARKET_VALUE);
     marketData.put(requirement, MarketDataItem.available(123.45));
-    _marketDataProviderFunction.resetMarketData(_valuationTime, marketData);
+    _marketDataProviderFunction.resetMarketData(marketData);
 
     Result<Double> result = _equityPresentValueFn.presentValue(security);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));

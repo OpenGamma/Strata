@@ -29,5 +29,4 @@ import com.opengamma.OpenGammaRuntimeException;
       addSuppressed(exception);
     }
   }
-
 }

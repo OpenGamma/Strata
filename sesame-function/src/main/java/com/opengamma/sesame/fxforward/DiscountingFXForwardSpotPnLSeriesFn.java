@@ -10,6 +10,7 @@ import static com.opengamma.util.result.ResultGenerator.success;
 
 import javax.inject.Inject;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.google.common.base.Optional;
@@ -17,12 +18,13 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.util.result.Result;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.time.LocalDateRange;
 
 public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn {
 
@@ -45,13 +47,13 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
    */
   private final Period _seriesPeriod;
 
-  // todo - what should we be injecting?
   @Inject
   public DiscountingFXForwardSpotPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-      final CurrencyPairsFn currencyPairsFn,
-      final Optional<Currency> outputCurrency,
-      final FXReturnSeriesFn fxReturnSeriesProvider,
-      final HistoricalTimeSeriesFn historicalTimeSeriesProvider, final Period seriesPeriod) {
+                                             final CurrencyPairsFn currencyPairsFn,
+                                             final Optional<Currency> outputCurrency,
+                                             final FXReturnSeriesFn fxReturnSeriesProvider,
+                                             final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
+                                             final Period seriesPeriod) {
     _calculatorProvider = calculatorProvider;
     _currencyPairsFn = currencyPairsFn;
     _outputCurrency = outputCurrency;
@@ -61,15 +63,20 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
   }
 
   public DiscountingFXForwardSpotPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-      final CurrencyPairsFn currencyPairsFn,
-      final FXReturnSeriesFn fxReturnSeriesProvider,
-      final HistoricalTimeSeriesFn historicalTimeSeriesProvider, final Period seriesPeriod) {
-    this(calculatorProvider, currencyPairsFn, Optional.<Currency>absent(), fxReturnSeriesProvider,
-        historicalTimeSeriesProvider, seriesPeriod);
+                                             final CurrencyPairsFn currencyPairsFn,
+                                             final FXReturnSeriesFn fxReturnSeriesProvider,
+                                             final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
+                                             final Period seriesPeriod) {
+    this(calculatorProvider,
+         currencyPairsFn,
+         Optional.<Currency>absent(),
+         fxReturnSeriesProvider,
+         historicalTimeSeriesProvider,
+         seriesPeriod);
   }
 
   @Override
-  public Result<LocalDateDoubleTimeSeries> calculatePnlSeries(final FXForwardSecurity security) {
+  public Result<LocalDateDoubleTimeSeries> calculatePnlSeries(final FXForwardSecurity security, LocalDate endDate) {
 
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
@@ -110,9 +117,10 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
         final CurrencyPair currencyPair = cpResult.getValue();
 
-        final Result<LocalDateDoubleTimeSeries> returnSeriesResult = _fxReturnSeriesProvider.calculateReturnSeries(
-            _seriesPeriod,
-            currencyPair);
+        LocalDateRange dateRange = LocalDateRange.of(endDate.minus(_seriesPeriod), endDate, true);
+
+        final Result<LocalDateDoubleTimeSeries> returnSeriesResult =
+            _fxReturnSeriesProvider.calculateReturnSeries(dateRange, currencyPair);
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getValue();
 
         final Currency baseCurrency = currencyPair.getBase();
@@ -120,8 +128,9 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
         if (conversionIsRequired(baseCurrency)) {
 
-          final Result<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
-              CurrencyPair.of(baseCurrency, _outputCurrency.get()));
+          final Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
+              _historicalTimeSeriesProvider.getHtsForCurrencyPair(CurrencyPair.of(baseCurrency, _outputCurrency.get()),
+                                                                  endDate);
 
           if (conversionSeriesResult.isValueAvailable()) {
 

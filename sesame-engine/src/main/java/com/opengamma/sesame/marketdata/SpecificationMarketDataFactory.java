@@ -7,16 +7,16 @@ package com.opengamma.sesame.marketdata;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataClient;
-import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,9 +39,10 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
 
   @Override
   public MarketDataFn create(ComponentMap components) {
-    ConfigSource configSource = components.getComponent(ConfigSource.class);
     RawMarketDataSource rawDataSource = createRawDataSource(components);
-    return new EagerMarketDataFn(rawDataSource, configSource, "BloombergLiveData");
+    // TODO why is the currency matrix name hard-coded?
+    ConfigLink<CurrencyMatrix> configLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
+    return new EagerMarketDataFn(configLink.resolve(), rawDataSource);
   }
 
   private RawMarketDataSource createRawDataSource(ComponentMap components) {
@@ -53,8 +54,7 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
     } else if (_marketDataSpecification instanceof UserMarketDataSpecification) {
       MarketDataSnapshotSource snapshotSource = components.getComponent(MarketDataSnapshotSource.class);
       UniqueId snapshotId = ((UserMarketDataSpecification) _marketDataSpecification).getUserSnapshotId();
-      ValuationTimeFn valuationTimeFn = components.getComponent(ValuationTimeFn.class);
-      return new SnapshotRawMarketDataSource(snapshotSource, snapshotId, timeSeriesSource, valuationTimeFn, "BLOOMBERG", "Market_Value");
+      return new SnapshotRawMarketDataSource(snapshotSource, snapshotId);
     } else if (_marketDataSpecification instanceof LiveMarketDataSpecification) {
       LiveDataClient liveDataClient = components.getComponent(LiveDataClient.class);
       return new ResettableLiveRawMarketDataSource(new LiveDataManager(liveDataClient));

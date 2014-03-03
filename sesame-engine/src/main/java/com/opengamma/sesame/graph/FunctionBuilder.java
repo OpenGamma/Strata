@@ -48,7 +48,8 @@ public final class FunctionBuilder {
 
   private static void checkValid(Node node) {
     if (!node.isValid()) {
-      throw new GraphBuildException("Can't build functions from an invalid graph", node.getExceptions());
+      throw new GraphBuildException("Can't build functions from an invalid graph\n" + node.prettyPrint(false) + "\n",
+                                    node.getExceptions());
     }
   }
 }

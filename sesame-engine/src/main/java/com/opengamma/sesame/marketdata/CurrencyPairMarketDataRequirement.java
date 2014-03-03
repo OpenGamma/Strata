@@ -107,7 +107,7 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
 
   /* package */ MarketDataItem getFxRateSeries(LocalDateRange dateRange,
                                                CurrencyMatrix currencyMatrix,
-                                               RawMarketDataSource rawDataSource) {
+                                               RawHistoricalMarketDataSource rawDataSource) {
     return getFxRateSeries(dateRange,
                            currencyMatrix,
                            rawDataSource,
@@ -117,7 +117,7 @@ public class CurrencyPairMarketDataRequirement implements MarketDataRequirement 
 
   private MarketDataItem getFxRateSeries(final LocalDateRange dateRange,
                                          final CurrencyMatrix currencyMatrix,
-                                         final RawMarketDataSource dataSource,
+                                         final RawHistoricalMarketDataSource dataSource,
                                          final Currency base,
                                          final Currency counter) {
     // TODO needs to look a lot like getFxRate. see CurrencyMatrixSeriesSourcingFunction.getFxRate

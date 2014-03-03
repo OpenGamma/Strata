@@ -90,8 +90,7 @@ public abstract class Node {
       // TODO what's the logic I actually need here?
       return Provider.class.isAssignableFrom(_type) ? object : ((Provider<?>) object).get();
     } else if (object instanceof Link) {
-      // Might we want to supply a Link as an argument?
-      return ((Link<?, ?>) object).resolve();
+      return Link.class.isAssignableFrom(_type) ? object : ((Link<?, ?>) object).resolve();
     } else {
       return object;
     }

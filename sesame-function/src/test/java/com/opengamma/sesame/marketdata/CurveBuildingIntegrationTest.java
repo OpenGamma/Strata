@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.springframework.jms.core.JmsTemplate;
 import org.testng.annotations.Test;
@@ -38,11 +37,11 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.rest.RemoteComponentServer;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.LiveDataClient;
@@ -94,6 +93,7 @@ import com.opengamma.util.test.TestGroup;
 
 import net.sf.ehcache.CacheManager;
 
+//@Test(groups = TestGroup.INTEGRATION)
 @Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class CurveBuildingIntegrationTest {
 
@@ -102,29 +102,40 @@ public class CurveBuildingIntegrationTest {
   // Create a view with known curve and try to get market data
   // from the market data server
   public void testCurveHasData() throws InterruptedException {
+    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
+    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
+
+    FunctionModelConfig defaultConfig =
+        config(
+            arguments(
+                function(RootFinderConfiguration.class,
+                         argument("rootFinderAbsoluteTolerance", 1e-9),
+                         argument("rootFinderRelativeTolerance", 1e-9),
+                         argument("rootFinderMaxIterations", 1000)),
+                function(DefaultCurrencyPairsFn.class,
+                         argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
+                                                                   CurrencyPair.of(EUR, USD),
+                                                                   CurrencyPair.of(GBP, USD)))),
+                function(DefaultHistoricalTimeSeriesFn.class,
+                         argument("resolutionKey", "DEFAULT_TSS"),
+                         argument("htsRetrievalPeriod", Period.ofYears(1))),
+                function(DefaultDiscountingMulticurveBundleFn.class,
+                         argument("impliedCurveNames", Collections.emptySet())),
+                function(RawHistoricalMarketDataSourceImpl.class,
+                         argument("dataSource", "BLOOMBERG"),
+                         argument("dataProvider", "Market_Value")),
+                function(HistoricalTimeSeriesMarketDataFn.class,
+                         argument("currencyMatrix", currencyMatrixLink))));
+
     ViewConfig viewConfig =
         configureView("Curve Bundle only",
                       nonPortfolioOutput("Curve Bundle",
                                output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
                                       config(
                                           arguments(
-                                              function(RootFinderConfiguration.class,
-                                                       argument("rootFinderAbsoluteTolerance", 1e-9),
-                                                       argument("rootFinderRelativeTolerance", 1e-9),
-                                                       argument("rootFinderMaxIterations", 1000)),
-                                              function(DefaultCurrencyPairsFn.class,
-                                                       argument("currencyPairs",
-                                                                ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                                CurrencyPair.of(EUR, USD),
-                                                                                CurrencyPair.of(GBP, USD)))),
-                                              function(DefaultHistoricalTimeSeriesFn.class,
-                                                       argument("resolutionKey", "DEFAULT_TSS"),
-                                                       argument("htsRetrievalPeriod", Period.ofYears(1))),
                                               function(DefaultDiscountingMulticurveBundleFn.class,
-                                                       argument("impliedCurveNames", Collections.emptySet()),
-                                                       argument("curveConfig",
-                                                                ConfigLink.of("Temple USD",
-                                                                              CurveConstructionConfiguration.class))))))));
+                                                       argument("curveConfig", ConfigLink.of("Temple USD",
+                                                                                             CurveConstructionConfiguration.class))))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);
@@ -138,29 +149,30 @@ public class CurveBuildingIntegrationTest {
                                       DefaultCurveSpecificationFn.class,
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
-                                      ConfigDbMarketExposureSelectorFn.class);
+                                      ConfigDbMarketExposureSelectorFn.class,
+                                      RawHistoricalMarketDataSourceImpl.class,
+                                      HistoricalTimeSeriesMarketDataFn.class);
 
     ComponentMap componentMap = ComponentMap.loadComponents("http://devsvr-lx-2:8080");
+
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider();
     ServiceContext serviceContext =
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-                               componentMap,
-                               availableOutputs,
-                               availableImplementations,
-                               FunctionModelConfig.EMPTY,
-                               CacheManager.getInstance(),
-                               EnumSet.noneOf(FunctionService.class));
+                                              componentMap,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              defaultConfig,
+                                              CacheManager.getInstance(),
+                                              EnumSet.noneOf(FunctionService.class));
 
     View view = viewFactory.createView(viewConfig, Collections.emptyList());
-    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
 
     ResettableLiveRawMarketDataSource rawDataSource = buildRawDataSource();
-    MarketDataFn marketDataFn = new EagerMarketDataFn(rawDataSource,
-                                                      componentMap.getComponent(ConfigSource.class),
-                                                      "BloombergLiveData");
+    ConfigLink<CurrencyMatrix> configLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
+    MarketDataFn marketDataFn = new EagerMarketDataFn(configLink.resolve(), rawDataSource);
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
     Results initialResults = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory));
     System.out.println(initialResults);
@@ -242,13 +254,11 @@ public class CurveBuildingIntegrationTest {
 
   private static class RemoteProviderTestUtils {
 
-    private final FudgeContext _fudgeContext;
     private final ComponentServer _components;
     private final JmsConnector _jmsConnector;
     private final FudgeMsg _configuration;
 
     public RemoteProviderTestUtils() {
-      _fudgeContext = OpenGammaFudgeContext.getInstance();
       final String baseUrl = "http://devsvr-lx-2:8080/jax";
           //new StringBuilder("http://")
           //.append(System.getProperty("web.host", props.getProperty("opengamma.provider.host"))).append(':')

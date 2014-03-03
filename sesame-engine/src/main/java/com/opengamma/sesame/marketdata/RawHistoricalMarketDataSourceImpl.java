@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -16,19 +16,19 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
- * {@link RawMarketDataSource} that provides logic to look up time series.
+ *
  */
-/* package */ abstract class AbstractRawMarketDataSource implements RawMarketDataSource {
+public class RawHistoricalMarketDataSourceImpl implements RawHistoricalMarketDataSource {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractRawMarketDataSource.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(RawHistoricalMarketDataSourceImpl.class);
 
   protected final HistoricalTimeSeriesSource _timeSeriesSource;
   protected final String _dataSource;
   protected final String _dataProvider;
 
-  /* package */ AbstractRawMarketDataSource(HistoricalTimeSeriesSource timeSeriesSource,
-                                            String dataProvider,
-                                            String dataSource) {
+  public RawHistoricalMarketDataSourceImpl(HistoricalTimeSeriesSource timeSeriesSource,
+                                           String dataSource,
+                                           String dataProvider) {
     _timeSeriesSource = ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
     _dataProvider = ArgumentChecker.notEmpty(dataProvider, "dataProvider");
     _dataSource = ArgumentChecker.notEmpty(dataSource, "dataSource");

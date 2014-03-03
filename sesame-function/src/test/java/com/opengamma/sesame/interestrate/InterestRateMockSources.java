@@ -72,6 +72,7 @@ import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.MarketdataResourcesLoader;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -129,22 +130,20 @@ public class InterestRateMockSources {
                                                               mockConfigSource(),
                                                               mockSecuritySource(),
                                                               mockHistoricalTimeSeriesSource(),
-                                                              createValuationTimeFn(valuationTime));
+                                                              createValuationTimeFn(valuationTime),
+                                                              mock(HistoricalMarketDataFn.class));
 
     // Needed as the above method returns the wrong interface type for this market data function
     return ImmutableMap.<Class<?>, Object>builder()
         .putAll(componentMap)
-        .put(MarketDataFn.class, createMarketDataFn(valuationTime, clazz))
+        .put(MarketDataFn.class, createMarketDataFn(clazz))
         .build();
   }
 
-  private static MarketDataFn createMarketDataFn(ZonedDateTime valuationTime, Class clazz) {
+  private static MarketDataFn createMarketDataFn(Class clazz) {
     try {
       DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-      marketDataFn.resetMarketData(valuationTime,
-                                   MarketdataResourcesLoader.getData("usdMarketQuotes.properties",
-                                                                     clazz,
-                                                                     "Ticker"));
+      marketDataFn.resetMarketData(MarketdataResourcesLoader.getData("usdMarketQuotes.properties", clazz, "Ticker"));
       return marketDataFn;
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Exception whilst loading file", e);

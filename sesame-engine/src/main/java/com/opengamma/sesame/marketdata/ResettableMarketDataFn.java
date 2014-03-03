@@ -8,8 +8,6 @@ package com.opengamma.sesame.marketdata;
 import java.util.Map;
 import java.util.Set;
 
-import org.threeten.bp.ZonedDateTime;
-
 /**
  * Extension to the MarketDataProviderFunction which adds management methods.
  * Implementations of this interface will collect the market data requests
@@ -36,15 +34,12 @@ public interface ResettableMarketDataFn extends MarketDataFn {
    */
   Set<MarketDataRequirement> getCollectedRequests();
 
-  // REVIEW jonathan 2014-02-27 -- market data should have no concept of a 'valuation time'.
   /**
    * Reset the data about which requests have been made and the market availability data. The latter
    * will be replaced by the data passed in.
    *
-   * @param valuationTime  the valuation time, not null
    * @param replacementData  the new map of availability data
    */
-  void resetMarketData(ZonedDateTime valuationTime,
-                       Map<MarketDataRequirement, MarketDataItem> replacementData);
+  void resetMarketData(Map<MarketDataRequirement, MarketDataItem> replacementData);
 
 }

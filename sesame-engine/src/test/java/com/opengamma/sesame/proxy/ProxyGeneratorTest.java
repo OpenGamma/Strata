@@ -18,19 +18,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
-import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.sesame.example.MockResultFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.time.LocalDateRange;
 
 @Test(groups = TestGroup.UNIT)
 public class ProxyGeneratorTest {
@@ -98,28 +95,6 @@ public class ProxyGeneratorTest {
       public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
         throw new RuntimeException(message);
       }
-
-      @Override
-      public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
-        throw new RuntimeException(message);
-      }
-
-      @Override
-      public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
-        throw new RuntimeException(message);
-      }
-
-      @Override
-      public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
-        throw new RuntimeException(message);
-      }
-
-      @Override
-      public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements,
-                                                          Period seriesPeriod) {
-        throw new RuntimeException(message);
-      }
-
     };
 
     try {

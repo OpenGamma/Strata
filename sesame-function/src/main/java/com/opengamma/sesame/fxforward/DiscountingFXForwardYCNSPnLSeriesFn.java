@@ -288,7 +288,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
 
   private Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateForNonImpliedCurve(FXForwardSecurity security,
-                                                                                                     Result<CurrencyPair> cpResult) {
+                                                                                             Result<CurrencyPair> cpResult) {
     final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
     final Result<CurveSpecification> curveSpecificationResult =
         _curveSpecificationFunction.getCurveSpecification(_curveDefinition);
@@ -300,7 +300,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       final CurveSpecification curveSpecification = curveSpecificationResult.getValue();
 
       final Result<HistoricalTimeSeriesBundle> curveSeriesBundleResult =
-          _historicalTimeSeriesProvider.getHtsForCurve(curveSpecification);
+          _historicalTimeSeriesProvider.getHtsForCurve(curveSpecification, _valuationTimeFn.getDate());
 
       if (curveSeriesBundleResult.isValueAvailable()) {
 
@@ -344,7 +344,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     if (conversionIsRequired(curveCurrency)) {
 
       final Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
-          _historicalTimeSeriesProvider.getHtsForCurrencyPair(CurrencyPair.of(curveCurrency, _outputCurrency.get()));
+          _historicalTimeSeriesProvider.getHtsForCurrencyPair(CurrencyPair.of(curveCurrency, _outputCurrency.get()),
+                                                              _valuationTimeFn.getDate());
 
       if (conversionSeriesResult.isValueAvailable()) {
         return conversionSeriesResult.getValue();

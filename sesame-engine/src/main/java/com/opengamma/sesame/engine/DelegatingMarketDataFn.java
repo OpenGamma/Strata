@@ -7,15 +7,11 @@ package com.opengamma.sesame.engine;
 
 import java.util.Set;
 
-import org.threeten.bp.Period;
-
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Simple delegating market data provider that allows the engine to switch market data providers between cycles
@@ -43,25 +39,4 @@ import com.opengamma.util.time.LocalDateRange;
   public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
     return _delegate.requestData(requirements);
   }
-
-  @Override
-  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
-    return _delegate.requestData(requirement, dateRange);
-  }
-
-  @Override
-  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
-    return _delegate.requestData(requirements, dateRange);
-  }
-
-  @Override
-  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, Period seriesPeriod) {
-    return _delegate.requestData(requirement, seriesPeriod);
-  }
-
-  @Override
-  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, Period seriesPeriod) {
-    return _delegate.requestData(requirements, seriesPeriod);
-  }
-
 }

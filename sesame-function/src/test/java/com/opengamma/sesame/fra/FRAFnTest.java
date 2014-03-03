@@ -82,7 +82,6 @@ public class FRAFnTest {
 
   @BeforeClass
   public void setUpClass() throws IOException {
-
     ZonedDateTime valuationTime = DateUtils.getUTCDate(2014, 1, 22);
 
     FunctionModelConfig config = config(
@@ -99,8 +98,7 @@ public class FRAFnTest {
                      argument("resolutionKey", "DEFAULT_TSS"),
                      argument("htsRetrievalPeriod", Period.ofYears(1))),
             function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", ImmutableSet.of()))
-        ),
+                     argument("impliedCurveNames", ImmutableSet.of()))),
         implementations(FRAFn.class, DiscountingFRAFn.class,
                         CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,

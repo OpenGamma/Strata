@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.mockito.Matchers;
 import org.testng.annotations.Test;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
@@ -169,9 +168,7 @@ public class ViewFactoryTest {
     Map<MarketDataRequirement, MarketDataItem> marketData = ImmutableMap.of(requirement, item);
     ResettableMarketDataFn marketDataProvider = new DefaultResettableMarketDataFn();
 
-    ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
-
-    marketDataProvider.resetMarketData(valuationTime, marketData);
+    marketDataProvider.resetMarketData(marketData);
     MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataProvider);
 
     View view = viewFactory.createView(viewConfig, trades);

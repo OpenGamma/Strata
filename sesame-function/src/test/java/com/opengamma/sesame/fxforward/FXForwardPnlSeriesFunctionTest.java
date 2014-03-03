@@ -56,6 +56,7 @@ import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposu
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -96,6 +97,7 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.EagerMarketDataFn;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalRawMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.proxy.TimingProxy;
@@ -134,6 +136,7 @@ public class FXForwardPnlSeriesFunctionTest {
                                              HolidaySource.class,
                                              HistoricalTimeSeriesSource.class,
                                              MarketDataFn.class,
+                                             HistoricalMarketDataFn.class,
                                              RegionSource.class,
                                              ValuationTimeFn.class);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePnl, config, componentMap.getComponentTypes());
@@ -166,8 +169,9 @@ public class FXForwardPnlSeriesFunctionTest {
     LocalDate date = LocalDate.of(2013, 11, 7);
     HistoricalRawMarketDataSource rawDataSource =
         new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
-    MarketDataFn marketDataProvider =
-        new EagerMarketDataFn(rawDataSource, configSource, "BloombergLiveData");
+    // TODO set up a service context and do this with a link
+    CurrencyMatrix currencyMatrix = configSource.getLatestByName(CurrencyMatrix.class, "BloombergLiveData");
+    MarketDataFn marketDataProvider = new EagerMarketDataFn(currencyMatrix, rawDataSource);
 
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
@@ -192,29 +196,27 @@ public class FXForwardPnlSeriesFunctionTest {
     int nRuns = 100;
     //int nRuns = 1;
     for (int i = 0; i < nRuns; i++) {
-      result = pvFunction.calculatePnlSeries(security);
+      result = pvFunction.calculatePnlSeries(security, date);
       System.out.println();
     }
     System.out.println(TracingProxy.end().prettyPrint());
     return result;
   }
 
-
   private static FunctionModelConfig createFunctionConfig() {
     ConfigLink<ExposureFunctions> exposureConfig =
         ConfigLink.of("EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS",
                       mock(ExposureFunctions.class));
+
     return
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfig", exposureConfig)),
                 function(DiscountingFXForwardSpotPnLSeriesFn.class,
-                         argument("seriesPeriod", Period.ofYears(5)),
+                         argument("seriesPeriod", Period.ofYears(1)),
                          argument("outputCurrency", Optional.of(Currency.USD))),
                 function(DefaultFXReturnSeriesFn.class,
-                         // TODO will need a different way when we have a UI and the values are strings or primitives
-                         // maybe an enum with a method to return the object it represents. implement provider?
                          argument("timeSeriesSamplingFunction", TimeSeriesSamplingFunctionFactory.NO_PADDING_FUNCTION),
                          argument("timeSeriesConverter", TimeSeriesReturnConverterFactory.absolute()),
                          argument("schedule", ScheduleCalculatorFactory.DAILY_CALCULATOR)),

@@ -5,11 +5,10 @@
  */
 package com.opengamma.sesame;
 
-import org.threeten.bp.Period;
-
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Function capable of providing an FX return series for currency pairs.
@@ -19,11 +18,11 @@ public interface FXReturnSeriesFn {
   /**
    * Get the return series for the supplied currency pair.
    *
-   * @param seriesPeriod  the period of the series, not null
+   * @param dateRange  the date range of the series, not null
    * @param currencyPair  the pair to get the return series for, not null
    * @return the return series for the currency pair, a failure result if not found
    */
-  Result<LocalDateDoubleTimeSeries> calculateReturnSeries(Period seriesPeriod, CurrencyPair currencyPair);
+  Result<LocalDateDoubleTimeSeries> calculateReturnSeries(LocalDateRange dateRange, CurrencyPair currencyPair);
 
   /**
    * Calculates the return series based on another time-series.

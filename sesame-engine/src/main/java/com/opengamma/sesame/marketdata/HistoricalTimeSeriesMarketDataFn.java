@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,30 +12,31 @@ import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.LocalDateRange;
 
 /**
- * Attempts to provide market data by immediately looking it up in a {@link RawMarketDataSource}.
+ *
  */
-public class EagerMarketDataFn implements MarketDataFn {
+public class HistoricalTimeSeriesMarketDataFn implements HistoricalMarketDataFn {
 
-  private final RawMarketDataSource _rawDataSource;
   private final CurrencyMatrix _currencyMatrix;
+  private final RawHistoricalMarketDataSource _rawDataSource;
 
-  public EagerMarketDataFn(CurrencyMatrix currencyMatrix, RawMarketDataSource rawDataSource) {
+  public HistoricalTimeSeriesMarketDataFn(CurrencyMatrix currencyMatrix, RawHistoricalMarketDataSource rawDataSource) {
     _currencyMatrix = ArgumentChecker.notNull(currencyMatrix, "currencyMatrix");
     _rawDataSource = ArgumentChecker.notNull(rawDataSource, "rawDataSource");
   }
 
   @Override
-  public Result<MarketDataValues> requestData(MarketDataRequirement requirement) {
-    return requestData(Collections.singleton(requirement));
+  public Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange) {
+    return requestData(Collections.singleton(requirement), dateRange);
   }
 
   @Override
-  public Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements) {
-    MarketDataValuesResultBuilder resultBuilder = new MarketDataValuesResultBuilder();
+  public Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange) {
+    MarketDataSeriesResultBuilder resultBuilder = new MarketDataSeriesResultBuilder();
     for (MarketDataRequirement requirement : requirements) {
-      MarketDataItem item = getValue(requirement);
+      MarketDataItem item = getSeries(requirement, dateRange);
       if (item.isAvailable()) {
         resultBuilder.foundData(requirement, item);
       } else {
@@ -45,15 +46,15 @@ public class EagerMarketDataFn implements MarketDataFn {
     return resultBuilder.build();
   }
 
-  private MarketDataItem getValue(MarketDataRequirement requirement) {
+  private MarketDataItem getSeries(MarketDataRequirement requirement, LocalDateRange dateRange) {
     if (requirement instanceof CurrencyPairMarketDataRequirement) {
 
       CurrencyPairMarketDataRequirement ccyReq = (CurrencyPairMarketDataRequirement) requirement;
-      return ccyReq.getFxRate(_currencyMatrix, _rawDataSource);
+      return ccyReq.getFxRateSeries(dateRange, _currencyMatrix, _rawDataSource);
     } else if (requirement instanceof CurveNodeMarketDataRequirement) {
 
       CurveNodeMarketDataRequirement nodeReq = (CurveNodeMarketDataRequirement) requirement;
-      return _rawDataSource.get(ExternalIdBundle.of(nodeReq.getExternalId()), nodeReq.getDataField());
+      return _rawDataSource.get(ExternalIdBundle.of(nodeReq.getExternalId()), nodeReq.getDataField(), dateRange);
     }
     return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
   }
