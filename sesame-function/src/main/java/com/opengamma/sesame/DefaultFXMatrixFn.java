@@ -55,10 +55,6 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
    */
   private final SecuritySource _securitySource;
   /**
-   * The currency pairs function.
-   */
-  private final CurrencyPairsFn _currencyPairsFn;
-  /**
    * The market data function.
    */
   private final MarketDataFn _marketDataFn;
@@ -70,12 +66,10 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   public DefaultFXMatrixFn(ConfigSource configSource,
                            ConventionSource conventionSource,
                            SecuritySource securitySource,
-                           CurrencyPairsFn currencyPairsFn,
                            MarketDataFn marketDataFn) {
     _configSource = ArgumentChecker.notNull(configSource, "configSource");
     _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
     _securitySource = ArgumentChecker.notNull(securitySource, "securitySource");
-    _currencyPairsFn = ArgumentChecker.notNull(currencyPairsFn, "currencyPairsFunction");
     _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataProviderFunction");
   }
 

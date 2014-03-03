@@ -12,6 +12,7 @@ import java.util.Map;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.link.Link;
 import com.opengamma.sesame.OutputName;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.ResultGenerator;
@@ -23,6 +24,11 @@ import com.opengamma.util.result.ResultGenerator;
 
   /** The receiver of the method call. */
   private final Object _receiver;
+
+  /**
+   * The underlying (i.e. non-proxied) receiver of the method call.
+   */
+  private final Object _underlyingReceiver;
 
   // TODO if this class needs to be serializable this needs to be stored in a different way
   /** The method that is the function implementation. */
@@ -45,6 +51,7 @@ import com.opengamma.util.result.ResultGenerator;
     _method = ArgumentChecker.notNull(method, "method");
     // TODO check the receiver is compatible with _declaringType
     _receiver = ArgumentChecker.notNull(receiver, "receiver");
+    _underlyingReceiver = EngineUtils.getProxiedObject(_receiver);
     _parameters = ArgumentChecker.notNull(parameters, "parameters");
     _inputParameter = inputParameter;
     _outputName = ArgumentChecker.notNull(outputName, "outputName");
@@ -79,30 +86,28 @@ import com.opengamma.util.result.ResultGenerator;
   /**
    * If the argument is a {@link Link} and the parameter doesn't expect a link then this method resolves and returns
    * the link, otherwise it returns the argument unchanged.
+   *
    * @param parameter The parameter corresponding to the argument
    * @param arg The argument
    * @return The resolved argument
    */
   private static Object resolveArgument(Parameter parameter, Object arg) {
-    Object resolvedArg;
-    if (arg instanceof Link) {
-      if (Link.class.isAssignableFrom(parameter.getClass())) {
-        // the arg is a link and the parameter is a link, just return the arg
-        resolvedArg = arg;
-      } else {
-        // the arg is a link but the parameter isn't - resolve the link and return the result
-        resolvedArg = ((Link) arg).resolve();
-      }
-    } else {
+    if (!(arg instanceof Link) || Link.class.isAssignableFrom(parameter.getClass())) {
       // the arg isn't a link, just return it
-      resolvedArg = arg;
+      return arg;
+    } else {
+      return ((Link) arg).resolve();
     }
-    return resolvedArg;
   }
 
   @Override
   public Object getReceiver() {
     return _receiver;
+  }
+
+  @Override
+  public Object getUnderlyingReceiver() {
+    return _underlyingReceiver;
   }
 
   @Override

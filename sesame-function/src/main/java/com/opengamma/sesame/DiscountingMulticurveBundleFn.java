@@ -37,3 +37,4 @@ public interface DiscountingMulticurveBundleFn {
       CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime, MarketDataFn marketDataFn);
 
 }
+

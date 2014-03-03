@@ -24,7 +24,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
 import java.util.Map;
 
 import org.hamcrest.MatcherAssert;
@@ -86,6 +85,8 @@ import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
+import com.opengamma.sesame.component.RetrievalPeriod;
+import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -220,9 +221,9 @@ public class FXForwardYCNSFunctionTest {
                                                                    CurrencyPair.of(GBP, USD)))),
                 function(DefaultHistoricalTimeSeriesFn.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod", Period.ofYears(1))),
+                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", Collections.emptySet()))),
+                         argument("impliedCurveNames", StringSet.of()))),
             implementations(FXForwardYieldCurveNodeSensitivitiesFn.class,
                             DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
                             FXForwardCalculatorFn.class,

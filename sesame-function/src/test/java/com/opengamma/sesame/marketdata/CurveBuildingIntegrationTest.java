@@ -12,10 +12,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.util.money.Currency.EUR;
-import static com.opengamma.util.money.Currency.GBP;
-import static com.opengamma.util.money.Currency.JPY;
-import static com.opengamma.util.money.Currency.USD;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -33,7 +29,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.rest.RemoteComponentServer;
@@ -42,7 +37,6 @@ import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigur
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.JmsLiveDataClient;
@@ -65,6 +59,8 @@ import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.component.RetrievalPeriod;
+import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -112,15 +108,11 @@ public class CurveBuildingIntegrationTest {
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),
                          argument("rootFinderMaxIterations", 1000)),
-                function(DefaultCurrencyPairsFn.class,
-                         argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                   CurrencyPair.of(EUR, USD),
-                                                                   CurrencyPair.of(GBP, USD)))),
                 function(DefaultHistoricalTimeSeriesFn.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod", Period.ofYears(1))),
+                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", Collections.emptySet())),
+                         argument("impliedCurveNames", StringSet.of())),
                 function(RawHistoricalMarketDataSourceImpl.class,
                          argument("dataSource", "BLOOMBERG"),
                          argument("dataProvider", "Market_Value")),
@@ -173,8 +165,7 @@ public class CurveBuildingIntegrationTest {
     ResettableLiveRawMarketDataSource rawDataSource = buildRawDataSource();
     ConfigLink<CurrencyMatrix> configLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
     MarketDataFn marketDataFn = new EagerMarketDataFn(configLink.resolve(), rawDataSource);
-    MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
-    Results initialResults = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory));
+    Results initialResults = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFn));
     System.out.println(initialResults);
 
     // First time through we're waiting for market data so expect failure
@@ -188,7 +179,7 @@ public class CurveBuildingIntegrationTest {
     //Thread.sleep(5000);
     rawDataSource.waitForData();
 
-    Results results = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory));
+    Results results = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFn));
     System.out.println(results);
 
     // Second time we should have received the market data

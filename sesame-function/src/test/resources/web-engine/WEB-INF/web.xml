@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
+
+  <!-- Jersey - JAXRS support -->
+  <servlet>
+    <servlet-name>jersey-spring</servlet-name>
+    <servlet-class>com.opengamma.component.rest.OpenGammaServlet</servlet-class>
+    <!--for creating subscriptions to entity updates-->
+    <init-param>
+      <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
+      <param-value>com.opengamma.web.analytics.rest.SubscribingFilterFactory</param-value>
+    </init-param>
+    <load-on-startup>3</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>jersey-spring</servlet-name>
+    <url-pattern>/jax/*</url-pattern>
+  </servlet-mapping>
+
+
+  <!-- Ehcache shutdown hook -->
+  <listener>
+    <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+  </listener>
+  
+  <!-- Disable Jetty's locking of static files -->
+  <servlet>
+    <servlet-name>default</servlet-name>
+    <init-param>
+      <param-name>useFileMappedBuffer</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </servlet>
+
+</web-app>

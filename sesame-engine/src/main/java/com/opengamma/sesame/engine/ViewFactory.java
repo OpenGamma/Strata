@@ -179,7 +179,7 @@ public class ViewFactory {
     s_logger.debug("graph complete");
 
     Collection<ChangeManager> changeManagers = pair.getSecond();
-    return new View(viewConfig, graph, inputs, _executor, marketDataFn, valuationTimeFn, components, _defaultConfig,
+    return new View(viewConfig, graph, inputs, _executor, marketDataFn, valuationTimeFn, _defaultConfig,
                     decorator, cacheInvalidator, graphModel, sourceListener, changeManagers);
   }
 

@@ -28,8 +28,13 @@ public interface InvokableFunction {
   OutputName getOutputName();
 
   /**
-   * @return the underlying object that implements the function
+   * @return the object that implements the function
    */
   Object getReceiver();
+
+  /**
+   * @return the underlying (i.e. non-proxied) object that implements the function
+   */
+  Object getUnderlyingReceiver();
 
 }

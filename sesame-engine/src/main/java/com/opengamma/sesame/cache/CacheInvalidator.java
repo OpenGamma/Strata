@@ -13,7 +13,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.marketdata.MarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 
 /**
  * TODO bulk register methods?
@@ -28,7 +28,7 @@ public interface CacheInvalidator {
 
   void register(ValuationTimeCacheEntry entry);
 
-  void invalidate(MarketDataFactory marketDataFactory,
+  void invalidate(MarketDataFn marketDataFactory,
                   ZonedDateTime valuationTime,
                   VersionCorrection configVersionCorrection,
                   Collection<ExternalId> marketData,

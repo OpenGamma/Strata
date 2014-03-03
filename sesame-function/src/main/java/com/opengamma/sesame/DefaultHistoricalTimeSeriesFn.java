@@ -27,6 +27,7 @@ import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
@@ -55,11 +56,11 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
                                        String resolutionKey,
                                        ConventionSource conventionSource,
                                        HistoricalMarketDataFn historicalMarketDataFn,
-                                       Period htsRetrievalPeriod) {
+                                       RetrievalPeriod htsRetrievalPeriod) {
     _htsSource = htsSource;
     _resolutionKey = resolutionKey;
     _conventionSource = conventionSource;
-    _htsRetrievalPeriod = htsRetrievalPeriod;
+    _htsRetrievalPeriod = htsRetrievalPeriod.getRetrievalPeriod();
     _historicalMarketDataFn = historicalMarketDataFn;
   }
 

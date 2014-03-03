@@ -20,7 +20,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.marketdata.MarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -42,7 +42,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> valuationTimeEntries = Lists.newArrayList();
   private final Ehcache _cache;
 
-  private MarketDataFactory _marketDataFactory;
+  private MarketDataFn _marketDataFn;
   private VersionCorrection _configVersionCorrection;
 
   public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods, Ehcache cache) {
@@ -77,20 +77,20 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   }
 
   @Override
-  public synchronized void invalidate(MarketDataFactory marketDataFactory,
+  public synchronized void invalidate(MarketDataFn marketDataFn,
                                       ZonedDateTime valuationTime,
                                       VersionCorrection configVersionCorrection,
                                       Collection<ExternalId> marketData,
                                       Collection<ObjectId> dbIds) {
-    ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
+    ArgumentChecker.notNull(marketDataFn, "marketDataFn");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     ArgumentChecker.notNull(marketData, "marketData");
     ArgumentChecker.notNull(dbIds, "dbIds");
 
     // if the market data provider has changed every value that uses market data is potentially invalid
-    if (!marketDataFactory.equals(_marketDataFactory)) {
-      _marketDataFactory = marketDataFactory;
+    if (!marketDataFn.equals(_marketDataFn)) {
+      _marketDataFn = marketDataFn;
       _cache.removeAll(_externalIdsToKeys.values());
       _objectIdsToKeys.clear();
     }

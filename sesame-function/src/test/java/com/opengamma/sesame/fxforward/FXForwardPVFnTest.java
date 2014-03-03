@@ -110,6 +110,8 @@ import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
+import com.opengamma.sesame.component.RetrievalPeriod;
+import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
@@ -132,13 +134,11 @@ import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalTimeSeriesMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataRequirement;
 import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
 import com.opengamma.sesame.marketdata.RawHistoricalMarketDataSourceImpl;
-import com.opengamma.sesame.marketdata.SimpleMarketDataFactory;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
@@ -301,9 +301,9 @@ public class FXForwardPVFnTest {
                                                                                          CurrencyPair.of(GBP, USD)))),
                                       function(DefaultHistoricalTimeSeriesFn.class,
                                                argument("resolutionKey", "DEFAULT_TSS"),
-                                               argument("htsRetrievalPeriod", Period.ofYears(1))),
+                                               argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                                       function(DefaultDiscountingMulticurveBundleFn.class,
-                                               argument("impliedCurveNames", Collections.emptySet()),
+                                               argument("impliedCurveNames", StringSet.of()),
                                                argument("curveConfig", ConfigLink.of("Temple USD",
                                                                                      CurveConstructionConfiguration.class))),
                                       function(RawHistoricalMarketDataSourceImpl.class,
@@ -353,8 +353,7 @@ public class FXForwardPVFnTest {
     DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
     marketDataFn.resetMarketData(
         MarketdataResourcesLoader.getData("marketdata.properties", FXForwardPVFn.class, ExternalSchemes.BLOOMBERG_TICKER));
-    MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory);
+    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFn);
     Results results = view.run(cycleArguments);
     System.out.println(results);
     ResultItem resultItem = results.get("Curve Bundle");
@@ -400,10 +399,10 @@ public class FXForwardPVFnTest {
                                                                               CurrencyPair.of(GBP, USD)))),
                                             function(DefaultHistoricalTimeSeriesFn.class,
                                                      argument("resolutionKey", "DEFAULT_TSS"),
-                                                     argument("htsRetrievalPeriod", Period.ofYears(1))),
+                                                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                                             function(DefaultDiscountingMulticurveBundleFn.class,
                                                      argument("impliedCurveNames",
-                                                              Collections.emptySet())))))));
+                                                              StringSet.of())))))));
 
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     String serverUrl = "http://devsvr-lx-2:8080";
@@ -414,7 +413,6 @@ public class FXForwardPVFnTest {
     marketDataFn.resetMarketData(
         MarketdataResourcesLoader.getData("marketdata.properties", FXForwardPVFn.class, ExternalSchemes.BLOOMBERG_TICKER));
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
-    MarketDataFactory marketDataFactory = new SimpleMarketDataFactory(marketDataFn);
     long startComponents = System.currentTimeMillis();
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
     s_logger.info("loaded components in {}ms", System.currentTimeMillis() - startComponents);
@@ -455,7 +453,7 @@ public class FXForwardPVFnTest {
     //@SuppressWarnings("unchecked")
     //Set<Pair<Integer, Integer>> traceFunctions = Sets.newHashSet(Pairs.of(0, 0), Pairs.of(1, 0));
     //CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory, traceFunctions);
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFactory);
+    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFn);
     //int nRuns = 1;
     int nRuns = 20;
     for (int i = 0; i < nRuns; i++) {
@@ -519,9 +517,9 @@ public class FXForwardPVFnTest {
                                                                    CurrencyPair.of(GBP, USD)))),
                 function(DefaultHistoricalTimeSeriesFn.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod", Period.ofYears(1))),
+                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", Collections.emptySet()))),
+                         argument("impliedCurveNames", StringSet.of()))),
             implementations(FXForwardPVFn.class,
                             DiscountingFXForwardPVFn.class,
                             FXForwardCalculatorFn.class,

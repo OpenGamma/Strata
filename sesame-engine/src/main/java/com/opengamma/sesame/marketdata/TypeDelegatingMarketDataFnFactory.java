@@ -36,7 +36,7 @@ public final class TypeDelegatingMarketDataFnFactory implements MarketDataFnFact
     return factory.create(spec);
   }
   
-  public static Builder buildder() {
+  public static Builder builder() {
     return new Builder();
   }
   

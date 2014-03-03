@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.mockito.Matchers;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 
@@ -37,6 +38,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
@@ -74,6 +76,7 @@ import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataFnFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -122,28 +125,40 @@ public class InterestRateMockSources {
     return _liborIndexId;
   }
 
-  public static ImmutableMap<Class<?>, Object> generateComponentMap(ZonedDateTime valuationTime, Class clazz) {
+  public static ImmutableMap<Class<?>, Object> generateComponentMap(ZonedDateTime valuationTime, Class functionType) {
 
-    Map<Class<?>, Object> componentMap = generateComponentMap(mockHolidaySource(),
-                                                              mockRegionSource(),
-                                                              mockConventionSource(),
-                                                              mockConfigSource(),
-                                                              mockSecuritySource(),
-                                                              mockHistoricalTimeSeriesSource(),
-                                                              createValuationTimeFn(valuationTime),
-                                                              mock(HistoricalMarketDataFn.class));
+    Map<Class<?>, Object> componentMap = generateBaseComponents();
 
     // Needed as the above method returns the wrong interface type for this market data function
     return ImmutableMap.<Class<?>, Object>builder()
         .putAll(componentMap)
-        .put(MarketDataFn.class, createMarketDataFn(clazz))
+        .put(MarketDataFn.class, createMarketDataFn(functionType))
+        .put(ValuationTimeFn.class, createValuationTimeFn(valuationTime))
         .build();
   }
 
-  private static MarketDataFn createMarketDataFn(Class clazz) {
+  public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
+    return generateComponentMap(mockHolidaySource(),
+                                mockRegionSource(),
+                                mockConventionSource(),
+                                mockConfigSource(),
+                                mockSecuritySource(),
+                                mockHistoricalTimeSeriesSource(),
+                                mock(HistoricalMarketDataFn.class));
+  }
+
+  public static MarketDataFnFactory createMarketDataFnFactory() {
+
+    MarketDataFnFactory mock = mock(MarketDataFnFactory.class);
+    when(mock.create(Matchers.<MarketDataSpecification>any())).thenReturn(createMarketDataFn(String.class));
+    return mock;
+  }
+
+  // todo - this functionType argument doesn't really do anything!
+  private static MarketDataFn createMarketDataFn(Class functionType) {
     try {
       DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-      marketDataFn.resetMarketData(MarketdataResourcesLoader.getData("usdMarketQuotes.properties", clazz, "Ticker"));
+      marketDataFn.resetMarketData(MarketdataResourcesLoader.getData("usdMarketQuotes.properties", functionType, "Ticker"));
       return marketDataFn;
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Exception whilst loading file", e);
@@ -160,8 +175,8 @@ public class InterestRateMockSources {
 
   private static CurveNodeIdMapper getUSDDiscountingCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
-    cashNodes.put(Tenor.OVERNIGHT, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D1")));
-    cashNodes.put(Tenor.OVERNIGHT, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D2")));
+    cashNodes.put(Tenor.ONE_DAY, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D1")));
+    cashNodes.put(Tenor.TWO_DAYS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D2")));
 
     Map<Tenor, CurveInstrumentProvider> swapNodes = Maps.newHashMap();
     swapNodes.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D3")));

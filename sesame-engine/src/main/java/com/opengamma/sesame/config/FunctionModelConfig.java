@@ -19,17 +19,7 @@ public interface FunctionModelConfig {
    * Singleton instance of an empty configuration.
    * Always returns a null implementation class and empty arguments.
    */
-  FunctionModelConfig EMPTY = new FunctionModelConfig() {
-    @Override
-    public Class<?> getFunctionImplementation(Class<?> functionType) {
-      return null;
-    }
-
-    @Override
-    public FunctionArguments getFunctionArguments(Class<?> functionType) {
-      return FunctionArguments.EMPTY;
-    }
-  };
+  FunctionModelConfig EMPTY = EmptyFunctionModelConfig.getInstance();
 
   //-------------------------------------------------------------------------
   /**
@@ -53,5 +43,4 @@ public interface FunctionModelConfig {
    * @return the arguments, empty if not found, not null
    */
   FunctionArguments getFunctionArguments(Class<?> functionType);
-
 }

@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -45,12 +43,14 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.fra.FRAFn;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
@@ -58,7 +58,12 @@ import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
 import com.opengamma.sesame.fxforward.FXForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.fxforward.FXForwardPVFn;
+import com.opengamma.sesame.fxforward.FXForwardYCNSPnLSeriesFn;
+import com.opengamma.sesame.fxforward.FXForwardYieldCurveNodeSensitivitiesFn;
+import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFnFactory;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the engine.
@@ -147,7 +152,12 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   protected AvailableOutputs initAvailableOutputs() {
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(DiscountingMulticurveBundleFn.class);
+    availableOutputs.register(FRAFn.class);
+    availableOutputs.register(InterestRateSwapFn.class);
     availableOutputs.register(FXForwardPVFn.class);
+    availableOutputs.register(FXForwardYCNSPnLSeriesFn.class);
+    availableOutputs.register(FXForwardYieldCurveNodeSensitivitiesFn.class);
     return availableOutputs;
   }
 

@@ -22,7 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Creates a {@link MarketDataFn} given a {@link MarketDataSpecification}.
+ * @deprecated use {@link MarketDataFnFactory} implementations
  */
+@Deprecated()
 public class SpecificationMarketDataFactory implements MarketDataFactory {
 
   // TODO do we want to reuse MarketDataSpecification or replace it?

@@ -13,7 +13,6 @@ import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,6 +91,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
+import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.money.Currency;
@@ -101,6 +101,8 @@ import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
+
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
@@ -142,7 +144,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                               HolidaySource holidaySource,
                                               RegionSource regionSource,
                                               RootFinderConfiguration rootFinderConfiguration,
-                                              Set<String> impliedCurveNames) {
+                                              StringSet impliedCurveNames) {
 
     _curveDefinitionProvider = curveDefinitionProvider;
     _curveSpecificationProvider = curveSpecificationProvider;
@@ -156,7 +158,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _rootFinderConfiguration = rootFinderConfiguration;
-    _impliedCurveNames = impliedCurveNames;
+    _impliedCurveNames = impliedCurveNames.getStrings();
   }
 
   //-------------------------------------------------------------------------

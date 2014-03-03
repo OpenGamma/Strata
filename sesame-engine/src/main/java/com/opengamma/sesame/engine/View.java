@@ -40,7 +40,6 @@ import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 
@@ -57,7 +56,6 @@ public class View implements AutoCloseable {
   private final ExecutorService _executor;
   private final DelegatingMarketDataFn _marketDataFn;
   private final DefaultValuationTimeFn _valuationTimeFn;
-  private final ComponentMap _components;
   private final FunctionModelConfig _systemDefaultConfig;
   private final NodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
@@ -73,7 +71,6 @@ public class View implements AutoCloseable {
                      ExecutorService executor,
                      DelegatingMarketDataFn marketDataFn,
                      DefaultValuationTimeFn valuationTimeFn,
-                     ComponentMap components,
                      FunctionModelConfig systemDefaultConfig,
                      NodeDecorator decorator,
                      CacheInvalidator cacheInvalidator,
@@ -91,7 +88,6 @@ public class View implements AutoCloseable {
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
     _decorator = ArgumentChecker.notNull(decorator, "decorator");
-    _components = ArgumentChecker.notNull(components, "components");
     _changeManagers = ArgumentChecker.notNull(changeManagers, "changeManagers");
     _columnNames = columnNames(_viewConfig);
   }
@@ -168,11 +164,14 @@ public class View implements AutoCloseable {
           // this shouldn't happen if the graph is built correctly
           throw new OpenGammaRuntimeException("No function found for column " + column + " and " + input);
         }
-        FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(column.getFunctionConfig(functionInput.getClass()),
-                                                                                       _viewConfig.getDefaultConfig(),
-                                                                                       _systemDefaultConfig);
-        FunctionArguments args = functionModelConfig.getFunctionArguments(function.getReceiver().getClass());
         Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(rowIndex, colIndex));
+
+        FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(
+            column.getFunctionConfig(functionInput.getClass()),
+            _viewConfig.getDefaultConfig(),
+            _systemDefaultConfig);
+
+        FunctionArguments args = functionModelConfig.getFunctionArguments(function.getUnderlyingReceiver().getClass());
         portfolioTasks.add(new PortfolioTask(functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
@@ -186,8 +185,13 @@ public class View implements AutoCloseable {
     for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
       InvokableFunction function = _graph.getNonPortfolioFunction(output.getName());
       Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(output.getName()));
-      FunctionModelConfig functionModelConfig = output.getOutput().getFunctionModelConfig();
-      FunctionArguments args = functionModelConfig.getFunctionArguments(function.getReceiver().getClass());
+
+      FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(
+          output.getOutput().getFunctionModelConfig(),
+          _viewConfig.getDefaultConfig(),
+          _systemDefaultConfig);
+
+      FunctionArguments args = functionModelConfig.getFunctionArguments(function.getUnderlyingReceiver().getClass());
       tasks.add(new NonPortfolioTask(args, output.getName(), function, tracer));
     } return tasks;
   }
@@ -216,13 +220,13 @@ public class View implements AutoCloseable {
     //   for live sources this will be individual values
     //   for snapshots it will be the entire snapshot if it's been updated in the DB
     //   if the data provider has completely changed then everything must go (which is currently done in the invalidator)
-    _cacheInvalidator.invalidate(cycleArguments.getMarketDataFactory(),
+    _cacheInvalidator.invalidate(cycleArguments.getMarketDataFn(),
                                  cycleArguments.getValuationTime(),
                                  cycleArguments.getConfigVersionCorrection(),
                                  Collections.<ExternalId>emptyList(),
                                  _sourceListener.getIds());
     _sourceListener.clear();
-    _marketDataFn.setDelegate(cycleArguments.getMarketDataFactory().create(_components));
+    _marketDataFn.setDelegate(cycleArguments.getMarketDataFn());
     _valuationTimeFn.setValuationTime(cycleArguments.getValuationTime());
   }
 
@@ -265,22 +269,20 @@ public class View implements AutoCloseable {
 
     @Override
     public TaskResult call() throws Exception {
-      Result<?> result;
       TracingProxy.start(_tracer);
-      try {
-        Object retVal = _invokableFunction.invoke(_input, _args);
-        if (retVal instanceof Result) {
-          result = (Result) retVal;
-        } else {
-          result = ResultGenerator.success(retVal);
-        }
-      } catch (Exception e) {
-        s_logger.warn("Failed to execute function", e);
-        // TODO ResultGenerator needs to handle exceptions properly. fix this when it does
-        result = ResultGenerator.failure(FailureStatus.ERROR, e.getMessage());
-      }
+      Result<?> result = invokeFunction();
       CallGraph callGraph = TracingProxy.end();
       return createResult(result, callGraph);
+    }
+
+    private Result<?> invokeFunction() {
+      try {
+        Object retVal = _invokableFunction.invoke(_input, _args);
+        return retVal instanceof Result ? (Result) retVal : ResultGenerator.success(retVal);
+      } catch (Exception e) {
+        s_logger.warn("Failed to execute function", e);
+        return ResultGenerator.failure(e);
+      }
     }
 
     protected abstract TaskResult createResult(Result<?> result, CallGraph callGraph);

@@ -23,7 +23,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -53,6 +52,8 @@ import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.component.RetrievalPeriod;
+import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -92,13 +93,11 @@ public class FRAFnTest {
                      argument("rootFinderAbsoluteTolerance", 1e-9),
                      argument("rootFinderRelativeTolerance", 1e-9),
                      argument("rootFinderMaxIterations", 1000)),
-            function(DefaultCurrencyPairsFn.class,
-                     argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
             function(DefaultHistoricalTimeSeriesFn.class,
                      argument("resolutionKey", "DEFAULT_TSS"),
-                     argument("htsRetrievalPeriod", Period.ofYears(1))),
+                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
             function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", ImmutableSet.of()))),
+                     argument("impliedCurveNames", StringSet.of()))),
         implementations(FRAFn.class, DiscountingFRAFn.class,
                         CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
