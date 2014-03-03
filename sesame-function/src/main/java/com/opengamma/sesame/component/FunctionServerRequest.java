@@ -37,7 +37,7 @@ import com.opengamma.sesame.config.ViewConfig;
  * non-portfolio outputs.
  */
 @BeanDefinition
-public class FunctionServerRequest implements ImmutableBean {
+public final class FunctionServerRequest implements ImmutableBean {
 
   /**
    * The configuration for the view to be executed.
@@ -86,19 +86,19 @@ public class FunctionServerRequest implements ImmutableBean {
     return new FunctionServerRequest.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected FunctionServerRequest(FunctionServerRequest.Builder builder) {
-    JodaBeanUtils.notNull(builder._viewConfig, "viewConfig");
-    JodaBeanUtils.notNull(builder._valuationTime, "valuationTime");
-    JodaBeanUtils.notNull(builder._inputs, "inputs");
-    JodaBeanUtils.notNull(builder._marketDataSpec, "marketDataSpec");
-    this._viewConfig = builder._viewConfig;
-    this._valuationTime = builder._valuationTime;
-    this._inputs = ImmutableList.copyOf(builder._inputs);
-    this._marketDataSpec = builder._marketDataSpec;
+  private FunctionServerRequest(
+      ViewConfig viewConfig,
+      ZonedDateTime valuationTime,
+      List<ManageableSecurity> inputs,
+      MarketDataSpecification marketDataSpec) {
+    JodaBeanUtils.notNull(viewConfig, "viewConfig");
+    JodaBeanUtils.notNull(valuationTime, "valuationTime");
+    JodaBeanUtils.notNull(inputs, "inputs");
+    JodaBeanUtils.notNull(marketDataSpec, "marketDataSpec");
+    this._viewConfig = viewConfig;
+    this._valuationTime = valuationTime;
+    this._inputs = ImmutableList.copyOf(inputs);
+    this._marketDataSpec = marketDataSpec;
   }
 
   @Override
@@ -195,27 +195,19 @@ public class FunctionServerRequest implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("FunctionServerRequest{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("viewConfig").append('=').append(getViewConfig()).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
+    buf.append("inputs").append('=').append(getInputs()).append(',').append(' ');
+    buf.append("marketDataSpec").append('=').append(JodaBeanUtils.toString(getMarketDataSpec()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("viewConfig").append('=').append(JodaBeanUtils.toString(getViewConfig())).append(',').append(' ');
-    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
-    buf.append("inputs").append('=').append(JodaBeanUtils.toString(getInputs())).append(',').append(' ');
-    buf.append("marketDataSpec").append('=').append(JodaBeanUtils.toString(getMarketDataSpec())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FunctionServerRequest}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -255,7 +247,7 @@ public class FunctionServerRequest implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -293,7 +285,7 @@ public class FunctionServerRequest implements ImmutableBean {
      * The meta-property for the {@code viewConfig} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ViewConfig> viewConfig() {
+    public MetaProperty<ViewConfig> viewConfig() {
       return _viewConfig;
     }
 
@@ -301,7 +293,7 @@ public class FunctionServerRequest implements ImmutableBean {
      * The meta-property for the {@code valuationTime} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ZonedDateTime> valuationTime() {
+    public MetaProperty<ZonedDateTime> valuationTime() {
       return _valuationTime;
     }
 
@@ -309,7 +301,7 @@ public class FunctionServerRequest implements ImmutableBean {
      * The meta-property for the {@code inputs} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ManageableSecurity>> inputs() {
+    public MetaProperty<List<ManageableSecurity>> inputs() {
       return _inputs;
     }
 
@@ -317,7 +309,7 @@ public class FunctionServerRequest implements ImmutableBean {
      * The meta-property for the {@code marketDataSpec} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<MarketDataSpecification> marketDataSpec() {
+    public MetaProperty<MarketDataSpecification> marketDataSpec() {
       return _marketDataSpec;
     }
 
@@ -352,7 +344,7 @@ public class FunctionServerRequest implements ImmutableBean {
   /**
    * The bean-builder for {@code FunctionServerRequest}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<FunctionServerRequest> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FunctionServerRequest> {
 
     private ViewConfig _viewConfig;
     private ZonedDateTime _valuationTime;
@@ -362,14 +354,14 @@ public class FunctionServerRequest implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(FunctionServerRequest beanToCopy) {
+    private Builder(FunctionServerRequest beanToCopy) {
       this._viewConfig = beanToCopy.getViewConfig();
       this._valuationTime = beanToCopy.getValuationTime();
       this._inputs = new ArrayList<ManageableSecurity>(beanToCopy.getInputs());
@@ -441,7 +433,11 @@ public class FunctionServerRequest implements ImmutableBean {
 
     @Override
     public FunctionServerRequest build() {
-      return new FunctionServerRequest(this);
+      return new FunctionServerRequest(
+          _viewConfig,
+          _valuationTime,
+          _inputs,
+          _marketDataSpec);
     }
 
     //-----------------------------------------------------------------------
@@ -494,20 +490,12 @@ public class FunctionServerRequest implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("FunctionServerRequest.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("viewConfig").append('=').append(JodaBeanUtils.toString(_viewConfig)).append(',').append(' ');
       buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
       buf.append("inputs").append('=').append(JodaBeanUtils.toString(_inputs)).append(',').append(' ');
-      buf.append("marketDataSpec").append('=').append(JodaBeanUtils.toString(_marketDataSpec)).append(',').append(' ');
+      buf.append("marketDataSpec").append('=').append(JodaBeanUtils.toString(_marketDataSpec));
+      buf.append('}');
+      return buf.toString();
     }
 
   }
