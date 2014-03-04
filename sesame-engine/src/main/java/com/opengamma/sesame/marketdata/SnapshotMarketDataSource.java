@@ -24,23 +24,23 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * TODO needs to support a listener in case the snapshot is changed in the DB. presumably same mechanism as live data
  */
-public class SnapshotRawMarketDataSource implements RawMarketDataSource {
+public class SnapshotMarketDataSource implements MarketDataSource {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SnapshotRawMarketDataSource.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SnapshotMarketDataSource.class);
   
   private final UnstructuredMarketDataSnapshot _snapshot;
 
-  public SnapshotRawMarketDataSource(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
+  public SnapshotMarketDataSource(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
     // TODO if ID is unversioned need to get the VC from the engine to ensure consistency across the cycle
     _snapshot = getFlattenedSnapshot(snapshotSource.get(snapshotId));
   }
 
   @Override
-  public MarketDataItem get(ExternalIdBundle idBundle, String dataField) {
-    ValueSnapshot value = _snapshot.getValue(idBundle, dataField);
+  public MarketDataItem get(ExternalIdBundle idBundle, FieldName fieldName) {
+    ValueSnapshot value = _snapshot.getValue(idBundle, fieldName.getName());
     if (value == null) {
-      return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
+      return MarketDataItem.UNAVAILABLE;
     }
 
     Object overrideValue = value.getOverrideValue();
@@ -52,7 +52,7 @@ public class SnapshotRawMarketDataSource implements RawMarketDataSource {
     if (marketValue != null) {
       return MarketDataItem.available(marketValue);
     }
-    return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
+    return MarketDataItem.UNAVAILABLE;
   }
   
   private UnstructuredMarketDataSnapshot getFlattenedSnapshot(StructuredMarketDataSnapshot snapshot) {

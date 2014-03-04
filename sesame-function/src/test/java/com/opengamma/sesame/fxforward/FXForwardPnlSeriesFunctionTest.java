@@ -99,7 +99,7 @@ import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.EagerMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.HistoricalRawMarketDataSource;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.Tracer;
@@ -168,8 +168,8 @@ public class FXForwardPnlSeriesFunctionTest {
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
-    HistoricalRawMarketDataSource rawDataSource =
-        new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+    HistoricalMarketDataSource rawDataSource =
+        new HistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
     // TODO set up a service context and do this with a link
     CurrencyMatrix currencyMatrix = configSource.getLatestByName(CurrencyMatrix.class, "BloombergLiveData");
     MarketDataFn marketDataProvider = new EagerMarketDataFn(currencyMatrix, rawDataSource);

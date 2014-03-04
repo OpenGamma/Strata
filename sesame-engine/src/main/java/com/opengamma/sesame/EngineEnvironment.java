@@ -64,6 +64,6 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public Environment with(ZonedDateTime valuationTime, MarketDataSource marketData) {
-    return new SimpleEnvironment(valuationTime, marketData);
+    return new SimpleEnvironment(valuationTme, marketData);
   }
 }

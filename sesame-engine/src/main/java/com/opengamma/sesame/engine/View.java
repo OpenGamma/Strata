@@ -23,7 +23,6 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
-import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionArguments;
@@ -54,8 +53,6 @@ public class View implements AutoCloseable {
   private final ViewConfig _viewConfig;
   private final List<?> _inputs;
   private final ExecutorService _executor;
-  private final DelegatingMarketDataFn _marketDataFn;
-  private final DefaultValuationTimeFn _valuationTimeFn;
   private final FunctionModelConfig _systemDefaultConfig;
   private final NodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
@@ -69,8 +66,6 @@ public class View implements AutoCloseable {
                      Graph graph,
                      List<?> inputs,
                      ExecutorService executor,
-                     DelegatingMarketDataFn marketDataFn,
-                     DefaultValuationTimeFn valuationTimeFn,
                      FunctionModelConfig systemDefaultConfig,
                      NodeDecorator decorator,
                      CacheInvalidator cacheInvalidator,
@@ -83,8 +78,6 @@ public class View implements AutoCloseable {
     _inputs = ArgumentChecker.notNull(inputs, "inputs");
     _graph = ArgumentChecker.notNull(graph, "graph");
     _executor = ArgumentChecker.notNull(executor, "executor");
-    _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataFn");
-    _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
     _decorator = ArgumentChecker.notNull(decorator, "decorator");
@@ -98,7 +91,7 @@ public class View implements AutoCloseable {
    * @return The calculation results, not null
    */
   public synchronized Results run(CycleArguments cycleArguments) {
-    initializeCycle(cycleArguments);
+    invalidateCache(cycleArguments);
     List<Task> tasks = Lists.newArrayList();
     tasks.addAll(portfolioTasks(cycleArguments));
     tasks.addAll(nonPortfolioTasks(cycleArguments));
@@ -211,7 +204,7 @@ public class View implements AutoCloseable {
    * up market data etc.
    * @param cycleArguments Arguments for running the cycle
    */
-  private void initializeCycle(CycleArguments cycleArguments) {
+  private void invalidateCache(CycleArguments cycleArguments) {
     // TODO need to query the market data factory to see what data has changed during the cycle
     //   for live sources this will be individual values
     //   for snapshots it will be the entire snapshot if it's been updated in the DB
@@ -223,8 +216,6 @@ public class View implements AutoCloseable {
                                  Collections.<ExternalId>emptyList(),
                                  _sourceListener.getIds());
     _sourceListener.clear();
-    _marketDataFn.setDelegate(cycleArguments.getMarketDataFn());
-    _valuationTimeFn.setValuationTime(cycleArguments.getValuationTime());
   }
 
   @Override

@@ -30,7 +30,7 @@ public class LiveMarketDataFnFactory implements MarketDataFnFactory {
     ImmutableMap.Builder<String, MarketDataFn> builder = ImmutableMap.builder(); 
     for (LiveDataMetaDataProvider provider : providers) {
       LiveDataClient liveDataClient = LiveMarketDataProviderFactoryComponentFactory.createLiveDataClient(provider, jmsConnector);
-      RawMarketDataSource rawDataSource = new ResettableLiveRawMarketDataSource(new LiveDataManager(liveDataClient));
+      RawMarketDataSource rawDataSource = new ResettableLiveMarketDataSource(new LiveDataManager(liveDataClient));
       ConfigLink<CurrencyMatrix> configLink = ConfigLink.of(currencyMatrixConfigName, CurrencyMatrix.class);
       MarketDataFn marketDataFn = new EagerMarketDataFn(configLink.resolve(), rawDataSource);
       builder.put(provider.metaData().getDescription(), marketDataFn);

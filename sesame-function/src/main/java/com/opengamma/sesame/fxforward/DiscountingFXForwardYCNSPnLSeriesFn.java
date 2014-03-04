@@ -48,8 +48,8 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.ValuationTimeFn;
-import com.opengamma.sesame.marketdata.MarketDataFnFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataSourceFactory;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -79,7 +79,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
   private final CurveSpecificationFn _curveSpecificationFunction;
   private final CurrencyPairsFn _currencyPairsFn;
-  private final MarketDataFnFactory _marketDataFnFactory;
+  private final MarketDataSourceFactory _marketDataSourceFactory;
 
   // todo - this is only a temporary solution to determine the implied deposit curves
   private final Set<String> _impliedCurveNames;
@@ -97,7 +97,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                              final CurveSpecificationFn curveSpecificationFunction,
                                              final CurrencyPairsFn currencyPairsFn,
-                                             final MarketDataFnFactory marketDataFnFactory,
+                                             final MarketDataSourceFactory marketDataSourceFactory,
                                              final Set<String> impliedCurveNames,
                                              final ValuationTimeFn valuationTimeFn,
                                              final DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
@@ -110,7 +110,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
-    _marketDataFnFactory = marketDataFnFactory;
+    _marketDataSourceFactory = marketDataSourceFactory;
     _impliedCurveNames = impliedCurveNames;
     _valuationTimeFn = valuationTimeFn;
     _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
@@ -124,19 +124,20 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                              final CurveSpecificationFn curveSpecificationFunction,
                                              final CurrencyPairsFn currencyPairsFn,
-                                             final MarketDataFnFactory marketDataFnFactory,
+                                             final MarketDataSourceFactory marketDataSourceFactory,
                                              final Set<String> impliedCurveNames,
                                              final ValuationTimeFn valuationTimeFn,
                                              final DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
                                              final Period seriesPeriod) {
     this(calculatorProvider, curveDefinition,
          curveConfig, Optional.<Currency>absent(), fxReturnSeriesProvider,
-        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, marketDataFnFactory,
+        historicalTimeSeriesProvider, curveSpecificationFunction, currencyPairsFn, marketDataSourceFactory,
         impliedCurveNames, valuationTimeFn, discountingMulticurveBundleFn, seriesPeriod);
   }
 
   @Override
-  public Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateYCNSPnlSeries(final FXForwardSecurity security) {
+  public Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateYCNSPnlSeries(Environment env,
+                                                                                       FXForwardSecurity security) {
 
     // If this is for an Implied Deposit curve we need to behave differently
     // 1. We need to calculate the multicurve bundle for each day that
@@ -154,7 +155,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
     // todo - these should probably be separate classes as there is little commonality in the methods
     return _impliedCurveNames.contains(_curveDefinition.getName()) ?
-        calculateForImpliedCurve(security, cpResult) :
+        calculateForImpliedCurve(env, security, cpResult) :
         calculateForNonImpliedCurve(security, cpResult);
   }
 
@@ -178,7 +179,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       // todo - how do we adjust for holidays?
       for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
         MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(date);
-        MarketDataSource marketDataSource = _marketDataFnFactory.create(marketDataSpec);
+        MarketDataSource marketDataSource = _marketDataSourceFactory.create(marketDataSpec);
 
         Environment envForDate = env.with(date.atStartOfDay(ZoneOffset.UTC), marketDataSource);
 

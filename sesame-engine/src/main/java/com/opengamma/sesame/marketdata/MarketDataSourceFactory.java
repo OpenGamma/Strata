@@ -8,18 +8,16 @@ package com.opengamma.sesame.marketdata;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**
- * Factory for {@link MarketDataFn}.
- * @deprecated use {@link MarketDataSourceFactory}
+ * Factory for {@link MarketDataSource}.
  */
-@Deprecated
-public interface MarketDataFnFactory {
+public interface MarketDataSourceFactory {
 
   /**
-   * Creates a {@link MarketDataFn} for a given specification.
+   * Creates a {@link MarketDataSource} for a given specification.
    * 
    * @param spec  the market data specification, not null
-   * @return the market data function, not null
+   * @return the market data source, not null
    */
-  MarketDataFn create(MarketDataSpecification spec);
+  MarketDataSource create(MarketDataSpecification spec);
   
 }

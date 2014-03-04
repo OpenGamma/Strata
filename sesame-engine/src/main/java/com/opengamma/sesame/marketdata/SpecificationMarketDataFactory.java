@@ -52,14 +52,14 @@ public class SpecificationMarketDataFactory implements MarketDataFactory {
     HistoricalTimeSeriesSource timeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
     if (_marketDataSpecification instanceof FixedHistoricalMarketDataSpecification) {
       LocalDate date = ((FixedHistoricalMarketDataSpecification) _marketDataSpecification).getSnapshotDate();
-      return new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+      return new HistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
     } else if (_marketDataSpecification instanceof UserMarketDataSpecification) {
       MarketDataSnapshotSource snapshotSource = components.getComponent(MarketDataSnapshotSource.class);
       UniqueId snapshotId = ((UserMarketDataSpecification) _marketDataSpecification).getUserSnapshotId();
-      return new SnapshotRawMarketDataSource(snapshotSource, snapshotId);
+      return new SnapshotMarketDataSource(snapshotSource, snapshotId);
     } else if (_marketDataSpecification instanceof LiveMarketDataSpecification) {
       LiveDataClient liveDataClient = components.getComponent(LiveDataClient.class);
-      return new ResettableLiveRawMarketDataSource(new LiveDataManager(liveDataClient));
+      return new ResettableLiveMarketDataSource(new LiveDataManager(liveDataClient));
     } else {
       throw new IllegalArgumentException("Unexpected spec type " + _marketDataSpecification);
     }

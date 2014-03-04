@@ -12,7 +12,11 @@ import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.id.ExternalIdBundle;
 
-public class ResettableLiveRawMarketDataSource implements RawMarketDataSource, LiveDataManager.LDListener {
+/**
+ * TODO this probably isn't needed as the data is getting passed in
+ */
+@Deprecated
+public class ResettableLiveMarketDataSource implements MarketDataSource, LiveDataManager.LDListener {
 
   private final LiveDataManager _liveDataManager;
 
@@ -22,7 +26,7 @@ public class ResettableLiveRawMarketDataSource implements RawMarketDataSource, L
 
   private boolean _valuesPending;
 
-  public ResettableLiveRawMarketDataSource(LiveDataManager liveDataManager) {
+  public ResettableLiveMarketDataSource(LiveDataManager liveDataManager) {
     _liveDataManager = liveDataManager;
   }
 
@@ -41,10 +45,10 @@ public class ResettableLiveRawMarketDataSource implements RawMarketDataSource, L
   }
 
   @Override
-  public MarketDataItem get(ExternalIdBundle idBundle, String dataField) {
+  public MarketDataItem get(ExternalIdBundle idBundle, FieldName fieldName) {
 
     if (_latestSnapshot.containsKey(idBundle)) {
-      final Object value = _latestSnapshot.get(idBundle).getValue(dataField);
+      final Object value = _latestSnapshot.get(idBundle).getValue(fieldName.getName());
       return value != null ?
           MarketDataItem.available(value) :
           MarketDataItem.UNAVAILABLE;

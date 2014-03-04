@@ -38,7 +38,7 @@ public class FixedHistoricalMarketDataFnFactory implements MarketDataFnFactory {
       throw new IllegalArgumentException("Expected " + FixedHistoricalMarketDataSpecification.class + " but was " + spec.getClass());
     }
     FixedHistoricalMarketDataSpecification fixedHistoricalMarketDataSpec = (FixedHistoricalMarketDataSpecification) spec;
-    RawMarketDataSource dataSource = new HistoricalRawMarketDataSource(_historicalTimeSeriesSource, fixedHistoricalMarketDataSpec.getSnapshotDate(), _dataSource, _dataProvider);
+    RawMarketDataSource dataSource = new HistoricalMarketDataSource(_historicalTimeSeriesSource, fixedHistoricalMarketDataSpec.getSnapshotDate(), _dataSource, _dataProvider);
     ConfigLink<CurrencyMatrix> configLink = ConfigLink.of(_currencyMatrixConfigName, CurrencyMatrix.class);
     return new EagerMarketDataFn(configLink.resolve(), dataSource);
   }

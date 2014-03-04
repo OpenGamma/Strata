@@ -191,7 +191,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
   @Override
   public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
-      CurveConstructionConfiguration curveConfig, ZonedDateTime valuationTime, MarketDataFn marketDataFn) {
+      Environment env, CurveConstructionConfiguration curveConfig) {
 
     // todo - this implementation is nowhere near complete
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(curveConfig, marketDataFn);
@@ -209,7 +209,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     return success(extractImpliedDepositCurveData(currency,
                                                   curveDefinition.getValue(),
                                                   exogenousBundles.getValue(),
-                                                  valuationTime));
+                                                  // TODO can this be the valuation date?
+                                                  env.getValuationTime()));
   }
 
   private Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> extractImpliedDepositCurveData(Currency currency,
@@ -236,6 +237,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       final Tenor tenor = node.getResolvedMaturity();
       final ZonedDateTime paymentDate =
           ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MODIFIED_FOLLOWING, calendar, true);
+      // TODO do these need to be valuation times or can they be dates?
       final double startTime = TimeCalculator.getTimeBetween(valuationTime, spotDate);
       final double endTime = TimeCalculator.getTimeBetween(valuationTime, paymentDate);
       final double accrualFactor = dayCount.getDayCountFraction(spotDate, paymentDate, calendar);

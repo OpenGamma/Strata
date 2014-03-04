@@ -42,7 +42,7 @@ public class RawHistoricalMarketDataSourceImpl implements RawHistoricalMarketDat
                                                                          startDate, true, endDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
       s_logger.info("No time-series for {}", idBundle);
-      return MarketDataItem.missing(MarketDataStatus.UNAVAILABLE);
+      return MarketDataItem.UNAVAILABLE;
     } else {
       return MarketDataItem.available(hts.getTimeSeries());
     }

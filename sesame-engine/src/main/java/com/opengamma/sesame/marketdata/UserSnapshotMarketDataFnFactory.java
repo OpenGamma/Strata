@@ -31,7 +31,7 @@ public class UserSnapshotMarketDataFnFactory implements MarketDataFnFactory {
       throw new IllegalArgumentException("Expected " + UserMarketDataSpecification.class + " but was " + spec.getClass());
     }
     UserMarketDataSpecification snapshotMarketDataSpec = (UserMarketDataSpecification) spec;
-    RawMarketDataSource dataSource = new SnapshotRawMarketDataSource(_snapshotSource, snapshotMarketDataSpec.getUserSnapshotId());
+    RawMarketDataSource dataSource = new SnapshotMarketDataSource(_snapshotSource, snapshotMarketDataSpec.getUserSnapshotId());
     ConfigLink<CurrencyMatrix> configLink = ConfigLink.of(_currencyMatrixConfigName, CurrencyMatrix.class);
     return new EagerMarketDataFn(configLink.resolve(), dataSource);
   }

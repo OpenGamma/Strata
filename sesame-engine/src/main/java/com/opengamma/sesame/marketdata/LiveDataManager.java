@@ -367,7 +367,7 @@ public class LiveDataManager implements LiveDataListener {
       _subscriptionKeys = ArgumentChecker.notEmpty(subscriptionKeys, "subscriptionKeys");
     }
 
-    public SubscriptionRequest(ResettableLiveRawMarketDataSource listener,
+    public SubscriptionRequest(ResettableLiveMarketDataSource listener,
                                RequestType subscribe,
                                K idBundle) {
       this(listener, subscribe, ImmutableSet.of(idBundle));

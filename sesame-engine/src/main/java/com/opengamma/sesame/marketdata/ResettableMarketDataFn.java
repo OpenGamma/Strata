@@ -22,7 +22,9 @@ import java.util.Set;
  * (e.g. requested but not received, not available etc) and thus client functions
  * will receive the data they need to complete their calculations. Changes such as
  * trades being added may result in additional requests being made in later cycles.
+ * @deprecated this probably isn't needed as market data is passed in as part of the environment
  */
+@Deprecated
 public interface ResettableMarketDataFn extends MarketDataFn {
 
   /**

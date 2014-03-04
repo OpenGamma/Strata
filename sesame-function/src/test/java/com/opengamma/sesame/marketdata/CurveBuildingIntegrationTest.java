@@ -162,7 +162,7 @@ public class CurveBuildingIntegrationTest {
 
     View view = viewFactory.createView(viewConfig, Collections.emptyList());
 
-    ResettableLiveRawMarketDataSource rawDataSource = buildRawDataSource();
+    ResettableLiveMarketDataSource rawDataSource = buildRawDataSource();
     ConfigLink<CurrencyMatrix> configLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
     MarketDataFn marketDataFn = new EagerMarketDataFn(configLink.resolve(), rawDataSource);
     Results initialResults = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFn));
@@ -190,8 +190,8 @@ public class CurveBuildingIntegrationTest {
     assertThat(value, is(not(nullValue())));
   }
 
-  private ResettableLiveRawMarketDataSource buildRawDataSource() {
-    return new ResettableLiveRawMarketDataSource(new LiveDataManager(buildLiveDataClient()));
+  private ResettableLiveMarketDataSource buildRawDataSource() {
+    return new ResettableLiveMarketDataSource(new LiveDataManager(buildLiveDataClient()));
   }
 
   private LiveDataClient buildLiveDataClient() {
