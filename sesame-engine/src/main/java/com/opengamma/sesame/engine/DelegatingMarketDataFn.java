@@ -16,7 +16,6 @@ import com.opengamma.util.result.Result;
 /**
  * Simple delegating market data provider that allows the engine to switch market data providers between cycles
  * while the functions still point at the same provider.
- * TODO will need dynamic thread local binding of provider functions to support full reval
  */
 /* package */ class DelegatingMarketDataFn implements MarketDataFn {
 

@@ -231,8 +231,6 @@ public class FXForwardPnlSeriesFunctionTest {
                                                                    CurrencyPair.of(GBP, USD)))),
                 function(DefaultHistoricalTimeSeriesFn.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
-                         // TODO will need to handle this differently when arg values are strings and primitives
-                         // will need string conversion for values like this which can be parsed
                          argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
                          argument("impliedCurveNames", StringSet.of()))),

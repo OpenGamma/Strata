@@ -15,7 +15,9 @@ import com.opengamma.util.result.Result;
 
 /**
  * Attempts to provide market data by immediately looking it up in a {@link RawMarketDataSource}.
+ * @deprecated use {@link MarketDataFn2}
  */
+@Deprecated
 public class EagerMarketDataFn implements MarketDataFn {
 
   private final RawMarketDataSource _rawDataSource;

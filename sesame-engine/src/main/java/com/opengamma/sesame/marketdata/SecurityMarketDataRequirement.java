@@ -10,7 +10,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * A market data requirement for a security / data field combination.
+ * @deprecated use {@link MarketDataFn2}
  */
+@Deprecated
 public class SecurityMarketDataRequirement implements MarketDataRequirement {
 
   /**

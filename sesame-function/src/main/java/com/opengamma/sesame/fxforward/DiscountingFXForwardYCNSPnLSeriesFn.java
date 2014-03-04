@@ -44,11 +44,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.ValuationTimeFn;
-import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFnFactory;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -157,7 +158,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
         calculateForNonImpliedCurve(security, cpResult);
   }
 
-  private Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateForImpliedCurve(FXForwardSecurity security,
+  private Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateForImpliedCurve(Environment env,
+                                                                                          FXForwardSecurity security,
                                                                                           Result<CurrencyPair> cpResult) {
 
     // We need the calculator so we can get the block curve sensitivities
@@ -176,11 +178,13 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       // todo - how do we adjust for holidays?
       for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
         MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(date);
-        MarketDataFn marketDataFn = _marketDataFnFactory.create(marketDataSpec);
-        
+        MarketDataSource marketDataSource = _marketDataFnFactory.create(marketDataSpec);
+
+        Environment envForDate = env.with(date.atStartOfDay(ZoneOffset.UTC), marketDataSource);
+
         // build multicurve for the date
         Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =
-            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(_curveConfig, date.atStartOfDay(ZoneOffset.UTC), marketDataFn);
+            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(envForDate, _curveConfig);
 
         if (result.isValueAvailable()) {
           Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> resultValue = result.getValue();

@@ -17,7 +17,9 @@ import com.opengamma.util.time.LocalDateRange;
 
 /**
  * A market data requirement for a currency pair spot rate.
+ * @deprecated use {@link MarketDataFn2}
  */
+@Deprecated
 public class CurrencyPairMarketDataRequirement implements MarketDataRequirement {
 
   /**

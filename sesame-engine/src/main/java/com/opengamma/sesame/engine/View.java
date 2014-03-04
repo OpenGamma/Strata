@@ -212,14 +212,11 @@ public class View implements AutoCloseable {
    * @param cycleArguments Arguments for running the cycle
    */
   private void initializeCycle(CycleArguments cycleArguments) {
-    // TODO this will need to be a lot cleverer when we need to support dynamic rebinding for full reval
-    // it's possible there will be multiple top-level contexts with their own valuation time, version correction,
-    // market data, cache/invalidator etc. how do these interact with the cycle? or are they done at a higher
-    // level than a view? i.e. multiple views running in parallel?
     // TODO need to query the market data factory to see what data has changed during the cycle
     //   for live sources this will be individual values
     //   for snapshots it will be the entire snapshot if it's been updated in the DB
     //   if the data provider has completely changed then everything must go (which is currently done in the invalidator)
+    // TODO this needs to be integrated with ServiceContext
     _cacheInvalidator.invalidate(cycleArguments.getMarketDataFn(),
                                  cycleArguments.getValuationTime(),
                                  cycleArguments.getConfigVersionCorrection(),

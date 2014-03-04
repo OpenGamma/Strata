@@ -17,7 +17,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * TODO can this be merged with MarketDataSeries? the only difference is casting the results
+ * @deprecated use {@link MarketDataFn2}
  */
+@Deprecated
 public class MarketDataValues {
 
   private final Map<MarketDataRequirement, MarketDataItem> _results;

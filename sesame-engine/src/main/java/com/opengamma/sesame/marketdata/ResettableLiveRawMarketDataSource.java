@@ -47,9 +47,9 @@ public class ResettableLiveRawMarketDataSource implements RawMarketDataSource, L
       final Object value = _latestSnapshot.get(idBundle).getValue(dataField);
       return value != null ?
           MarketDataItem.available(value) :
-          MarketDataItem.UNAVAILBLE;
+          MarketDataItem.UNAVAILABLE;
     } else if (_failedSubscriptions.containsKey(idBundle)) {
-      return MarketDataItem.UNAVAILBLE;
+      return MarketDataItem.UNAVAILABLE;
     } else {
       _liveDataManager.makeSubscriptionRequest(
           new LiveDataManager.SubscriptionRequest<>(this, LiveDataManager.RequestType.SUBSCRIBE, idBundle));

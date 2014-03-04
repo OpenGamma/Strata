@@ -7,6 +7,10 @@ package com.opengamma.sesame.marketdata;
 
 import com.opengamma.id.ExternalId;
 
+/**
+ * @deprecated use {@link MarketDataFn2}
+ */
+@Deprecated
 public class CurveNodeMarketDataRequirement implements MarketDataRequirement {
 
   private final ExternalId _identifier;

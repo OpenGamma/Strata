@@ -8,8 +8,9 @@ package com.opengamma.sesame.marketdata;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * TODO is there much value is having this as a separate concept from MarketDataFn?
+ * TODO rename?
  */
+@Deprecated
 public interface RawMarketDataSource {
 
   MarketDataItem get(ExternalIdBundle idBundle, String dataField);

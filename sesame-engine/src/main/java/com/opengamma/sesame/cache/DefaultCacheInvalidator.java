@@ -37,9 +37,14 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   // if it changes invalidate all cache values that depend on DB data
 
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
+
   private final SetMultimap<ObjectId, MethodInvocationKey> _objectIdsToKeys = HashMultimap.create();
+
+  // TODO should the keys be MarketDataRequirements?
   private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
+
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> valuationTimeEntries = Lists.newArrayList();
+
   private final Ehcache _cache;
 
   private MarketDataFn _marketDataFn;
@@ -80,6 +85,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   public synchronized void invalidate(MarketDataFn marketDataFn,
                                       ZonedDateTime valuationTime,
                                       VersionCorrection configVersionCorrection,
+                                      // TODO should this be Collection<MarketDataRequirement>?
                                       Collection<ExternalId> marketData,
                                       Collection<ObjectId> dbIds) {
     ArgumentChecker.notNull(marketDataFn, "marketDataFn");

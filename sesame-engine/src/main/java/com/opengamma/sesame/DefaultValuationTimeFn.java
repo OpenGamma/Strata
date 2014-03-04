@@ -10,8 +10,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.ArgumentChecker;
 
-// TODO this will need to support thread local binding for full reval
-// TODO cache invalidation. decorate or put it in here?
 /**
  * Function implementation that provides the injected valuation time.
  */
