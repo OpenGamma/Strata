@@ -3,12 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.engine;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.ValuationTimeCacheEntry;
 import com.opengamma.sesame.marketdata.FieldName;

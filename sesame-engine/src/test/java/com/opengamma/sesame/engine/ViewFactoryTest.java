@@ -43,6 +43,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
@@ -66,8 +67,9 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MarketDataItem;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.RecordingMarketDataSource;
 import com.opengamma.sesame.trace.CallGraph;
@@ -139,26 +141,25 @@ public class ViewFactoryTest {
         configureView("Equity PV",
                       column(PRESENT_VALUE_HEADER, OutputNames.PRESENT_VALUE,
                              config(
-                                 implementations(MockEquityPresentValueFn.class,
-                                                 MockEquityPresentValue.class))));
+                                 implementations(MockEquityPresentValueFn.class, MockEquityPresentValue.class,
+                                                 MarketDataFn.class, DefaultMarketDataFn.class))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(MockEquityPresentValueFn.class);
 
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-                                              ComponentMap.EMPTY,
+                                              ComponentMap.EMPTY.with(CurrencyMatrix.class, mock(CurrencyMatrix.class)),
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
                                               CacheManager.getInstance(),
-                                              FunctionService.DEFAULT_SERVICES);
+                                              FunctionService.NONE);
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
     ExternalIdBundle securityId = trade.getSecurity().getExternalIdBundle();
     Pair<ExternalIdBundle, FieldName> key = Pairs.of(securityId, FieldName.of(MarketDataRequirementNames.MARKET_VALUE));
-    MarketDataItem item = MarketDataItem.available(123.45);
-    Map<Pair<ExternalIdBundle, FieldName>, MarketDataItem> marketData = ImmutableMap.of(key, item);
+    Map<Pair<ExternalIdBundle, FieldName>, Double> marketData = ImmutableMap.of(key, 123.45);
     RecordingMarketDataSource dataSource = new RecordingMarketDataSource(marketData);
 
     View view = viewFactory.createView(viewConfig, trades);

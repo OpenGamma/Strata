@@ -12,13 +12,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  * TODO joda bean?
@@ -32,6 +33,9 @@ public class FunctionMetadata {
   /** Method parameters keyed by name. */
   private final Map<String, Parameter> _parameters;
 
+  /** The environment parameter, null if there isn't one. */
+  private final Parameter _environmentParameter;
+
   /** The input parameter, null if there isn't one. */
   private final Parameter _inputParameter;
 
@@ -44,6 +48,7 @@ public class FunctionMetadata {
   public FunctionMetadata(FunctionMetadata copyFrom) {
     _method = copyFrom._method;
     _parameters = copyFrom._parameters;
+    _environmentParameter = copyFrom._environmentParameter;
     _inputParameter = copyFrom._inputParameter;
     _outputName = copyFrom._outputName;
     _inputTypes = copyFrom._inputTypes;
@@ -61,17 +66,29 @@ public class FunctionMetadata {
       throw new IllegalArgumentException("method " + method + " isn't annotated with @Output");
     }
     _outputName = OutputName.of(annotation.value());
-    Pair<Map<String, Parameter>, Parameter> parameters = getParameters(method, inputTypes);
-    _parameters = parameters.getFirst();
-    _inputParameter = parameters.getSecond();
+    FunctionParameters parameters = getParameters(method, inputTypes);
+    _parameters = parameters._parametersByName;
+    _environmentParameter = parameters._environmentParameter;
+    _inputParameter = parameters._inputParameter;
   }
 
-  private static Pair<Map<String, Parameter>, Parameter> getParameters(Method method, Set<Class<?>> inputTypes) {
+  private static FunctionParameters getParameters(Method method, Set<Class<?>> inputTypes) {
     Map<String, Parameter> parameterMap = Maps.newHashMap();
     List<Parameter> parameters = EngineUtils.getParameters(method);
     Parameter inputParameter = null;
+    Parameter environmentParameter = null;
+
     params: for (Parameter parameter : parameters) {
       parameterMap.put(parameter.getName(), parameter);
+      if (parameter.getType().isAssignableFrom(Environment.class)) {
+        if (environmentParameter == null) {
+          environmentParameter = parameter;
+          continue;
+        } else {
+          throw new IllegalArgumentException("Multiple parameters found with a type of Environment. Only one is allowed");
+        }
+      }
+
       // TODO this logic is broken
       for (Class<?> allowedInputType : inputTypes) {
         if (allowedInputType.isAssignableFrom(parameter.getType())) {
@@ -85,7 +102,7 @@ public class FunctionMetadata {
         }
       }
     }
-    return Pairs.of(parameterMap, inputParameter);
+    return new FunctionParameters(parameterMap, environmentParameter, inputParameter);
   }
   
   public InvokableFunction getInvokableFunction(Object receiver) {
@@ -100,10 +117,20 @@ public class FunctionMetadata {
         // this shouldn't happen - the receiver must have the same method as the proxy
         throw new OpenGammaRuntimeException("Unexpected exception", e);
       }
-      Pair<Map<String, Parameter>, Parameter> parameters = getParameters(method, _inputTypes);
-      return new MethodInvokableFunction(receiver, parameters.getFirst(), parameters.getSecond(), _outputName, _method);
+      FunctionParameters parameters = getParameters(method, _inputTypes);
+      return new MethodInvokableFunction(receiver,
+                                         parameters._parametersByName,
+                                         parameters._environmentParameter,
+                                         parameters._inputParameter,
+                                         _outputName,
+                                         _method);
     } else {
-      return new MethodInvokableFunction(receiver, _parameters, _inputParameter, _outputName, _method);
+      return new MethodInvokableFunction(receiver,
+                                         _parameters,
+                                         _environmentParameter,
+                                         _inputParameter,
+                                         _outputName,
+                                         _method);
     }
   }
 
@@ -154,4 +181,22 @@ public class FunctionMetadata {
         "]";
   }
 
+  private static final class FunctionParameters {
+
+    private final Map<String, Parameter> _parametersByName;
+
+    @Nullable
+    private final Parameter _environmentParameter;
+
+    @Nullable
+    private final Parameter _inputParameter;
+
+    private FunctionParameters(Map<String, Parameter> parametersByName,
+                               Parameter environmentParameter,
+                               Parameter inputParameter) {
+      _parametersByName = parametersByName;
+      _environmentParameter = environmentParameter;
+      _inputParameter = inputParameter;
+    }
+  }
 }

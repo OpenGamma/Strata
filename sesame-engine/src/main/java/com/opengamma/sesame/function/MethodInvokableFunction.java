@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.link.Link;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
@@ -25,9 +26,7 @@ import com.opengamma.util.result.ResultGenerator;
   /** The receiver of the method call. */
   private final Object _receiver;
 
-  /**
-   * The underlying (i.e. non-proxied) receiver of the method call.
-   */
+  /** The underlying (i.e. non-proxied) receiver of the method call. */
   private final Object _underlyingReceiver;
 
   // TODO if this class needs to be serializable this needs to be stored in a different way
@@ -37,6 +36,9 @@ import com.opengamma.util.result.ResultGenerator;
   /** Method parameters keyed by name. */
   private final Map<String, Parameter> _parameters;
 
+  /** The environment parameter, null if there isn't one. */
+  private final Parameter _environmentParameter;
+
   /** The input parameter, null if there isn't one. */
   private final Parameter _inputParameter;
 
@@ -45,9 +47,11 @@ import com.opengamma.util.result.ResultGenerator;
 
   /* package */ MethodInvokableFunction(Object receiver,
                                         Map<String, Parameter> parameters,
+                                        Parameter environmentParameter,
                                         Parameter inputParameter,
                                         OutputName outputName,
                                         Method method) {
+    _environmentParameter = environmentParameter;
     _method = ArgumentChecker.notNull(method, "method");
     // TODO check the receiver is compatible with _declaringType
     _receiver = ArgumentChecker.notNull(receiver, "receiver");
@@ -58,13 +62,16 @@ import com.opengamma.util.result.ResultGenerator;
   }
 
   @Override
-  public Object invoke(Object input, FunctionArguments args) {
+  public Object invoke(Environment env, Object input, FunctionArguments args) {
     Object[] argArray = new Object[_parameters.size()];
 
     for (Parameter parameter : _parameters.values()) {
       Object arg = args.getArgument(parameter.getName());
       Object resolvedArg = resolveArgument(parameter, arg);
       argArray[parameter.getOrdinal()] = resolvedArg;
+    }
+    if (_environmentParameter != null) {
+      argArray[_environmentParameter.getOrdinal()] = env;
     }
     if (_inputParameter != null) {
       argArray[_inputParameter.getOrdinal()] = input;
