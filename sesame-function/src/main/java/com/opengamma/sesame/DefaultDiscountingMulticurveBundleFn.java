@@ -199,10 +199,16 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       return propagateFailure(fxMatrixResult);
     }
     Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(curveConfig, fxMatrixResult, valuationTime, marketDataFn);
+    if (!exogenousBundles.isValueAvailable()) {
+      return propagateFailure(exogenousBundles);
+    }
 
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
     Map.Entry<String, List<? extends CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
     Result<CurveDefinition> curveDefinition = _curveDefinitionProvider.getCurveDefinition(type.getKey());
+    if (!exogenousBundles.isValueAvailable()) {
+      return propagateFailure(curveDefinition);
+    }
     DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
     Currency currency = Currency.of(typeConfiguration.getReference());
 
