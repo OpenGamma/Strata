@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.fra;
 
-import static com.opengamma.util.result.ResultGenerator.map;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -40,14 +39,12 @@ public class FRADiscountingCalculatorFn implements FRACalculatorFn {
 
   @Override
   public Result<FRACalculator> generateCalculator(final Environment env, final FRASecurity security) {
+    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = createBundle(env, security);
 
-    return map(createBundle(env, security),
-               new ResultGenerator.ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FRACalculator>() {
-      @Override
-      public Result<FRACalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
-        return success(_factory.createCalculator(env, security, result.getFirst()));
-      }
-    });
+    if (!bundleResult.isValueAvailable()) {
+      return ResultGenerator.propagateFailure(bundleResult);
+    }
+    return ResultGenerator.success(_factory.createCalculator(env, security, bundleResult.getValue().getFirst()));
   }
 
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(Environment env,

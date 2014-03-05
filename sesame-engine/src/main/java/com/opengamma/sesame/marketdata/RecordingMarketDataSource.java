@@ -44,11 +44,13 @@ public class RecordingMarketDataSource implements MarketDataSource {
     Pair<ExternalIdBundle, FieldName> key = Pairs.of(id, fieldName);
     Object value = _data.get(key);
 
+    // TODO check if the request is in the failed set and return UNAVAILABLE
+
     if (value != null) {
       return MarketDataItem.available(value);
     } else {
       _requests.add(key);
-      return null;
+      return MarketDataItem.pending();
     }
   }
 

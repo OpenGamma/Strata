@@ -61,6 +61,8 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -114,7 +116,8 @@ public class FRAFnTest {
                         CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                         CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                         HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
+                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                        MarketDataFn.class, DefaultMarketDataFn.class));
 
     Map<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());

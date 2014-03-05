@@ -37,6 +37,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -65,6 +66,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
@@ -132,7 +134,8 @@ public class InterestRateMockSources {
                                 mockConfigSource(),
                                 mockSecuritySource(),
                                 mockHistoricalTimeSeriesSource(),
-                                mock(HistoricalMarketDataFn.class));
+                                mock(HistoricalMarketDataFn.class),
+                                mock(CurrencyMatrix.class));
   }
 
   public static MarketDataFactory createMarketDataFactory() {
@@ -144,7 +147,7 @@ public class InterestRateMockSources {
   public static MarketDataSource createMarketDataSource() {
     try {
       Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("usdMarketQuotes.properties", TICKER);
-      return new RecordingMarketDataSource(FieldName.of(TICKER), marketData);
+      return new RecordingMarketDataSource(FieldName.of(MarketDataRequirementNames.MARKET_VALUE), marketData);
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Exception whilst loading file", e);
     }
