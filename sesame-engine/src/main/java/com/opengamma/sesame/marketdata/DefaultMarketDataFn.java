@@ -8,6 +8,7 @@ package com.opengamma.sesame.marketdata;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
@@ -32,6 +33,30 @@ public class DefaultMarketDataFn implements MarketDataFn {
   }
 
   @Override
+  public MarketDataItem<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node) {
+    MarketDataItem<?> item = env.getMarketDataSource().get(node.getIdentifier().toBundle(), FieldName.of(node.getDataField()));
+    return (MarketDataItem<Double>) item;
+  }
+
+  @Override
+  public MarketDataItem<Double> getPointsCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node) {
+    ExternalIdBundle id = node.getUnderlyingIdentifier().toBundle();
+    FieldName fieldName = FieldName.of(node.getUnderlyingDataField());
+    MarketDataItem<?> item = env.getMarketDataSource().get(id, fieldName);
+    return (MarketDataItem<Double>) item;
+  }
+
+  @Override
+  public MarketDataItem<Double> getMarketValue(Environment env, ExternalIdBundle id) {
+    return (MarketDataItem<Double>) env.getMarketDataSource().get(id, MARKET_VALUE);
+  }
+
+  @Override
+  public MarketDataItem<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName) {
+    return env.getMarketDataSource().get(id, fieldName);
+  }
+
+  @Override
   public MarketDataItem<Double> getFxRate(final Environment env, CurrencyPair currencyPair) {
     return getFxRate(env, currencyPair.getBase(), currencyPair.getCounter());
   }
@@ -41,7 +66,7 @@ public class DefaultMarketDataFn implements MarketDataFn {
                                            final Currency counter) {
     CurrencyMatrixValue value = _currencyMatrix.getConversion(base, counter);
     if (value == null) {
-      return MarketDataItem.UNAVAILABLE;
+      return MarketDataItem.unavailable();
     }
     CurrencyMatrixValueVisitor<MarketDataItem> visitor = new CurrencyMatrixValueVisitor<MarketDataItem>() {
       @Override
@@ -51,13 +76,13 @@ public class DefaultMarketDataFn implements MarketDataFn {
 
       @SuppressWarnings("unchecked")
       @Override
-      public MarketDataItem visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
+      public MarketDataItem<Double> visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
         ValueRequirement valueRequirement = req.getValueRequirement();
         ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
-        MarketDataItem item = env.getMarketDataSource().get(idBundle, FieldName.of(dataField));
+        MarketDataItem<?> item = env.getMarketDataSource().get(idBundle, FieldName.of(dataField));
         if (!item.isAvailable()) {
-          return MarketDataItem.UNAVAILABLE;
+          return MarketDataItem.unavailable();
         }
         Double spotRate = (Double) item.getValue();
         if (req.isReciprocal()) {
@@ -72,8 +97,8 @@ public class DefaultMarketDataFn implements MarketDataFn {
         MarketDataItem baseCrossRate = getFxRate(env, base, cross.getCrossCurrency());
         MarketDataItem crossCounterRate = getFxRate(env, cross.getCrossCurrency(), counter);
         if (!baseCrossRate.isAvailable() || !crossCounterRate.isAvailable()) {
-          // TODO should this be pending?
-          return MarketDataItem.UNAVAILABLE;
+          // TODO should this be pending? YES. depends on the data source. helper method to compose statuses?
+          return MarketDataItem.unavailable();
         } else {
           Double rate1 = (Double) baseCrossRate.getValue();
           Double rate2 = (Double) crossCounterRate.getValue();
@@ -82,16 +107,5 @@ public class DefaultMarketDataFn implements MarketDataFn {
       }
     };
     return value.accept(visitor);
-  }
-
-  @Override
-  public MarketDataItem<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node) {
-    MarketDataItem<?> item = env.getMarketDataSource().get(node.getIdentifier().toBundle(), FieldName.of(node.getDataField()));
-    return (MarketDataItem<Double>) item;
-  }
-
-  @Override
-  public MarketDataItem<Double> getMarketValue(Environment env, ExternalIdBundle id) {
-    return (MarketDataItem<Double>) env.getMarketDataSource().get(id, MARKET_VALUE);
   }
 }

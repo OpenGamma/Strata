@@ -9,6 +9,7 @@ import static com.opengamma.util.result.ResultGenerator.map;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
@@ -31,9 +32,9 @@ public class DiscountingFRAFn implements FRAFn {
   }
 
   @Override
-  public Result<MultipleCurrencyAmount> calculatePV(FRASecurity security) {
+  public Result<MultipleCurrencyAmount> calculatePV(Environment env, FRASecurity security) {
 
-    return calculate(security, new ResultGenerator.ResultMapper<FRACalculator, MultipleCurrencyAmount>() {
+    return calculate(env, security, new ResultGenerator.ResultMapper<FRACalculator, MultipleCurrencyAmount>() {
       @Override
       public Result<MultipleCurrencyAmount> map(FRACalculator result) {
         return success(result.calculatePV());
@@ -42,9 +43,9 @@ public class DiscountingFRAFn implements FRAFn {
   }
 
   @Override
-  public Result<Double> calculateParRate(FRASecurity security) {
+  public Result<Double> calculateParRate(Environment env, FRASecurity security) {
 
-    return calculate(security, new ResultGenerator.ResultMapper<FRACalculator, Double>() {
+    return calculate(env, security, new ResultGenerator.ResultMapper<FRACalculator, Double>() {
       @Override
       public Result<Double> map(FRACalculator result) {
         return success(result.calculateRate());
@@ -52,8 +53,8 @@ public class DiscountingFRAFn implements FRAFn {
     });
   }
 
-  private <T> Result<T> calculate(FRASecurity security, ResultGenerator.ResultMapper<FRACalculator, T> mapper) {
-    Result<FRACalculator> calculator = _FRACalculatorFn.generateCalculator(security);
+  private <T> Result<T> calculate(Environment env, FRASecurity security, ResultGenerator.ResultMapper<FRACalculator, T> mapper) {
+    Result<FRACalculator> calculator = _FRACalculatorFn.generateCalculator(env, security);
     return map(calculator, mapper);
   }
 }

@@ -14,15 +14,13 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> the type of the data
  * TODO would it make more sense to use Result?
  */
+@SuppressWarnings("unchecked")
 public class MarketDataItem<T> {
 
-  public static final MarketDataItem UNAVAILABLE = new MarketDataItem(MarketDataStatus.UNAVAILABLE, null);
-  public static final MarketDataItem PENDING = new MarketDataItem(MarketDataStatus.PENDING, null);
-
   private final MarketDataStatus _status;
-  private final Object _value;
+  private final T _value;
 
-  private MarketDataItem(MarketDataStatus status, Object value) {
+  private MarketDataItem(MarketDataStatus status, T value) {
     _status = ArgumentChecker.notNull(status, "status");
     _value = value;
   }
@@ -31,15 +29,23 @@ public class MarketDataItem<T> {
     return _status;
   }
 
-  public Object getValue() {
+  public T getValue() {
     if (_value == null) {
       throw new IllegalStateException("No value available when status is " + _status);
     }
     return _value;
   }
 
-  public static MarketDataItem available(Object value) {
+  public static <U> MarketDataItem<U> available(U value) {
     return new MarketDataItem(MarketDataStatus.AVAILABLE, ArgumentChecker.notNull(value, "value"));
+  }
+
+  public static <U> MarketDataItem<U> unavailable() {
+    return new MarketDataItem(MarketDataStatus.UNAVAILABLE, null);
+  }
+
+  public static <U> MarketDataItem<U> pending() {
+    return new MarketDataItem(MarketDataStatus.PENDING, null);
   }
 
   public boolean isAvailable() {

@@ -6,6 +6,7 @@
 package com.opengamma.sesame.example;
 
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.util.result.Result;
@@ -24,6 +25,6 @@ public interface MockEquityPresentValueFn {
    * @return the present value, a failure result if unable to calculate
    */
   @Output(OutputNames.PRESENT_VALUE)
-  Result<Double> presentValue(EquitySecurity security);
+  Result<Double> presentValue(Environment env, EquitySecurity security);
 
 }

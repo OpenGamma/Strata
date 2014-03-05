@@ -10,8 +10,8 @@ import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
-import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataFnFactory;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -28,24 +28,23 @@ public class DefaultFunctionServer implements FunctionServer {
    * Factory for the market data to be used. The market data type will be
    * defined by the specification from the incoming request.
    */
-  private final MarketDataFnFactory _marketDataFnFactory;
+  private final MarketDataFactory _marketDataFactory;
 
   /**
    * Construct the server.
    *
    * @param viewFactory factory used to create the views which will be executed, not null
-   * @param marketDataFnFactory factory for the market data to be used, not null
+   * @param marketDataFactory factory for the market data to be used, not null
    */
-  public DefaultFunctionServer(ViewFactory viewFactory, MarketDataFnFactory marketDataFnFactory) {
-    _marketDataFnFactory = ArgumentChecker.notNull(marketDataFnFactory, "marketDataFnFactory");
+  public DefaultFunctionServer(ViewFactory viewFactory, MarketDataFactory marketDataFactory) {
+    _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFnFactory");
     _viewFactory = ArgumentChecker.notNull(viewFactory, "viewFactory");
   }
 
   @Override
   public Results executeOnce(FunctionServerRequest request) {
-
     View view = _viewFactory.createView(request.getViewConfig(), request.getInputs());
-    MarketDataFn marketDataFn = _marketDataFnFactory.create(request.getMarketDataSpec());
-    return view.run(new CycleArguments(request.getValuationTime(), VersionCorrection.LATEST, marketDataFn));
+    MarketDataSource marketDataSource = _marketDataFactory.create(request.getMarketDataSpec());
+    return view.run(new CycleArguments(request.getValuationTime(), VersionCorrection.LATEST, marketDataSource));
   }
 }

@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
@@ -39,18 +40,18 @@ public class InterestRateSwapDiscountingCalculatorFn implements InterestRateSwap
   }
 
   @Override
-  public Result<InterestRateSwapCalculator> generateCalculator(final InterestRateSwapSecurity security) {
-
-    return map(createBundle(security),
+  public Result<InterestRateSwapCalculator> generateCalculator(final Environment env, final InterestRateSwapSecurity security) {
+    return map(createBundle(env, security),
                new ResultGenerator.ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, InterestRateSwapCalculator>() {
         @Override
         public Result<InterestRateSwapCalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
-          return success(_factory.createCalculator(security, result.getFirst()));
+          return success(_factory.createCalculator(env, security, result.getFirst()));
         }
       });
   }
 
-  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(InterestRateSwapSecurity security) {
-    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(security, success(new FXMatrix()));
+  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(Environment env,
+                                                                                          InterestRateSwapSecurity security) {
+    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, success(new FXMatrix()));
   }
 }

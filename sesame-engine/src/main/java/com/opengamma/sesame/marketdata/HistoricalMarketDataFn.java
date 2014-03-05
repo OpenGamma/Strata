@@ -5,9 +5,11 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.Set;
-
-import com.opengamma.util.result.Result;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.Environment;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -16,7 +18,11 @@ import com.opengamma.util.time.LocalDateRange;
  */
 public interface HistoricalMarketDataFn {
 
-  Result<MarketDataSeries> requestData(MarketDataRequirement requirement, LocalDateRange dateRange);
+  MarketDataItem<LocalDateDoubleTimeSeries> getFxRates(Environment env, CurrencyPair currencyPair, LocalDateRange dateRange);
 
-  Result<MarketDataSeries> requestData(Set<MarketDataRequirement> requirements, LocalDateRange dateRange);
+  MarketDataItem<LocalDateDoubleTimeSeries> getCurveNodeValues(Environment env, CurveNodeWithIdentifier node, LocalDateRange dateRange);
+
+  MarketDataItem<LocalDateDoubleTimeSeries> getMarketValues(Environment env, ExternalIdBundle id, LocalDateRange dateRange);
+
+  MarketDataItem<LocalDateDoubleTimeSeries> getValues(Environment env, ExternalIdBundle id, FieldName fieldName, LocalDateRange dateRange);
 }

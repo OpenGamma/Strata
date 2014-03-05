@@ -22,7 +22,7 @@ public interface FXReturnSeriesFn {
    * @param currencyPair  the pair to get the return series for, not null
    * @return the return series for the currency pair, a failure result if not found
    */
-  Result<LocalDateDoubleTimeSeries> calculateReturnSeries(LocalDateRange dateRange, CurrencyPair currencyPair);
+  Result<LocalDateDoubleTimeSeries> calculateReturnSeries(Environment env, LocalDateRange dateRange, CurrencyPair currencyPair);
 
   /**
    * Calculates the return series based on another time-series.
@@ -30,6 +30,6 @@ public interface FXReturnSeriesFn {
    * @param timeSeries  the input time-series, not null
    * @return the return series, a failure result if not found
    */
-  LocalDateDoubleTimeSeries calculateReturnSeries(LocalDateDoubleTimeSeries timeSeries);
+  LocalDateDoubleTimeSeries calculateReturnSeries(Environment env, LocalDateDoubleTimeSeries timeSeries);
 
 }

@@ -12,12 +12,10 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 public class FRACalculator {
@@ -42,20 +40,12 @@ public class FRACalculator {
    */
   private final MulticurveProviderDiscount _bundle;
 
-  /**
-   * The Jacobian bundle.
-   */
-  private final CurveBuildingBlockBundle _mergedJacobianBundle;
-
   public FRACalculator(FRASecurity security,
                        MulticurveProviderDiscount bundle,
-                       CurveBuildingBlockBundle mergedJacobianBundle,
                        FRASecurityConverter fraConverter,
-                       ValuationTimeFn valuationTimeFn) {
-
-    _derivative = createInstrumentDerivative(security, fraConverter, valuationTimeFn.getTime());
+                       ZonedDateTime valuationTime) {
+    _derivative = createInstrumentDerivative(security, fraConverter, valuationTime);
     _bundle = bundle;
-    _mergedJacobianBundle = mergedJacobianBundle;
   }
 
   public MultipleCurrencyAmount calculatePV() {

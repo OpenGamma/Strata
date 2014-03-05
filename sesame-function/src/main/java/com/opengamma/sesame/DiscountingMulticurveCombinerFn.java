@@ -18,5 +18,5 @@ import com.opengamma.util.tuple.Pair;
 public interface DiscountingMulticurveCombinerFn {
 
   Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      FinancialSecurity security, Result<FXMatrix> fxMatrix);
+      Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix);
 }

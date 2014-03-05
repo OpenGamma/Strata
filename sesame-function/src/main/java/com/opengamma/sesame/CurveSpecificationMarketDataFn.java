@@ -5,9 +5,10 @@
  */
 package com.opengamma.sesame;
 
+import java.util.Map;
+
 import com.opengamma.financial.analytics.curve.CurveSpecification;
-import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataValues;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.result.Result;
 
 /**
@@ -18,18 +19,10 @@ public interface CurveSpecificationMarketDataFn {
   /**
    * Requests the data for a curve specification.
    * 
+   *
+   * @param env the execution environment
    * @param curveSpecification  the curve specification, not null
    * @return the market data values, a failure result if not found
    */
-  Result<MarketDataValues> requestData(CurveSpecification curveSpecification);
-
-  /**
-   * Requests the data for a curve specification.
-   * 
-   * @param curveSpecification  the curve specification, not null
-   * @param marketDataFn  the market data function, not null
-   * @return the market data values, a failure result if not found
-   */
-  Result<MarketDataValues> requestData(CurveSpecification curveSpecification, MarketDataFn marketDataFn);
-
+  Result<Map<ExternalIdBundle, Double>> requestData(Environment env, CurveSpecification curveSpecification);
 }

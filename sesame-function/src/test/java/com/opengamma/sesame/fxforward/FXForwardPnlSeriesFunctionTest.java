@@ -76,17 +76,17 @@ import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
-import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -97,9 +97,8 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.EagerMarketDataFn;
+import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.HistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.Tracer;
@@ -138,8 +137,7 @@ public class FXForwardPnlSeriesFunctionTest {
                                              HistoricalTimeSeriesSource.class,
                                              MarketDataFn.class,
                                              HistoricalMarketDataFn.class,
-                                             RegionSource.class,
-                                             ValuationTimeFn.class);
+                                             RegionSource.class);
     FunctionModel functionModel = FunctionModel.forFunction(calculatePnl, config, componentMap.getComponentTypes());
     Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
     assertTrue(fn instanceof FXForwardPnLSeriesFn);
@@ -168,17 +166,14 @@ public class FXForwardPnlSeriesFunctionTest {
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
-    HistoricalMarketDataSource rawDataSource =
-        new HistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+    FixedHistoricalMarketDataSource dataSource =
+        new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
     // TODO set up a service context and do this with a link
     CurrencyMatrix currencyMatrix = configSource.getLatestByName(CurrencyMatrix.class, "BloombergLiveData");
-    MarketDataFn marketDataProvider = new EagerMarketDataFn(currencyMatrix, rawDataSource);
 
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
-    Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
-                                                  MarketDataFn.class, marketDataProvider,
-                                                  ValuationTimeFn.class, new DefaultValuationTimeFn(s_valuationTime));
+    Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = serverComponents.with(comps);
 
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
@@ -196,8 +191,10 @@ public class FXForwardPnlSeriesFunctionTest {
     Result<LocalDateDoubleTimeSeries> result = null;
     int nRuns = 100;
     //int nRuns = 1;
+    Environment env = new SimpleEnvironment(s_valuationTime, dataSource);
+
     for (int i = 0; i < nRuns; i++) {
-      result = pvFunction.calculatePnlSeries(security, date);
+      result = pvFunction.calculatePnlSeries(env, security, date);
       System.out.println();
     }
     System.out.println(TracingProxy.end().prettyPrint());

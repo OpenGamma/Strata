@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -50,9 +51,8 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
   }
 
   @Override
-  public Result<FXForwardCalculator> generateCalculator(final FXForwardSecurity security) {
-
-    return map(createBundle(security),
+  public Result<FXForwardCalculator> generateCalculator(Environment env, final FXForwardSecurity security) {
+    return map(createBundle(env, security),
                new ResultGenerator.ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FXForwardCalculator>() {
       @Override
       public Result<FXForwardCalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
@@ -61,14 +61,15 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
     });
   }
 
-  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(FXForwardSecurity security) {
+  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(Environment env,
+                                                                                          FXForwardSecurity security) {
 
     // get currencies from security, probably should use visitor/utils
     Set<Currency> currencies = ImmutableSet.of(security.getPayCurrency(), security.getReceiveCurrency());
 
     // Even if we can't get a matrix we want to get as far as we can to
     // ensure market data population, so ignore the result for now
-    Result<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(currencies);
-    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(security, fxmResult);
+    Result<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(env, currencies);
+    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, fxmResult);
   }
 }

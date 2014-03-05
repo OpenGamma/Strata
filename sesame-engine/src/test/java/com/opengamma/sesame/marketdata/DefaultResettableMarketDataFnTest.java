@@ -5,30 +5,15 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import static com.opengamma.sesame.marketdata.MarketDataStatus.AVAILABLE;
-import static com.opengamma.sesame.marketdata.MarketDataStatus.PENDING;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.mock;
-
-import java.util.Collections;
-import java.util.Map;
-
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.test.TestGroup;
 
-
+// TODO make this RecordingMarketDataSourceTest
 @Test(groups = TestGroup.UNIT)
 public class DefaultResettableMarketDataFnTest {
 
-  private ResettableMarketDataFn _resettableMarketDataProviderFunction;
+  /*private ResettableMarketDataFn _resettableMarketDataProviderFunction;
   private MarketDataRequirement _mdReqmt1 = mock(MarketDataRequirement.class);
   private MarketDataRequirement _mdReqmt2 = mock(MarketDataRequirement.class);
 
@@ -48,7 +33,7 @@ public class DefaultResettableMarketDataFnTest {
   @Test
   public void alreadyPendingDataReturnsPendingResultButNoRequest() {
 
-    Map<MarketDataRequirement, MarketDataItem> data = ImmutableMap.of(_mdReqmt1, MarketDataItem.PENDING);
+    Map<MarketDataRequirement, MarketDataItem> data = ImmutableMap.of(_mdReqmt1, MarketDataItem.pending());
     _resettableMarketDataProviderFunction.resetMarketData(data);
 
     MarketDataValues result = _resettableMarketDataProviderFunction.requestData(_mdReqmt1).getValue();
@@ -101,5 +86,5 @@ public class DefaultResettableMarketDataFnTest {
     _resettableMarketDataProviderFunction.requestData(_mdReqmt1);
 
     assertThat(_resettableMarketDataProviderFunction.getCollectedRequests(), containsInAnyOrder(_mdReqmt1, _mdReqmt2));
-  }
+  }*/
 }

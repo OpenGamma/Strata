@@ -12,5 +12,6 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public interface MarketDataSource {
 
+  // TODO should this return a Result? Result<MarketDataItem<?>> is horrible, just Result might be OK but what about status?
   MarketDataItem<?> get(ExternalIdBundle idBundle, FieldName fieldName);
 }

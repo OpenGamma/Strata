@@ -7,6 +7,7 @@ package com.opengamma.sesame.irs;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.util.money.Currency;
@@ -26,7 +27,7 @@ public interface InterestRateSwapFn {
    * @return result containing the rate if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PAR_RATE)
-  Result<Double> calculateParRate(InterestRateSwapSecurity security);
+  Result<Double> calculateParRate(Environment env, InterestRateSwapSecurity security);
 
   /**
    * Calculate the present value for a Swap security.
@@ -35,7 +36,7 @@ public interface InterestRateSwapFn {
    * @return result containing the present value if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PRESENT_VALUE)
-  Result<MultipleCurrencyAmount> calculatePV(InterestRateSwapSecurity security);
+  Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateSwapSecurity security);
 
   /**
    * Calculate the PV01 for a Swap security.
@@ -45,6 +46,6 @@ public interface InterestRateSwapFn {
    * @return result containing the PV01 if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PV01)
-  Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(InterestRateSwapSecurity security);
+  Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapSecurity security);
 
 }

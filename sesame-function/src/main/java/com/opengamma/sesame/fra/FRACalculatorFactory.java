@@ -5,11 +5,10 @@
  */
 package com.opengamma.sesame.fra;
 
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.security.fra.FRASecurity;
-import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
 
 public class FRACalculatorFactory {
@@ -19,20 +18,11 @@ public class FRACalculatorFactory {
    */
   private final FRASecurityConverter _fraConverter;
 
-  /**
-   * Provides the valuation time to perform calculations as at.
-   */
-  private final ValuationTimeFn _valuationTimeFn;
-
-  public FRACalculatorFactory(FRASecurityConverter fraConverter,
-                              ValuationTimeFn valuationTimeFn) {
+  public FRACalculatorFactory(FRASecurityConverter fraConverter) {
     _fraConverter = ArgumentChecker.notNull(fraConverter, "fraConverter");
-    _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
   }
 
-  public FRACalculator createCalculator(FRASecurity security,
-                                        MulticurveProviderDiscount bundle,
-                                        CurveBuildingBlockBundle mergedJacobianBundle) {
-    return new FRACalculator(security, bundle, mergedJacobianBundle, _fraConverter, _valuationTimeFn);
+  public FRACalculator createCalculator(Environment env, FRASecurity security, MulticurveProviderDiscount bundle) {
+    return new FRACalculator(security, bundle, _fraConverter, env.getValuationTime());
   }
 }

@@ -13,9 +13,8 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * TODO this probably isn't needed as the data is getting passed in
+ * REVIEW Chris 2014-03-05 - this doesn't look very thread safe to me
  */
-@Deprecated
 public class ResettableLiveMarketDataSource implements MarketDataSource, LiveDataManager.LDListener {
 
   private final LiveDataManager _liveDataManager;
@@ -39,7 +38,6 @@ public class ResettableLiveMarketDataSource implements MarketDataSource, LiveDat
   }
 
   public void waitForData() {
-
     _liveDataManager.waitForAllData(this);
     reset();
   }
@@ -49,15 +47,13 @@ public class ResettableLiveMarketDataSource implements MarketDataSource, LiveDat
 
     if (_latestSnapshot.containsKey(idBundle)) {
       final Object value = _latestSnapshot.get(idBundle).getValue(fieldName.getName());
-      return value != null ?
-          MarketDataItem.available(value) :
-          MarketDataItem.UNAVAILABLE;
+      return value != null ? MarketDataItem.available(value) : MarketDataItem.unavailable();
     } else if (_failedSubscriptions.containsKey(idBundle)) {
-      return MarketDataItem.UNAVAILABLE;
+      return MarketDataItem.unavailable();
     } else {
       _liveDataManager.makeSubscriptionRequest(
           new LiveDataManager.SubscriptionRequest<>(this, LiveDataManager.RequestType.SUBSCRIBE, idBundle));
-      return MarketDataItem.PENDING;
+      return MarketDataItem.pending();
     }
   }
 

@@ -113,11 +113,9 @@ public class CurveBuildingIntegrationTest {
                          argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
                          argument("impliedCurveNames", StringSet.of())),
-                function(RawHistoricalMarketDataSourceImpl.class,
+                function(DefaultHistoricalMarketDataSource.class,
                          argument("dataSource", "BLOOMBERG"),
-                         argument("dataProvider", "Market_Value")),
-                function(HistoricalTimeSeriesMarketDataFn.class,
-                         argument("currencyMatrix", currencyMatrixLink))));
+                         argument("dataProvider", "Market_Value"))));
 
     ViewConfig viewConfig =
         configureView("Curve Bundle only",
@@ -142,8 +140,7 @@ public class CurveBuildingIntegrationTest {
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
                                       ConfigDbMarketExposureSelectorFn.class,
-                                      RawHistoricalMarketDataSourceImpl.class,
-                                      HistoricalTimeSeriesMarketDataFn.class);
+                                      DefaultHistoricalMarketDataSource.class);
 
     ComponentMap componentMap = ComponentMap.loadComponents("http://devsvr-lx-2:8080");
 
@@ -162,10 +159,9 @@ public class CurveBuildingIntegrationTest {
 
     View view = viewFactory.createView(viewConfig, Collections.emptyList());
 
-    ResettableLiveMarketDataSource rawDataSource = buildRawDataSource();
+    ResettableLiveMarketDataSource liveDataSource = buildLiveDataSource();
     ConfigLink<CurrencyMatrix> configLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
-    MarketDataFn marketDataFn = new EagerMarketDataFn(configLink.resolve(), rawDataSource);
-    Results initialResults = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFn));
+    Results initialResults = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource));
     System.out.println(initialResults);
 
     // First time through we're waiting for market data so expect failure
@@ -177,9 +173,9 @@ public class CurveBuildingIntegrationTest {
     // Now try again, resetting the market data first (which should pick up bloomberg data)
     System.out.println("Waiting for market data to catch up");
     //Thread.sleep(5000);
-    rawDataSource.waitForData();
+    liveDataSource.waitForData();
 
-    Results results = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, marketDataFn));
+    Results results = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource));
     System.out.println(results);
 
     // Second time we should have received the market data
@@ -190,7 +186,7 @@ public class CurveBuildingIntegrationTest {
     assertThat(value, is(not(nullValue())));
   }
 
-  private ResettableLiveMarketDataSource buildRawDataSource() {
+  private ResettableLiveMarketDataSource buildLiveDataSource() {
     return new ResettableLiveMarketDataSource(new LiveDataManager(buildLiveDataClient()));
   }
 

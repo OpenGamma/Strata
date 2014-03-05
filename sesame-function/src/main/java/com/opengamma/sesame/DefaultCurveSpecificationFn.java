@@ -8,12 +8,12 @@ package com.opengamma.sesame;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
@@ -25,34 +25,18 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
    * The curve specification builder.
    */
   private final ConfigDBCurveSpecificationBuilder _curveSpecificationBuilder;
-  /**
-   * The valuation time function.
-   */
-  private final ValuationTimeFn _valuationTimeFn;
 
-  public DefaultCurveSpecificationFn(ConfigSource configSource,
-                                     ValuationTimeFn valuationTimeFn) {
-    _valuationTimeFn = valuationTimeFn;
-    _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
+  public DefaultCurveSpecificationFn(ConfigSource configSource) {
+    // TODO shouldn't be using config source directly
+    _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(ArgumentChecker.notNull(configSource, "configSource"));
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public Result<CurveSpecification> getCurveSpecification(CurveDefinition curveDefinition) {
-    return buildSpecification(curveDefinition, _valuationTimeFn.getTime());
+  public Result<CurveSpecification> getCurveSpecification(Environment env, CurveDefinition curveDefinition) {
+    // TODO - how can this possibly be correct when it's using LocalDate.now()?
+    return success(_curveSpecificationBuilder.buildCurve(env.getValuationTime().toInstant(),
+                                                         LocalDate.now(), // Want the current curves (is that what this represents)
+                                                         curveDefinition));
   }
-
-  @Override
-  public Result<CurveSpecification> getCurveSpecification(CurveDefinition curveDefinition, ZonedDateTime valuationTime) {
-    return buildSpecification(curveDefinition, valuationTime);
-  }
-
-  private Result<CurveSpecification> buildSpecification(CurveDefinition curveDefinition,
-                                                        ZonedDateTime valuationTime) {
-    return success(_curveSpecificationBuilder.buildCurve(
-        valuationTime.toInstant(),
-        LocalDate.now(), // Want the current curves (is that what this represents)
-        curveDefinition));
-  }
-
 }

@@ -8,8 +8,11 @@ package com.opengamma.sesame;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.ValuationTimeCacheEntry;
+import com.opengamma.sesame.marketdata.FieldName;
+import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 
@@ -48,8 +51,13 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public MarketDataSource getMarketDataSource() {
-    _cacheInvalidator.register(idBundle);
-    return _delegate.getMarketDataSource();
+    return new MarketDataSource() {
+      @Override
+      public MarketDataItem<?> get(ExternalIdBundle idBundle, FieldName fieldName) {
+        _cacheInvalidator.register(idBundle);
+        return _delegate.getMarketDataSource().get(idBundle, fieldName);
+      }
+    };
   }
 
   @Override
@@ -64,6 +72,6 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public Environment with(ZonedDateTime valuationTime, MarketDataSource marketData) {
-    return new SimpleEnvironment(valuationTme, marketData);
+    return new SimpleEnvironment(valuationTime, marketData);
   }
 }

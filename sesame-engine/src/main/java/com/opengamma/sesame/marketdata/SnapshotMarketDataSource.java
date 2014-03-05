@@ -40,7 +40,7 @@ public class SnapshotMarketDataSource implements MarketDataSource {
   public MarketDataItem get(ExternalIdBundle idBundle, FieldName fieldName) {
     ValueSnapshot value = _snapshot.getValue(idBundle, fieldName.getName());
     if (value == null) {
-      return MarketDataItem.UNAVAILABLE;
+      return MarketDataItem.unavailable();
     }
 
     Object overrideValue = value.getOverrideValue();
@@ -52,7 +52,7 @@ public class SnapshotMarketDataSource implements MarketDataSource {
     if (marketValue != null) {
       return MarketDataItem.available(marketValue);
     }
-    return MarketDataItem.UNAVAILABLE;
+    return MarketDataItem.unavailable();
   }
   
   private UnstructuredMarketDataSnapshot getFlattenedSnapshot(StructuredMarketDataSnapshot snapshot) {

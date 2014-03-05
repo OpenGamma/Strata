@@ -27,7 +27,7 @@ public interface DiscountingMulticurveBundleFn {
   @Cacheable(CacheLifetime.NEXT_FUTURE_ROLL)
   @Output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE)
   Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
-      CurveConstructionConfiguration curveConfig);
+      Environment env, CurveConstructionConfiguration curveConfig);
 
   // REVIEW Chris 2014-03-14 this is crying out for a real class for the return type
   @Cacheable(CacheLifetime.FOREVER)

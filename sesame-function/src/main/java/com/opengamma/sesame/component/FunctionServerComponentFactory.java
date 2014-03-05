@@ -23,7 +23,7 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.sesame.engine.ViewFactory;
-import com.opengamma.sesame.marketdata.MarketDataFnFactory;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
 
 /**
  * Component factory for the engine.
@@ -44,15 +44,15 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   private ViewFactory _viewFactory;
 
   /**
-   * THe factory for market data functions.
+   * THe factory for market data sources.
    */
   @PropertyDefinition(validate = "notNull")
-  private MarketDataFnFactory _marketDataFnFactory;
+  private MarketDataFactory _marketDataFactory;
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
-    DefaultFunctionServer server = new DefaultFunctionServer(_viewFactory, _marketDataFnFactory);
+    DefaultFunctionServer server = new DefaultFunctionServer(_viewFactory, _marketDataFactory);
 
     ComponentInfo serverInfo = new ComponentInfo(DefaultFunctionServer.class, getClassifier());
     repo.registerComponent(serverInfo, server);
@@ -132,28 +132,28 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets tHe factory for market data functions.
+   * Gets tHe factory for market data sources.
    * @return the value of the property, not null
    */
-  public MarketDataFnFactory getMarketDataFnFactory() {
-    return _marketDataFnFactory;
+  public MarketDataFactory getMarketDataFactory() {
+    return _marketDataFactory;
   }
 
   /**
-   * Sets tHe factory for market data functions.
-   * @param marketDataFnFactory  the new value of the property, not null
+   * Sets tHe factory for market data sources.
+   * @param marketDataFactory  the new value of the property, not null
    */
-  public void setMarketDataFnFactory(MarketDataFnFactory marketDataFnFactory) {
-    JodaBeanUtils.notNull(marketDataFnFactory, "marketDataFnFactory");
-    this._marketDataFnFactory = marketDataFnFactory;
+  public void setMarketDataFactory(MarketDataFactory marketDataFactory) {
+    JodaBeanUtils.notNull(marketDataFactory, "marketDataFactory");
+    this._marketDataFactory = marketDataFactory;
   }
 
   /**
-   * Gets the the {@code marketDataFnFactory} property.
+   * Gets the the {@code marketDataFactory} property.
    * @return the property, not null
    */
-  public final Property<MarketDataFnFactory> marketDataFnFactory() {
-    return metaBean().marketDataFnFactory().createProperty(this);
+  public final Property<MarketDataFactory> marketDataFactory() {
+    return metaBean().marketDataFactory().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -171,7 +171,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
       FunctionServerComponentFactory other = (FunctionServerComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getViewFactory(), other.getViewFactory()) &&
-          JodaBeanUtils.equal(getMarketDataFnFactory(), other.getMarketDataFnFactory()) &&
+          JodaBeanUtils.equal(getMarketDataFactory(), other.getMarketDataFactory()) &&
           super.equals(obj);
     }
     return false;
@@ -182,7 +182,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewFactory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataFnFactory());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataFactory());
     return hash ^ super.hashCode();
   }
 
@@ -204,7 +204,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("viewFactory").append('=').append(JodaBeanUtils.toString(getViewFactory())).append(',').append(' ');
-    buf.append("marketDataFnFactory").append('=').append(JodaBeanUtils.toString(getMarketDataFnFactory())).append(',').append(' ');
+    buf.append("marketDataFactory").append('=').append(JodaBeanUtils.toString(getMarketDataFactory())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -228,10 +228,10 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ViewFactory> _viewFactory = DirectMetaProperty.ofReadWrite(
         this, "viewFactory", FunctionServerComponentFactory.class, ViewFactory.class);
     /**
-     * The meta-property for the {@code marketDataFnFactory} property.
+     * The meta-property for the {@code marketDataFactory} property.
      */
-    private final MetaProperty<MarketDataFnFactory> _marketDataFnFactory = DirectMetaProperty.ofReadWrite(
-        this, "marketDataFnFactory", FunctionServerComponentFactory.class, MarketDataFnFactory.class);
+    private final MetaProperty<MarketDataFactory> _marketDataFactory = DirectMetaProperty.ofReadWrite(
+        this, "marketDataFactory", FunctionServerComponentFactory.class, MarketDataFactory.class);
     /**
      * The meta-properties.
      */
@@ -239,7 +239,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "viewFactory",
-        "marketDataFnFactory");
+        "marketDataFactory");
 
     /**
      * Restricted constructor.
@@ -254,8 +254,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return _classifier;
         case -1101448539:  // viewFactory
           return _viewFactory;
-        case -1465067588:  // marketDataFnFactory
-          return _marketDataFnFactory;
+        case -1673716700:  // marketDataFactory
+          return _marketDataFactory;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -293,11 +293,11 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code marketDataFnFactory} property.
+     * The meta-property for the {@code marketDataFactory} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<MarketDataFnFactory> marketDataFnFactory() {
-      return _marketDataFnFactory;
+    public final MetaProperty<MarketDataFactory> marketDataFactory() {
+      return _marketDataFactory;
     }
 
     //-----------------------------------------------------------------------
@@ -308,8 +308,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return ((FunctionServerComponentFactory) bean).getClassifier();
         case -1101448539:  // viewFactory
           return ((FunctionServerComponentFactory) bean).getViewFactory();
-        case -1465067588:  // marketDataFnFactory
-          return ((FunctionServerComponentFactory) bean).getMarketDataFnFactory();
+        case -1673716700:  // marketDataFactory
+          return ((FunctionServerComponentFactory) bean).getMarketDataFactory();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -323,8 +323,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
         case -1101448539:  // viewFactory
           ((FunctionServerComponentFactory) bean).setViewFactory((ViewFactory) newValue);
           return;
-        case -1465067588:  // marketDataFnFactory
-          ((FunctionServerComponentFactory) bean).setMarketDataFnFactory((MarketDataFnFactory) newValue);
+        case -1673716700:  // marketDataFactory
+          ((FunctionServerComponentFactory) bean).setMarketDataFactory((MarketDataFactory) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -334,7 +334,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._classifier, "classifier");
       JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._viewFactory, "viewFactory");
-      JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._marketDataFnFactory, "marketDataFnFactory");
+      JodaBeanUtils.notNull(((FunctionServerComponentFactory) bean)._marketDataFactory, "marketDataFactory");
       super.validate(bean);
     }
 

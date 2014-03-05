@@ -17,6 +17,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -34,15 +35,16 @@ public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForw
   }
 
   @Override
-  public Result<DoubleLabelledMatrix1D> calculateYieldCurveNodeSensitivities(FXForwardSecurity security) {
+  public Result<DoubleLabelledMatrix1D> calculateYieldCurveNodeSensitivities(Environment env,
+                                                                             FXForwardSecurity security) {
 
     Result<FXForwardCalculator> forwardCalculatorResult =
-        _fxForwardCalculatorFn.generateCalculator(security);
+        _fxForwardCalculatorFn.generateCalculator(env, security);
 
     if (forwardCalculatorResult.isValueAvailable()) {
 
       FXForwardCalculator fxForwardCalculator = forwardCalculatorResult.getValue();
-      final MultipleCurrencyParameterSensitivity sensitivities = fxForwardCalculator.generateBlockCurveSensitivities();
+      final MultipleCurrencyParameterSensitivity sensitivities = fxForwardCalculator.generateBlockCurveSensitivities(env);
 
       return findMatchingSensitivities(sensitivities);
     } else {

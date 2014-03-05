@@ -6,10 +6,11 @@
 package com.opengamma.sesame.irs;
 
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.result.Result;
 
 public interface InterestRateSwapCalculatorFn {
 
-  Result<InterestRateSwapCalculator> generateCalculator(InterestRateSwapSecurity security);
+  Result<InterestRateSwapCalculator> generateCalculator(Environment env, InterestRateSwapSecurity security);
 
 }

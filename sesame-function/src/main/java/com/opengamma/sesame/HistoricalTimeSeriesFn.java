@@ -25,7 +25,7 @@ public interface HistoricalTimeSeriesFn {
    * @param endDate  the end date of the time series, inclusive, not null
    * @return the time-series bundle, a failure result if not found
    */
-  Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve, LocalDate endDate);
+  Result<HistoricalTimeSeriesBundle> getHtsForCurve(Environment env, CurveSpecification curve, LocalDate endDate);
 
   /**
    * Finds the time-series for the currency pair.
@@ -34,6 +34,6 @@ public interface HistoricalTimeSeriesFn {
    * @param endDate  the end date of the time series, inclusive, not null
    * @return the time-series bundle, a failure result if not found
    */
-  Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair, LocalDate endDate);
+  Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDate endDate);
 
 }

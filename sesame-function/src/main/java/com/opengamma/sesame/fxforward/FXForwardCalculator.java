@@ -25,7 +25,7 @@ import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -55,20 +55,17 @@ public class FXForwardCalculator {
 
   private final CurveBuildingBlockBundle _jacobianBundle;
   private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
-  private final ValuationTimeFn _valuationTimeFn;
   private final InstrumentDefinition<?> _instrumentDefinition;
 
   public FXForwardCalculator(FXForwardSecurity security,
                              MulticurveProviderDiscount discountingMulticurveBundle,
                              CurveBuildingBlockBundle jacobianBundle,
                              FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter,
-                             FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-                             ValuationTimeFn valuationTimeFn) {
+                             FixedIncomeConverterDataProvider definitionToDerivativeConverter) {
     _security = security;
     _jacobianBundle = jacobianBundle;
     _discountingMulticurveBundle = discountingMulticurveBundle;
     _definitionToDerivativeConverter = definitionToDerivativeConverter;
-    _valuationTimeFn = valuationTimeFn;
     _instrumentDefinition = _security.accept(securityConverter);
   }
 
@@ -77,28 +74,27 @@ public class FXForwardCalculator {
    *
    * @return the present value, not null
    */
-  public CurrencyLabelledMatrix1D calculatePV() {
-    return FXUtils.getMultipleCurrencyAmountAsMatrix(calculateCurrencyExposure());
+  public CurrencyLabelledMatrix1D calculatePV(Environment env) {
+    return FXUtils.getMultipleCurrencyAmountAsMatrix(calculateCurrencyExposure(env));
   }
 
-  public MultipleCurrencyAmount calculateCurrencyExposure() {
-
-    InstrumentDerivative derivative = generateInstrumentDerivative();
+  public MultipleCurrencyAmount calculateCurrencyExposure(Environment env) {
+    InstrumentDerivative derivative = generateInstrumentDerivative(env);
     return derivative.accept(PV_CALCULATOR, _discountingMulticurveBundle);
   }
 
   // Note that this is one possible implementation (corresponds to DiscountingBCSFunction), we will
   // need to support others (e.g. FXForwardPointsBCSFunction)
-  public MultipleCurrencyParameterSensitivity generateBlockCurveSensitivities() {
-    return SENSITIVITY_CALCULATOR.fromInstrument(generateInstrumentDerivative(),
+  public MultipleCurrencyParameterSensitivity generateBlockCurveSensitivities(Environment env) {
+    return SENSITIVITY_CALCULATOR.fromInstrument(generateInstrumentDerivative(env),
                                                  _discountingMulticurveBundle,
                                                  _jacobianBundle);
   }
 
   // todo - if this class is thrown away after each cycle then we can use a field rather than this method
-  private InstrumentDerivative generateInstrumentDerivative() {
+  private InstrumentDerivative generateInstrumentDerivative(Environment env) {
 
-    ZonedDateTime valuationTime = _valuationTimeFn.getTime();
+    ZonedDateTime valuationTime = env.getValuationTime();
     // Note that no time series are needed for FX Forward, so pass in an empty bundle
     return _definitionToDerivativeConverter.convert(
         _security, _instrumentDefinition, valuationTime, EMPTY_TIME_SERIES_BUNDLE);

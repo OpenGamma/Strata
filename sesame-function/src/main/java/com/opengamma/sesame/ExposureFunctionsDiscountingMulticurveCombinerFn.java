@@ -53,7 +53,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      FinancialSecurity security, Result<FXMatrix> fxMatrix) {
+      Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
     if (mesResult.isValueAvailable()) {
@@ -65,7 +65,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurationsForSecurity(security);
       for (CurveConstructionConfiguration curveConfig : curveConfigs) {
         Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
-            _multicurveBundleProviderFunction.generateBundle(curveConfig);
+            _multicurveBundleProviderFunction.generateBundle(env, curveConfig);
         if (bundle.isValueAvailable()) {
           Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getValue();
           bundles.add(result.getFirst());

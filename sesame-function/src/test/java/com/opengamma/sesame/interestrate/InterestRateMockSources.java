@@ -20,7 +20,6 @@ import java.util.TreeSet;
 
 import org.mockito.Matchers;
 import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -69,14 +68,14 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.MarketdataResourcesLoader;
-import com.opengamma.sesame.ValuationTimeFn;
-import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
+import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataFnFactory;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
+import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RecordingMarketDataSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -116,6 +115,7 @@ public class InterestRateMockSources {
 
   private static final ExternalId _liborIndexId = ExternalId.of("CONVENTION", LIBOR_INDEX);
   private static final ExternalId _onIndexId = ExternalId.of("CONVENTION", USD_OVERNIGHT_INDEX);
+  private static final String TICKER = "Ticker";
 
   private static ExternalId s_USID = ExternalSchemes.financialRegionId("US");
   private static ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
@@ -123,18 +123,6 @@ public class InterestRateMockSources {
 
   public static ExternalId getLiborIndexId() {
     return _liborIndexId;
-  }
-
-  public static ImmutableMap<Class<?>, Object> generateComponentMap(ZonedDateTime valuationTime, Class functionType) {
-
-    Map<Class<?>, Object> componentMap = generateBaseComponents();
-
-    // Needed as the above method returns the wrong interface type for this market data function
-    return ImmutableMap.<Class<?>, Object>builder()
-        .putAll(componentMap)
-        .put(MarketDataFn.class, createMarketDataFn(functionType))
-        .put(ValuationTimeFn.class, createValuationTimeFn(valuationTime))
-        .build();
   }
 
   public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
@@ -147,19 +135,16 @@ public class InterestRateMockSources {
                                 mock(HistoricalMarketDataFn.class));
   }
 
-  public static MarketDataFnFactory createMarketDataFnFactory() {
-
-    MarketDataFnFactory mock = mock(MarketDataFnFactory.class);
-    when(mock.create(Matchers.<MarketDataSpecification>any())).thenReturn(createMarketDataFn(String.class));
+  public static MarketDataFactory createMarketDataFactory() {
+    MarketDataFactory mock = mock(MarketDataFactory.class);
+    when(mock.create(Matchers.<MarketDataSpecification>any())).thenReturn(createMarketDataSource());
     return mock;
   }
 
-  // todo - this functionType argument doesn't really do anything!
-  private static MarketDataFn createMarketDataFn(Class functionType) {
+  public static MarketDataSource createMarketDataSource() {
     try {
-      DefaultResettableMarketDataFn marketDataFn = new DefaultResettableMarketDataFn();
-      marketDataFn.resetMarketData(MarketdataResourcesLoader.getData("usdMarketQuotes.properties", functionType, "Ticker"));
-      return marketDataFn;
+      Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("usdMarketQuotes.properties", TICKER);
+      return new RecordingMarketDataSource(FieldName.of(TICKER), marketData);
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Exception whilst loading file", e);
     }
@@ -175,25 +160,25 @@ public class InterestRateMockSources {
 
   private static CurveNodeIdMapper getUSDDiscountingCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
-    cashNodes.put(Tenor.ONE_DAY, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D1")));
-    cashNodes.put(Tenor.TWO_DAYS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D2")));
+    cashNodes.put(Tenor.ONE_DAY, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D1")));
+    cashNodes.put(Tenor.TWO_DAYS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
 
     Map<Tenor, CurveInstrumentProvider> swapNodes = Maps.newHashMap();
-    swapNodes.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D3")));
-    swapNodes.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D4")));
-    swapNodes.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D5")));
-    swapNodes.put(Tenor.SIX_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D6")));
-    swapNodes.put(Tenor.NINE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D7")));
-    swapNodes.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D8")));
-    swapNodes.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D9")));
-    swapNodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D10")));
-    swapNodes.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D11")));
-    swapNodes.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D12")));
-    swapNodes.put(Tenor.SIX_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D13")));
-    swapNodes.put(Tenor.SEVEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D14")));
-    swapNodes.put(Tenor.EIGHT_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D15")));
-    swapNodes.put(Tenor.NINE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D16")));
-    swapNodes.put(Tenor.TEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D17")));
+    swapNodes.put(Tenor.ONE_MONTH, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D3")));
+    swapNodes.put(Tenor.TWO_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D4")));
+    swapNodes.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D5")));
+    swapNodes.put(Tenor.SIX_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D6")));
+    swapNodes.put(Tenor.NINE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D7")));
+    swapNodes.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D8")));
+    swapNodes.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D9")));
+    swapNodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D10")));
+    swapNodes.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D11")));
+    swapNodes.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D12")));
+    swapNodes.put(Tenor.SIX_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D13")));
+    swapNodes.put(Tenor.SEVEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D14")));
+    swapNodes.put(Tenor.EIGHT_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D15")));
+    swapNodes.put(Tenor.NINE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D16")));
+    swapNodes.put(Tenor.TEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D17")));
 
     return CurveNodeIdMapper.builder()
         .name(USD_DISC_MAPPER)
@@ -204,7 +189,7 @@ public class InterestRateMockSources {
 
   private static CurveNodeIdMapper getUSDDiscountingOvernightCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
-    cashNodes.put(Tenor.OVERNIGHT, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "D2")));
+    cashNodes.put(Tenor.OVERNIGHT, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
     return CurveNodeIdMapper.builder()
         .name(USD_DISC_OVERNIGHT_MAPPER)
         .cashNodeIds(cashNodes)
@@ -235,25 +220,25 @@ public class InterestRateMockSources {
 
   private static CurveNodeIdMapper get3MLiborCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
-    cashNodes.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L1")));
+    cashNodes.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L1")));
 
     Map<Tenor, CurveInstrumentProvider> fraNodes = Maps.newHashMap();
-    fraNodes.put(Tenor.SIX_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L2")));
-    fraNodes.put(Tenor.NINE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L3")));
+    fraNodes.put(Tenor.SIX_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L2")));
+    fraNodes.put(Tenor.NINE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L3")));
 
     Map<Tenor, CurveInstrumentProvider> swapNodes = Maps.newHashMap();
-    swapNodes.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L4")));
-    swapNodes.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L5")));
-    swapNodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L6")));
-    swapNodes.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L7")));
-    swapNodes.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L8")));
-    swapNodes.put(Tenor.SEVEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L9")));
-    swapNodes.put(Tenor.TEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L10")));
-    swapNodes.put(Tenor.ofYears(12), new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L11")));
-    swapNodes.put(Tenor.ofYears(15), new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L12")));
-    swapNodes.put(Tenor.ofYears(20), new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L13")));
-    swapNodes.put(Tenor.ofYears(25),new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L14")));
-    swapNodes.put(Tenor.ofYears(30),new StaticCurveInstrumentProvider(ExternalId.of("Ticker", "L15")));
+    swapNodes.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L4")));
+    swapNodes.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L5")));
+    swapNodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L6")));
+    swapNodes.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L7")));
+    swapNodes.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L8")));
+    swapNodes.put(Tenor.SEVEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L9")));
+    swapNodes.put(Tenor.TEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L10")));
+    swapNodes.put(Tenor.ofYears(12), new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L11")));
+    swapNodes.put(Tenor.ofYears(15), new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L12")));
+    swapNodes.put(Tenor.ofYears(20), new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L13")));
+    swapNodes.put(Tenor.ofYears(25),new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L14")));
+    swapNodes.put(Tenor.ofYears(30),new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L15")));
 
     return CurveNodeIdMapper.builder()
         .name(LIBOR_3M_MAPPER)
@@ -312,10 +297,6 @@ public class InterestRateMockSources {
 
   private static HolidaySource mockHolidaySource() {
     return new WeekendHolidaySource();
-  }
-
-  private static ValuationTimeFn createValuationTimeFn(ZonedDateTime valuationTime) {
-    return new DefaultValuationTimeFn(valuationTime);
   }
 
   private static RegionSource mockRegionSource() {

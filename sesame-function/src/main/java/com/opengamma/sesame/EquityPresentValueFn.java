@@ -19,10 +19,12 @@ public interface EquityPresentValueFn {
   /**
    * Calculates present value for equities.
    * 
+   *
+   * @param env the execution environment
    * @param security  the equity, not null
    * @return the present value, a failure result if unable to calculate
    */
   @Output(OutputNames.PRESENT_VALUE)
-  Result<Double> presentValue(EquitySecurity security);
+  Result<Double> presentValue(Environment env, EquitySecurity security);
 
 }

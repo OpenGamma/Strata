@@ -5,28 +5,19 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
-import static com.opengamma.util.result.ResultGenerator.success;
-
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import com.google.common.collect.Maps;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
-import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValues;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 
 /**
  * Function implementation that provides market data for a curve specification.
@@ -39,19 +30,13 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
   private final MarketDataFn _marketDataFn;
 
   public DefaultCurveSpecificationMarketDataFn(MarketDataFn marketDataFn) {
-    _marketDataFn = marketDataFn;
+    _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataFn");
   }
 
   @Override
-  public Result<MarketDataValues> requestData(CurveSpecification curveSpecification) {
-    return requestData(curveSpecification, _marketDataFn);
-  }
-
-  //-------------------------------------------------------------------------
-
-  @Override
-  public Result<MarketDataValues> requestData(CurveSpecification curveSpecification, MarketDataFn marketDataFn) {
+  public Result<Map<ExternalIdBundle, Double>> requestData(Environment env, CurveSpecification curveSpecification) {
     // TODO we're looping over the set of nodes twice, do it in one go? not sure that's possible
+    /*
     Set<MarketDataRequirement> requirements = new HashSet<>();
     for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
       MarketDataRequirement fwdReq = MarketDataRequirementFactory.of(id);
@@ -85,6 +70,33 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
         items.put(fwdReq, MarketDataItem.available(fwd));
       }
     }
-    return success(new MarketDataValues(items, Collections.<MarketDataRequirement>emptySet()));
+    return success(new MarketDataValues(items, Collections.<MarketDataRequirement>emptySet()));*/
+
+    Map<ExternalIdBundle, Double> results = new HashMap<>();
+
+    for (CurveNodeWithIdentifier node : curveSpecification.getNodes()) {
+      if (node instanceof PointsCurveNodeWithIdentifier) {
+        PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
+        MarketDataItem<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
+        MarketDataItem<Double> spotItem = _marketDataFn.getPointsCurveNodeUnderlyingValue(env, pointsNode);
+
+        if (!fwdItem.isAvailable()) {
+          return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data for {}", node);
+        }
+        if (!spotItem.isAvailable()) {
+          return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data for {}", pointsNode);
+        }
+        results.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
+      } else {
+        MarketDataItem<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
+
+        if (!fwdItem.isAvailable()) {
+          return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data for {}", node);
+        } else {
+          results.put(node.getIdentifier().toBundle(), fwdItem.getValue());
+        }
+      }
+    }
+    return ResultGenerator.success(results);
   }
 }

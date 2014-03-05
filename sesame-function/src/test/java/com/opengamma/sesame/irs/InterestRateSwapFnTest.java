@@ -68,11 +68,13 @@ import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -97,9 +99,52 @@ public class InterestRateSwapFnTest {
   private static final double EXPECTED_PAR_RATE = 0.0000; //TODO What is the correct par rate here
   private static final double EXPECTED_PV01 = 0.0000; //TODO What is the correct PV here
 
+  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
 
   private InterestRateSwapFn _swapFunction;
   private InterestRateSwapSecurity _swapSecurity = createSingleSwap();
+  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
+                                                               InterestRateMockSources.createMarketDataSource());
+
+  @BeforeClass
+  public void setUpClass() throws IOException {
+    FunctionModelConfig config = config(
+        arguments(
+            function(ConfigDbMarketExposureSelectorFn.class,
+                     argument("exposureConfig", ConfigLink.of("Test USD", InterestRateMockSources.mockExposureFunctions()))),
+            function(RootFinderConfiguration.class,
+                     argument("rootFinderAbsoluteTolerance", 1e-9),
+                     argument("rootFinderRelativeTolerance", 1e-9),
+                     argument("rootFinderMaxIterations", 1000)),
+            function(DefaultCurrencyPairsFn.class,
+                     argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
+            function(DefaultHistoricalTimeSeriesFn.class,
+                     argument("resolutionKey", "DEFAULT_TSS"),
+                     argument("htsRetrievalPeriod", Period.ofYears(1))),
+            function(DefaultDiscountingMulticurveBundleFn.class,
+                     argument("impliedCurveNames", ImmutableSet.of()))),
+        implementations(InterestRateSwapFn.class, DiscountingInterestRateInterestRateSwapFn.class,
+                        CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                        InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                        InterestRateSwapCalculatorFn.class, InterestRateSwapDiscountingCalculatorFn.class,
+                        InterestRateSwapCalculatorFactory.class, InterestRateSwapCalculatorFactory.class,
+                        CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                        FXMatrixFn.class, DefaultFXMatrixFn.class,
+                        DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
+
+    ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
+    VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
+    ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
+    ThreadLocalServiceContext.init(serviceContext);
+
+    _swapFunction = FunctionModel.build(InterestRateSwapFn.class, config, ComponentMap.of(components));
+  }
 
   private InterestRateSwapSecurity createSingleSwap() {
 
@@ -146,19 +191,17 @@ public class InterestRateSwapFnTest {
     receiveLeg.setRollConvention(RollConvention.EOM);
     legs.add(receiveLeg);
 
-    InterestRateSwapSecurity swap = new InterestRateSwapSecurity(
+    return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
         "test swap",
         LocalDate.of(2014, 3, 19), // effective date
         LocalDate.of(2015, 3, 18), // maturity date,
-        legs
-    );
-    return swap;
+        legs);
   }
 
   @Test(enabled = false)
   public void interestRateSwapPV() {
-    Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(_swapSecurity);
+    Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(ENV, _swapSecurity);
     assertThat(resultPV.isValueAvailable(), is((true)));
 
     MultipleCurrencyAmount mca = resultPV.getValue();
@@ -167,7 +210,7 @@ public class InterestRateSwapFnTest {
 
   @Test(enabled = false)
   public void interestRateSwapParRate() {
-    Result<Double> resultParRate = _swapFunction.calculateParRate(_swapSecurity);
+    Result<Double> resultParRate = _swapFunction.calculateParRate(ENV, _swapSecurity);
     assertThat(resultParRate.isValueAvailable(), is((true)));
 
     Double parRate = resultParRate.getValue();
@@ -176,7 +219,7 @@ public class InterestRateSwapFnTest {
 
   @Test(enabled = false)
   public void interestRateSwapPV01() {
-    Result<ReferenceAmount<Pair<String,Currency>>> resultPV01 = _swapFunction.calculatePV01(_swapSecurity);
+    Result<ReferenceAmount<Pair<String,Currency>>> resultPV01 = _swapFunction.calculatePV01(ENV, _swapSecurity);
     assertThat(resultPV01.isValueAvailable(), is((true)));
 
     ReferenceAmount<Pair<String,Currency>> pv01s = resultPV01.getValue();
@@ -187,50 +230,6 @@ public class InterestRateSwapFnTest {
       }
     }
     assertThat(pv01, is(closeTo(EXPECTED_PV01, STD_TOLERANCE_PV01)));
-  }
-
-  @BeforeClass
-  public void setUpClass() throws IOException {
-    ZonedDateTime valuationTime = DateUtils.getUTCDate(2014, 1, 22);
-
-    FunctionModelConfig config = config(
-        arguments(
-            function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.of("Test USD", InterestRateMockSources.mockExposureFunctions()))),
-            function(RootFinderConfiguration.class,
-                     argument("rootFinderAbsoluteTolerance", 1e-9),
-                     argument("rootFinderRelativeTolerance", 1e-9),
-                     argument("rootFinderMaxIterations", 1000)),
-            function(DefaultCurrencyPairsFn.class,
-                     argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
-            function(DefaultHistoricalTimeSeriesFn.class,
-                     argument("resolutionKey", "DEFAULT_TSS"),
-                     argument("htsRetrievalPeriod", Period.ofYears(1))),
-            function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", ImmutableSet.of()))),
-        implementations(InterestRateSwapFn.class, DiscountingInterestRateInterestRateSwapFn.class,
-                        CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
-                        InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                        InterestRateSwapCalculatorFn.class, InterestRateSwapDiscountingCalculatorFn.class,
-                        InterestRateSwapCalculatorFactory.class, InterestRateSwapCalculatorFactory.class,
-                        CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                        FXMatrixFn.class, DefaultFXMatrixFn.class,
-                        DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
-
-    final ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateComponentMap(valuationTime, InterestRateSwapFn.class);
-
-    VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
-    ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
-    ThreadLocalServiceContext.init(serviceContext);
-
-    _swapFunction = FunctionModel.build(InterestRateSwapFn.class, config, ComponentMap.of(components));
-
   }
 
 }

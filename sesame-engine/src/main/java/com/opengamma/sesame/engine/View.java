@@ -210,7 +210,7 @@ public class View implements AutoCloseable {
     //   for snapshots it will be the entire snapshot if it's been updated in the DB
     //   if the data provider has completely changed then everything must go (which is currently done in the invalidator)
     // TODO this needs to be integrated with ServiceContext
-    _cacheInvalidator.invalidate(cycleArguments.getMarketDataFn(),
+    _cacheInvalidator.invalidate(cycleArguments.getMarketDataSource(),
                                  cycleArguments.getValuationTime(),
                                  cycleArguments.getConfigVersionCorrection(),
                                  Collections.<ExternalId>emptyList(),

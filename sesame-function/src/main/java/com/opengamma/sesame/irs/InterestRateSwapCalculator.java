@@ -19,7 +19,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.sesame.ValuationTimeFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
@@ -55,9 +54,8 @@ public class InterestRateSwapCalculator {
   public InterestRateSwapCalculator(InterestRateSwapSecurity security,
                                     MulticurveProviderInterface bundle,
                                     InterestRateSwapSecurityConverter swapConverter,
-                                    ValuationTimeFn valuationTimeFn) {
-
-    _derivative = createInstrumentDerivative(security, swapConverter, valuationTimeFn.getTime());
+                                    ZonedDateTime valuationTime) {
+    _derivative = createInstrumentDerivative(security, swapConverter, valuationTime);
     _bundle = bundle;
   }
 

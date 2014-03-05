@@ -17,6 +17,7 @@ import com.google.common.base.Optional;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurrencyPairsFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -62,21 +63,10 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
     _seriesPeriod = seriesPeriod;
   }
 
-  public DiscountingFXForwardSpotPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-                                             final CurrencyPairsFn currencyPairsFn,
-                                             final FXReturnSeriesFn fxReturnSeriesProvider,
-                                             final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
-                                             final Period seriesPeriod) {
-    this(calculatorProvider,
-         currencyPairsFn,
-         Optional.<Currency>absent(),
-         fxReturnSeriesProvider,
-         historicalTimeSeriesProvider,
-         seriesPeriod);
-  }
-
   @Override
-  public Result<LocalDateDoubleTimeSeries> calculatePnlSeries(final FXForwardSecurity security, LocalDate endDate) {
+  public Result<LocalDateDoubleTimeSeries> calculatePnlSeries(Environment env,
+                                                              FXForwardSecurity security,
+                                                              LocalDate endDate) {
 
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
@@ -84,7 +74,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
     final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
     final Result<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
 
-    final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(security);
+    final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(env, security);
 
     // todo this if/else nesting is fairly horrible - is there a nicer way? E.g:
       //return gatherResults(cpResult, returnSeriesResult, calculatorResult).whenAvailable(new Doer() {
@@ -111,7 +101,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
     if (calculatorResult.isValueAvailable()) {
 
-      final MultipleCurrencyAmount currencyExposure = calculatorResult.getValue().calculateCurrencyExposure();
+      final MultipleCurrencyAmount currencyExposure = calculatorResult.getValue().calculateCurrencyExposure(env);
 
       if (cpResult.isValueAvailable()) {
 
@@ -120,7 +110,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
         LocalDateRange dateRange = LocalDateRange.of(endDate.minus(_seriesPeriod), endDate, true);
 
         final Result<LocalDateDoubleTimeSeries> returnSeriesResult =
-            _fxReturnSeriesProvider.calculateReturnSeries(dateRange, currencyPair);
+            _fxReturnSeriesProvider.calculateReturnSeries(env, dateRange, currencyPair);
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getValue();
 
         final Currency baseCurrency = currencyPair.getBase();
@@ -128,9 +118,9 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
         if (conversionIsRequired(baseCurrency)) {
 
+          CurrencyPair outputPair = CurrencyPair.of(baseCurrency, _outputCurrency.get());
           final Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
-              _historicalTimeSeriesProvider.getHtsForCurrencyPair(CurrencyPair.of(baseCurrency, _outputCurrency.get()),
-                                                                  endDate);
+              _historicalTimeSeriesProvider.getHtsForCurrencyPair(env, outputPair, endDate);
 
           if (conversionSeriesResult.isValueAvailable()) {
 
