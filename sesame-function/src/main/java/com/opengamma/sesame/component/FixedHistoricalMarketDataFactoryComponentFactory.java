@@ -52,7 +52,7 @@ public class FixedHistoricalMarketDataFactoryComponentFactory extends AbstractCo
   /**
    * The data source name used to retrieve the historic data.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private String _dataSource;
 
   /**

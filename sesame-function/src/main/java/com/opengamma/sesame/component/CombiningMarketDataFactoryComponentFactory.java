@@ -32,7 +32,7 @@ import com.opengamma.sesame.marketdata.TypeDelegatingMarketDataFactory;
  * market data function factories.
  */
 @BeanDefinition
-public class CombiningMarketDataFnFactoryComponentFactory extends AbstractComponentFactory {
+public class CombiningMarketDataFactoryComponentFactory extends AbstractComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -88,17 +88,17 @@ public class CombiningMarketDataFnFactoryComponentFactory extends AbstractCompon
    * The meta-bean for {@code CombiningMarketDataFnFactoryComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static CombiningMarketDataFnFactoryComponentFactory.Meta meta() {
-    return CombiningMarketDataFnFactoryComponentFactory.Meta.INSTANCE;
+  public static CombiningMarketDataFactoryComponentFactory.Meta meta() {
+    return CombiningMarketDataFactoryComponentFactory.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CombiningMarketDataFnFactoryComponentFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(CombiningMarketDataFactoryComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public CombiningMarketDataFnFactoryComponentFactory.Meta metaBean() {
-    return CombiningMarketDataFnFactoryComponentFactory.Meta.INSTANCE;
+  public CombiningMarketDataFactoryComponentFactory.Meta metaBean() {
+    return CombiningMarketDataFactoryComponentFactory.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -222,7 +222,7 @@ public class CombiningMarketDataFnFactoryComponentFactory extends AbstractCompon
 
   //-----------------------------------------------------------------------
   @Override
-  public CombiningMarketDataFnFactoryComponentFactory clone() {
+  public CombiningMarketDataFactoryComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
   }
 
@@ -232,7 +232,7 @@ public class CombiningMarketDataFnFactoryComponentFactory extends AbstractCompon
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CombiningMarketDataFnFactoryComponentFactory other = (CombiningMarketDataFnFactoryComponentFactory) obj;
+      CombiningMarketDataFactoryComponentFactory other = (CombiningMarketDataFactoryComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getLiveMarketDataFactory(), other.getLiveMarketDataFactory()) &&
           JodaBeanUtils.equal(getFixedHistoricalMarketDataFactory(), other.getFixedHistoricalMarketDataFactory()) &&
@@ -288,22 +288,22 @@ public class CombiningMarketDataFnFactoryComponentFactory extends AbstractCompon
      * The meta-property for the {@code classifier} property.
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", CombiningMarketDataFnFactoryComponentFactory.class, String.class);
+        this, "classifier", CombiningMarketDataFactoryComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code liveMarketDataFactory} property.
      */
     private final MetaProperty<LiveMarketDataFactory> _liveMarketDataFactory = DirectMetaProperty.ofReadWrite(
-        this, "liveMarketDataFactory", CombiningMarketDataFnFactoryComponentFactory.class, LiveMarketDataFactory.class);
+        this, "liveMarketDataFactory", CombiningMarketDataFactoryComponentFactory.class, LiveMarketDataFactory.class);
     /**
      * The meta-property for the {@code fixedHistoricalMarketDataFactory} property.
      */
     private final MetaProperty<FixedHistoricalMarketDataFactory> _fixedHistoricalMarketDataFactory = DirectMetaProperty.ofReadWrite(
-        this, "fixedHistoricalMarketDataFactory", CombiningMarketDataFnFactoryComponentFactory.class, FixedHistoricalMarketDataFactory.class);
+        this, "fixedHistoricalMarketDataFactory", CombiningMarketDataFactoryComponentFactory.class, FixedHistoricalMarketDataFactory.class);
     /**
      * The meta-property for the {@code userSnapshotMarketDataFactory} property.
      */
     private final MetaProperty<SnapshotMarketDataFactory> _userSnapshotMarketDataFactory = DirectMetaProperty.ofReadWrite(
-        this, "userSnapshotMarketDataFactory", CombiningMarketDataFnFactoryComponentFactory.class, SnapshotMarketDataFactory.class);
+        this, "userSnapshotMarketDataFactory", CombiningMarketDataFactoryComponentFactory.class, SnapshotMarketDataFactory.class);
     /**
      * The meta-properties.
      */
@@ -336,13 +336,13 @@ public class CombiningMarketDataFnFactoryComponentFactory extends AbstractCompon
     }
 
     @Override
-    public BeanBuilder<? extends CombiningMarketDataFnFactoryComponentFactory> builder() {
-      return new DirectBeanBuilder<CombiningMarketDataFnFactoryComponentFactory>(new CombiningMarketDataFnFactoryComponentFactory());
+    public BeanBuilder<? extends CombiningMarketDataFactoryComponentFactory> builder() {
+      return new DirectBeanBuilder<CombiningMarketDataFactoryComponentFactory>(new CombiningMarketDataFactoryComponentFactory());
     }
 
     @Override
-    public Class<? extends CombiningMarketDataFnFactoryComponentFactory> beanType() {
-      return CombiningMarketDataFnFactoryComponentFactory.class;
+    public Class<? extends CombiningMarketDataFactoryComponentFactory> beanType() {
+      return CombiningMarketDataFactoryComponentFactory.class;
     }
 
     @Override
@@ -388,13 +388,13 @@ public class CombiningMarketDataFnFactoryComponentFactory extends AbstractCompon
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
-          return ((CombiningMarketDataFnFactoryComponentFactory) bean).getClassifier();
+          return ((CombiningMarketDataFactoryComponentFactory) bean).getClassifier();
         case 855711896:  // liveMarketDataFactory
-          return ((CombiningMarketDataFnFactoryComponentFactory) bean).getLiveMarketDataFactory();
+          return ((CombiningMarketDataFactoryComponentFactory) bean).getLiveMarketDataFactory();
         case 748954726:  // fixedHistoricalMarketDataFactory
-          return ((CombiningMarketDataFnFactoryComponentFactory) bean).getFixedHistoricalMarketDataFactory();
+          return ((CombiningMarketDataFactoryComponentFactory) bean).getFixedHistoricalMarketDataFactory();
         case 591332661:  // userSnapshotMarketDataFactory
-          return ((CombiningMarketDataFnFactoryComponentFactory) bean).getUserSnapshotMarketDataFactory();
+          return ((CombiningMarketDataFactoryComponentFactory) bean).getUserSnapshotMarketDataFactory();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -403,16 +403,16 @@ public class CombiningMarketDataFnFactoryComponentFactory extends AbstractCompon
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
-          ((CombiningMarketDataFnFactoryComponentFactory) bean).setClassifier((String) newValue);
+          ((CombiningMarketDataFactoryComponentFactory) bean).setClassifier((String) newValue);
           return;
         case 855711896:  // liveMarketDataFactory
-          ((CombiningMarketDataFnFactoryComponentFactory) bean).setLiveMarketDataFactory((LiveMarketDataFactory) newValue);
+          ((CombiningMarketDataFactoryComponentFactory) bean).setLiveMarketDataFactory((LiveMarketDataFactory) newValue);
           return;
         case 748954726:  // fixedHistoricalMarketDataFactory
-          ((CombiningMarketDataFnFactoryComponentFactory) bean).setFixedHistoricalMarketDataFactory((FixedHistoricalMarketDataFactory) newValue);
+          ((CombiningMarketDataFactoryComponentFactory) bean).setFixedHistoricalMarketDataFactory((FixedHistoricalMarketDataFactory) newValue);
           return;
         case 591332661:  // userSnapshotMarketDataFactory
-          ((CombiningMarketDataFnFactoryComponentFactory) bean).setUserSnapshotMarketDataFactory((SnapshotMarketDataFactory) newValue);
+          ((CombiningMarketDataFactoryComponentFactory) bean).setUserSnapshotMarketDataFactory((SnapshotMarketDataFactory) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -420,7 +420,7 @@ public class CombiningMarketDataFnFactoryComponentFactory extends AbstractCompon
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((CombiningMarketDataFnFactoryComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((CombiningMarketDataFactoryComponentFactory) bean)._classifier, "classifier");
       super.validate(bean);
     }
 
