@@ -7,7 +7,11 @@ package com.opengamma.sesame.function;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.link.Link;
@@ -22,6 +26,8 @@ import com.opengamma.util.result.ResultGenerator;
  * TODO javadocs
  */
 /* package */ class MethodInvokableFunction implements InvokableFunction {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(MethodInvokableFunction.class);
 
   /** The receiver of the method call. */
   private final Object _receiver;
@@ -84,9 +90,21 @@ import com.opengamma.util.result.ResultGenerator;
     } catch (IllegalAccessException e) {
       throw new OpenGammaRuntimeException("Unable to access method", e);
     } catch (InvocationTargetException e) {
-      Exception cause;
-      cause = e.getCause() != null && e.getCause() instanceof Exception ? (Exception) e.getCause() : e;
+      Exception cause = getCause(e);
+      String methodName = _method.getDeclaringClass().getSimpleName() + "." + _method.getName() + "()";
+      s_logger.warn("Exception invoking " + methodName, cause);
       return ResultGenerator.failure(cause);
+    }
+  }
+
+  private static Exception getCause(Exception e) {
+    if (!(e instanceof InvocationTargetException) && !(e instanceof UndeclaredThrowableException)) {
+      return e;
+    }
+    if (e.getCause() != null && e.getCause() instanceof Exception) {
+      return getCause((Exception) e.getCause());
+    } else {
+      return e;
     }
   }
 

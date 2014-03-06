@@ -35,43 +35,6 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
 
   @Override
   public Result<Map<ExternalIdBundle, Double>> requestData(Environment env, CurveSpecification curveSpecification) {
-    // TODO we're looping over the set of nodes twice, do it in one go? not sure that's possible
-    /*
-    Set<MarketDataRequirement> requirements = new HashSet<>();
-    for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
-      MarketDataRequirement fwdReq = MarketDataRequirementFactory.of(id);
-      requirements.add(fwdReq);
-      if (id instanceof PointsCurveNodeWithIdentifier) {
-        PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-        requirements.add(new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(), node.getUnderlyingDataField()));
-      }
-    }
-    Result<MarketDataValues> result = marketDataFn.requestData(requirements);
-    if (!result.isValueAvailable()) {
-      return propagateFailure(result);
-    }
-    Map<MarketDataRequirement, MarketDataItem> items = Maps.newHashMap();
-    for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
-      MarketDataRequirement fwdReq = MarketDataRequirementFactory.of(id);
-      MarketDataValues value = result.getValue();
-      if (value.getStatus(fwdReq) != MarketDataStatus.AVAILABLE) {
-        //TODO return a set of failures (see SSM-115)
-        return failure(FailureStatus.MISSING_DATA, "Unavailable market data: {}", fwdReq);
-      }
-      Double fwd = (Double) value.getValue(fwdReq);
-      if (id instanceof PointsCurveNodeWithIdentifier) {
-        PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-        CurveNodeMarketDataRequirement spotReq = new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(),
-            node.getUnderlyingDataField());
-        // TODO check result is available
-        Double spot = (Double) result.getValue().getValue(spotReq);
-        items.put(fwdReq, MarketDataItem.available(fwd + spot));
-      } else {
-        items.put(fwdReq, MarketDataItem.available(fwd));
-      }
-    }
-    return success(new MarketDataValues(items, Collections.<MarketDataRequirement>emptySet()));*/
-
     Map<ExternalIdBundle, Double> results = new HashMap<>();
 
     // TODO don't bail out on the first failure, collect all the results
