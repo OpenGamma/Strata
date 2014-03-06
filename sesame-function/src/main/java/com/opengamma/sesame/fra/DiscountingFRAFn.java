@@ -5,9 +5,6 @@
  */
 package com.opengamma.sesame.fra;
 
-import static com.opengamma.util.result.ResultGenerator.map;
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -33,28 +30,21 @@ public class DiscountingFRAFn implements FRAFn {
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, FRASecurity security) {
+    Result<FRACalculator> calculatorResult = _FRACalculatorFn.generateCalculator(env, security);
 
-    return calculate(env, security, new ResultGenerator.ResultMapper<FRACalculator, MultipleCurrencyAmount>() {
-      @Override
-      public Result<MultipleCurrencyAmount> map(FRACalculator result) {
-        return success(result.calculatePV());
-      }
-    });
+    if (!calculatorResult.isValueAvailable()) {
+      return calculatorResult.propagateFailure();
+    }
+    return ResultGenerator.success(calculatorResult.getValue().calculatePV());
   }
 
   @Override
   public Result<Double> calculateParRate(Environment env, FRASecurity security) {
+    Result<FRACalculator> calculatorResult = _FRACalculatorFn.generateCalculator(env, security);
 
-    return calculate(env, security, new ResultGenerator.ResultMapper<FRACalculator, Double>() {
-      @Override
-      public Result<Double> map(FRACalculator result) {
-        return success(result.calculateRate());
-      }
-    });
-  }
-
-  private <T> Result<T> calculate(Environment env, FRASecurity security, ResultGenerator.ResultMapper<FRACalculator, T> mapper) {
-    Result<FRACalculator> calculator = _FRACalculatorFn.generateCalculator(env, security);
-    return map(calculator, mapper);
+    if (!calculatorResult.isValueAvailable()) {
+      return calculatorResult.propagateFailure();
+    }
+    return ResultGenerator.success(calculatorResult.getValue().calculateRate());
   }
 }

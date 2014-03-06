@@ -161,8 +161,7 @@ public class FXForwardYCNSFunctionTest {
     ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
-    FixedHistoricalMarketDataSource dataSource =
-        new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+    FixedHistoricalMarketDataSource dataSource = new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", null);
 
     // TODO initialize service context and do this with a link
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);

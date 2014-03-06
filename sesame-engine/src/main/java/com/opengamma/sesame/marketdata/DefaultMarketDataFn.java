@@ -39,7 +39,7 @@ public class DefaultMarketDataFn implements MarketDataFn {
   }
 
   @Override
-  public MarketDataItem<Double> getPointsCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node) {
+  public MarketDataItem<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node) {
     ExternalIdBundle id = node.getUnderlyingIdentifier().toBundle();
     FieldName fieldName = FieldName.of(node.getUnderlyingDataField());
     MarketDataItem<?> item = env.getMarketDataSource().get(id, fieldName);

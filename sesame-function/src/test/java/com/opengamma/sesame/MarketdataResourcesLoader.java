@@ -19,7 +19,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 
 /**
- * Load key/value pair marketdata resources as a map of MarketDataRequirement and MarketDataItem
+ * Load key/value pair marketdata resources as a map of {@link ExternalIdBundle} to double.
  */
 public class MarketdataResourcesLoader {
 
@@ -29,7 +29,7 @@ public class MarketdataResourcesLoader {
 
   public static Map<ExternalIdBundle, Double> getData(String path, ExternalScheme scheme) throws IOException {
     Properties properties = new Properties();
-    try (InputStream stream = MarketdataResourcesLoader.class.getResourceAsStream("/" + path);
+    try (InputStream stream = MarketdataResourcesLoader.class.getResourceAsStream(path);
          Reader reader = new BufferedReader(new InputStreamReader(stream))) {
       properties.load(reader);
     }

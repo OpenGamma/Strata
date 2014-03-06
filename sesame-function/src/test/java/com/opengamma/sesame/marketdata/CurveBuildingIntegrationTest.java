@@ -89,14 +89,14 @@ import com.opengamma.util.test.TestGroup;
 
 import net.sf.ehcache.CacheManager;
 
-//@Test(groups = TestGroup.INTEGRATION)
-@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class CurveBuildingIntegrationTest {
 
   private static final RemoteProviderTestUtils TEST_UTILS = new RemoteProviderTestUtils();
 
   // Create a view with known curve and try to get market data
   // from the market data server
+  //@Test(groups = TestGroup.INTEGRATION)
+  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void testCurveHasData() throws InterruptedException {
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
@@ -113,9 +113,11 @@ public class CurveBuildingIntegrationTest {
                          argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
                          argument("impliedCurveNames", StringSet.of())),
-                function(DefaultHistoricalMarketDataSource.class,
-                         argument("dataSource", "BLOOMBERG"),
-                         argument("dataProvider", "Market_Value"))));
+                function(DefaultMarketDataFn.class,
+                         argument("currencyMatrix", currencyMatrixLink)),
+                function(DefaultHistoricalMarketDataFn.class,
+                         argument("currencyMatrix", currencyMatrixLink),
+                         argument("dataSource", "BLOOMBERG"))));
 
     ViewConfig viewConfig =
         configureView("Curve Bundle only",
@@ -140,7 +142,8 @@ public class CurveBuildingIntegrationTest {
                                       ConfigDBCurveConstructionConfigurationSource.class,
                                       DefaultHistoricalTimeSeriesFn.class,
                                       ConfigDbMarketExposureSelectorFn.class,
-                                      DefaultHistoricalMarketDataSource.class);
+                                      DefaultMarketDataFn.class,
+                                      DefaultHistoricalMarketDataFn.class);
 
     ComponentMap componentMap = ComponentMap.loadComponents("http://devsvr-lx-2:8080");
 
@@ -159,8 +162,8 @@ public class CurveBuildingIntegrationTest {
 
     View view = viewFactory.createView(viewConfig, Collections.emptyList());
 
-    ResettableLiveMarketDataSource liveDataSource = buildLiveDataSource();
-    ConfigLink<CurrencyMatrix> configLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
+    LiveDataManager liveDataManager = new LiveDataManager(buildLiveDataClient());
+    ResettableLiveMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(liveDataManager);
     Results initialResults = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource));
     System.out.println(initialResults);
 
@@ -172,7 +175,6 @@ public class CurveBuildingIntegrationTest {
 
     // Now try again, resetting the market data first (which should pick up bloomberg data)
     System.out.println("Waiting for market data to catch up");
-    //Thread.sleep(5000);
     liveDataSource.waitForData();
 
     Results results = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource));
@@ -184,10 +186,6 @@ public class CurveBuildingIntegrationTest {
     assertThat(successResult.isValueAvailable(), is(true));
     final Object value = successResult.getValue();
     assertThat(value, is(not(nullValue())));
-  }
-
-  private ResettableLiveMarketDataSource buildLiveDataSource() {
-    return new ResettableLiveMarketDataSource(new LiveDataManager(buildLiveDataClient()));
   }
 
   private LiveDataClient buildLiveDataClient() {

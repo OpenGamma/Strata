@@ -5,9 +5,6 @@
  */
 package com.opengamma.sesame.irs;
 
-import static com.opengamma.util.result.ResultGenerator.map;
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
@@ -36,38 +33,31 @@ public class DiscountingInterestRateInterestRateSwapFn implements InterestRateSw
 
   @Override
   public Result<Double> calculateParRate(Environment env, InterestRateSwapSecurity security) {
-    return calculate(env, security, new ResultGenerator.ResultMapper<InterestRateSwapCalculator, Double>() {
-      @Override
-      public Result<Double> map(InterestRateSwapCalculator result) {
-        return success(result.calculateRate());
-      }
-    });
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
+
+    if (!calculatorResult.isValueAvailable()) {
+      return calculatorResult.propagateFailure();
+    }
+    return ResultGenerator.success(calculatorResult.getValue().calculateRate());
   }
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateSwapSecurity security) {
-    return calculate(env, security, new ResultGenerator.ResultMapper<InterestRateSwapCalculator, MultipleCurrencyAmount>() {
-      @Override
-      public Result<MultipleCurrencyAmount> map(InterestRateSwapCalculator result) {
-        return success(result.calculatePV());
-      }
-    });
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
+
+    if (!calculatorResult.isValueAvailable()) {
+      return calculatorResult.propagateFailure();
+    }
+    return ResultGenerator.success(calculatorResult.getValue().calculatePV());
   }
 
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapSecurity security) {
-    return calculate(env, security, new ResultGenerator.ResultMapper<InterestRateSwapCalculator, ReferenceAmount<Pair<String, Currency>>>() {
-      @Override
-      public Result<ReferenceAmount<Pair<String, Currency>>> map(InterestRateSwapCalculator result) {
-        return success(result.calculatePV01());
-      }
-    });
-  }
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
 
-  private <T> Result<T> calculate(Environment env,
-                                  InterestRateSwapSecurity security,
-                                  ResultGenerator.ResultMapper<InterestRateSwapCalculator, T> mapper) {
-    Result<InterestRateSwapCalculator> calculator = _interestRateSwapCalculatorFn.generateCalculator(env, security);
-    return map(calculator, mapper);
+    if (!calculatorResult.isValueAvailable()) {
+      return calculatorResult.propagateFailure();
+    }
+    return ResultGenerator.success(calculatorResult.getValue().calculatePV01());
   }
 }

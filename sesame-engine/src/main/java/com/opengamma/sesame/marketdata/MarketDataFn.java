@@ -23,7 +23,7 @@ public interface MarketDataFn {
   // TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
   MarketDataItem<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node);
 
-  MarketDataItem<Double> getPointsCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node);
+  MarketDataItem<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node);
 
   MarketDataItem<Double> getMarketValue(Environment env, ExternalIdBundle id);
 

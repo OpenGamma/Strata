@@ -166,8 +166,7 @@ public class FXForwardPnlSeriesFunctionTest {
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
-    FixedHistoricalMarketDataSource dataSource =
-        new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+    FixedHistoricalMarketDataSource dataSource = new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", null);
     // TODO set up a service context and do this with a link
     CurrencyMatrix currencyMatrix = configSource.getLatestByName(CurrencyMatrix.class, "BloombergLiveData");
 

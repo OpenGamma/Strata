@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import javax.annotation.Nullable;
+
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -23,11 +25,10 @@ public class FixedHistoricalMarketDataFactory implements MarketDataFactory {
 
   public FixedHistoricalMarketDataFactory(HistoricalTimeSeriesSource historicalTimeSeriesSource,
                                           String dataSource,
-                                          String dataProvider) {
+                                          @Nullable String dataProvider) {
     _historicalTimeSeriesSource = ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
-    // REVIEW Chris 2014-03-05 - "null" ????????????????????
-    _dataSource = "null".equals(dataSource) ? null : dataSource;
-    _dataProvider = "null".equals(dataProvider) ? null : dataProvider;
+    _dataSource = ArgumentChecker.notEmpty(dataSource, "dataSource");
+    _dataProvider = dataProvider;
   }
   
   @Override

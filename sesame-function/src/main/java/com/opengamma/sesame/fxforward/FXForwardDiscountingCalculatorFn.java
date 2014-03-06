@@ -5,9 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.ResultGenerator.map;
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -52,13 +49,13 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
 
   @Override
   public Result<FXForwardCalculator> generateCalculator(Environment env, final FXForwardSecurity security) {
-    return map(createBundle(env, security),
-               new ResultGenerator.ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FXForwardCalculator>() {
-      @Override
-      public Result<FXForwardCalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
-        return success(_factory.createCalculator(security, result.getFirst(), result.getSecond()));
-      }
-    });
+    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = createBundle(env, security);
+
+    if (!bundleResult.isValueAvailable()) {
+      return bundleResult.propagateFailure();
+    }
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> value = bundleResult.getValue();
+    return ResultGenerator.success(_factory.createCalculator(security, value.getFirst(), value.getSecond()));
   }
 
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(Environment env,

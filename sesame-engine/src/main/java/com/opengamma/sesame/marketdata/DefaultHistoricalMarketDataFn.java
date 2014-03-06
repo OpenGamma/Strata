@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
@@ -43,11 +45,11 @@ public class DefaultHistoricalMarketDataFn implements HistoricalMarketDataFn {
 
   public DefaultHistoricalMarketDataFn(HistoricalTimeSeriesSource timeSeriesSource,
                                        String dataSource,
-                                       String dataProvider,
+                                       @Nullable String dataProvider,
                                        CurrencyMatrix currencyMatrix) {
     _timeSeriesSource = ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
     _dataSource = ArgumentChecker.notEmpty(dataSource, "dataSource");
-    _dataProvider = ArgumentChecker.notEmpty(dataProvider, "dataProvider");
+    _dataProvider = dataProvider;
     _currencyMatrix = ArgumentChecker.notNull(currencyMatrix, "currencyMatrix");
   }
 

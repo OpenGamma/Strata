@@ -130,7 +130,8 @@ import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataSource;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
@@ -297,9 +298,11 @@ public class FXForwardPVFnTest {
                                                argument("impliedCurveNames", StringSet.of()),
                                                argument("curveConfig", ConfigLink.of("Temple USD",
                                                                                      CurveConstructionConfiguration.class))),
-                                      function(DefaultHistoricalMarketDataSource.class,
-                                               argument("dataSource", "BLOOMBERG"),
-                                               argument("dataProvider", "Market_Value")))))));
+                                      function(DefaultMarketDataFn.class,
+                                               argument("currencyMatrix", currencyMatrixLink)),
+                                      function(DefaultHistoricalMarketDataFn.class,
+                                               argument("currencyMatrix", currencyMatrixLink),
+                                               argument("dataSource", "BLOOMBERG")))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);
@@ -318,7 +321,8 @@ public class FXForwardPVFnTest {
                                       DefaultHistoricalTimeSeriesFn.class,
                                       FXForwardDiscountingCalculatorFn.class,
                                       ConfigDbMarketExposureSelectorFn.class,
-                                      DefaultHistoricalMarketDataSource.class);
+                                      DefaultMarketDataFn.class,
+                                      DefaultHistoricalMarketDataFn.class);
 
     String serverUrl = "http://devsvr-lx-2:8080";
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
@@ -338,7 +342,7 @@ public class FXForwardPVFnTest {
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig, Collections.emptyList());
-    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("marketdata.properties",
+    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
     RecordingMarketDataSource dataSource = new RecordingMarketDataSource(fieldName, marketData);

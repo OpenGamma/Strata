@@ -78,7 +78,7 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
       if (node instanceof PointsCurveNodeWithIdentifier) {
         PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
         MarketDataItem<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
-        MarketDataItem<Double> spotItem = _marketDataFn.getPointsCurveNodeUnderlyingValue(env, pointsNode);
+        MarketDataItem<Double> spotItem = _marketDataFn.getCurveNodeUnderlyingValue(env, pointsNode);
 
         if (!fwdItem.isAvailable()) {
           return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data for {}", node);
