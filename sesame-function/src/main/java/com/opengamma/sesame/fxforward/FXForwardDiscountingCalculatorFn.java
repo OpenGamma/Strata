@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.ResultGenerator.map;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Set;
@@ -20,7 +19,7 @@ import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
+import com.opengamma.util.result.ResultMapper;
 import com.opengamma.util.tuple.Pair;
 
 public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
@@ -51,14 +50,14 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
 
   @Override
   public Result<FXForwardCalculator> generateCalculator(final FXForwardSecurity security) {
-
-    return map(createBundle(security),
-               new ResultGenerator.ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FXForwardCalculator>() {
-      @Override
-      public Result<FXForwardCalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
-        return success(_factory.createCalculator(security, result.getFirst(), result.getSecond()));
-      }
-    });
+    return createBundle(security).map(
+        new ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FXForwardCalculator>() {
+          @Override
+          public Result<FXForwardCalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
+            return success(_factory.createCalculator(security, result.getFirst(), result.getSecond()));
+          }
+        }
+    );
   }
 
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(FXForwardSecurity security) {

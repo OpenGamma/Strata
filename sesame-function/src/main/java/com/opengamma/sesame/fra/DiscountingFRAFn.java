@@ -5,13 +5,12 @@
  */
 package com.opengamma.sesame.fra;
 
-import static com.opengamma.util.result.ResultGenerator.map;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
+import com.opengamma.util.result.ResultMapper;
 
 
 /**
@@ -33,7 +32,7 @@ public class DiscountingFRAFn implements FRAFn {
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(FRASecurity security) {
 
-    return calculate(security, new ResultGenerator.ResultMapper<FRACalculator, MultipleCurrencyAmount>() {
+    return calculate(security, new ResultMapper<FRACalculator, MultipleCurrencyAmount>() {
       @Override
       public Result<MultipleCurrencyAmount> map(FRACalculator result) {
         return success(result.calculatePV());
@@ -44,7 +43,7 @@ public class DiscountingFRAFn implements FRAFn {
   @Override
   public Result<Double> calculateParRate(FRASecurity security) {
 
-    return calculate(security, new ResultGenerator.ResultMapper<FRACalculator, Double>() {
+    return calculate(security, new ResultMapper<FRACalculator, Double>() {
       @Override
       public Result<Double> map(FRACalculator result) {
         return success(result.calculateRate());
@@ -52,8 +51,8 @@ public class DiscountingFRAFn implements FRAFn {
     });
   }
 
-  private <T> Result<T> calculate(FRASecurity security, ResultGenerator.ResultMapper<FRACalculator, T> mapper) {
+  private <T> Result<T> calculate(FRASecurity security, ResultMapper<FRACalculator, T> mapper) {
     Result<FRACalculator> calculator = _FRACalculatorFn.generateCalculator(security);
-    return map(calculator, mapper);
+    return calculator.map(mapper);
   }
 }

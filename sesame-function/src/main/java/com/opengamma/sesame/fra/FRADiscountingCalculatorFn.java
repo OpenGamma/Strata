@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.fra;
 
-import static com.opengamma.util.result.ResultGenerator.map;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -15,7 +14,7 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
+import com.opengamma.util.result.ResultMapper;
 import com.opengamma.util.tuple.Pair;
 
 public class FRADiscountingCalculatorFn implements FRACalculatorFn {
@@ -40,13 +39,14 @@ public class FRADiscountingCalculatorFn implements FRACalculatorFn {
   @Override
   public Result<FRACalculator> generateCalculator(final FRASecurity security) {
 
-    return map(createBundle(security),
-               new ResultGenerator.ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FRACalculator>() {
-      @Override
-      public Result<FRACalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
-        return success(_factory.createCalculator(security, result.getFirst(), result.getSecond()));
-      }
-    });
+    return createBundle(security).map(
+        new ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FRACalculator>() {
+          @Override
+          public Result<FRACalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
+            return success(_factory.createCalculator(security, result.getFirst(), result.getSecond()));
+          }
+        }
+    );
   }
 
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(FRASecurity security) {
