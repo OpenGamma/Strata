@@ -206,7 +206,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
     Map.Entry<String, List<? extends CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
     Result<CurveDefinition> curveDefinition = _curveDefinitionProvider.getCurveDefinition(type.getKey());
-    if (!exogenousBundles.isValueAvailable()) {
+    if (!curveDefinition.isValueAvailable()) {
       return propagateFailure(curveDefinition);
     }
     DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
