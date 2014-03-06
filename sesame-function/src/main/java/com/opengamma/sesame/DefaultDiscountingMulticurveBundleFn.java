@@ -11,7 +11,6 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.ArrayList;
@@ -182,13 +181,19 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     // todo - this implementation is nowhere near complete
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(env, curveConfig);
     if (!fxMatrixResult.isValueAvailable()) {
-      return propagateFailure(fxMatrixResult);
+      return fxMatrixResult.propagateFailure();
     }
     Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(env, curveConfig, fxMatrixResult);
+    if (!exogenousBundles.isValueAvailable()) {
+      return exogenousBundles.propagateFailure();
+    }
 
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
     Map.Entry<String, List<? extends CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
     Result<CurveDefinition> curveDefinition = _curveDefinitionProvider.getCurveDefinition(type.getKey());
+    if (!curveDefinition.isValueAvailable()) {
+      return curveDefinition.propagateFailure();
+    }
     DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
     Currency currency = Currency.of(typeConfiguration.getReference());
 
@@ -543,7 +548,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       return failure(MISSING_DATA, "Unable to build exogenous curve bundles");
     } else {
 
-      return propagateFailure(fxMatrixResult);
+      return fxMatrixResult.propagateFailure();
     }
   }
 

@@ -159,7 +159,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public FunctionServerComponentFactory clone() {
-    return (FunctionServerComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

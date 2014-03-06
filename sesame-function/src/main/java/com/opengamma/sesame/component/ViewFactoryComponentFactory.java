@@ -42,6 +42,7 @@ import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
+import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
@@ -56,8 +57,12 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
+import com.opengamma.sesame.fxforward.DiscountingFXForwardSpotPnLSeriesFn;
+import com.opengamma.sesame.fxforward.DiscountingFXForwardYCNSPnLSeriesFn;
+import com.opengamma.sesame.fxforward.DiscountingFXForwardYieldCurveNodeSensitivitiesFn;
 import com.opengamma.sesame.fxforward.FXForwardDiscountingCalculatorFn;
 import com.opengamma.sesame.fxforward.FXForwardPVFn;
+import com.opengamma.sesame.fxforward.FXForwardPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYCNSPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYieldCurveNodeSensitivitiesFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
@@ -157,6 +162,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     availableOutputs.register(DiscountingMulticurveBundleFn.class);
     availableOutputs.register(FRAFn.class);
     availableOutputs.register(InterestRateSwapFn.class);
+    availableOutputs.register(FXForwardPnLSeriesFn.class);
     availableOutputs.register(FXForwardPVFn.class);
     availableOutputs.register(FXForwardYCNSPnLSeriesFn.class);
     availableOutputs.register(FXForwardYieldCurveNodeSensitivitiesFn.class);
@@ -165,7 +171,11 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   protected AvailableImplementations initAvailableImplementations() {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
-    availableImplementations.register(DiscountingFXForwardPVFn.class,
+    availableImplementations.register(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
+                                      DiscountingFXForwardSpotPnLSeriesFn.class,
+                                      DiscountingFXForwardYCNSPnLSeriesFn.class,
+                                      DiscountingFXForwardPVFn.class,
+                                      DefaultFXReturnSeriesFn.class,
                                       DefaultCurrencyPairsFn.class,
                                       FXForwardSecurityConverter.class,
                                       ConfigDBInstrumentExposuresProvider.class,
@@ -284,7 +294,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public ViewFactoryComponentFactory clone() {
-    return (ViewFactoryComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override
