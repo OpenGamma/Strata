@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
@@ -29,10 +31,10 @@ public class FixedHistoricalMarketDataSource implements MarketDataSource {
   public FixedHistoricalMarketDataSource(HistoricalTimeSeriesSource timeSeriesSource,
                                          LocalDate snapshotDate,
                                          String dataSource,
-                                         String dataProvider) {
+                                         @Nullable String dataProvider) {
     _timeSeriesSource = ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
     _dataSource = ArgumentChecker.notEmpty(dataSource, "dataSource");
-    _dataProvider = ArgumentChecker.notEmpty(dataProvider, "dataProvider");
+    _dataProvider = dataProvider;
     _snapshotDate = ArgumentChecker.notNull(snapshotDate, "snapshotDate");
 
   }

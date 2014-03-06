@@ -97,6 +97,8 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
@@ -127,7 +129,7 @@ public class FXForwardPnlSeriesFunctionTest {
   @Test
   public void buildGraph() {
     FunctionMetadata calculatePnl = EngineUtils.createMetadata(FXForwardPnLSeriesFn.class, "calculatePnlSeries");
-    FunctionModelConfig config = createFunctionConfig();
+    FunctionModelConfig config = createFunctionConfig(mock(CurrencyMatrix.class));
     ComponentMap componentMap = componentMap(ConfigSource.class,
                                              ConventionSource.class,
                                              ConventionBundleSource.class,
@@ -161,7 +163,8 @@ public class FXForwardPnlSeriesFunctionTest {
   }
 
   private Result<LocalDateDoubleTimeSeries> executeAgainstRemoteServer() {
-    String serverUrl = "http://localhost:8080";
+    String serverUrl = "http://devsvr-lx-2:8080";
+    //String serverUrl = "http://localhost:8080";
     ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
@@ -177,7 +180,7 @@ public class FXForwardPnlSeriesFunctionTest {
 
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
     FXForwardPnLSeriesFn pvFunction = FunctionModel.build(FXForwardPnLSeriesFn.class,
-                                                          createFunctionConfig(),
+                                                          createFunctionConfig(currencyMatrix),
                                                           componentMap,
                                                           TimingProxy.INSTANCE,
                                                           TracingProxy.INSTANCE,
@@ -200,11 +203,10 @@ public class FXForwardPnlSeriesFunctionTest {
     return result;
   }
 
-  private static FunctionModelConfig createFunctionConfig() {
+  private static FunctionModelConfig createFunctionConfig(CurrencyMatrix currencyMatrix) {
     ConfigLink<ExposureFunctions> exposureConfig =
         ConfigLink.of("EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS",
                       mock(ExposureFunctions.class));
-
     return
         config(
             arguments(
@@ -229,37 +231,30 @@ public class FXForwardPnlSeriesFunctionTest {
                          argument("resolutionKey", "DEFAULT_TSS"),
                          argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", StringSet.of()))),
-            implementations(FXForwardPnLSeriesFn.class,
-                            DiscountingFXForwardSpotPnLSeriesFn.class,
-                            FXReturnSeriesFn.class,
-                            DefaultFXReturnSeriesFn.class,
-                            FXForwardCalculatorFn.class,
-                            FXForwardDiscountingCalculatorFn.class,
-                            DiscountingMulticurveCombinerFn.class,
-                            ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                            MarketExposureSelectorFn.class,
-                            ConfigDbMarketExposureSelectorFn.class,
-                            CurrencyPairsFn.class,
-                            DefaultCurrencyPairsFn.class,
-                            FinancialSecurityVisitor.class,
-                            FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class,
-                            ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataFn.class,
-                            DefaultCurveSpecificationMarketDataFn.class,
-                            FXMatrixFn.class,
-                            DefaultFXMatrixFn.class,
-                            CurveDefinitionFn.class,
-                            DefaultCurveDefinitionFn.class,
-                            DiscountingMulticurveBundleFn.class,
-                            DefaultDiscountingMulticurveBundleFn.class,
-                            CurveSpecificationFn.class,
-                            DefaultCurveSpecificationFn.class,
-                            CurveConstructionConfigurationSource.class,
-                            ConfigDBCurveConstructionConfigurationSource.class,
-                            HistoricalTimeSeriesFn.class,
-                            DefaultHistoricalTimeSeriesFn.class));
+                         argument("impliedCurveNames", StringSet.of())),
+                function(DefaultHistoricalMarketDataFn.class,
+                         argument("dataSource", "Bloomberg"),
+                         argument("currencyMatrix", currencyMatrix)),
+                function(DefaultMarketDataFn.class,
+                         argument("currencyMatrix", currencyMatrix))),
+
+            implementations(FXForwardPnLSeriesFn.class, DiscountingFXForwardSpotPnLSeriesFn.class,
+                            FXReturnSeriesFn.class, DefaultFXReturnSeriesFn.class,
+                            FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
+                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                            CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                            FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
+                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                            FXMatrixFn.class, DefaultFXMatrixFn.class,
+                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                            HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                            MarketDataFn.class, DefaultMarketDataFn.class,
+                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {
