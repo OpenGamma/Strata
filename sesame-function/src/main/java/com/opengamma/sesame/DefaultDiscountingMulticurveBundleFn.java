@@ -246,6 +246,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         _rootFinderConfiguration.getMaxIterations());
   }
 
+  // TODO sort this out [SSM-164]
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> getCurves(
       Environment env,
       CurveConstructionConfiguration config,
@@ -305,6 +306,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
             // This curve needs to replace the existing discounting curve of the same currency
             curvesToRemove.add(currency);
+          } else {
+            curveBundlesComplete = false;
           }
         } else {
           Result<CurveSpecification> curveSpecResult =

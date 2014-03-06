@@ -74,6 +74,7 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
 
     Map<ExternalIdBundle, Double> results = new HashMap<>();
 
+    // TODO don't bail out on the first failure, collect all the results
     for (CurveNodeWithIdentifier node : curveSpecification.getNodes()) {
       if (node instanceof PointsCurveNodeWithIdentifier) {
         PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;

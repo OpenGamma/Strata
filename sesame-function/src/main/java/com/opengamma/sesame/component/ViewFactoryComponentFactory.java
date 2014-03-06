@@ -61,6 +61,7 @@ import com.opengamma.sesame.fxforward.FXForwardPVFn;
 import com.opengamma.sesame.fxforward.FXForwardYCNSPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYieldCurveNodeSensitivitiesFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 
@@ -179,7 +180,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
                                       ConfigDbMarketExposureSelectorFn.class,
                                       ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                                       FixedHistoricalMarketDataFactory.class,
-                                      DefaultMarketDataFn.class);
+                                      DefaultMarketDataFn.class,
+                                      DefaultHistoricalMarketDataFn.class);
     return availableImplementations;
   }
 

@@ -233,7 +233,7 @@ public class FXForwardPnlSeriesFunctionTest {
                 function(DefaultDiscountingMulticurveBundleFn.class,
                          argument("impliedCurveNames", StringSet.of())),
                 function(DefaultHistoricalMarketDataFn.class,
-                         argument("dataSource", "Bloomberg"),
+                         argument("dataSource", "BLOOMBERG"),
                          argument("currencyMatrix", currencyMatrix)),
                 function(DefaultMarketDataFn.class,
                          argument("currencyMatrix", currencyMatrix))),

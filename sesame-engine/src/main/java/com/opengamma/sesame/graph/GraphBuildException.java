@@ -19,9 +19,9 @@ import com.opengamma.OpenGammaRuntimeException;
 
   /**
    * Creates an instance
-   * 
-   * @param path  the path of parameters to the problem, not null
-   * @param exceptions  the list of other exceptions, not null
+   *
+   * @param message the error message
+   * @param exceptions the list of other exceptions, not null
    */
   /* package */ GraphBuildException(String message, List<InvalidGraphException> exceptions) {
     super(message);
