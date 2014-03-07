@@ -16,6 +16,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
@@ -59,6 +60,15 @@ public class DefaultHistoricalMarketDataFn implements HistoricalMarketDataFn {
                                                                       LocalDateRange dateRange) {
     ExternalIdBundle id = node.getIdentifier().toBundle();
     FieldName fieldName = FieldName.of(node.getDataField());
+    return get(id, fieldName, dateRange);
+  }
+
+  @Override
+  public MarketDataItem<LocalDateDoubleTimeSeries> getCurveNodeUnderlyingValue(Environment env,
+                                                                               PointsCurveNodeWithIdentifier node,
+                                                                               LocalDateRange dateRange) {
+    ExternalIdBundle id = node.getUnderlyingIdentifier().toBundle();
+    FieldName fieldName = FieldName.of(node.getUnderlyingDataField());
     return get(id, fieldName, dateRange);
   }
 
