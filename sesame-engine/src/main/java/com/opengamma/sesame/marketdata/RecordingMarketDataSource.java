@@ -16,7 +16,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * TODO this is a strawman implementation. review the API when it's clearer what we need
  */
 public class RecordingMarketDataSource implements MarketDataSource {
 

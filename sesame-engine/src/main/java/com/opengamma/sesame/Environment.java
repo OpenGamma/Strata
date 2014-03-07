@@ -16,11 +16,15 @@ import com.opengamma.sesame.marketdata.MarketDataSource;
 public interface Environment {
 
   /**
+   * Returns the valuation date.
+   * This method should be used in preference to {@link #getValuationTime()} if only the date is required
    * @return the valuation date, not null
    */
   LocalDate getValuationDate();
 
   /**
+   * Returns the valuation time.
+   * Use {@link #getValuationDate()} in preference to this method if you only need the date.
    * @return the valuation time, not null
    */
   ZonedDateTime getValuationTime();
