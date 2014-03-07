@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import org.slf4j.Logger;
@@ -28,9 +27,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -64,14 +61,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDate endDate) {
     LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
     LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
-
-    MarketDataItem<LocalDateDoubleTimeSeries> item = _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
-
-    if (item.isAvailable()) {
-      return success(item.getValue());
-    } else {
-      return failure(FailureStatus.MISSING_DATA, "No time series for {} and range {}", currencyPair, dateRange);
-    }
+    return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
   }
 
   @Override

@@ -7,8 +7,6 @@ package com.opengamma.sesame.marketdata;
 
 import javax.annotation.Nullable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -28,14 +26,15 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
  *
  */
 public class DefaultHistoricalMarketDataFn implements HistoricalMarketDataFn {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalMarketDataFn.class);
 
   private static final FieldName MARKET_VALUE = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 
@@ -55,74 +54,69 @@ public class DefaultHistoricalMarketDataFn implements HistoricalMarketDataFn {
   }
 
   @Override
-  public MarketDataItem<LocalDateDoubleTimeSeries> getCurveNodeValues(Environment env,
-                                                                      CurveNodeWithIdentifier node,
-                                                                      LocalDateRange dateRange) {
+  public Result<LocalDateDoubleTimeSeries> getCurveNodeValues(Environment env,
+                                                              CurveNodeWithIdentifier node,
+                                                              LocalDateRange dateRange) {
     ExternalIdBundle id = node.getIdentifier().toBundle();
     FieldName fieldName = FieldName.of(node.getDataField());
     return get(id, fieldName, dateRange);
   }
 
   @Override
-  public MarketDataItem<LocalDateDoubleTimeSeries> getCurveNodeUnderlyingValue(Environment env,
-                                                                               PointsCurveNodeWithIdentifier node,
-                                                                               LocalDateRange dateRange) {
+  public Result<LocalDateDoubleTimeSeries> getCurveNodeUnderlyingValue(Environment env,
+                                                                       PointsCurveNodeWithIdentifier node,
+                                                                       LocalDateRange dateRange) {
     ExternalIdBundle id = node.getUnderlyingIdentifier().toBundle();
     FieldName fieldName = FieldName.of(node.getUnderlyingDataField());
     return get(id, fieldName, dateRange);
   }
 
   @Override
-  public MarketDataItem<LocalDateDoubleTimeSeries> getMarketValues(Environment env,
-                                                                   ExternalIdBundle id,
-                                                                   LocalDateRange dateRange) {
+  public Result<LocalDateDoubleTimeSeries> getMarketValues(Environment env, ExternalIdBundle id, LocalDateRange dateRange) {
     return get(id, MARKET_VALUE, dateRange);
   }
 
   @Override
-  public MarketDataItem<LocalDateDoubleTimeSeries> getValues(Environment env,
-                                                             ExternalIdBundle id,
-                                                             FieldName fieldName,
-                                                             LocalDateRange dateRange) {
+  public Result<LocalDateDoubleTimeSeries> getValues(Environment env,
+                                                     ExternalIdBundle id,
+                                                     FieldName fieldName,
+                                                     LocalDateRange dateRange) {
     return get(id, fieldName, dateRange);
   }
 
   @Override
-  public MarketDataItem<LocalDateDoubleTimeSeries> getFxRates(Environment env,
-                                                              CurrencyPair currencyPair,
-                                                              LocalDateRange dateRange) {
+  public Result<LocalDateDoubleTimeSeries> getFxRates(Environment env, CurrencyPair currencyPair, LocalDateRange dateRange) {
     return getFxRates(dateRange, currencyPair.getBase(), currencyPair.getCounter());
   }
 
-  private MarketDataItem<LocalDateDoubleTimeSeries> get(ExternalIdBundle idBundle,
-                                                        FieldName fieldName,
-                                                        LocalDateRange dateRange) {
+  private Result<LocalDateDoubleTimeSeries> get(ExternalIdBundle id, FieldName fieldName, LocalDateRange dateRange) {
     LocalDate startDate = dateRange.getStartDateInclusive();
     LocalDate endDate = dateRange.getEndDateInclusive();
     HistoricalTimeSeries hts =
-        _timeSeriesSource.getHistoricalTimeSeries(idBundle, _dataSource, _dataProvider, fieldName.getName(),
+        _timeSeriesSource.getHistoricalTimeSeries(id, _dataSource, _dataProvider, fieldName.getName(),
                                                   startDate, true, endDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
-      s_logger.info("No time-series for {}", idBundle);
-      return MarketDataItem.unavailable();
+      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
+
     } else {
-      return MarketDataItem.available(hts.getTimeSeries());
+      return ResultGenerator.success(hts.getTimeSeries());
     }
   }
 
-  private MarketDataItem<LocalDateDoubleTimeSeries> getFxRates(final LocalDateRange dateRange,
-                                                               final Currency base,
-                                                               final Currency counter) {
+  private Result<LocalDateDoubleTimeSeries> getFxRates(final LocalDateRange dateRange,
+                                                       final Currency base,
+                                                       final Currency counter) {
     CurrencyMatrixValue value = _currencyMatrix.getConversion(base, counter);
     if (value == null) {
-      return MarketDataItem.unavailable();
+      return ResultGenerator.failure(FailureStatus.MISSING_DATA,
+                                     "No conversion found for {}",
+                                     CurrencyPair.of(base, counter));
     }
-
-    CurrencyMatrixValueVisitor<MarketDataItem<LocalDateDoubleTimeSeries>> visitor =
-        new CurrencyMatrixValueVisitor<MarketDataItem<LocalDateDoubleTimeSeries>>() {
+    CurrencyMatrixValueVisitor<Result<LocalDateDoubleTimeSeries>> visitor =
+        new CurrencyMatrixValueVisitor<Result<LocalDateDoubleTimeSeries>>() {
 
       @Override
-      public MarketDataItem<LocalDateDoubleTimeSeries> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
+      public Result<LocalDateDoubleTimeSeries> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
         LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
         LocalDate start = dateRange.getStartDateInclusive();
         LocalDate end = dateRange.getEndDateInclusive();
@@ -131,42 +125,42 @@ public class DefaultHistoricalMarketDataFn implements HistoricalMarketDataFn {
         for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
           builder.put(date, fixedRate);
         }
-        return MarketDataItem.available(builder.build());
+        return ResultGenerator.success(builder.build());
       }
 
       @SuppressWarnings("unchecked")
       @Override
-      public MarketDataItem<LocalDateDoubleTimeSeries> visitValueRequirement(
+      public Result<LocalDateDoubleTimeSeries> visitValueRequirement(
           CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
 
         ValueRequirement valueRequirement = req.getValueRequirement();
         ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
-        MarketDataItem item = get(idBundle, FieldName.of(dataField), dateRange);
+        Result<LocalDateDoubleTimeSeries> result = get(idBundle, FieldName.of(dataField), dateRange);
 
-        if (!item.isAvailable()) {
-          return MarketDataItem.unavailable();
+        if (!result.isValueAvailable()) {
+          return result;
         }
-        LocalDateDoubleTimeSeries spotRate = (LocalDateDoubleTimeSeries) item.getValue();
+        LocalDateDoubleTimeSeries spotRate = result.getValue();
 
         if (req.isReciprocal()) {
-          return MarketDataItem.available(spotRate.reciprocal());
+          return ResultGenerator.success(spotRate.reciprocal());
         } else {
-          return MarketDataItem.available(spotRate);
+          return ResultGenerator.success(spotRate);
         }
       }
 
       @Override
-      public MarketDataItem<LocalDateDoubleTimeSeries> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        MarketDataItem baseCrossRate = getFxRates(dateRange, base, cross.getCrossCurrency());
-        MarketDataItem crossCounterRate = getFxRates(dateRange, cross.getCrossCurrency(), counter);
+      public Result<LocalDateDoubleTimeSeries> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
+        Result<LocalDateDoubleTimeSeries> baseCrossRate = getFxRates(dateRange, base, cross.getCrossCurrency());
+        Result<LocalDateDoubleTimeSeries> crossCounterRate = getFxRates(dateRange, cross.getCrossCurrency(), counter);
 
-        if (!baseCrossRate.isAvailable() || !crossCounterRate.isAvailable()) {
-          return MarketDataItem.unavailable();
+        if (ResultGenerator.anyFailures(baseCrossRate, crossCounterRate)) {
+          return ResultGenerator.propagateFailures(baseCrossRate, crossCounterRate);
         } else {
-          LocalDateDoubleTimeSeries rate1 = (LocalDateDoubleTimeSeries) baseCrossRate.getValue();
-          LocalDateDoubleTimeSeries rate2 = (LocalDateDoubleTimeSeries) crossCounterRate.getValue();
-          return MarketDataItem.available(rate1.multiply(rate2));
+          LocalDateDoubleTimeSeries rate1 = baseCrossRate.getValue();
+          LocalDateDoubleTimeSeries rate2 = crossCounterRate.getValue();
+          return ResultGenerator.success(rate1.multiply(rate2));
         }
       }
     };

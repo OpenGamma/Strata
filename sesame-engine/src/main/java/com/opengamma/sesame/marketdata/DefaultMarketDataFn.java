@@ -67,7 +67,7 @@ public class DefaultMarketDataFn implements MarketDataFn {
   private Result<Double> getFxRate(final Environment env, final Currency base, final Currency counter) {
     CurrencyMatrixValue value = _currencyMatrix.getConversion(base, counter);
     if (value == null) {
-      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No rate available for {}", CurrencyPair.of(base, counter));
+      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No conversion available for {}", CurrencyPair.of(base, counter));
     }
     CurrencyMatrixValueVisitor<Result<Double>> visitor = new CurrencyMatrixValueVisitor<Result<Double>>() {
       @Override
