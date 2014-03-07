@@ -12,6 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -40,17 +43,17 @@ public class RecordingMarketDataSource implements MarketDataSource {
   }
 
   @Override
-  public MarketDataItem<?> get(ExternalIdBundle id, FieldName fieldName) {
+  public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
     Pair<ExternalIdBundle, FieldName> key = Pairs.of(id, fieldName);
     Object value = _data.get(key);
 
     // TODO check if the request is in the failed set and return UNAVAILABLE
 
     if (value != null) {
-      return MarketDataItem.available(value);
+      return ResultGenerator.success(value);
     } else {
       _requests.add(key);
-      return MarketDataItem.pending();
+      return ResultGenerator.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", id, fieldName);
     }
   }
 

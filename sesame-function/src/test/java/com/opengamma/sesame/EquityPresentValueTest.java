@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.FailureStatus.PENDING_DATA;
 import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -48,7 +48,7 @@ public class EquityPresentValueTest {
     Map<ExternalIdBundle, Double> marketData = Collections.emptyMap();
     Environment env = new SimpleEnvironment(ZonedDateTime.now(), marketDataSource(marketData));
     Result<Double> result = _equityPresentValueFn.presentValue(env, security);
-    assertThat(result.getStatus(), is((ResultStatus) MISSING_DATA));
+    assertThat(result.getStatus(), is((ResultStatus) PENDING_DATA));
   }
 
   @Test

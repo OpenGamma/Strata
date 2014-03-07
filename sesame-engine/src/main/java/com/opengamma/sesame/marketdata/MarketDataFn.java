@@ -10,6 +10,7 @@ import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdent
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
+import com.opengamma.util.result.Result;
 
 /**
  * Function providing market data to clients.
@@ -18,14 +19,14 @@ import com.opengamma.sesame.Environment;
 public interface MarketDataFn {
 
   // TODO this should return an object with the rate and pair (FxRate?)
-  MarketDataItem<Double> getFxRate(Environment env, CurrencyPair currencyPair);
+  Result<Double> getFxRate(Environment env, CurrencyPair currencyPair);
 
   // TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
-  MarketDataItem<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node);
+  Result<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node);
 
-  MarketDataItem<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node);
+  Result<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node);
 
-  MarketDataItem<Double> getMarketValue(Environment env, ExternalIdBundle id);
+  Result<Double> getMarketValue(Environment env, ExternalIdBundle id);
 
-  MarketDataItem<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName);
+  Result<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName);
 }

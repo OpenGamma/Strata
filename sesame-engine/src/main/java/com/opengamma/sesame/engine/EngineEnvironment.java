@@ -14,9 +14,9 @@ import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.ValuationTimeCacheEntry;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.Result;
 
 /**
  * {@link Environment} implementation created and managed by the engine.
@@ -55,9 +55,9 @@ import com.opengamma.util.ArgumentChecker;
   public MarketDataSource getMarketDataSource() {
     return new MarketDataSource() {
       @Override
-      public MarketDataItem<?> get(ExternalIdBundle idBundle, FieldName fieldName) {
-        _cacheInvalidator.register(idBundle);
-        return _delegate.getMarketDataSource().get(idBundle, fieldName);
+      public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
+        _cacheInvalidator.register(id);
+        return _delegate.getMarketDataSource().get(id, fieldName);
       }
     };
   }

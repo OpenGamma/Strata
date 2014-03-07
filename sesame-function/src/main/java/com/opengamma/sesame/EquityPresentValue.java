@@ -5,14 +5,8 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -32,13 +26,6 @@ public class EquityPresentValue implements EquityPresentValueFn {
   //-------------------------------------------------------------------------
   @Override
   public Result<Double> presentValue(Environment env, EquitySecurity security) {
-    ExternalIdBundle securityId = security.getExternalIdBundle();
-    MarketDataItem<Double> item = _marketDataFn.getMarketValue(env, securityId);
-
-    if (item.isAvailable()) {
-      return success(item.getValue());
-    } else {
-      return failure(FailureStatus.MISSING_DATA, "Market data was not available for {}", securityId);
-    }
+    return _marketDataFn.getMarketValue(env, security.getExternalIdBundle());
   }
 }

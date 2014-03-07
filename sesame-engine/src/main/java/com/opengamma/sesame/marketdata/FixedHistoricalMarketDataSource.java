@@ -15,6 +15,9 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 
 /**
  * Useful for backing a {@link MarketDataFn} which needs historical data from a fixed point in time.
@@ -40,19 +43,19 @@ public class FixedHistoricalMarketDataSource implements MarketDataSource {
   }
 
   @Override
-  public MarketDataItem<?> get(ExternalIdBundle idBundle, FieldName fieldName) {
+  public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
     HistoricalTimeSeries hts =
-        _timeSeriesSource.getHistoricalTimeSeries(idBundle, _dataSource, _dataProvider, fieldName.getName(),
+        _timeSeriesSource.getHistoricalTimeSeries(id, _dataSource, _dataProvider, fieldName.getName(),
                                                   _snapshotDate, true, _snapshotDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
-      s_logger.info("No time-series for {}", idBundle);
-      return MarketDataItem.unavailable();
+      s_logger.info("No time-series for {}", id);
+      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
     }
     Double value = hts.getTimeSeries().getValue(_snapshotDate);
     if (value == null) {
-      return MarketDataItem.unavailable();
+      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
     } else {
-      return MarketDataItem.available(value);
+      return ResultGenerator.success(value);
     }
   }
 }

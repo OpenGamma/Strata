@@ -30,12 +30,9 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  * Function implementation that provides a FX matrix.
@@ -148,10 +145,10 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         //note - currency matrix will ensure the spotRate returned is interpreted correctly,
         //depending on the order base and counter are specified in.
         CurrencyPair currencyPair = CurrencyPair.of(refCurr, currency);
-        MarketDataItem<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
+        Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
 
-        if (!marketDataResult.isAvailable()) {
-          return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No rate available for {}", currencyPair.getName());
+        if (!marketDataResult.isValueAvailable()) {
+          return marketDataResult.propagateFailure();
         } else {
           matrix.addCurrency(currency, refCurr, marketDataResult.getValue());
         }

@@ -17,6 +17,9 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 
 /**
  *
@@ -33,76 +36,73 @@ public class DefaultMarketDataFn implements MarketDataFn {
   }
 
   @Override
-  public MarketDataItem<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node) {
-    MarketDataItem<?> item = env.getMarketDataSource().get(node.getIdentifier().toBundle(), FieldName.of(node.getDataField()));
-    return (MarketDataItem<Double>) item;
+  public Result<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node) {
+    Result<?> result = env.getMarketDataSource().get(node.getIdentifier().toBundle(), FieldName.of(node.getDataField()));
+    return (Result<Double>) result;
   }
 
   @Override
-  public MarketDataItem<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node) {
+  public Result<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node) {
     ExternalIdBundle id = node.getUnderlyingIdentifier().toBundle();
     FieldName fieldName = FieldName.of(node.getUnderlyingDataField());
-    MarketDataItem<?> item = env.getMarketDataSource().get(id, fieldName);
-    return (MarketDataItem<Double>) item;
+    Result<?> result = env.getMarketDataSource().get(id, fieldName);
+    return (Result<Double>) result;
   }
 
   @Override
-  public MarketDataItem<Double> getMarketValue(Environment env, ExternalIdBundle id) {
-    return (MarketDataItem<Double>) env.getMarketDataSource().get(id, MARKET_VALUE);
+  public Result<Double> getMarketValue(Environment env, ExternalIdBundle id) {
+    return (Result<Double>) env.getMarketDataSource().get(id, MARKET_VALUE);
   }
 
   @Override
-  public MarketDataItem<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName) {
+  public Result<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName) {
     return env.getMarketDataSource().get(id, fieldName);
   }
 
   @Override
-  public MarketDataItem<Double> getFxRate(final Environment env, CurrencyPair currencyPair) {
+  public Result<Double> getFxRate(final Environment env, CurrencyPair currencyPair) {
     return getFxRate(env, currencyPair.getBase(), currencyPair.getCounter());
   }
 
-  private MarketDataItem<Double> getFxRate(final Environment env,
-                                           final Currency base,
-                                           final Currency counter) {
+  private Result<Double> getFxRate(final Environment env, final Currency base, final Currency counter) {
     CurrencyMatrixValue value = _currencyMatrix.getConversion(base, counter);
     if (value == null) {
-      return MarketDataItem.unavailable();
+      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No rate available for {}", CurrencyPair.of(base, counter));
     }
-    CurrencyMatrixValueVisitor<MarketDataItem> visitor = new CurrencyMatrixValueVisitor<MarketDataItem>() {
+    CurrencyMatrixValueVisitor<Result<Double>> visitor = new CurrencyMatrixValueVisitor<Result<Double>>() {
       @Override
-      public MarketDataItem visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
-        return MarketDataItem.available(fixedValue.getFixedValue());
+      public Result<Double> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
+        return ResultGenerator.success(fixedValue.getFixedValue());
       }
 
       @SuppressWarnings("unchecked")
       @Override
-      public MarketDataItem<Double> visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
+      public Result<Double> visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
         ValueRequirement valueRequirement = req.getValueRequirement();
-        ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
+        ExternalIdBundle id = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
-        MarketDataItem<?> item = env.getMarketDataSource().get(idBundle, FieldName.of(dataField));
-        if (!item.isAvailable()) {
-          return MarketDataItem.unavailable();
+        Result<?> result = env.getMarketDataSource().get(id, FieldName.of(dataField));
+        if (!result.isValueAvailable()) {
+          return result.propagateFailure();
         }
-        Double spotRate = (Double) item.getValue();
+        Double spotRate = (Double) result.getValue();
         if (req.isReciprocal()) {
-          return MarketDataItem.available(1 / spotRate);
+          return ResultGenerator.success(1 / spotRate);
         } else {
-          return MarketDataItem.available(spotRate);
+          return ResultGenerator.success(spotRate);
         }
       }
 
       @Override
-      public MarketDataItem visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        MarketDataItem baseCrossRate = getFxRate(env, base, cross.getCrossCurrency());
-        MarketDataItem crossCounterRate = getFxRate(env, cross.getCrossCurrency(), counter);
-        if (!baseCrossRate.isAvailable() || !crossCounterRate.isAvailable()) {
-          // TODO should this be pending? YES. depends on the data source. helper method to compose statuses?
-          return MarketDataItem.unavailable();
+      public Result<Double> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
+        Result<Double> baseCrossRate = getFxRate(env, base, cross.getCrossCurrency());
+        Result<Double> crossCounterRate = getFxRate(env, cross.getCrossCurrency(), counter);
+        if (ResultGenerator.anyFailures(baseCrossRate, crossCounterRate)) {
+          return ResultGenerator.propagateFailures(baseCrossRate, crossCounterRate);
         } else {
-          Double rate1 = (Double) baseCrossRate.getValue();
-          Double rate2 = (Double) crossCounterRate.getValue();
-          return MarketDataItem.available(rate1 * rate2);
+          Double rate1 = baseCrossRate.getValue();
+          Double rate2 = crossCounterRate.getValue();
+          return ResultGenerator.success(rate1 * rate2);
         }
       }
     };

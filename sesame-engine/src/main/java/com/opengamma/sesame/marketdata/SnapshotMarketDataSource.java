@@ -20,6 +20,9 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDa
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 
 /**
  * TODO needs to support a listener in case the snapshot is changed in the DB. presumably same mechanism as live data
@@ -37,22 +40,22 @@ public class SnapshotMarketDataSource implements MarketDataSource {
   }
 
   @Override
-  public MarketDataItem get(ExternalIdBundle idBundle, FieldName fieldName) {
-    ValueSnapshot value = _snapshot.getValue(idBundle, fieldName.getName());
+  public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
+    ValueSnapshot value = _snapshot.getValue(id, fieldName.getName());
     if (value == null) {
-      return MarketDataItem.unavailable();
+      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
     }
 
     Object overrideValue = value.getOverrideValue();
     if (overrideValue != null) {
-      return MarketDataItem.available(overrideValue);
+      return ResultGenerator.success(overrideValue);
     }
 
     Object marketValue = value.getMarketValue();
     if (marketValue != null) {
-      return MarketDataItem.available(marketValue);
+      return ResultGenerator.success(marketValue);
     }
-    return MarketDataItem.unavailable();
+    return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
   }
   
   private UnstructuredMarketDataSnapshot getFlattenedSnapshot(StructuredMarketDataSnapshot snapshot) {

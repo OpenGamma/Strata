@@ -13,9 +13,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 
@@ -24,9 +22,7 @@ import com.opengamma.util.result.ResultGenerator;
  */
 public class DefaultCurveSpecificationMarketDataFn implements CurveSpecificationMarketDataFn {
 
-  /**
-   * The market data function.
-   */
+  /** For looking up the underlying market data. */
   private final MarketDataFn _marketDataFn;
 
   public DefaultCurveSpecificationMarketDataFn(MarketDataFn marketDataFn) {
@@ -41,21 +37,18 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
     for (CurveNodeWithIdentifier node : curveSpecification.getNodes()) {
       if (node instanceof PointsCurveNodeWithIdentifier) {
         PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
-        MarketDataItem<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
-        MarketDataItem<Double> spotItem = _marketDataFn.getCurveNodeUnderlyingValue(env, pointsNode);
+        Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
+        Result<Double> spotItem = _marketDataFn.getCurveNodeUnderlyingValue(env, pointsNode);
 
-        if (!fwdItem.isAvailable()) {
-          return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data for {}", node);
-        }
-        if (!spotItem.isAvailable()) {
-          return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data for {}", pointsNode);
+        if (ResultGenerator.anyFailures(fwdItem, spotItem)) {
+          return ResultGenerator.propagateFailures(fwdItem, spotItem);
         }
         results.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
       } else {
-        MarketDataItem<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
+        Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
 
-        if (!fwdItem.isAvailable()) {
-          return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data for {}", node);
+        if (!fwdItem.isValueAvailable()) {
+          return fwdItem.propagateFailure();
         } else {
           results.put(node.getIdentifier().toBundle(), fwdItem.getValue());
         }
