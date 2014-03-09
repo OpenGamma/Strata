@@ -97,6 +97,15 @@ import com.opengamma.util.result.ResultGenerator;
     }
   }
 
+  /**
+   * Returns the cause of an exception if it's an {@link InvocationTargetException} or an
+   * {@link UndeclaredThrowableException}. These are the exception types that always wrap the underlying exceptions
+   * throw inside a proxy so they don't add anything except noise to the stack traces. Unwrapping the underlying
+   * exceptions makes it much easier to see what actually went wrong.
+   *
+   * @param e an exception
+   * @return the underlying cause of the exception
+   */
   private static Exception getCause(Exception e) {
     if (!(e instanceof InvocationTargetException) && !(e instanceof UndeclaredThrowableException)) {
       return e;
