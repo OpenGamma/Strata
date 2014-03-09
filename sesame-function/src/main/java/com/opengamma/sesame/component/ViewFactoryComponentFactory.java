@@ -66,9 +66,9 @@ import com.opengamma.sesame.fxforward.FXForwardPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYCNSPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYieldCurveNodeSensitivitiesFn;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
-import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFnFactory;
-import com.opengamma.sesame.marketdata.HistoricalTimeSeriesMarketDataFn;
-import com.opengamma.sesame.marketdata.RawHistoricalMarketDataSourceImpl;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 
 import net.sf.ehcache.CacheManager;
 
@@ -177,8 +177,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
                                       DiscountingFXForwardPVFn.class,
                                       DefaultFXReturnSeriesFn.class,
                                       DefaultCurrencyPairsFn.class,
-                                      HistoricalTimeSeriesMarketDataFn.class,
-                                      RawHistoricalMarketDataSourceImpl.class,
                                       FXForwardSecurityConverter.class,
                                       ConfigDBInstrumentExposuresProvider.class,
                                       DefaultCurveSpecificationMarketDataFn.class,
@@ -191,7 +189,9 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
                                       FXForwardDiscountingCalculatorFn.class,
                                       ConfigDbMarketExposureSelectorFn.class,
                                       ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                                      FixedHistoricalMarketDataFnFactory.class);
+                                      FixedHistoricalMarketDataFactory.class,
+                                      DefaultMarketDataFn.class,
+                                      DefaultHistoricalMarketDataFn.class);
     return availableImplementations;
   }
 
@@ -294,7 +294,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   @Override
   public ViewFactoryComponentFactory clone() {
-    return (ViewFactoryComponentFactory) super.clone();
+    return JodaBeanUtils.cloneAlways(this);
   }
 
   @Override

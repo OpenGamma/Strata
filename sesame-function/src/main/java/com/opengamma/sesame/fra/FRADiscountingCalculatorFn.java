@@ -12,9 +12,10 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultMapper;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.tuple.Pair;
 
 public class FRADiscountingCalculatorFn implements FRACalculatorFn {
@@ -37,19 +38,17 @@ public class FRADiscountingCalculatorFn implements FRACalculatorFn {
   }
 
   @Override
-  public Result<FRACalculator> generateCalculator(final FRASecurity security) {
+  public Result<FRACalculator> generateCalculator(final Environment env, final FRASecurity security) {
+    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = createBundle(env, security);
 
-    return createBundle(security).map(
-        new ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FRACalculator>() {
-          @Override
-          public Result<FRACalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
-            return success(_factory.createCalculator(security, result.getFirst(), result.getSecond()));
-          }
-        }
-    );
+    if (!bundleResult.isValueAvailable()) {
+      return bundleResult.propagateFailure();
+    }
+    return ResultGenerator.success(_factory.createCalculator(env, security, bundleResult.getValue().getFirst()));
   }
 
-  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(FRASecurity security) {
-    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(security, success(new FXMatrix()));
+  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(Environment env,
+                                                                                          FRASecurity security) {
+    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, success(new FXMatrix()));
   }
 }

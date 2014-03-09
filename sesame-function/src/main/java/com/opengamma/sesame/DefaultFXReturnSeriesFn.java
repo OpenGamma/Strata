@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
@@ -16,11 +14,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
@@ -62,18 +57,14 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
 
   //-------------------------------------------------------------------------
   @Override
-  public Result<LocalDateDoubleTimeSeries> calculateReturnSeries(LocalDateRange dateRange, CurrencyPair currencyPair) {
-
-    Result<MarketDataSeries> result =
-        _historicalMarketDataFn.requestData(MarketDataRequirementFactory.of(currencyPair), dateRange);
-
-    return result.isValueAvailable() ?
-        success(calculateReturnSeries((LocalDateDoubleTimeSeries) result.getValue().getOnlySeries())) :
-        propagateFailure(result);
+  public Result<LocalDateDoubleTimeSeries> calculateReturnSeries(Environment env,
+                                                                 LocalDateRange dateRange,
+                                                                 CurrencyPair currencyPair) {
+    return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
   }
 
   @Override
-  public LocalDateDoubleTimeSeries calculateReturnSeries(LocalDateDoubleTimeSeries timeSeries) {
+  public LocalDateDoubleTimeSeries calculateReturnSeries(Environment env, LocalDateDoubleTimeSeries timeSeries) {
     // todo - is faffing about with include start / end required?
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(
         _scheduleCalculator.getSchedule(timeSeries.getEarliestTime(), timeSeries.getLatestTime(), true, false),
@@ -86,9 +77,4 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
     // todo - clip the time-series to the range originally asked for?
     return _timeSeriesConverter.convert(reciprocalSeries);
   }
-
-  private Result<LocalDateDoubleTimeSeries> propagateFailure(Result<MarketDataSeries> result) {
-    return ResultGenerator.propagateFailure(result);
-  }
-
 }

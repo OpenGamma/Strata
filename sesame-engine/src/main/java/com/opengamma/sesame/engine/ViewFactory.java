@@ -30,9 +30,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
-import com.opengamma.sesame.DefaultValuationTimeFn;
-import com.opengamma.sesame.ValuationTimeFn;
-import com.opengamma.sesame.cache.CacheAwareValuationTimeFn;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.DefaultCacheInvalidator;
@@ -52,7 +49,6 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
-import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
@@ -150,20 +146,8 @@ public class ViewFactory {
 
     // TODO everything below here could move into the View constructor
 
-    // TODO is this the right place for this logic? should there be a component map pre-populated with them?
-    // as they're completely standard components always provided by the engine
-    // need to supplement components with a MarketDataFn and ValuationTimeFn that are
-    // under our control so we can switch out the backing impls each cycle if necessary
-    DelegatingMarketDataFn marketDataFn = new DelegatingMarketDataFn();
-    DefaultValuationTimeFn valuationTimeFn = new DefaultValuationTimeFn();
-    Map<Class<?>, Object> componentOverrides = Maps.newHashMap();
-    componentOverrides.put(MarketDataFn.class, marketDataFn);
-    componentOverrides.put(ValuationTimeFn.class, new CacheAwareValuationTimeFn(valuationTimeFn, cacheInvalidator));
-    ComponentMap componentsWithOverrides = _components.with(componentOverrides);
-
     SourceListener sourceListener = new SourceListener();
-    Pair<ComponentMap, Collection<ChangeManager>> pair =
-        decorateSources(componentsWithOverrides, cacheInvalidator, sourceListener);
+    Pair<ComponentMap, Collection<ChangeManager>> pair = decorateSources(_components, cacheInvalidator, sourceListener);
     ComponentMap components = pair.getFirst();
 
     s_logger.debug("building graph model");
@@ -179,8 +163,8 @@ public class ViewFactory {
     s_logger.debug("graph complete");
 
     Collection<ChangeManager> changeManagers = pair.getSecond();
-    return new View(viewConfig, graph, inputs, _executor, marketDataFn, valuationTimeFn, _defaultConfig,
-                    decorator, cacheInvalidator, graphModel, sourceListener, changeManagers);
+    return new View(viewConfig, graph, inputs, _executor, _defaultConfig, decorator,
+                    cacheInvalidator, graphModel, sourceListener, changeManagers);
   }
 
   /**

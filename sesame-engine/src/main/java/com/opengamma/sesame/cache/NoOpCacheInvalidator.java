@@ -13,7 +13,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 
 /**
  * {@link CacheInvalidator} that does nothing, used when caching is disabled.
@@ -37,7 +37,7 @@ public class NoOpCacheInvalidator implements CacheInvalidator {
   }
 
   @Override
-  public void invalidate(MarketDataFn marketDataFactory,
+  public void invalidate(MarketDataSource marketDataSource,
                          ZonedDateTime valuationTime,
                          VersionCorrection configVersionCorrection,
                          Collection<ExternalId> marketData,

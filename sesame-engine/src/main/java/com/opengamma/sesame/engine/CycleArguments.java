@@ -12,7 +12,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -22,12 +22,11 @@ import com.opengamma.util.tuple.Pairs;
  */
 public final class CycleArguments {
 
-  // TODO currency? or is that a view property
   // TODO function arguments for the output functions
   // TODO portfolio version correction
 
   private final ZonedDateTime _valuationTime;
-  private final MarketDataFn _marketDataFn;
+  private final MarketDataSource _marketDataSource;
   private final VersionCorrection _configVersionCorrection;
   // TODO this isn't part of the key used for caching. put in a subclass or something?
   private final Set<Pair<Integer, Integer>> _traceCells;
@@ -36,22 +35,22 @@ public final class CycleArguments {
   // TODO use a Cell class instead of Pair<Integer, Integer>
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
-                        MarketDataFn marketDataFn) {
+                        MarketDataSource marketDataSource) {
     this(valuationTime,
-         marketDataFn,
+         marketDataSource,
          configVersionCorrection,
          Collections.<Pair<Integer, Integer>>emptySet(),
          Collections.<String>emptySet());
   }
 
   public CycleArguments(ZonedDateTime valuationTime,
-                        MarketDataFn marketDataFn,
+                        MarketDataSource marketDataSource,
                         VersionCorrection configVersionCorrection,
                         Set<Pair<Integer, Integer>> traceCells,
                         Set<String> traceOutputs) {
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataFn");
+    _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
     _traceCells = ImmutableSet.copyOf(ArgumentChecker.notNull(traceCells, "traceCells"));
     _traceOutputs = ImmutableSet.copyOf(ArgumentChecker.notNull(traceOutputs, "traceOutputs"));
   }
@@ -60,8 +59,8 @@ public final class CycleArguments {
     return _valuationTime;
   }
 
-  /* package */ MarketDataFn getMarketDataFn() {
-    return _marketDataFn;
+  /* package */ MarketDataSource getMarketDataSource() {
+    return _marketDataSource;
   }
 
   /* package */ boolean isTracingEnabled(String output) {

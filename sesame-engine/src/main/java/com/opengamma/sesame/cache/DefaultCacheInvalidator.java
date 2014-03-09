@@ -20,7 +20,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -37,12 +37,17 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   // if it changes invalidate all cache values that depend on DB data
 
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
+
   private final SetMultimap<ObjectId, MethodInvocationKey> _objectIdsToKeys = HashMultimap.create();
+
+  // TODO should the keys be MarketDataRequirements?
   private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
+
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> valuationTimeEntries = Lists.newArrayList();
+
   private final Ehcache _cache;
 
-  private MarketDataFn _marketDataFn;
+  private MarketDataSource _marketDataSource;
   private VersionCorrection _configVersionCorrection;
 
   public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods, Ehcache cache) {
@@ -77,20 +82,21 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   }
 
   @Override
-  public synchronized void invalidate(MarketDataFn marketDataFn,
+  public synchronized void invalidate(MarketDataSource marketDataSource,
                                       ZonedDateTime valuationTime,
                                       VersionCorrection configVersionCorrection,
+                                      // TODO should this be Collection<MarketDataRequirement>?
                                       Collection<ExternalId> marketData,
                                       Collection<ObjectId> dbIds) {
-    ArgumentChecker.notNull(marketDataFn, "marketDataFn");
+    ArgumentChecker.notNull(marketDataSource, "marketDataSource");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     ArgumentChecker.notNull(marketData, "marketData");
     ArgumentChecker.notNull(dbIds, "dbIds");
 
     // if the market data provider has changed every value that uses market data is potentially invalid
-    if (!marketDataFn.equals(_marketDataFn)) {
-      _marketDataFn = marketDataFn;
+    if (!marketDataSource.equals(_marketDataSource)) {
+      _marketDataSource = marketDataSource;
       _cache.removeAll(_externalIdsToKeys.values());
       _objectIdsToKeys.clear();
     }

@@ -24,11 +24,11 @@ public interface ValuationTimeCacheEntry {
    */
   boolean isValidAt(ZonedDateTime valuationTime);
 
-  /* package */  class ValidAtCalculationInstant implements ValuationTimeCacheEntry {
+  public final static class ValidAtCalculationInstant implements ValuationTimeCacheEntry {
 
     private final ZonedDateTime _calculationTime;
 
-    /* package */ ValidAtCalculationInstant(ZonedDateTime calculationTime) {
+    public ValidAtCalculationInstant(ZonedDateTime calculationTime) {
       _calculationTime = ArgumentChecker.notNull(calculationTime, "calculationTime");
     }
 
@@ -38,11 +38,11 @@ public interface ValuationTimeCacheEntry {
     }
   }
 
-  /* package */  class ValidOnCalculationDay implements ValuationTimeCacheEntry {
+  public final static class ValidOnCalculationDay implements ValuationTimeCacheEntry {
 
     private final LocalDate _calculationDate;
 
-    /* package */ ValidOnCalculationDay(LocalDate calculationDate) {
+    public ValidOnCalculationDay(LocalDate calculationDate) {
       _calculationDate = ArgumentChecker.notNull(calculationDate, "calculationDate");
     }
 

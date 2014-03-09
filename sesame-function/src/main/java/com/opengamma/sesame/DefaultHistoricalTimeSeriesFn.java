@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import org.slf4j.Logger;
@@ -29,13 +27,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataSeries;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.timeseries.date.DateTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -66,25 +58,14 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
   //-------------------------------------------------------------------------
   @Override
-  public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(CurrencyPair currencyPair, LocalDate endDate) {
+  public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDate endDate) {
     LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
     LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
-    MarketDataRequirement requirement = MarketDataRequirementFactory.of(currencyPair);
-    Result<MarketDataSeries> result = _historicalMarketDataFn.requestData(requirement, dateRange);
-    if (!result.isValueAvailable()) {
-      return propagateFailure(result);
-    }
-    MarketDataSeries series = result.getValue();
-    if (series.getStatus(requirement) == MarketDataStatus.AVAILABLE) {
-      DateTimeSeries<LocalDate, ?> onlySeries = series.getOnlySeries();
-      return success((LocalDateDoubleTimeSeries) onlySeries);
-    } else {
-      return failure(FailureStatus.MISSING_DATA, "No time series for " + requirement);
-    }
+    return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
   }
 
   @Override
-  public Result<HistoricalTimeSeriesBundle> getHtsForCurve(CurveSpecification curve, LocalDate endDate) {
+  public Result<HistoricalTimeSeriesBundle> getHtsForCurve(Environment env, CurveSpecification curve, LocalDate endDate) {
     // For expediency we will mirror the current ways of working out dates which is
     // pretty much to take 1 year before the valuation date. This is blunt and
     // returns more data than is actually required
@@ -100,6 +81,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
       ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
       String dataField = node.getDataField();
+      // TODO use HistoricalMarketDataFn.getValues()?
       HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate,
                                                                            includeStart, endDate, includeEnd);
       if (timeSeries != null) {

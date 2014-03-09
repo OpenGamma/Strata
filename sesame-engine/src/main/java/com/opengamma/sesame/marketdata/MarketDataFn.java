@@ -5,31 +5,66 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.Set;
-
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.result.Result;
 
 /**
- * Function providing market data to clients. When data is requested a value is returned containing the status
- * and possibly the value for every item that was been requested.
+ * Function providing market data for structured objects.
+ * The underlying raw market data comes from the environment argument passed to each method
  */
 public interface MarketDataFn {
 
   /**
-   * Request a single item of market data.
+   * Returns an FX spot rate for a currency pair.
    *
-   * @param requirement the item of market data being requested
-   * @return a result object containing an indication of whether the data is (currently)
-   * available and the value if it is.
+   * @param env the function execution environment
+   * @param currencyPair the currency pair
+   * @return the rate for the currency pair
+   * TODO this should return an object with the rate and pair (FxRate?)
    */
-  Result<MarketDataValues> requestData(MarketDataRequirement requirement);
+  Result<Double> getFxRate(Environment env, CurrencyPair currencyPair);
 
   /**
-   * Request multiple items of market data.
+   * Returns the rate for a node on a curve.
    *
-   * @param requirements the items of market data being requested
-   * @return a result object containing an indication of whether each item of data is (currently)
-   * available and the value if it is.
+   * @param env the function execution environment
+   * @param node the curve node
+   * @return the rate for the node
+   * TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
    */
-  Result<MarketDataValues> requestData(Set<MarketDataRequirement> requirements);
+  Result<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node);
+
+  /**
+   * Returns the rate for the underlying of a node on a curve.
+   *
+   * @param env the function execution environment
+   * @param node the curve node
+   * @return the rate for the node's underlying
+   * TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
+   */
+  Result<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node);
+
+  /**
+   * Returns the value of the {@link MarketDataRequirementNames#MARKET_VALUE} field for an ID.
+   *
+   * @param env the function execution environment
+   * @param id the ID
+   * @return the value of {@link MarketDataRequirementNames#MARKET_VALUE} for the ID
+   */
+  Result<Double> getMarketValue(Environment env, ExternalIdBundle id);
+
+  /**
+   * Returns the value of an arbitrary field of market data for an ID.
+   *
+   * @param env the function execution environment
+   * @param id the ID
+   * @param fieldName the name of the field in the market data record
+   * @return the value of the field for the ID
+   */
+  Result<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName);
 }

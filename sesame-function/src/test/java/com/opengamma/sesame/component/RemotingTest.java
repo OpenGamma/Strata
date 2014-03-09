@@ -7,7 +7,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.sesame.interestrate.InterestRateMockSources.createMarketDataFnFactory;
 import static com.opengamma.sesame.interestrate.InterestRateMockSources.generateBaseComponents;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -44,6 +43,7 @@ import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -174,7 +174,7 @@ public class RemotingTest {
     FunctionServerComponentFactory serverComponentFactory = new FunctionServerComponentFactory();
     serverComponentFactory.setClassifier(CLASSIFIER);
     serverComponentFactory.setViewFactory(_componentRepository.getInstance(ViewFactory.class, CLASSIFIER));
-    serverComponentFactory.setMarketDataFnFactory(createMarketDataFnFactory());
+    serverComponentFactory.setMarketDataFactory(InterestRateMockSources.createMarketDataFactory());
 
     register(serverComponentFactory, _componentRepository);
   }

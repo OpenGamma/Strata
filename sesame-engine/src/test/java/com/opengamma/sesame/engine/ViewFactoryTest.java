@@ -43,10 +43,11 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.OutputNames;
@@ -66,12 +67,11 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.marketdata.DefaultResettableMarketDataFn;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.ResettableMarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.RecordingMarketDataSource;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -111,7 +111,7 @@ public class ViewFactoryTest {
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     View view = viewFactory.createView(viewConfig, trades);
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFn()));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
@@ -130,7 +130,7 @@ public class ViewFactoryTest {
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
     View view = viewFactory.createView(viewConfig, securities);
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFn()));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
@@ -141,33 +141,29 @@ public class ViewFactoryTest {
         configureView("Equity PV",
                       column(PRESENT_VALUE_HEADER, OutputNames.PRESENT_VALUE,
                              config(
-                                 implementations(MockEquityPresentValueFn.class,
-                                                 MockEquityPresentValue.class))));
+                                 implementations(MockEquityPresentValueFn.class, MockEquityPresentValue.class,
+                                                 MarketDataFn.class, DefaultMarketDataFn.class))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(MockEquityPresentValueFn.class);
 
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-                               ComponentMap.EMPTY,
-                               availableOutputs,
-                               new AvailableImplementationsImpl(),
-                               FunctionModelConfig.EMPTY,
-                               CacheManager.getInstance(),
-                               FunctionService.DEFAULT_SERVICES);
+                                              ComponentMap.EMPTY.with(CurrencyMatrix.class, mock(CurrencyMatrix.class)),
+                                              availableOutputs,
+                                              new AvailableImplementationsImpl(),
+                                              FunctionModelConfig.EMPTY,
+                                              CacheManager.getInstance(),
+                                              FunctionService.NONE);
     Trade trade = createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
-    // todo - we shouldn't be casting here
-    MarketDataRequirement requirement = MarketDataRequirementFactory.of((FinancialSecurity) trade.getSecurity(),
-                                                                        MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataItem item = MarketDataItem.available(123.45);
-    Map<MarketDataRequirement, MarketDataItem> marketData = ImmutableMap.of(requirement, item);
-    ResettableMarketDataFn marketDataProvider = new DefaultResettableMarketDataFn();
-
-    marketDataProvider.resetMarketData(marketData);
+    ExternalIdBundle securityId = trade.getSecurity().getExternalIdBundle();
+    Pair<ExternalIdBundle, FieldName> key = Pairs.of(securityId, FieldName.of(MarketDataRequirementNames.MARKET_VALUE));
+    Map<Pair<ExternalIdBundle, FieldName>, Double> marketData = ImmutableMap.of(key, 123.45);
+    RecordingMarketDataSource dataSource = new RecordingMarketDataSource(marketData);
 
     View view = viewFactory.createView(viewConfig, trades);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, marketDataProvider);
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, dataSource);
     Results results = view.run(cycleArguments);
     assertEquals(123.45, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -187,7 +183,7 @@ public class ViewFactoryTest {
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
     List<Trade> trades = ImmutableList.of(createEquityTrade());
     View view = viewFactory.createView(viewConfig, trades);
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFn()));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource()));
     assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
@@ -239,7 +235,7 @@ public class ViewFactoryTest {
                                EnumSet.noneOf(FunctionService.class));
     List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
     View view = viewFactory.createView(viewConfig, trades);
-    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataFn()));
+    Results results = view.run(new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource()));
 
     assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
     assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getResult().getValue());
@@ -275,7 +271,7 @@ public class ViewFactoryTest {
     @SuppressWarnings("unchecked")
     Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataFn(),
+                                                       mockMarketDataSource(),
                                                        VersionCorrection.LATEST,
                                                        traceCells,
                                                        Collections.<String>emptySet());
@@ -304,7 +300,7 @@ public class ViewFactoryTest {
                                EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig, Collections.emptyList());
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataFn(),
+                                                       mockMarketDataSource(),
                                                        VersionCorrection.LATEST,
                                                        Collections.<Pair<Integer,Integer>>emptySet(),
                                                        Collections.<String>emptySet());
@@ -339,7 +335,7 @@ public class ViewFactoryTest {
                                EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig, Collections.emptyList());
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataFn(),
+                                                       mockMarketDataSource(),
                                                        VersionCorrection.LATEST,
                                                        Collections.<Pair<Integer,Integer>>emptySet(),
                                                        Collections.<String>emptySet());
@@ -369,7 +365,7 @@ public class ViewFactoryTest {
                                EnumSet.of(FunctionService.TRACING));
     View view = viewFactory.createView(viewConfig, Collections.emptyList());
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataFn(),
+                                                       mockMarketDataSource(),
                                                        VersionCorrection.LATEST,
                                                        Collections.<Pair<Integer,Integer>>emptySet(),
                                                        ImmutableSet.of(name));
@@ -407,8 +403,8 @@ public class ViewFactoryTest {
     return trade;
   }
 
-  private static MarketDataFn mockMarketDataFn() {
-    return mock(MarketDataFn.class);
+  private static MarketDataSource mockMarketDataSource() {
+    return mock(MarketDataSource.class);
   }
 
   /**

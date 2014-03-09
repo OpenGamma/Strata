@@ -27,7 +27,7 @@ class FullTracer extends Tracer {
   @Override
   void called(Method method, Object[] args) {
     CallGraphBuilder callGraphBuilder = new CallGraphBuilder(method, args);
-    if (_root == null) {
+    if (_stack.isEmpty()) {
       _root = callGraphBuilder;
     } else {
       _stack.peek().called(callGraphBuilder);

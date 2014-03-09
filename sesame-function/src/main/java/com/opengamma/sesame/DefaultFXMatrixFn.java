@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Collection;
@@ -32,13 +30,8 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValues;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -126,20 +119,18 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
   }
 
   @Override
-  public Result<FXMatrix> getFXMatrix(CurveConstructionConfiguration configuration,
-                                      MarketDataFn marketDataFn) {
-
+  public Result<FXMatrix> getFXMatrix(Environment env, CurveConstructionConfiguration configuration) {
     // todo - should this actually be another function or set of functions
     final Set<Currency> currencies = extractCurrencies(configuration, new CurveNodeCurrencyVisitor(_conventionSource, _securitySource));
-    return buildResult(currencies, marketDataFn);
+    return buildResult(env, currencies);
   }
 
   @Override
-  public Result<FXMatrix> getFXMatrix(Set<Currency> currencies) {
-    return buildResult(currencies, _marketDataFn);
+  public Result<FXMatrix> getFXMatrix(Environment env, Set<Currency> currencies) {
+    return buildResult(env, currencies);
   }
 
-  private Result<FXMatrix> buildResult(Set<Currency> currencies, MarketDataFn marketDataFn) {
+  private Result<FXMatrix> buildResult(Environment env, Set<Currency> currencies) {
     // todo - if we don't have all the data, do we return a partial/empty fx matrix or an error, doing the latter
 
     final FXMatrix matrix = new FXMatrix();
@@ -151,22 +142,15 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
       if (refCurr == null) {
         refCurr = currency;
       } else {
-        Currency base = refCurr;
-        Currency counter = currency;
         //note - currency matrix will ensure the spotRate returned is interpreted correctly,
         //depending on the order base and counter are specified in.
-        MarketDataRequirement spotReqmt = MarketDataRequirementFactory.of(CurrencyPair.of(base, counter));
-        Result<MarketDataValues> marketDataResult = marketDataFn.requestData(spotReqmt);
+        CurrencyPair currencyPair = CurrencyPair.of(refCurr, currency);
+        Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
+
         if (!marketDataResult.isValueAvailable()) {
-          return propagateFailure(marketDataResult);
-        }
-        MarketDataValues marketDataValues = marketDataResult.getValue();
-        if (marketDataValues.getStatus(spotReqmt) == MarketDataStatus.AVAILABLE) {
-          double spotRate = (Double) marketDataValues.getValue(spotReqmt);
-          matrix.addCurrency(counter, base, spotRate);
+          return marketDataResult.propagateFailure();
         } else {
-          //logging an error/warning might be more appropriate here?
-          return failure(FailureStatus.MISSING_DATA, "Unable to source {} spot rate using market data function {} ", spotReqmt, marketDataFn);
+          matrix.addCurrency(currency, refCurr, marketDataResult.getValue());
         }
       }
     }

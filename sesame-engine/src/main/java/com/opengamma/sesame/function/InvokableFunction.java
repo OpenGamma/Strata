@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.function;
 
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.FunctionArguments;
 
@@ -15,11 +16,12 @@ public interface InvokableFunction {
 
   /**
    * Invokes the function.
+   * @param env the function's execution environment, including the valuation time and market data
    * @param input the function's input, e.g. trade or security, possibly null
    * @param args contains any other function arguments
    * @return the function's return value
    */
-  Object invoke(Object input, FunctionArguments args);
+  Object invoke(Environment env, Object input, FunctionArguments args);
 
   /**
    * @return the name of the output produced by the function

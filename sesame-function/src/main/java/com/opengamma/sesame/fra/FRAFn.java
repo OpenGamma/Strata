@@ -6,6 +6,7 @@
 package com.opengamma.sesame.fra;
 
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -23,7 +24,7 @@ public interface FRAFn {
    * @return result containing the rate if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PAR_RATE)
-  Result<Double> calculateParRate(FRASecurity security);
+  Result<Double> calculateParRate(Environment env, FRASecurity security);
 
   /**
    * Calculate the present value for a FRA security.
@@ -32,5 +33,5 @@ public interface FRAFn {
    * @return result containing the present value if successful, a Failure otherwise
    */
   @Output(value = OutputNames.PRESENT_VALUE)
-  Result<MultipleCurrencyAmount> calculatePV(FRASecurity security);
+  Result<MultipleCurrencyAmount> calculatePV(Environment env, FRASecurity security);
 }

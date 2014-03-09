@@ -6,9 +6,10 @@
 package com.opengamma.sesame.fra;
 
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.sesame.Environment;
 import com.opengamma.util.result.Result;
 
 public interface FRACalculatorFn {
 
-  Result<FRACalculator> generateCalculator(FRASecurity security);
+  Result<FRACalculator> generateCalculator(Environment env, FRASecurity security);
 }

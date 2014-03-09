@@ -6,7 +6,6 @@
 package com.opengamma.sesame;
 
 import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailures;
 import static com.opengamma.util.result.ResultGenerator.success;
 
@@ -53,7 +52,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      FinancialSecurity security, Result<FXMatrix> fxMatrix) {
+      Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
     if (mesResult.isValueAvailable()) {
@@ -65,7 +64,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurationsForSecurity(security);
       for (CurveConstructionConfiguration curveConfig : curveConfigs) {
         Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
-            _multicurveBundleProviderFunction.generateBundle(curveConfig);
+            _multicurveBundleProviderFunction.generateBundle(env, curveConfig);
         if (bundle.isValueAvailable()) {
           Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getValue();
           bundles.add(result.getFirst());
@@ -82,10 +81,10 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       } else if (!incompleteBundles.isEmpty()) {
         return propagateFailures(incompleteBundles);
       } else {
-        return propagateFailure(fxMatrix);
+        return fxMatrix.propagateFailure();
       }
     } else {
-      return propagateFailure(mesResult);
+      return mesResult.propagateFailure();
     }
   }
 

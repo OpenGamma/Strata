@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -15,11 +13,12 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultMapper;
+import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.tuple.Pair;
 
 public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
@@ -49,25 +48,25 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
   }
 
   @Override
-  public Result<FXForwardCalculator> generateCalculator(final FXForwardSecurity security) {
-    return createBundle(security).map(
-        new ResultMapper<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>, FXForwardCalculator>() {
-          @Override
-          public Result<FXForwardCalculator> map(Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result) {
-            return success(_factory.createCalculator(security, result.getFirst(), result.getSecond()));
-          }
-        }
-    );
+  public Result<FXForwardCalculator> generateCalculator(Environment env, final FXForwardSecurity security) {
+    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = createBundle(env, security);
+
+    if (!bundleResult.isValueAvailable()) {
+      return bundleResult.propagateFailure();
+    }
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> value = bundleResult.getValue();
+    return ResultGenerator.success(_factory.createCalculator(security, value.getFirst(), value.getSecond()));
   }
 
-  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(FXForwardSecurity security) {
+  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(Environment env,
+                                                                                          FXForwardSecurity security) {
 
     // get currencies from security, probably should use visitor/utils
     Set<Currency> currencies = ImmutableSet.of(security.getPayCurrency(), security.getReceiveCurrency());
 
     // Even if we can't get a matrix we want to get as far as we can to
     // ensure market data population, so ignore the result for now
-    Result<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(currencies);
-    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(security, fxmResult);
+    Result<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(env, currencies);
+    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, fxmResult);
   }
 }

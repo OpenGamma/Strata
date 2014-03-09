@@ -17,6 +17,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public interface DiscountingMulticurveCombinerFn {
 
+  // TODO why does this have a result parameter? seems a bit odd
   Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      FinancialSecurity security, Result<FXMatrix> fxMatrix);
+      Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix);
 }

@@ -5,86 +5,55 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
-import static com.opengamma.util.result.ResultGenerator.success;
-
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-import com.google.common.collect.Maps;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
-import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataRequirementFactory;
-import com.opengamma.sesame.marketdata.MarketDataStatus;
-import com.opengamma.sesame.marketdata.MarketDataValues;
-import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultGenerator;
 
 /**
  * Function implementation that provides market data for a curve specification.
  */
 public class DefaultCurveSpecificationMarketDataFn implements CurveSpecificationMarketDataFn {
 
-  /**
-   * The market data function.
-   */
+  /** For looking up the underlying market data. */
   private final MarketDataFn _marketDataFn;
 
   public DefaultCurveSpecificationMarketDataFn(MarketDataFn marketDataFn) {
-    _marketDataFn = marketDataFn;
+    _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataFn");
   }
 
   @Override
-  public Result<MarketDataValues> requestData(CurveSpecification curveSpecification) {
-    return requestData(curveSpecification, _marketDataFn);
-  }
+  public Result<Map<ExternalIdBundle, Double>> requestData(Environment env, CurveSpecification curveSpecification) {
+    Map<ExternalIdBundle, Double> results = new HashMap<>();
 
-  //-------------------------------------------------------------------------
+    // TODO don't bail out on the first failure, collect all the results
+    for (CurveNodeWithIdentifier node : curveSpecification.getNodes()) {
+      if (node instanceof PointsCurveNodeWithIdentifier) {
+        PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
+        Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
+        Result<Double> spotItem = _marketDataFn.getCurveNodeUnderlyingValue(env, pointsNode);
 
-  @Override
-  public Result<MarketDataValues> requestData(CurveSpecification curveSpecification, MarketDataFn marketDataFn) {
-    // TODO we're looping over the set of nodes twice, do it in one go? not sure that's possible
-    Set<MarketDataRequirement> requirements = new HashSet<>();
-    for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
-      MarketDataRequirement fwdReq = MarketDataRequirementFactory.of(id);
-      requirements.add(fwdReq);
-      if (id instanceof PointsCurveNodeWithIdentifier) {
-        PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-        requirements.add(new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(), node.getUnderlyingDataField()));
-      }
-    }
-    Result<MarketDataValues> result = marketDataFn.requestData(requirements);
-    if (!result.isValueAvailable()) {
-      return propagateFailure(result);
-    }
-    Map<MarketDataRequirement, MarketDataItem> items = Maps.newHashMap();
-    for (CurveNodeWithIdentifier id : curveSpecification.getNodes()) {
-      MarketDataRequirement fwdReq = MarketDataRequirementFactory.of(id);
-      MarketDataValues value = result.getValue();
-      if (value.getStatus(fwdReq) != MarketDataStatus.AVAILABLE) {
-        //TODO return a set of failures (see SSM-115)
-        return failure(FailureStatus.MISSING_DATA, "Unavailable market data: {}", fwdReq);
-      }
-      Double fwd = (Double) value.getValue(fwdReq);
-      if (id instanceof PointsCurveNodeWithIdentifier) {
-        PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-        CurveNodeMarketDataRequirement spotReq = new CurveNodeMarketDataRequirement(node.getUnderlyingIdentifier(),
-            node.getUnderlyingDataField());
-        // TODO check result is available
-        Double spot = (Double) result.getValue().getValue(spotReq);
-        items.put(fwdReq, MarketDataItem.available(fwd + spot));
+        if (ResultGenerator.anyFailures(fwdItem, spotItem)) {
+          return ResultGenerator.propagateFailures(fwdItem, spotItem);
+        }
+        results.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
       } else {
-        items.put(fwdReq, MarketDataItem.available(fwd));
+        Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
+
+        if (!fwdItem.isValueAvailable()) {
+          return fwdItem.propagateFailure();
+        } else {
+          results.put(node.getIdentifier().toBundle(), fwdItem.getValue());
+        }
       }
     }
-    return success(new MarketDataValues(items, Collections.<MarketDataRequirement>emptySet()));
+    return ResultGenerator.success(results);
   }
 }

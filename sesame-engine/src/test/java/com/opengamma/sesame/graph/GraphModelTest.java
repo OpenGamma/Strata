@@ -12,9 +12,11 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -22,6 +24,7 @@ import com.opengamma.sesame.function.ConfigurationErrorFunction;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.marketdata.RecordingMarketDataSource;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
@@ -48,7 +51,8 @@ public class GraphModelTest {
     InvokableFunction invokableFunction = functionsForColumn.get(FXForwardSecurity.class);
     assertNotNull(invokableFunction);
     Result<Object> result = ResultGenerator.failure(FailureStatus.ERROR, ConfigurationErrorFunction.CONFIG_ERROR);
-    assertEquals(result, invokableFunction.invoke(null, FunctionArguments.EMPTY));
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new RecordingMarketDataSource());
+    assertEquals(result, invokableFunction.invoke(env, null, FunctionArguments.EMPTY));
   }
 
   /** Tests that an invalid non-portfolio function build a placeholder with an error message. */
@@ -64,7 +68,8 @@ public class GraphModelTest {
     InvokableFunction invokableFunction = graph.getNonPortfolioFunction(outputName);
     assertNotNull(invokableFunction);
     Result<Object> result = ResultGenerator.failure(FailureStatus.ERROR, ConfigurationErrorFunction.CONFIG_ERROR);
-    assertEquals(result, invokableFunction.invoke(null, FunctionArguments.EMPTY));
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new RecordingMarketDataSource());
+    assertEquals(result, invokableFunction.invoke(env, null, FunctionArguments.EMPTY));
   }
 
   public static interface PortfolioFn {
@@ -76,5 +81,4 @@ public class GraphModelTest {
     @Output("Foo")
     String foo();
   }
-
 }

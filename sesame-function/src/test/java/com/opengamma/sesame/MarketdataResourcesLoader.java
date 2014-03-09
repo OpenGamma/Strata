@@ -15,46 +15,31 @@ import java.util.Properties;
 
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.sesame.marketdata.CurveNodeMarketDataRequirement;
-import com.opengamma.sesame.marketdata.MarketDataItem;
-import com.opengamma.sesame.marketdata.MarketDataRequirement;
 
 /**
- * Load key/value pair marketdata resources as a map of MarketDataRequirement and MarketDataItem
+ * Load key/value pair marketdata resources as a map of {@link ExternalIdBundle} to double.
  */
 public class MarketdataResourcesLoader {
 
-  public static Map<MarketDataRequirement, MarketDataItem> getData(String path, Class clazz , String scheme)  throws IOException {
-    return getData(path, clazz, ExternalScheme.of(scheme));
+  public static Map<ExternalIdBundle, Double> getData(String path, String scheme)  throws IOException {
+    return getData(path, ExternalScheme.of(scheme));
   }
 
-  public static Map<MarketDataRequirement, MarketDataItem> getData(String path, Class clazz, ExternalScheme scheme) throws IOException {
+  public static Map<ExternalIdBundle, Double> getData(String path, ExternalScheme scheme) throws IOException {
     Properties properties = new Properties();
-    try (InputStream stream = clazz.getResourceAsStream("/" + path);
+    try (InputStream stream = MarketdataResourcesLoader.class.getResourceAsStream(path);
          Reader reader = new BufferedReader(new InputStreamReader(stream))) {
       properties.load(reader);
     }
-    Map<MarketDataRequirement, MarketDataItem> data = Maps.newHashMap();
+    Map<ExternalIdBundle, Double> data = Maps.newHashMap();
+
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String id = (String) entry.getKey();
       String value = (String) entry.getValue();
-      addValue(data, id, Double.valueOf(value), scheme);
+      data.put(ExternalId.of(scheme, id).toBundle(), Double.valueOf(value));
     }
     return data;
-
   }
-
-  private static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData, String ticker, double value, ExternalScheme scheme) {
-    return addValue(marketData, new CurveNodeMarketDataRequirement(ExternalId.of(scheme, ticker), "Market_Value"), value);
-  }
-
-  public static MarketDataItem addValue(Map<MarketDataRequirement, MarketDataItem> marketData,
-                                         MarketDataRequirement requirement,
-                                         double value) {
-    return marketData.put(requirement, MarketDataItem.available(value));
-  }
-
-
-
 }

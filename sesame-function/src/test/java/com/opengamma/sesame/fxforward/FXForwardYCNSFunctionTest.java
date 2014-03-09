@@ -54,7 +54,6 @@ import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposu
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -74,15 +73,15 @@ import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.DefaultValuationTimeFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
-import com.opengamma.sesame.ValuationTimeFn;
+import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -93,9 +92,8 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.EagerMarketDataFn;
+import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.HistoricalRawMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -128,8 +126,7 @@ public class FXForwardYCNSFunctionTest {
                                                               HistoricalTimeSeriesSource.class,
                                                               MarketDataFn.class,
                                                               HistoricalMarketDataFn.class,
-                                                              RegionSource.class,
-                                                              ValuationTimeFn.class);
+                                                              RegionSource.class);
 
     ComponentMap componentMap = componentMap(components);
 
@@ -164,19 +161,14 @@ public class FXForwardYCNSFunctionTest {
     ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
-    HistoricalRawMarketDataSource rawDataSource =
-        new HistoricalRawMarketDataSource(timeSeriesSource, date, "BLOOMBERG", "Market_Value");
+    FixedHistoricalMarketDataSource dataSource = new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", null);
 
     // TODO initialize service context and do this with a link
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
-    CurrencyMatrix currencyMatrix = configSource.getLatestByName(CurrencyMatrix.class, "BloombergLiveData");
-    MarketDataFn marketDataProvider = new EagerMarketDataFn(currencyMatrix, rawDataSource);
 
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
-    Map<Class<?>, Object> comps = ImmutableMap.of(HistoricalTimeSeriesResolver.class, htsResolver,
-                                                  MarketDataFn.class, marketDataProvider,
-                                                  ValuationTimeFn.class, new DefaultValuationTimeFn(s_valuationTime));
+    Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = serverComponents.with(comps);
 
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
@@ -192,8 +184,10 @@ public class FXForwardYCNSFunctionTest {
     security.setUniqueId(UniqueId.of("sec", "123"));
     //TracingProxy.start(new FullTracer());
     Result<DoubleLabelledMatrix1D> result = null;
+    Environment env = new SimpleEnvironment(s_valuationTime, dataSource);
+
     for (int i = 0; i < 100; i++) {
-      result = ycnsFunction.calculateYieldCurveNodeSensitivities(security);
+      result = ycnsFunction.calculateYieldCurveNodeSensitivities(env, security);
       System.out.println();
     }
     //System.out.println(TracingProxy.end().prettyPrint());

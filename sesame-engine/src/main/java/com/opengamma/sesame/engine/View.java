@@ -23,7 +23,7 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
-import com.opengamma.sesame.DefaultValuationTimeFn;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionArguments;
@@ -54,8 +54,6 @@ public class View implements AutoCloseable {
   private final ViewConfig _viewConfig;
   private final List<?> _inputs;
   private final ExecutorService _executor;
-  private final DelegatingMarketDataFn _marketDataFn;
-  private final DefaultValuationTimeFn _valuationTimeFn;
   private final FunctionModelConfig _systemDefaultConfig;
   private final NodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
@@ -69,8 +67,6 @@ public class View implements AutoCloseable {
                      Graph graph,
                      List<?> inputs,
                      ExecutorService executor,
-                     DelegatingMarketDataFn marketDataFn,
-                     DefaultValuationTimeFn valuationTimeFn,
                      FunctionModelConfig systemDefaultConfig,
                      NodeDecorator decorator,
                      CacheInvalidator cacheInvalidator,
@@ -83,8 +79,6 @@ public class View implements AutoCloseable {
     _inputs = ArgumentChecker.notNull(inputs, "inputs");
     _graph = ArgumentChecker.notNull(graph, "graph");
     _executor = ArgumentChecker.notNull(executor, "executor");
-    _marketDataFn = ArgumentChecker.notNull(marketDataFn, "marketDataFn");
-    _valuationTimeFn = ArgumentChecker.notNull(valuationTimeFn, "valuationTimeFn");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
     _decorator = ArgumentChecker.notNull(decorator, "decorator");
@@ -98,10 +92,13 @@ public class View implements AutoCloseable {
    * @return The calculation results, not null
    */
   public synchronized Results run(CycleArguments cycleArguments) {
-    initializeCycle(cycleArguments);
+    EngineEnvironment env = new EngineEnvironment(cycleArguments.getValuationTime(),
+                                                  cycleArguments.getMarketDataSource(),
+                                                  _cacheInvalidator);
+    invalidateCache(cycleArguments);
     List<Task> tasks = Lists.newArrayList();
-    tasks.addAll(portfolioTasks(cycleArguments));
-    tasks.addAll(nonPortfolioTasks(cycleArguments));
+    tasks.addAll(portfolioTasks(env, cycleArguments));
+    tasks.addAll(nonPortfolioTasks(env, cycleArguments));
     List<Future<TaskResult>> futures;
     try {
       futures = _executor.invokeAll(tasks);
@@ -141,7 +138,7 @@ public class View implements AutoCloseable {
     return _graphModel.getFunctionModel(outputName);
   }
 
-  private List<Task> portfolioTasks(CycleArguments cycleArguments) {
+  private List<Task> portfolioTasks(Environment env, CycleArguments cycleArguments) {
     // create tasks for the portfolio outputs
     int colIndex = 0;
     List<Task> portfolioTasks = Lists.newArrayList();
@@ -172,7 +169,7 @@ public class View implements AutoCloseable {
             _systemDefaultConfig);
 
         FunctionArguments args = functionModelConfig.getFunctionArguments(function.getUnderlyingReceiver().getClass());
-        portfolioTasks.add(new PortfolioTask(functionInput, args, rowIndex++, colIndex, function, tracer));
+        portfolioTasks.add(new PortfolioTask(env, functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
     }
@@ -180,7 +177,7 @@ public class View implements AutoCloseable {
   }
 
   // create tasks for the non-portfolio outputs
-  private List<Task> nonPortfolioTasks(CycleArguments cycleArguments) {
+  private List<Task> nonPortfolioTasks(Environment env, CycleArguments cycleArguments) {
     List<Task> tasks = Lists.newArrayList();
     for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
       InvokableFunction function = _graph.getNonPortfolioFunction(output.getName());
@@ -192,7 +189,7 @@ public class View implements AutoCloseable {
           _systemDefaultConfig);
 
       FunctionArguments args = functionModelConfig.getFunctionArguments(function.getUnderlyingReceiver().getClass());
-      tasks.add(new NonPortfolioTask(args, output.getName(), function, tracer));
+      tasks.add(new NonPortfolioTask(env, args, output.getName(), function, tracer));
     } return tasks;
   }
 
@@ -211,23 +208,18 @@ public class View implements AutoCloseable {
    * up market data etc.
    * @param cycleArguments Arguments for running the cycle
    */
-  private void initializeCycle(CycleArguments cycleArguments) {
-    // TODO this will need to be a lot cleverer when we need to support dynamic rebinding for full reval
-    // it's possible there will be multiple top-level contexts with their own valuation time, version correction,
-    // market data, cache/invalidator etc. how do these interact with the cycle? or are they done at a higher
-    // level than a view? i.e. multiple views running in parallel?
+  private void invalidateCache(CycleArguments cycleArguments) {
     // TODO need to query the market data factory to see what data has changed during the cycle
     //   for live sources this will be individual values
     //   for snapshots it will be the entire snapshot if it's been updated in the DB
     //   if the data provider has completely changed then everything must go (which is currently done in the invalidator)
-    _cacheInvalidator.invalidate(cycleArguments.getMarketDataFn(),
+    // TODO this needs to be integrated with ServiceContext
+    _cacheInvalidator.invalidate(cycleArguments.getMarketDataSource(),
                                  cycleArguments.getValuationTime(),
                                  cycleArguments.getConfigVersionCorrection(),
                                  Collections.<ExternalId>emptyList(),
                                  _sourceListener.getIds());
     _sourceListener.clear();
-    _marketDataFn.setDelegate(cycleArguments.getMarketDataFn());
-    _valuationTimeFn.setValuationTime(cycleArguments.getValuationTime());
   }
 
   @Override
@@ -252,15 +244,18 @@ public class View implements AutoCloseable {
   //----------------------------------------------------------
   private abstract static class Task implements Callable<TaskResult> {
 
+    private final Environment _env;
     private final Object _input;
     private final InvokableFunction _invokableFunction;
     private final Tracer _tracer;
     private final FunctionArguments _args;
 
-    private Task(Object input,
+    private Task(Environment env,
+                 Object input,
                  FunctionArguments args,
                  InvokableFunction invokableFunction,
                  Tracer tracer) {
+      _env = env;
       _input = input;
       _args = args;
       _invokableFunction = invokableFunction;
@@ -277,7 +272,7 @@ public class View implements AutoCloseable {
 
     private Result<?> invokeFunction() {
       try {
-        Object retVal = _invokableFunction.invoke(_input, _args);
+        Object retVal = _invokableFunction.invoke(_env, _input, _args);
         return retVal instanceof Result ? (Result) retVal : ResultGenerator.success(retVal);
       } catch (Exception e) {
         s_logger.warn("Failed to execute function", e);
@@ -294,13 +289,14 @@ public class View implements AutoCloseable {
     private final int _rowIndex;
     private final int _columnIndex;
 
-    private PortfolioTask(Object input,
+    private PortfolioTask(Environment env,
+                          Object input,
                           FunctionArguments args,
                           int rowIndex,
                           int columnIndex,
                           InvokableFunction invokableFunction,
                           Tracer tracer) {
-      super(input, args, invokableFunction, tracer);
+      super(env, input, args, invokableFunction, tracer);
       _rowIndex = rowIndex;
       _columnIndex = columnIndex;
     }
@@ -321,11 +317,12 @@ public class View implements AutoCloseable {
 
     private final String _outputValueName;
 
-    private NonPortfolioTask(FunctionArguments args,
+    private NonPortfolioTask(Environment env,
+                             FunctionArguments args,
                              String outputValueName,
                              InvokableFunction invokableFunction,
                              Tracer tracer) {
-      super(null, args, invokableFunction, tracer);
+      super(env, null, args, invokableFunction, tracer);
       _outputValueName = ArgumentChecker.notEmpty(outputValueName, "outputValueName");
     }
 
