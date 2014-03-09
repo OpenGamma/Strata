@@ -6,7 +6,6 @@
 package com.opengamma.sesame.fxforward;
 
 import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Map;
@@ -48,7 +47,7 @@ public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForw
 
       return findMatchingSensitivities(sensitivities);
     } else {
-      return propagateFailure(forwardCalculatorResult);
+      return forwardCalculatorResult.propagateFailure();
     }
   }
 

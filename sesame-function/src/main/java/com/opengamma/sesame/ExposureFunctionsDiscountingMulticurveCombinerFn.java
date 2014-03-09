@@ -6,7 +6,6 @@
 package com.opengamma.sesame;
 
 import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailures;
 import static com.opengamma.util.result.ResultGenerator.success;
 
@@ -82,10 +81,10 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       } else if (!incompleteBundles.isEmpty()) {
         return propagateFailures(incompleteBundles);
       } else {
-        return propagateFailure(fxMatrix);
+        return fxMatrix.propagateFailure();
       }
     } else {
-      return propagateFailure(mesResult);
+      return mesResult.propagateFailure();
     }
   }
 

@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import javax.inject.Inject;
@@ -129,16 +128,16 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
             return success(convertedSeries.multiply(fxSpotReturnSeries));
 
           } else {
-            return propagateFailure(conversionSeriesResult);
+            return conversionSeriesResult.propagateFailure();
           }
         } else {
           return success(fxSpotReturnSeries.multiply(exposure));
         }
       } else {
-        return propagateFailure(cpResult);
+        return cpResult.propagateFailure();
       }
     } else {
-      return propagateFailure(calculatorResult);
+      return calculatorResult.propagateFailure();
     }
   }
 

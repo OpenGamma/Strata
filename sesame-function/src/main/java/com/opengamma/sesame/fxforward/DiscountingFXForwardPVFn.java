@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
@@ -28,7 +27,7 @@ public class DiscountingFXForwardPVFn implements FXForwardPVFn {
     if (result.isValueAvailable()) {
       return success(result.getValue().calculatePV(env));
     } else {
-      return propagateFailure(result);
+      return result.propagateFailure();
     }
   }
 }

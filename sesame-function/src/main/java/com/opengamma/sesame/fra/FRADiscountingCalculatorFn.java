@@ -42,7 +42,7 @@ public class FRADiscountingCalculatorFn implements FRACalculatorFn {
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = createBundle(env, security);
 
     if (!bundleResult.isValueAvailable()) {
-      return ResultGenerator.propagateFailure(bundleResult);
+      return bundleResult.propagateFailure();
     }
     return ResultGenerator.success(_factory.createCalculator(env, security, bundleResult.getValue().getFirst()));
   }

@@ -6,7 +6,6 @@
 package com.opengamma.sesame.fxforward;
 
 import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailure;
 import static com.opengamma.util.result.ResultGenerator.propagateFailures;
 import static com.opengamma.util.result.ResultGenerator.success;
 
@@ -318,7 +317,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
         LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env, curveCurrency, env.getValuationDate());
         return calculateSeriesForNodes(env, curveSeriesBundle, sensitivity, nodes, conversionSeries);
       }
-      return propagateFailure(curveSeriesBundleResult);
+      return curveSeriesBundleResult.propagateFailure();
     }
     return propagateFailures(calculatorResult, curveSpecificationResult, cpResult);
   }
