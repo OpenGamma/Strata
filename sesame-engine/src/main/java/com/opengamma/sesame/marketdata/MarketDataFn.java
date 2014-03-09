@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -13,20 +14,57 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.util.result.Result;
 
 /**
- * Function providing market data to clients.
- * TODO use Result [SSM-162]
+ * Function providing market data for structured objects.
+ * The underlying raw market data comes from the environment argument passed to each method
  */
 public interface MarketDataFn {
 
-  // TODO this should return an object with the rate and pair (FxRate?)
+  /**
+   * Returns an FX spot rate for a currency pair.
+   *
+   * @param env the function execution environment
+   * @param currencyPair the currency pair
+   * @return the rate for the currency pair
+   * TODO this should return an object with the rate and pair (FxRate?)
+   */
   Result<Double> getFxRate(Environment env, CurrencyPair currencyPair);
 
-  // TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
+  /**
+   * Returns the rate for a node on a curve.
+   *
+   * @param env the function execution environment
+   * @param node the curve node
+   * @return the rate for the node
+   * TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
+   */
   Result<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node);
 
+  /**
+   * Returns the rate for the underlying of a node on a curve.
+   *
+   * @param env the function execution environment
+   * @param node the curve node
+   * @return the rate for the node's underlying
+   * TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
+   */
   Result<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node);
 
+  /**
+   * Returns the value of the {@link MarketDataRequirementNames#MARKET_VALUE} field for an ID.
+   *
+   * @param env the function execution environment
+   * @param id the ID
+   * @return the value of {@link MarketDataRequirementNames#MARKET_VALUE} for the ID
+   */
   Result<Double> getMarketValue(Environment env, ExternalIdBundle id);
 
+  /**
+   * Returns the value of an arbitrary field of market data for an ID.
+   *
+   * @param env the function execution environment
+   * @param id the ID
+   * @param fieldName the name of the field in the market data record
+   * @return the value of the field for the ID
+   */
   Result<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName);
 }
