@@ -20,7 +20,7 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 
 /**
- * Useful for backing a {@link MarketDataFn} which needs historical data from a fixed point in time.
+ * Source of historical market from a fixed point in time.
  */
 public class FixedHistoricalMarketDataSource implements MarketDataSource {
 
@@ -31,6 +31,12 @@ public class FixedHistoricalMarketDataSource implements MarketDataSource {
   private final String _dataSource;
   private final String _dataProvider;
 
+  /**
+   * @param timeSeriesSource source of time series of historical data
+   * @param snapshotDate the data for which data should be returned
+   * @param dataSource the name of the data source
+   * @param dataProvider the name of the data provider
+   */
   public FixedHistoricalMarketDataSource(HistoricalTimeSeriesSource timeSeriesSource,
                                          LocalDate snapshotDate,
                                          String dataSource,

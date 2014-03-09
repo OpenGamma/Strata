@@ -26,7 +26,7 @@ import com.opengamma.util.result.Result;
  */
 /* package */ class EngineEnvironment implements Environment {
 
-  private final Environment _delegate;
+  private final SimpleEnvironment _delegate;
   private final CacheInvalidator _cacheInvalidator;
 
   /* package */ EngineEnvironment(ZonedDateTime valuationTime,
@@ -64,16 +64,22 @@ import com.opengamma.util.result.Result;
 
   @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
+    // this the returned environment is deliberately not one that's managed by the engine
+    // TODO link a thorough explanation of the caching implementation that explains this in detail
     return _delegate.withValuationTime(valuationTime);
   }
 
   @Override
   public Environment withMarketData(MarketDataSource marketData) {
+    // this the returned environment is deliberately not one that's managed by the engine
+    // TODO link a thorough explanation of the caching implementation that explains this in detail
     return _delegate.withMarketData(marketData);
   }
 
   @Override
   public Environment with(ZonedDateTime valuationTime, MarketDataSource marketData) {
+    // this the returned environment is deliberately not one that's managed by the engine
+    // TODO link a thorough explanation of the caching implementation that explains this in detail
     return new SimpleEnvironment(valuationTime, marketData);
   }
 }

@@ -25,6 +25,7 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 
 /**
+ * Source of market data backed by a single snapshot in the database.
  * TODO needs to support a listener in case the snapshot is changed in the DB. presumably same mechanism as live data
  */
 public class SnapshotMarketDataSource implements MarketDataSource {
@@ -33,6 +34,12 @@ public class SnapshotMarketDataSource implements MarketDataSource {
   
   private final UnstructuredMarketDataSnapshot _snapshot;
 
+  /**
+   * Creates a source backed by a single snapshot of data.
+   *
+   * @param snapshotSource the source of the data snapshots
+   * @param snapshotId the ID of the snapshot backing this data source
+   */
   public SnapshotMarketDataSource(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
     // TODO if ID is unversioned need to get the VC from the engine to ensure consistency across the cycle
