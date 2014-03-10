@@ -43,7 +43,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   // TODO should the keys be MarketDataRequirements?
   private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
 
-  private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> valuationTimeEntries = Lists.newArrayList();
+  private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> _valuationTimeEntries = Lists.newArrayList();
 
   private final Ehcache _cache;
 
@@ -77,7 +77,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   @Override
   public synchronized void register(ValuationTimeCacheEntry entry) {
     for (MethodInvocationKey key : _executingMethods.get()) {
-      valuationTimeEntries.add(Pairs.of(key, entry));
+      _valuationTimeEntries.add(Pairs.of(key, entry));
     }
   }
 
@@ -115,7 +115,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
   }
 
   private void invalidateValuationTime(ZonedDateTime valuationTime) {
-    for (Iterator<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> itr = valuationTimeEntries.iterator(); itr.hasNext(); ) {
+    for (Iterator<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> itr = _valuationTimeEntries.iterator(); itr.hasNext(); ) {
       Pair<MethodInvocationKey, ValuationTimeCacheEntry> pair = itr.next();
       MethodInvocationKey key = pair.getFirst();
       ValuationTimeCacheEntry timeEntry = pair.getSecond();

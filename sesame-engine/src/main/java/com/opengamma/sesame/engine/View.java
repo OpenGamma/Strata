@@ -273,7 +273,7 @@ public class View implements AutoCloseable {
     private Result<?> invokeFunction() {
       try {
         Object retVal = _invokableFunction.invoke(_env, _input, _args);
-        return retVal instanceof Result ? (Result) retVal : ResultGenerator.success(retVal);
+        return retVal instanceof Result ? (Result<?>) retVal : ResultGenerator.success(retVal);
       } catch (Exception e) {
         s_logger.warn("Failed to execute function", e);
         return ResultGenerator.failure(e);
@@ -284,7 +284,7 @@ public class View implements AutoCloseable {
   }
 
   //----------------------------------------------------------
-  private static class PortfolioTask extends Task {
+  private static final class PortfolioTask extends Task {
 
     private final int _rowIndex;
     private final int _columnIndex;
@@ -313,7 +313,7 @@ public class View implements AutoCloseable {
   }
 
   //----------------------------------------------------------
-  private static class NonPortfolioTask extends Task {
+  private static final class NonPortfolioTask extends Task {
 
     private final String _outputValueName;
 

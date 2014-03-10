@@ -24,7 +24,7 @@ public interface ValuationTimeCacheEntry {
    */
   boolean isValidAt(ZonedDateTime valuationTime);
 
-  public final static class ValidAtCalculationInstant implements ValuationTimeCacheEntry {
+  public static final class ValidAtCalculationInstant implements ValuationTimeCacheEntry {
 
     private final ZonedDateTime _calculationTime;
 
@@ -38,7 +38,7 @@ public interface ValuationTimeCacheEntry {
     }
   }
 
-  public final static class ValidOnCalculationDay implements ValuationTimeCacheEntry {
+  public static final class ValidOnCalculationDay implements ValuationTimeCacheEntry {
 
     private final LocalDate _calculationDate;
 

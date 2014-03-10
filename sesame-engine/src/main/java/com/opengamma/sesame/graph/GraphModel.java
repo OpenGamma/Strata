@@ -44,7 +44,10 @@ public final class GraphModel {
   }
 
   /**
-   * @return A graph containing the built function instances
+   * Builds the graph from the model using the specified set of components.
+   * 
+   * @param components  the component map, not null
+   * @return a graph containing the built function instances, not null
    */
   public Graph build(ComponentMap components) {
     FunctionBuilder functionBuilder = new FunctionBuilder();

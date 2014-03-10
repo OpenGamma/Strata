@@ -75,7 +75,6 @@ public class DefaultMarketDataFn implements MarketDataFn {
         return ResultGenerator.success(fixedValue.getFixedValue());
       }
 
-      @SuppressWarnings("unchecked")
       @Override
       public Result<Double> visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
         ValueRequirement valueRequirement = req.getValueRequirement();

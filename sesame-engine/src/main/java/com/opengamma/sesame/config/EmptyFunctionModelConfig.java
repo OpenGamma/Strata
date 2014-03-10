@@ -33,6 +33,8 @@ public final class EmptyFunctionModelConfig implements FunctionModelConfig, Immu
 
   /**
    * Returns the singleton instance.
+   * 
+   * @return the singleton, not null
    */
   public static FunctionModelConfig getInstance() {
     return INSTANCE;

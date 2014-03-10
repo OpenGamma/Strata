@@ -22,49 +22,50 @@ public interface MarketDataFn {
   /**
    * Returns an FX spot rate for a currency pair.
    *
-   * @param env the function execution environment
-   * @param currencyPair the currency pair
-   * @return the rate for the currency pair
-   * TODO this should return an object with the rate and pair (FxRate?)
+   * @param env  the function execution environment, not null
+   * @param currencyPair  the currency pair, not null
+   * @return the rate for the currency pair, not null
    */
+  // TODO this should return an object with the rate and pair (FxRate?)
   Result<Double> getFxRate(Environment env, CurrencyPair currencyPair);
 
   /**
    * Returns the rate for a node on a curve.
    *
-   * @param env the function execution environment
-   * @param node the curve node
-   * @return the rate for the node
-   * TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
+   * @param env  the function execution environment, not null
+   * @param node  the curve node, not null
+   * @return the rate for the node, not null
    */
+  // TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
   Result<Double> getCurveNodeValue(Environment env, CurveNodeWithIdentifier node);
 
   /**
    * Returns the rate for the underlying of a node on a curve.
    *
-   * @param env the function execution environment
-   * @param node the curve node
-   * @return the rate for the node's underlying
-   * TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
+   * @param env  the function execution environment, not null
+   * @param node  the curve node, not null
+   * @return the rate for the node's underlying, not null
    */
+  // TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
   Result<Double> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node);
 
   /**
    * Returns the value of the {@link MarketDataRequirementNames#MARKET_VALUE} field for an ID.
    *
-   * @param env the function execution environment
-   * @param id the ID
-   * @return the value of {@link MarketDataRequirementNames#MARKET_VALUE} for the ID
+   * @param env  the function execution environment, not null
+   * @param id  the external identifier for the values required, not null
+   * @return the value of {@link MarketDataRequirementNames#MARKET_VALUE} for the ID, not null
    */
   Result<Double> getMarketValue(Environment env, ExternalIdBundle id);
 
   /**
    * Returns the value of an arbitrary field of market data for an ID.
    *
-   * @param env the function execution environment
-   * @param id the ID
-   * @param fieldName the name of the field in the market data record
-   * @return the value of the field for the ID
+   * @param env  the function execution environment, not null
+   * @param id  the external identifier for the values required, not null
+   * @param fieldName  the name of the field in the market data record, not null
+   * @return the value of the field for the ID, not null
    */
   Result<?> getValue(Environment env, ExternalIdBundle id, FieldName fieldName);
+
 }

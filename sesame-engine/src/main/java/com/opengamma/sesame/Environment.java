@@ -16,48 +16,52 @@ import com.opengamma.sesame.marketdata.MarketDataSource;
 public interface Environment {
 
   /**
-   * Returns the valuation date.
-   * This method should be used in preference to {@link #getValuationTime()} if only the date is required
+   * Gets the valuation date.
+   * <p>
+   * This method should be used in preference to {@link #getValuationTime()} if only the date is required.
+   * 
    * @return the valuation date, not null
    */
   LocalDate getValuationDate();
 
   /**
-   * Returns the valuation time.
+   * Gets the valuation time.
+   * <p>
    * Use {@link #getValuationDate()} in preference to this method if you only need the date.
+   * 
    * @return the valuation time, not null
    */
   ZonedDateTime getValuationTime();
 
   /**
-   * Request an item of market data.
+   * Gets the source used to access market data.
    *
-   * @return a result object containing an indication of whether the data is (currently)
-   * available and the value if it is.
+   * @return the market data source, not null
    */
   MarketDataSource getMarketDataSource();
 
   /**
    * Returns a new environment copied from this environment but with a different valuation time.
    *
-   * @param valuationTime the valuation time for the new environment
-   * @return a new environment copied from this environment but with the specified valuation time.
+   * @param valuationTime  the valuation time for the new environment, not null
+   * @return a new environment copied from this environment but with the specified valuation time, not null
    */
   Environment withValuationTime(ZonedDateTime valuationTime);
 
   /**
    * Returns a new environment copied from this environment but with a different valuation time.
    *
-   * @param marketData the market data for the new environment
+   * @param marketData  the market data for the new environment, not null
+   * @return a new environment copied from this environment but with the specified market data, not null
    */
   Environment withMarketData(MarketDataSource marketData);
 
   /**
    * Returns a new environment with a different valuation time and market data.
    *
-   * @param marketData the market data for the new environment
-   * @param valuationTime the valuation time for the new environment
-   * @return a new environment
+   * @param marketData  the market data for the new environment, not null
+   * @param valuationTime  the valuation time for the new environment, not null
+   * @return a new environment, not null
    */
   Environment with(ZonedDateTime valuationTime, MarketDataSource marketData);
 

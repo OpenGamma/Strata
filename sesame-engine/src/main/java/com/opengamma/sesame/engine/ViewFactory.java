@@ -105,19 +105,28 @@ public class ViewFactory {
   }
 
   /**
-   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
-   * in future.
+   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}.
+   * This will be relaxed in future.
+   * 
+   * @param viewConfig  the configuration to use, not null
+   * @param inputs  the input objects to calculate on, not null
+   * @return the view, not null
    */
   public View createView(ViewConfig viewConfig, List<?> inputs) {
     return createView(viewConfig, inputs, _defaultServices);
   }
 
   /**
-   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
-   * in future.
-   * TODO parameter to allow arbitrary NodeDecorators to be passed in?
-   * TODO should this logic be in View?
+   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}.
+   * This will be relaxed in future.
+   * 
+   * @param viewConfig  the configuration to use, not null
+   * @param inputs  the input objects to calculate on, not null
+   * @param services  the services to run, not null
+   * @return the view, not null
    */
+  // TODO parameter to allow arbitrary NodeDecorators to be passed in?
+  // TODO should this logic be in View?
   public View createView(ViewConfig viewConfig, List<?> inputs, EnumSet<FunctionService> services) {
     NodeDecorator decorator;
     CacheInvalidator cacheInvalidator;

@@ -128,7 +128,6 @@ public class DefaultHistoricalMarketDataFn implements HistoricalMarketDataFn {
         return ResultGenerator.success(builder.build());
       }
 
-      @SuppressWarnings("unchecked")
       @Override
       public Result<LocalDateDoubleTimeSeries> visitValueRequirement(
           CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {

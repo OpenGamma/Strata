@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.sesame.marketdata;
 
 import static com.opengamma.sesame.marketdata.LiveDataManager.RequestType.SUBSCRIBE;
@@ -97,10 +102,11 @@ public class LiveDataManager implements LiveDataListener {
 
   /**
    * Returns the current data for all subscriptions the client has requested.
-   * @return
+   * 
+   * @param listener  the listener to use, not null
+   * @return the snapshot, not null
    */
   public Map<ExternalIdBundle, FudgeMsg> snapshot(LDListener listener) {
-
     Map<ExternalIdBundle, FudgeMsg> result = new HashMap<>();
     if (_subscriptionsPerClient.containsKey(listener)) {
       for (ExternalIdBundle idBundle : _subscriptionsPerClient.get(listener)) {
@@ -337,7 +343,7 @@ public class LiveDataManager implements LiveDataListener {
       // Check if this client is waiting on data completion
       final CountDownLatch latch = _latches.get(listener);
       if (latch != null && latch.getCount() > 0 && clientsRequirementsAreSatisfied(listener)) {
-          latch.countDown();
+        latch.countDown();
       }
     }
   }
@@ -423,4 +429,5 @@ public class LiveDataManager implements LiveDataListener {
 
     void valueUpdated(ExternalIdBundle idBundle);
   }
+
 }

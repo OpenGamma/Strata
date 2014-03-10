@@ -31,10 +31,11 @@ import com.opengamma.sesame.function.NoOutputFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Builder for a graph.
  */
 public final class GraphBuilder {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(GraphBuilder.class);
 
   private final AvailableOutputs _availableOutputs;
@@ -56,9 +57,14 @@ public final class GraphBuilder {
     _defaultImplProvider = new DefaultImplementationProvider(availableImplementations);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}. This will be relaxed
-   * in future.
+   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}.
+   * This will be relaxed in future.
+   * 
+   * @param viewConfig  the configuration to use, not null
+   * @param inputs  the input objects to calculate on, not null
+   * @return the model, not null
    */
   public GraphModel build(ViewConfig viewConfig, Collection<?> inputs) {
     ArgumentChecker.notNull(viewConfig, "viewConfig");
