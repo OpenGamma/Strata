@@ -10,6 +10,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
@@ -109,11 +111,23 @@ public class ViewFactory {
    * This will be relaxed in future.
    * 
    * @param viewConfig  the configuration to use, not null
-   * @param inputs  the input objects to calculate on, not null
+   * @param inputTypes  the types of the inputs to the calculations, e.g. trades, positions, securities
    * @return the view, not null
    */
-  public View createView(ViewConfig viewConfig, List<?> inputs) {
-    return createView(viewConfig, inputs, _defaultServices);
+  public View createView(ViewConfig viewConfig, Set<Class<?>> inputTypes) {
+    return createView(viewConfig, _defaultServices, inputTypes);
+  }
+
+  /**
+   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}.
+   * This will be relaxed in future.
+   *
+   * @param viewConfig  the configuration to use, not null
+   * @param inputTypes  the types of the inputs to the calculations, e.g. trades, positions, securities
+   * @return the view, not null
+   */
+  public View createView(ViewConfig viewConfig, Class<?>... inputTypes) {
+    return createView(viewConfig, _defaultServices, Sets.newHashSet(inputTypes));
   }
 
   /**
@@ -121,13 +135,24 @@ public class ViewFactory {
    * This will be relaxed in future.
    * 
    * @param viewConfig  the configuration to use, not null
-   * @param inputs  the input objects to calculate on, not null
    * @param services  the services to run, not null
+   * @param inputTypes  the types of the inputs to the calculations, e.g. trades, positions, securities
    * @return the view, not null
    */
-  // TODO parameter to allow arbitrary NodeDecorators to be passed in?
-  // TODO should this logic be in View?
-  public View createView(ViewConfig viewConfig, List<?> inputs, EnumSet<FunctionService> services) {
+  public View createView(ViewConfig viewConfig, EnumSet<FunctionService> services, Class<?>... inputTypes) {
+    return createView(viewConfig, services, Sets.newHashSet(inputTypes));
+  }
+
+  /**
+   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}.
+   * This will be relaxed in future.
+   *
+   * @param viewConfig  the configuration to use, not null
+   * @param services  the services to run, not null
+   * @param inputTypes  the types of the inputs to the calculations, e.g. trades, positions, securities
+   * @return the view, not null
+   */
+  public View createView(ViewConfig viewConfig, EnumSet<FunctionService> services, Set<Class<?>> inputTypes) {
     NodeDecorator decorator;
     CacheInvalidator cacheInvalidator;
 
@@ -165,14 +190,14 @@ public class ViewFactory {
                                                  components.getComponentTypes(),
                                                  _defaultConfig,
                                                  decorator);
-    GraphModel graphModel = graphBuilder.build(viewConfig, inputs);
+    GraphModel graphModel = graphBuilder.build(viewConfig, inputTypes);
 
     s_logger.debug("graph model complete, building graph");
     Graph graph = graphModel.build(components);
     s_logger.debug("graph complete");
 
     Collection<ChangeManager> changeManagers = pair.getSecond();
-    return new View(viewConfig, graph, inputs, _executor, _defaultConfig, decorator,
+    return new View(viewConfig, graph, _executor, _defaultConfig, decorator,
                     cacheInvalidator, graphModel, sourceListener, changeManagers);
   }
 

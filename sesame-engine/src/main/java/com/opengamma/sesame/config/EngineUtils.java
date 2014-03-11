@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,9 +23,11 @@ import javax.inject.Inject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.proxy.ProxyInvocationHandler;
+import com.opengamma.util.ArgumentChecker;
 import com.thoughtworks.paranamer.AdaptiveParanamer;
 import com.thoughtworks.paranamer.AnnotationParanamer;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
@@ -287,4 +290,16 @@ public final class EngineUtils {
     return getProxiedObject(invocationHandler.getReceiver());
   }
 
+  /**
+   * @param securities some securities
+   * @return a set of the types of the securities
+   */
+  public static Set<Class<?>> getSecurityTypes(List<ManageableSecurity> securities) {
+    Set<Class<?>> securityTypes = new HashSet<>();
+
+    for (ManageableSecurity security : ArgumentChecker.notNull(securities, "securities")) {
+      securityTypes.add(security.getClass());
+    }
+    return securityTypes;
+  }
 }

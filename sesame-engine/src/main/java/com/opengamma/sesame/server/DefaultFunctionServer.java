@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
@@ -46,15 +47,18 @@ public class DefaultFunctionServer implements FunctionServer {
 
   @Override
   public Results executeSingleCycle(FunctionServerRequest<IndividualCycleOptions> request) {
-    View view = _viewFactory.createView(request.getViewConfig(), request.getInputs());
+    View view = _viewFactory.createView(request.getViewConfig(), EngineUtils.getSecurityTypes(request.getInputs()));
     IndividualCycleOptions cycleOptions = request.getCycleOptions();
     MarketDataSource marketDataSource = _marketDataFactory.create(cycleOptions.getMarketDataSpec());
-    return view.run(new CycleArguments(cycleOptions.getValuationTime(), VersionCorrection.LATEST, marketDataSource));
+    CycleArguments cycleArguments = new CycleArguments(cycleOptions.getValuationTime(),
+                                                       VersionCorrection.LATEST,
+                                                       marketDataSource);
+    return view.run(cycleArguments, request.getInputs());
   }
 
   @Override
   public List<Results> executeMultipleCycles(FunctionServerRequest<GlobalCycleOptions> request) {
-    View view = _viewFactory.createView(request.getViewConfig(), request.getInputs());
+    View view = _viewFactory.createView(request.getViewConfig(), EngineUtils.getSecurityTypes(request.getInputs()));
     GlobalCycleOptions globalCycleOptions = request.getCycleOptions();
 
     // todo - this implementation should share some parts with DefaultStreamingFunctionServer
@@ -63,11 +67,12 @@ public class DefaultFunctionServer implements FunctionServer {
     for (IndividualCycleOptions cycleOptions : globalCycleOptions) {
 
       MarketDataSource marketDataSource = _marketDataFactory.create(cycleOptions.getMarketDataSpec());
-      results.add(view.run(new CycleArguments(cycleOptions.getValuationTime(),
-                                              VersionCorrection.LATEST,
-                                              marketDataSource)));
+      CycleArguments cycleArguments = new CycleArguments(cycleOptions.getValuationTime(),
+                                                         VersionCorrection.LATEST,
+                                                         marketDataSource);
+      results.add(view.run(cycleArguments, request.getInputs()));
     }
-
     return results;
   }
+
 }

@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
@@ -82,18 +83,20 @@ public class DefaultStreamingFunctionServer implements StreamingFunctionServer {
     ArgumentChecker.notNull(request, "request");
 
     // Build the view first so we can be reasonably confident it's all going to work
-    View view = _viewFactory.createView(request.getViewConfig(), request.getInputs());
+    View view = _viewFactory.createView(request.getViewConfig(), EngineUtils.getSecurityTypes(request.getInputs()));
 
     final UniqueId clientId = createId();
     PublisherAwareStreamingClient streamingClient = new DefaultStreamingClient(clientId);
 
     s_logger.info("Setting up streaming task for client: {}", clientId);
-    _executorService.execute(createStreamingTask(streamingClient, view, request.getCycleOptions()));
+    _executorService.execute(createStreamingTask(streamingClient, view, request.getCycleOptions(), request.getInputs()));
     return streamingClient;
   }
 
   private Runnable createStreamingTask(final PublisherAwareStreamingClient streamingClient,
-                                       final View view, final GlobalCycleOptions globalCycleOptions) {
+                                       final View view,
+                                       final GlobalCycleOptions globalCycleOptions,
+                                       final List<?> inputs) {
 
     return new Runnable() {
       @Override
@@ -108,9 +111,10 @@ public class DefaultStreamingFunctionServer implements StreamingFunctionServer {
 
           MarketDataSource marketDataSource = _marketDataFactory.create(cycleOptions.getMarketDataSpec());
 
-          Results results = view.run(new CycleArguments(cycleOptions.getValuationTime(),
-                                                        VersionCorrection.LATEST,
-                                                        marketDataSource));
+          CycleArguments cycleArguments = new CycleArguments(cycleOptions.getValuationTime(),
+                                                             VersionCorrection.LATEST,
+                                                             marketDataSource);
+          Results results = view.run(cycleArguments, inputs);
           s_logger.debug("Sending out cycle results to client: {}", clientId);
           streamingClient.resultsReceived(results);
         }

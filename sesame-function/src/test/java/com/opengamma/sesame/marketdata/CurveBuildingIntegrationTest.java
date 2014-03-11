@@ -18,7 +18,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.EnumSet;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -160,11 +159,12 @@ public class CurveBuildingIntegrationTest {
                                               CacheManager.getInstance(),
                                               EnumSet.noneOf(FunctionService.class));
 
-    View view = viewFactory.createView(viewConfig, Collections.emptyList());
+    View view = viewFactory.createView(viewConfig);
 
     LiveDataManager liveDataManager = new LiveDataManager(buildLiveDataClient());
     ResettableLiveMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(liveDataManager);
-    Results initialResults = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource));
+    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource);
+    Results initialResults = view.run(cycleArguments);
     System.out.println(initialResults);
 
     // First time through we're waiting for market data so expect failure
@@ -177,7 +177,7 @@ public class CurveBuildingIntegrationTest {
     System.out.println("Waiting for market data to catch up");
     liveDataSource.waitForData();
 
-    Results results = view.run(new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource));
+    Results results = view.run(cycleArguments);
     System.out.println(results);
 
     // Second time we should have received the market data

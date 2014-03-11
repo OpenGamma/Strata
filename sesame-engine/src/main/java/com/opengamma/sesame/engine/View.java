@@ -52,7 +52,6 @@ public class View implements AutoCloseable {
 
   private final Graph _graph;
   private final ViewConfig _viewConfig;
-  private final List<?> _inputs;
   private final ExecutorService _executor;
   private final FunctionModelConfig _systemDefaultConfig;
   private final NodeDecorator _decorator;
@@ -65,7 +64,6 @@ public class View implements AutoCloseable {
   // TODO this has too many parameters. does that matter? it's only called by the engine
   /* package */ View(ViewConfig viewConfig,
                      Graph graph,
-                     List<?> inputs,
                      ExecutorService executor,
                      FunctionModelConfig systemDefaultConfig,
                      NodeDecorator decorator,
@@ -76,7 +74,6 @@ public class View implements AutoCloseable {
     _sourceListener = ArgumentChecker.notNull(sourceListener, "sourceListener");
     _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
-    _inputs = ArgumentChecker.notNull(inputs, "inputs");
     _graph = ArgumentChecker.notNull(graph, "graph");
     _executor = ArgumentChecker.notNull(executor, "executor");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
@@ -92,12 +89,22 @@ public class View implements AutoCloseable {
    * @return The calculation results, not null
    */
   public synchronized Results run(CycleArguments cycleArguments) {
+    return run(cycleArguments, Collections.emptyList());
+  }
+
+  /**
+   * Runs a single calculation cycle, blocking until the results are available.
+   * @param cycleArguments Settings for running the cycle including valuation time and market data source
+   * @param inputs the inputs to the calculation, e.g. trades, positions, securities
+   * @return The calculation results, not null
+   */
+  public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
     EngineEnvironment env = new EngineEnvironment(cycleArguments.getValuationTime(),
                                                   cycleArguments.getMarketDataSource(),
                                                   _cacheInvalidator);
     invalidateCache(cycleArguments);
     List<Task> tasks = Lists.newArrayList();
-    tasks.addAll(portfolioTasks(env, cycleArguments));
+    tasks.addAll(portfolioTasks(env, cycleArguments, inputs));
     tasks.addAll(nonPortfolioTasks(env, cycleArguments));
     List<Future<TaskResult>> futures;
     try {
@@ -105,7 +112,7 @@ public class View implements AutoCloseable {
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     }
-    ResultBuilder resultsBuilder = Results.builder(_inputs, _columnNames);
+    ResultBuilder resultsBuilder = Results.builder(inputs, _columnNames);
     for (Future<TaskResult> future : futures) {
       try {
         TaskResult result = future.get();
@@ -138,14 +145,14 @@ public class View implements AutoCloseable {
     return _graphModel.getFunctionModel(outputName);
   }
 
-  private List<Task> portfolioTasks(Environment env, CycleArguments cycleArguments) {
+  private List<Task> portfolioTasks(Environment env, CycleArguments cycleArguments, List<?> inputs) {
     // create tasks for the portfolio outputs
     int colIndex = 0;
     List<Task> portfolioTasks = Lists.newArrayList();
     for (ViewColumn column : _viewConfig.getColumns()) {
       Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(column.getName());
       int rowIndex = 0;
-      for (Object input : _inputs) {
+      for (Object input : inputs) {
         InvokableFunction function;
         InvokableFunction inputFunction = functions.get(input.getClass());
         // the input to the function can be a security when the input is a position or trade
@@ -158,6 +165,10 @@ public class View implements AutoCloseable {
           function = functions.get(security.getClass());
           functionInput = security;
         } else {
+          function = null;
+          functionInput = null;
+        }
+        if (function == null) {
           // this shouldn't happen if the graph is built correctly
           throw new OpenGammaRuntimeException("No function found for column " + column + " and " + input);
         }
