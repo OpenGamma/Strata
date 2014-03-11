@@ -218,7 +218,8 @@ public class FXForwardPVFnTest {
 
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    RecordingMarketDataSource dataSource = new RecordingMarketDataSource(fieldName, marketData);
+    RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
+    RecordingMarketDataSource dataSource = builder.data(fieldName, marketData).build();
     SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
 
     for (int i = 0; i < 100; i++) {
@@ -256,7 +257,8 @@ public class FXForwardPVFnTest {
           .iterator().next().getValue();
 
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-      dataSource = new RecordingMarketDataSource(fieldName, marketData);
+      RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
+      dataSource = builder.data(fieldName, marketData).build();
       SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
       result = bundleProvider.generateBundle(env, curveConfig);
     } catch (Exception e) {
@@ -345,7 +347,8 @@ public class FXForwardPVFnTest {
     Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    RecordingMarketDataSource dataSource = new RecordingMarketDataSource(fieldName, marketData);
+    RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
+    RecordingMarketDataSource dataSource = builder.data(fieldName, marketData).build();
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
     Results results = view.run(cycleArguments);
     System.out.println(results);
@@ -446,7 +449,8 @@ public class FXForwardPVFnTest {
     Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    RecordingMarketDataSource dataSource = new RecordingMarketDataSource(fieldName, marketData);
+    RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
+    RecordingMarketDataSource dataSource = builder.data(fieldName, marketData).build();
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
     //int nRuns = 1;
     int nRuns = 20;

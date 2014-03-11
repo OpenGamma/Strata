@@ -70,6 +70,7 @@ public class EquityPresentValueTest {
 
   private RecordingMarketDataSource marketDataSource(Map<ExternalIdBundle, Double> marketData) {
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    return new RecordingMarketDataSource(fieldName, marketData);
+    RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
+    return builder.data(fieldName, marketData).build();
   }
 }
