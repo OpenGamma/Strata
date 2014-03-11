@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.server.streaming;
 
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +22,10 @@ import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.server.FunctionServer;
+import com.opengamma.sesame.server.FunctionServerRequest;
+import com.opengamma.sesame.server.GlobalCycleOptions;
+import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.util.ArgumentChecker;
 
 /**

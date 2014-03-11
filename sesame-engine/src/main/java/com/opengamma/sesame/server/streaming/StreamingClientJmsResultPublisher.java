@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.server.streaming;
 
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;

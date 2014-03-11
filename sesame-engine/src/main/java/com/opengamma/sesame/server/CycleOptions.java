@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.server;
 
 /**
  * This is a marker interface for the cycle options to be run.

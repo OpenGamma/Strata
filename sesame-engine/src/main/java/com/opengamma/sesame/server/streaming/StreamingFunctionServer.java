@@ -3,7 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.server.streaming;
+
+import com.opengamma.sesame.server.FunctionServer;
+import com.opengamma.sesame.server.FunctionServerRequest;
+import com.opengamma.sesame.server.GlobalCycleOptions;
 
 /**
  * Represents a running server capable of executing streaming requests.

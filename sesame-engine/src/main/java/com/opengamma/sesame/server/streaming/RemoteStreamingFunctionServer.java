@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.server.streaming;
 
 import java.net.URI;
 import java.util.List;
@@ -13,6 +13,10 @@ import javax.ws.rs.core.Response;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.server.DataFunctionServerResource;
+import com.opengamma.sesame.server.FunctionServerRequest;
+import com.opengamma.sesame.server.GlobalCycleOptions;
+import com.opengamma.sesame.server.IndividualCycleOptions;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;

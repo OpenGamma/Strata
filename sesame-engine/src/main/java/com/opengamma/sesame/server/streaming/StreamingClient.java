@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.server.streaming;
 
 import com.opengamma.id.UniqueId;
 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.server.streaming;
 
 import java.net.URI;
 import java.util.Map;
@@ -21,6 +21,8 @@ import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.financial.rest.RestfulJmsResultPublisherExpiryJob;
 import com.opengamma.id.UniqueId;
+import com.opengamma.sesame.server.FunctionServerRequest;
+import com.opengamma.sesame.server.GlobalCycleOptions;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.AbstractDataResource;

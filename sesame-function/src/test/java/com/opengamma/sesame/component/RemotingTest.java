@@ -49,6 +49,15 @@ import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.server.FunctionServer;
+import com.opengamma.sesame.server.FunctionServerRequest;
+import com.opengamma.sesame.server.GlobalCycleOptions;
+import com.opengamma.sesame.server.IndividualCycleOptions;
+import com.opengamma.sesame.server.RemoteFunctionServer;
+import com.opengamma.sesame.server.streaming.RemoteStreamingFunctionServer;
+import com.opengamma.sesame.server.streaming.StreamingClient;
+import com.opengamma.sesame.server.streaming.StreamingClientResultListener;
+import com.opengamma.sesame.server.streaming.StreamingFunctionServer;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.result.Result;
@@ -206,7 +215,8 @@ public class RemotingTest {
       }
 
       @Override
-      public void serverConnectionFailed(Exception e) { }
+      public void serverConnectionFailed(Exception e) {
+      }
     });
     assertThat(resultsLatch.await(10, TimeUnit.SECONDS), is(true));
     assertThat(completedLatch.await(10, TimeUnit.SECONDS), is(true));

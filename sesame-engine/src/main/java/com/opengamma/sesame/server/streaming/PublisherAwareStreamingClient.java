@@ -1,4 +1,4 @@
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.server.streaming;
 
 /**
  * A streaming client that can have results pushed to it by a View.

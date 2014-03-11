@@ -27,6 +27,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.server.DataFunctionServerResource;
+import com.opengamma.sesame.server.streaming.DataStreamingFunctionServerResource;
+import com.opengamma.sesame.server.DefaultFunctionServer;
+import com.opengamma.sesame.server.streaming.DefaultStreamingFunctionServer;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 
