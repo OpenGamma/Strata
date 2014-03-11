@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame.component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
@@ -42,9 +45,29 @@ public class DefaultFunctionServer implements FunctionServer {
   }
 
   @Override
-  public Results executeOnce(FunctionServerRequest request) {
+  public Results executeSingleCycle(FunctionServerRequest<IndividualCycleOptions> request) {
     View view = _viewFactory.createView(request.getViewConfig(), request.getInputs());
-    MarketDataSource marketDataSource = _marketDataFactory.create(request.getMarketDataSpec());
-    return view.run(new CycleArguments(request.getValuationTime(), VersionCorrection.LATEST, marketDataSource));
+    IndividualCycleOptions cycleOptions = request.getCycleOptions();
+    MarketDataSource marketDataSource = _marketDataFactory.create(cycleOptions.getMarketDataSpec());
+    return view.run(new CycleArguments(cycleOptions.getValuationTime(), VersionCorrection.LATEST, marketDataSource));
+  }
+
+  @Override
+  public List<Results> executeMultipleCycles(FunctionServerRequest<GlobalCycleOptions> request) {
+    View view = _viewFactory.createView(request.getViewConfig(), request.getInputs());
+    GlobalCycleOptions globalCycleOptions = request.getCycleOptions();
+
+    // todo - this implementation should share some parts with DefaultStreamingFunctionServer
+    List<Results> results = new ArrayList<>();
+
+    for (IndividualCycleOptions cycleOptions : globalCycleOptions) {
+
+      MarketDataSource marketDataSource = _marketDataFactory.create(cycleOptions.getMarketDataSpec());
+      results.add(view.run(new CycleArguments(cycleOptions.getValuationTime(),
+                                              VersionCorrection.LATEST,
+                                              marketDataSource)));
+    }
+
+    return results;
   }
 }

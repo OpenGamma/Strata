@@ -10,7 +10,9 @@ import static com.opengamma.financial.convention.businessday.BusinessDayConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.ResultGenerator.anyFailures;
 import static com.opengamma.util.result.ResultGenerator.failure;
+import static com.opengamma.util.result.ResultGenerator.propagateFailures;
 import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.ArrayList;
@@ -180,28 +182,28 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
     // todo - this implementation is nowhere near complete
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(env, curveConfig);
-    if (!fxMatrixResult.isValueAvailable()) {
-      return fxMatrixResult.propagateFailure();
-    }
+
     Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(env, curveConfig, fxMatrixResult);
-    if (!exogenousBundles.isValueAvailable()) {
-      return exogenousBundles.propagateFailure();
-    }
 
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
     Map.Entry<String, List<? extends CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
     Result<CurveDefinition> curveDefinition = _curveDefinitionProvider.getCurveDefinition(type.getKey());
-    if (!curveDefinition.isValueAvailable()) {
-      return curveDefinition.propagateFailure();
-    }
-    DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
-    Currency currency = Currency.of(typeConfiguration.getReference());
 
-    return success(extractImpliedDepositCurveData(currency,
-                                                  curveDefinition.getValue(),
-                                                  exogenousBundles.getValue(),
-                                                  // TODO can this be the valuation date?
-                                                  env.getValuationTime()));
+    // Any one of the above 3 could have failed, but we have attempted all to
+    // try and report as many errors as possible as early as possible
+    if (anyFailures(fxMatrixResult, exogenousBundles, curveDefinition)) {
+      return propagateFailures(fxMatrixResult, exogenousBundles, curveDefinition);
+    } else {
+
+      DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
+      Currency currency = Currency.of(typeConfiguration.getReference());
+
+      return success(extractImpliedDepositCurveData(currency,
+                                                    curveDefinition.getValue(),
+                                                    exogenousBundles.getValue(),
+                                                    // TODO can this be the valuation date?
+                                                    env.getValuationTime()));
+    }
   }
 
   // REVIEW Chris 2014-03-05 - the return type needs to be a class

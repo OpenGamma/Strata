@@ -15,8 +15,13 @@ import static org.hamcrest.core.Is.is;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.testng.annotations.AfterClass;
@@ -44,6 +49,8 @@ import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -61,37 +68,14 @@ import net.sf.ehcache.CacheManager;
 public class RemotingTest {
 
   public static final String CLASSIFIER = "test";
+
   private ComponentRepository _componentRepository;
 
-  // test graph build and execution
   @Test
-  public void testGraphBuild() {
+  public void testSingleExecution() {
 
-    CurveConstructionConfiguration curveConstructionConfiguration =
-        ConfigLink.of("USD_ON-OIS_LIBOR3M-FRAIRS_1U", CurveConstructionConfiguration.class).resolve();
-
-    final String curveBundleOutputName = "Curve Bundle";
-    ViewConfig viewConfig =
-        configureView("Curve Bundle only",
-                      nonPortfolioOutput(curveBundleOutputName,
-                                         output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
-                                                config(
-                                                    arguments(
-                                                        function(
-                                                            RootFinderConfiguration.class,
-                                                            argument("rootFinderAbsoluteTolerance", 1e-9),
-                                                            argument("rootFinderRelativeTolerance", 1e-9),
-                                                            argument("rootFinderMaxIterations", 1000)),
-                                                        function(
-                                                            DefaultHistoricalTimeSeriesFn.class,
-                                                            argument("resolutionKey", "DEFAULT_TSS"),
-                                                            argument("htsRetrievalPeriod",
-                                                                     RetrievalPeriod.of((Period.ofYears(1))))),
-                                                        function(
-                                                            DefaultDiscountingMulticurveBundleFn.class,
-                                                            argument("impliedCurveNames", StringSet.of()),
-                                                            argument("curveConfig",
-                                                                     curveConstructionConfiguration)))))));
+    String curveBundleOutputName = "Curve Bundle";
+    ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
 
     // Send the config to the server, along with version
     // correction, MD requirements, valuation date and
@@ -99,27 +83,221 @@ public class RemotingTest {
     // Proxy options?
 
     FunctionServer functionServer = new RemoteFunctionServer(URI.create("http://localhost:8080/jax"));
-    FunctionServerRequest.Builder builder = FunctionServerRequest.builder()
-        .viewConfig(viewConfig)
+
+    IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
+        .valuationTime(ZonedDateTime.now())
+        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
+        .build();
+
+    FunctionServerRequest<IndividualCycleOptions> request =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(viewConfig)
             //.withVersionCorrection(...)
             //.withSecurities(...)
-        .valuationTime(ZonedDateTime.now())
-        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)));
+            .cycleOptions(cycleOptions)
+            .build();
 
-    Results results = functionServer.executeOnce(builder.build());
+    Results results = functionServer.executeSingleCycle(request);
     System.out.println(results);
     assertThat(results, is(not(nullValue())));
 
-    final ResultItem resultItem = results.get(curveBundleOutputName);
+    checkCurveBundleResult(curveBundleOutputName, results);
+  }
+
+  private void checkCurveBundleResult(String curveBundleOutputName, Results results) {
+
+    ResultItem resultItem = results.get(curveBundleOutputName);
     assertThat(resultItem, is(not(nullValue())));
-    final Result<?> result = resultItem.getResult();
-    assertThat(result, is(not(nullValue())));
+
+    Result<?> result = resultItem.getResult();
     assertThat(result.isValueAvailable(), is(true));
 
-    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair = (Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>) result.getValue();
+    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair =
+        (Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>) result.getValue();
     assertThat(pair.getFirst(), is(not(nullValue())));
     assertThat(pair.getSecond(), is(not(nullValue())));
+  }
 
+  @Test
+  public void testMultipleExecution() throws InterruptedException {
+
+    String curveBundleOutputName = "Curve Bundle";
+    ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
+
+    // Send the config to the server, along with version
+    // correction, MD requirements, valuation date and
+    // cycle specifics (once/multiple/infinite)
+    // Proxy options?
+
+    FunctionServer functionServer = new RemoteFunctionServer(URI.create("http://localhost:8080/jax"));
+
+    GlobalCycleOptions cycleOptions = GlobalCycleOptions.builder()
+        .valuationTime(ZonedDateTime.now())
+        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
+        .numCycles(2)
+        .build();
+
+    FunctionServerRequest<GlobalCycleOptions> request =
+        FunctionServerRequest.<GlobalCycleOptions>builder()
+            .viewConfig(viewConfig)
+                //.withVersionCorrection(...)
+                //.withSecurities(...)
+            .cycleOptions(cycleOptions)
+            .build();
+
+    List<Results> results = functionServer.executeMultipleCycles(request);
+    System.out.println(results);
+    assertThat(results, is(not(nullValue())));
+    assertThat(results.size(), is(2));
+
+    checkCurveBundleResult(curveBundleOutputName, results.get(0));
+    checkCurveBundleResult(curveBundleOutputName, results.get(1));
+  }
+
+  @Test
+  public void testStreamingExecution() throws InterruptedException {
+
+    final String curveBundleOutputName = "Curve Bundle";
+    ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
+
+    // Send the config to the server, along with version
+    // correction, MD requirements, valuation date and
+    // cycle specifics (once/multiple/infinite)
+    // Proxy options?
+
+    StreamingFunctionServer functionServer = new RemoteStreamingFunctionServer(
+        URI.create("http://localhost:8080/jax"),
+        createJmsConnector(),
+        Executors.newSingleThreadScheduledExecutor());
+
+    GlobalCycleOptions cycleOptions = GlobalCycleOptions.builder()
+        .valuationTime(ZonedDateTime.now())
+        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
+        .numCycles(2)
+        .build();
+
+    FunctionServerRequest<GlobalCycleOptions> request =
+        FunctionServerRequest.<GlobalCycleOptions>builder()
+            .viewConfig(viewConfig)
+                //.withVersionCorrection(...)
+                //.withSecurities(...)
+            .cycleOptions(cycleOptions)
+            .build();
+
+    StreamingClient streamingClient = functionServer.createStreamingClient(request);
+    assertThat(streamingClient.getUniqueId(), is(not(nullValue())));
+    assertThat(streamingClient.isRunning(), is(true));
+    assertThat(streamingClient.isStopped(), is(false));
+
+    final CountDownLatch resultsLatch = new CountDownLatch(2);
+    final CountDownLatch completedLatch = new CountDownLatch(1);
+
+    streamingClient.registerListener(new StreamingClientResultListener() {
+
+      @Override
+      public void resultsReceived(Results results) {
+        checkCurveBundleResult(curveBundleOutputName, results);
+        resultsLatch.countDown();
+      }
+
+      @Override
+      public void processCompleted() {
+        completedLatch.countDown();
+      }
+
+      @Override
+      public void serverConnectionFailed(Exception e) { }
+    });
+    assertThat(resultsLatch.await(10, TimeUnit.SECONDS), is(true));
+    assertThat(completedLatch.await(10, TimeUnit.SECONDS), is(true));
+
+    assertThat(streamingClient.isRunning(), is(false));
+    assertThat(streamingClient.isStopped(), is(true));
+  }
+
+  @Test
+  public void testStreamingExecutionCanBeStopped() throws InterruptedException {
+
+    final String curveBundleOutputName = "Curve Bundle";
+    ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
+
+    // Send the config to the server, along with version
+    // correction, MD requirements, valuation date and
+    // cycle specifics (once/multiple/infinite)
+    // Proxy options?
+
+    StreamingFunctionServer functionServer = new RemoteStreamingFunctionServer(
+        URI.create("http://localhost:8080/jax"),
+        createJmsConnector(),
+        Executors.newSingleThreadScheduledExecutor());
+
+    GlobalCycleOptions cycleOptions = GlobalCycleOptions.builder()
+        .valuationTime(ZonedDateTime.now())
+        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
+        .numCycles(0)
+        .build();
+
+    FunctionServerRequest<GlobalCycleOptions> request =
+        FunctionServerRequest.<GlobalCycleOptions>builder()
+            .viewConfig(viewConfig)
+                //.withVersionCorrection(...)
+                //.withSecurities(...)
+            .cycleOptions(cycleOptions)
+            .build();
+
+    StreamingClient streamingClient = functionServer.createStreamingClient(request);
+
+    // Get some results first
+    final CountDownLatch resultsLatch = new CountDownLatch(10);
+
+    streamingClient.registerListener(new StreamingClientResultListener() {
+      @Override
+      public void resultsReceived(Results results) {
+        checkCurveBundleResult(curveBundleOutputName, results);
+        resultsLatch.countDown();
+      }
+
+      @Override
+      public void processCompleted() { }
+
+      @Override
+      public void serverConnectionFailed(Exception e) { }
+    });
+
+    assertThat(resultsLatch.await(10, TimeUnit.SECONDS), is(true));
+
+    streamingClient.stop();
+
+    assertThat(streamingClient.isRunning(), is(false));
+    assertThat(streamingClient.isStopped(), is(true));
+  }
+
+
+  private ViewConfig createCurveBundleConfig(String curveBundleOutputName) {
+
+    CurveConstructionConfiguration curveConstructionConfiguration =
+        ConfigLink.of("USD_ON-OIS_LIBOR3M-FRAIRS_1U", CurveConstructionConfiguration.class).resolve();
+
+    return configureView("Curve Bundle only",
+                  nonPortfolioOutput(curveBundleOutputName,
+                                     output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
+                                            config(
+                                                arguments(
+                                                    function(
+                                                        RootFinderConfiguration.class,
+                                                        argument("rootFinderAbsoluteTolerance", 1e-9),
+                                                        argument("rootFinderRelativeTolerance", 1e-9),
+                                                        argument("rootFinderMaxIterations", 1000)),
+                                                    function(
+                                                        DefaultHistoricalTimeSeriesFn.class,
+                                                        argument("resolutionKey", "DEFAULT_TSS"),
+                                                        argument("htsRetrievalPeriod",
+                                                                 RetrievalPeriod.of((Period.ofYears(1))))),
+                                                    function(
+                                                        DefaultDiscountingMulticurveBundleFn.class,
+                                                        argument("impliedCurveNames", StringSet.of()),
+                                                        argument("curveConfig",
+                                                                 curveConstructionConfiguration)))))));
   }
 
   // test execution with streaming results
@@ -127,7 +305,6 @@ public class RemotingTest {
   @BeforeClass
   public void setUp() throws Exception {
 
-    System.out.println("Starting setup");
     _componentRepository = new ComponentRepository(new ComponentLogger.Console(1));
 
     Map<Class<?>, Object> componentMap = generateBaseComponents();
@@ -158,7 +335,6 @@ public class RemotingTest {
 
 
     // initialise Jetty server
-    System.out.println("Creating Jetty server");
     EmbeddedJettyComponentFactory jettyComponentFactory = new EmbeddedJettyComponentFactory();
 
     // TODO - can we supply the config required directly rather than a file?
@@ -175,8 +351,17 @@ public class RemotingTest {
     serverComponentFactory.setClassifier(CLASSIFIER);
     serverComponentFactory.setViewFactory(_componentRepository.getInstance(ViewFactory.class, CLASSIFIER));
     serverComponentFactory.setMarketDataFactory(InterestRateMockSources.createMarketDataFactory());
+    serverComponentFactory.setJmsConnector(createJmsConnector());
 
     register(serverComponentFactory, _componentRepository);
+  }
+
+  private JmsConnector createJmsConnector() {
+    final JmsConnectorFactoryBean factory = new JmsConnectorFactoryBean();
+    factory.setName(getClass().getSimpleName());
+    factory.setClientBrokerUri(URI.create("vm://remotingTestBroker"));
+    factory.setConnectionFactory(new ActiveMQConnectionFactory(factory.getClientBrokerUri()));
+    return factory.getObjectCreating();
   }
 
   @SuppressWarnings("unchecked")
