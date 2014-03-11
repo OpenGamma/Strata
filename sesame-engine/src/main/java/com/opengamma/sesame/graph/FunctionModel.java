@@ -236,6 +236,7 @@ public final class FunctionModel {
     return createNode(type, config, availableComponents, nodeDecorator, Lists.<Parameter>newArrayList(), null);
   }
 
+  // TODO should this be a public method on Node?
   // TODO I don't think this will work if the root is an infrastructure component. is that important?
   private static Node createNode(Class<?> type,
                                  FunctionModelConfig config,

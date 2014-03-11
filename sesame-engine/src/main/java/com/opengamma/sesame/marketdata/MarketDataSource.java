@@ -10,7 +10,7 @@ import com.opengamma.util.result.Result;
 
 /**
  * A source of market data.
- * This may be a source of live market data or backed by a database of historical data or data snapshots.
+ * This may be a source of live market data or backed by a database of historical data or snapshots.
  * This is intended to be a low level interface, functions are expected to use {@link MarketDataFn}.
  */
 public interface MarketDataSource {
@@ -24,5 +24,5 @@ public interface MarketDataSource {
    */
   Result<?> get(ExternalIdBundle id, FieldName fieldName);
 
-  // TODO do we need other versions of get taking sets of IDs and / or field names?
+  // TODO method to get/reset the set of IDs whose data has changed since the start of the previous cycle
 }
