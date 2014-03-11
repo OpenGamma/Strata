@@ -65,10 +65,14 @@ public final class GlobalCycleOptions implements ImmutableBean, Iterable<Individ
   public Iterator<IndividualCycleOptions> iterator() {
     return new Iterator<IndividualCycleOptions>() {
 
-      private int index = 0;
+      /**
+       * Index to keep track of how far through the iteration we are.
+       */
+      private int _index;
+
       @Override
       public boolean hasNext() {
-        return numCycles <= 0 || index < numCycles;
+        return numCycles <= 0 || _index < numCycles;
       }
 
       @Override
@@ -78,7 +82,7 @@ public final class GlobalCycleOptions implements ImmutableBean, Iterable<Individ
             .marketDataSpec(_marketDataSpec)
             .valuationTime(_valuationTime)
             .build();
-        index++;
+        _index++;
         return cycleOptions;
       }
 
