@@ -49,9 +49,7 @@ public final class GraphModel {
    * @param components  the component map, not null
    * @return a graph containing the built function instances, not null
    */
-  public Graph build(ComponentMap components) {
-    FunctionBuilder functionBuilder = new FunctionBuilder();
-
+  public Graph build(ComponentMap components, FunctionBuilder functionBuilder) {
     // build the functions for the portfolio outputs
     ImmutableMap.Builder<String, Map<Class<?>, InvokableFunction>> portfolioFunctions = ImmutableMap.builder();
     for (Map.Entry<String, Map<Class<?>, FunctionModel>> entry : _portfolioFunctionModels.entrySet()) {

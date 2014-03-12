@@ -47,6 +47,7 @@ import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.graph.CompositeNodeDecorator;
+import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
@@ -74,6 +75,7 @@ public class ViewFactory {
   private final EnumSet<FunctionService> _defaultServices;
   private final CacheManager _cacheManager;
   private final FunctionModelConfig _defaultConfig;
+  private final FunctionBuilder _functionBuilder = new FunctionBuilder();
 
   /* package */ ViewFactory(ExecutorService executor,
                             AvailableOutputs availableOutputs,
@@ -187,13 +189,13 @@ public class ViewFactory {
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(_availableOutputs,
                                                  _availableImplementations,
-                                                 components.getComponentTypes(),
+                                                 _components.getComponentTypes(),
                                                  _defaultConfig,
                                                  decorator);
     GraphModel graphModel = graphBuilder.build(viewConfig, inputTypes);
 
     s_logger.debug("graph model complete, building graph");
-    Graph graph = graphModel.build(components);
+    Graph graph = graphModel.build(components, _functionBuilder);
     s_logger.debug("graph complete");
 
     Collection<ChangeManager> changeManagers = pair.getSecond();
@@ -211,7 +213,6 @@ public class ViewFactory {
    * @param sourceListener Listens for changes in items in the database
    * @return A map of components containing the decorated sources instead of the originals, and a collection of
    * change managers which had a listener added to them
-   * TODO this won't work as intended, needs to be done in Engine before the graph is built
    */
   private static Pair<ComponentMap, Collection<ChangeManager>> decorateSources(ComponentMap components,
                                                                                CacheInvalidator cacheInvalidator,

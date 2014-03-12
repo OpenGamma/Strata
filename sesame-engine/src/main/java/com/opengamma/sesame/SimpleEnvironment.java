@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import java.util.Objects;
+
 import org.joda.beans.PropertyDefinition;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -58,5 +60,24 @@ public final class SimpleEnvironment implements Environment {
   public SimpleEnvironment(ZonedDateTime valuationTime, MarketDataSource marketDataSource) {
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_valuationTime, _marketDataSource);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    SimpleEnvironment other = (SimpleEnvironment) obj;
+    return
+        Objects.equals(this._valuationTime, other._valuationTime) &&
+        Objects.equals(this._marketDataSource, other._marketDataSource);
   }
 }

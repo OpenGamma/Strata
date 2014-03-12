@@ -46,6 +46,8 @@ import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.component.RetrievalPeriod;
+import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -95,9 +97,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              CurveSpecificationFn curveSpecificationFunction,
                                              CurrencyPairsFn currencyPairsFn,
                                              MarketDataFactory marketDataFactory,
-                                             Set<String> impliedCurveNames,
+                                             StringSet impliedCurveNames,
                                              DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
-                                             Period seriesPeriod) {
+                                             RetrievalPeriod seriesPeriod) {
     _calculatorProvider = calculatorProvider;
     _curveDefinition = curveDefinition;
     _curveConfig = curveConfig;
@@ -107,9 +109,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
     _marketDataFactory = marketDataFactory;
-    _impliedCurveNames = impliedCurveNames;
+    _impliedCurveNames = impliedCurveNames.getStrings();
     _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
-    _seriesPeriod = seriesPeriod;
+    _seriesPeriod = seriesPeriod.getRetrievalPeriod();
   }
 
   @Override
@@ -164,6 +166,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
         Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =
             _discountingMulticurveBundleFn.extractImpliedDepositCurveData(envForDate, _curveConfig);
 
+        // TODO collect errors and propagate
         if (result.isValueAvailable()) {
           Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> resultValue = result.getValue();
           List<Tenor> tenors = resultValue.getFirst();

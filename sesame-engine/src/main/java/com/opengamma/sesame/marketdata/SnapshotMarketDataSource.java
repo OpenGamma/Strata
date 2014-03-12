@@ -6,6 +6,7 @@
 package com.opengamma.sesame.marketdata;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,5 +88,22 @@ public class SnapshotMarketDataSource implements MarketDataSource {
     }
     return result;
   }
-  
+
+  // TODO this might be expensive, would it be reliable enough to base equality on the snapshot ID?
+  @Override
+  public int hashCode() {
+    return Objects.hash(_snapshot);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final SnapshotMarketDataSource other = (SnapshotMarketDataSource) obj;
+    return Objects.equals(this._snapshot, other._snapshot);
+  }
 }

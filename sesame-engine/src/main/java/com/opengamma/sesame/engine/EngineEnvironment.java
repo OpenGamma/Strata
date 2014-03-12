@@ -22,9 +22,11 @@ import com.opengamma.util.result.Result;
  * {@link Environment} implementation created and managed by the engine.
  * This allows the engine to monitor what data from the environment is used by each function and invalidate cache
  * entries when the data changes.
+ * This class intentionally uses reference equality to avoid unintentional sharing of cached values. This might be
+ * changed when we tackle incrementally clearing the cache in live ticking views.
  * This class is package-private because it is only intended to be used by the engine itself, not user code.
  */
-/* package */ class EngineEnvironment implements Environment {
+/* package */ final class EngineEnvironment implements Environment {
 
   private final SimpleEnvironment _delegate;
   private final CacheInvalidator _cacheInvalidator;
@@ -65,21 +67,21 @@ import com.opengamma.util.result.Result;
   @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
     // this the returned environment is deliberately not one that's managed by the engine
-    // TODO link a thorough explanation of the caching implementation that explains this in detail
+    // TODO link to a thorough explanation of the caching implementation that explains this in detail
     return _delegate.withValuationTime(valuationTime);
   }
 
   @Override
   public Environment withMarketData(MarketDataSource marketData) {
     // this the returned environment is deliberately not one that's managed by the engine
-    // TODO link a thorough explanation of the caching implementation that explains this in detail
+    // TODO link to a thorough explanation of the caching implementation that explains this in detail
     return _delegate.withMarketData(marketData);
   }
 
   @Override
   public Environment with(ZonedDateTime valuationTime, MarketDataSource marketData) {
     // this the returned environment is deliberately not one that's managed by the engine
-    // TODO link a thorough explanation of the caching implementation that explains this in detail
+    // TODO link to a thorough explanation of the caching implementation that explains this in detail
     return new SimpleEnvironment(valuationTime, marketData);
   }
 }

@@ -37,9 +37,7 @@ import net.sf.ehcache.Element;
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  * TODO thorough docs for the basis of caching, i.e. has to be the same function instance but instances are shared
  */
-public class CachingProxyDecorator
-    extends NodeDecorator
-    implements AutoCloseable {
+public class CachingProxyDecorator extends NodeDecorator implements AutoCloseable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 
@@ -193,15 +191,6 @@ public class CachingProxyDecorator
     @Override
     public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
       if (_cachedMethods.contains(method)) {
-        // TODO include the time in the cache key
-        //   LocalDate if lifetime is DAY? or ZonedDateTime set to midnight? midday?
-        //   ZonedDateTime if lifetime is INSTANT
-        //   null(?) if lifetime is FOREVER
-        // TODO what about other stuff in the cycle arguments? surely MD, VC(s) need to be included too?
-        // whole cycle arguments as part of the key?
-        // need to be careful with VC. don't ever want to use LATEST in a lookup but need to know when a value
-        // used LATEST because then it will need to be invalidated if the object is updated
-        // context will need resolved version corrections plus flags to say whether they were resolved from LATEST
         final MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, args);
         Element element = _cache.get(key);
         if (element != null) {

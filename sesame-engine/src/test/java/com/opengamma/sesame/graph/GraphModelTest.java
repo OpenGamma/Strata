@@ -30,9 +30,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.test.TestGroup;
 
-/**
- * Test.
- */
 @Test(groups = TestGroup.UNIT)
 public class GraphModelTest {
 
@@ -45,7 +42,7 @@ public class GraphModelTest {
     String columnName = "col name";
     Map<String, Map<Class<?>, FunctionModel>> colMap = ImmutableMap.of(columnName, fnMap);
     GraphModel graphModel = new GraphModel(colMap, Collections.<String, FunctionModel>emptyMap());
-    Graph graph = graphModel.build(ComponentMap.EMPTY);
+    Graph graph = graphModel.build(ComponentMap.EMPTY, new FunctionBuilder());
 
     Map<Class<?>, InvokableFunction> functionsForColumn = graph.getFunctionsForColumn(columnName);
     InvokableFunction invokableFunction = functionsForColumn.get(FXForwardSecurity.class);
@@ -63,7 +60,7 @@ public class GraphModelTest {
     Map<String, Map<Class<?>, FunctionModel>> portfolioFunctionModels = Collections.emptyMap();
     String outputName = "output name";
     GraphModel graphModel = new GraphModel(portfolioFunctionModels, ImmutableMap.of(outputName, functionModel));
-    Graph graph = graphModel.build(ComponentMap.EMPTY);
+    Graph graph = graphModel.build(ComponentMap.EMPTY, new FunctionBuilder());
 
     InvokableFunction invokableFunction = graph.getNonPortfolioFunction(outputName);
     assertNotNull(invokableFunction);
