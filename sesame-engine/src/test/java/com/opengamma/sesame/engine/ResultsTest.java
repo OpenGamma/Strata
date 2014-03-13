@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.opengamma.util.result.ResultGenerator;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -76,7 +76,7 @@ public class ResultsTest {
   private static ResultRow row(Object input, Object... results) {
     List<ResultItem> items = Lists.newArrayListWithCapacity(results.length);
     for (Object result : results) {
-      items.add(new ResultItem(ResultGenerator.success(result), null));
+      items.add(new ResultItem(Result.success(result), null));
     }
     return new ResultRow(input, items);
   }

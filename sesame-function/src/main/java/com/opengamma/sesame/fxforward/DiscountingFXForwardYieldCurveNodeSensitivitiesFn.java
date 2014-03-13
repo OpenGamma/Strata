@@ -5,9 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import java.util.Map;
 
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -40,14 +37,14 @@ public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForw
     Result<FXForwardCalculator> forwardCalculatorResult =
         _fxForwardCalculatorFn.generateCalculator(env, security);
 
-    if (forwardCalculatorResult.isValueAvailable()) {
+    if (forwardCalculatorResult.isSuccess()) {
 
       FXForwardCalculator fxForwardCalculator = forwardCalculatorResult.getValue();
       final MultipleCurrencyParameterSensitivity sensitivities = fxForwardCalculator.generateBlockCurveSensitivities(env);
 
       return findMatchingSensitivities(sensitivities);
     } else {
-      return forwardCalculatorResult.propagateFailure();
+      return Result.failure(forwardCalculatorResult);
     }
   }
 
@@ -57,10 +54,10 @@ public class DiscountingFXForwardYieldCurveNodeSensitivitiesFn implements FXForw
     final Map<Currency, DoubleMatrix1D> matches = sensitivities.getSensitivityByName(curveName);
 
     if (matches.isEmpty()) {
-      return failure(FailureStatus.MISSING_DATA, "No sensitivities found for curve name: {}", curveName);
+      return Result.failure(FailureStatus.MISSING_DATA, "No sensitivities found for curve name: {}", curveName);
     } else {
       final DoubleMatrix1D sensitivity = matches.values().iterator().next();
-      return success(MultiCurveUtils.getLabelledMatrix(sensitivity, _curveDefinition));
+      return Result.success(MultiCurveUtils.getLabelledMatrix(sensitivity, _curveDefinition));
     }
   }
 }

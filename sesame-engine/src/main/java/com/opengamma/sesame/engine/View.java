@@ -41,7 +41,6 @@ import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  *
@@ -284,10 +283,10 @@ public class View implements AutoCloseable {
     private Result<?> invokeFunction() {
       try {
         Object retVal = _invokableFunction.invoke(_env, _input, _args);
-        return retVal instanceof Result ? (Result<?>) retVal : ResultGenerator.success(retVal);
+        return retVal instanceof Result ? (Result<?>) retVal : Result.success(retVal);
       } catch (Exception e) {
         s_logger.warn("Failed to execute function", e);
-        return ResultGenerator.failure(e);
+        return Result.failure(e);
       }
     }
 

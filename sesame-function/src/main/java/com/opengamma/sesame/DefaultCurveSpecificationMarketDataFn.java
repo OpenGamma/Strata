@@ -15,7 +15,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  * Function implementation that provides market data for a curve specification.
@@ -40,20 +39,20 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
         Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
         Result<Double> spotItem = _marketDataFn.getCurveNodeUnderlyingValue(env, pointsNode);
 
-        if (ResultGenerator.anyFailures(fwdItem, spotItem)) {
-          return ResultGenerator.propagateFailures(fwdItem, spotItem);
+        if (Result.anyFailures(fwdItem, spotItem)) {
+          return Result.failure(fwdItem, spotItem);
         }
         results.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
       } else {
         Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
 
-        if (!fwdItem.isValueAvailable()) {
-          return fwdItem.propagateFailure();
-        } else {
+        if (fwdItem.isSuccess()) {
           results.put(node.getIdentifier().toBundle(), fwdItem.getValue());
+        } else {
+          return Result.failure(fwdItem);
         }
       }
     }
-    return ResultGenerator.success(results);
+    return Result.success(results);
   }
 }

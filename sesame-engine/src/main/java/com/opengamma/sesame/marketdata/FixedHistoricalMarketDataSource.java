@@ -17,7 +17,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  * Source of historical market from a fixed point in time.
@@ -52,14 +51,14 @@ public class FixedHistoricalMarketDataSource implements MarketDataSource {
         _timeSeriesSource.getHistoricalTimeSeries(id, _dataSource, _dataProvider, fieldName.getName(),
                                                   _snapshotDate, true, _snapshotDate, true);
     if (hts == null || hts.getTimeSeries().isEmpty()) {
-      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}/{}", id, fieldName, _snapshotDate);
+      return Result.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}/{}", id, fieldName, _snapshotDate);
     }
     Double value = hts.getTimeSeries().getValue(_snapshotDate);
 
     if (value == null) {
-      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}/{}", id, fieldName, _snapshotDate);
+      return Result.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}/{}", id, fieldName, _snapshotDate);
     } else {
-      return ResultGenerator.success(value);
+      return Result.success(value);
     }
   }
 

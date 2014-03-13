@@ -61,7 +61,7 @@ public class RecordingMarketDataSourceTest {
     RecordingMarketDataSource dataSource = builder.data(_id1, _fieldName, 123.45).build();
 
     Result<?> result = dataSource.get(_id1, _fieldName);
-    assertTrue(result.isValueAvailable());
+    assertTrue(result.isSuccess());
     assertEquals(result.getValue(), 123.45);
     assertTrue(dataSource.getRequests().isEmpty());
   }

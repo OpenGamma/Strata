@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
@@ -42,7 +40,7 @@ public class ConfigDbMarketExposureSelectorFn implements MarketExposureSelectorF
   //-------------------------------------------------------------------------
   @Override
   public Result<MarketExposureSelector> getMarketExposureSelector() {
-    return success(new MarketExposureSelector(_exposures, _securitySource, _configSource));
+    return Result.success(new MarketExposureSelector(_exposures, _securitySource, _configSource));
   }
 
 }

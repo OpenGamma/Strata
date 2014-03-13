@@ -5,10 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailures;
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -55,7 +51,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
-    if (mesResult.isValueAvailable()) {
+    if (mesResult.isSuccess()) {
       Set<Result<?>> incompleteBundles = new HashSet<>();
       Set<MulticurveProviderDiscount> bundles = new HashSet<>();
       CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
@@ -65,7 +61,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       for (CurveConstructionConfiguration curveConfig : curveConfigs) {
         Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
             _multicurveBundleProviderFunction.generateBundle(env, curveConfig);
-        if (bundle.isValueAvailable()) {
+        if (bundle.isSuccess()) {
           Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getValue();
           bundles.add(result.getFirst());
           mergedJacobianBundle.addAll(result.getSecond());
@@ -74,17 +70,18 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
         }
       }
 
-      if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty() && fxMatrix.isValueAvailable()) {
-        return success(Pairs.of(mergeBundlesAndMatrix(bundles, fxMatrix.getValue()), mergedJacobianBundle));
+      // TODO this can be cleaned up
+      if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty() && fxMatrix.isSuccess()) {
+        return Result.success(Pairs.of(mergeBundlesAndMatrix(bundles, fxMatrix.getValue()), mergedJacobianBundle));
       } else if (curveConfigs.isEmpty()) {
-        return failure(FailureStatus.MISSING_DATA, "No matching curves found for security: {}", security);
+        return Result.failure(FailureStatus.MISSING_DATA, "No matching curves found for security: {}", security);
       } else if (!incompleteBundles.isEmpty()) {
-        return propagateFailures(incompleteBundles);
+        return Result.failure(incompleteBundles);
       } else {
-        return fxMatrix.propagateFailure();
+        return Result.failure(fxMatrix);
       }
     } else {
-      return mesResult.propagateFailure();
+      return Result.failure(mesResult);
     }
   }
 

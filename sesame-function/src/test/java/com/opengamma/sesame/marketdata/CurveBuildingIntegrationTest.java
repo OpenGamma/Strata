@@ -170,7 +170,7 @@ public class CurveBuildingIntegrationTest {
     // First time through we're waiting for market data so expect failure
     ResultItem resultItem = initialResults.get("Curve Bundle");
     Result<?> failureResult = resultItem.getResult();
-    assertThat(failureResult.isValueAvailable(), is(false));
+    assertThat(failureResult.isSuccess(), is(false));
     assertThat(failureResult.getStatus(), is((ResultStatus) FailureStatus.MISSING_DATA));
 
     // Now try again, resetting the market data first (which should pick up bloomberg data)
@@ -183,7 +183,7 @@ public class CurveBuildingIntegrationTest {
     // Second time we should have received the market data
     ResultItem item = results.get("Curve Bundle");
     Result<?> successResult = item.getResult();
-    assertThat(successResult.isValueAvailable(), is(true));
+    assertThat(successResult.isSuccess(), is(true));
     final Object value = successResult.getValue();
     assertThat(value, is(not(nullValue())));
   }

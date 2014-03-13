@@ -9,7 +9,6 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 
 /**
@@ -32,19 +31,19 @@ public class DiscountingFRAFn implements FRAFn {
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, FRASecurity security) {
     Result<FRACalculator> calculatorResult = _FRACalculatorFn.generateCalculator(env, security);
 
-    if (!calculatorResult.isValueAvailable()) {
-      return calculatorResult.propagateFailure();
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
     }
-    return ResultGenerator.success(calculatorResult.getValue().calculatePV());
+    return Result.success(calculatorResult.getValue().calculatePV());
   }
 
   @Override
   public Result<Double> calculateParRate(Environment env, FRASecurity security) {
     Result<FRACalculator> calculatorResult = _FRACalculatorFn.generateCalculator(env, security);
 
-    if (!calculatorResult.isValueAvailable()) {
-      return calculatorResult.propagateFailure();
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
     }
-    return ResultGenerator.success(calculatorResult.getValue().calculateRate());
+    return Result.success(calculatorResult.getValue().calculateRate());
   }
 }

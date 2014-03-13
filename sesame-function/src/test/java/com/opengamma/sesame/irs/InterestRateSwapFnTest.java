@@ -202,7 +202,7 @@ public class InterestRateSwapFnTest {
   @Test(enabled = false)
   public void interestRateSwapPV() {
     Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(ENV, _swapSecurity);
-    assertThat(resultPV.isValueAvailable(), is((true)));
+    assertThat(resultPV.isSuccess(), is((true)));
 
     MultipleCurrencyAmount mca = resultPV.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
@@ -211,7 +211,7 @@ public class InterestRateSwapFnTest {
   @Test(enabled = false)
   public void interestRateSwapParRate() {
     Result<Double> resultParRate = _swapFunction.calculateParRate(ENV, _swapSecurity);
-    assertThat(resultParRate.isValueAvailable(), is((true)));
+    assertThat(resultParRate.isSuccess(), is((true)));
 
     Double parRate = resultParRate.getValue();
     assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
@@ -220,7 +220,7 @@ public class InterestRateSwapFnTest {
   @Test(enabled = false)
   public void interestRateSwapPV01() {
     Result<ReferenceAmount<Pair<String,Currency>>> resultPV01 = _swapFunction.calculatePV01(ENV, _swapSecurity);
-    assertThat(resultPV01.isValueAvailable(), is((true)));
+    assertThat(resultPV01.isSuccess(), is((true)));
 
     ReferenceAmount<Pair<String,Currency>> pv01s = resultPV01.getValue();
     double pv01 = 0;

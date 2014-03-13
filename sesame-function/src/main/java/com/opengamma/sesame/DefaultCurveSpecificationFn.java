@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.config.ConfigSource;
@@ -35,8 +33,8 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
   @Override
   public Result<CurveSpecification> getCurveSpecification(Environment env, CurveDefinition curveDefinition) {
     // TODO - how can this possibly be correct when it's using LocalDate.now()?
-    return success(_curveSpecificationBuilder.buildCurve(env.getValuationTime().toInstant(),
-                                                         LocalDate.now(), // Want the current curves (is that what this represents)
-                                                         curveDefinition));
+    return Result.success(_curveSpecificationBuilder.buildCurve(env.getValuationTime().toInstant(),
+                                                                LocalDate.now(),
+                                                                curveDefinition));
   }
 }

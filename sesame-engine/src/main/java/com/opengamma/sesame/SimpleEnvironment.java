@@ -15,7 +15,14 @@ import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Simple immutable {@link Environment} implementation.
+ * <p>Simple immutable {@link Environment} implementation.
+ * Functions should not create instances of this directly. If a function needs to modify the environment
+ * before calling another function it should use the helper methods on the {@link Environment} interface, e.g.
+ * {@link Environment#withValuationTime(ZonedDateTime)} etc.</p>
+ *
+ * <p>Instances should only be created in test cases or for passing to functions executing outside the engine.
+ * If a function directly creates its own environments in a running engine it could dramatically affect performance
+ * by preventing caching of shared values and forcing them to be recalculated every time they are used.</p>
  */
 public final class SimpleEnvironment implements Environment {
 

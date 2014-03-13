@@ -119,9 +119,9 @@ public class RemotingTest {
     assertThat(resultItem, is(not(nullValue())));
 
     Result<?> result = resultItem.getResult();
-    assertThat(result.isValueAvailable(), is(true));
+    assertThat(result.isSuccess(), is(true));
 
-    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair =
+    @SuppressWarnings("unchecked") Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair =
         (Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>) result.getValue();
     assertThat(pair.getFirst(), is(not(nullValue())));
     assertThat(pair.getSecond(), is(not(nullValue())));

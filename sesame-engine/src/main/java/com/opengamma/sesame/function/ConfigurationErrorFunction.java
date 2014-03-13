@@ -11,7 +11,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  * If a function can't be built because of a configuration error an instance of this function is used in the
@@ -34,6 +33,6 @@ public class ConfigurationErrorFunction {
 
   @Output(CONFIG_ERROR)
   public Result<?> doNothing() {
-    return ResultGenerator.failure(FailureStatus.ERROR, CONFIG_ERROR);
+    return Result.failure(FailureStatus.ERROR, CONFIG_ERROR);
   }
 }

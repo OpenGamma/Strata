@@ -10,10 +10,6 @@ import static com.opengamma.financial.convention.businessday.BusinessDayConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-import static com.opengamma.util.result.ResultGenerator.anyFailures;
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.propagateFailures;
-import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,18 +187,17 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
     // Any one of the above 3 could have failed, but we have attempted all to
     // try and report as many errors as possible as early as possible
-    if (anyFailures(fxMatrixResult, exogenousBundles, curveDefinition)) {
-      return propagateFailures(fxMatrixResult, exogenousBundles, curveDefinition);
+    if (Result.anyFailures(fxMatrixResult, exogenousBundles, curveDefinition)) {
+      return Result.failure(fxMatrixResult, exogenousBundles, curveDefinition);
     } else {
 
       DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
       Currency currency = Currency.of(typeConfiguration.getReference());
 
-      return success(extractImpliedDepositCurveData(currency,
-                                                    curveDefinition.getValue(),
-                                                    exogenousBundles.getValue(),
-                                                    // TODO can this be the valuation date?
-                                                    env.getValuationTime()));
+      return Result.success(extractImpliedDepositCurveData(currency,
+                                                           curveDefinition.getValue(),
+                                                           exogenousBundles.getValue(),
+                                                           env.getValuationTime())); // TODO can this be the valuation date?
     }
   }
 
@@ -271,7 +266,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     //TODO comparator to sort groups by order
     int i = 0; // Implementation Note: loop on the groups
 
-    // TODO - this is not fine-grained enough to provide useful detail back to the user
+    // TODO this is not fine-grained enough to provide useful detail back to the user.
+    // TODO use Result.combineWith to build up result
     boolean curveBundlesComplete = true;
 
     final Set<Currency> curvesToRemove = new HashSet<>();
@@ -292,7 +288,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
         if (_impliedCurveNames.contains(curveName)) {
 
-          if (exogenousBundle.isValueAvailable()) {
+          if (exogenousBundle.isSuccess()) {
             // todo error handling if curve is not in bundle
 
             Currency currency = null;
@@ -320,7 +316,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
           Result<CurveSpecification> curveSpecResult =
               _curveSpecificationProvider.getCurveSpecification(env, curve);
 
-          if (curveSpecResult.isValueAvailable()) {
+          if (curveSpecResult.isSuccess()) {
 
             final CurveSpecification specification = curveSpecResult.getValue();
 
@@ -331,8 +327,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 _curveSpecificationMarketDataProvider.requestData(env, specification);
 
             // Only proceed if we have all market data values available to us
-            if (htsResult.isValueAvailable() && fxMatrixResult.isValueAvailable() &&
-                marketDataResult.isValueAvailable()) {
+            if (!Result.anyFailures(htsResult, fxMatrixResult, marketDataResult)) {
 
               FXMatrix fxMatrix = fxMatrixResult.getValue();
 
@@ -393,19 +388,20 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       }
     } // Group - end
 
-    if (exogenousBundle.isValueAvailable() && curveBundlesComplete) {
+    if (exogenousBundle.isSuccess() && curveBundlesComplete) {
 
       MulticurveProviderDiscount exogenousCurves = adjustMulticurveBundle(curvesToRemove, exogenousBundle.getValue());
-      return success(createBuilder().makeCurvesFromDerivatives(curveBundles,
-                                                               exogenousCurves,
-                                                               discountingMap,
-                                                               forwardIborMap,
-                                                               forwardONMap,
-                                                               ParSpreadMarketQuoteDiscountingCalculator.getInstance(),
-                                                               ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
+      return Result.success(
+          createBuilder().makeCurvesFromDerivatives(curveBundles,
+                                                    exogenousCurves,
+                                                    discountingMap,
+                                                    forwardIborMap,
+                                                    forwardONMap,
+                                                    ParSpreadMarketQuoteDiscountingCalculator.getInstance(),
+                                                    ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
     } else {
       // todo - supply some useful information in the failure message!
-      return failure(MISSING_DATA, "Unable to get intermediate data");
+      return Result.failure(MISSING_DATA, "Unable to get intermediate data");
     }
   }
 
@@ -535,22 +531,22 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       }
     }
 
-    if (exogenousStatus.isResultAvailable() && fxMatrixResult.isValueAvailable()) {
+    if (exogenousStatus.isResultAvailable() && fxMatrixResult.isSuccess()) {
 
       FXMatrix fxMatrix = fxMatrixResult.getValue();
       if (exogenousBundles.isEmpty()) {
-        return success(new MulticurveProviderDiscount(fxMatrix));
+        return Result.success(new MulticurveProviderDiscount(fxMatrix));
       } else {
         MulticurveProviderDiscount result = ProviderUtils.mergeDiscountingProviders(exogenousBundles);
         MulticurveProviderDiscount provider = ProviderUtils.mergeDiscountingProviders(result, fxMatrix);
-        return success(provider);
+        return Result.success(provider);
       }
     } else if (!exogenousStatus.isResultAvailable()) {
 
-      return failure(MISSING_DATA, "Unable to build exogenous curve bundles");
+      return Result.failure(MISSING_DATA, "Unable to build exogenous curve bundles");
     } else {
 
-      return fxMatrixResult.propagateFailure();
+      return Result.failure(fxMatrixResult);
     }
   }
 

@@ -20,7 +20,7 @@ import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.result.ResultGenerator;
+import com.opengamma.util.result.Result;
 
 /**
  * TODO javadocs
@@ -93,7 +93,7 @@ import com.opengamma.util.result.ResultGenerator;
       Exception cause = getCause(e);
       String methodName = _method.getDeclaringClass().getSimpleName() + "." + _method.getName() + "()";
       s_logger.warn("Exception invoking " + methodName, cause);
-      return ResultGenerator.failure(cause);
+      return Result.failure(cause);
     }
   }
 

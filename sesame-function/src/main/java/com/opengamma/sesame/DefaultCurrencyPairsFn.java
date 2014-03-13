@@ -6,8 +6,6 @@
 package com.opengamma.sesame;
 
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.success;
 
 import java.util.Map;
 import java.util.Set;
@@ -51,9 +49,9 @@ public class DefaultCurrencyPairsFn implements CurrencyPairsFn {
     ArgumentChecker.notNull(pair, "pair");
 
     if (_currencyPairs.containsKey(pair)) {
-      return success(_currencyPairs.get(pair));
+      return Result.success(_currencyPairs.get(pair));
     } else {
-      return failure(MISSING_DATA, "No currency pair matching {} was found", pair);
+      return Result.failure(MISSING_DATA, "No currency pair matching {} was found", pair);
     }
   }
 

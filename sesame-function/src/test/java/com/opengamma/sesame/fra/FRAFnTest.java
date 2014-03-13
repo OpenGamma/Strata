@@ -132,7 +132,7 @@ public class FRAFnTest {
     MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
     Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(env, _fraSecurity);
-    assertThat(resultPV.isValueAvailable(), is((true)));
+    assertThat(resultPV.isSuccess(), is((true)));
 
     MultipleCurrencyAmount mca = resultPV.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
@@ -143,7 +143,7 @@ public class FRAFnTest {
     MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
     Result<Double> resultParRate = _fraFunction.calculateParRate(env, _fraSecurity);
-    assertThat(resultParRate.isValueAvailable(), is((true)));
+    assertThat(resultParRate.isSuccess(), is((true)));
 
     Double parRate = resultParRate.getValue();
     assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));

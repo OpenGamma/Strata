@@ -19,7 +19,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  *
@@ -67,12 +66,12 @@ public class DefaultMarketDataFn implements MarketDataFn {
   private Result<Double> getFxRate(final Environment env, final Currency base, final Currency counter) {
     CurrencyMatrixValue value = _currencyMatrix.getConversion(base, counter);
     if (value == null) {
-      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No conversion available for {}", CurrencyPair.of(base, counter));
+      return Result.failure(FailureStatus.MISSING_DATA, "No conversion available for {}", CurrencyPair.of(base, counter));
     }
     CurrencyMatrixValueVisitor<Result<Double>> visitor = new CurrencyMatrixValueVisitor<Result<Double>>() {
       @Override
       public Result<Double> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
-        return ResultGenerator.success(fixedValue.getFixedValue());
+        return Result.success(fixedValue.getFixedValue());
       }
 
       @Override
@@ -81,14 +80,12 @@ public class DefaultMarketDataFn implements MarketDataFn {
         ExternalIdBundle id = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
         String dataField = valueRequirement.getValueName();
         Result<?> result = env.getMarketDataSource().get(id, FieldName.of(dataField));
-        if (!result.isValueAvailable()) {
-          return result.propagateFailure();
-        }
-        Double spotRate = (Double) result.getValue();
-        if (req.isReciprocal()) {
-          return ResultGenerator.success(1 / spotRate);
+
+        if (result.isSuccess()) {
+          Double spotRate = (Double) result.getValue();
+          return Result.success(req.isReciprocal() ? 1 / spotRate : spotRate);
         } else {
-          return ResultGenerator.success(spotRate);
+          return Result.failure(result);
         }
       }
 
@@ -96,12 +93,12 @@ public class DefaultMarketDataFn implements MarketDataFn {
       public Result<Double> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
         Result<Double> baseCrossRate = getFxRate(env, base, cross.getCrossCurrency());
         Result<Double> crossCounterRate = getFxRate(env, cross.getCrossCurrency(), counter);
-        if (ResultGenerator.anyFailures(baseCrossRate, crossCounterRate)) {
-          return ResultGenerator.propagateFailures(baseCrossRate, crossCounterRate);
+        if (Result.anyFailures(baseCrossRate, crossCounterRate)) {
+          return Result.failure(baseCrossRate, crossCounterRate);
         } else {
           Double rate1 = baseCrossRate.getValue();
           Double rate2 = crossCounterRate.getValue();
-          return ResultGenerator.success(rate1 * rate2);
+          return Result.success(rate1 * rate2);
         }
       }
     };

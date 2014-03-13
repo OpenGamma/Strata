@@ -16,7 +16,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -72,20 +71,20 @@ public class RecordingMarketDataSource implements MarketDataSource {
   @Override
   public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
     if (_missing.contains(Pairs.of(id, fieldName))) {
-      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data available for {}/{}", id, fieldName);
+      return Result.failure(FailureStatus.MISSING_DATA, "No data available for {}/{}", id, fieldName);
     }
     // data is already pending, no need to add it to requests and ask for it again
     if (_pending.contains(Pairs.of(id, fieldName))) {
-      return ResultGenerator.failure(FailureStatus.PENDING_DATA, "Already requested data for {}/{}", id, fieldName);
+      return Result.failure(FailureStatus.PENDING_DATA, "Already requested data for {}/{}", id, fieldName);
     }
     Pair<ExternalIdBundle, FieldName> key = Pairs.of(id, fieldName);
     Object value = _data.get(key);
 
     if (value != null) {
-      return ResultGenerator.success(value);
+      return Result.success(value);
     } else {
       _requests.add(key);
-      return ResultGenerator.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", id, fieldName);
+      return Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", id, fieldName);
     }
   }
 

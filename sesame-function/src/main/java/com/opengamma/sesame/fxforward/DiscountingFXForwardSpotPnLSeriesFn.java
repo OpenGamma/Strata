@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import javax.inject.Inject;
 
 import org.threeten.bp.LocalDate;
@@ -98,11 +96,11 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
     //});
     // or "flatMap that shit!"
 
-    if (calculatorResult.isValueAvailable()) {
+    if (calculatorResult.isSuccess()) {
 
       final MultipleCurrencyAmount currencyExposure = calculatorResult.getValue().calculateCurrencyExposure(env);
 
-      if (cpResult.isValueAvailable()) {
+      if (cpResult.isSuccess()) {
 
         final CurrencyPair currencyPair = cpResult.getValue();
 
@@ -121,23 +119,23 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
           final Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
               _historicalTimeSeriesProvider.getHtsForCurrencyPair(env, outputPair, endDate);
 
-          if (conversionSeriesResult.isValueAvailable()) {
+          if (conversionSeriesResult.isSuccess()) {
 
             final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getValue();
             final LocalDateDoubleTimeSeries convertedSeries = conversionSeries.multiply(exposure);
-            return success(convertedSeries.multiply(fxSpotReturnSeries));
+            return Result.success(convertedSeries.multiply(fxSpotReturnSeries));
 
           } else {
-            return conversionSeriesResult.propagateFailure();
+            return Result.failure(conversionSeriesResult);
           }
         } else {
-          return success(fxSpotReturnSeries.multiply(exposure));
+          return Result.success(fxSpotReturnSeries.multiply(exposure));
         }
       } else {
-        return cpResult.propagateFailure();
+        return Result.failure(cpResult);
       }
     } else {
-      return calculatorResult.propagateFailure();
+      return Result.failure(calculatorResult);
     }
   }
 

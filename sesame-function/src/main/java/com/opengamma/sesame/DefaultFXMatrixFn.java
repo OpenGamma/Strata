@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -137,6 +135,7 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
 
     Currency refCurr = null;
 
+    // TODO don't bail out early, collect all results using combineWith
     for (Currency currency : currencies) {
       // Use the first currency in the set as the reference currency in the matrix
       if (refCurr == null) {
@@ -147,14 +146,14 @@ public class DefaultFXMatrixFn implements FXMatrixFn {
         CurrencyPair currencyPair = CurrencyPair.of(refCurr, currency);
         Result<Double> marketDataResult = _marketDataFn.getFxRate(env, currencyPair);
 
-        if (!marketDataResult.isValueAvailable()) {
-          return marketDataResult.propagateFailure();
+        if (!marketDataResult.isSuccess()) {
+          return Result.failure(marketDataResult);
         } else {
           matrix.addCurrency(currency, refCurr, marketDataResult.getValue());
         }
       }
     }
-    return success(matrix);
+    return Result.success(matrix);
   }
 
 }

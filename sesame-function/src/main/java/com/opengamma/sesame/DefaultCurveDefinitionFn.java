@@ -5,9 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.failure;
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
@@ -38,9 +35,9 @@ public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
 
     final CurveDefinition curveDefinition = _curveDefinitionSource.getCurveDefinition(curveName);
     if (curveDefinition != null) {
-      return success(curveDefinition);
+      return Result.success(curveDefinition);
     } else {
-      return failure(FailureStatus.MISSING_DATA, "Could not get curve definition called {}", curveName);
+      return Result.failure(FailureStatus.MISSING_DATA, "Could not get curve definition called {}", curveName);
     }
   }
 

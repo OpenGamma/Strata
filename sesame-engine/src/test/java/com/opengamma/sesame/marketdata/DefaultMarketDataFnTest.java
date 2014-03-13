@@ -22,7 +22,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.result.ResultGenerator;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
@@ -56,7 +56,7 @@ public class DefaultMarketDataFnTest {
     matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
     MarketDataSource dataSource = mock(MarketDataSource.class);
     Object value = GBPUSD_RATE;
-    when(dataSource.get(rateId.toBundle(), MARKET_VALUE)).thenAnswer(new Returns(ResultGenerator.success(value)));
+    when(dataSource.get(rateId.toBundle(), MARKET_VALUE)).thenAnswer(new Returns(Result.success(value)));
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), dataSource);
     DefaultMarketDataFn fn = new DefaultMarketDataFn(matrix);
 
@@ -101,10 +101,8 @@ public class DefaultMarketDataFnTest {
     DefaultMarketDataFn fn = new DefaultMarketDataFn(matrix);
 
     MarketDataSource dataSource = mock(MarketDataSource.class);
-    when(dataSource.get(ExternalIdBundle.of(usdchfRateId), MARKET_VALUE)).thenAnswer(new Returns(ResultGenerator.success(
-        usdchfValue)));
-    when(dataSource.get(ExternalIdBundle.of(eurusdRateId), MARKET_VALUE)).thenAnswer(new Returns(ResultGenerator.success(
-        eurusdValue)));
+    when(dataSource.get(ExternalIdBundle.of(usdchfRateId), MARKET_VALUE)).thenAnswer(new Returns(Result.success(usdchfValue)));
+    when(dataSource.get(ExternalIdBundle.of(eurusdRateId), MARKET_VALUE)).thenAnswer(new Returns(Result.success(eurusdValue)));
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), dataSource);
 
     Double spotRate = fn.getFxRate(env, CurrencyPair.parse("EUR/CHF")).getValue();

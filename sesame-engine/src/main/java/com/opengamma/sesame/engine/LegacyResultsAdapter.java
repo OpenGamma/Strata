@@ -34,7 +34,6 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -117,9 +116,9 @@ import com.opengamma.util.tuple.Pair;
         Result<Object> result;
         // TODO I'm not sure this is right, null might be considered a successful result but it's not allowed ATM
         if (value.getValue() != null) {
-          result = ResultGenerator.success(value.getValue());
+          result = Result.success(value.getValue());
         } else {
-          result = ResultGenerator.failure(FailureStatus.CALCULATION_FAILED, "Null result");
+          result = Result.failure(FailureStatus.CALCULATION_FAILED, "Null result");
         }
         builder.add(rowIndex, colIndex, result, null);
       }

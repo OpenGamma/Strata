@@ -354,7 +354,7 @@ public class FXForwardPVFnTest {
     System.out.println(results);
     ResultItem resultItem = results.get("Curve Bundle");
     Result<?> result = resultItem.getResult();
-    assertTrue(result.isValueAvailable());
+    assertTrue(result.isSuccess());
     Object value = result.getValue();
     assertNotNull(value);
     System.out.println(value);

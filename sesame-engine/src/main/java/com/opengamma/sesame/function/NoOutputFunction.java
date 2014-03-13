@@ -11,7 +11,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  * A function that takes a {@link PositionOrTrade} and returns null.
@@ -34,6 +33,6 @@ public class NoOutputFunction {
   @Output(NO_OUTPUT)
   public Result<?> doNothing() {
     // TODO new status needed for this
-    return ResultGenerator.failure(FailureStatus.CALCULATION_FAILED, "No Calculation Possible");
+    return Result.failure(FailureStatus.CALCULATION_FAILED, "No Calculation Possible");
   }
 }

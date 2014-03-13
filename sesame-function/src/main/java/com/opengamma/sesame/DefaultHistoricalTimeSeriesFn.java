@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.ResultGenerator.success;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
@@ -137,7 +135,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
         }
       }
     }
-    return success(bundle);
+    return Result.success(bundle);
   }
 
 }

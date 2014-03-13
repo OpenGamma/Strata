@@ -18,7 +18,6 @@ import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.tuple.Pair;
 
 public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
@@ -51,11 +50,12 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
   public Result<FXForwardCalculator> generateCalculator(Environment env, final FXForwardSecurity security) {
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = createBundle(env, security);
 
-    if (!bundleResult.isValueAvailable()) {
-      return bundleResult.propagateFailure();
+    if (bundleResult.isSuccess()) {
+      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> value = bundleResult.getValue();
+      return Result.success(_factory.createCalculator(security, value.getFirst(), value.getSecond()));
+    } else {
+      return Result.failure(bundleResult);
     }
-    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> value = bundleResult.getValue();
-    return ResultGenerator.success(_factory.createCalculator(security, value.getFirst(), value.getSecond()));
   }
 
   private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createBundle(Environment env,

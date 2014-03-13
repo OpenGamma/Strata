@@ -13,7 +13,6 @@ import org.fudgemsg.FudgeMsg;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  * REVIEW Chris 2014-03-05 - this doesn't look very thread safe to me
@@ -51,16 +50,16 @@ public class ResettableLiveMarketDataSource implements MarketDataSource, LiveDat
     if (_latestSnapshot.containsKey(id)) {
       final Object value = _latestSnapshot.get(id).getValue(fieldName.getName());
       if (value != null) {
-        return ResultGenerator.success(value);
+        return Result.success(value);
       } else {
-        return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
+        return Result.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
       }
     } else if (_failedSubscriptions.containsKey(id)) {
-      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
+      return Result.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
     } else {
       _liveDataManager.makeSubscriptionRequest(
           new LiveDataManager.SubscriptionRequest<>(this, LiveDataManager.RequestType.SUBSCRIBE, id));
-      return ResultGenerator.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", id, fieldName);
+      return Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", id, fieldName);
     }
   }
 

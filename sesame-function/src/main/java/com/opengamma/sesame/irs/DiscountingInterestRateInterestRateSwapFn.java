@@ -11,7 +11,6 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -35,29 +34,29 @@ public class DiscountingInterestRateInterestRateSwapFn implements InterestRateSw
   public Result<Double> calculateParRate(Environment env, InterestRateSwapSecurity security) {
     Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
 
-    if (!calculatorResult.isValueAvailable()) {
-      return calculatorResult.propagateFailure();
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
     }
-    return ResultGenerator.success(calculatorResult.getValue().calculateRate());
+    return Result.success(calculatorResult.getValue().calculateRate());
   }
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateSwapSecurity security) {
     Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
 
-    if (!calculatorResult.isValueAvailable()) {
-      return calculatorResult.propagateFailure();
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
     }
-    return ResultGenerator.success(calculatorResult.getValue().calculatePV());
+    return Result.success(calculatorResult.getValue().calculatePV());
   }
 
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapSecurity security) {
     Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
 
-    if (!calculatorResult.isValueAvailable()) {
-      return calculatorResult.propagateFailure();
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
     }
-    return ResultGenerator.success(calculatorResult.getValue().calculatePV01());
+    return Result.success(calculatorResult.getValue().calculatePV01());
   }
 }

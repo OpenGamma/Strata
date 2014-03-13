@@ -23,7 +23,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultGenerator;
 
 /**
  * Source of market data backed by a single snapshot in the database.
@@ -51,19 +50,19 @@ public class SnapshotMarketDataSource implements MarketDataSource {
   public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
     ValueSnapshot value = _snapshot.getValue(id, fieldName.getName());
     if (value == null) {
-      return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
+      return Result.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
     }
 
     Object overrideValue = value.getOverrideValue();
     if (overrideValue != null) {
-      return ResultGenerator.success(overrideValue);
+      return Result.success(overrideValue);
     }
 
     Object marketValue = value.getMarketValue();
     if (marketValue != null) {
-      return ResultGenerator.success(marketValue);
+      return Result.success(marketValue);
     }
-    return ResultGenerator.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
+    return Result.failure(FailureStatus.MISSING_DATA, "No data found for {}/{}", id, fieldName);
   }
   
   private UnstructuredMarketDataSnapshot getFlattenedSnapshot(StructuredMarketDataSnapshot snapshot) {

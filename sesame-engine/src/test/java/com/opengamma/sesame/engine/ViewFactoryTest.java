@@ -311,7 +311,7 @@ public class ViewFactoryTest {
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
-    assertTrue(item.getResult().isValueAvailable());
+    assertTrue(item.getResult().isSuccess());
     assertEquals("foo", item.getResult().getValue());
   }
 
@@ -346,7 +346,7 @@ public class ViewFactoryTest {
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
-    assertTrue(item.getResult().isValueAvailable());
+    assertTrue(item.getResult().isSuccess());
     assertEquals("foobar", item.getResult().getValue());
   }
 
