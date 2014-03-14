@@ -7,6 +7,8 @@ package com.opengamma.sesame.config;
 
 import javax.inject.Provider;
 
+import com.opengamma.sesame.function.Parameter;
+
 /**
  * Configuration for individual functions in the function model.
  * <p>
@@ -27,14 +29,15 @@ public interface FunctionModelConfig {
    * <p>
    * The result implementation can be:
    * <ul>
-   * <li>An implementation of an interface</li>
-   * <li>A {@link Provider} that can provide the implementation</li>
+   *   <li>An implementation of an interface</li>
+   *   <li>A {@link Provider} that can provide the implementation</li>
    * </ul>
    * 
    * @param functionType  the type to lookup, not null
+   * @param parameter the constructor parameter for which an implementation is required
    * @return the implementation that should be used, null if unknown
    */
-  Class<?> getFunctionImplementation(Class<?> functionType);
+  Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter);
 
   /**
    * Gets the arguments for a function.

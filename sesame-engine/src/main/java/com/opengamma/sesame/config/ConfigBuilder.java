@@ -144,12 +144,12 @@ public final class ConfigBuilder {
 
   private static FunctionModelConfig createConfig(Map<Class<?>, Class<?>> implementations,
                                                   Map<Class<?>, FunctionArguments> arguments) {
-    return new SimpleFunctionModelConfig(implementations, arguments);
+    // TODO add decorators
+    return new SimpleFunctionModelConfig(implementations, arguments, Collections.<Class<?>>emptySet());
   }
 
-  // TODO this is a misnomer now, there are no default implementation so this doesn't define overrides. implementations?
-  public static Implementations implementations(Class<?>... overrides) {
-    return new Implementations(overrides);
+  public static Implementations implementations(Class<?>... impls) {
+    return new Implementations(impls);
   }
 
   public static FnArgs function(Class<?> functionType, Arg... args) {

@@ -18,6 +18,8 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.sesame.function.Parameter;
+
 /**
  * Represents an empty FunctionModelConfig.
  */
@@ -41,7 +43,7 @@ public final class EmptyFunctionModelConfig implements FunctionModelConfig, Immu
   }
 
   @Override
-  public Class<?> getFunctionImplementation(Class<?> functionType) {
+  public Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter) {
     return null;
   }
 

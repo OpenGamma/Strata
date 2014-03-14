@@ -10,6 +10,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -86,21 +87,21 @@ public final class EngineUtils {
       return constructors[0];
     }
     // many constructors
-    Constructor<T> injectableConstructor = null;
+    List<Constructor<T>> injectableConstructors = new ArrayList<>();
+
     for (Constructor<T> constructor : constructors) {
       Inject annotation = constructor.getAnnotation(Inject.class);
       if (annotation != null) {
-        if (injectableConstructor == null) {
-          injectableConstructor = constructor;
-        } else {
-          throw new IllegalArgumentException("Multiple public constructors annotated with @Inject, but only one is allowed: " + type.getName());
-        }
+        injectableConstructors.add(constructor);
       }
     }
-    if (injectableConstructor == null) {
+    if (injectableConstructors.size() > 1) {
+      throw new IllegalArgumentException("Multiple public constructors annotated with @Inject, but only one is allowed: " + type.getName());
+    }
+    if (injectableConstructors.isEmpty()) {
       throw new IllegalArgumentException("Multiple public constructors found but none annotated with @Inject: " + type.getName());
     }
-    return injectableConstructor;
+    return injectableConstructors.get(0);
   }
 
   //-------------------------------------------------------------------------
@@ -150,6 +151,34 @@ public final class EngineUtils {
     return parameters;
   }
 
+  /**
+   * Returns a parameter on a constructor with a specified type.
+   * If there isn't exactly one parameter of the specified type an exception is thrown.
+   *
+   * @param constructor a constructor
+   * @param parameterType the type of the parameter required
+   * @return a parameter of the requested type
+   * @throws IllegalArgumentException if there isn't exactly one parameter of the specified type
+   */
+  public static Parameter getSingleParameter(Constructor<?> constructor, Class<?> parameterType) {
+    List<Parameter> parameters = new ArrayList<>();
+
+    for (Parameter parameter : getParameters(constructor)) {
+      if (parameter.getType().equals(parameterType)) {
+        parameters.add(parameter);
+      }
+    }
+    if (parameters.isEmpty()) {
+      throw new IllegalArgumentException("No parameters found with type " + parameterType.getName() + " in " +
+                                             "constructor " + constructor);
+    }
+    if (parameters.size() > 1) {
+      throw new IllegalArgumentException(parameters.size() + " parameters found with type " + parameterType.getName() +
+                                             " in constructor " + constructor);
+    }
+    return parameters.get(0);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates function metadata for a named method on a class.
@@ -180,20 +209,20 @@ public final class EngineUtils {
    */
   public static Method getMethod(Class<?> type, String methodName) {
     Method[] methods = type.getMethods();
-    Method found = null;
+    List<Method> foundMethods = new ArrayList<>();
+
     for (Method method : methods) {
       if (methodName.equals(method.getName())) {
-        if (found == null) {
-          found = method;
-        } else {
-          throw new IllegalArgumentException("Multiple methods found matching name: " + methodName);
-        }
+        foundMethods.add(method);
       }
     }
-    if (found != null) {
-      return found;
+    if (foundMethods.size() > 1) {
+      throw new IllegalArgumentException("Multiple methods found matching name: " + methodName);
     }
-    throw new IllegalArgumentException("No method found: " + methodName);
+    if (foundMethods.isEmpty()) {
+      throw new IllegalArgumentException("No method found: " + methodName);
+    }
+    return foundMethods.get(0);
   }
 
   //-------------------------------------------------------------------------

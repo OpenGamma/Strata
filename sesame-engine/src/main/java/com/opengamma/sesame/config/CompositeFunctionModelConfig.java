@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.config;
 
+import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -56,12 +57,12 @@ public class CompositeFunctionModelConfig implements FunctionModelConfig {
 
   //-------------------------------------------------------------------------
   @Override
-  public Class<?> getFunctionImplementation(Class<?> functionType) {
-    Class<?> impl = _config1.getFunctionImplementation(functionType);
+  public Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter) {
+    Class<?> impl = _config1.getFunctionImplementation(functionType, parameter);
     if (impl != null) {
       return impl;
     }
-    return _config2.getFunctionImplementation(functionType);
+    return _config2.getFunctionImplementation(functionType, parameter);
   }
 
   @Override

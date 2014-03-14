@@ -250,7 +250,7 @@ public final class FunctionModel {
 
     Class<?> implType;
     try {
-      implType = getImplementationType(type, config, path);
+      implType = getImplementationType(type, config, path, parameter);
     } catch (NoImplementationException e) {
       return new ErrorNode(type, e, parameter);
     }
@@ -292,11 +292,15 @@ public final class FunctionModel {
    * <li>The input type itself, if it is a concrete class</li>
    * </ul>
    * @param type  the type to find the implementation type for, not null
+   * @param parameter the constructor parameter the implementation must satisfy
    * @return the implementation type that should be used, not null
    * @throws NoImplementationException if there is no implementation available
    */
-  private static Class<?> getImplementationType(Class<?> type, FunctionModelConfig config, List<Parameter> path) {
-    Class<?> implType = config.getFunctionImplementation(type);
+  private static Class<?> getImplementationType(Class<?> type,
+                                                FunctionModelConfig config,
+                                                List<Parameter> path,
+                                                Parameter parameter) {
+    Class<?> implType = config.getFunctionImplementation(type, parameter);
     if (implType == null) {
       if (type.isInterface()) {
         throw new NoImplementationException(path, "No implementation or provider found: " + type.getSimpleName());

@@ -15,16 +15,23 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Provider;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.config.SimpleFunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -38,6 +45,8 @@ public class FunctionModelTest {
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
   private static final FunctionMetadata METADATA = EngineUtils.createMetadata(TestFn.class, "foo");
+  private static final Map<Class<?>, Class<?>> IMPLS = ImmutableMap.<Class<?>, Class<?>>of(Fn.class, Impl.class);
+  private static final Map<Class<?>, FunctionArguments> ARGS = Collections.emptyMap();
 
   @Test
   public void basicImpl() {
@@ -82,9 +91,9 @@ public class FunctionModelTest {
     FunctionMetadata metadata = EngineUtils.createMetadata(PrivateConstructor.class, "getName");
     String providerName = "the provider name";
     FunctionModelConfig config = config(implementations(PrivateConstructor.class, PrivateConstructorProvider.class),
-                                   arguments(
-                                       function(PrivateConstructorProvider.class,
-                                                argument("providerName", providerName))));
+                                        arguments(
+                                            function(PrivateConstructorProvider.class,
+                                                     argument("providerName", providerName))));
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config);
     PrivateConstructor fn = (PrivateConstructor) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertEquals(providerName, fn.getName());
@@ -115,7 +124,10 @@ public class FunctionModelTest {
       }
     };
     FunctionModelConfig config = config(implementations(TestFn.class, BasicImpl.class));
-    FunctionModel functionModel = FunctionModel.forFunction(METADATA, config, ComponentMap.EMPTY.getComponentTypes(), decorator);
+    FunctionModel functionModel = FunctionModel.forFunction(METADATA,
+                                                            config,
+                                                            ComponentMap.EMPTY.getComponentTypes(),
+                                                            decorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     // the basic method just returns "foo"
     assertEquals(Lists.newArrayList("decorated", "foo"), fn.foo());
@@ -194,8 +206,35 @@ public class FunctionModelTest {
   }
 
   @Test
-  public void cyclicDependency() {
+  public void decoratorFunction() {
+    Set<Class<?>> decorators = ImmutableSet.<Class<?>>of(Decorator1.class);
+    SimpleFunctionModelConfig config = new SimpleFunctionModelConfig(IMPLS, ARGS, decorators);
+    Fn fn = FunctionModel.build(Fn.class, config);
+    assertEquals("2", fn.foo(1));
+  }
 
+  @Test
+  public void decoratorFunctions() {
+    Set<Class<?>> decorators = new LinkedHashSet<>();
+    decorators.add(Decorator1.class);
+    decorators.add(Decorator2.class);
+    SimpleFunctionModelConfig config = new SimpleFunctionModelConfig(IMPLS, ARGS, decorators);
+    Fn fn = FunctionModel.build(Fn.class, config);
+    assertEquals("5", fn.foo(2));
+  }
+
+  @Test
+  public void decoratorFunctionsReversed() {
+    Set<Class<?>> decorators = new LinkedHashSet<>();
+    decorators.add(Decorator2.class);
+    decorators.add(Decorator1.class);
+    SimpleFunctionModelConfig config = new SimpleFunctionModelConfig(IMPLS, ARGS, decorators);
+    Fn fn = FunctionModel.build(Fn.class, config);
+    assertEquals("6", fn.foo(2));
+  }
+
+  @Test
+  public void cyclicDependency() {
 
   }
 
@@ -203,6 +242,48 @@ public class FunctionModelTest {
   public void sharedNodes() {
     // TODO or should this be in a test for FunctionBuilder
 
+  }
+
+  public interface Fn {
+
+    @Output("Foo")
+    String foo(Integer d);
+  }
+
+  public static class Impl implements Fn {
+
+    @Override
+    public String foo(Integer d) {
+      return d.toString();
+    }
+  }
+
+  public static class Decorator1 implements Fn {
+
+    private final Fn _delegate;
+
+    public Decorator1(Fn delegate) {
+      _delegate = delegate;
+    }
+
+    @Override
+    public String foo(Integer d) {
+      return _delegate.foo(2 * d);
+    }
+  }
+
+  public static class Decorator2 implements Fn {
+
+    private final Fn _delegate;
+
+    public Decorator2(Fn fn) {
+      _delegate = fn;
+    }
+
+    @Override
+    public String foo(Integer d) {
+      return _delegate.foo(1 + d);
+    }
   }
 }
 

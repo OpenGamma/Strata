@@ -6,6 +6,7 @@
 package com.opengamma.sesame.function;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -75,36 +76,45 @@ public class FunctionMetadata {
   private static FunctionParameters getParameters(Method method, Set<Class<?>> inputTypes) {
     Map<String, Parameter> parameterMap = Maps.newHashMap();
     List<Parameter> parameters = EngineUtils.getParameters(method);
-    Parameter inputParameter = null;
-    Parameter environmentParameter = null;
+    List<Parameter> inputParameters = new ArrayList<>();
+    List<Parameter> environmentParameters = new ArrayList<>();
 
-    params: for (Parameter parameter : parameters) {
+    for (Parameter parameter : parameters) {
       parameterMap.put(parameter.getName(), parameter);
-      if (parameter.getType().isAssignableFrom(Environment.class)) {
-        if (environmentParameter == null) {
-          environmentParameter = parameter;
-          continue;
-        } else {
-          throw new IllegalArgumentException("Multiple parameters found with a type of Environment. Only one is allowed");
-        }
-      }
 
-      // TODO this logic is broken
-      for (Class<?> allowedInputType : inputTypes) {
-        if (allowedInputType.isAssignableFrom(parameter.getType())) {
-          if (inputParameter == null) {
-            inputParameter = parameter;
-            continue params;
-          } else {
-            throw new IllegalArgumentException("Multiple parameters found with a type in the set of permitted input " +
-                                                   "types. Only one is allowed. Input types: " + inputTypes);
-          }
+      if (parameter.getType().equals(Environment.class)) {
+        environmentParameters.add(parameter);
+      } else {
+        Parameter inputParameter = findInputParameter(inputTypes, parameter);
+        if (inputParameter != null) {
+          inputParameters.add(inputParameter);
         }
       }
     }
+    Parameter environmentParameter = getSingleParameter(environmentParameters);
+    Parameter inputParameter = getSingleParameter(inputParameters);
     return new FunctionParameters(parameterMap, environmentParameter, inputParameter);
   }
-  
+
+  private static Parameter getSingleParameter(List<Parameter> parameters) {
+    if (parameters.size() > 1) {
+      throw new IllegalArgumentException("Multiple parameters found where only one is expected");
+    } else if (parameters.size() == 1) {
+      return parameters.get(0);
+    } else {
+      return null;
+    }
+  }
+
+  private static Parameter findInputParameter(Set<Class<?>> inputTypes, Parameter parameter) {
+    for (Class<?> allowedInputType : inputTypes) {
+      if (allowedInputType.isAssignableFrom(parameter.getType())) {
+        return parameter;
+      }
+    }
+    return null;
+  }
+
   public InvokableFunction getInvokableFunction(Object receiver) {
     // receiver might be a proxy. we need the real object so we can get the parameter names from the bytecode
     Object realReceiver = EngineUtils.getProxiedObject(receiver);
