@@ -17,12 +17,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A node in the function model with dependencies.
  */
-public abstract class DependentNode extends Node {
+public abstract class DependentNode extends FunctionModelNode {
 
   /**
    * The list of dependent nodes.
    */
-  private final List<Node> _dependencies;
+  private final List<FunctionModelNode> _dependencies;
   /**
    * Whether the node if valid.
    */
@@ -35,7 +35,7 @@ public abstract class DependentNode extends Node {
    * @param parameter  the parameter this node satisfies, null if it's the root node
    * @param dependencies  the array of dependencies, not null
    */
-  DependentNode(Class<?> type, Parameter parameter, Node... dependencies) {
+  DependentNode(Class<?> type, Parameter parameter, FunctionModelNode... dependencies) {
     this(type, parameter, Arrays.asList(dependencies));
   }
 
@@ -46,14 +46,14 @@ public abstract class DependentNode extends Node {
    * @param parameter  the parameter this node satisfies, null if it's the root node
    * @param dependencies  the list of dependencies, not null
    */
-  DependentNode(Class<?> type, Parameter parameter, List<Node> dependencies) {
+  DependentNode(Class<?> type, Parameter parameter, List<FunctionModelNode> dependencies) {
     super(type, parameter);
     _dependencies = ImmutableList.copyOf(ArgumentChecker.notNull(dependencies, "dependencies"));
     _valid = isValid(_dependencies);
   }
 
-  private static boolean isValid(List<Node> dependencies) {
-    for (Node dependency : dependencies) {
+  private static boolean isValid(List<FunctionModelNode> dependencies) {
+    for (FunctionModelNode dependency : dependencies) {
       if (!dependency.isValid()) {
         return false;
       }
@@ -63,7 +63,7 @@ public abstract class DependentNode extends Node {
 
   //-------------------------------------------------------------------------
   @Override
-  public List<Node> getDependencies() {
+  public List<FunctionModelNode> getDependencies() {
     return _dependencies;
   }
 
@@ -74,8 +74,8 @@ public abstract class DependentNode extends Node {
 
   @Override
   public List<InvalidGraphException> getExceptions() {
-    ArrayList<InvalidGraphException> list = new ArrayList<InvalidGraphException>();
-    for (Node childNode : getDependencies()) {
+    List<InvalidGraphException> list = new ArrayList<>();
+    for (FunctionModelNode childNode : getDependencies()) {
       list.addAll(childNode.getExceptions());
     }
     return list;

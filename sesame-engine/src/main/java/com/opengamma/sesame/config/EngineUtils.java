@@ -151,34 +151,6 @@ public final class EngineUtils {
     return parameters;
   }
 
-  /**
-   * Returns a parameter on a constructor with a specified type.
-   * If there isn't exactly one parameter of the specified type an exception is thrown.
-   *
-   * @param constructor a constructor
-   * @param parameterType the type of the parameter required
-   * @return a parameter of the requested type
-   * @throws IllegalArgumentException if there isn't exactly one parameter of the specified type
-   */
-  public static Parameter getSingleParameter(Constructor<?> constructor, Class<?> parameterType) {
-    List<Parameter> parameters = new ArrayList<>();
-
-    for (Parameter parameter : getParameters(constructor)) {
-      if (parameter.getType().equals(parameterType)) {
-        parameters.add(parameter);
-      }
-    }
-    if (parameters.isEmpty()) {
-      throw new IllegalArgumentException("No parameters found with type " + parameterType.getName() + " in " +
-                                             "constructor " + constructor);
-    }
-    if (parameters.size() > 1) {
-      throw new IllegalArgumentException(parameters.size() + " parameters found with type " + parameterType.getName() +
-                                             " in constructor " + constructor);
-    }
-    return parameters.get(0);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Creates function metadata for a named method on a class.

@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.config;
 
+import javax.annotation.Nullable;
 import javax.inject.Provider;
 
 import com.opengamma.sesame.function.Parameter;
@@ -37,7 +38,7 @@ public interface FunctionModelConfig {
    * @param parameter the constructor parameter for which an implementation is required
    * @return the implementation that should be used, null if unknown
    */
-  Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter);
+  Class<?> getFunctionImplementation(Class<?> functionType, @Nullable Parameter parameter);
 
   /**
    * Gets the arguments for a function.

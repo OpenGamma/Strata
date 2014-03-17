@@ -8,8 +8,8 @@ package com.opengamma.sesame.proxy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.opengamma.sesame.graph.FunctionModelNode;
 import com.opengamma.sesame.graph.InterfaceNode;
-import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.graph.ProxyNode;
 
@@ -21,7 +21,7 @@ import com.opengamma.sesame.graph.ProxyNode;
 public abstract class ProxyNodeDecorator extends NodeDecorator implements InvocationHandlerFactory {
 
   @Override
-  public Node decorateNode(Node node) {
+  public FunctionModelNode decorateNode(FunctionModelNode node) {
     if (!(node instanceof ProxyNode) && !(node instanceof InterfaceNode)) {
       return node;
     }

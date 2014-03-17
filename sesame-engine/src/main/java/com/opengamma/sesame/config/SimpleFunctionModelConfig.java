@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -69,7 +71,7 @@ public final class SimpleFunctionModelConfig implements FunctionModelConfig, Imm
       }
       Class<?> interfaceType = interfaces.iterator().next();
       Constructor<?> constructor = EngineUtils.getConstructor(decorator);
-      Parameter delegateParameter = EngineUtils.getSingleParameter(constructor, interfaceType);
+      Parameter delegateParameter = Parameter.ofType(interfaceType, constructor);
 
       Class<?> implementation = _implementations.get(interfaceType);
 
@@ -84,7 +86,10 @@ public final class SimpleFunctionModelConfig implements FunctionModelConfig, Imm
 
   //-------------------------------------------------------------------------
   @Override
-  public Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter) {
+  public Class<?> getFunctionImplementation(Class<?> functionType, @Nullable Parameter parameter) {
+    if (parameter == null) {
+      return _implementations.get(functionType);
+    }
     Class<?> typeForParameter = _implementationsByParameter.get(parameter);
 
     if (typeForParameter != null) {

@@ -6,12 +6,16 @@
 package com.opengamma.sesame.function;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -33,6 +37,36 @@ public final class Parameter {
     _ordinal = ordinal;
     _type = ArgumentChecker.notNull(type, "type");
     _annotations = ImmutableMap.copyOf(ArgumentChecker.notNull(annotations, "annotations"));
+  }
+
+  // TODO factory method Parameter.named(name, constructor)
+
+  /**
+   * Returns a parameter on a constructor with a specified type.
+   * If there isn't exactly one parameter of the specified type an exception is thrown.
+   *
+   * @param parameterType the type of the parameter required
+   * @param constructor a constructor
+   * @return a parameter of the requested type
+   * @throws IllegalArgumentException if there isn't exactly one parameter of the specified type
+   */
+  public static Parameter ofType(Class<?> parameterType, Constructor<?> constructor) {
+    List<Parameter> parameters = new ArrayList<>();
+
+    for (Parameter parameter : EngineUtils.getParameters(constructor)) {
+      if (parameter.getType().equals(parameterType)) {
+        parameters.add(parameter);
+      }
+    }
+    if (parameters.isEmpty()) {
+      throw new IllegalArgumentException("No parameters found with type " + parameterType.getName() + " in " +
+                                             "constructor " + constructor);
+    }
+    if (parameters.size() > 1) {
+      throw new IllegalArgumentException(parameters.size() + " parameters found with type " + parameterType.getName() +
+                                             " in constructor " + constructor);
+    }
+    return parameters.get(0);
   }
 
   public String getName() {

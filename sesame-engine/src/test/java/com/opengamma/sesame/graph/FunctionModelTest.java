@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -104,7 +105,7 @@ public class FunctionModelTest {
     NodeDecorator decorator = new NodeDecorator() {
 
       @Override
-      public Node decorateNode(final Node node) {
+      public FunctionModelNode decorateNode(final FunctionModelNode node) {
         return new DependentNode(Object.class, null, node) {
           @Override
           protected Object doCreate(ComponentMap componentMap, List<Object> dependencies) {
@@ -234,14 +235,40 @@ public class FunctionModelTest {
   }
 
   @Test
-  public void cyclicDependency() {
-
+  public void linkWithWrongType() {
+    FunctionModelConfig config = config(arguments(function(WithLink.class, argument("arg", ConfigLink.of("notUsed", 123)))));
+    FunctionMetadata metadata = EngineUtils.createMetadata(WithLink.class, "foo");
+    FunctionModel model = FunctionModel.forFunction(metadata, config);
+    assertFalse(model.isValid());
+    assertTrue(((ErrorNode) model.getRoot().getDependencies().get(0)).getException() instanceof IncompatibleTypeException);
   }
 
   @Test
-  public void sharedNodes() {
-    // TODO or should this be in a test for FunctionBuilder
+  public void argumentWithWrongType() {
+    FunctionModelConfig config = config(arguments(function(WithLink.class, argument("arg", 123))));
+    FunctionMetadata metadata = EngineUtils.createMetadata(WithLink.class, "foo");
+    FunctionModel model = FunctionModel.forFunction(metadata, config);
+    assertFalse(model.isValid());
+    assertTrue(((ErrorNode) model.getRoot().getDependencies().get(0)).getException() instanceof IncompatibleTypeException);
+  }
 
+  public static class WithLink {
+
+    public WithLink(String arg) {
+    }
+
+    @Output("Foo")
+    public void foo() {
+
+    }
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nodeAndMetadataMismatch() {
+    FunctionMetadata metadata = EngineUtils.createMetadata(Fn.class, "foo");
+    FunctionModelConfig config = config(implementations(TestFn.class, BasicImpl.class));
+    FunctionModelNode node = FunctionModelNode.create(TestFn.class, config, Collections.<Class<?>>emptySet(), NodeDecorator.IDENTITY);
+    FunctionModel.forFunction(metadata, node);
   }
 
   public interface Fn {

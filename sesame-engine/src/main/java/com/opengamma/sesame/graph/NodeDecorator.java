@@ -17,7 +17,7 @@ public abstract class NodeDecorator {
    */
   public static final NodeDecorator IDENTITY = new NodeDecorator() {
     @Override
-    public Node decorateNode(Node node) {
+    public FunctionModelNode decorateNode(FunctionModelNode node) {
       return node;
     }
   };
@@ -38,7 +38,7 @@ public abstract class NodeDecorator {
    * @param node  a node, not null
    * @return a node, possibly wrapped in a proxy, not null
    */
-  public abstract Node decorateNode(Node node);
+  public abstract FunctionModelNode decorateNode(FunctionModelNode node);
 
   /**
    * Creates a proxy node.
@@ -49,7 +49,7 @@ public abstract class NodeDecorator {
    * @param handlerFactory  the proxy invocation factory, not null
    * @return a new proxy node, not null
    */
-  protected ProxyNode createProxyNode(Node node, Class<?> interfaceType, Class<?> implementationType, InvocationHandlerFactory handlerFactory) {
+  protected ProxyNode createProxyNode(FunctionModelNode node, Class<?> interfaceType, Class<?> implementationType, InvocationHandlerFactory handlerFactory) {
     return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
   }
 

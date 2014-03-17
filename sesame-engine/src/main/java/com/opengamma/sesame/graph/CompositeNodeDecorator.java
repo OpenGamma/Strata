@@ -77,8 +77,8 @@ public final class CompositeNodeDecorator
 
   //-------------------------------------------------------------------------
   @Override
-  public Node decorateNode(Node node) {
-    Node wrappedNode = node;
+  public FunctionModelNode decorateNode(FunctionModelNode node) {
+    FunctionModelNode wrappedNode = node;
     for (NodeDecorator decorator : _decorators) {
       wrappedNode = decorator.decorateNode(wrappedNode);
     }
@@ -88,12 +88,10 @@ public final class CompositeNodeDecorator
   @Override
   public void close() {
     for (NodeDecorator decorator : _decorators) {
-      if (decorator instanceof AutoCloseable) {
-        try {
-          ((AutoCloseable) decorator).close();
-        } catch (Exception ex) {
-          s_logger.warn("Exception closing decorator", ex);
-        }
+      try {
+        decorator.close();
+      } catch (Exception ex) {
+        s_logger.warn("Exception closing decorator", ex);
       }
     }
   }

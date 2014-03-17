@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.graph.FunctionModelNode;
 import com.opengamma.sesame.graph.InterfaceNode;
-import com.opengamma.sesame.graph.Node;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.graph.ProxyNode;
 import com.opengamma.sesame.proxy.AbstractProxyInvocationHandler;
@@ -59,7 +59,7 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
   }
 
   @Override
-  public Node decorateNode(Node node) {
+  public FunctionModelNode decorateNode(FunctionModelNode node) {
     if (!(node instanceof ProxyNode) && !(node instanceof InterfaceNode)) {
       return node;
     }

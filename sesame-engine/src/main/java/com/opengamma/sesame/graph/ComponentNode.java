@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * This represents an existing object instance, such as a piece of infrastructure
  * provided by the engine or a singleton function.
  */
-public final class ComponentNode extends Node {
+public final class ComponentNode extends FunctionModelNode {
 
   /**
    * Creates an instance.

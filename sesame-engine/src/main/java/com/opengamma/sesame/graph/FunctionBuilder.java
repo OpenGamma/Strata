@@ -18,7 +18,7 @@ import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.engine.ComponentMap;
 
 /**
- * Builds function objects from the {@link Node} instances representing them in the function model.
+ * Builds function objects from the {@link FunctionModelNode} instances representing them in the function model.
  */
 public final class FunctionBuilder {
 
@@ -28,9 +28,9 @@ public final class FunctionBuilder {
    * {@link Cacheable} functions are shared if their nodes are identical.
    * This allows the function object's identity to be used as part of the cache key.
    */
-  private final Map<Node, Object> _sharedNodeObjects = Maps.newHashMap();
+  private final Map<FunctionModelNode, Object> _sharedNodeObjects = Maps.newHashMap();
 
-  /* package */ Object create(Node node, ComponentMap componentMap) {
+  /* package */ Object create(FunctionModelNode node, ComponentMap componentMap) {
     checkValid(node);
     // TODO detect cycles in the graph
     // TODO cache this info if it proves expensive to do it over and over for the same classes
@@ -48,7 +48,7 @@ public final class FunctionBuilder {
       }
     }
     List<Object> dependencies = Lists.newArrayListWithCapacity(node.getDependencies().size());
-    for (Node dependentNode : node.getDependencies()) {
+    for (FunctionModelNode dependentNode : node.getDependencies()) {
       dependencies.add(create(dependentNode, componentMap));
     }
     Object nodeObject = node.create(componentMap, dependencies);
@@ -58,7 +58,7 @@ public final class FunctionBuilder {
     return nodeObject;
   }
 
-  private static void checkValid(Node node) {
+  private static void checkValid(FunctionModelNode node) {
     if (!node.isValid()) {
       throw new GraphBuildException("Can't build functions from an invalid graph\n" + node.prettyPrint(false) + "\n",
                                     node.getExceptions());

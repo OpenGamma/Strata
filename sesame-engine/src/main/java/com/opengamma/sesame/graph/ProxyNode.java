@@ -28,7 +28,7 @@ public class ProxyNode extends DependentNode {
   /**
    * The node that is wrapped by the proxy.
    */
-  private final Node _delegateNode;
+  private final FunctionModelNode _delegateNode;
   /**
    * The proxy invocation factory.
    */
@@ -43,7 +43,7 @@ public class ProxyNode extends DependentNode {
    * @param implementationType  the implementation type to create, may be null
    * @param handlerFactory  the proxy invocation factory, not null
    */
-  ProxyNode(Node delegateNode, Class<?> interfaceType, Class<?> implementationType, InvocationHandlerFactory handlerFactory) {
+  ProxyNode(FunctionModelNode delegateNode, Class<?> interfaceType, Class<?> implementationType, InvocationHandlerFactory handlerFactory) {
     super(interfaceType, delegateNode.getParameter(), delegateNode);
     _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
     _delegateNode = ArgumentChecker.notNull(delegateNode, "delegate");
@@ -56,7 +56,7 @@ public class ProxyNode extends DependentNode {
    * 
    * @return the delegate node, not null
    */
-  public Node getDelegate() {
+  public FunctionModelNode getDelegate() {
     return _delegateNode;
   }
 
@@ -77,7 +77,7 @@ public class ProxyNode extends DependentNode {
    * @return the delegate node, not null
    */
   @Override
-  public Node getConcreteNode() {
+  public FunctionModelNode getConcreteNode() {
     return _delegateNode.getConcreteNode();
   }
 

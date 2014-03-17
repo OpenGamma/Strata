@@ -16,7 +16,7 @@ import com.opengamma.sesame.function.Parameter;
  * <p>
  * This represents an argument value.
  */
-public final class ArgumentNode extends Node {
+public final class ArgumentNode extends FunctionModelNode {
 
   /**
    * The argument value.

@@ -24,7 +24,7 @@ public class CompositeNodeDecoratorTest {
 
   private static final NodeDecorator NODE_DECORATOR = new NodeDecorator() {
     @Override
-    public Node decorateNode(Node node) {
+    public FunctionModelNode decorateNode(FunctionModelNode node) {
       return node;
     }
   };
@@ -46,14 +46,14 @@ public class CompositeNodeDecoratorTest {
     final List<NodeDecorator> list = new ArrayList<>();
     NodeDecorator nd1 = new NodeDecorator() {
       @Override
-      public Node decorateNode(Node node) {
+      public FunctionModelNode decorateNode(FunctionModelNode node) {
         list.add(this);
         return node;
       }
     };
     NodeDecorator nd2 = new NodeDecorator() {
       @Override
-      public Node decorateNode(Node node) {
+      public FunctionModelNode decorateNode(FunctionModelNode node) {
         list.add(this);
         return node;
       }
@@ -94,14 +94,14 @@ public class CompositeNodeDecoratorTest {
     final List<NodeDecorator> list = new ArrayList<>();
     NodeDecorator nd1 = new NodeDecorator() {
       @Override
-      public Node decorateNode(Node node) {
+      public FunctionModelNode decorateNode(FunctionModelNode node) {
         list.add(this);
         return node;
       }
     };
     NodeDecorator nd2 = new NodeDecorator() {
       @Override
-      public Node decorateNode(Node node) {
+      public FunctionModelNode decorateNode(FunctionModelNode node) {
         list.add(this);
         return node;
       }

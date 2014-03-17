@@ -41,7 +41,7 @@ public class ClassNode extends DependentNode {
    * @param implementationType  the implementation type to create, may be null
    * @param arguments  the list of nodes representing the arguments to the constructor, not null
    */
-  ClassNode(Class<?> type, Class<?> implementationType, List<Node> arguments, Parameter parameter) {
+  ClassNode(Class<?> type, Class<?> implementationType, List<FunctionModelNode> arguments, Parameter parameter) {
     super(type, parameter, arguments);
     _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
     _constructor = EngineUtils.getConstructor(_implementationType);
