@@ -18,21 +18,17 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Provider;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.sesame.config.DecoratorConfig;
 import com.opengamma.sesame.config.EngineUtils;
-import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.config.SimpleFunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -46,8 +42,6 @@ public class FunctionModelTest {
 
   private static final String INFRASTRUCTURE_COMPONENT = "some pretend infrastructure";
   private static final FunctionMetadata METADATA = EngineUtils.createMetadata(TestFn.class, "foo");
-  private static final Map<Class<?>, Class<?>> IMPLS = ImmutableMap.<Class<?>, Class<?>>of(Fn.class, Impl.class);
-  private static final Map<Class<?>, FunctionArguments> ARGS = Collections.emptyMap();
 
   @Test
   public void basicImpl() {
@@ -208,29 +202,33 @@ public class FunctionModelTest {
 
   @Test
   public void decoratorFunction() {
-    Set<Class<?>> decorators = ImmutableSet.<Class<?>>of(Decorator1.class);
-    SimpleFunctionModelConfig config = new SimpleFunctionModelConfig(IMPLS, ARGS, decorators);
-    Fn fn = FunctionModel.build(Fn.class, config);
+    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
+    decorators.add(Decorator1.class);
+    FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
+    DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
+    Fn fn = FunctionModel.build(Fn.class, decoratorConfig);
     assertEquals("2", fn.foo(1));
   }
 
   @Test
   public void decoratorFunctions() {
-    Set<Class<?>> decorators = new LinkedHashSet<>();
+    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
     decorators.add(Decorator1.class);
     decorators.add(Decorator2.class);
-    SimpleFunctionModelConfig config = new SimpleFunctionModelConfig(IMPLS, ARGS, decorators);
-    Fn fn = FunctionModel.build(Fn.class, config);
+    FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
+    DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
+    Fn fn = FunctionModel.build(Fn.class, decoratorConfig);
     assertEquals("5", fn.foo(2));
   }
 
   @Test
   public void decoratorFunctionsReversed() {
-    Set<Class<?>> decorators = new LinkedHashSet<>();
+    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
     decorators.add(Decorator2.class);
     decorators.add(Decorator1.class);
-    SimpleFunctionModelConfig config = new SimpleFunctionModelConfig(IMPLS, ARGS, decorators);
-    Fn fn = FunctionModel.build(Fn.class, config);
+    FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
+    DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
+    Fn fn = FunctionModel.build(Fn.class, decoratorConfig);
     assertEquals("6", fn.foo(2));
   }
 

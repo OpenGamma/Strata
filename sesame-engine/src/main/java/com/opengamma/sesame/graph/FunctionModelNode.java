@@ -36,18 +36,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class FunctionModelNode {
 
-  /**
-   * A set of ineligible types.
-   */
+  /** A set of ineligible types. */
   private static final Set<Class<?>> INELIGIBLE_TYPES =
       Sets.<Class<?>>newHashSet(UniqueId.class, ExternalId.class, ExternalIdBundle.class);
-  /**
-   * The expected type of the object created by this node, not null.
-   */
+
+  /** The expected type of the object created by this node, not null. */
   private final Class<?> _type;
-  /**
-   * The parameter this node satisfies, null if it's the root node.
-   */
+
+  /** The parameter this node satisfies, null if it's the root node. */
   private final Parameter _parameter;
 
   /**
@@ -68,14 +64,12 @@ public abstract class FunctionModelNode {
     return createNode(type, config, availableComponents, nodeDecorator, Lists.<Parameter>newArrayList(), null);
   }
 
-  // TODO should this be a public method on Node?
-  // TODO I don't think this will work if the root is an infrastructure component. is that important?
   private static FunctionModelNode createNode(Class<?> type,
-                                 FunctionModelConfig config,
-                                 Set<Class<?>> availableComponents,
-                                 NodeDecorator nodeDecorator,
-                                 List<Parameter> path,
-                                 Parameter parameter) {
+                                              FunctionModelConfig config,
+                                              Set<Class<?>> availableComponents,
+                                              NodeDecorator nodeDecorator,
+                                              List<Parameter> path,
+                                              Parameter parameter) {
     if (!isEligibleForBuilding(type)) {
       return null;
     }
@@ -132,7 +126,14 @@ public abstract class FunctionModelNode {
                                                 FunctionModelConfig config,
                                                 List<Parameter> path,
                                                 Parameter parameter) {
-    Class<?> implType = config.getFunctionImplementation(type, parameter);
+    Class<?> implType = null;
+
+    if (parameter != null) {
+      implType = config.getFunctionImplementation(type, parameter);
+    }
+    if (implType == null) {
+      implType = config.getFunctionImplementation(type);
+    }
     if (implType == null) {
       if (type.isInterface()) {
         throw new NoImplementationException(path, "No implementation or provider found: " + type.getSimpleName());
@@ -187,12 +188,12 @@ public abstract class FunctionModelNode {
    * @return A node in the function graph, not null
    */
   private static FunctionModelNode createArgumentNode(Class<?> type,
-                                         FunctionModelConfig config,
-                                         Set<Class<?>> availableComponents,
-                                         NodeDecorator nodeDecorator,
-                                         Class<?> implType,
-                                         Parameter parameter,
-                                         List<Parameter> path) {
+                                                      FunctionModelConfig config,
+                                                      Set<Class<?>> availableComponents,
+                                                      NodeDecorator nodeDecorator,
+                                                      Class<?> implType,
+                                                      Parameter parameter,
+                                                      List<Parameter> path) {
     try {
       if (availableComponents.contains(parameter.getType())) {
         // the parameter can be satisfied by an existing component, no need to build it or look up a user argument

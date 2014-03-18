@@ -144,8 +144,7 @@ public final class ConfigBuilder {
 
   private static FunctionModelConfig createConfig(Map<Class<?>, Class<?>> implementations,
                                                   Map<Class<?>, FunctionArguments> arguments) {
-    // TODO add decorators
-    return new SimpleFunctionModelConfig(implementations, arguments, Collections.<Class<?>>emptySet());
+    return new SimpleFunctionModelConfig(implementations, arguments);
   }
 
   public static Implementations implementations(Class<?>... impls) {

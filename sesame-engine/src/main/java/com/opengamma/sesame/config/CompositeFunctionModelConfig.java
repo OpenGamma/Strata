@@ -57,6 +57,14 @@ public class CompositeFunctionModelConfig implements FunctionModelConfig {
 
   //-------------------------------------------------------------------------
   @Override
+  public Class<?> getFunctionImplementation(Class<?> functionType) {
+    Class<?> impl = _config1.getFunctionImplementation(functionType);
+    return impl != null ?
+        impl :
+        _config2.getFunctionImplementation(functionType);
+  }
+
+  @Override
   public Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter) {
     Class<?> impl = _config1.getFunctionImplementation(functionType, parameter);
     if (impl != null) {

@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.config;
 
-import javax.annotation.Nullable;
 import javax.inject.Provider;
 
 import com.opengamma.sesame.function.Parameter;
@@ -35,10 +34,26 @@ public interface FunctionModelConfig {
    * </ul>
    * 
    * @param functionType  the type to lookup, not null
+   * @return the implementation that should be used, null if unknown
+   */
+  Class<?> getFunctionImplementation(Class<?> functionType);
+
+  /**
+   * Gets the implementation that should be used for creating instances of a type for injecting into a constructor.
+   * This method returns the implementation that should be used in one specific case. If it returns null
+   * {@link #getFunctionImplementation(Class)} should be called for the default value.
+   * <p>
+   * The result implementation can be:
+   * <ul>
+   *   <li>An implementation of an interface</li>
+   *   <li>A {@link Provider} that can provide the implementation</li>
+   * </ul>
+   *
+   * @param functionType  the type to lookup, not null
    * @param parameter the constructor parameter for which an implementation is required
    * @return the implementation that should be used, null if unknown
    */
-  Class<?> getFunctionImplementation(Class<?> functionType, @Nullable Parameter parameter);
+  Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter);
 
   /**
    * Gets the arguments for a function.
