@@ -25,6 +25,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.cache.CacheInvalidator;
+import com.opengamma.sesame.config.CompositeFunctionArguments;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -178,7 +179,10 @@ public class View implements AutoCloseable {
             _viewConfig.getDefaultConfig(),
             _systemDefaultConfig);
 
-        FunctionArguments args = functionModelConfig.getFunctionArguments(function.getUnderlyingReceiver().getClass());
+        Class<?> implType = function.getUnderlyingReceiver().getClass();
+        Class<?> declaringType = function.getDeclaringClass();
+        FunctionArguments args = new CompositeFunctionArguments(functionModelConfig.getFunctionArguments(implType),
+                                                                functionModelConfig.getFunctionArguments(declaringType));
         portfolioTasks.add(new PortfolioTask(env, functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
@@ -198,7 +202,10 @@ public class View implements AutoCloseable {
           _viewConfig.getDefaultConfig(),
           _systemDefaultConfig);
 
-      FunctionArguments args = functionModelConfig.getFunctionArguments(function.getUnderlyingReceiver().getClass());
+      Class<?> implType = function.getUnderlyingReceiver().getClass();
+      Class<?> declaringType = function.getDeclaringClass();
+      FunctionArguments args = new CompositeFunctionArguments(functionModelConfig.getFunctionArguments(implType),
+                                                              functionModelConfig.getFunctionArguments(declaringType));
       tasks.add(new NonPortfolioTask(env, args, output.getName(), function, tracer));
     } return tasks;
   }

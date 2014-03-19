@@ -6,7 +6,6 @@
 package com.opengamma.sesame.function;
 
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.FunctionArguments;
 
 /**
@@ -24,12 +23,6 @@ public interface InvokableFunction {
   Object invoke(Environment env, Object input, FunctionArguments args);
 
   /**
-   * @return the name of the output produced by the function
-   * TODO this isn't used. does it need to exist any more? replace with a method returning a function key?
-   */
-  OutputName getOutputName();
-
-  /**
    * @return the object that implements the function
    */
   Object getReceiver();
@@ -39,4 +32,8 @@ public interface InvokableFunction {
    */
   Object getUnderlyingReceiver();
 
+  /**
+   * @return the class that declares the method that implements the function
+   */
+  Class<?> getDeclaringClass();
 }

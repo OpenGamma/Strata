@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This is used by {@link CompositeFunctionModelConfig}.
  */
-/* package */ class CompositeFunctionArguments implements FunctionArguments {
+public class CompositeFunctionArguments implements FunctionArguments {
 
   /**
    * The first arguments instance.
@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param args1  the first arguments, not null
    * @param args2  the second arguments, not null
    */
-  /* package */ CompositeFunctionArguments(FunctionArguments args1, FunctionArguments args2) {
+  public CompositeFunctionArguments(FunctionArguments args1, FunctionArguments args2) {
     _args1 = ArgumentChecker.notNull(args1, "args1");
     _args2 = ArgumentChecker.notNull(args2, "args2");
   }

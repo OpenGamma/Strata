@@ -325,7 +325,8 @@ public class ViewFactoryTest {
                                                 config(
                                                     arguments(
                                                         function(NonPortfolioFunctionWithArgsImpl.class,
-                                                                 argument("notTheTarget", "bar")))))));
+                                                                 argument("notTheTarget1", "bar"),
+                                                                 argument("notTheTarget2", "baz")))))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(NonPortfolioFunctionWithArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
@@ -347,7 +348,7 @@ public class ViewFactoryTest {
     ResultItem item = results.get(name);
     assertNotNull(item);
     assertTrue(item.getResult().isSuccess());
-    assertEquals("foobar", item.getResult().getValue());
+    assertEquals("foobarbaz", item.getResult().getValue());
   }
 
   @Test
@@ -377,6 +378,79 @@ public class ViewFactoryTest {
     ResultItem item = results.get(name);
     assertNotNull(item);
     assertNotNull(item.getCallGraph());
+  }
+
+  @Test
+  public void methodArgsKeyedByInterface() {
+    String name = "the unique output name";
+    ViewConfig viewConfig =
+        configureView("Non portfolio output with args",
+                      nonPortfolioOutput(name,
+                                         output("Foo",
+                                                config(
+                                                    arguments(
+                                                        function(NonPortfolioFunctionWithArgs.class,
+                                                                 argument("notTheTarget1", "bar"),
+                                                                 argument("notTheTarget2", "baz")))))));
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(NonPortfolioFunctionWithArgs.class);
+    AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
+    availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              CacheManager.getInstance(),
+                                              EnumSet.noneOf(FunctionService.class));
+    View view = viewFactory.createView(viewConfig);
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
+                                                       mockMarketDataSource(),
+                                                       VersionCorrection.LATEST,
+                                                       Collections.<Pair<Integer,Integer>>emptySet(),
+                                                       Collections.<String>emptySet());
+    Results results = view.run(cycleArguments);
+    ResultItem item = results.get(name);
+    assertNotNull(item);
+    assertTrue(item.getResult().isSuccess());
+    assertEquals("foobarbaz", item.getResult().getValue());
+  }
+
+  @Test
+  public void methodArgsKeyedByBoth() {
+    String name = "the unique output name";
+    ViewConfig viewConfig =
+        configureView("Non portfolio output with args",
+                      nonPortfolioOutput(name,
+                                         output("Foo",
+                                                config(
+                                                    arguments(
+                                                        function(NonPortfolioFunctionWithArgsImpl.class,
+                                                                 argument("notTheTarget1", "bar")),
+                                                        function(NonPortfolioFunctionWithArgs.class,
+                                                                 argument("notTheTarget2", "baz")))))));
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(NonPortfolioFunctionWithArgs.class);
+    AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
+    availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
+    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              CacheManager.getInstance(),
+                                              EnumSet.noneOf(FunctionService.class));
+    View view = viewFactory.createView(viewConfig);
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
+                                                       mockMarketDataSource(),
+                                                       VersionCorrection.LATEST,
+                                                       Collections.<Pair<Integer,Integer>>emptySet(),
+                                                       Collections.<String>emptySet());
+    Results results = view.run(cycleArguments);
+    ResultItem item = results.get(name);
+    assertNotNull(item);
+    assertTrue(item.getResult().isSuccess());
+    assertEquals("foobarbaz", item.getResult().getValue());
   }
 
   private static Trade createEquityTrade() {
@@ -464,14 +538,14 @@ public class ViewFactoryTest {
   public interface NonPortfolioFunctionWithArgs {
 
     @Output("Foo")
-    String foo(String notTheTarget);
+    String foo(String notTheTarget1, String notTheTarget2);
   }
 
   public static class NonPortfolioFunctionWithArgsImpl implements NonPortfolioFunctionWithArgs {
 
     @Override
-    public String foo(String notTheTarget) {
-      return "foo" + notTheTarget;
+    public String foo(String notTheTarget1, String notTheTarget2) {
+      return "foo" + notTheTarget1 + notTheTarget2;
     }
   }
 }

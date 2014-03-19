@@ -132,14 +132,12 @@ public class FunctionMetadata {
                                          parameters._parametersByName,
                                          parameters._environmentParameter,
                                          parameters._inputParameter,
-                                         _outputName,
                                          _method);
     } else {
       return new MethodInvokableFunction(receiver,
                                          _parameters,
                                          _environmentParameter,
                                          _inputParameter,
-                                         _outputName,
                                          _method);
     }
   }

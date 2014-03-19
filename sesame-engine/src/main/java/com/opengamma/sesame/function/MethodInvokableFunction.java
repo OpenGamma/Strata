@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.link.Link;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.util.ArgumentChecker;
@@ -53,14 +52,10 @@ import com.opengamma.util.result.Result;
   /** The input parameter, null if there isn't one. */
   private final Parameter _inputParameter;
 
-  /** The name of the output produced by the function. */
-  private final OutputName _outputName;
-
   /* package */ MethodInvokableFunction(Object receiver,
                                         Map<String, Parameter> parameters,
                                         Parameter environmentParameter,
                                         Parameter inputParameter,
-                                        OutputName outputName,
                                         Method method) {
     _environmentParameter = environmentParameter;
     _method = ArgumentChecker.notNull(method, "method");
@@ -69,7 +64,6 @@ import com.opengamma.util.result.Result;
     _underlyingReceiver = EngineUtils.getProxiedObject(_receiver);
     _parameters = ArgumentChecker.notNull(parameters, "parameters");
     _inputParameter = inputParameter;
-    _outputName = ArgumentChecker.notNull(outputName, "outputName");
   }
 
   @Override
@@ -203,7 +197,7 @@ import com.opengamma.util.result.Result;
   }
 
   @Override
-  public OutputName getOutputName() {
-    return _outputName;
+  public Class<?> getDeclaringClass() {
+    return _method.getDeclaringClass();
   }
 }
