@@ -8,6 +8,10 @@ package com.opengamma.sesame.function;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -20,10 +24,11 @@ import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
- * TODO javadocs
+ * {@link InvokableFunction} implementation that wraps a {@link Method} object and invokes it using reflection.
  */
 /* package */ class MethodInvokableFunction implements InvokableFunction {
 
@@ -71,20 +76,29 @@ import com.opengamma.util.result.Result;
   public Object invoke(Environment env, Object input, FunctionArguments args) {
     Object[] argArray = new Object[_parameters.size()];
 
-    for (Parameter parameter : _parameters.values()) {
-      Object arg = args.getArgument(parameter.getName());
-      Object resolvedArg = resolveArgument(parameter, arg);
-      argArray[parameter.getOrdinal()] = resolvedArg;
-    }
     if (_environmentParameter != null) {
       argArray[_environmentParameter.getOrdinal()] = env;
     }
     if (_inputParameter != null) {
       argArray[_inputParameter.getOrdinal()] = input;
     }
-    // TODO check for nulls provided for non-nullable parameters, including target?
+    boolean argsMissing = false;
+
+    for (Parameter parameter : _parameters.values()) {
+      if (parameter != _inputParameter && parameter != _environmentParameter) {
+        Object arg = args.getArgument(parameter.getName());
+        Object resolvedArg = resolveArgument(parameter, arg);
+        argArray[parameter.getOrdinal()] = resolvedArg;
+
+        if (resolvedArg == null && !parameter.isNullable()) {
+          argsMissing = true;
+        }
+      }
+    }
+    if (argsMissing) {
+      return missingArguments(argArray);
+    }
     // TODO check for unexpected parameters?
-    // TODO use @Nullable / @NotNull / @Nonnull
     try {
       return _method.invoke(_receiver, argArray);
     } catch (IllegalAccessException e) {
@@ -95,6 +109,50 @@ import com.opengamma.util.result.Result;
       s_logger.warn("Exception invoking " + methodName, cause);
       return Result.failure(cause);
     }
+  }
+
+  /**
+   * Returns a failure result when no arguments or null arguments are provided for non-nullable parameters.
+   *
+   * @param argArray the method arguments
+   * @return a failure result with an error message about missing arguments
+   */
+  private Result<Object> missingArguments(Object[] argArray) {
+    Result<Object> result;
+    List<Parameter> missingArgs = new ArrayList<>();
+
+    for (Parameter parameter : _parameters.values()) {
+      Object arg = argArray[parameter.getOrdinal()];
+
+      if (arg == null && !parameter.isNullable()) {
+        missingArgs.add(parameter);
+      }
+    }
+    Collections.sort(missingArgs, new Comparator<Parameter>() {
+      @Override
+      public int compare(Parameter o1, Parameter o2) {
+        return Integer.compare(o1.getOrdinal(), o2.getOrdinal());
+      }
+    });
+
+    String message;
+    String methodName = _method.getDeclaringClass().getSimpleName() + "." + _method.getName() + "()";
+
+    if (missingArgs.size() == 1) {
+      Parameter parameter = missingArgs.get(0);
+      message = "No argument provided for non-nullable parameter for method " + methodName + ", " +
+          "parameter '" + parameter.getName() + "', type " + parameter.getType().getName();
+    } else {
+      String messagePrefix = "No arguments provided for non-nullable parameters of method " + methodName + ", parameters ";
+      List<String> paramDescriptions = new ArrayList<>(missingArgs.size());
+
+      for (Parameter parameter : missingArgs) {
+        paramDescriptions.add(parameter.getType().getSimpleName() + " " + parameter.getName());
+      }
+      message = messagePrefix + paramDescriptions;
+    }
+    result = Result.failure(FailureStatus.MISSING_DATA, message);
+    return result;
   }
 
   /**
