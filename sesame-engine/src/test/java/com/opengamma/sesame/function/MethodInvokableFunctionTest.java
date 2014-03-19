@@ -22,6 +22,7 @@ import com.opengamma.sesame.config.SimpleFunctionArguments;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
@@ -38,6 +39,7 @@ public class MethodInvokableFunctionTest {
 
     Result<?> result = (Result<?>) invokableFunction.invoke(mock(Environment.class), null, args);
     assertFalse(result.isSuccess());
+    assertEquals(FailureStatus.MISSING_ARGUMENT, result.getStatus());
     String expectedMessage = "No argument provided for non-nullable parameter for method Fn.foo(), " +
         "parameter 'baz', type java.lang.Object";
     assertEquals(expectedMessage, result.getFailureMessage());
@@ -52,6 +54,7 @@ public class MethodInvokableFunctionTest {
 
     Result<?> result = (Result<?>) invokableFunction.invoke(mock(Environment.class), null, FunctionArguments.EMPTY);
     assertFalse(result.isSuccess());
+    assertEquals(FailureStatus.MISSING_ARGUMENT, result.getStatus());
     String expectedMessage = "No arguments provided for non-nullable parameters of method Fn.foo(), " +
         "parameters [Object bar, Object baz]";
     assertEquals(expectedMessage, result.getFailureMessage());

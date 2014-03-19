@@ -151,7 +151,7 @@ import com.opengamma.util.result.Result;
       }
       message = messagePrefix + paramDescriptions;
     }
-    result = Result.failure(FailureStatus.MISSING_DATA, message);
+    result = Result.failure(FailureStatus.MISSING_ARGUMENT, message);
     return result;
   }
 
