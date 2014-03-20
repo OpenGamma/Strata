@@ -21,6 +21,8 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -40,6 +42,7 @@ import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -82,6 +85,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final DiscountingMulticurveBundleFn _discountingMulticurveBundleFn;
 
   private final Period _seriesPeriod;
+  private final FXMatrixFn _fxMatrixFn;
+  private final Boolean _useHistoricalSpot;
 
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(FXForwardCalculatorFn calculatorProvider,
@@ -95,7 +100,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              MarketDataFactory marketDataFactory,
                                              StringSet impliedCurveNames,
                                              DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
-                                             RetrievalPeriod seriesPeriod) {
+                                             RetrievalPeriod seriesPeriod,
+                                             FXMatrixFn fxMatrixFn,
+                                             Boolean useHistoricalSpot) {
     _calculatorProvider = calculatorProvider;
     _curveDefinition = curveDefinition;
     _curveConfig = curveConfig;
@@ -108,6 +115,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _impliedCurveNames = impliedCurveNames.getStrings();
     _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
     _seriesPeriod = seriesPeriod.getRetrievalPeriod();
+    _fxMatrixFn = fxMatrixFn;
+    _useHistoricalSpot = useHistoricalSpot;
   }
 
   @Override
@@ -209,8 +218,23 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
         final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(seriesForTenor._dates, seriesForTenor._values);
         final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(env, ts, null);
         LocalDateDoubleTimeSeries pnlSeries = returnSeries.multiply(sensitivity.getEntry(i));
-        //TODO may be null if _outputCurrency null
-        values[i] = pnlSeries.multiply(conversionSeries.reciprocal());      
+        
+        if (!conversionIsRequired(curveCurrency)) {
+          values[i] = pnlSeries;
+          continue;
+        }
+        
+        //else - do appropriate conversion
+        if (_useHistoricalSpot) {
+          values[i] = pnlSeries.multiply(conversionSeries.reciprocal());
+        } else {
+          Currency srcCcy = curveCurrency;
+          Currency tgtCcy = _outputCurrency.get();
+          FXMatrix fxMatrix = _fxMatrixFn.getFXMatrix(env, Sets.newHashSet(srcCcy, tgtCcy)).getValue();
+          double fxRate = fxMatrix.getFxRate(srcCcy, tgtCcy);
+          values[i] = pnlSeries.multiply(fxRate);
+        }
+        
       }
 
       return Result.success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(tenors, tenors, values));
@@ -319,6 +343,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
         LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env,
                                                                               curveCurrency,
                                                                               env.getValuationDate());
+        //TODO - [SSM-192] may want to use today's spot rate for conversion here
         return calculateSeriesForNodes(env, curveSeriesBundle, sensitivity, nodes, conversionSeries);
       }
       return Result.failure(curveSeriesBundleResult);
