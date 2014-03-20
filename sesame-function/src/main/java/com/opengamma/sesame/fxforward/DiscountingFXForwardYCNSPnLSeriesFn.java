@@ -381,7 +381,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                                                    LocalDateDoubleTimeSeries ts,
                                                                    LocalDateDoubleTimeSeries conversionSeries) {
     
-    LocalDateDoubleTimeSeries series = conversionSeries != null ? ts.multiply(conversionSeries).reciprocal() : ts;
+    LocalDateDoubleTimeSeries series = conversionSeries != null ? ts.multiply(conversionSeries) : ts;
     return _fxReturnSeriesProvider.calculateReturnSeries(env, series);
   }
 
