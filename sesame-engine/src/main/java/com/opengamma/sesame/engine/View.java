@@ -44,7 +44,17 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
+ * <p>View is the main class for running calculations over a portfolio and producing results.</p>
  *
+ * TODO scenarios - at what level should the arguments be supplied? there are several obvious options
+ *   1) when the view is created, apply to all calculations
+ *   2) when the view is created, different sets for different columns (maybe with a set that applies to all)
+ *   3) when the view is run, apply to all calculations
+ *   4) when the view is run, different sets for different columns (maybe with a set that applies to all)
+ *   5) something else?
+ * which ones do we need to support? all of them?
+ * TODO same question for method arguments for the top level functions
+ * see [SSM-182] and [SSM-185]
  */
 public class View implements AutoCloseable {
 
@@ -101,7 +111,9 @@ public class View implements AutoCloseable {
   public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
     EngineEnvironment env = new EngineEnvironment(cycleArguments.getValuationTime(),
                                                   cycleArguments.getMarketDataSource(),
-                                                  _cacheInvalidator);
+                                                  _cacheInvalidator,
+                                                  // TODO scenario arguments
+                                                  Collections.<Class<?>, Object>emptyMap());
     invalidateCache(cycleArguments);
     List<Task> tasks = Lists.newArrayList();
     tasks.addAll(portfolioTasks(env, cycleArguments, inputs));

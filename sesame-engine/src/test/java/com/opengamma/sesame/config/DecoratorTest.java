@@ -30,9 +30,7 @@ public class DecoratorTest {
   @Test
   public void decorator() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Decorator1.class);
-    DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
+    DecoratorConfig decoratorConfig = new DecoratorConfig(config, Decorator1.class);
 
     assertEquals(Decorator1.class, decoratorConfig.getFunctionImplementation(Fn.class));
     assertEquals(Impl.class, decoratorConfig.getFunctionImplementation(Fn.class, DECORATOR1_PARAM));
@@ -40,9 +38,7 @@ public class DecoratorTest {
 
   @Test
   public void decorators() {
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Decorator1.class);
-    decorators.add(Decorator2.class);
+    LinkedHashSet<Class<?>> decorators = EngineUtils.<Class<?>>newLinkedHashSet(Decorator1.class, Decorator2.class);
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
     DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
 
@@ -53,9 +49,7 @@ public class DecoratorTest {
 
   @Test
   public void ordering() {
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Decorator2.class);
-    decorators.add(Decorator1.class);
+    LinkedHashSet<Class<?>> decorators = EngineUtils.<Class<?>>newLinkedHashSet(Decorator2.class, Decorator1.class);
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
     DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
 
@@ -66,9 +60,7 @@ public class DecoratorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void notADecorator() {
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Impl.class);
-    new DecoratorConfig(config(implementations(Fn.class, Impl.class)), decorators);
+    new DecoratorConfig(config(implementations(Fn.class, Impl.class)), Impl.class);
   }
 
   @Test
@@ -85,18 +77,14 @@ public class DecoratorTest {
   @Test
   public void undecoratedConfig() {
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class, Fn2.class, Impl2.class));
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Decorator1.class);
-    DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
+    DecoratorConfig decoratorConfig = new DecoratorConfig(config, Decorator1.class);
 
     assertEquals(Impl2.class, decoratorConfig.getFunctionImplementation(Fn2.class));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void noUnderlyingFunction() {
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Decorator1.class);
-    new DecoratorConfig(FunctionModelConfig.EMPTY, decorators);
+    new DecoratorConfig(FunctionModelConfig.EMPTY, Decorator1.class);
   }
 
   public interface Fn {
@@ -115,11 +103,7 @@ public class DecoratorTest {
 
   public static class Decorator1 implements Fn {
 
-    private final Fn _delegate;
-
-    public Decorator1(Fn delegate) {
-      _delegate = delegate;
-    }
+    public Decorator1(Fn delegate) { }
 
     @Override
     public String foo(Double d) {
@@ -129,11 +113,7 @@ public class DecoratorTest {
 
   public static class Decorator2 implements Fn {
 
-    private final Fn _delegate;
-
-    public Decorator2(Fn fn) {
-      _delegate = fn;
-    }
+    public Decorator2(Fn fn) { }
 
     @Override
     public String foo(Double d) {

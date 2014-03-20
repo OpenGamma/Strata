@@ -34,13 +34,22 @@ public class DecoratorConfig implements FunctionModelConfig {
   /** Underlying config to which we're adding decorators. */
   private final FunctionModelConfig _delegate;
 
-  /** Function implementation classes keyed by the implementation and the parameter where their delegate is injected. */
+  /**
+   * Function implementation classes keyed by the parameter where they are injected.
+   * The parameter is a constructor parameter of a decorator and the class is the type being decorated.
+   */
   private final Map<Parameter, Class<?>> _implByParameter = new HashMap<>();
 
-  /** Function implementation classes keyed by function interface. */
+  /**
+   * Function implementation classes keyed by function interface.
+   * The key is an interface type that is being decorated and the value is the decorator type.
+   */
   private final Map<Class<?>, Class<?>> _implByFnInterface = new HashMap<>();
 
-  /** Function arguments keyed by function implementation type. */
+  /**
+   * Function arguments keyed by function implementation type.
+   * Typically these will be the arguments for building the decorator instances, although they can be for any function.
+   */
   private final Map<Class<?>, FunctionArguments> _functionArguments;
 
   /**
@@ -86,6 +95,7 @@ public class DecoratorConfig implements FunctionModelConfig {
    * @param delegate the underlying configuration to which decorator functions are added
    * @param decorators types of decorator to add to the underlying configuration
    * @param functionArguments arguments for constructing the decorator functions
+   * @throws IllegalArgumentException If a decorator is included for a function not in the underlying configuration
    */
   public DecoratorConfig(FunctionModelConfig delegate,
                          LinkedHashSet<Class<?>> decorators,
@@ -156,9 +166,12 @@ public class DecoratorConfig implements FunctionModelConfig {
   @Override
   public FunctionArguments getFunctionArguments(Class<?> functionType) {
     FunctionArguments args = _functionArguments.get(ArgumentChecker.notNull(functionType, "functionType"));
+    FunctionArguments delegateArgs = _delegate.getFunctionArguments(functionType);
 
-    return args == null ?
-        _delegate.getFunctionArguments(functionType) :
-        args;
+    if (args == null) {
+      return delegateArgs;
+    } else {
+      return new CompositeFunctionArguments(args, delegateArgs);
+    }
   }
 }

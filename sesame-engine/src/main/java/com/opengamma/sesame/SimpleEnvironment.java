@@ -5,9 +5,10 @@
  */
 package com.opengamma.sesame;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
-import org.joda.beans.PropertyDefinition;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -27,12 +28,26 @@ import com.opengamma.util.ArgumentChecker;
 public final class SimpleEnvironment implements Environment {
 
   /** The valuation time. */
-  @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime _valuationTime;
 
   /** The function that provides market data. */
-  @PropertyDefinition(validate = "notNull")
   private final MarketDataSource _marketDataSource;
+
+  /** Scenario arguments, keyed by the type of function implementation that uses them. */
+  private final Map<Class<?>, Object> _scenarioArguments;
+
+  public SimpleEnvironment(ZonedDateTime valuationTime,
+                           MarketDataSource marketDataSource) {
+    this(valuationTime, marketDataSource, Collections.<Class<?>, Object>emptyMap());
+  }
+
+  public SimpleEnvironment(ZonedDateTime valuationTime,
+                           MarketDataSource marketDataSource,
+                           Map<Class<?>, Object> scenarioArguments) {
+    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
+    _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
+    _scenarioArguments = ArgumentChecker.notNull(scenarioArguments, "scenarioArguments");
+  }
 
   @Override
   public LocalDate getValuationDate() {
@@ -50,23 +65,23 @@ public final class SimpleEnvironment implements Environment {
   }
 
   @Override
+  public Object getScenarioArgument(Class<?> functionType) {
+    return _scenarioArguments.get(ArgumentChecker.notNull(functionType, "functionType"));
+  }
+
+  @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
-    return new SimpleEnvironment(ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource);
+    return new SimpleEnvironment(ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioArguments);
   }
 
   @Override
   public Environment withMarketData(MarketDataSource marketData) {
-    return new SimpleEnvironment(_valuationTime, ArgumentChecker.notNull(marketData, "marketData"));
+    return new SimpleEnvironment(_valuationTime, ArgumentChecker.notNull(marketData, "marketData"), _scenarioArguments);
   }
 
   @Override
   public Environment with(ZonedDateTime valuationTime, MarketDataSource marketData) {
-    return new SimpleEnvironment(valuationTime, marketData);
-  }
-
-  public SimpleEnvironment(ZonedDateTime valuationTime, MarketDataSource marketDataSource) {
-    _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
+    return new SimpleEnvironment(valuationTime, marketData, _scenarioArguments);
   }
 
   @Override

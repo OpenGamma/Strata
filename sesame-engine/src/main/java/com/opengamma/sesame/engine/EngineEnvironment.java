@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.engine;
 
+import java.util.Map;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -33,9 +35,11 @@ import com.opengamma.util.result.Result;
 
   /* package */ EngineEnvironment(ZonedDateTime valuationTime,
                                   MarketDataSource marketDataSource,
-                                  CacheInvalidator cacheInvalidator) {
+                                  CacheInvalidator cacheInvalidator,
+                                  Map<Class<?>, Object> scenarioArguments) {
     _delegate = new SimpleEnvironment(ArgumentChecker.notNull(valuationTime, "valuationTime"),
-                                      ArgumentChecker.notNull(marketDataSource, "marketDataSource"));
+                                      ArgumentChecker.notNull(marketDataSource, "marketDataSource"),
+                                      ArgumentChecker.notNull(scenarioArguments, "scenarioArguments"));
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
   }
 
@@ -65,6 +69,11 @@ import com.opengamma.util.result.Result;
   }
 
   @Override
+  public Object getScenarioArgument(Class<?> functionType) {
+    return _delegate.getScenarioArgument(functionType);
+  }
+
+  @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
     // this the returned environment is deliberately not one that's managed by the engine
     // TODO link to a thorough explanation of the caching implementation that explains this in detail
@@ -82,6 +91,6 @@ import com.opengamma.util.result.Result;
   public Environment with(ZonedDateTime valuationTime, MarketDataSource marketData) {
     // this the returned environment is deliberately not one that's managed by the engine
     // TODO link to a thorough explanation of the caching implementation that explains this in detail
-    return new SimpleEnvironment(valuationTime, marketData);
+    return _delegate.with(valuationTime, marketData);
   }
 }

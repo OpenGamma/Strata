@@ -41,6 +41,14 @@ public interface Environment {
   MarketDataSource getMarketDataSource();
 
   /**
+   * Returns the scenario argument for the specified function implementation type, possibly null
+   *
+   * @param functionType the type of the function implementation whose scenario argument is required
+   * @return the scenario argument for the specified function implementation type, possibly null
+   */
+  Object getScenarioArgument(Class<?> functionType);
+
+  /**
    * Returns a new environment copied from this environment but with a different valuation time.
    *
    * @param valuationTime  the valuation time for the new environment, not null
@@ -65,5 +73,6 @@ public interface Environment {
    */
   Environment with(ZonedDateTime valuationTime, MarketDataSource marketData);
 
-  // TODO builder? depends how many more things we add to this
+  // TODO withScenarioArguments?
+  // TODO builder?
 }
