@@ -23,7 +23,7 @@ public class ResultsTest {
   private static final Results RESULTS = new Results(ImmutableList.of("col1", "col2"),
                                                      ImmutableList.of(row("input1", "item11", "item12"),
                                                                       row("input2", "item21", "item22")),
-                                                     Collections.<String, ResultItem>emptyMap());
+                                                     Collections.<String, ResultItem>emptyMap(), false);
 
   @Test
   public void getByIndex() {

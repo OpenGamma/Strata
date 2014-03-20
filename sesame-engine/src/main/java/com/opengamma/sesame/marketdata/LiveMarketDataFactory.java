@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
- * Factory for {@link MarketDataFn} instances which use live market data from any available provider.
+ * Factory for {@link MarketDataSource} instances which use live market data from any available provider.
  */
 public class LiveMarketDataFactory implements MarketDataFactory {
 

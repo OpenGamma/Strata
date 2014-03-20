@@ -30,7 +30,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
  * cycles (potentially infinite).
  */
 @BeanDefinition
-public final class GlobalCycleOptions implements ImmutableBean, Iterable<IndividualCycleOptions>, CycleOptions {
+public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
   /**
    * When using live market data, indicates whether to wait for all the
@@ -77,13 +77,18 @@ public final class GlobalCycleOptions implements ImmutableBean, Iterable<Individ
 
       @Override
       public IndividualCycleOptions next() {
-        // We should be using generators to potentially vary values for market data or valuation time
-        IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
-            .marketDataSpec(_marketDataSpec)
-            .valuationTime(_valuationTime)
-            .build();
-        _index++;
-        return cycleOptions;
+
+        if (hasNext()) {
+          // We should be using generators to potentially vary values for market data or valuation time
+          IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
+              .marketDataSpec(_marketDataSpec)
+              .valuationTime(_valuationTime)
+              .build();
+          _index++;
+          return cycleOptions;
+        } else {
+          throw new NoSuchElementException();
+        }
       }
 
       @Override

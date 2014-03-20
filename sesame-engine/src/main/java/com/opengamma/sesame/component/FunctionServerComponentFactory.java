@@ -26,7 +26,16 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.LiveDataManager;
+import com.opengamma.sesame.marketdata.LiveMarketDataSourceManager;
+import com.opengamma.sesame.marketdata.MarketDataSourceManager;
+import com.opengamma.sesame.marketdata.MarketDataSourceManagerFactory;
+import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.server.CycleRunnerFactory;
 import com.opengamma.sesame.server.DataFunctionServerResource;
 import com.opengamma.sesame.server.streaming.DataStreamingFunctionServerResource;
 import com.opengamma.sesame.server.DefaultFunctionServer;
@@ -85,6 +94,12 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private JmsConnector _jmsConnector;
 
+  /**
+   * The client to use for connecting to live market data.
+   */
+  @PropertyDefinition
+  private LiveDataClient _liveDataClient;
+
   // TODO - should we create a default one of these or allows expect it to be passed - if default then what pool size etc
   @PropertyDefinition
   private ScheduledExecutorService _scheduledExecutor = Executors.newScheduledThreadPool(5);
@@ -92,16 +107,19 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
-    DefaultFunctionServer server = initFunctionServer(repo);
+    CycleRunnerFactory cycleRunnerFactory =
+        new CycleRunnerFactory(_viewFactory, createMarketDataSourceManagerFactory());
+
+    DefaultFunctionServer server = initFunctionServer(repo, cycleRunnerFactory);
 
     if (_enableStreamedResults) {
-      initStreamingServer(repo, server);
+      initStreamingServer(repo, server, cycleRunnerFactory);
     }
   }
 
-  private DefaultFunctionServer initFunctionServer(ComponentRepository repo) {
+  private DefaultFunctionServer initFunctionServer(ComponentRepository repo, CycleRunnerFactory cycleRunnerFactory) {
 
-    DefaultFunctionServer server = new DefaultFunctionServer(_viewFactory, _marketDataFactory);
+    DefaultFunctionServer server = new DefaultFunctionServer(cycleRunnerFactory);
     repo.registerComponent(DefaultFunctionServer.class, getClassifier(), server);
 
     if (_publishRest) {
@@ -110,7 +128,47 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     return server;
   }
 
-  private void initStreamingServer(ComponentRepository repo, DefaultFunctionServer server) {
+  private MarketDataSourceManagerFactory createMarketDataSourceManagerFactory() {
+    return _liveDataClient == null ?
+        createNonLiveMarketDataSourceManagerFactory() :
+        createLiveMarketDataSourceManagerFactory();
+  }
+
+  private MarketDataSourceManagerFactory createLiveMarketDataSourceManagerFactory() {
+    return new MarketDataSourceManagerFactory() {
+      @Override
+      public MarketDataSourceManager createMarketDataSourceManager() {
+        return new LiveMarketDataSourceManager(_marketDataFactory, new LiveDataManager(_liveDataClient));
+      }
+    };
+  }
+
+  private MarketDataSourceManagerFactory createNonLiveMarketDataSourceManagerFactory() {
+
+    final MarketDataSourceManager manager = new MarketDataSourceManager() {
+      @Override
+      public StrategyAwareMarketDataSource createStrategyAwareSource(StrategyAwareMarketDataSource previousDataSource,
+                                                                     MarketDataSpecification marketDataSpec) {
+        return new DefaultStrategyAwareMarketDataSource(_marketDataFactory.create(marketDataSpec));
+      }
+
+      @Override
+      public StrategyAwareMarketDataSource waitForPrimedSource(StrategyAwareMarketDataSource previousDataSource) {
+        throw new UnsupportedOperationException("Implementation does not support live data therefore cannot produce a primed source");
+      }
+    };
+
+    return new MarketDataSourceManagerFactory() {
+      @Override
+      public MarketDataSourceManager createMarketDataSourceManager() {
+        return manager;
+      }
+    };
+  }
+
+  private void initStreamingServer(ComponentRepository repo,
+                                   DefaultFunctionServer server,
+                                   CycleRunnerFactory cycleRunnerFactory) {
 
     String msg = "Streaming results have been requested but %s is null - streaming will not be available";
     if (_jmsConnector == null) {
@@ -119,7 +177,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
       throw new OpenGammaRuntimeException(String.format(msg, "scheduledExecutor"));
     }
 
-    DefaultStreamingFunctionServer streamingServer = new DefaultStreamingFunctionServer(server, _viewFactory, _marketDataFactory);
+    DefaultStreamingFunctionServer streamingServer = new DefaultStreamingFunctionServer(server, cycleRunnerFactory);
     repo.registerComponent(DefaultStreamingFunctionServer.class, getClassifier(), streamingServer);
 
     if (_publishRest) {
@@ -315,6 +373,31 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the client to use for connecting to live market data.
+   * @return the value of the property
+   */
+  public LiveDataClient getLiveDataClient() {
+    return _liveDataClient;
+  }
+
+  /**
+   * Sets the client to use for connecting to live market data.
+   * @param liveDataClient  the new value of the property
+   */
+  public void setLiveDataClient(LiveDataClient liveDataClient) {
+    this._liveDataClient = liveDataClient;
+  }
+
+  /**
+   * Gets the the {@code liveDataClient} property.
+   * @return the property, not null
+   */
+  public final Property<LiveDataClient> liveDataClient() {
+    return metaBean().liveDataClient().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the scheduledExecutor.
    * @return the value of the property
    */
@@ -357,6 +440,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getViewFactory(), other.getViewFactory()) &&
           JodaBeanUtils.equal(getMarketDataFactory(), other.getMarketDataFactory()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getLiveDataClient(), other.getLiveDataClient()) &&
           JodaBeanUtils.equal(getScheduledExecutor(), other.getScheduledExecutor()) &&
           super.equals(obj);
     }
@@ -372,13 +456,14 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveDataClient());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduledExecutor());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("FunctionServerComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -398,6 +483,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     buf.append("viewFactory").append('=').append(JodaBeanUtils.toString(getViewFactory())).append(',').append(' ');
     buf.append("marketDataFactory").append('=').append(JodaBeanUtils.toString(getMarketDataFactory())).append(',').append(' ');
     buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("liveDataClient").append('=').append(JodaBeanUtils.toString(getLiveDataClient())).append(',').append(' ');
     buf.append("scheduledExecutor").append('=').append(JodaBeanUtils.toString(getScheduledExecutor())).append(',').append(' ');
   }
 
@@ -442,6 +528,11 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
         this, "jmsConnector", FunctionServerComponentFactory.class, JmsConnector.class);
     /**
+     * The meta-property for the {@code liveDataClient} property.
+     */
+    private final MetaProperty<LiveDataClient> _liveDataClient = DirectMetaProperty.ofReadWrite(
+        this, "liveDataClient", FunctionServerComponentFactory.class, LiveDataClient.class);
+    /**
      * The meta-property for the {@code scheduledExecutor} property.
      */
     private final MetaProperty<ScheduledExecutorService> _scheduledExecutor = DirectMetaProperty.ofReadWrite(
@@ -457,6 +548,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
         "viewFactory",
         "marketDataFactory",
         "jmsConnector",
+        "liveDataClient",
         "scheduledExecutor");
 
     /**
@@ -480,6 +572,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return _marketDataFactory;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
+        case 244858401:  // liveDataClient
+          return _liveDataClient;
         case 1586176160:  // scheduledExecutor
           return _scheduledExecutor;
       }
@@ -551,6 +645,14 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code liveDataClient} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveDataClient> liveDataClient() {
+      return _liveDataClient;
+    }
+
+    /**
      * The meta-property for the {@code scheduledExecutor} property.
      * @return the meta-property, not null
      */
@@ -574,6 +676,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return ((FunctionServerComponentFactory) bean).getMarketDataFactory();
         case -1495762275:  // jmsConnector
           return ((FunctionServerComponentFactory) bean).getJmsConnector();
+        case 244858401:  // liveDataClient
+          return ((FunctionServerComponentFactory) bean).getLiveDataClient();
         case 1586176160:  // scheduledExecutor
           return ((FunctionServerComponentFactory) bean).getScheduledExecutor();
       }
@@ -600,6 +704,9 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return;
         case -1495762275:  // jmsConnector
           ((FunctionServerComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case 244858401:  // liveDataClient
+          ((FunctionServerComponentFactory) bean).setLiveDataClient((LiveDataClient) newValue);
           return;
         case 1586176160:  // scheduledExecutor
           ((FunctionServerComponentFactory) bean).setScheduledExecutor((ScheduledExecutorService) newValue);

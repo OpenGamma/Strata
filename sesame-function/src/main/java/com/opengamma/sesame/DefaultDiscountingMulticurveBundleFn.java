@@ -266,11 +266,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     //TODO comparator to sort groups by order
     int i = 0; // Implementation Note: loop on the groups
 
-    // TODO this is not fine-grained enough to provide useful detail back to the user.
-    // TODO use Result.combineWith to build up result
-    boolean curveBundlesComplete = true;
-
     final Set<Currency> curvesToRemove = new HashSet<>();
+
+    // Result to allow us to capture any failures in all these loops, the
+    // actual value if a success is of no consequence
+    Result<Boolean> curveBundleResult = Result.success(true);
 
     for (final CurveGroupConfiguration group : config.getCurveGroups()) { // Group - start
 
@@ -309,8 +309,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
             // This curve needs to replace the existing discounting curve of the same currency
             curvesToRemove.add(currency);
-          } else {
-            curveBundlesComplete = false;
           }
         } else {
           Result<CurveSpecification> curveSpecResult =
@@ -375,20 +373,20 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
               singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
             } else {
-              curveBundlesComplete = false;
+              curveBundleResult = Result.failure(curveBundleResult, htsResult, fxMatrixResult, marketDataResult);
             }
           } else {
-            curveBundlesComplete = false;
+            curveBundleResult = Result.failure(curveBundleResult, curveSpecResult);
           }
         }
         j++;
       }
-      if (curveBundlesComplete) {
+      if (curveBundleResult.isSuccess()) {
         curveBundles[i++] = new MultiCurveBundle<>(singleCurves);
       }
     } // Group - end
 
-    if (exogenousBundle.isSuccess() && curveBundlesComplete) {
+    if (!Result.anyFailures(exogenousBundle, curveBundleResult)) {
 
       MulticurveProviderDiscount exogenousCurves = adjustMulticurveBundle(curvesToRemove, exogenousBundle.getValue());
       return Result.success(
@@ -400,8 +398,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                                     ParSpreadMarketQuoteDiscountingCalculator.getInstance(),
                                                     ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
     } else {
-      // todo - supply some useful information in the failure message!
-      return Result.failure(MISSING_DATA, "Unable to get intermediate data");
+      return Result.failure(exogenousBundle, curveBundleResult);
     }
   }
 

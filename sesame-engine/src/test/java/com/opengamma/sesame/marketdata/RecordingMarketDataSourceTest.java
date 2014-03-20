@@ -32,7 +32,7 @@ public class RecordingMarketDataSourceTest {
     RecordingMarketDataSource dataSource = new RecordingMarketDataSource();
     Result<?> result = dataSource.get(_id1, _fieldName);
     assertEquals(result.getStatus(), FailureStatus.PENDING_DATA);
-    assertTrue(dataSource.getRequests().contains(Pairs.of(_id1, _fieldName)));
+    assertTrue(dataSource.getRequestedData().contains(Pairs.of(_id1, _fieldName)));
   }
 
   @Test
@@ -42,7 +42,7 @@ public class RecordingMarketDataSourceTest {
 
     Result<?> result = dataSource.get(_id1, _fieldName);
     assertEquals(result.getStatus(), FailureStatus.PENDING_DATA);
-    assertTrue(dataSource.getRequests().isEmpty());
+    assertTrue(dataSource.getRequestedData().isEmpty());
   }
 
   @Test
@@ -52,7 +52,7 @@ public class RecordingMarketDataSourceTest {
 
     Result<?> result = dataSource.get(_id1, _fieldName);
     assertEquals(result.getStatus(), FailureStatus.MISSING_DATA);
-    assertTrue(dataSource.getRequests().isEmpty());
+    assertTrue(dataSource.getRequestedData().isEmpty());
   }
 
   @Test
@@ -63,7 +63,7 @@ public class RecordingMarketDataSourceTest {
     Result<?> result = dataSource.get(_id1, _fieldName);
     assertTrue(result.isSuccess());
     assertEquals(result.getValue(), 123.45);
-    assertTrue(dataSource.getRequests().isEmpty());
+    assertTrue(dataSource.getRequestedData().isEmpty());
   }
 
   @Test
@@ -73,7 +73,7 @@ public class RecordingMarketDataSourceTest {
     dataSource.get(_id2, _fieldName);
     dataSource.get(_id1, _fieldName);
 
-    Set<Pair<ExternalIdBundle, FieldName>> requests = dataSource.getRequests();
+    Set<Pair<ExternalIdBundle, FieldName>> requests = dataSource.getRequestedData();
     assertTrue(requests.contains(Pairs.of(_id1, _fieldName)));
     assertTrue(requests.contains(Pairs.of(_id2, _fieldName)));
   }

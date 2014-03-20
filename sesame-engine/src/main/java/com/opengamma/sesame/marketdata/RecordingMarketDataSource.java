@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.Pairs;
  * TODO package private? will this only be used by the engine?
  * TODO should the data be mutable? revisit as part of the live data caching [SSM-146]
  */
-public class RecordingMarketDataSource implements MarketDataSource {
+public class RecordingMarketDataSource implements StrategyAwareMarketDataSource {
 
   /** The market data. */
   private final Map<Pair<ExternalIdBundle, FieldName>, Object> _data = new ConcurrentHashMap<>();
@@ -109,12 +109,19 @@ public class RecordingMarketDataSource implements MarketDataSource {
     return _missing;
   }
 
-  /**
-   * @return the data that was requested but wasn't available
-   * TODO should this clear the set of requests? and if so should it have a different name?
-   */
-  public Set<Pair<ExternalIdBundle, FieldName>> getRequests() {
+  @Override
+  public Set<Pair<ExternalIdBundle, FieldName>> getRequestedData() {
     return Collections.unmodifiableSet(_requests);
+  }
+
+  @Override
+  public Set<Pair<ExternalIdBundle, FieldName>> getManagedData() {
+    return Collections.unmodifiableSet(_data.keySet());
+  }
+
+  @Override
+  public boolean isEagerDataSource() {
+    return false;
   }
 
   public static final class Builder {

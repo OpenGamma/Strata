@@ -32,7 +32,10 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
   public Result<Map<ExternalIdBundle, Double>> requestData(Environment env, CurveSpecification curveSpecification) {
     Map<ExternalIdBundle, Double> results = new HashMap<>();
 
-    // TODO don't bail out on the first failure, collect all the results
+    // Interim result object used to build up the complete set of
+    // failures rather than exiting early
+    Result<Boolean> result = Result.success(true);
+
     for (CurveNodeWithIdentifier node : curveSpecification.getNodes()) {
       if (node instanceof PointsCurveNodeWithIdentifier) {
         PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
@@ -40,19 +43,25 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
         Result<Double> spotItem = _marketDataFn.getCurveNodeUnderlyingValue(env, pointsNode);
 
         if (Result.anyFailures(fwdItem, spotItem)) {
-          return Result.failure(fwdItem, spotItem);
+          result = Result.failure(result, fwdItem, spotItem);
+        } else {
+          results.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
         }
-        results.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
       } else {
         Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
 
         if (fwdItem.isSuccess()) {
           results.put(node.getIdentifier().toBundle(), fwdItem.getValue());
         } else {
-          return Result.failure(fwdItem);
+          result = Result.failure(result, fwdItem);
         }
       }
     }
-    return Result.success(results);
+
+    if (result.isSuccess()) {
+      return Result.success(results);
+    } else {
+      return Result.failure(result);
+    }
   }
 }

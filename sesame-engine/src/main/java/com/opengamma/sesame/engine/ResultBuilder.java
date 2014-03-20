@@ -14,6 +14,8 @@ import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.Failure;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
@@ -25,6 +27,7 @@ import com.opengamma.util.result.Result;
   private final List<?> _inputs;
   private final List<String> _columnNames;
   private final Map<String, ResultItem> _nonPortfolioResults = Maps.newHashMap();
+  private boolean _isPendingMarketData;
 
   /* package */ ResultBuilder(List<?> inputs, List<String> columnNames) {
     _inputs = inputs;
@@ -33,10 +36,24 @@ import com.opengamma.util.result.Result;
 
   /* package */ void add(int rowIndex, int columnIndex, Result<?> result, CallGraph callGraph) {
     _table.put(rowIndex, columnIndex, new ResultItem(result, callGraph));
+    checkForPendingData(result);
   }
 
   /* package */ void add(String outputName, Result<?> result, CallGraph callGraph) {
     _nonPortfolioResults.put(ArgumentChecker.notEmpty(outputName, "outputName"), new ResultItem(result, callGraph));
+    checkForPendingData(result);
+  }
+
+  private void checkForPendingData(Result<?> result) {
+
+    if (!_isPendingMarketData && !result.isSuccess()) {
+      for (Failure failure : result.getFailures()) {
+        if (failure.getStatus() == FailureStatus.PENDING_DATA) {
+          _isPendingMarketData = true;
+          return;
+        }
+      }
+    }
   }
 
   /* package */ Results build() {
@@ -46,6 +63,6 @@ import com.opengamma.util.result.Result;
     for (Map<Integer, ResultItem> row : rowMap.values()) {
       rows.add(new ResultRow(_inputs.get(index++), Lists.newArrayList(row.values())));
     }
-    return new Results(_columnNames, rows, _nonPortfolioResults);
+    return new Results(_columnNames, rows, _nonPortfolioResults, _isPendingMarketData);
   }
 }

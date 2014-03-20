@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -68,7 +70,9 @@ public class LiveDataManager implements LiveDataListener {
    * results as Bloomberg BUIDs.
    */
   private final Map<ExternalIdBundle, ExternalIdBundle> _specificationMapping = new HashMap<>();
-  private final Map<LDListener, CountDownLatch> _latches = new HashMap<>();
+
+  // todo there are still race conditions with these latches - see the removal of them
+  private final ConcurrentMap<LDListener, CountDownLatch> _latches = new ConcurrentHashMap<>();
 
   public LiveDataManager(LiveDataClient marketDataConnection) {
     _marketDataConnection = marketDataConnection;
@@ -147,7 +151,7 @@ public class LiveDataManager implements LiveDataListener {
           alreadySubscribed.add(id);
         } else {
           toSubscribe.add(id);
-          final HashSet<LDListener> clients = new HashSet<>();
+          Set<LDListener> clients = new HashSet<>();
           clients.add(client);
           _clientsPerSubscription.put(id, clients);
         }
@@ -158,6 +162,11 @@ public class LiveDataManager implements LiveDataListener {
         client.receiveSubscriptionResponse(new SubscriptionResponse<>(SUBSCRIBE, alreadySubscribed));
       }
       Set<LiveDataSpecification> specifications = createSpecifications(toSubscribe);
+
+      // Add a latch if we're subscribing to something and don't already have
+      // a latch waiting
+      _latches.putIfAbsent(request.getListener(), new CountDownLatch(1));
+
       // todo the use of UserPrincipal is definitely wrong!
       _marketDataConnection.subscribe(UserPrincipal.getTestUser(), specifications, this);
 
@@ -229,6 +238,9 @@ public class LiveDataManager implements LiveDataListener {
       if (result.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
 
         recorder.success(requestedBundle, _clientsPerSubscription.get(requestedBundle));
+
+        // todo - we may get a snapshot value in here - use it if we do
+
       } else {
 
         if (result.getSubscriptionResult() == LiveDataSubscriptionResult.NOT_AUTHORIZED) {
@@ -258,13 +270,12 @@ public class LiveDataManager implements LiveDataListener {
 
   public void waitForAllData(LDListener listener) {
 
-    if (!_latches.containsKey(listener) || _latches.get(listener).getCount() == 0) {
-      final CountDownLatch latch = new CountDownLatch(1);
-      _latches.put(listener, latch);
+    CountDownLatch latch = _latches.get(listener);
+    if (latch != null && latch.getCount() > 0) {
       try {
         latch.await();
       } catch (InterruptedException e) {
-        throw new OpenGammaRuntimeException("Got error waiting", e);
+        throw new OpenGammaRuntimeException("Got error waiting for latch on market data", e);
       }
     }
   }
@@ -337,13 +348,15 @@ public class LiveDataManager implements LiveDataListener {
     }
 
     _currentValues.put(mappedBundle, mergedValues);
+
     for (LDListener listener : _clientsPerSubscription.get(mappedBundle)) {
       listener.valueUpdated(mappedBundle);
 
       // Check if this client is waiting on data completion
       final CountDownLatch latch = _latches.get(listener);
-      if (latch != null && latch.getCount() > 0 && clientsRequirementsAreSatisfied(listener)) {
+      if (latch != null && clientsRequirementsAreSatisfied(listener)) {
         latch.countDown();
+        _latches.remove(listener);
       }
     }
   }
@@ -373,7 +386,7 @@ public class LiveDataManager implements LiveDataListener {
       _subscriptionKeys = ArgumentChecker.notEmpty(subscriptionKeys, "subscriptionKeys");
     }
 
-    public SubscriptionRequest(ResettableLiveMarketDataSource listener,
+    public SubscriptionRequest(LDListener listener,
                                RequestType subscribe,
                                K idBundle) {
       this(listener, subscribe, ImmutableSet.of(idBundle));

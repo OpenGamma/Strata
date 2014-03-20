@@ -50,14 +50,26 @@ public final class Results implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Map<String, ResultItem> _nonPortfolioResults;
 
+  /**
+   * Indicates if there were any failures in the results due to pending
+   * market data i.e. data was requested but not yet provided by
+   * the market data server.
+   */
+  @PropertyDefinition()
+  private final boolean _pendingMarketData;
+
   /** Column indices keyed by name. */
   private final Map<String, Integer> _columnIndices = Maps.newHashMap();
 
   @ImmutableConstructor
-  /* package */ Results(List<String> columnNames, List<ResultRow> rows, Map<String, ResultItem> nonPortfolioResults) {
+  /* package */ Results(List<String> columnNames,
+                        List<ResultRow> rows,
+                        Map<String, ResultItem> nonPortfolioResults,
+                        boolean isPendingMarketData) {
     _rows = ImmutableList.copyOf(ArgumentChecker.notNull(rows, "rows"));
     _columnNames = ImmutableList.copyOf(ArgumentChecker.notNull(columnNames, "columnNames"));
     _nonPortfolioResults = ImmutableMap.copyOf(ArgumentChecker.notNull(nonPortfolioResults, "nonPortfolioResults"));
+    _pendingMarketData = isPendingMarketData;
     int colIndex = 0;
     for (String columnName : columnNames) {
       Integer prevValue = _columnIndices.put(columnName, colIndex++);
@@ -207,6 +219,17 @@ public final class Results implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets indicates if there were any failures in the results due to pending
+   * market data i.e. data was requested but not yet provided by
+   * the market data server.
+   * @return the value of the property
+   */
+  public boolean isPendingMarketData() {
+    return _pendingMarketData;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -228,7 +251,8 @@ public final class Results implements ImmutableBean {
       Results other = (Results) obj;
       return JodaBeanUtils.equal(getColumnNames(), other.getColumnNames()) &&
           JodaBeanUtils.equal(getRows(), other.getRows()) &&
-          JodaBeanUtils.equal(getNonPortfolioResults(), other.getNonPortfolioResults());
+          JodaBeanUtils.equal(getNonPortfolioResults(), other.getNonPortfolioResults()) &&
+          (isPendingMarketData() == other.isPendingMarketData());
     }
     return false;
   }
@@ -239,6 +263,7 @@ public final class Results implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getColumnNames());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRows());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNonPortfolioResults());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPendingMarketData());
     return hash;
   }
 
@@ -271,13 +296,19 @@ public final class Results implements ImmutableBean {
     private final MetaProperty<Map<String, ResultItem>> _nonPortfolioResults = DirectMetaProperty.ofImmutable(
         this, "nonPortfolioResults", Results.class, (Class) Map.class);
     /**
+     * The meta-property for the {@code pendingMarketData} property.
+     */
+    private final MetaProperty<Boolean> _pendingMarketData = DirectMetaProperty.ofImmutable(
+        this, "pendingMarketData", Results.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "columnNames",
         "rows",
-        "nonPortfolioResults");
+        "nonPortfolioResults",
+        "pendingMarketData");
 
     /**
      * Restricted constructor.
@@ -294,6 +325,8 @@ public final class Results implements ImmutableBean {
           return _rows;
         case -1919647109:  // nonPortfolioResults
           return _nonPortfolioResults;
+        case -482275587:  // pendingMarketData
+          return _pendingMarketData;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -338,6 +371,14 @@ public final class Results implements ImmutableBean {
       return _nonPortfolioResults;
     }
 
+    /**
+     * The meta-property for the {@code pendingMarketData} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> pendingMarketData() {
+      return _pendingMarketData;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -348,6 +389,8 @@ public final class Results implements ImmutableBean {
           return ((Results) bean).getRows();
         case -1919647109:  // nonPortfolioResults
           return ((Results) bean).getNonPortfolioResults();
+        case -482275587:  // pendingMarketData
+          return ((Results) bean).isPendingMarketData();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -372,6 +415,7 @@ public final class Results implements ImmutableBean {
     private List<String> _columnNames = new ArrayList<String>();
     private List<ResultRow> _rows = new ArrayList<ResultRow>();
     private Map<String, ResultItem> _nonPortfolioResults = new HashMap<String, ResultItem>();
+    private boolean _pendingMarketData;
 
     /**
      * Restricted constructor.
@@ -387,6 +431,7 @@ public final class Results implements ImmutableBean {
       this._columnNames = new ArrayList<String>(beanToCopy.getColumnNames());
       this._rows = new ArrayList<ResultRow>(beanToCopy.getRows());
       this._nonPortfolioResults = new HashMap<String, ResultItem>(beanToCopy.getNonPortfolioResults());
+      this._pendingMarketData = beanToCopy.isPendingMarketData();
     }
 
     //-----------------------------------------------------------------------
@@ -399,6 +444,8 @@ public final class Results implements ImmutableBean {
           return _rows;
         case -1919647109:  // nonPortfolioResults
           return _nonPortfolioResults;
+        case -482275587:  // pendingMarketData
+          return _pendingMarketData;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -416,6 +463,9 @@ public final class Results implements ImmutableBean {
           break;
         case -1919647109:  // nonPortfolioResults
           this._nonPortfolioResults = (Map<String, ResultItem>) newValue;
+          break;
+        case -482275587:  // pendingMarketData
+          this._pendingMarketData = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -452,7 +502,8 @@ public final class Results implements ImmutableBean {
       return new Results(
           _columnNames,
           _rows,
-          _nonPortfolioResults);
+          _nonPortfolioResults,
+          _pendingMarketData);
     }
 
     //-----------------------------------------------------------------------
@@ -489,14 +540,25 @@ public final class Results implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code pendingMarketData} property in the builder.
+     * @param pendingMarketData  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder pendingMarketData(boolean pendingMarketData) {
+      this._pendingMarketData = pendingMarketData;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("Results.Builder{");
       buf.append("columnNames").append('=').append(JodaBeanUtils.toString(_columnNames)).append(',').append(' ');
       buf.append("rows").append('=').append(JodaBeanUtils.toString(_rows)).append(',').append(' ');
-      buf.append("nonPortfolioResults").append('=').append(JodaBeanUtils.toString(_nonPortfolioResults));
+      buf.append("nonPortfolioResults").append('=').append(JodaBeanUtils.toString(_nonPortfolioResults)).append(',').append(' ');
+      buf.append("pendingMarketData").append('=').append(JodaBeanUtils.toString(_pendingMarketData));
       buf.append('}');
       return buf.toString();
     }

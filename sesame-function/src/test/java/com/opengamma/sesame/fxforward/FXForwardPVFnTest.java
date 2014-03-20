@@ -227,7 +227,7 @@ public class FXForwardPVFnTest {
       System.out.println();
     }
     //System.out.println(TracingProxy.end().prettyPrint());
-    System.out.println("requested data: " + dataSource.getRequests());
+    System.out.println("requested data: " + dataSource.getRequestedData());
     return result;
   }
 
@@ -263,7 +263,7 @@ public class FXForwardPVFnTest {
       result = bundleProvider.generateBundle(env, curveConfig);
     } catch (Exception e) {
       if (dataSource != null) {
-        System.out.println(dataSource.getRequests());
+        System.out.println(dataSource.getRequestedData());
       }
       throw e;
     }

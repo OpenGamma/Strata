@@ -13,7 +13,10 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.fudgemsg.MutableFudgeMsg;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.testng.annotations.AfterClass;
@@ -38,10 +42,22 @@ import com.opengamma.component.ComponentLogger;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.EmbeddedJettyComponentFactory;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.livedata.LiveDataClient;
+import com.opengamma.livedata.LiveDataListener;
+import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataValueUpdate;
+import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.MarketdataResourcesLoader;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.config.ViewConfig;
@@ -58,6 +74,7 @@ import com.opengamma.sesame.server.streaming.RemoteStreamingFunctionServer;
 import com.opengamma.sesame.server.streaming.StreamingClient;
 import com.opengamma.sesame.server.streaming.StreamingClientResultListener;
 import com.opengamma.sesame.server.streaming.StreamingFunctionServer;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.result.Result;
@@ -282,6 +299,38 @@ public class RemotingTest {
     assertThat(streamingClient.isStopped(), is(true));
   }
 
+  @Test
+  public void testLiveExecution() {
+
+    String curveBundleOutputName = "Curve Bundle";
+    ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
+
+    // Send the config to the server, along with version
+    // correction, MD requirements, valuation date and
+    // cycle specifics (once/multiple/infinite)
+    // Proxy options?
+
+    FunctionServer functionServer = new RemoteFunctionServer(URI.create("http://localhost:8080/jax"));
+
+    IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
+        .valuationTime(ZonedDateTime.now())
+        .marketDataSpec(LiveMarketDataSpecification.LIVE_SPEC)
+        .build();
+
+    FunctionServerRequest<IndividualCycleOptions> request =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(viewConfig)
+            //.withVersionCorrection(...)
+            //.withSecurities(...)
+            .cycleOptions(cycleOptions)
+            .build();
+
+    Results results = functionServer.executeSingleCycle(request);
+    System.out.println(results);
+    assertThat(results, is(not(nullValue())));
+
+    checkCurveBundleResult(curveBundleOutputName, results);
+  }
 
   private ViewConfig createCurveBundleConfig(String curveBundleOutputName) {
 
@@ -361,9 +410,94 @@ public class RemotingTest {
     serverComponentFactory.setClassifier(CLASSIFIER);
     serverComponentFactory.setViewFactory(_componentRepository.getInstance(ViewFactory.class, CLASSIFIER));
     serverComponentFactory.setMarketDataFactory(InterestRateMockSources.createMarketDataFactory());
+    serverComponentFactory.setLiveDataClient(createMockLiveDataClient());
     serverComponentFactory.setJmsConnector(createJmsConnector());
 
     register(serverComponentFactory, _componentRepository);
+  }
+
+  private LiveDataClient createMockLiveDataClient() throws IOException {
+
+    return new LiveDataClient() {
+
+      final Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/usdMarketQuotes.properties", "Ticker");
+      long counter = 0;
+
+      @Override
+      public void subscribe(UserPrincipal user,
+                            LiveDataSpecification requestedSpecification,
+                            LiveDataListener listener) { }
+
+      @Override
+      public void subscribe(UserPrincipal user,
+                            Collection<LiveDataSpecification> requestedSpecifications,
+                            LiveDataListener listener) {
+
+        List<LiveDataSubscriptionResponse> subResponses = new ArrayList<>();
+        List<LiveDataValueUpdate> dataValues = new ArrayList<>();
+
+        for (LiveDataSpecification specification : requestedSpecifications) {
+          if (marketData.containsKey(specification.getIdentifiers())) {
+            subResponses.add(new LiveDataSubscriptionResponse(specification, LiveDataSubscriptionResult.SUCCESS, null, specification, null, null));
+            MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
+            msg.add(MarketDataRequirementNames.MARKET_VALUE, marketData.get(specification.getIdentifiers()));
+            dataValues.add(new LiveDataValueUpdateBean(counter++, specification, msg));
+          } else {
+            subResponses.add(new LiveDataSubscriptionResponse(specification, LiveDataSubscriptionResult.NOT_PRESENT));
+          }
+        }
+        listener.subscriptionResultsReceived(subResponses);
+
+        for (LiveDataValueUpdate value : dataValues) {
+          listener.valueUpdate(value);
+        }
+      }
+
+      @Override
+      public void unsubscribe(UserPrincipal user,
+                              LiveDataSpecification fullyQualifiedSpecification,
+                              LiveDataListener listener) { }
+
+      @Override
+      public void unsubscribe(UserPrincipal user,
+                              Collection<LiveDataSpecification> fullyQualifiedSpecifications,
+                              LiveDataListener listener) { }
+
+      @Override
+      public LiveDataSubscriptionResponse snapshot(UserPrincipal user,
+                                                   LiveDataSpecification requestedSpecification,
+                                                   long timeout) {
+        return null;
+      }
+
+      @Override
+      public Collection<LiveDataSubscriptionResponse> snapshot(UserPrincipal user,
+                                                               Collection<LiveDataSpecification> requestedSpecifications,
+                                                               long timeout) {
+        return null;
+      }
+
+      @Override
+      public String getDefaultNormalizationRuleSetId() {
+        return null;
+      }
+
+      @Override
+      public void close() {
+
+      }
+
+      @Override
+      public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+        return false;
+      }
+
+      @Override
+      public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user,
+                                                            Collection<LiveDataSpecification> requestedSpecifications) {
+        return null;
+      }
+    };
   }
 
   private JmsConnector createJmsConnector() {

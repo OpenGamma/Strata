@@ -8,7 +8,7 @@ package com.opengamma.sesame.server;
 /**
  * This is a marker interface for the cycle options to be run.
  */
- // todo - is there a sensible implemention for this
-public interface CycleOptions {
+ // todo - we could just use Iterable<IndividualCycleOptions> rather than this interface
+public interface CycleOptions extends Iterable<IndividualCycleOptions> {
 
 }

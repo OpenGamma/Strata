@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.server.streaming;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -15,14 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.sesame.config.EngineUtils;
-import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.engine.View;
-import com.opengamma.sesame.engine.ViewFactory;
-import com.opengamma.sesame.marketdata.MarketDataFactory;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.server.CycleResultsHandler;
+import com.opengamma.sesame.server.CycleRunner;
+import com.opengamma.sesame.server.CycleRunnerFactory;
+import com.opengamma.sesame.server.CycleTerminator;
 import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.GlobalCycleOptions;
@@ -46,15 +42,10 @@ public class DefaultStreamingFunctionServer implements StreamingFunctionServer {
   private final FunctionServer _functionServer;
 
   /**
-   * Factory used to create the views which will be executed.
+   * Factory which will create cycle runners which will run
+   * a view to completion.
    */
-  private final ViewFactory _viewFactory;
-
-  /**
-   * Factory for the market data to be used. The market data type will be
-   * defined by the specification from the incoming request.
-   */
-  private final MarketDataFactory _marketDataFactory;
+  private final CycleRunnerFactory _cycleRunnerFactory;
 
   /**
    * Executor service for running the streaming client.
@@ -66,15 +57,14 @@ public class DefaultStreamingFunctionServer implements StreamingFunctionServer {
    * Construct the server.
    *
    * @param functionServer the basic (non-streaming) function server, not null
-   * @param viewFactory factory used to create the views which will be executed, not null
-   * @param marketDataFactory factory for the market data to be used, not null
+   * @param cycleRunnerFactory factory which will create cycle runners
+   * which will run a view to completion
    */
   public DefaultStreamingFunctionServer(FunctionServer functionServer,
-                                        ViewFactory viewFactory,
-                                        MarketDataFactory marketDataFactory) {
+                                        CycleRunnerFactory cycleRunnerFactory) {
+
+    _cycleRunnerFactory = ArgumentChecker.notNull(cycleRunnerFactory, "cycleRunnerFactory");
     _functionServer = ArgumentChecker.notNull(functionServer, "functionServer");
-    _viewFactory = ArgumentChecker.notNull(viewFactory, "viewFactory");
-    _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
   }
 
   @Override
@@ -82,21 +72,29 @@ public class DefaultStreamingFunctionServer implements StreamingFunctionServer {
 
     ArgumentChecker.notNull(request, "request");
 
-    // Build the view first so we can be reasonably confident it's all going to work
-    View view = _viewFactory.createView(request.getViewConfig(), EngineUtils.getSecurityTypes(request.getInputs()));
+    UniqueId clientId = createId();
+    final PublisherAwareStreamingClient streamingClient = new DefaultStreamingClient(clientId);
 
-    final UniqueId clientId = createId();
-    PublisherAwareStreamingClient streamingClient = new DefaultStreamingClient(clientId);
+    CycleRunner cycleRunner = _cycleRunnerFactory.createCycleRunner(request,
+        new CycleResultsHandler() {
+          @Override
+          public void handleResults(Results results) {
+            streamingClient.resultsReceived(results);
+          }
+        },
+        new CycleTerminator() {
+          @Override
+          public boolean shouldContinue() {
+            return streamingClient.isRunning();
+          }
+        });
 
     s_logger.info("Setting up streaming task for client: {}", clientId);
-    _executorService.execute(createStreamingTask(streamingClient, view, request.getCycleOptions(), request.getInputs()));
+    _executorService.execute(createStreamingTask(cycleRunner, streamingClient));
     return streamingClient;
   }
 
-  private Runnable createStreamingTask(final PublisherAwareStreamingClient streamingClient,
-                                       final View view,
-                                       final GlobalCycleOptions globalCycleOptions,
-                                       final List<?> inputs) {
+  private Runnable createStreamingTask(final CycleRunner cycleRunner, final PublisherAwareStreamingClient streamingClient) {
 
     return new Runnable() {
       @Override
@@ -105,19 +103,7 @@ public class DefaultStreamingFunctionServer implements StreamingFunctionServer {
         final UniqueId clientId = streamingClient.getUniqueId();
         s_logger.info("Starting streaming task for client: {}", clientId);
 
-        // todo - check if live data is being used and wait for data to be available
-        for (Iterator<IndividualCycleOptions> it = globalCycleOptions.iterator(); streamingClient.isRunning() && it.hasNext();) {
-          IndividualCycleOptions cycleOptions = it.next();
-
-          MarketDataSource marketDataSource = _marketDataFactory.create(cycleOptions.getMarketDataSpec());
-
-          CycleArguments cycleArguments = new CycleArguments(cycleOptions.getValuationTime(),
-                                                             VersionCorrection.LATEST,
-                                                             marketDataSource);
-          Results results = view.run(cycleArguments, inputs);
-          s_logger.debug("Sending out cycle results to client: {}", clientId);
-          streamingClient.resultsReceived(results);
-        }
+        cycleRunner.execute();
 
         // Tell client that we are done so they can exit cleanly
         streamingClient.processCompleted();

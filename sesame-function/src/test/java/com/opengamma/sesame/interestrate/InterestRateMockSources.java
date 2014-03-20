@@ -148,8 +148,7 @@ public class InterestRateMockSources {
     try {
       Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/usdMarketQuotes.properties", TICKER);
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-      RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
-      return builder.data(fieldName, marketData).build();
+      return new RecordingMarketDataSource.Builder().data(fieldName, marketData).build();
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Exception whilst loading file", e);
     }
