@@ -7,6 +7,7 @@ package com.opengamma.sesame;
 
 import org.threeten.bp.LocalDate;
 
+import com.google.common.base.Function;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.analytics.financial.schedule.Schedule;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
@@ -60,7 +61,13 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
   public Result<LocalDateDoubleTimeSeries> calculateReturnSeries(Environment env,
                                                                  LocalDateRange dateRange,
                                                                  CurrencyPair currencyPair) {
-    return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
+    return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange).flatMap(
+        new Function<LocalDateDoubleTimeSeries, Result<LocalDateDoubleTimeSeries>>() {
+          @Override
+          public Result<LocalDateDoubleTimeSeries> apply(LocalDateDoubleTimeSeries input) {
+            return Result.success(_timeSeriesConverter.convert(input));
+          }
+        });
   }
 
   @Override
