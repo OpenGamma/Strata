@@ -207,8 +207,10 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
         Series seriesForTenor = builder.getSeriesForTenor(tenors[i]);
         final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(seriesForTenor._dates, seriesForTenor._values);
-        final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(env, ts, conversionSeries);
-        values[i] = returnSeries.multiply(sensitivity.getEntry(i));
+        final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(env, ts, null);
+        LocalDateDoubleTimeSeries pnlSeries = returnSeries.multiply(sensitivity.getEntry(i));
+        //TODO may be null if _outputCurrency null
+        values[i] = pnlSeries.multiply(conversionSeries.reciprocal());      
       }
 
       return Result.success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(tenors, tenors, values));
