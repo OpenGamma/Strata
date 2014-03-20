@@ -64,6 +64,7 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
   }
 
   @Override
+  //TODO this doesn't really apply specifically to FX. move elsewhere?
   public LocalDateDoubleTimeSeries calculateReturnSeries(Environment env, LocalDateDoubleTimeSeries timeSeries) {
     // todo - is faffing about with include start / end required?
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(
@@ -71,10 +72,7 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
         WEEKEND_CALENDAR);
     LocalDateDoubleTimeSeries sampledTimeSeries = _timeSeriesSamplingFunction.getSampledTimeSeries(timeSeries, dates);
 
-    // Implementation note: to obtain the series for one unit of non-base currency expressed in base currency.
-    LocalDateDoubleTimeSeries reciprocalSeries = sampledTimeSeries.reciprocal();
-
     // todo - clip the time-series to the range originally asked for?
-    return _timeSeriesConverter.convert(reciprocalSeries);
+    return _timeSeriesConverter.convert(sampledTimeSeries);
   }
 }
