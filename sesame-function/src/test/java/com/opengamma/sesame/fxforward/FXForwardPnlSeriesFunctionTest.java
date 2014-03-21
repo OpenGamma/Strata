@@ -213,6 +213,7 @@ public class FXForwardPnlSeriesFunctionTest {
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfig", exposureConfig)),
                 function(DiscountingFXForwardSpotPnLSeriesFn.class,
+                         argument("useHistoricalSpot", true),
                          argument("seriesPeriod", Period.ofYears(1)),
                          argument("outputCurrency", Optional.of(Currency.USD))),
                 function(DefaultFXReturnSeriesFn.class,
