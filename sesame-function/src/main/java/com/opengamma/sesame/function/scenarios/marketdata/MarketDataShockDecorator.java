@@ -104,7 +104,7 @@ public class MarketDataShockDecorator implements MarketDataFn {
 
       if (!(value instanceof Double)) {
         return Result.failure(FailureStatus.ERROR, "Market data shocks can only be applied to double values. Value " +
-            "for {} is of type {}, value {}", id, value.getClass().getName(), value );
+            "for {} is of type {}, value {}", id, value.getClass().getName(), value);
       }
       double shockedValue = (double) value;
 
