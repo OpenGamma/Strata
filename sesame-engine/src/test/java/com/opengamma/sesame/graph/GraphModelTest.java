@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.graph;
 
+import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
@@ -15,6 +16,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.EngineUtils;
@@ -24,7 +26,8 @@ import com.opengamma.sesame.function.ConfigurationErrorFunction;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.marketdata.RecordingMarketDataSource;
+import com.opengamma.sesame.marketdata.LDClient;
+import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -47,7 +50,7 @@ public class GraphModelTest {
     InvokableFunction invokableFunction = functionsForColumn.get(FXForwardSecurity.class);
     assertNotNull(invokableFunction);
     Result<Object> result = Result.failure(FailureStatus.ERROR, ConfigurationErrorFunction.CONFIG_ERROR);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new RecordingMarketDataSource());
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class)));
     assertEquals(result, invokableFunction.invoke(env, null, FunctionArguments.EMPTY));
   }
 
@@ -64,7 +67,7 @@ public class GraphModelTest {
     InvokableFunction invokableFunction = graph.getNonPortfolioFunction(outputName);
     assertNotNull(invokableFunction);
     Result<Object> result = Result.failure(FailureStatus.ERROR, ConfigurationErrorFunction.CONFIG_ERROR);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new RecordingMarketDataSource());
+    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class)));
     assertEquals(result, invokableFunction.invoke(env, null, FunctionArguments.EMPTY));
   }
 

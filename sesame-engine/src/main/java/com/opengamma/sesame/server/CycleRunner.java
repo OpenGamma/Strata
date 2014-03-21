@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
@@ -147,7 +148,7 @@ public class CycleRunner {
       // source primed with the missing results and retry. It is possible
       // that the subsequent run then wants additional market market data
       // so we keep repeating until no data is pending.
-      strategyAwareSource = _marketDataSourceManager.waitForPrimedSource(strategyAwareSource);
+      strategyAwareSource = strategyAwareSource.createPrimedSource();
       result = executeCycle(cycleOptions, strategyAwareSource);
     }
 
@@ -188,13 +189,23 @@ public class CycleRunner {
     }
 
     @Override
-    public boolean isEagerDataSource() {
-      return true;
+    public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
+      throw new UnsupportedOperationException("get not supported");
     }
 
     @Override
-    public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
-      throw new UnsupportedOperationException("get not supported");
+    public StrategyAwareMarketDataSource createPrimedSource() {
+      throw new UnsupportedOperationException("should never be called");
+    }
+
+    @Override
+    public boolean isCompatible(MarketDataSpecification specification) {
+      // Always false - want a real source on the next cycle
+      return false;
+    }
+
+    @Override
+    public void dispose() {
     }
   }
 }

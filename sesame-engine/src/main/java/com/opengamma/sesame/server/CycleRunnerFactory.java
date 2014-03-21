@@ -9,7 +9,6 @@ import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.marketdata.MarketDataSourceManager;
-import com.opengamma.sesame.marketdata.MarketDataSourceManagerFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,23 +35,21 @@ public class CycleRunnerFactory {
   private final ViewFactory _viewFactory;
 
   /**
-   * Factory used to create the manager of market data. The manager
-   * is aware of whether data retrieval will be eager or not
-   * and ensures that we eventually get the data we need.
+   * The manager of market data. This is aware of whether data retrieval will
+   * be eager or not and ensures that we eventually get the data we need.
    */
-  private final MarketDataSourceManagerFactory _marketDataSourceManagerFactory;
+  private final MarketDataSourceManager _marketDataSourceManager;
 
   /**
    * Creates the factory.
    *
    * @param viewFactory factory used to create the views which will be executed, not null
-   * @param marketDataSourceManagerFactory used to handle the market data requirements
+   * @param marketDataSourceManager  used to handle the market data requirements
    * ensuring that all data is retrieved whether item by item or in bulk, not null
    */
-  public CycleRunnerFactory(ViewFactory viewFactory, MarketDataSourceManagerFactory marketDataSourceManagerFactory) {
+  public CycleRunnerFactory(ViewFactory viewFactory, MarketDataSourceManager marketDataSourceManager) {
     _viewFactory = ArgumentChecker.notNull(viewFactory, "viewFactory");
-    _marketDataSourceManagerFactory =
-        ArgumentChecker.notNull(marketDataSourceManagerFactory, "marketDataSourceManagerFactory");
+    _marketDataSourceManager = ArgumentChecker.notNull(marketDataSourceManager, "marketDataSourceManager");
   }
 
   /**
@@ -87,11 +84,10 @@ public class CycleRunnerFactory {
                                        CycleTerminator cycleTerminator) {
 
     View view = createView(ArgumentChecker.notNull(request, "request"));
-    MarketDataSourceManager marketDataSourceManager = createMarketDataManager();
 
     return new CycleRunner(
         view,
-        marketDataSourceManager,
+        _marketDataSourceManager,
         request.getCycleOptions(),
         request.getInputs(),
         ArgumentChecker.notNull(handler, "handler"),
@@ -102,7 +98,4 @@ public class CycleRunnerFactory {
     return _viewFactory.createView(request.getViewConfig(), EngineUtils.getSecurityTypes(request.getInputs()));
   }
 
-  private MarketDataSourceManager createMarketDataManager() {
-    return _marketDataSourceManagerFactory.createMarketDataSourceManager();
-  }
 }

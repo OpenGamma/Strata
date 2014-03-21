@@ -20,39 +20,26 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.sesame.engine.ViewFactory;
-import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
-import com.opengamma.sesame.marketdata.LiveDataManager;
-import com.opengamma.sesame.marketdata.LiveMarketDataSourceManager;
-import com.opengamma.sesame.marketdata.MarketDataSourceManager;
-import com.opengamma.sesame.marketdata.MarketDataSourceManagerFactory;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.DefaultMarketDataSourceManager;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.server.CycleRunnerFactory;
 import com.opengamma.sesame.server.DataFunctionServerResource;
-import com.opengamma.sesame.server.streaming.DataStreamingFunctionServerResource;
 import com.opengamma.sesame.server.DefaultFunctionServer;
+import com.opengamma.sesame.server.streaming.DataStreamingFunctionServerResource;
 import com.opengamma.sesame.server.streaming.DefaultStreamingFunctionServer;
 import com.opengamma.util.jms.JmsConnector;
-import com.opengamma.sesame.marketdata.MarketDataFactory;
 
 /**
  * Component factory for the engine.
  */
 @BeanDefinition
 public class FunctionServerComponentFactory extends AbstractComponentFactory {
-
-  /**
-   * Logger for the class.
-   */
-  private static final Logger s_logger = LoggerFactory.getLogger(FunctionServerComponentFactory.class);
 
   /**
    * The classifier that the factory should publish under.
@@ -108,7 +95,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
     CycleRunnerFactory cycleRunnerFactory =
-        new CycleRunnerFactory(_viewFactory, createMarketDataSourceManagerFactory());
+        new CycleRunnerFactory(_viewFactory, new DefaultMarketDataSourceManager(_marketDataFactory));
 
     DefaultFunctionServer server = initFunctionServer(repo, cycleRunnerFactory);
 
@@ -126,44 +113,6 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
       repo.getRestComponents().publishResource(new DataFunctionServerResource(server));
     }
     return server;
-  }
-
-  private MarketDataSourceManagerFactory createMarketDataSourceManagerFactory() {
-    return _liveDataClient == null ?
-        createNonLiveMarketDataSourceManagerFactory() :
-        createLiveMarketDataSourceManagerFactory();
-  }
-
-  private MarketDataSourceManagerFactory createLiveMarketDataSourceManagerFactory() {
-    return new MarketDataSourceManagerFactory() {
-      @Override
-      public MarketDataSourceManager createMarketDataSourceManager() {
-        return new LiveMarketDataSourceManager(_marketDataFactory, new LiveDataManager(_liveDataClient));
-      }
-    };
-  }
-
-  private MarketDataSourceManagerFactory createNonLiveMarketDataSourceManagerFactory() {
-
-    final MarketDataSourceManager manager = new MarketDataSourceManager() {
-      @Override
-      public StrategyAwareMarketDataSource createStrategyAwareSource(StrategyAwareMarketDataSource previousDataSource,
-                                                                     MarketDataSpecification marketDataSpec) {
-        return new DefaultStrategyAwareMarketDataSource(_marketDataFactory.create(marketDataSpec));
-      }
-
-      @Override
-      public StrategyAwareMarketDataSource waitForPrimedSource(StrategyAwareMarketDataSource previousDataSource) {
-        throw new UnsupportedOperationException("Implementation does not support live data therefore cannot produce a primed source");
-      }
-    };
-
-    return new MarketDataSourceManagerFactory() {
-      @Override
-      public MarketDataSourceManager createMarketDataSourceManager() {
-        return manager;
-      }
-    };
   }
 
   private void initStreamingServer(ComponentRepository repo,

@@ -38,6 +38,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -75,9 +76,10 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.MarketdataResourcesLoader;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.LDClient;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
-import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.sesame.marketdata.RecordingMarketDataSource;
+import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
+import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -144,11 +146,11 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  public static MarketDataSource createMarketDataSource() {
+  public static StrategyAwareMarketDataSource createMarketDataSource() {
     try {
       Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/usdMarketQuotes.properties", TICKER);
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-      return new RecordingMarketDataSource.Builder().data(fieldName, marketData).build();
+      return new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(fieldName, marketData).build();
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Exception whilst loading file", e);
     }

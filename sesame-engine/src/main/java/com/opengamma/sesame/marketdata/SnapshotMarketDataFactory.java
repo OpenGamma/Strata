@@ -22,11 +22,12 @@ public class SnapshotMarketDataFactory implements MarketDataFactory {
   }
 
   @Override
-  public MarketDataSource create(MarketDataSpecification spec) {
+  public StrategyAwareMarketDataSource create(MarketDataSpecification spec) {
     if (!(ArgumentChecker.notNull(spec, "spec") instanceof UserMarketDataSpecification)) {
       throw new IllegalArgumentException("Expected " + UserMarketDataSpecification.class + " but was " + spec.getClass());
     }
     UserMarketDataSpecification snapshotMarketDataSpec = (UserMarketDataSpecification) spec;
-    return new SnapshotMarketDataSource(_snapshotSource, snapshotMarketDataSpec.getUserSnapshotId());
+    SnapshotMarketDataSource snapshotSource = new SnapshotMarketDataSource(_snapshotSource, snapshotMarketDataSpec.getUserSnapshotId());
+    return new DefaultStrategyAwareMarketDataSource(spec, snapshotSource);
   }
 }

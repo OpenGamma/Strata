@@ -32,6 +32,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
@@ -162,7 +163,8 @@ public class CurveBuildingIntegrationTest {
     View view = viewFactory.createView(viewConfig);
 
     LiveDataManager liveDataManager = new LiveDataManager(buildLiveDataClient());
-    ResettableLiveMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(liveDataManager);
+    LDClient liveDataClient = new LDClient(liveDataManager);
+    StrategyAwareMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(MarketData.live(), liveDataClient);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource);
     Results initialResults = view.run(cycleArguments);
     System.out.println(initialResults);
@@ -171,11 +173,12 @@ public class CurveBuildingIntegrationTest {
     ResultItem resultItem = initialResults.get("Curve Bundle");
     Result<?> failureResult = resultItem.getResult();
     assertThat(failureResult.isSuccess(), is(false));
-    assertThat(failureResult.getStatus(), is((ResultStatus) FailureStatus.MISSING_DATA));
+    assertThat(failureResult.getStatus(), is((ResultStatus) FailureStatus.PENDING_DATA));
 
     // Now try again, resetting the market data first (which should pick up bloomberg data)
     System.out.println("Waiting for market data to catch up");
-    liveDataSource.waitForData();
+    liveDataSource = liveDataSource.createPrimedSource();
+    cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource);
 
     Results results = view.run(cycleArguments);
     System.out.println(results);

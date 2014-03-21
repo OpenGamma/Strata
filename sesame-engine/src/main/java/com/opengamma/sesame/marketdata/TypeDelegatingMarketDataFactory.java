@@ -27,7 +27,7 @@ public final class TypeDelegatingMarketDataFactory implements MarketDataFactory 
   }
   
   @Override
-  public MarketDataSource create(MarketDataSpecification spec) {
+  public StrategyAwareMarketDataSource create(MarketDataSpecification spec) {
     MarketDataFactory factory = _typeMap.get(ArgumentChecker.notNull(spec, "spec").getClass());
 
     if (factory == null) {

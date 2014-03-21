@@ -22,30 +22,29 @@ import com.opengamma.util.jms.JmsConnector;
  */
 public class LiveMarketDataFactory implements MarketDataFactory {
 
-  private final Map<String, MarketDataSource> _marketDataBySource;
+  private final Map<String, LiveDataManager> _liveDataManagerBySource;
   
   public LiveMarketDataFactory(Collection<LiveDataMetaDataProvider> providers, JmsConnector jmsConnector) {
-    ImmutableMap.Builder<String, MarketDataSource> builder = ImmutableMap.builder();
-
+    ImmutableMap.Builder<String, LiveDataManager> builder = ImmutableMap.builder();
     for (LiveDataMetaDataProvider provider : providers) {
       LiveDataClient liveDataClient = LiveMarketDataProviderFactoryComponentFactory.createLiveDataClient(provider, jmsConnector);
-      MarketDataSource dataSource = new ResettableLiveMarketDataSource(new LiveDataManager(liveDataClient));
-      builder.put(provider.metaData().getDescription(), dataSource);
+      builder.put(provider.metaData().getDescription(), new LiveDataManager(liveDataClient));
     }
-    _marketDataBySource = builder.build();
+    _liveDataManagerBySource = builder.build();
   }
   
   @Override
-  public MarketDataSource create(MarketDataSpecification spec) {
+  public StrategyAwareMarketDataSource create(MarketDataSpecification spec) {
     if (!(ArgumentChecker.notNull(spec, "spec") instanceof LiveMarketDataSpecification)) {
       throw new IllegalArgumentException("Expected " + LiveMarketDataSpecification.class + " but was " + spec.getClass());
     }
     LiveMarketDataSpecification liveMarketDataSpec = (LiveMarketDataSpecification) spec;
-    MarketDataSource marketDataSource = _marketDataBySource.get(liveMarketDataSpec.getDataSource());
-    if (marketDataSource == null) {
+    LiveDataManager liveDataManager = _liveDataManagerBySource.get(liveMarketDataSpec.getDataSource());
+    if (liveDataManager == null) {
       throw new IllegalArgumentException("Unsupported live data source: " + liveMarketDataSpec.getDataSource());
     }
-    return marketDataSource;
+    LDClient liveDataClient = new LDClient(liveDataManager);
+    return new ResettableLiveMarketDataSource(spec, liveDataClient);
   }
 
 }

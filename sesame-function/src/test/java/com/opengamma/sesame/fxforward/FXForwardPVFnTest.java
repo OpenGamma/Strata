@@ -36,6 +36,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.sf.ehcache.CacheManager;
+
 import org.hamcrest.MatcherAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +65,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -134,8 +137,9 @@ import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.LDClient;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.RecordingMarketDataSource;
+import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
@@ -143,8 +147,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFnTest {
@@ -218,8 +220,8 @@ public class FXForwardPVFnTest {
 
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
-    RecordingMarketDataSource dataSource = builder.data(fieldName, marketData).build();
+    ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
+    ResettableLiveMarketDataSource dataSource = builder.data(fieldName, marketData).build();
     SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
 
     for (int i = 0; i < 100; i++) {
@@ -249,7 +251,7 @@ public class FXForwardPVFnTest {
     DiscountingMulticurveBundleFn bundleProvider =
         FunctionModel.build(DiscountingMulticurveBundleFn.class, createFunctionConfig(), componentMap);
     Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
-    RecordingMarketDataSource dataSource = null;
+    ResettableLiveMarketDataSource dataSource = null;
 
     try {
       ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
@@ -257,7 +259,7 @@ public class FXForwardPVFnTest {
           .iterator().next().getValue();
 
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-      RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
+      ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
       dataSource = builder.data(fieldName, marketData).build();
       SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
       result = bundleProvider.generateBundle(env, curveConfig);
@@ -347,8 +349,8 @@ public class FXForwardPVFnTest {
     Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
-    RecordingMarketDataSource dataSource = builder.data(fieldName, marketData).build();
+    ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
+    ResettableLiveMarketDataSource dataSource = builder.data(fieldName, marketData).build();
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
     Results results = view.run(cycleArguments);
     System.out.println(results);
@@ -449,8 +451,8 @@ public class FXForwardPVFnTest {
     Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
-    RecordingMarketDataSource dataSource = builder.data(fieldName, marketData).build();
+    ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
+    ResettableLiveMarketDataSource dataSource = builder.data(fieldName, marketData).build();
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
     //int nRuns = 1;
     int nRuns = 20;

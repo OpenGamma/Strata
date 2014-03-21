@@ -21,12 +21,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.RecordingMarketDataSource;
+import com.opengamma.sesame.marketdata.LDClient;
+import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
@@ -61,16 +63,16 @@ public class EquityPresentValueTest {
     //MarketDataRequirement requirement = MarketDataRequirementFactory.of(security, MarketDataRequirementNames.MARKET_VALUE);
     //marketData.put(requirement, MarketDataItem.available(123.45));
     Map<ExternalIdBundle, Double> marketData = ImmutableMap.of(security.getExternalIdBundle(), 123.45);
-    RecordingMarketDataSource dataSource = marketDataSource(marketData);
+    ResettableLiveMarketDataSource dataSource = marketDataSource(marketData);
     Environment env = new SimpleEnvironment(ZonedDateTime.now(), dataSource);
     Result<Double> result = _equityPresentValueFn.presentValue(env, security);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
     assertThat(result.getValue(), is(123.45));
   }
 
-  private RecordingMarketDataSource marketDataSource(Map<ExternalIdBundle, Double> marketData) {
+  private ResettableLiveMarketDataSource marketDataSource(Map<ExternalIdBundle, Double> marketData) {
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    RecordingMarketDataSource.Builder builder = new RecordingMarketDataSource.Builder();
+    ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
     return builder.data(fieldName, marketData).build();
   }
 }

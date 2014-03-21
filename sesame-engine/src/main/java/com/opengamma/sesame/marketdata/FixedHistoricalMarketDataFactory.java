@@ -32,12 +32,13 @@ public class FixedHistoricalMarketDataFactory implements MarketDataFactory {
   }
   
   @Override
-  public MarketDataSource create(MarketDataSpecification spec) {
+  public StrategyAwareMarketDataSource create(MarketDataSpecification spec) {
     if (!(ArgumentChecker.notNull(spec, "spec") instanceof FixedHistoricalMarketDataSpecification)) {
       throw new IllegalArgumentException("Expected " + FixedHistoricalMarketDataSpecification.class + " but was " + spec.getClass());
     }
     FixedHistoricalMarketDataSpecification historicalSpec = (FixedHistoricalMarketDataSpecification) spec;
     LocalDate snapshotDate = historicalSpec.getSnapshotDate();
-    return new FixedHistoricalMarketDataSource(_historicalTimeSeriesSource, snapshotDate, _dataSource, _dataProvider);
+    FixedHistoricalMarketDataSource historicalSource = new FixedHistoricalMarketDataSource(_historicalTimeSeriesSource, snapshotDate, _dataSource, _dataProvider);
+    return new DefaultStrategyAwareMarketDataSource(spec, historicalSource);
   }
 }

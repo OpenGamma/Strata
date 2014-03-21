@@ -29,15 +29,4 @@ public interface MarketDataSourceManager {
   StrategyAwareMarketDataSource createStrategyAwareSource(StrategyAwareMarketDataSource previousDataSource,
                                                           MarketDataSpecification marketDataSpec);
 
-  /**
-   * Based on the requests made on the supplied data source, create a
-   * new source populated with all the required data. As collecting the
-   * data may involve asynchronous calls to a live data server, this
-   * method will block until the data is available.
-   *
-   * @param previousDataSource the strategy aware source used to collect
-   * the requests for data, not null
-   * @return a suitable strategy aware source, not null
-   */
-  StrategyAwareMarketDataSource waitForPrimedSource(StrategyAwareMarketDataSource previousDataSource);
 }

@@ -6,6 +6,7 @@
 package com.opengamma.sesame.marketdata;
 
 import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -13,10 +14,12 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Source of historical market from a fixed point in time.
@@ -82,4 +85,5 @@ public class FixedHistoricalMarketDataSource implements MarketDataSource {
         Objects.equals(this._dataSource, other._dataSource) &&
         Objects.equals(this._dataProvider, other._dataProvider);
   }
+  
 }

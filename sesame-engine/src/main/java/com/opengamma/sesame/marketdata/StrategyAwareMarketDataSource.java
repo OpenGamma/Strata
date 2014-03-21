@@ -7,6 +7,7 @@ package com.opengamma.sesame.marketdata;
 
 import java.util.Set;
 
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.tuple.Pair;
 
@@ -41,14 +42,11 @@ public interface StrategyAwareMarketDataSource extends MarketDataSource {
    * @return the market data that this source is already handling, not null
    */
   Set<Pair<ExternalIdBundle, FieldName>> getManagedData();
-
-  /**
-   * Indicates if this market data source eagerly gets market data
-   * as soon as it is requested. Sources which don't do this will
-   * bulk get all data at a later point.
-   *
-   * @return true, if this data source attempts to get market
-   * data immediately
-   */
-  boolean isEagerDataSource();
+  
+  StrategyAwareMarketDataSource createPrimedSource();
+  
+  boolean isCompatible(MarketDataSpecification specification);
+  
+  void dispose();
+  
 }

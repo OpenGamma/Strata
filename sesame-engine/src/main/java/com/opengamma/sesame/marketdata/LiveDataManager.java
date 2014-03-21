@@ -360,6 +360,21 @@ public class LiveDataManager implements LiveDataListener {
       }
     }
   }
+  
+  public void unregister(LDListener listener) {
+    Set<ExternalIdBundle> currentSubscriptions = _subscriptionsPerClient.remove(listener);
+    if (currentSubscriptions == null) {
+      return;
+    }
+    for (ExternalIdBundle subscription : currentSubscriptions) {
+      Set<LDListener> clientsSubscribed = _clientsPerSubscription.get(subscription);
+      clientsSubscribed.remove(listener);
+      if (clientsSubscribed.isEmpty()) {
+        _clientsPerSubscription.remove(subscription);
+        // todo: actually unsubscribe and remove value from LKV - possibly delay in case of quick resubscription
+      }
+    }
+  }
 
   private boolean clientsRequirementsAreSatisfied(LDListener listener) {
     return _currentValues.keySet().containsAll(_subscriptionsPerClient.get(listener));

@@ -8,6 +8,7 @@ package com.opengamma.sesame.marketdata;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
@@ -22,6 +23,11 @@ import com.opengamma.util.tuple.Pair;
 public class DefaultStrategyAwareMarketDataSource implements StrategyAwareMarketDataSource {
 
   /**
+   * The market data specification which this source satisfies.
+   */
+  private final MarketDataSpecification _marketDataSpecification;
+  
+  /**
    * The underlying eager market data source.
    */
   private final MarketDataSource _marketDataSource;
@@ -30,9 +36,11 @@ public class DefaultStrategyAwareMarketDataSource implements StrategyAwareMarket
    * Create the market data source wrapping the eager underlying
    * market data source.
    *
-   * @param marketDataSource the eager market data source to be wrapped, not null
+   * @param marketDataSpecification  the market data specification which this source satisfies, not null
+   * @param marketDataSource  the eager market data source to be wrapped, not null
    */
-  public DefaultStrategyAwareMarketDataSource(MarketDataSource marketDataSource) {
+  public DefaultStrategyAwareMarketDataSource(MarketDataSpecification marketDataSpecification, MarketDataSource marketDataSource) {
+    _marketDataSpecification = ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
     _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
   }
 
@@ -58,7 +66,6 @@ public class DefaultStrategyAwareMarketDataSource implements StrategyAwareMarket
     return ImmutableSet.of();
   }
 
-
   /**
    * Returns an immutable empty set, as this is wrapping an eager data source.
    *
@@ -69,13 +76,18 @@ public class DefaultStrategyAwareMarketDataSource implements StrategyAwareMarket
     return ImmutableSet.of();
   }
 
-  /**
-   * Returns true as this is wrapping an eager data source.
-   *
-   * @return true
-   */
   @Override
-  public boolean isEagerDataSource() {
-    return true;
+  public StrategyAwareMarketDataSource createPrimedSource() {
+    return this;
   }
+
+  @Override
+  public boolean isCompatible(MarketDataSpecification specification) {
+    return _marketDataSpecification.equals(specification);
+  }
+
+  @Override
+  public void dispose() {
+  }
+  
 }

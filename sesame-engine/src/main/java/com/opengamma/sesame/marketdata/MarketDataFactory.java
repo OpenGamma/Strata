@@ -13,11 +13,11 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 public interface MarketDataFactory {
 
   /**
-   * Creates a {@link MarketDataSource} for a given specification.
+   * Creates a {@link StrategyAwareMarketDataSource} for a given specification.
    * 
    * @param spec  the market data specification, not null
    * @return the market data source, not null
    */
-  MarketDataSource create(MarketDataSpecification spec);
+  StrategyAwareMarketDataSource create(MarketDataSpecification spec);
   
 }
