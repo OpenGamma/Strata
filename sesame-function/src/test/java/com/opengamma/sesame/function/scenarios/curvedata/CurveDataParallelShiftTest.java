@@ -41,10 +41,6 @@ public class CurveDataParallelShiftTest {
                                                                                           ID2.toBundle(), 0.2,
                                                                                           ID3.toBundle(), 0.7,
                                                                                           ID4.toBundle(), 0.4);
-  private static final ImmutableMap<ExternalId, CurveNode> NODE_MAP = ImmutableMap.of(ID1, NODE1,
-                                                                                      ID2, NODE2,
-                                                                                      ID3, NODE3,
-                                                                                      ID4, NODE4);
   private static final List<CurveNodeWithIdentifier> NODES = Lists.newArrayList(nodeWithId(ID1, NODE1),
                                                                                 nodeWithId(ID2, NODE2),
                                                                                 nodeWithId(ID3, NODE3),
@@ -77,7 +73,7 @@ public class CurveDataParallelShiftTest {
   @Test
   public void absolute() {
     CurveDataParallelShift shift = CurveDataParallelShift.absolute(0.1, CurveSpecificationMatcher.named(CURVE_NAME));
-    Map<ExternalIdBundle, Double> shiftedValues = shift.apply(CURVE_SPEC, VALUE_MAP, NODE_MAP);
+    Map<ExternalIdBundle, Double> shiftedValues = shift.apply(CURVE_SPEC, VALUE_MAP);
     assertEquals(0.2, shiftedValues.get(ID1.toBundle()), DELTA);
     assertEquals(0.3, shiftedValues.get(ID2.toBundle()), DELTA);
     assertEquals(0.6, shiftedValues.get(ID3.toBundle()), DELTA);
@@ -87,7 +83,7 @@ public class CurveDataParallelShiftTest {
   @Test
   public void parallel() {
     CurveDataParallelShift shift = CurveDataParallelShift.relative(0.1, CurveSpecificationMatcher.named(CURVE_NAME));
-    Map<ExternalIdBundle, Double> shiftedValues = shift.apply(CURVE_SPEC, VALUE_MAP, NODE_MAP);
+    Map<ExternalIdBundle, Double> shiftedValues = shift.apply(CURVE_SPEC, VALUE_MAP);
     assertEquals(0.11, shiftedValues.get(ID1.toBundle()), DELTA);
     assertEquals(0.22, shiftedValues.get(ID2.toBundle()), DELTA);
     assertEquals(0.67, shiftedValues.get(ID3.toBundle()), DELTA);
@@ -98,7 +94,7 @@ public class CurveDataParallelShiftTest {
   public void noMatch() {
     CurveSpecification curveSpec = new CurveSpecification(LocalDate.now(), "a different name", NODES);
     CurveDataParallelShift shift = CurveDataParallelShift.absolute(0.1, CurveSpecificationMatcher.named(CURVE_NAME));
-    Map<ExternalIdBundle, Double> shiftedValues = shift.apply(curveSpec, VALUE_MAP, NODE_MAP);
+    Map<ExternalIdBundle, Double> shiftedValues = shift.apply(curveSpec, VALUE_MAP);
     assertEquals(0.1, shiftedValues.get(ID1.toBundle()), DELTA);
     assertEquals(0.2, shiftedValues.get(ID2.toBundle()), DELTA);
     assertEquals(0.7, shiftedValues.get(ID3.toBundle()), DELTA);
