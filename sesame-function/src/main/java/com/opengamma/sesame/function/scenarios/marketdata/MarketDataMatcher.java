@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Tests if an {@link ExternalIdBundle} representing a piece of market data matches a rule.
+ * Used for deciding whether the market data should be affected by a scenario.
  * TODO this lot might have to become Joda beans
  */
 public abstract class MarketDataMatcher {

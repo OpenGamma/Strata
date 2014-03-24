@@ -134,7 +134,7 @@ public class MarketDataShockDecorator implements MarketDataFn {
   }
 
   /**
-   * Wraps a list of {@link MarketDataShock}.
+   * Wraps a list of {@link MarketDataShock} instances.
    */
   public static final class Shocks {
 

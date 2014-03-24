@@ -86,7 +86,7 @@ public final class SimpleEnvironment implements Environment {
 
   @Override
   public int hashCode() {
-    return Objects.hash(_valuationTime, _marketDataSource);
+    return Objects.hash(_valuationTime, _marketDataSource, _scenarioArguments);
   }
 
   @Override
@@ -97,9 +97,10 @@ public final class SimpleEnvironment implements Environment {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    SimpleEnvironment other = (SimpleEnvironment) obj;
+    final SimpleEnvironment other = (SimpleEnvironment) obj;
     return
         Objects.equals(this._valuationTime, other._valuationTime) &&
-        Objects.equals(this._marketDataSource, other._marketDataSource);
+        Objects.equals(this._marketDataSource, other._marketDataSource) &&
+        Objects.equals(this._scenarioArguments, other._scenarioArguments);
   }
 }

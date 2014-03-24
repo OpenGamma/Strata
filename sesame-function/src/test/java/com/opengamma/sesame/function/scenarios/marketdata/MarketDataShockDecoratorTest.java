@@ -53,7 +53,7 @@ public class MarketDataShockDecoratorTest {
   private static final DecoratorConfig DECORATOR_CONFIG = new DecoratorConfig(CONFIG, MarketDataShockDecorator.class);
   private static final MarketDataSource MARKET_DATA_SOURCE = mock(MarketDataSource.class);
   private static final Fn FN = FunctionModel.build(Fn.class, DECORATOR_CONFIG);
-  private static final double DELTA = 0.000000001;
+  private static final double DELTA = 1e-8;
   private static final FieldName FIELD_NAME = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 
   static {

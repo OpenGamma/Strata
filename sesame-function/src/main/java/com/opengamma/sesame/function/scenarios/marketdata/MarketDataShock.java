@@ -48,12 +48,29 @@ public abstract class MarketDataShock {
    */
   protected abstract double shock(double value);
 
-  public static MarketDataShock absoluteShift(double value, MarketDataMatcher matcher) {
-    return new AbsoluteShift(value, matcher);
+  /**
+   * Creates a shock that adds an absolute amount to the market data values.
+   * The shock is only applied if the ID of the market data matches the matcher.
+   *
+   * @param shiftAmount the amount to add to the market data values
+   * @param matcher decides if a value should be shocked
+   * @return a shock to add an absolute amount to any matching data
+   */
+  public static MarketDataShock absoluteShift(double shiftAmount, MarketDataMatcher matcher) {
+    return new AbsoluteShift(shiftAmount, matcher);
   }
 
-  public static MarketDataShock relativeShift(double value, MarketDataMatcher matcher) {
-    return new RelativeShift(value, matcher);
+  /**
+   * Creates a shock that adds a relative amount to the market data values.
+   * The shock is only applied if the ID of the market data matches the matcher.
+   * A shift of 0.1 (+10%) scales the point value by 1.1, a shift of -0.2 (-20%) scales the point value by 0.8.
+   *
+   * @param shiftAmount the amount to add to the market data values
+   * @param matcher decides if a value should be shocked
+   * @return a shock to add a relative amount to any matching data
+   */
+  public static MarketDataShock relativeShift(double shiftAmount, MarketDataMatcher matcher) {
+    return new RelativeShift(shiftAmount, matcher);
   }
 
   public static MarketDataShock replace(double value, MarketDataMatcher matcher) {
