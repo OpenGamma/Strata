@@ -5,8 +5,10 @@
  */
 package com.opengamma.sesame.server;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -14,6 +16,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
@@ -167,7 +170,17 @@ public class CycleRunner {
     // todo - we may want a method whereby we can get the delta of data that has changed since the previous cycle
     // todo - pass the delta in through the cycle arguments
     // todo - version correction should be coming from somewhere - cycle options?
-    return new CycleArguments(cycleOptions.getValuationTime(), VersionCorrection.LATEST, marketDataSource);
+
+    // todo - these need real values
+    FunctionArguments functionArguments = FunctionArguments.EMPTY;
+    Map<Class<?>, Object> scenarioArguments = Collections.emptyMap();
+    VersionCorrection configVersionCorrection = VersionCorrection.LATEST;
+
+    return new CycleArguments(cycleOptions.getValuationTime(),
+                              configVersionCorrection,
+                              marketDataSource,
+                              functionArguments,
+                              scenarioArguments);
   }
 
 

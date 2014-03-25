@@ -71,7 +71,7 @@ public class View implements AutoCloseable {
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
 
-  // TODO this has too many parameters. does that matter? it's only called by the engine
+  // TODO this has too many parameters. does that matter? it's only called by the view factory
   /* package */ View(ViewConfig viewConfig,
                      Graph graph,
                      ExecutorService executor,
@@ -107,13 +107,15 @@ public class View implements AutoCloseable {
    * @param cycleArguments Settings for running the cycle including valuation time and market data source
    * @param inputs the inputs to the calculation, e.g. trades, positions, securities
    * @return The calculation results, not null
+   * TODO this should be re-entrant for non-live views that can be run in parallel (e.g. multiple scenarios)
+   * would need a different (no-op?) cache invalidator. the view factory needs to know whether a view is live
+   * (and therefore sequential) or can be run in parallel.
    */
   public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
-    EngineEnvironment env = new EngineEnvironment(cycleArguments.getValuationTime(),
-                                                  cycleArguments.getMarketDataSource(),
-                                                  _cacheInvalidator,
-                                                  // TODO scenario arguments
-                                                  Collections.<Class<?>, Object>emptyMap());
+    Environment env = new EngineEnvironment(cycleArguments.getValuationTime(),
+                                            cycleArguments.getMarketDataSource(),
+                                            cycleArguments.getScenarioArguments(),
+                                            _cacheInvalidator);
     invalidateCache(cycleArguments);
     List<Task> tasks = Lists.newArrayList();
     tasks.addAll(portfolioTasks(env, cycleArguments, inputs));
@@ -193,8 +195,9 @@ public class View implements AutoCloseable {
 
         Class<?> implType = function.getUnderlyingReceiver().getClass();
         Class<?> declaringType = function.getDeclaringClass();
-        FunctionArguments args = new CompositeFunctionArguments(functionModelConfig.getFunctionArguments(implType),
-                                                                functionModelConfig.getFunctionArguments(declaringType));
+        FunctionArguments args = CompositeFunctionArguments.compose(cycleArguments.getFunctionArguments(),
+                                                                    functionModelConfig.getFunctionArguments(implType),
+                                                                    functionModelConfig.getFunctionArguments(declaringType));
         portfolioTasks.add(new PortfolioTask(env, functionInput, args, rowIndex++, colIndex, function, tracer));
       }
       colIndex++;
@@ -216,8 +219,9 @@ public class View implements AutoCloseable {
 
       Class<?> implType = function.getUnderlyingReceiver().getClass();
       Class<?> declaringType = function.getDeclaringClass();
-      FunctionArguments args = new CompositeFunctionArguments(functionModelConfig.getFunctionArguments(implType),
-                                                              functionModelConfig.getFunctionArguments(declaringType));
+      FunctionArguments args = CompositeFunctionArguments.compose(cycleArguments.getFunctionArguments(),
+                                                                  functionModelConfig.getFunctionArguments(implType),
+                                                                  functionModelConfig.getFunctionArguments(declaringType));
       tasks.add(new NonPortfolioTask(env, args, output.getName(), function, tracer));
     } return tasks;
   }

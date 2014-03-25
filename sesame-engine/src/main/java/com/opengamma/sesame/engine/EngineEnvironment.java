@@ -35,8 +35,8 @@ import com.opengamma.util.result.Result;
 
   /* package */ EngineEnvironment(ZonedDateTime valuationTime,
                                   MarketDataSource marketDataSource,
-                                  CacheInvalidator cacheInvalidator,
-                                  Map<Class<?>, Object> scenarioArguments) {
+                                  Map<Class<?>, Object> scenarioArguments,
+                                  CacheInvalidator cacheInvalidator) {
     _delegate = new SimpleEnvironment(ArgumentChecker.notNull(valuationTime, "valuationTime"),
                                       ArgumentChecker.notNull(marketDataSource, "marketDataSource"),
                                       ArgumentChecker.notNull(scenarioArguments, "scenarioArguments"));

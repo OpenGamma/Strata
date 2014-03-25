@@ -30,8 +30,6 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.CacheManager;
-
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
@@ -54,6 +52,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.OutputNames;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.example.CashFlowDescriptionFn;
@@ -80,6 +79,8 @@ import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+
+import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class ViewFactoryTest {
@@ -278,8 +279,10 @@ public class ViewFactoryTest {
     @SuppressWarnings("unchecked")
     Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataSource(),
                                                        VersionCorrection.LATEST,
+                                                       mockMarketDataSource(),
+                                                       FunctionArguments.EMPTY,
+                                                       Collections.<Class<?>, Object>emptyMap(),
                                                        traceCells,
                                                        Collections.<String>emptySet());
     Results results = view.run(cycleArguments, trades);
@@ -306,11 +309,7 @@ public class ViewFactoryTest {
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataSource(),
-                                                       VersionCorrection.LATEST,
-                                                       Collections.<Pair<Integer,Integer>>emptySet(),
-                                                       Collections.<String>emptySet());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -342,11 +341,7 @@ public class ViewFactoryTest {
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataSource(),
-                                                       VersionCorrection.LATEST,
-                                                       Collections.<Pair<Integer,Integer>>emptySet(),
-                                                       Collections.<String>emptySet());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -373,8 +368,10 @@ public class ViewFactoryTest {
                                EnumSet.of(FunctionService.TRACING));
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataSource(),
                                                        VersionCorrection.LATEST,
+                                                       mockMarketDataSource(),
+                                                       FunctionArguments.EMPTY,
+                                                       Collections.<Class<?>, Object>emptyMap(),
                                                        Collections.<Pair<Integer,Integer>>emptySet(),
                                                        ImmutableSet.of(name));
     Results results = view.run(cycleArguments);
@@ -407,11 +404,7 @@ public class ViewFactoryTest {
                                               CacheManager.getInstance(),
                                               EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataSource(),
-                                                       VersionCorrection.LATEST,
-                                                       Collections.<Pair<Integer,Integer>>emptySet(),
-                                                       Collections.<String>emptySet());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -444,11 +437,7 @@ public class ViewFactoryTest {
                                               CacheManager.getInstance(),
                                               EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
-                                                       mockMarketDataSource(),
-                                                       VersionCorrection.LATEST,
-                                                       Collections.<Pair<Integer,Integer>>emptySet(),
-                                                       Collections.<String>emptySet());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);

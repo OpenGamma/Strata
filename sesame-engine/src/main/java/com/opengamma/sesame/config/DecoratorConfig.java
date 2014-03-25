@@ -171,7 +171,7 @@ public class DecoratorConfig implements FunctionModelConfig {
     if (args == null) {
       return delegateArgs;
     } else {
-      return new CompositeFunctionArguments(args, delegateArgs);
+      return CompositeFunctionArguments.compose(args, delegateArgs);
     }
   }
 }

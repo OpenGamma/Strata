@@ -75,8 +75,8 @@ public class CompositeFunctionModelConfig implements FunctionModelConfig {
 
   @Override
   public FunctionArguments getFunctionArguments(Class<?> functionType) {
-    return new CompositeFunctionArguments(_config1.getFunctionArguments(functionType),
-                                          _config2.getFunctionArguments(functionType));
+    return CompositeFunctionArguments.compose(_config1.getFunctionArguments(functionType),
+                                              _config2.getFunctionArguments(functionType));
   }
 
   //-------------------------------------------------------------------------
