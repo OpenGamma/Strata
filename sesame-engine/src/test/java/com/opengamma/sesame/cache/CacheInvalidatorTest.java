@@ -17,6 +17,7 @@ import java.util.LinkedList;
 
 import javax.inject.Provider;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -43,15 +44,15 @@ public class CacheInvalidatorTest {
   private static final MethodInvocationKey METHOD_KEY_2 = methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"});
   private static final MethodInvocationKey METHOD_KEY_3 = methodKey(new ArrayList<>(), "size", null);
 
-  private final Cache _cache = createCache();
+  private Cache _cache;
 
-  private static Cache createCache() {
+  @BeforeClass
+  public void createCache() {
     PersistenceConfiguration persistenceConfiguration =
         new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE);
     CacheConfiguration config = new CacheConfiguration("test", 100).eternal(true).persistence(persistenceConfiguration);
-    Cache cache = new Cache(config);
-    CacheManager.getInstance().addCache(cache);
-    return cache;
+    _cache = new Cache(config);
+    CacheManager.getInstance().addCache(_cache);
   }
 
   private void populateCache() {
