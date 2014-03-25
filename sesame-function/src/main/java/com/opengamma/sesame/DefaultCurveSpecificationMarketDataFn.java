@@ -30,7 +30,7 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
 
   @Override
   public Result<Map<ExternalIdBundle, Double>> requestData(Environment env, CurveSpecification curveSpecification) {
-    Map<ExternalIdBundle, Double> results = new HashMap<>();
+    Map<ExternalIdBundle, Double> curveData = new HashMap<>();
 
     // Interim result object used to build up the complete set of
     // failures rather than exiting early
@@ -45,13 +45,13 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
         if (Result.anyFailures(fwdItem, spotItem)) {
           result = Result.failure(result, fwdItem, spotItem);
         } else {
-          results.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
+          curveData.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
         }
       } else {
         Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
 
         if (fwdItem.isSuccess()) {
-          results.put(node.getIdentifier().toBundle(), fwdItem.getValue());
+          curveData.put(node.getIdentifier().toBundle(), fwdItem.getValue());
         } else {
           result = Result.failure(result, fwdItem);
         }
@@ -59,7 +59,7 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
     }
 
     if (result.isSuccess()) {
-      return Result.success(results);
+      return Result.success(curveData);
     } else {
       return Result.failure(result);
     }

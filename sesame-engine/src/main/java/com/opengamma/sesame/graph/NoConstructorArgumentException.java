@@ -23,7 +23,7 @@ import com.opengamma.sesame.function.Parameter;
    * @param path  the path of parameters to the problem, not null
    * @param message  the descriptive message, not null
    */
-  public NoConstructorArgumentException(List<Parameter> path, String message) {
+  /* package */ NoConstructorArgumentException(List<Parameter> path, String message) {
     super(path, message);
   }
 

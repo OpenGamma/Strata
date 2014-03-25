@@ -39,7 +39,7 @@ public class CurveDataParallelShiftDecorator implements CurveSpecificationMarket
     if (!result.isSuccess()) {
       return result;
     }
-    Shifts shifts = (Shifts) env.getScenarioArgument(getClass());
+    Shifts shifts = (Shifts) env.getScenarioArgument(this);
 
     if (shifts == null) {
       return result;

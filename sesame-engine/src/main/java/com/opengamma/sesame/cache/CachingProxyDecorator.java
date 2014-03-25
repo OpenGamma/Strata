@@ -7,6 +7,8 @@ package com.opengamma.sesame.cache;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -17,8 +19,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.graph.ClassNode;
 import com.opengamma.sesame.graph.FunctionModelNode;
 import com.opengamma.sesame.graph.InterfaceNode;
 import com.opengamma.sesame.graph.NodeDecorator;
@@ -74,10 +79,36 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
     }
     if (EngineUtils.hasMethodAnnotation(interfaceType, Cacheable.class) ||
         EngineUtils.hasMethodAnnotation(implementationType, Cacheable.class)) {
-      CachingHandlerFactory handlerFactory = new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods);
+      Set<Class<?>> subtreeTypes = subtreeImplementationTypes(node);
+      CachingHandlerFactory handlerFactory =
+          new CachingHandlerFactory(implementationType, interfaceType, _cache, _executingMethods, subtreeTypes);
       return createProxyNode(node, interfaceType, implementationType, handlerFactory);
     }
     return node;
+  }
+
+  /**
+   * Returns the types built by all nodes in the node's subtree.
+   *
+   * @param node a node
+   * @return the set of all node types in the node's subtree
+   */
+  private static Set<Class<?>> subtreeImplementationTypes(FunctionModelNode node) {
+    Set<Class<?>> types = new HashSet<>();
+    populateSubtreeImplementationTypes(node, types);
+    return types;
+  }
+
+  private static void populateSubtreeImplementationTypes(FunctionModelNode node, Set<Class<?>> accumulator) {
+    // we only want the types for real function nodes, not proxies
+    FunctionModelNode concreteNode = node.getConcreteNode();
+
+    if (concreteNode instanceof ClassNode) {
+      accumulator.add(((ClassNode) concreteNode).getImplementationType());
+    }
+    for (FunctionModelNode childNode : node.getDependencies()) {
+      populateSubtreeImplementationTypes(childNode, accumulator);
+    }
   }
 
   public Ehcache getCache() {
@@ -98,12 +129,15 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
     private final Class<?> _implementationType;
     private final Ehcache _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
+    private final Set<Class<?>> _subtreeTypes;
 
     private CachingHandlerFactory(Class<?> implementationType,
                                   Class<?> interfaceType,
                                   Ehcache cache,
-                                  ExecutingMethodsThreadLocal executingMethods) {
-      _executingMethods = executingMethods;
+                                  ExecutingMethodsThreadLocal executingMethods,
+                                  Set<Class<?>> subtreeTypes) {
+      _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
+      _subtreeTypes = ArgumentChecker.notNull(subtreeTypes, "subtreeTypes");
       _cache = ArgumentChecker.notNull(cache, "cache");
       _implementationType = ArgumentChecker.notNull(implementationType, "implementationType");
       _interfaceType = ArgumentChecker.notNull(interfaceType, "interfaceType");
@@ -132,9 +166,7 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
           }
         }
       }
-      // TODO delegate could be a proxy but the cache key should contain the underlying shared function instance
-      // probably need 1) an extra argument and 2) a way of drilling through proxies to get to the real receiver
-      return new Handler(delegate, cachedMethods, _cache, _executingMethods);
+      return new Handler(delegate, cachedMethods, _cache, _executingMethods, _subtreeTypes);
     }
 
     @Override
@@ -174,12 +206,15 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
     private final Set<Method> _cachedMethods;
     private final Ehcache _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
+    private final Set<Class<?>> _subtreeTypes;
 
     private Handler(Object delegate,
                     Set<Method> cachedMethods,
                     Ehcache cache,
-                    ExecutingMethodsThreadLocal executingMethods) {
+                    ExecutingMethodsThreadLocal executingMethods,
+                    Set<Class<?>> subtreeTypes) {
       super(delegate);
+      _subtreeTypes = ArgumentChecker.notNull(subtreeTypes, "subtreeTypes");
       _cache = ArgumentChecker.notNull(cache, "cache");
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
       _delegate = ArgumentChecker.notNull(delegate, "delegate");
@@ -191,7 +226,8 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
     @Override
     public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
       if (_cachedMethods.contains(method)) {
-        final MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, args);
+        Object[] keyArgs = getArgumentsForCacheKey(args);
+        MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, keyArgs);
         Element element = _cache.get(key);
         if (element != null) {
           FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
@@ -218,6 +254,39 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
           throw e.getCause();
         }
       }
+    }
+
+    /**
+     * <p>Returns the method call arguments that should be used in the cache key for the call's return value.
+     * If the input arguments don't have an {@link Environment} as their first element they are returned.
+     * If the input arguments have an environment as their first element a new set of arguments is returned
+     * that is a copy of the input arguments but containing a different environment.</p>
+     *
+     * <p>The new environment is copied from the environment in the input but uses a different set of scenario
+     * arguments. The new arguments only include the arguments for the functions below this function
+     * in the graph.</p>
+     *
+     * <p>Scenarios above the current function in the graph can't affect the function's return value. If they
+     * were included in the cache key they could cause a cache miss even though there is no way they can
+     * invalidate the cache entry. By removing those arguments from the key we ensure that the only arguments
+     * in the key are the ones that can change this function's return value.</p>
+     *
+     * @param args the arguments to a method call
+     * @return the arguments that should be used in the cache key
+     */
+    private Object[] getArgumentsForCacheKey(Object[] args) {
+      if (args == null || args.length == 0 || !(args[0] instanceof Environment)) {
+        return args;
+      }
+      Object[] keyArgs;
+      keyArgs = new Object[args.length];
+      System.arraycopy(args, 0, keyArgs, 0, args.length);
+      Environment env = (Environment) args[0];
+      Map<Class<?>, Object> scenarioArgs = Maps.newHashMap(env.getScenarioArguments());
+      scenarioArgs.keySet().retainAll(_subtreeTypes);
+      Environment newEnv = env.withScenarioArguments(scenarioArgs);
+      keyArgs[0] = newEnv;
+      return keyArgs;
     }
 
     /** Visible for testing */

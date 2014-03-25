@@ -67,7 +67,7 @@ public class MarketDataShockDecorator implements MarketDataFn {
   }
 
   private Environment decorateDataSource(Environment env) {
-    Object arg = env.getScenarioArgument(getClass());
+    Object arg = env.getScenarioArgument(this);
 
     if (arg == null) {
       s_logger.debug("null scenario argument");

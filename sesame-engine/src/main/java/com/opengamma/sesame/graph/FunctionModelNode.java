@@ -32,7 +32,7 @@ import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A node in the function model.
+ * A node in the function model that can build a function and its dependencies.
  */
 public abstract class FunctionModelNode {
 
@@ -57,6 +57,16 @@ public abstract class FunctionModelNode {
     _parameter = parameter;
   }
 
+  /**
+   * Creates a node for building an object of the specified type.
+   * The node and its dependencies are built using the provided config.
+   *
+   * @param type the type of the object built by the node
+   * @param config configuration used to build the node and any dependent nodes
+   * @param availableComponents the types of components that the engine can provide to satisfy node dependencies
+   * @param nodeDecorator inserts proxies between functions to provide engine services, e.g. caching, tracing
+   * @return a node that can build an object
+   */
   public static FunctionModelNode create(Class<?> type,
                                          FunctionModelConfig config,
                                          Set<Class<?>> availableComponents,
@@ -77,7 +87,7 @@ public abstract class FunctionModelNode {
     Class<?> implType;
     try {
       implType = getImplementationType(type, config, path, parameter);
-    } catch (NoImplementationException e) {
+    } catch (InvalidGraphException e) {
       return new ErrorNode(type, e, parameter);
     }
 
@@ -136,7 +146,7 @@ public abstract class FunctionModelNode {
     }
     if (implType == null) {
       if (type.isInterface()) {
-        throw new NoImplementationException(path, "No implementation or provider found: " + type.getSimpleName());
+        throw new NoImplementationException(type, path, "No implementation or provider found: " + type.getSimpleName());
       }
       implType = type;
     }
@@ -316,7 +326,7 @@ public abstract class FunctionModelNode {
    * 
    * @return the parameter, not null
    */
-  FunctionModelNode getConcreteNode() {
+  public FunctionModelNode getConcreteNode() {
     return this;
   }
 

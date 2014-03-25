@@ -69,8 +69,13 @@ import com.opengamma.util.result.Result;
   }
 
   @Override
-  public Object getScenarioArgument(Class<?> functionType) {
-    return _delegate.getScenarioArgument(functionType);
+  public Object getScenarioArgument(Object function) {
+    return _delegate.getScenarioArgument(function);
+  }
+
+  @Override
+  public Map<Class<?>, Object> getScenarioArguments() {
+    return _delegate.getScenarioArguments();
   }
 
   @Override
@@ -92,5 +97,10 @@ import com.opengamma.util.result.Result;
     // this the returned environment is deliberately not one that's managed by the engine
     // TODO link to a thorough explanation of the caching implementation that explains this in detail
     return _delegate.with(valuationTime, marketData);
+  }
+
+  @Override
+  public Environment withScenarioArguments(Map<Class<?>, Object> scenarioArguments) {
+    return _delegate.withScenarioArguments(scenarioArguments);
   }
 }

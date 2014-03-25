@@ -12,6 +12,7 @@ import java.util.Objects;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 
@@ -46,7 +47,7 @@ public final class SimpleEnvironment implements Environment {
                            Map<Class<?>, Object> scenarioArguments) {
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
-    _scenarioArguments = ArgumentChecker.notNull(scenarioArguments, "scenarioArguments");
+    _scenarioArguments = ImmutableMap.copyOf(ArgumentChecker.notNull(scenarioArguments, "scenarioArguments"));
   }
 
   @Override
@@ -65,8 +66,13 @@ public final class SimpleEnvironment implements Environment {
   }
 
   @Override
-  public Object getScenarioArgument(Class<?> functionType) {
-    return _scenarioArguments.get(ArgumentChecker.notNull(functionType, "functionType"));
+  public Object getScenarioArgument(Object function) {
+    return _scenarioArguments.get(ArgumentChecker.notNull(function, "function").getClass());
+  }
+
+  @Override
+  public Map<Class<?>, Object> getScenarioArguments() {
+    return _scenarioArguments;
   }
 
   @Override
@@ -82,6 +88,11 @@ public final class SimpleEnvironment implements Environment {
   @Override
   public Environment with(ZonedDateTime valuationTime, MarketDataSource marketData) {
     return new SimpleEnvironment(valuationTime, marketData, _scenarioArguments);
+  }
+
+  @Override
+  public Environment withScenarioArguments(Map<Class<?>, Object> scenarioArguments) {
+    return new SimpleEnvironment(_valuationTime, _marketDataSource, scenarioArguments);
   }
 
   @Override

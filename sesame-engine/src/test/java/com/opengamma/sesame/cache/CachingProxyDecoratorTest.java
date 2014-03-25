@@ -18,14 +18,20 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
@@ -33,7 +39,10 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
+import com.opengamma.sesame.marketdata.FieldName;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
 import net.sf.ehcache.CacheManager;
@@ -127,7 +136,6 @@ public class CachingProxyDecoratorTest {
     assertTrue(val1 != val2);
   }
 
-
   interface TestFn {
 
     @Cacheable
@@ -211,12 +219,10 @@ public class CachingProxyDecoratorTest {
   public void sameFunctionDifferentDependencyInstances() {
     FunctionModelConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
                                                          DelegateFn.class, Delegate1.class),
-                                         arguments(function(Delegate1.class, argument("s", "a string")))
-    );
+                                         arguments(function(Delegate1.class, argument("s", "a string"))));
     FunctionModelConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
                                                          DelegateFn.class, Delegate1.class),
-                                         arguments(function(Delegate1.class, argument("s", "a different string")))
-    );
+                                         arguments(function(Delegate1.class, argument("s", "a different string"))));
     FunctionMetadata metadata = EngineUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
 
@@ -239,12 +245,10 @@ public class CachingProxyDecoratorTest {
   public void sameFunctionDifferentDependencyTypes() {
     FunctionModelConfig config1 = config(implementations(TopLevelFn.class, TopLevel.class,
                                                          DelegateFn.class, Delegate1.class),
-                                         arguments(function(Delegate1.class, argument("s", "a string")))
-    );
+                                         arguments(function(Delegate1.class, argument("s", "a string"))));
     FunctionModelConfig config2 = config(implementations(TopLevelFn.class, TopLevel.class,
                                                          DelegateFn.class, Delegate2.class),
-                                         arguments(function(Delegate2.class, argument("s", "a string")))
-    );
+                                         arguments(function(Delegate2.class, argument("s", "a string"))));
     FunctionMetadata metadata = EngineUtils.createMetadata(TopLevelFn.class, "fn");
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
 
@@ -369,6 +373,83 @@ public class CachingProxyDecoratorTest {
       expected.add(key1);
       assertEquals(expected, _executingMethods.get());
       return null;
+    }
+  }
+
+  /**
+   * check that scenario arguments in the environment are only included the cache key for functions whose return value
+   * can be affected by the scenario.
+   */
+  @Test
+  public void scenarioArguments() throws ExecutionException, InterruptedException {
+    FunctionModelConfig config = config(implementations(ScenarioArgumentsI1.class, ScenarioArgumentsC1.class,
+                                                        ScenarioArgumentsI2.class, ScenarioArgumentsC2.class));
+    ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
+    ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
+                                                                                executingMethods));
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, executingMethods);
+    ScenarioArgumentsI1 i1 = FunctionModel.build(ScenarioArgumentsI1.class, config, components, cachingDecorator);
+    ZonedDateTime valuationTime = ZonedDateTime.now();
+    MarketDataSource marketDataSource = new MarketDataSource() {
+      @Override
+      public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
+        throw new UnsupportedOperationException("get not implemented");
+      }
+    };
+    Map<Class<?>, Object> scenarioArgs1 = ImmutableMap.<Class<?>, Object>of(ScenarioArgumentsC1.class, "c1args",
+                                                                            ScenarioArgumentsC2.class, "c2args");
+    Map<Class<?>, Object> scenarioArgs2 = ImmutableMap.<Class<?>, Object>of(ScenarioArgumentsC2.class, "c2args");
+    SimpleEnvironment env1 = new SimpleEnvironment(valuationTime, marketDataSource, scenarioArgs1);
+    SimpleEnvironment env2 = new SimpleEnvironment(valuationTime, marketDataSource, scenarioArgs2);
+    i1.fn(env1, "s1", 1);
+    i1.fn(env1, "s2", 2);
+
+    ScenarioArgumentsC1 c1 = (ScenarioArgumentsC1) EngineUtils.getProxiedObject(i1);
+    ScenarioArgumentsC2 c2 = (ScenarioArgumentsC2) EngineUtils.getProxiedObject(c1._i2);
+    Ehcache cache = cachingDecorator.getCache();
+    Method method1 = EngineUtils.getMethod(ScenarioArgumentsI1.class, "fn");
+    Method method2 = EngineUtils.getMethod(ScenarioArgumentsI2.class, "fn");
+    MethodInvocationKey key1 = new MethodInvocationKey(c1, method1, new Object[]{env1, "s1", 1});
+    MethodInvocationKey key2 = new MethodInvocationKey(c1, method1, new Object[]{env1, "s2", 2});
+    MethodInvocationKey key3 = new MethodInvocationKey(c2, method2, new Object[]{env2, "s1", 1});
+    MethodInvocationKey key4 = new MethodInvocationKey(c2, method2, new Object[]{env2, "s2", 2});
+    assertEquals("S1 1", ((FutureTask) cache.get(key1).getObjectValue()).get());
+    assertEquals("S2 2", ((FutureTask) cache.get(key2).getObjectValue()).get());
+    assertEquals("s1 1", ((FutureTask) cache.get(key3).getObjectValue()).get());
+    assertEquals("s2 2", ((FutureTask) cache.get(key4).getObjectValue()).get());
+  }
+
+  interface ScenarioArgumentsI1 {
+
+    @Cacheable
+    Object fn(Environment env, String s, Integer i);
+  }
+
+  public static class ScenarioArgumentsC1 implements ScenarioArgumentsI1 {
+
+    private final ScenarioArgumentsI2 _i2;
+
+    public ScenarioArgumentsC1(ScenarioArgumentsI2 i2) {
+      _i2 = i2;
+    }
+
+    @Override
+    public Object fn(Environment env, String s, Integer i) {
+      return _i2.fn(env, s, i).toUpperCase();
+    }
+  }
+
+  interface ScenarioArgumentsI2 {
+
+    @Cacheable
+    String fn(Environment env, String s, Integer i);
+  }
+
+  public static class ScenarioArgumentsC2 implements ScenarioArgumentsI2 {
+
+    @Override
+    public String fn(Environment env, String s, Integer i) {
+      return s + " " + i;
     }
   }
 }

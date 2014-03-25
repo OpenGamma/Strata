@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame;
 
+import java.util.Map;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -41,12 +43,22 @@ public interface Environment {
   MarketDataSource getMarketDataSource();
 
   /**
-   * Returns the scenario argument for the specified function implementation type, possibly null
+   * Returns the scenario argument for a function, possibly null
    *
-   * @param functionType the type of the function implementation whose scenario argument is required
-   * @return the scenario argument for the specified function implementation type, possibly null
+   * @param function the function whose scenario argument is required
+   * @return the scenario argument for the specified function, possibly null
+   * TODO should this return a list? that would allow composition. is that needed?
    */
-  Object getScenarioArgument(Class<?> functionType);
+  Object getScenarioArgument(Object function);
+
+  /**
+   * @return the scenario arguments for all functions, keyed by the function implementation type
+   * that consumes the argument.
+   * TODO is there a nice way to avoid exposing this to the functions?
+   * make Environment an abstract class and make this package private? would have to re-jig the packages
+   * move to a subtype and downcast in the proxy?
+   */
+  Map<Class<?>, Object> getScenarioArguments();
 
   /**
    * Returns a new environment copied from this environment but with a different valuation time.
@@ -73,6 +85,11 @@ public interface Environment {
    */
   Environment with(ZonedDateTime valuationTime, MarketDataSource marketData);
 
-  // TODO withScenarioArguments?
-  // TODO builder?
+  /**
+   * Returns a new environment copied from this one but with different scenario arguments.
+   *
+   * @param scenarioArguments the scenario arguments
+   * @return an environment copied from this one but with difference scenario arguments
+   */
+  Environment withScenarioArguments(Map<Class<?>, Object> scenarioArguments);
 }
