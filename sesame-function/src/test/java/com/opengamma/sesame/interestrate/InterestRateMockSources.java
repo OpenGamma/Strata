@@ -88,42 +88,42 @@ import com.opengamma.util.time.Tenor;
  */
 public class InterestRateMockSources {
 
-  private final ChangeManager MOCK_CHANGE_MANAGER = mock(ChangeManager.class);
+  private static final ChangeManager MOCK_CHANGE_MANAGER = mock(ChangeManager.class);
 
-  private final String CURVE_CONSTRUCTION_CONFIGURATION = "USD_ON-OIS_LIBOR3M-FRAIRS_1U";
+  private static final String CURVE_CONSTRUCTION_CONFIGURATION = "USD_ON-OIS_LIBOR3M-FRAIRS_1U";
 
-  private final String USD_DISC_MAPPER = "Test USD Discounting Mapper";
-  private final String USD_DISC_OVERNIGHT_MAPPER = "Test USD Discounting Overnight Mapper";
-  private final String LIBOR_3M_MAPPER = "Test 3m Libor Mapper";
+  private static final String USD_DISC_MAPPER = "Test USD Discounting Mapper";
+  private static final String USD_DISC_OVERNIGHT_MAPPER = "Test USD Discounting Overnight Mapper";
+  private static final String LIBOR_3M_MAPPER = "Test 3m Libor Mapper";
 
-  private final String LIBOR_CURVE_NAME ="USD-LIBOR3M-FRAIRS";
-  private final String ON_CURVE_NAME ="USD-ON-OIS";
+  private static final String LIBOR_CURVE_NAME ="USD-LIBOR3M-FRAIRS";
+  private static final String ON_CURVE_NAME ="USD-ON-OIS";
 
-  private final String DISC_LEG_CONVENTION =  "USD 1Y Pay Lag Fixed Leg";
-  private final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
-  private final String DISC_CONVENTION =  "USD DepositON";
-  private final String LIBOR_PAY_LEG_CONVENTION =  "USD IRS Fixed Leg";
-  private final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
-  private final String LIBOR_CONVENTION =  "USD Libor";
-  private final String LIBOR_INDEX =  "Libor Index";
-  private final String USD_OVERNIGHT_CONVENTION =  "USD Overnight";
-  private final String USD_OVERNIGHT_INDEX =  "USD Overnight Index";
+  private static final String DISC_LEG_CONVENTION =  "USD 1Y Pay Lag Fixed Leg";
+  private static final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
+  private static final String DISC_CONVENTION =  "USD DepositON";
+  private static final String LIBOR_PAY_LEG_CONVENTION =  "USD IRS Fixed Leg";
+  private static final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
+  private static final String LIBOR_CONVENTION =  "USD Libor";
+  private static final String LIBOR_INDEX =  "Libor Index";
+  private static final String USD_OVERNIGHT_CONVENTION =  "USD Overnight";
+  private static final String USD_OVERNIGHT_INDEX =  "USD Overnight Index";
 
-  private final ExternalId _discPayLegConventionId = ExternalId.of("CONVENTION", DISC_LEG_CONVENTION);
-  private final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);
-  private final ExternalId _discConventionId = ExternalId.of("CONVENTION", DISC_CONVENTION);
-  private final ExternalId _liborPayLegConventionId = ExternalId.of("CONVENTION", LIBOR_PAY_LEG_CONVENTION);
-  private final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION);
-  private final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
-  private final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
+  private static final ExternalId _discPayLegConventionId = ExternalId.of("CONVENTION", DISC_LEG_CONVENTION);
+  private static final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);
+  private static final ExternalId _discConventionId = ExternalId.of("CONVENTION", DISC_CONVENTION);
+  private static final ExternalId _liborPayLegConventionId = ExternalId.of("CONVENTION", LIBOR_PAY_LEG_CONVENTION);
+  private static final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION);
+  private static final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
+  private static final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
 
-  private final ExternalId _liborIndexId = ExternalId.of("CONVENTION", LIBOR_INDEX);
-  private final ExternalId _onIndexId = ExternalId.of("CONVENTION", USD_OVERNIGHT_INDEX);
-  private final String TICKER = "Ticker";
+  private static final ExternalId _liborIndexId = ExternalId.of("CONVENTION", LIBOR_INDEX);
+  private static final ExternalId _onIndexId = ExternalId.of("CONVENTION", USD_OVERNIGHT_INDEX);
+  private static final String TICKER = "Ticker";
 
-  private final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
-  private final ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
-  private final Currency s_USD = Currency.USD;
+  private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
+  private static final ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
+  private static final Currency s_USD = Currency.USD;
 
   public ExternalId getLiborIndexId() {
     return _liborIndexId;
