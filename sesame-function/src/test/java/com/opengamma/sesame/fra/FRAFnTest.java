@@ -87,13 +87,14 @@ public class FRAFnTest {
 
   private FRAFn _fraFunction;
   private FRASecurity _fraSecurity = createSingleFra();
+  private InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
 
   @BeforeClass
   public void setUpClass() throws IOException {
     FunctionModelConfig config = config(
         arguments(
             function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.of("Test USD", InterestRateMockSources.mockExposureFunctions()))),
+                     argument("exposureConfig", ConfigLink.of("Test USD", _interestRateMockSources.mockExposureFunctions()))),
             function(RootFinderConfiguration.class,
                      argument("rootFinderAbsoluteTolerance", 1e-9),
                      argument("rootFinderRelativeTolerance", 1e-9),
@@ -119,7 +120,7 @@ public class FRAFnTest {
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                         MarketDataFn.class, DefaultMarketDataFn.class));
 
-    Map<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
+    Map<Class<?>, Object> components = _interestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
@@ -129,7 +130,7 @@ public class FRAFnTest {
 
   @Test
   public void discountingFRAPV() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
+    MarketDataSource dataSource = _interestRateMockSources.createMarketDataSource();
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
     Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(env, _fraSecurity);
     assertThat(resultPV.isSuccess(), is((true)));
@@ -140,7 +141,7 @@ public class FRAFnTest {
 
   @Test
   public void parRateFRA() {
-    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
+    MarketDataSource dataSource = _interestRateMockSources.createMarketDataSource();
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
     Result<Double> resultParRate = _fraFunction.calculateParRate(env, _fraSecurity);
     assertThat(resultParRate.isSuccess(), is((true)));
@@ -151,7 +152,7 @@ public class FRAFnTest {
 
   private FRASecurity createSingleFra() {
     return new FRASecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), STD_ACCRUAL_START_DATE,
-                           STD_ACCRUAL_END_DATE, 0.0125, -10000000, InterestRateMockSources.getLiborIndexId(),
+                           STD_ACCRUAL_END_DATE, 0.0125, -10000000, new InterestRateMockSources().getLiborIndexId(),
                            STD_REFERENCE_DATE);
   }
 

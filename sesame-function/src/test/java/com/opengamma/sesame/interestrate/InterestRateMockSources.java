@@ -88,48 +88,48 @@ import com.opengamma.util.time.Tenor;
  */
 public class InterestRateMockSources {
 
-  private static final ChangeManager MOCK_CHANGE_MANAGER = mock(ChangeManager.class);
+  private final ChangeManager MOCK_CHANGE_MANAGER = mock(ChangeManager.class);
 
-  private static final String CURVE_CONSTRUCTION_CONFIGURATION = "USD_ON-OIS_LIBOR3M-FRAIRS_1U";
+  private final String CURVE_CONSTRUCTION_CONFIGURATION = "USD_ON-OIS_LIBOR3M-FRAIRS_1U";
 
-  private static final String USD_DISC_MAPPER = "Test USD Discounting Mapper";
-  private static final String USD_DISC_OVERNIGHT_MAPPER = "Test USD Discounting Overnight Mapper";
-  private static final String LIBOR_3M_MAPPER = "Test 3m Libor Mapper";
+  private final String USD_DISC_MAPPER = "Test USD Discounting Mapper";
+  private final String USD_DISC_OVERNIGHT_MAPPER = "Test USD Discounting Overnight Mapper";
+  private final String LIBOR_3M_MAPPER = "Test 3m Libor Mapper";
 
-  private static final String LIBOR_CURVE_NAME ="USD-LIBOR3M-FRAIRS";
-  private static final String ON_CURVE_NAME ="USD-ON-OIS";
+  private final String LIBOR_CURVE_NAME ="USD-LIBOR3M-FRAIRS";
+  private final String ON_CURVE_NAME ="USD-ON-OIS";
 
-  private static final String DISC_LEG_CONVENTION =  "USD 1Y Pay Lag Fixed Leg";
-  private static final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
-  private static final String DISC_CONVENTION =  "USD DepositON";
-  private static final String LIBOR_PAY_LEG_CONVENTION =  "USD IRS Fixed Leg";
-  private static final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
-  private static final String LIBOR_CONVENTION =  "USD Libor";
-  private static final String LIBOR_INDEX =  "Libor Index";
-  private static final String USD_OVERNIGHT_CONVENTION =  "USD Overnight";
-  private static final String USD_OVERNIGHT_INDEX =  "USD Overnight Index";
+  private final String DISC_LEG_CONVENTION =  "USD 1Y Pay Lag Fixed Leg";
+  private final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
+  private final String DISC_CONVENTION =  "USD DepositON";
+  private final String LIBOR_PAY_LEG_CONVENTION =  "USD IRS Fixed Leg";
+  private final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
+  private final String LIBOR_CONVENTION =  "USD Libor";
+  private final String LIBOR_INDEX =  "Libor Index";
+  private final String USD_OVERNIGHT_CONVENTION =  "USD Overnight";
+  private final String USD_OVERNIGHT_INDEX =  "USD Overnight Index";
 
-  private static final ExternalId _discPayLegConventionId = ExternalId.of("CONVENTION", DISC_LEG_CONVENTION);
-  private static final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);
-  private static final ExternalId _discConventionId = ExternalId.of("CONVENTION", DISC_CONVENTION);
-  private static final ExternalId _liborPayLegConventionId = ExternalId.of("CONVENTION", LIBOR_PAY_LEG_CONVENTION);
-  private static final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION);
-  private static final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
-  private static final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
+  private final ExternalId _discPayLegConventionId = ExternalId.of("CONVENTION", DISC_LEG_CONVENTION);
+  private final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);
+  private final ExternalId _discConventionId = ExternalId.of("CONVENTION", DISC_CONVENTION);
+  private final ExternalId _liborPayLegConventionId = ExternalId.of("CONVENTION", LIBOR_PAY_LEG_CONVENTION);
+  private final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION);
+  private final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
+  private final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
 
-  private static final ExternalId _liborIndexId = ExternalId.of("CONVENTION", LIBOR_INDEX);
-  private static final ExternalId _onIndexId = ExternalId.of("CONVENTION", USD_OVERNIGHT_INDEX);
-  private static final String TICKER = "Ticker";
+  private final ExternalId _liborIndexId = ExternalId.of("CONVENTION", LIBOR_INDEX);
+  private final ExternalId _onIndexId = ExternalId.of("CONVENTION", USD_OVERNIGHT_INDEX);
+  private final String TICKER = "Ticker";
 
-  private static ExternalId s_USID = ExternalSchemes.financialRegionId("US");
-  private static ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
-  private static Currency s_USD = Currency.USD;
+  private final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
+  private final ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
+  private final Currency s_USD = Currency.USD;
 
-  public static ExternalId getLiborIndexId() {
+  public ExternalId getLiborIndexId() {
     return _liborIndexId;
   }
 
-  public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
+  public ImmutableMap<Class<?>, Object> generateBaseComponents() {
     return generateComponentMap(mockHolidaySource(),
                                 mockRegionSource(),
                                 mockConventionSource(),
@@ -140,13 +140,13 @@ public class InterestRateMockSources {
                                 mock(CurrencyMatrix.class));
   }
 
-  public static MarketDataFactory createMarketDataFactory() {
+  public MarketDataFactory createMarketDataFactory() {
     MarketDataFactory mock = mock(MarketDataFactory.class);
     when(mock.create(Matchers.<MarketDataSpecification>any())).thenReturn(createMarketDataSource());
     return mock;
   }
 
-  public static StrategyAwareMarketDataSource createMarketDataSource() {
+  public StrategyAwareMarketDataSource createMarketDataSource() {
     try {
       Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/usdMarketQuotes.properties", TICKER);
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
@@ -156,7 +156,7 @@ public class InterestRateMockSources {
     }
   }
 
-  public static  ExposureFunctions mockExposureFunctions() {
+  public ExposureFunctions mockExposureFunctions() {
     List<String> exposureFunctions =  ImmutableList.of("Currency");
     Map<ExternalId, String> idsToNames = new HashMap<>();
     idsToNames.put(ExternalId.of("CurrencyISO", "USD"), CURVE_CONSTRUCTION_CONFIGURATION);
@@ -164,7 +164,7 @@ public class InterestRateMockSources {
   }
 
 
-  private static CurveNodeIdMapper getUSDDiscountingCurveMapper() {
+  private CurveNodeIdMapper getUSDDiscountingCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
     cashNodes.put(Tenor.ONE_DAY, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D1")));
     cashNodes.put(Tenor.TWO_DAYS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
@@ -193,7 +193,7 @@ public class InterestRateMockSources {
         .build();
   }
 
-  private static CurveNodeIdMapper getUSDDiscountingOvernightCurveMapper() {
+  private CurveNodeIdMapper getUSDDiscountingOvernightCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
     cashNodes.put(Tenor.OVERNIGHT, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
     return CurveNodeIdMapper.builder()
@@ -202,7 +202,7 @@ public class InterestRateMockSources {
         .build();
   }
 
-  private static InterpolatedCurveDefinition getUSDDiscountingCurveDefinition() {
+  private InterpolatedCurveDefinition getUSDDiscountingCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
     nodes.add(new CashNode(Tenor.ofDays(0), Tenor.OVERNIGHT, _discConventionId, USD_DISC_MAPPER));
     nodes.add(new CashNode(Tenor.OVERNIGHT, Tenor.OVERNIGHT, _discConventionId, USD_DISC_OVERNIGHT_MAPPER));
@@ -224,7 +224,7 @@ public class InterestRateMockSources {
     return new InterpolatedCurveDefinition(ON_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 
-  private static CurveNodeIdMapper get3MLiborCurveMapper() {
+  private CurveNodeIdMapper get3MLiborCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
     cashNodes.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L1")));
 
@@ -254,7 +254,7 @@ public class InterestRateMockSources {
         .build();
   }
 
-  private static InterpolatedCurveDefinition get3MLiborCurveDefinition() {
+  private InterpolatedCurveDefinition get3MLiborCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
     nodes.add(new CashNode(Tenor.ofDays(0), Tenor.THREE_MONTHS, _liborIndexId, LIBOR_3M_MAPPER));
     nodes.add(new FRANode(Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, _liborIndexId, LIBOR_3M_MAPPER));
@@ -286,7 +286,7 @@ public class InterestRateMockSources {
     return new InterpolatedCurveDefinition(LIBOR_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 
-  private static ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {
+  private ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     for (Object component : components) {
       builder.put(component.getClass().getInterfaces()[0], component);
@@ -295,17 +295,17 @@ public class InterestRateMockSources {
   }
 
 
-  private static HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
+  private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
     HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
     return mock;
   }
 
-  private static HolidaySource mockHolidaySource() {
+  private HolidaySource mockHolidaySource() {
     return new WeekendHolidaySource();
   }
 
-  private static RegionSource mockRegionSource() {
+  private RegionSource mockRegionSource() {
     RegionSource mock = mock(RegionSource.class);
     SimpleRegion region = new SimpleRegion();
     region.addExternalId(s_USID);
@@ -315,7 +315,7 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  private static ConventionSource mockConventionSource() {
+  private ConventionSource mockConventionSource() {
     BusinessDayConvention modifiedFollowing = BusinessDayConventions.MODIFIED_FOLLOWING;
     BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     DayCount thirtyU360 = DayCounts.THIRTY_U_360;
@@ -383,7 +383,7 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  private static SecuritySource mockSecuritySource() {
+  private SecuritySource mockSecuritySource() {
     SecuritySource mock = mock(SecuritySource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 
@@ -402,7 +402,7 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  private static ConfigSource mockConfigSource() {
+  private ConfigSource mockConfigSource() {
 
     //Config source mock
     ConfigSource mock = mock(ConfigSource.class);

@@ -7,7 +7,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.sesame.interestrate.InterestRateMockSources.generateBaseComponents;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,6 +22,8 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import net.sf.ehcache.CacheManager;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.MutableFudgeMsg;
@@ -81,8 +82,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
-import net.sf.ehcache.CacheManager;
-
 /**
  * Tests that remoting to the new engine works. Starts up an engine on a
  * separate thread in the setup method and then makes requests to it via
@@ -96,6 +95,8 @@ public class RemotingTest {
   public static final String CLASSIFIER = "test";
 
   private ComponentRepository _componentRepository;
+  
+  private InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
 
   @Test
   public void testSingleExecution() {
@@ -366,7 +367,7 @@ public class RemotingTest {
 
     _componentRepository = new ComponentRepository(new ComponentLogger.Console(1));
 
-    Map<Class<?>, Object> componentMap = generateBaseComponents();
+    Map<Class<?>, Object> componentMap = _interestRateMockSources.generateBaseComponents();
     LinkedHashMap<String, String> properties = addComponentsToRepo(componentMap);
 
     //  initialise engine
@@ -409,7 +410,7 @@ public class RemotingTest {
     FunctionServerComponentFactory serverComponentFactory = new FunctionServerComponentFactory();
     serverComponentFactory.setClassifier(CLASSIFIER);
     serverComponentFactory.setViewFactory(_componentRepository.getInstance(ViewFactory.class, CLASSIFIER));
-    serverComponentFactory.setMarketDataFactory(InterestRateMockSources.createMarketDataFactory());
+    serverComponentFactory.setMarketDataFactory(new InterestRateMockSources().createMarketDataFactory());
     serverComponentFactory.setLiveDataClient(createMockLiveDataClient());
     serverComponentFactory.setJmsConnector(createJmsConnector());
 

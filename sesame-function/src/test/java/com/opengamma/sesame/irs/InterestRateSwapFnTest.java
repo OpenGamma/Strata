@@ -91,6 +91,8 @@ import com.opengamma.util.tuple.Pair;
 @Test(groups = TestGroup.UNIT)
 public class InterestRateSwapFnTest {
 
+  private static final InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
+  
   private static final double STD_TOLERANCE_PV = 1.0E-2;
   private static final double STD_TOLERANCE_RATE = 1.0E-5; //TODO What is the correct tolerance here
   private static final double STD_TOLERANCE_PV01 = 1.0E-5; //TODO What is the correct tolerance here
@@ -104,14 +106,14 @@ public class InterestRateSwapFnTest {
   private InterestRateSwapFn _swapFunction;
   private InterestRateSwapSecurity _swapSecurity = createSingleSwap();
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
-                                                               InterestRateMockSources.createMarketDataSource());
+      _interestRateMockSources.createMarketDataSource());
 
   @BeforeClass
   public void setUpClass() throws IOException {
     FunctionModelConfig config = config(
         arguments(
             function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.of("Test USD", InterestRateMockSources.mockExposureFunctions()))),
+                     argument("exposureConfig", ConfigLink.of("Test USD", _interestRateMockSources.mockExposureFunctions()))),
             function(RootFinderConfiguration.class,
                      argument("rootFinderAbsoluteTolerance", 1e-9),
                      argument("rootFinderRelativeTolerance", 1e-9),
@@ -138,7 +140,7 @@ public class InterestRateSwapFnTest {
                         HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
 
-    ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
+    ImmutableMap<Class<?>, Object> components = _interestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
@@ -186,7 +188,7 @@ public class InterestRateSwapFnTest {
     receiveLeg.setFixingDateCalendars(calendarUSNY);
     receiveLeg.setFixingDateOffset(-2);
     receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
-    receiveLeg.setFloatingReferenceRateId(InterestRateMockSources.getLiborIndexId());
+    receiveLeg.setFloatingReferenceRateId(_interestRateMockSources.getLiborIndexId());
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     receiveLeg.setRollConvention(RollConvention.EOM);
     legs.add(receiveLeg);
