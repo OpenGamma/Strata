@@ -14,8 +14,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static com.opengamma.util.money.Currency.AUD;
-import static com.opengamma.util.money.Currency.GBP;
 import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -26,9 +24,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
@@ -39,18 +34,15 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -85,20 +77,10 @@ import net.sf.ehcache.CacheManager;
 @Test(groups = TestGroup.UNIT)
 public class ViewFactoryTest {
 
-  private static final UniqueId EQUITY_TRADE_ID = UniqueId.of("trdId", "321");
-  private static final String EQUITY_NAME = "An equity security";
-
-  private static final UniqueId CASH_FLOW_TRADE_ID = UniqueId.of("trdId", "432");
-  private static final String CASH_FLOW_NAME = "A cash flow security";
-
   private static final String DESCRIPTION_HEADER = "Description";
   private static final String PRESENT_VALUE_HEADER = "PV";
   private static final String BLOOMBERG_HEADER = "Bloomberg Ticker";
   private static final String ACTIV_HEADER = "ACTIV Symbol";
-  private static final String EQUITY_BLOOMBERG_TICKER = "ACME US Equity";
-  private static final String EQUITY_ACTIV_SYMBOL = "ACME.";
-  private static final String CASH_FLOW_BLOOMBERG_TICKER = "TEST US Cash Flow";
-  private static final String CASH_FLOW_ACTIV_SYMBOL = "CASHFLOW.";
 
   @Test
   public void basicFunctionWithTrade() {
@@ -111,12 +93,13 @@ public class ViewFactoryTest {
                                                         DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
-    List<Trade> trades = ImmutableList.of(createEquityTrade());
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
+    List<Trade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
     Results results = view.run(cycleArguments, trades);
-    assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
+    assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
 
@@ -131,12 +114,13 @@ public class ViewFactoryTest {
                                                         DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
-    List<Security> securities = ImmutableList.of(createEquityTrade().getSecurity());
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
+    List<Security> securities = ImmutableList.of(EngineTestUtils.createEquityTrade().getSecurity());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
     Results results = view.run(cycleArguments, securities);
-    assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
+    assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
 
@@ -152,14 +136,14 @@ public class ViewFactoryTest {
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(MockEquityPresentValueFn.class);
 
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
                                               ComponentMap.EMPTY.with(CurrencyMatrix.class, mock(CurrencyMatrix.class)),
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
                                               CacheManager.getInstance(),
                                               FunctionService.NONE);
-    Trade trade = createEquityTrade();
+    Trade trade = EngineTestUtils.createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
     ExternalIdBundle securityId = trade.getSecurity().getExternalIdBundle();
@@ -186,12 +170,13 @@ public class ViewFactoryTest {
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
-    List<Trade> trades = ImmutableList.of(createEquityTrade());
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(), availableOutputs, new AvailableImplementationsImpl());
+    List<Trade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
     Results results = view.run(cycleArguments, trades);
-    assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
+    assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
   }
 
@@ -233,25 +218,26 @@ public class ViewFactoryTest {
     availableOutputs.register(EquityDescriptionFn.class, CashFlowDescriptionFn.class);
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(DefaultIdSchemeFn.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
                                ComponentMap.EMPTY,
                                availableOutputs,
                                availableImplementations,
                                defaultConfig,
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
-    List<Trade> trades = ImmutableList.of(createEquityTrade(), createCashFlowTrade());
+    List<Trade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade(), EngineTestUtils.createCashFlowTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class, CashFlowSecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
     Results results = view.run(cycleArguments, trades);
 
-    assertEquals(EQUITY_NAME, results.get(0, 0).getResult().getValue());
-    assertEquals(EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getResult().getValue());
-    assertEquals(EQUITY_ACTIV_SYMBOL, results.get(0, 2).getResult().getValue());
+    assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
+    assertEquals(EngineTestUtils.EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getResult().getValue());
+    assertEquals(EngineTestUtils.EQUITY_ACTIV_SYMBOL, results.get(0, 2).getResult().getValue());
 
-    assertEquals(CASH_FLOW_NAME, results.get(1, 0).getResult().getValue());
-    assertEquals(CASH_FLOW_BLOOMBERG_TICKER, results.get(1, 1).getResult().getValue());
-    assertEquals(CASH_FLOW_ACTIV_SYMBOL, results.get(1, 2).getResult().getValue());
+    assertEquals(EngineTestUtils.CASH_FLOW_NAME, results.get(1, 0).getResult().getValue());
+    assertEquals(EngineTestUtils.CASH_FLOW_BLOOMBERG_TICKER, results.get(1, 1).getResult().getValue());
+    assertEquals(EngineTestUtils.CASH_FLOW_ACTIV_SYMBOL, results.get(1, 2).getResult().getValue());
 
     System.out.println(results);
   }
@@ -267,20 +253,20 @@ public class ViewFactoryTest {
                                                         DefaultEquityDescriptionFn.class)))));
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(EquityDescriptionFn.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
                                ComponentMap.EMPTY,
                                availableOutputs,
                                new AvailableImplementationsImpl(),
                                FunctionModelConfig.EMPTY,
                                CacheManager.getInstance(),
                                EnumSet.of(FunctionService.TRACING));
-    List<Trade> trades = ImmutableList.of(createEquityTrade());
+    List<Trade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     @SuppressWarnings("unchecked")
     Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        VersionCorrection.LATEST,
-                                                       mockMarketDataSource(),
+                                                       mock(MarketDataSource.class),
                                                        FunctionArguments.EMPTY,
                                                        Collections.<Class<?>, Object>emptyMap(),
                                                        traceCells,
@@ -301,7 +287,7 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithNoArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithNoArgsImpl.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
                                ComponentMap.EMPTY,
                                availableOutputs,
                                availableImplementations,
@@ -309,7 +295,8 @@ public class ViewFactoryTest {
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -333,7 +320,7 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
                                ComponentMap.EMPTY,
                                availableOutputs,
                                availableImplementations,
@@ -341,7 +328,8 @@ public class ViewFactoryTest {
                                CacheManager.getInstance(),
                                EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -359,7 +347,7 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithNoArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithNoArgsImpl.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
                                ComponentMap.EMPTY,
                                availableOutputs,
                                availableImplementations,
@@ -369,7 +357,7 @@ public class ViewFactoryTest {
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        VersionCorrection.LATEST,
-                                                       mockMarketDataSource(),
+                                                       mock(MarketDataSource.class),
                                                        FunctionArguments.EMPTY,
                                                        Collections.<Class<?>, Object>emptyMap(),
                                                        Collections.<Pair<Integer,Integer>>emptySet(),
@@ -396,7 +384,7 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
                                               ComponentMap.EMPTY,
                                               availableOutputs,
                                               availableImplementations,
@@ -404,7 +392,8 @@ public class ViewFactoryTest {
                                               CacheManager.getInstance(),
                                               EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -429,7 +418,7 @@ public class ViewFactoryTest {
     availableOutputs.register(NonPortfolioFunctionWithArgs.class);
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(NonPortfolioFunctionWithArgsImpl.class);
-    ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
                                               ComponentMap.EMPTY,
                                               availableOutputs,
                                               availableImplementations,
@@ -437,80 +426,13 @@ public class ViewFactoryTest {
                                               CacheManager.getInstance(),
                                               EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mockMarketDataSource());
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
     assertTrue(item.getResult().isSuccess());
     assertEquals("foobarbaz", item.getResult().getValue());
-  }
-
-  private static Trade createEquityTrade() {
-    EquitySecurity security = new EquitySecurity("exc", "exc", "compName", AUD);
-    security.setUniqueId(UniqueId.of("secId", "123"));
-    security.setName(EQUITY_NAME);
-    security.addExternalId(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, EQUITY_BLOOMBERG_TICKER));
-    security.addExternalId(ExternalId.of(ExternalSchemes.ACTIVFEED_TICKER, EQUITY_ACTIV_SYMBOL));
-    SimpleTrade trade = new SimpleTrade();
-    SimpleSecurityLink securityLink = new SimpleSecurityLink(ExternalId.of("extId", "123"));
-    securityLink.setTarget(security);
-    trade.setSecurityLink(securityLink);
-    trade.setUniqueId(EQUITY_TRADE_ID);
-    return trade;
-  }
-
-  private static Trade createCashFlowTrade() {
-    CashFlowSecurity security = new CashFlowSecurity(GBP, ZonedDateTime.now(), 12345d);
-    security.setUniqueId(UniqueId.of("secId", "234"));
-    security.setName(CASH_FLOW_NAME);
-    security.addExternalId(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, CASH_FLOW_BLOOMBERG_TICKER));
-    security.addExternalId(ExternalId.of(ExternalSchemes.ACTIVFEED_TICKER, CASH_FLOW_ACTIV_SYMBOL));
-    SimpleTrade trade = new SimpleTrade();
-    SimpleSecurityLink securityLink = new SimpleSecurityLink(ExternalId.of("extId", "234"));
-    securityLink.setTarget(security);
-    trade.setSecurityLink(securityLink);
-    trade.setUniqueId(CASH_FLOW_TRADE_ID);
-    return trade;
-  }
-
-  private static MarketDataSource mockMarketDataSource() {
-    return mock(MarketDataSource.class);
-  }
-
-  /**
-   * {@link ExecutorService} that uses the calling thread to run all tasks. Nice and simple for unit tests.
-   */
-  public static class DirectExecutorService extends AbstractExecutorService {
-
-    @Override
-    public void execute(Runnable command) {
-      command.run();
-    }
-
-    @Override
-    public void shutdown() {
-      throw new UnsupportedOperationException("shutdown not supported");
-    }
-
-    @Override
-    public List<Runnable> shutdownNow() {
-      throw new UnsupportedOperationException("shutdownNow not supported");
-    }
-
-    @Override
-    public boolean isShutdown() {
-      throw new UnsupportedOperationException("isShutdown not supported");
-    }
-
-    @Override
-    public boolean isTerminated() {
-      throw new UnsupportedOperationException("isTerminated not supported");
-    }
-
-    @Override
-    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-      throw new UnsupportedOperationException("awaitTermination not supported");
-    }
   }
 
   public interface NonPortfolioFunctionWithNoArgs {

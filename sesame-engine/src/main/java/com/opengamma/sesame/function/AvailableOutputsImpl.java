@@ -38,7 +38,6 @@ public class AvailableOutputsImpl implements AvailableOutputs {
   private final Map<Class<?>, Set<OutputName>> _outputsByInputType = Maps.newHashMap();
 
   /** Map of output name / target type to the function type that provides it. */
-  // TODO create OutputKey instead of Pair<String, Class>?
   private final Map<Pair<OutputName, Class<?>>, FunctionMetadata> _functionsForOutputs = Maps.newHashMap();
 
   /**
@@ -56,10 +55,25 @@ public class AvailableOutputsImpl implements AvailableOutputs {
 
   private final Map<OutputName, FunctionMetadata> _nonPortfolioFunctions = Maps.newHashMap();
 
+  /**
+   * Creates an instance that expects {@link Trade}, {@link Position} or {@link Security} instances as inputs.
+   */
   public AvailableOutputsImpl() {
     this(s_defaultInputTypes);
   }
 
+  /**
+   * Creates an instance that expects the specified types as inputs.
+   * @param inputTypes the expected input types
+   */
+  public AvailableOutputsImpl(Class<?>... inputTypes) {
+    _inputTypes = ImmutableSet.copyOf(inputTypes);
+  }
+
+  /**
+   * Creates an instance that expects the specified types as inputs.
+   * @param inputTypes the expected input types
+   */
   public AvailableOutputsImpl(Set<Class<?>> inputTypes) {
     _inputTypes = ImmutableSet.copyOf(ArgumentChecker.notNull(inputTypes, "inputTypes"));
   }

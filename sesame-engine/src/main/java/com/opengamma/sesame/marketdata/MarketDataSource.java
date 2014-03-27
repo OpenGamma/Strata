@@ -23,6 +23,4 @@ public interface MarketDataSource {
    * @return the data value
    */
   Result<?> get(ExternalIdBundle id, FieldName fieldName);
-
-  // TODO method to get/reset the set of IDs whose data has changed since the start of the previous cycle
 }
