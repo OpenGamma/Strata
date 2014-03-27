@@ -301,7 +301,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     final Result<CurveSpecification> curveSpecificationResult =
         _curveSpecificationFunction.getCurveSpecification(env, _curveDefinition);
 
-    if (!Result.anyFailures(calculatorResult, curveSpecificationResult, cpResult)) {
+    if (Result.allSuccessful(calculatorResult, curveSpecificationResult, cpResult)) {
 
       final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities(env);
       final CurveSpecification curveSpecification = curveSpecificationResult.getValue();

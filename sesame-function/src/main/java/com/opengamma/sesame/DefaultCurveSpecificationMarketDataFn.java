@@ -42,10 +42,10 @@ public class DefaultCurveSpecificationMarketDataFn implements CurveSpecification
         Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);
         Result<Double> spotItem = _marketDataFn.getCurveNodeUnderlyingValue(env, pointsNode);
 
-        if (Result.anyFailures(fwdItem, spotItem)) {
-          result = Result.failure(result, fwdItem, spotItem);
-        } else {
+        if (Result.allSuccessful(fwdItem, spotItem)) {
           curveData.put(node.getIdentifier().toBundle(), fwdItem.getValue() + spotItem.getValue());
+        } else {
+          result = Result.failure(result, fwdItem, spotItem);
         }
       } else {
         Result<Double> fwdItem = _marketDataFn.getCurveNodeValue(env, node);

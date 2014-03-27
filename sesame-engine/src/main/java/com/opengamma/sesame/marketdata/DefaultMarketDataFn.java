@@ -18,6 +18,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Function2;
 import com.opengamma.util.result.Result;
 
 /**
@@ -93,13 +94,13 @@ public class DefaultMarketDataFn implements MarketDataFn {
       public Result<Double> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
         Result<Double> baseCrossRate = getFxRate(env, base, cross.getCrossCurrency());
         Result<Double> crossCounterRate = getFxRate(env, cross.getCrossCurrency(), counter);
-        if (Result.anyFailures(baseCrossRate, crossCounterRate)) {
-          return Result.failure(baseCrossRate, crossCounterRate);
-        } else {
-          Double rate1 = baseCrossRate.getValue();
-          Double rate2 = crossCounterRate.getValue();
-          return Result.success(rate1 * rate2);
-        }
+
+        return baseCrossRate.combineWith(crossCounterRate, new Function2<Double, Double, Result<Double>>() {
+          @Override
+          public Result<Double> apply(Double rate1, Double rate2) {
+            return Result.success(rate1 * rate2);
+          }
+        });
       }
     };
     return value.accept(visitor);

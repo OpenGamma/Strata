@@ -187,9 +187,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
     // Any one of the above 3 could have failed, but we have attempted all to
     // try and report as many errors as possible as early as possible
-    if (Result.anyFailures(fxMatrixResult, exogenousBundles, curveDefinition)) {
-      return Result.failure(fxMatrixResult, exogenousBundles, curveDefinition);
-    } else {
+    if (Result.allSuccessful(fxMatrixResult, exogenousBundles, curveDefinition)) {
 
       DiscountingCurveTypeConfiguration typeConfiguration = (DiscountingCurveTypeConfiguration) type.getValue().get(0);
       Currency currency = Currency.of(typeConfiguration.getReference());
@@ -198,6 +196,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                                            curveDefinition.getValue(),
                                                            exogenousBundles.getValue(),
                                                            env.getValuationTime())); // TODO can this be the valuation date?
+    } else {
+      return Result.failure(fxMatrixResult, exogenousBundles, curveDefinition);
     }
   }
 
@@ -325,7 +325,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 _curveSpecificationMarketDataProvider.requestData(env, specification);
 
             // Only proceed if we have all market data values available to us
-            if (!Result.anyFailures(htsResult, fxMatrixResult, marketDataResult)) {
+            if (Result.allSuccessful(htsResult, fxMatrixResult, marketDataResult)) {
 
               FXMatrix fxMatrix = fxMatrixResult.getValue();
 
@@ -386,7 +386,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       }
     } // Group - end
 
-    if (!Result.anyFailures(exogenousBundle, curveBundleResult)) {
+    if (Result.allSuccessful(exogenousBundle, curveBundleResult)) {
 
       MulticurveProviderDiscount exogenousCurves = adjustMulticurveBundle(curvesToRemove, exogenousBundle.getValue());
       return Result.success(
