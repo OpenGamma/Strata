@@ -83,6 +83,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
@@ -208,8 +209,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                  MulticurveProviderDiscount multicurves,
                                  ZonedDateTime valuationTime) {
 
-    final DayCount dayCount = DayCounts.ACT_360; //TODO
-  
     final ParRateDiscountingCalculator parRateDiscountingCalculator = ParRateDiscountingCalculator.getInstance();
     final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
   
@@ -222,12 +221,14 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     int spotLag = currencyDepositConvention.getSettlementDays();
     ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(valuationTime, spotLag, calendar);
     
+    DayCount dayCount = currencyDepositConvention.getDayCount();
+    BusinessDayConvention businessDayConvention = currencyDepositConvention.getBusinessDayConvention();
+    
     for (final CurveNode node : impliedCurveDefinition.getNodes()) {
   
       final Tenor tenor = node.getResolvedMaturity();
       final ZonedDateTime paymentDate =
-          ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MODIFIED_FOLLOWING, calendar, true);
-      // TODO do these need to be valuation times or can they be dates?
+          ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), businessDayConvention, calendar, currencyDepositConvention.isIsEOM());
       final double startTime = TimeCalculator.getTimeBetween(valuationTime, spotDate);
       final double endTime = TimeCalculator.getTimeBetween(valuationTime, paymentDate);
       final double accrualFactor = dayCount.getDayCountFraction(spotDate, paymentDate, calendar);
