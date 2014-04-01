@@ -22,6 +22,10 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
@@ -138,4 +142,52 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     return Result.success(bundle);
   }
 
+  @Override
+  public Result<HistoricalTimeSeriesBundle> getFixingsForSecurity(Environment env, FinancialSecurity security) {
+    HistoricalTimeSeriesBundle bundle;
+    try {
+      bundle = security.accept(new FixingRetriever(_htsSource, env));
+    } catch (UnsupportedOperationException ex) {
+      return Result.failure(ex);
+    }
+    return Result.success(bundle);
+  }
+  
+  private class FixingRetriever extends FinancialSecurityVisitorAdapter<HistoricalTimeSeriesBundle> {
+    
+    private final HistoricalTimeSeriesSource _htsSource;
+    
+    private final LocalDate _now;
+    
+    public FixingRetriever(HistoricalTimeSeriesSource htsSource,
+                           Environment env) {
+      _htsSource = htsSource;
+      _now = env.getValuationDate();
+    }
+    
+    @Override
+    public HistoricalTimeSeriesBundle visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+      final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
+      
+      final String field = MarketDataRequirementNames.MARKET_VALUE; //TODO
+      final ExternalIdBundle id = security.getExternalIdBundle();
+      final boolean includeStart = true;
+      final boolean includeEnd = true;
+      final LocalDate startDate = _now.minus(Period.ofMonths(1));
+      final HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(field,
+                                                                                 id,
+                                                                                 _resolutionKey,
+                                                                                 startDate,
+                                                                                 includeStart,
+                                                                                 _now,
+                                                                                 includeEnd);
+      bundle.add(field, id, timeSeries);
+      return bundle;
+    }
+    
+    @Override
+    public HistoricalTimeSeriesBundle visitBondFutureSecurity(BondFutureSecurity security) {
+      return new HistoricalTimeSeriesBundle();
+    }
+  }
 }
