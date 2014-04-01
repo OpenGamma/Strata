@@ -40,7 +40,7 @@ public class InterestRateFutureDiscountingCalculatorFn implements InterestRateFu
     _factory = ArgumentChecker.notNull(factory, "factory");
     _discountingMulticurveCombinerFn =
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
-    _htsFn = htsFn;
+    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
   }
 
   @Override
@@ -48,17 +48,14 @@ public class InterestRateFutureDiscountingCalculatorFn implements InterestRateFu
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
         _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, Result.success(new FXMatrix()));
 
-    if (bundleResult.isSuccess()) {
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+    
+    if (Result.allSuccessful(bundleResult, fixingsResult)) {
 
-      Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
       
-      if (fixingsResult.isSuccess()) {
-        return Result.success(_factory.createCalculator(env, security, bundleResult.getValue().getFirst(), fixingsResult.getValue()));
-      } else {
-        return Result.failure(fixingsResult);
-      }
+      return Result.success(_factory.createCalculator(env, security, bundleResult.getValue().getFirst(), fixingsResult.getValue()));
     } else {
-      return Result.failure(bundleResult);
+      return Result.failure(bundleResult, fixingsResult);
     }
   }
 
