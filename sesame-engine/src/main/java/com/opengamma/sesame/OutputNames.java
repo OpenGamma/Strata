@@ -32,6 +32,10 @@ public final class OutputNames {
    */
   public static final String DISCOUNTING_MULTICURVE_BUNDLE = "Discounting Multicurve Bundle";
   /**
+   * Output name when providing Issuer Provider Bundle.
+   */
+  public static final String ISSUER_PROVIDER_BUNDLE = "Issuer Provider Bundle";
+  /**
    * Output name when providing P&L Series.
    */
   public static final String PNL_SERIES = "P&L Series";
