@@ -5,11 +5,15 @@
  */
 package com.opengamma.sesame;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.google.common.collect.Lists;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -30,6 +34,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
 
@@ -66,80 +71,75 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
   }
 
-  @Override
-  public Result<HistoricalTimeSeriesBundle> getHtsForCurve(Environment env, CurveSpecification curve, LocalDate endDate) {
+
+  public Result<HistoricalTimeSeriesBundle> getHtsForCurveNode(Environment env, CurveNodeWithIdentifier node, LocalDate endDate) {
     // For expediency we will mirror the current ways of working out dates which is
     // pretty much to take 1 year before the valuation date. This is blunt and
     // returns more data than is actually required
     // todo - could we manage HTS lookup in the same way as market data? i.e. request the values needed look them up so they are available next time
-
+    
     final LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
     final boolean includeStart = true;
     final boolean includeEnd = true;
 
+    
+    List<Result<?>> failures = Lists.newArrayList();
+    
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
+    
+    ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
+    String dataField = node.getDataField();
+    // TODO use HistoricalMarketDataFn.getValues()?
+    HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate,
+                                                                         includeStart, endDate, includeEnd);
+    processResult(id, dataField, timeSeries, bundle, failures);
 
-    for (final CurveNodeWithIdentifier node : curve.getNodes()) {
+    if (node instanceof PointsCurveNodeWithIdentifier) {
+      final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
+      id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
+      dataField = pointsNode.getUnderlyingDataField();
+      timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate, includeStart,
+                                                      endDate, includeEnd);
+      
+      processResult(id, dataField, timeSeries, bundle, failures);
 
-      ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
-      String dataField = node.getDataField();
-      // TODO use HistoricalMarketDataFn.getValues()?
-      HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate,
-                                                                           includeStart, endDate, includeEnd);
-      if (timeSeries != null) {
-        if (timeSeries.getTimeSeries().isEmpty()) {
-          s_logger.info("Time series for {} is empty", id);
-        } else {
-          bundle.add(dataField, id, timeSeries);
-        }
-      } else {
-        s_logger.info("Couldn't get time series for {}", id);
-      }
-
-      if (node instanceof PointsCurveNodeWithIdentifier) {
-        final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
-        id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
-        dataField = pointsNode.getUnderlyingDataField();
-        timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate, includeStart,
-                                                        endDate, includeEnd);
-        if (timeSeries != null) {
-          if (timeSeries.getTimeSeries().isEmpty()) {
-            s_logger.info("Time series for {} is empty", id);
-          } else {
-            bundle.add(dataField, id, timeSeries);
-          }
-        } else {
-          s_logger.info("Couldn't get time series for {}", id);
-        }
-      }
-
-      if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
-        final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
-        InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(),
-                                                                                    InflationLegConvention.class);
-        PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(),
-                                                                                PriceIndexConvention.class);
-        final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
-        final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
-        final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField,
-                                                                                         priceIndexId,
-                                                                                         _resolutionKey,
-                                                                                         startDate,
-                                                                                         includeStart,
-                                                                                         endDate,
-                                                                                         includeEnd);
-        if (priceIndexSeries != null) {
-          if (priceIndexSeries.getTimeSeries().isEmpty()) {
-            s_logger.info("Time series for {} is empty", priceIndexId);
-          } else {
-            bundle.add(dataField, priceIndexId, priceIndexSeries);
-          }
-        } else {
-          s_logger.info("Couldn't get time series for {}", priceIndexId);
-        }
-      }
     }
+
+    if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
+      final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
+      InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(),
+                                                                                  InflationLegConvention.class);
+      PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(),
+                                                                              PriceIndexConvention.class);
+      final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
+      final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
+      final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField,
+                                                                                       priceIndexId,
+                                                                                       _resolutionKey,
+                                                                                       startDate,
+                                                                                       includeStart,
+                                                                                       endDate,
+                                                                                       includeEnd);
+      processResult(priceIndexId, priceIndexField, priceIndexSeries, bundle, failures);
+    }
+    
+    if (Result.anyFailures(failures)) {
+      return Result.failure(failures);
+    }
+    
     return Result.success(bundle);
+  }
+
+  private void processResult(ExternalIdBundle id, String dataField, HistoricalTimeSeries timeSeries, final HistoricalTimeSeriesBundle bundle, List<Result<?>> failures) {
+    if (timeSeries != null) {
+      if (timeSeries.getTimeSeries().isEmpty()) {
+        failures.add(Result.failure(FailureStatus.MISSING_DATA, "Time series for {} is empty", id));
+      } else {
+        bundle.add(dataField, id, timeSeries);
+      }
+    } else {
+      failures.add(Result.failure(FailureStatus.MISSING_DATA, "Couldn't get time series for {}", id));
+    }
   }
 
   @Override

@@ -8,6 +8,7 @@ package com.opengamma.sesame;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -20,14 +21,14 @@ import com.opengamma.util.result.Result;
 public interface HistoricalTimeSeriesFn {
 
   /**
-   * Finds the time-series for the curve specification at a valuation date.
+   * Finds the time-series for the curve node specification at a valuation date.
    * 
    * @param env the environment that the fixing requirements are needed for. 
-   * @param curve  the curve specification, not null
+   * @param node  the curve node, not null
    * @param endDate  the end date of the time series, inclusive, not null
    * @return the time-series bundle, a failure result if not found
    */
-  Result<HistoricalTimeSeriesBundle> getHtsForCurve(Environment env, CurveSpecification curve, LocalDate endDate);
+  Result<HistoricalTimeSeriesBundle> getHtsForCurveNode(Environment env, CurveNodeWithIdentifier node, LocalDate endDate);
 
   /**
    * Finds the time-series for the currency pair.

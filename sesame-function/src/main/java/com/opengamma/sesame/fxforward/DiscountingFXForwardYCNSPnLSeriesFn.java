@@ -306,47 +306,38 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities(env);
       final CurveSpecification curveSpecification = curveSpecificationResult.getValue();
 
-      final Result<HistoricalTimeSeriesBundle> curveSeriesBundleResult =
-          _historicalTimeSeriesProvider.getHtsForCurve(env, curveSpecification, env.getValuationDate());
-
-      if (curveSeriesBundleResult.isSuccess()) {
-
-        final HistoricalTimeSeriesBundle curveSeriesBundle = curveSeriesBundleResult.getValue();
-
-        // todo - extract common code between this method and calculateForImpliedCurve
-        final String curveName = _curveDefinition.getName();
-        final Map<Currency, DoubleMatrix1D> sensitivities = bcs.getSensitivityByName(curveName);
-        if (sensitivities.isEmpty()) {
-          return Result.failure(FailureStatus.MISSING_DATA, "No sensitivities for curve: {} were found", curveName);
-        }
-
-        Map.Entry<Currency, DoubleMatrix1D> match = sensitivities.entrySet().iterator().next();
-        DoubleMatrix1D sensitivity = match.getValue();
-        Currency curveCurrency = match.getKey();
-
-        if (sensitivities.size() > 1) {
-          s_logger.warn("Curve name: {} is used multiple times - using one for currency: {}", curveName, curveCurrency);
-        }
-
-        final Set<CurveNodeWithIdentifier> nodes = curveSpecification.getNodes();
-
-        final int sensitivitiesSize = sensitivity.getNumberOfElements();
-        final int nodesSize = nodes.size();
-
-        if (sensitivitiesSize != nodesSize) {
-          return Result.failure(FailureStatus.ERROR,
-                                "Unequal number of sensitivities ({}) and curve nodes ({})",
-                                sensitivitiesSize,
-                                nodesSize);
-        }
-
-        LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env,
-                                                                              curveCurrency,
-                                                                              env.getValuationDate());
-        //TODO - [SSM-192] may want to use today's spot rate for conversion here
-        return calculateSeriesForNodes(env, curveSeriesBundle, sensitivity, nodes, conversionSeries);
+      // todo - extract common code between this method and calculateForImpliedCurve
+      final String curveName = _curveDefinition.getName();
+      final Map<Currency, DoubleMatrix1D> sensitivities = bcs.getSensitivityByName(curveName);
+      if (sensitivities.isEmpty()) {
+        return Result.failure(FailureStatus.MISSING_DATA, "No sensitivities for curve: {} were found", curveName);
       }
-      return Result.failure(curveSeriesBundleResult);
+
+      Map.Entry<Currency, DoubleMatrix1D> match = sensitivities.entrySet().iterator().next();
+      DoubleMatrix1D sensitivity = match.getValue();
+      Currency curveCurrency = match.getKey();
+
+      if (sensitivities.size() > 1) {
+        s_logger.warn("Curve name: {} is used multiple times - using one for currency: {}", curveName, curveCurrency);
+      }
+
+      final Set<CurveNodeWithIdentifier> nodes = curveSpecification.getNodes();
+
+      final int sensitivitiesSize = sensitivity.getNumberOfElements();
+      final int nodesSize = nodes.size();
+
+      if (sensitivitiesSize != nodesSize) {
+        return Result.failure(FailureStatus.ERROR,
+            "Unequal number of sensitivities ({}) and curve nodes ({})",
+            sensitivitiesSize,
+            nodesSize);
+      }
+
+      LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env,
+          curveCurrency,
+          env.getValuationDate());
+      //TODO - [SSM-192] may want to use today's spot rate for conversion here
+      return calculateSeriesForNodes(env, sensitivity, nodes, conversionSeries, curveName);
     }
     return Result.failure(calculatorResult, curveSpecificationResult, cpResult);
   }
@@ -368,10 +359,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   }
 
   private Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateSeriesForNodes(Environment env,
-                                                                                         HistoricalTimeSeriesBundle curveSeriesBundle,
                                                                                          DoubleMatrix1D sensitivities,
                                                                                          Set<CurveNodeWithIdentifier> nodes,
-                                                                                         LocalDateDoubleTimeSeries fxConversionSeries) {
+                                                                                         LocalDateDoubleTimeSeries fxConversionSeries, String curveName) {
     final int size = sensitivities.getNumberOfElements();
 
     final Tenor[] keys = new Tenor[size];
@@ -381,6 +371,16 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     int i = 0;
     for (final CurveNodeWithIdentifier curveNodeWithId : nodes) {
 
+      final Result<HistoricalTimeSeriesBundle> curveSeriesBundleResult =
+          _historicalTimeSeriesProvider.getHtsForCurveNode(env, curveNodeWithId, env.getValuationDate());
+      
+      if (!curveSeriesBundleResult.isSuccess()) {
+        s_logger.error("Failed to resolve HTS for curve node {}. Failure: {}", curveNodeWithId, curveSeriesBundleResult.getFailureMessage());
+        continue;
+      }
+      
+      HistoricalTimeSeriesBundle curveSeriesBundle = curveSeriesBundleResult.getValue();
+      
       final String field = curveNodeWithId.getDataField();
       final ExternalId id = curveNodeWithId.getIdentifier();
       final HistoricalTimeSeries hts = curveSeriesBundle.get(field, id);
@@ -396,7 +396,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       String curveNodeName = curveNodeWithId.getCurveNode().getName();
       labels[i] = curveNodeName != null ? curveNodeName : keys[i];
       values[i] = returnSeries.multiply(sensitivities.getEntry(i));
+      
       i++;
+      
     }
 
     return Result.success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(keys, labels, values));

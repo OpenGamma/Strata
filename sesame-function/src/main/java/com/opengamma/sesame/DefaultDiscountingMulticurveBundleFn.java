@@ -14,6 +14,7 @@ import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -319,14 +320,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
             final CurveSpecification specification = curveSpecResult.getValue();
 
-            // todo - this lookup is not needed for all curves but we get it for all, can we restrict so we only get it when we need it?
-            final Result<HistoricalTimeSeriesBundle> htsResult =
-                _historicalTimeSeriesProvider.getHtsForCurve(env, specification, env.getValuationDate());
             Result<Map<ExternalIdBundle, Double>> marketDataResult =
                 _curveSpecificationMarketDataProvider.requestData(env, specification);
 
             // Only proceed if we have all market data values available to us
-            if (Result.allSuccessful(htsResult, fxMatrixResult, marketDataResult)) {
+            if (Result.allSuccessful(fxMatrixResult, marketDataResult)) {
 
               FXMatrix fxMatrix = fxMatrixResult.getValue();
 
@@ -338,7 +336,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               Arrays.fill(parameterGuessForCurves, 0.02);  // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
 
               final InstrumentDerivative[] derivativesForCurve =
-                  extractInstrumentDerivatives(specification, snapshot, htsResult.getValue(), fxMatrix, env.getValuationTime());
+                  extractInstrumentDerivatives(env, specification, snapshot, fxMatrix, env.getValuationTime());
 
               final List<IborIndex> iborIndex = new ArrayList<>();
               final List<IndexON> overnightIndex = new ArrayList<>();
@@ -374,7 +372,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
               singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
             } else {
-              curveBundleResult = Result.failure(curveBundleResult, htsResult, fxMatrixResult, marketDataResult);
+              curveBundleResult = Result.failure(curveBundleResult, fxMatrixResult, marketDataResult);
             }
           } else {
             curveBundleResult = Result.failure(curveBundleResult, curveSpecResult);
@@ -461,25 +459,39 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     return result;
   }
 
-  private InstrumentDerivative[] extractInstrumentDerivatives(CurveSpecification specification,
+  private InstrumentDerivative[] extractInstrumentDerivatives(Environment env, 
+                                                              CurveSpecification specification,
                                                               SnapshotDataBundle snapshot,
-                                                              HistoricalTimeSeriesBundle htsBundle,
                                                               FXMatrix fxMatrix,
                                                               ZonedDateTime valuationTime) {
 
     Set<CurveNodeWithIdentifier> nodes = specification.getNodes();
     final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nodes.size()];
-    int i = 0;
-
-    for (final CurveNodeWithIdentifier node : nodes) {
-
+    
+    Iterator<CurveNodeWithIdentifier> nodeIt = nodes.iterator();
+    
+    for (int i = 0; i < nodes.size(); i++) {
+      
+      CurveNodeWithIdentifier node = nodeIt.next();
+      HistoricalTimeSeriesBundle htsBundle = null;
+      
+      if (CurveNodeConverter.requiresFixingSeries(node.getCurveNode())) {
+        // todo - this lookup is not needed for all curves but we get it for all, can we restrict so we only get it when we need it?
+        final Result<HistoricalTimeSeriesBundle> htsResult =
+            _historicalTimeSeriesProvider.getHtsForCurveNode(env, node, env.getValuationDate());
+        
+        if (!htsResult.isSuccess()) {
+          //TODO does it make sense to continue here?
+          continue;
+        }
+      }
+      
       final InstrumentDefinition<?> definitionForNode =
           node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationTime, fxMatrix));
-
+      
       // todo - we may need to allow the node converter implementation to be changed
       derivativesForCurve[i] =
           (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, valuationTime, htsBundle);
-      i++;
     }
 
     return derivativesForCurve;
