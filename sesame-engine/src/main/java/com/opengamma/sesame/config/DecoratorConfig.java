@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
 public class DecoratorConfig implements FunctionModelConfig {
 
   /** Sentinel value for decorator that should get its delegate type from the next config in the chain. */
-  /* package */ static final class UnknownImplementation {}
+  /* package */ static final class UnknownImplementation { }
 
   /**
    * Function implementation classes keyed by the parameter where they are injected.
