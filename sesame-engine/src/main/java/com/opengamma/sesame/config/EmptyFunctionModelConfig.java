@@ -48,7 +48,7 @@ public final class EmptyFunctionModelConfig implements FunctionModelConfig, Immu
   }
 
   @Override
-  public Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter) {
+  public Class<?> getFunctionImplementation(Parameter parameter) {
     return null;
   }
 

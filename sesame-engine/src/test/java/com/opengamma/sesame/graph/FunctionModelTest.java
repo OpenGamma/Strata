@@ -16,7 +16,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.inject.Provider;
@@ -202,33 +201,25 @@ public class FunctionModelTest {
 
   @Test
   public void decoratorFunction() {
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Decorator1.class);
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
-    DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
-    Fn fn = FunctionModel.build(Fn.class, decoratorConfig);
+    FunctionModelConfig decoratedConfig = DecoratorConfig.decorate(config, Decorator1.class);
+    Fn fn = FunctionModel.build(Fn.class, decoratedConfig);
     assertEquals("2", fn.foo(1));
   }
 
   @Test
   public void decoratorFunctions() {
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Decorator1.class);
-    decorators.add(Decorator2.class);
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
-    DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
-    Fn fn = FunctionModel.build(Fn.class, decoratorConfig);
+    FunctionModelConfig decoratedConfig = DecoratorConfig.decorate(config, Decorator1.class, Decorator2.class);
+    Fn fn = FunctionModel.build(Fn.class, decoratedConfig);
     assertEquals("5", fn.foo(2));
   }
 
   @Test
   public void decoratorFunctionsReversed() {
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(Decorator2.class);
-    decorators.add(Decorator1.class);
     FunctionModelConfig config = config(implementations(Fn.class, Impl.class));
-    DecoratorConfig decoratorConfig = new DecoratorConfig(config, decorators);
-    Fn fn = FunctionModel.build(Fn.class, decoratorConfig);
+    FunctionModelConfig decoratedConfig = DecoratorConfig.decorate(config, Decorator2.class, Decorator1.class);
+    Fn fn = FunctionModel.build(Fn.class, decoratedConfig);
     assertEquals("6", fn.foo(2));
   }
 

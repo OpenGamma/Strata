@@ -49,11 +49,10 @@ public interface FunctionModelConfig {
    *   <li>A {@link Provider} that can provide the implementation</li>
    * </ul>
    *
-   * @param functionType  the type to lookup, not null
    * @param parameter the constructor parameter for which an implementation is required
    * @return the implementation that should be used, null if unknown
    */
-  Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter);
+  Class<?> getFunctionImplementation(Parameter parameter);
 
   /**
    * Gets the arguments for a function.

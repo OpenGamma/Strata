@@ -39,15 +39,15 @@ public class DefaultImplementationProvider implements FunctionModelConfig {
   public Class<?> getFunctionImplementation(Class<?> functionType) {
     return _availableImplementations.getDefaultImplementation(functionType);
   }
+
   /**
    * Returns null.
    *
-   * @param functionType ignored
    * @param parameter ignored
    * @return null
    */
   @Override
-  public Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter) {
+  public Class<?> getFunctionImplementation(Parameter parameter) {
     return null;
   }
 

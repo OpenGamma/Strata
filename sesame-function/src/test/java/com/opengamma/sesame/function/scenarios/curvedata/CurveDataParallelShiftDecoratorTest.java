@@ -63,8 +63,9 @@ public class CurveDataParallelShiftDecoratorTest {
                              MarketDataFn.class, DefaultMarketDataFn.class,
                              CurrencyMatrix.class, SimpleCurrencyMatrix.class,
                              CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class));
-  private static final DecoratorConfig DECORATOR_CONFIG = new DecoratorConfig(CONFIG, CurveDataParallelShiftDecorator.class);
-  private static final Fn FN = FunctionModel.build(Fn.class, DECORATOR_CONFIG);
+  private static final FunctionModelConfig DECORATED_CONFIG =
+      DecoratorConfig.decorate(CONFIG, CurveDataParallelShiftDecorator.class);
+  private static final Fn FN = FunctionModel.build(Fn.class, DECORATED_CONFIG);
   private static final String CURVE_NAME = "curveName";
   private static final CurveNode NODE1 = node();
   private static final CurveNode NODE2 = node();

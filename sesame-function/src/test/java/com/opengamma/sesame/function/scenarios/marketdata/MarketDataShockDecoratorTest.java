@@ -50,9 +50,9 @@ public class MarketDataShockDecoratorTest {
                              CurrencyMatrix.class, SimpleCurrencyMatrix.class));
   private static final MarketDataMatcher MATCHER1 = MarketDataMatcher.idEquals(SCHEME, VALUE1);
   private static final MarketDataMatcher MATCHER2 = MarketDataMatcher.idEquals(SCHEME, VALUE2);
-  private static final DecoratorConfig DECORATOR_CONFIG = new DecoratorConfig(CONFIG, MarketDataShockDecorator.class);
+  private static final FunctionModelConfig DECORATED_CONFIG = DecoratorConfig.decorate(CONFIG, MarketDataShockDecorator.class);
   private static final MarketDataSource MARKET_DATA_SOURCE = mock(MarketDataSource.class);
-  private static final Fn FN = FunctionModel.build(Fn.class, DECORATOR_CONFIG);
+  private static final Fn FN = FunctionModel.build(Fn.class, DECORATED_CONFIG);
   private static final double DELTA = 1e-8;
   private static final FieldName FIELD_NAME = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -303,25 +302,5 @@ public final class EngineUtils {
       securityTypes.add(security.getClass());
     }
     return securityTypes;
-  }
-
-  /**
-   * Creates a linked hash set from the items.
-   *
-   * @param items the items to put in the set, all non-null
-   * @param <T> the type of the items in the set
-   * @return a set containing the items
-   */
-  @SafeVarargs
-  public static <T> LinkedHashSet<T> newLinkedHashSet(T... items) {
-    LinkedHashSet<T> set = new LinkedHashSet<>(items.length);
-
-    for (T item : items) {
-      if (item == null) {
-        throw new IllegalArgumentException("No nulls allowed");
-      }
-      set.add(item);
-    }
-    return set;
   }
 }

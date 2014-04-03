@@ -31,20 +31,20 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DecoratorConfig implements FunctionModelConfig {
 
-  /** Underlying config to which we're adding decorators. */
-  private final FunctionModelConfig _delegate;
+  /** Sentinel value for decorator that should get its delegate type from the next config in the chain. */
+  /* package */ static final class UnknownImplementation {}
 
   /**
    * Function implementation classes keyed by the parameter where they are injected.
    * The parameter is a constructor parameter of a decorator and the class is the type being decorated.
    */
-  private final Map<Parameter, Class<?>> _implByParameter = new HashMap<>();
+  private final Map<Parameter, Class<?>> _decoratorImplByParameter = new HashMap<>();
 
   /**
-   * Function implementation classes keyed by function interface.
+   * Decorator function implementation classes keyed by function interface.
    * The key is an interface type that is being decorated and the value is the decorator type.
    */
-  private final Map<Class<?>, Class<?>> _implByFnInterface = new HashMap<>();
+  private final Map<Class<?>, Class<?>> _decoratorImplByInterface = new HashMap<>();
 
   /**
    * Function arguments keyed by function implementation type.
@@ -54,36 +54,13 @@ public class DecoratorConfig implements FunctionModelConfig {
 
   /**
    * Creates an instance that wraps an underlying {@link FunctionModelConfig} instance and decorates its functions.
-   * The decorators parameter has a type of {@link LinkedHashSet} because the order of the decorators is significant
-   * where there are multiple decorators applied to the same function. The decorators are called in the same order
-   * they appear in the input set.
+   * The decorators are called in the same order they appear in the arguments.
    *
-   * @param delegate the underlying configuration to which decorator functions are added
    * @param decorators types of decorator to add to the underlying configuration
+   * @param functionArguments arguments for constructing the decorator functions
    */
-  public DecoratorConfig(FunctionModelConfig delegate, LinkedHashSet<Class<?>> decorators) {
-    this(delegate, decorators, Collections.<Class<?>, FunctionArguments>emptyMap());
-  }
-
-  /**
-   * Creates an instance that wraps an underlying {@link FunctionModelConfig} instance and decorates a single function.
-   *
-   * @param delegate the underlying configuration to which decorator functions are added
-   * @param decorator type of decorator to add to the underlying configuration
-   */
-  public DecoratorConfig(FunctionModelConfig delegate, Class<?> decorator) {
-    this(delegate, linkedSetOf(decorator), Collections.<Class<?>, FunctionArguments>emptyMap());
-  }
-
-  /**
-   * Creates an instance that wraps an underlying {@link FunctionModelConfig} instance and decorates a single function.
-   *
-   * @param delegate the underlying configuration to which decorator functions are added
-   * @param decorator type of decorator to add to the underlying configuration
-   * @param functionArguments arguments for constructing the decorator function
-   */
-  public DecoratorConfig(FunctionModelConfig delegate, Class<?> decorator, FunctionArguments functionArguments) {
-    this(delegate, linkedSetOf(decorator), ImmutableMap.<Class<?>, FunctionArguments>of(decorator, functionArguments));
+  private DecoratorConfig(Map<Class<?>, FunctionArguments> functionArguments, Class<?> decorator, Class<?>... decorators) {
+    this(linkedSetOf(decorator, decorators), functionArguments);
   }
 
   /**
@@ -92,16 +69,12 @@ public class DecoratorConfig implements FunctionModelConfig {
    * where there are multiple decorators applied to the same function. The decorators are called in the same order
    * they appear in the input set.
    *
-   * @param delegate the underlying configuration to which decorator functions are added
    * @param decorators types of decorator to add to the underlying configuration
    * @param functionArguments arguments for constructing the decorator functions
    * @throws IllegalArgumentException If a decorator is included for a function not in the underlying configuration
    */
-  public DecoratorConfig(FunctionModelConfig delegate,
-                         LinkedHashSet<Class<?>> decorators,
-                         Map<Class<?>, FunctionArguments> functionArguments) {
+  private DecoratorConfig(LinkedHashSet<Class<?>> decorators, Map<Class<?>, FunctionArguments> functionArguments) {
     _functionArguments = ImmutableMap.copyOf(ArgumentChecker.notNull(functionArguments, "functionArguments"));
-    _delegate = ArgumentChecker.notNull(delegate, "delegate");
 
     List<Class<?>> reversedDecorators = Lists.newArrayList(decorators);
     Collections.reverse(reversedDecorators);
@@ -115,63 +88,79 @@ public class DecoratorConfig implements FunctionModelConfig {
       Class<?> interfaceType = interfaces.iterator().next();
       Constructor<?> constructor = EngineUtils.getConstructor(decorator);
       Parameter delegateParameter = Parameter.ofType(interfaceType, constructor);
-      Class<?> implementation = getImplementation(interfaceType, delegateParameter);
-      if (implementation == null) {
-        throw new IllegalArgumentException("No delegate available of type " + interfaceType.getName() + " for " +
-                                               "decorator " + decorator.getName());
-      }
-      _implByParameter.put(delegateParameter, implementation);
-      _implByFnInterface.put(interfaceType, decorator);
+      Class<?> implementation = getImplementation(interfaceType);
+      _decoratorImplByParameter.put(delegateParameter, implementation);
+      _decoratorImplByInterface.put(interfaceType, decorator);
     }
   }
 
-  private static LinkedHashSet<Class<?>> linkedSetOf(Class<?> decorator) {
-    LinkedHashSet<Class<?>> decorators = new LinkedHashSet<>();
-    decorators.add(decorator);
-    return decorators;
+  private static LinkedHashSet<Class<?>> linkedSetOf(Class<?> decorator, Class<?>... decorators) {
+    LinkedHashSet<Class<?>> decoratorSet = new LinkedHashSet<>();
+    decoratorSet.add(decorator);
+    Collections.addAll(decoratorSet, decorators);
+    return decoratorSet;
   }
 
-  private Class<?> getImplementation(Class<?> interfaceType, Parameter parameter) {
-    Class<?> impl = _implByFnInterface.get(interfaceType);
+  private Class<?> getImplementation(Class<?> interfaceType) {
+    Class<?> implType = _decoratorImplByInterface.get(interfaceType);
 
-    if (impl != null) {
-      return impl;
+    if (implType != null) {
+      return implType;
+    } else {
+      return UnknownImplementation.class;
     }
-    impl = _delegate.getFunctionImplementation(interfaceType, parameter);
-
-    if (impl != null) {
-      return impl;
-    }
-    return _delegate.getFunctionImplementation(interfaceType);
   }
 
   @Override
   public Class<?> getFunctionImplementation(Class<?> functionType) {
-    Class<?> impl = _implByFnInterface.get(functionType);
-
-    return impl == null ?
-        _delegate.getFunctionImplementation(functionType) :
-        impl;
+    return _decoratorImplByInterface.get(functionType);
   }
 
-  public Class<?> getFunctionImplementation(Class<?> functionType, Parameter parameter) {
-    Class<?> implByParam = _implByParameter.get(parameter);
-
-    if (implByParam != null) {
-      return implByParam;
-    }
-    return _delegate.getFunctionImplementation(functionType, parameter);
+  public Class<?> getFunctionImplementation(Parameter parameter) {
+    return _decoratorImplByParameter.get(parameter);
   }
 
   @Override
   public FunctionArguments getFunctionArguments(Class<?> functionType) {
     FunctionArguments args = _functionArguments.get(ArgumentChecker.notNull(functionType, "functionType"));
-    FunctionArguments delegateArgs = _delegate.getFunctionArguments(functionType);
 
-    if (args == null) {
-      return delegateArgs;
+    if (args != null) {
+      return args;
     } else {
-      return CompositeFunctionArguments.compose(args, delegateArgs);
+      return FunctionArguments.EMPTY;
     }
+  }
+
+  /**
+   * Creates new configuration derived from config but with its functions decorated with the specified decorators.
+   *
+   * @param config the configuration to be decorated
+   * @param decorator a decorator class
+   * @param decorators other decorator classes
+   * @return decorated configuration derived from config
+   */
+  public static FunctionModelConfig decorate(FunctionModelConfig config, Class<?> decorator, Class<?>... decorators) {
+    return decorate(config, Collections.<Class<?>, FunctionArguments>emptyMap(), decorator, decorators);
+  }
+
+
+  /**
+   * Creates new configuration derived from config but with its functions decorated with the specified decorators.
+   *
+   * @param config the configuration to be decorated
+   * @param functionArguments arguments for constructing the decorator functions
+   * @param decorator a decorator class
+   * @param decorators other decorator classes
+   * @return decorated configuration derived from config
+   */
+  public static FunctionModelConfig decorate(FunctionModelConfig config,
+                                             Map<Class<?>, FunctionArguments> functionArguments,
+                                             Class<?> decorator,
+                                             Class<?>... decorators) {
+    ArgumentChecker.notNull(config, "config");
+    ArgumentChecker.notNull(decorator, "decorator");
+    DecoratorConfig decoratorConfig = new DecoratorConfig(functionArguments, decorator, decorators);
+    return CompositeFunctionModelConfig.compose(decoratorConfig, config);
+
   }
 }

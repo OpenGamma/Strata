@@ -139,7 +139,7 @@ public abstract class FunctionModelNode {
     Class<?> implType = null;
 
     if (parameter != null) {
-      implType = config.getFunctionImplementation(type, parameter);
+      implType = config.getFunctionImplementation(parameter);
     }
     if (implType == null) {
       implType = config.getFunctionImplementation(type);
