@@ -18,7 +18,6 @@ public interface CurveSpecificationMarketDataFn {
 
   /**
    * Requests the data for a curve specification.
-   * 
    *
    * @param env the execution environment
    * @param curveSpecification  the curve specification, not null
