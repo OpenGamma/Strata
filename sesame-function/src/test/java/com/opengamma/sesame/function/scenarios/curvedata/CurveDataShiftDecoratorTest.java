@@ -36,7 +36,7 @@ import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
 @SuppressWarnings("unchecked")
-public class CurveDataParallelShiftDecoratorTest {
+public class CurveDataShiftDecoratorTest {
 
   private static final MarketDataSource MARKET_DATA_SOURCE =
       MapMarketDataSource.builder()
@@ -52,16 +52,16 @@ public class CurveDataParallelShiftDecoratorTest {
                              CurrencyMatrix.class, SimpleCurrencyMatrix.class,
                              CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class));
   private static final FunctionModelConfig DECORATED_CONFIG =
-      DecoratorConfig.decorate(CONFIG, CurveDataParallelShiftDecorator.class);
+      DecoratorConfig.decorate(CONFIG, CurveDataShiftDecorator.class);
   private static final Fn FN = FunctionModel.build(Fn.class, DECORATED_CONFIG);
 
   private static final CurveSpecificationMatcher MATCHER = CurveSpecificationMatcher.named(CurveTestUtils.CURVE_NAME);
 
   @Test
   public void absolute() {
-    CurveDataParallelShift shift = CurveDataParallelShift.absolute(0.1, MATCHER);
-    CurveDataParallelShiftDecorator.Shifts shifts = CurveDataParallelShiftDecorator.shifts(shift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataParallelShiftDecorator.class, shifts);
+    CurveDataParallelShift shift = new CurveDataParallelShift(0.1, MATCHER);
+    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(shift);
+    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
@@ -72,9 +72,9 @@ public class CurveDataParallelShiftDecoratorTest {
 
   @Test
   public void relative() {
-    CurveDataParallelShift shift = CurveDataParallelShift.relative(0.1, MATCHER);
-    CurveDataParallelShiftDecorator.Shifts shifts = CurveDataParallelShiftDecorator.shifts(shift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataParallelShiftDecorator.class, shifts);
+    CurveDataRelativeShift shift = new CurveDataRelativeShift(0.1, MATCHER);
+    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(shift);
+    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
@@ -85,9 +85,9 @@ public class CurveDataParallelShiftDecoratorTest {
 
   @Test
   public void noMatch() {
-    CurveDataParallelShift shift = CurveDataParallelShift.absolute(0.1, MATCHER);
-    CurveDataParallelShiftDecorator.Shifts shifts = CurveDataParallelShiftDecorator.shifts(shift);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataParallelShiftDecorator.class, shifts);
+    CurveDataParallelShift shift = new CurveDataParallelShift(0.1, MATCHER);
+    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(shift);
+    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
 
     CurveSpecification curveSpec = new CurveSpecification(LocalDate.now(), "a different name", CurveTestUtils.NODES);
@@ -99,10 +99,10 @@ public class CurveDataParallelShiftDecoratorTest {
 
   @Test
   public void multipleSameType() {
-    CurveDataParallelShift shift1 = CurveDataParallelShift.absolute(0.1, MATCHER);
-    CurveDataParallelShift shift2 = CurveDataParallelShift.absolute(0.2, MATCHER);
-    CurveDataParallelShiftDecorator.Shifts shifts = CurveDataParallelShiftDecorator.shifts(shift1, shift2);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataParallelShiftDecorator.class, shifts);
+    CurveDataParallelShift shift1 = new CurveDataParallelShift(0.1, MATCHER);
+    CurveDataParallelShift shift2 = new CurveDataParallelShift(0.2, MATCHER);
+    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(shift1, shift2);
+    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
@@ -113,10 +113,10 @@ public class CurveDataParallelShiftDecoratorTest {
 
   @Test
   public void multipleDifferentTypes() {
-    CurveDataParallelShift abs = CurveDataParallelShift.absolute(0.1, MATCHER);
-    CurveDataParallelShift rel = CurveDataParallelShift.relative(0.1, MATCHER);
-    CurveDataParallelShiftDecorator.Shifts shifts = CurveDataParallelShiftDecorator.shifts(abs, rel);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataParallelShiftDecorator.class, shifts);
+    CurveDataParallelShift abs = new CurveDataParallelShift(0.1, MATCHER);
+    CurveDataRelativeShift rel = new CurveDataRelativeShift(0.1, MATCHER);
+    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(abs, rel);
+    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);
@@ -127,10 +127,10 @@ public class CurveDataParallelShiftDecoratorTest {
 
   @Test
   public void multipleReversed() {
-    CurveDataParallelShift rel = CurveDataParallelShift.relative(0.1, MATCHER);
-    CurveDataParallelShift abs = CurveDataParallelShift.absolute(0.1, MATCHER);
-    CurveDataParallelShiftDecorator.Shifts shifts = CurveDataParallelShiftDecorator.shifts(rel, abs);
-    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataParallelShiftDecorator.class, shifts);
+    CurveDataRelativeShift rel = new CurveDataRelativeShift(0.1, MATCHER);
+    CurveDataParallelShift abs = new CurveDataParallelShift(0.1, MATCHER);
+    CurveDataShiftDecorator.Shifts shifts = CurveDataShiftDecorator.shifts(rel, abs);
+    Map<Class<?>, Object> scenarioArgs = ImmutableMap.<Class<?>, Object>of(CurveDataShiftDecorator.class, shifts);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), MARKET_DATA_SOURCE, scenarioArgs);
 
     Result<Map<ExternalIdBundle, Double>> result = FN.foo(env, CurveTestUtils.CURVE_SPEC);

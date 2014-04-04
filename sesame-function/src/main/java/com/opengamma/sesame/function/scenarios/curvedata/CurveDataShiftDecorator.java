@@ -18,9 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
- * Function that decorates {@link CurveSpecificationMarketDataFn} and applies parallel shifts to the underlying data.
+ * Function that decorates {@link CurveSpecificationMarketDataFn} and applies shifts to the underlying data.
  */
-public class CurveDataParallelShiftDecorator implements CurveSpecificationMarketDataFn {
+public class CurveDataShiftDecorator implements CurveSpecificationMarketDataFn {
 
   /** The underlying function that this function decorates. */
   private final CurveSpecificationMarketDataFn _delegate;
@@ -28,7 +28,7 @@ public class CurveDataParallelShiftDecorator implements CurveSpecificationMarket
   /**
    * @param delegate the function to decorate
    */
-  public CurveDataParallelShiftDecorator(CurveSpecificationMarketDataFn delegate) {
+  public CurveDataShiftDecorator(CurveSpecificationMarketDataFn delegate) {
     _delegate = ArgumentChecker.notNull(delegate, "delegate");
   }
 
@@ -46,22 +46,22 @@ public class CurveDataParallelShiftDecorator implements CurveSpecificationMarket
     }
     Map<ExternalIdBundle, Double> results = result.getValue();
 
-    for (CurveDataParallelShift shift : shifts._shifts) {
+    for (CurveDataShift shift : shifts._shifts) {
       results = shift.apply(curveSpecification, results);
     }
     return Result.success(results);
   }
 
   /**
-   * Creates an instance of {@link Shifts} wrapping some {@link CurveDataParallelShift} instances.
+   * Creates an instance of {@link Shifts} wrapping some {@link CurveDataShift} instances.
    *
    * @param shifts some shifts
    * @return an instance of {@link Shifts} wrapping the shifts
    */
-  public static Shifts shifts(CurveDataParallelShift... shifts) {
-    List<CurveDataParallelShift> shiftList = new ArrayList<>(shifts.length);
+  public static Shifts shifts(CurveDataShift... shifts) {
+    List<CurveDataShift> shiftList = new ArrayList<>(shifts.length);
 
-    for (CurveDataParallelShift shift : shifts) {
+    for (CurveDataShift shift : shifts) {
       if (shift == null) {
         throw new IllegalArgumentException("Null shifts not allowed");
       }
@@ -71,13 +71,13 @@ public class CurveDataParallelShiftDecorator implements CurveSpecificationMarket
   }
 
   /**
-   * Wraps a list of {@link CurveDataParallelShift} instances.
+   * Wraps a list of {@link CurveDataShift} instances.
    */
   public static final class Shifts {
 
-    private final List<CurveDataParallelShift> _shifts;
+    private final List<CurveDataShift> _shifts;
 
-    private Shifts(List<CurveDataParallelShift> shifts) {
+    private Shifts(List<CurveDataShift> shifts) {
       _shifts = shifts;
     }
   }

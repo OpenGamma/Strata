@@ -442,9 +442,7 @@ public abstract class FunctionModelNode {
    * @param showProxies  true to include proxy nodes
    * @return the node structure, not null
    */
-  private StringBuilder prettyPrint(StringBuilder builder,
-      String indent, String childIndent, boolean showProxies) {
-    
+  private StringBuilder prettyPrint(StringBuilder builder, String indent, String childIndent, boolean showProxies) {
     FunctionModelNode realNode = (showProxies ? this : getConcreteNode());
     // prefix the line with an indicator if the node is an error node for easier debugging
     String errorPrefix = isError() ? "->" : "  ";
