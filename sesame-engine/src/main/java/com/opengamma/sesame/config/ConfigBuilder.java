@@ -95,12 +95,12 @@ public final class ConfigBuilder {
     return new ViewColumn(name, new ViewOutput(OutputName.of(outputName), config), createTargetOutputs(targetOutputs));
   }
 
-  public static TargetOutput output(String outputName, Class<?> targetType) {
-    return new TargetOutput(new ViewOutput(OutputName.of(outputName)), targetType);
+  public static TargetOutput output(String outputName, Class<?> inputType) {
+    return new TargetOutput(new ViewOutput(OutputName.of(outputName)), inputType);
   }
 
-  public static TargetOutput output(String outputName, Class<?> targetType, FunctionModelConfig config) {
-    return new TargetOutput(new ViewOutput(OutputName.of(outputName), config), targetType);
+  public static TargetOutput output(String outputName, Class<?> inputType, FunctionModelConfig config) {
+    return new TargetOutput(new ViewOutput(OutputName.of(outputName), config), inputType);
   }
 
   public static ViewOutput output(String outputName, FunctionModelConfig config) {
@@ -115,11 +115,12 @@ public final class ConfigBuilder {
     return new NonPortfolioOutput(name, output);
   }
 
-  // TODO this is a bad name
-  // TODO this needs to inherit the output name from the column. not sure that's going to be easy
-  // maybe column output needs to allow a null output name
-  public static TargetOutput output(Class<?> targetType, FunctionModelConfig config) {
-    return new TargetOutput(new ViewOutput(config), targetType);
+  public static TargetOutput output(Class<?> inputType, FunctionModelConfig config) {
+    return new TargetOutput(new ViewOutput(config), inputType);
+  }
+
+  public static TargetOutput output(Class<?> inputType) {
+    return new TargetOutput(new ViewOutput(FunctionModelConfig.EMPTY), inputType);
   }
 
   public static FunctionModelConfig config(Implementations implementations, Arguments arguments) {
