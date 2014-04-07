@@ -7,17 +7,19 @@ package com.opengamma.sesame;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.Result;
 
 /**
  * Function capable of providing a historical time-series bundle.
+ * @deprecated use {@link HistoricalMarketDataFn} [SSM-217]
  */
+@Deprecated
 public interface HistoricalTimeSeriesFn {
 
   /**

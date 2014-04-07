@@ -113,6 +113,9 @@ public class AvailableOutputsImpl implements AvailableOutputs {
 
   @Override
   public synchronized FunctionMetadata getOutputFunction(OutputName outputName, Class<?> inputType) {
+    ArgumentChecker.notNull(outputName, "outputName");
+    ArgumentChecker.notNull(inputType, "inputType");
+
     Pair<OutputName, Class<?>> targetKey = Pairs.<OutputName, Class<?>>of(outputName, inputType);
     if (_allFunctionsForOutputs.containsKey(targetKey)) {
       return _allFunctionsForOutputs.get(targetKey);

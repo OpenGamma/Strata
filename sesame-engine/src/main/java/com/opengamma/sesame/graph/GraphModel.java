@@ -101,7 +101,7 @@ public final class GraphModel {
     Map<Class<?>, FunctionModel> columnFns = _portfolioFunctionModels.get(columnName);
 
     if (columnFns == null) {
-      throw new IllegalArgumentException("There is no column named " + columnName);
+      throw new IllegalArgumentException("There is no column named '" + columnName + "'");
     } else {
       return columnFns.get(inputType);
     }
@@ -117,7 +117,7 @@ public final class GraphModel {
     FunctionModel model = _nonPortfolioFunctionModels.get(ArgumentChecker.notEmpty(outputName, "outputName"));
 
     if (model == null) {
-      throw new IllegalArgumentException("There is no output named " + outputName);
+      throw new IllegalArgumentException("There is no output named '" + outputName + "'");
     } else {
       return model;
     }

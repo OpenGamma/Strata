@@ -40,7 +40,7 @@ public interface HistoricalMarketDataFn {
    * @param dateRange  the range of dates to return, not null
    * @return the rate for the node, not null
    */
-  // TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
+  // TODO this needs to return a time series bundle
   Result<LocalDateDoubleTimeSeries> getCurveNodeValues(Environment env, CurveNodeWithIdentifier node, LocalDateRange dateRange);
 
   /**
@@ -51,7 +51,7 @@ public interface HistoricalMarketDataFn {
    * @param dateRange  the range of dates to return, not null
    * @return the rate for the node's underlying, not null
    */
-  // TODO would it be better to pass the whole curve spec/def/whatever for easier scenarios?
+  // TODO this needs to return a time series bundle
   Result<LocalDateDoubleTimeSeries> getCurveNodeUnderlyingValue(Environment env, PointsCurveNodeWithIdentifier node, LocalDateRange dateRange);
 
   /**

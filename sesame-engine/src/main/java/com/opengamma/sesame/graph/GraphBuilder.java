@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.opengamma.core.position.PositionOrTrade;
-import com.opengamma.core.security.Security;
 import com.opengamma.sesame.OutputName;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -58,8 +56,7 @@ public final class GraphBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Currently the inputs must be instances of {@link PositionOrTrade} or {@link Security}.
-   * This will be relaxed in future.
+   * Builds a model of the functions needed to calculate view outputs for a set of input types.
    * 
    * @param viewConfig  the configuration to use, not null
    * @param inputTypes  the types of the inputs to the calculations, e.g. trades, positions, securities
@@ -82,24 +79,22 @@ public final class GraphBuilder {
         // it wouldn't be eligible for sharing with other inputs
         // would need to key on input ID instead of type. would need to assign ID for in-memory trades
 
+        FunctionModel existingFunction = functions.get(inputType);
         OutputName outputName = column.getOutputName(inputType);
-        if (outputName != null) {
-          FunctionMetadata function = _availableOutputs.getOutputFunction(outputName, inputType);
-          if (function != null) {
-            FunctionModel existingFunction = functions.get(inputType);
-            if (existingFunction == null) {
-              FunctionModelConfig columnConfig = column.getFunctionConfig(inputType);
-              FunctionModelConfig config = CompositeFunctionModelConfig.compose(columnConfig, defaultConfig);
-              FunctionModel functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
-              functions.put(inputType, functionModel);
-              s_logger.debug("created function for {}/{}\n{}",
-                             column.getName(), inputType.getSimpleName(), functionModel.prettyPrint());
-            }
-          }
+        FunctionMetadata function = outputName == null ?
+                                    null :
+                                    _availableOutputs.getOutputFunction(outputName, inputType);
+
+        if (existingFunction == null && function != null) {
+          FunctionModelConfig columnConfig = column.getFunctionConfig(inputType);
+          FunctionModelConfig config = CompositeFunctionModelConfig.compose(columnConfig, defaultConfig);
+          FunctionModel functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
+          functions.put(inputType, functionModel);
+          s_logger.debug("created function for {}/{}\n{}",
+                         column.getName(), inputType.getSimpleName(), functionModel.prettyPrint());
         } else {
-          s_logger.warn("Failed to find function to provide output for {} for {}", column, inputType.getSimpleName());
-          FunctionModel functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);
-          functions.put(inputType.getClass(), functionModel);
+          s_logger.warn("No function available for column '{}' for input type {}", column, inputType.getSimpleName());
+          functions.put(inputType, FunctionModel.forFunction(NoOutputFunction.METADATA));
         }
       }
       builder.put(column.getName(), Collections.unmodifiableMap(functions));
@@ -110,19 +105,18 @@ public final class GraphBuilder {
     for (NonPortfolioOutput output : viewConfig.getNonPortfolioOutputs()) {
       OutputName outputName = output.getOutput().getOutputName();
       FunctionMetadata function = _availableOutputs.getOutputFunction(outputName);
-      FunctionModel functionModel;
+
       if (function != null) {
         FunctionModelConfig functionModelConfig = output.getOutput().getFunctionModelConfig();
         FunctionModelConfig config = CompositeFunctionModelConfig.compose(functionModelConfig, defaultConfig);
-        functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
+        FunctionModel functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
+        nonPortfolioFunctionModels.put(output.getName(), functionModel);
+        s_logger.debug("created function for {}/{}\n{}", output.getName(), functionModel.prettyPrint());
       } else {
+        nonPortfolioFunctionModels.put(output.getName(), FunctionModel.forFunction(NoOutputFunction.METADATA));
         s_logger.warn("Failed to find function to provide output named {}", outputName);
-        functionModel = FunctionModel.forFunction(NoOutputFunction.METADATA);
       }
-      nonPortfolioFunctionModels.put(output.getName(), functionModel);
-      s_logger.debug("created function for {}/{}\n{}", output.getName(), functionModel.prettyPrint());
     }
-
     return new GraphModel(builder.build(), nonPortfolioFunctionModels.build());
   }
 
