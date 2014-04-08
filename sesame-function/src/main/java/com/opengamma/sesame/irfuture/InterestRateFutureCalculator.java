@@ -18,9 +18,9 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
@@ -56,13 +56,13 @@ public class InterestRateFutureCalculator {
    */
   private final MulticurveProviderInterface _bundle;
   
-  public InterestRateFutureCalculator(InterestRateFutureSecurity security,
+  public InterestRateFutureCalculator(InterestRateFutureTrade irFutureTrade,
                                       MulticurveProviderInterface bundle,
-                                      InterestRateFutureSecurityConverter irFutureConverter,
+                                      FutureTradeConverter tradeConverter,
                                       ZonedDateTime valuationTime,
                                       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                       HistoricalTimeSeriesBundle fixings) {
-    _derivative = createInstrumentDerivative(security, irFutureConverter, valuationTime, definitionToDerivativeConverter, fixings);
+    _derivative = createInstrumentDerivative(irFutureTrade, tradeConverter, valuationTime, definitionToDerivativeConverter, fixings);
     _bundle = bundle;
   }
   
@@ -86,12 +86,12 @@ public class InterestRateFutureCalculator {
     return _derivative.accept(calculator, _bundle);
   }
   
-  private InstrumentDerivative createInstrumentDerivative(InterestRateFutureSecurity security,
-                                                          InterestRateFutureSecurityConverter converter,
+  private InstrumentDerivative createInstrumentDerivative(InterestRateFutureTrade irFutureTrade,
+                                                          FutureTradeConverter converter,
                                                           ZonedDateTime valuationTime,
                                                           FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                           HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = security.accept(converter);
-    return definitionToDerivativeConverter.convert(security, definition, valuationTime, fixings);
+    InstrumentDefinition<?> definition = converter.convert(irFutureTrade);
+    return definitionToDerivativeConverter.convert(irFutureTrade.getSecurity(), definition, valuationTime, fixings);
   }
 }

@@ -6,8 +6,8 @@
 package com.opengamma.sesame.irfuture;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -23,15 +23,15 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
    * The calculator used to provide the OG-Analytics representation of the security and the necessary market data requirements
    * to calculate the requested values.
    */
-  private final InterestRateFutureCalculatorFn _interestRateFutureCalculatorFn;
+  private final InterestRateFutureCalculatorFactory _interestRateFutureCalculatorFactory;
   
-  public DefaultInterestRateFutureFn(InterestRateFutureCalculatorFn interestRateFutureCalculatorFn) {
-    _interestRateFutureCalculatorFn = interestRateFutureCalculatorFn;
+  public DefaultInterestRateFutureFn(InterestRateFutureCalculatorFactory interestRateFutureCalculatorFactory) {
+    _interestRateFutureCalculatorFactory = interestRateFutureCalculatorFactory;
   }
   
   @Override
-  public Result<Double> calculateParRate(Environment env, InterestRateFutureSecurity security) {
-    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFn.generateCalculator(env, security);
+  public Result<Double> calculateParRate(Environment env, InterestRateFutureTrade irFutureTrade) {
+    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFactory.createCalculator(env, irFutureTrade);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
@@ -39,8 +39,8 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
   }
 
   @Override
-  public Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateFutureSecurity security) {
-    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFn.generateCalculator(env, security);
+  public Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateFutureTrade irFutureTrade) {
+    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFactory.createCalculator(env, irFutureTrade);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
@@ -48,8 +48,8 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
   }
 
   @Override
-  public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateFutureSecurity security) {
-    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFn.generateCalculator(env, security);
+  public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateFutureTrade irFutureTrade) {
+    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFactory.createCalculator(env, irFutureTrade);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
