@@ -5,12 +5,15 @@
  */
 package com.opengamma.sesame.fxforward;
 
+import java.util.LinkedList;
+
 import javax.inject.Inject;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -20,6 +23,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -46,10 +50,10 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
 
   /**
-   * How big a timeseries result is required. Start date will be valuation date - period.
+   * How big a timeseries result is required.
    */
-  private final Period _seriesPeriod;
-
+  private final LocalDateRange _dateRange;
+  
   @Inject
   public DiscountingFXForwardSpotPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
                                              final CurrencyPairsFn currencyPairsFn,
@@ -57,16 +61,16 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
                                              final Boolean useHistoricalSpot,
                                              final FXReturnSeriesFn fxReturnSeriesProvider,
                                              final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
-                                             final Period seriesPeriod,
-                                             final FXMatrixFn fxMatrixFn) {
+                                             final FXMatrixFn fxMatrixFn, 
+                                             final LocalDateRange dateRange) {
     _calculatorProvider = calculatorProvider;
     _currencyPairsFn = currencyPairsFn;
     _outputCurrency = outputCurrency;
     _useHistoricalSpot = useHistoricalSpot;
     _fxReturnSeriesProvider = fxReturnSeriesProvider;
     _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
-    _seriesPeriod = seriesPeriod;
     _fxMatrixFn = fxMatrixFn;
+    _dateRange = dateRange;
   }
 
   @Override
@@ -112,18 +116,22 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
       if (cpResult.isSuccess()) {
 
         final CurrencyPair currencyPair = cpResult.getValue();
-
-        LocalDateRange dateRange = LocalDateRange.of(endDate.minus(_seriesPeriod), endDate, true);
+        //take one week off the start date. this ensures that the start of the underlying
+        //price series will provide at least one business day of data before the required start of 
+        // the return series. the resulting return series is trimmed so that first day of PnL = 
+        //start date.
+        LocalDate adjustedStart = _dateRange.getStartDateInclusive().minusWeeks(1);
+        LocalDateRange adjustedRange = LocalDateRange.of(adjustedStart, _dateRange.getEndDateInclusive(), true);
 
         final Result<LocalDateDoubleTimeSeries> returnSeriesResult =
-            _fxReturnSeriesProvider.calculateReturnSeries(env, dateRange, currencyPair);
-        LocalDateDoubleTimeSeries fxSpotReturnSeries = returnSeriesResult.getValue();
-
+            _fxReturnSeriesProvider.calculateReturnSeries(env, adjustedRange, currencyPair);
+        LocalDateDoubleTimeSeries fxSpotReturnSeries = trimReturnSeries(returnSeriesResult.getValue());
+        
         final Currency baseCurrency = currencyPair.getBase();
         final double exposure = currencyExposure.getAmount(currencyPair.getCounter());
 
         if (!_useHistoricalSpot) {
-          LocalDateDoubleTimeSeries ccyPairHts = _historicalTimeSeriesProvider.getHtsForCurrencyPair(env, currencyPair, endDate).getValue().reciprocal();
+          LocalDateDoubleTimeSeries ccyPairHts = _historicalTimeSeriesProvider.getHtsForCurrencyPair(env, currencyPair, adjustedRange).getValue().reciprocal();
           FXMatrix fxMatrix = _fxMatrixFn.getFXMatrix(env, Sets.newHashSet(payCurrency, receiveCurrency)).getValue();
           double envFxRate = fxMatrix.getFxRate(currencyPair.getBase(), currencyPair.getCounter());
           
@@ -161,4 +169,22 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
     // No output currency property or it's the same as base
     return _outputCurrency.or(baseCurrency) != baseCurrency;
   }
+  
+  private LocalDateDoubleTimeSeries trimReturnSeries(LocalDateDoubleTimeSeries ts) {
+    LinkedList<LocalDate> dates = Lists.newLinkedList();
+    LinkedList<Double> values = Lists.newLinkedList();
+    
+    for (int j = ts.size() - 1; j >= 0; j--) {
+      LocalDate date = ts.getTimeAtIndex(j);
+      if (date.isBefore(_dateRange.getStartDateInclusive())) {
+        break;
+      }
+      Double value = ts.getValueAtIndex(j);
+      dates.addFirst(date);
+      values.addFirst(value);
+    }
+
+    return ImmutableLocalDateDoubleTimeSeries.of(dates, values);
+  }
+
 }

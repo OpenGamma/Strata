@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -68,7 +66,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDate endDate) {
     LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
     LocalDateRange dateRange = LocalDateRange.of(startDate, endDate, true);
-    return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
+    return getHtsForCurrencyPair(env, currencyPair, dateRange);
   }
 
 
@@ -79,55 +77,8 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     // todo - could we manage HTS lookup in the same way as market data? i.e. request the values needed look them up so they are available next time
     
     final LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
-    final boolean includeStart = true;
-    final boolean includeEnd = true;
+    return getHtsForCurveNode(env, node, LocalDateRange.of(startDate, endDate, true));
 
-    
-    List<Result<?>> failures = Lists.newArrayList();
-    
-    final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-    
-    ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
-    String dataField = node.getDataField();
-    // TODO use HistoricalMarketDataFn.getValues()?
-    HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate,
-                                                                         includeStart, endDate, includeEnd);
-    processResult(id, dataField, timeSeries, bundle, failures);
-
-    if (node instanceof PointsCurveNodeWithIdentifier) {
-      final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
-      id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
-      dataField = pointsNode.getUnderlyingDataField();
-      timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate, includeStart,
-                                                      endDate, includeEnd);
-      
-      processResult(id, dataField, timeSeries, bundle, failures);
-
-    }
-
-    if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
-      final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
-      InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(),
-                                                                                  InflationLegConvention.class);
-      PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(),
-                                                                              PriceIndexConvention.class);
-      final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
-      final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
-      final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField,
-                                                                                       priceIndexId,
-                                                                                       _resolutionKey,
-                                                                                       startDate,
-                                                                                       includeStart,
-                                                                                       endDate,
-                                                                                       includeEnd);
-      processResult(priceIndexId, priceIndexField, priceIndexSeries, bundle, failures);
-    }
-    
-    if (Result.anyFailures(failures)) {
-      return Result.failure(failures);
-    }
-    
-    return Result.success(bundle);
   }
 
   private void processResult(ExternalIdBundle id, String dataField, HistoricalTimeSeries timeSeries, final HistoricalTimeSeriesBundle bundle, List<Result<?>> failures) {
@@ -189,5 +140,65 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     public HistoricalTimeSeriesBundle visitBondFutureSecurity(BondFutureSecurity security) {
       return new HistoricalTimeSeriesBundle();
     }
+  }
+
+  @Override
+  public Result<HistoricalTimeSeriesBundle> getHtsForCurveNode(Environment env, CurveNodeWithIdentifier node, LocalDateRange dateRange) {
+    LocalDate startDate = dateRange.getStartDateInclusive();
+    LocalDate endDate = dateRange.getEndDateInclusive();
+    final boolean includeStart = true;
+    final boolean includeEnd = true;
+
+    
+    List<Result<?>> failures = Lists.newArrayList();
+    
+    final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
+    
+    ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
+    String dataField = node.getDataField();
+    // TODO use HistoricalMarketDataFn.getValues()?
+    HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate,
+                                                                         includeStart, endDate, includeEnd);
+    processResult(id, dataField, timeSeries, bundle, failures);
+
+    if (node instanceof PointsCurveNodeWithIdentifier) {
+      final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
+      id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
+      dataField = pointsNode.getUnderlyingDataField();
+      timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate, includeStart,
+                                                      endDate, includeEnd);
+      
+      processResult(id, dataField, timeSeries, bundle, failures);
+
+    }
+
+    if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
+      final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
+      InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(),
+                                                                                  InflationLegConvention.class);
+      PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(),
+                                                                              PriceIndexConvention.class);
+      final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
+      final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
+      final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField,
+                                                                                       priceIndexId,
+                                                                                       _resolutionKey,
+                                                                                       startDate,
+                                                                                       includeStart,
+                                                                                       endDate,
+                                                                                       includeEnd);
+      processResult(priceIndexId, priceIndexField, priceIndexSeries, bundle, failures);
+    }
+    
+    if (Result.anyFailures(failures)) {
+      return Result.failure(failures);
+    }
+    
+    return Result.success(bundle);  
+  }
+
+  @Override
+  public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDateRange dateRange) {
+    return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
   }
 }

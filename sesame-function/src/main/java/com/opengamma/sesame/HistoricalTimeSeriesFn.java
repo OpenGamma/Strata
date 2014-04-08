@@ -14,6 +14,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Function capable of providing a historical time-series bundle.
@@ -33,6 +34,16 @@ public interface HistoricalTimeSeriesFn {
   Result<HistoricalTimeSeriesBundle> getHtsForCurveNode(Environment env, CurveNodeWithIdentifier node, LocalDate endDate);
 
   /**
+   * Finds the time-series for the curve node specification at a valuation date.
+   * 
+   * @param env the environment that the fixing requirements are needed for. 
+   * @param node  the curve node, not null
+   * @param dateRange  date range, not null
+   * @return the time-series bundle, a failure result if not found
+   */
+  Result<HistoricalTimeSeriesBundle> getHtsForCurveNode(Environment env, CurveNodeWithIdentifier node, LocalDateRange dateRange);
+
+  /**
    * Finds the time-series for the currency pair.
    *
    * @param env the environment that the fixing requirements are needed for. 
@@ -41,6 +52,16 @@ public interface HistoricalTimeSeriesFn {
    * @return the time-series bundle, a failure result if not found
    */
   Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDate endDate);
+  
+  /**
+   * Finds the time-series for the currency pair.
+   *
+   * @param env the environment that the fixing requirements are needed for. 
+   * @param currencyPair the currency pair, not null
+   * @param dateRange the date range, not null
+   * @return the time-series bundle, a failure result if not found
+   */
+  Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDateRange dateRange);
   
   /**
    * Finds the fixing requirements for the security.

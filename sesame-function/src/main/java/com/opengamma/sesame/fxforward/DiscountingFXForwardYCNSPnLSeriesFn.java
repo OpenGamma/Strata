@@ -8,6 +8,7 @@ package com.opengamma.sesame.fxforward;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,10 +18,10 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -45,7 +46,7 @@ import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.component.RetrievalPeriod;
+import com.opengamma.sesame.calendar.CalendarFn;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -55,6 +56,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
@@ -84,10 +86,11 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final Set<String> _impliedCurveNames;
   private final DiscountingMulticurveBundleFn _discountingMulticurveBundleFn;
 
-  private final Period _seriesPeriod;
   private final FXMatrixFn _fxMatrixFn;
   private final Boolean _useHistoricalSpot;
-
+  
+  private final LocalDateRange _dateRange;
+  
   @Inject
   public DiscountingFXForwardYCNSPnLSeriesFn(FXForwardCalculatorFn calculatorProvider,
                                              CurveDefinition curveDefinition,
@@ -100,9 +103,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              MarketDataFactory marketDataFactory,
                                              StringSet impliedCurveNames,
                                              DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
-                                             RetrievalPeriod seriesPeriod,
                                              FXMatrixFn fxMatrixFn,
-                                             Boolean useHistoricalSpot) {
+                                             Boolean useHistoricalSpot,
+                                             LocalDateRange dateRange) {
     _calculatorProvider = calculatorProvider;
     _curveDefinition = curveDefinition;
     _curveConfig = curveConfig;
@@ -114,9 +117,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _marketDataFactory = marketDataFactory;
     _impliedCurveNames = impliedCurveNames.getStrings();
     _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
-    _seriesPeriod = seriesPeriod.getRetrievalPeriod();
     _fxMatrixFn = fxMatrixFn;
     _useHistoricalSpot = useHistoricalSpot;
+    _dateRange = dateRange;
   }
 
   @Override
@@ -153,15 +156,15 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     if (calculatorResult.isSuccess() && cpResult.isSuccess()) {
 
       final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities(env);
-
-      LocalDate end = env.getValuationDate();
-      LocalDate start = end.minus(_seriesPeriod);
-
+      LocalDate priceSeriesEnd = _dateRange.getEndDateInclusive();
+      LocalDate priceSeriesStart = _dateRange.getStartDateInclusive().minusWeeks(1);
+      LocalDateRange priceSeriesRange = LocalDateRange.of(priceSeriesStart, priceSeriesEnd, true);
+      
       // Generate our version of an HTS Bundle
       ImpliedCurveHtsBundleBuilder builder = new ImpliedCurveHtsBundleBuilder();
 
       // todo - how do we adjust for holidays?
-      for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+      for (LocalDate date = priceSeriesStart; !date.isAfter(priceSeriesEnd); date = date.plusDays(1)) {
         MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(date);
         MarketDataSource marketDataSource = _marketDataFactory.create(marketDataSpec);
 
@@ -182,9 +185,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
           }
         }
       }
-
+      
       TenorLabelledLocalDateDoubleTimeSeriesMatrix1D series = builder.toTimeSeries();
-
+      
       final String curveName = _curveDefinition.getName();
       final Map<Currency, DoubleMatrix1D> sensitivities = bcs.getSensitivityByName(curveName);
       if (sensitivities.isEmpty()) {
@@ -208,14 +211,14 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                               "Unequal number of sensitivities ({}) and curve tenors ({})", sensitivitySize, tenorsSize);
       }
 
-      LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env, curveCurrency, env.getValuationDate());
+      LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env, curveCurrency, priceSeriesRange);
 
       final LocalDateDoubleTimeSeries[] values = new LocalDateDoubleTimeSeries[tenorsSize];
 
       for (int i = 0; i < tenorsSize; i++) {
 
         Series seriesForTenor = builder.getSeriesForTenor(tenors[i]);
-        final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(seriesForTenor._dates, seriesForTenor._values);
+        LocalDateDoubleTimeSeries ts = trimSeries(ImmutableLocalDateDoubleTimeSeries.of(seriesForTenor._dates, seriesForTenor._values));
         final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(env, ts, null);
         LocalDateDoubleTimeSeries pnlSeries = returnSeries.multiply(sensitivity.getEntry(i));
         
@@ -242,6 +245,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       return Result.failure(calculatorResult, cpResult);
     }
   }
+
 
   private static class Series {
 
@@ -300,6 +304,13 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(env, security);
     final Result<CurveSpecification> curveSpecificationResult =
         _curveSpecificationFunction.getCurveSpecification(env, _curveDefinition);
+    LocalDate priceSeriesEnd = _dateRange.getEndDateInclusive();
+    //take one week off the start date. this ensures that the start of the underlying
+    //price series will provide at least one business day of data before the required start of 
+    // the return series. the resulting return series is trimmed so that first day of PnL = 
+    //start date.
+    LocalDate priceSeriesStart = _dateRange.getStartDateInclusive().minusWeeks(1);
+    LocalDateRange priceSeriesRange = LocalDateRange.of(priceSeriesStart, priceSeriesEnd, true);
 
     if (Result.allSuccessful(calculatorResult, curveSpecificationResult, cpResult)) {
 
@@ -335,20 +346,20 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
       LocalDateDoubleTimeSeries conversionSeries = generateConversionSeries(env,
           curveCurrency,
-          env.getValuationDate());
+          priceSeriesRange);
       //TODO - [SSM-192] may want to use today's spot rate for conversion here
-      return calculateSeriesForNodes(env, sensitivity, nodes, conversionSeries, curveName);
+      return calculateSeriesForNodes(env, sensitivity, nodes, conversionSeries, curveName, priceSeriesRange);
     }
     return Result.failure(calculatorResult, curveSpecificationResult, cpResult);
   }
 
-  private LocalDateDoubleTimeSeries generateConversionSeries(Environment env, Currency curveCurrency, LocalDate valuationDate) {
+  private LocalDateDoubleTimeSeries generateConversionSeries(Environment env, Currency curveCurrency, LocalDateRange priceSeriesRange) {
 
     if (conversionIsRequired(curveCurrency)) {
 
       CurrencyPair currencyPair = CurrencyPair.of(curveCurrency, _outputCurrency.get());
       final Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
-          _historicalTimeSeriesProvider.getHtsForCurrencyPair(env, currencyPair, valuationDate);
+          _historicalTimeSeriesProvider.getHtsForCurrencyPair(env, currencyPair, priceSeriesRange);
 
       if (conversionSeriesResult.isSuccess()) {
         return conversionSeriesResult.getValue();
@@ -361,7 +372,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private Result<TenorLabelledLocalDateDoubleTimeSeriesMatrix1D> calculateSeriesForNodes(Environment env,
                                                                                          DoubleMatrix1D sensitivities,
                                                                                          Set<CurveNodeWithIdentifier> nodes,
-                                                                                         LocalDateDoubleTimeSeries fxConversionSeries, String curveName) {
+                                                                                         LocalDateDoubleTimeSeries fxConversionSeries, 
+                                                                                         String curveName, 
+                                                                                         LocalDateRange priceSeriesRange) {
     final int size = sensitivities.getNumberOfElements();
 
     final Tenor[] keys = new Tenor[size];
@@ -372,7 +385,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     for (final CurveNodeWithIdentifier curveNodeWithId : nodes) {
 
       final Result<HistoricalTimeSeriesBundle> curveSeriesBundleResult =
-          _historicalTimeSeriesProvider.getHtsForCurveNode(env, curveNodeWithId, env.getValuationDate());
+          _historicalTimeSeriesProvider.getHtsForCurveNode(env, curveNodeWithId, priceSeriesRange);
       
       if (!curveSeriesBundleResult.isSuccess()) {
         s_logger.error("Failed to resolve HTS for curve node {}. Failure: {}", curveNodeWithId, curveSeriesBundleResult.getFailureMessage());
@@ -388,8 +401,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       if (hts == null || hts.getTimeSeries().isEmpty()) {
         return Result.failure(FailureStatus.MISSING_DATA, "Could not get time series for {} with field {}", id, field);
       }
-
-      final LocalDateDoubleTimeSeries ts = hts.getTimeSeries();
+      
+      LocalDateDoubleTimeSeries ts = trimSeries(hts.getTimeSeries());
       final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(env, ts, fxConversionSeries);
 
       keys[i] = curveNodeWithId.getCurveNode().getResolvedMaturity();
@@ -402,6 +415,28 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     }
 
     return Result.success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(keys, labels, values));
+  }
+
+  //todo - would be more efficient pass in two lists here rather than the time series.
+  //this way, the caller wouldn't be forced to build a ts object to trim the time series.
+  private LocalDateDoubleTimeSeries trimSeries(LocalDateDoubleTimeSeries ts) {
+    LinkedList<LocalDate> dates = Lists.newLinkedList();
+    LinkedList<Double> values = Lists.newLinkedList();
+    
+    for (int j = ts.size() - 1; j >= 0; j--) {
+      LocalDate date = ts.getTimeAtIndex(j);
+      Double value = ts.getValueAtIndex(j);
+      dates.addFirst(date);
+      values.addFirst(value);
+      //note - purposely go one date past start series date.
+      //this means PnL will start the on (or first available date after)
+      //the start date.
+      if (date.isBefore(_dateRange.getStartDateInclusive())) {
+        break;
+      }
+    }
+
+    return ImmutableLocalDateDoubleTimeSeries.of(dates, values);
   }
 
   private LocalDateDoubleTimeSeries calculateConvertedReturnSeries(Environment env,
