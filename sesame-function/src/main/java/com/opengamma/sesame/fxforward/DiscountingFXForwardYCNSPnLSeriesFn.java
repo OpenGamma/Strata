@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame.fxforward;
 
+import static org.threeten.bp.DayOfWeek.SATURDAY;
+import static org.threeten.bp.DayOfWeek.SUNDAY;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,10 +20,12 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -62,7 +67,9 @@ import com.opengamma.util.tuple.Triple;
 public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeriesFn {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DiscountingFXForwardYCNSPnLSeriesFn.class);
-
+  private static final ImmutableSet<DayOfWeek> s_weekendDays = ImmutableSet.of(SATURDAY, SUNDAY);
+  
+  
   private final FXForwardCalculatorFn _calculatorProvider;
 
   private final CurveDefinition _curveDefinition;
@@ -164,6 +171,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
       // todo - how do we adjust for holidays?
       for (LocalDate date = priceSeriesStart; !date.isAfter(priceSeriesEnd); date = date.plusDays(1)) {
+        
         MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(date);
         MarketDataSource marketDataSource = _marketDataFactory.create(marketDataSpec);
 
@@ -173,7 +181,9 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
         Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =
             _discountingMulticurveBundleFn.extractImpliedDepositCurveData(envForDate, _curveConfig);
 
-        // TODO collect errors and propagate
+        // TODO consider how to report failures. either log (as here),
+        // fail entire calc in all or nothing approach, somewhere in between?
+        // [SSM-234]
         if (result.isSuccess()) {
           Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> resultValue = result.getValue();
           List<Tenor> tenors = resultValue.getFirst();
@@ -181,6 +191,11 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
           for (int i = 0; i < tenors.size(); i++) {
             builder.add(date, tenors.get(i), nodalValues.get(i));
+          }
+        } else {
+          //TODO use actual calendars here. [SSM-233]
+          if (isWorkingDay(date)) {
+            s_logger.warn("Failed to build curve for date {}. Reason: {}", date, result.getFailureMessage());
           }
         }
       }
@@ -243,6 +258,15 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     } else {
       return Result.failure(calculatorResult, cpResult);
     }
+  }
+
+
+  private boolean isWorkingDay(LocalDate date) {
+    //very much a work in progress. should attempt to use
+    //local calendar data instead. only used to determine
+    //whether to log error messages atm.
+    //see [SSM-233] and [SSM-234].
+    return !s_weekendDays.contains(date.getDayOfWeek());
   }
 
 
