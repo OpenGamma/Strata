@@ -292,7 +292,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         if (_impliedCurveNames.contains(curveName)) {
 
           if (exogenousBundle.isSuccess()) {
-            // todo error handling if curve is not in bundle
 
             Currency currency = null;
             for (CurveTypeConfiguration type : entry.getValue()) {
@@ -312,6 +311,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
             // This curve needs to replace the existing discounting curve of the same currency
             curvesToRemove.add(currency);
+          } else {
+            curveBundleResult = Result.failure(curveBundleResult, exogenousBundle);
           }
         } else {
           Result<CurveSpecification> curveSpecResult =
