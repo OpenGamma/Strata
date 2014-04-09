@@ -28,10 +28,12 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
@@ -42,6 +44,8 @@ import com.opengamma.util.time.LocalDateRange;
 public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalTimeSeriesFn.class);
+
+  private static final HistoricalTimeSeriesBundle EMPTY_TIME_SERIES_BUNDLE = new HistoricalTimeSeriesBundle();
 
   private final HistoricalTimeSeriesSource _htsSource;
   private final String _resolutionKey;
@@ -105,7 +109,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   }
   
   private class FixingRetriever extends FinancialSecurityVisitorAdapter<HistoricalTimeSeriesBundle> {
-    
+
     private final HistoricalTimeSeriesSource _htsSource;
     
     private final LocalDate _now;
@@ -135,7 +139,16 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
       bundle.add(field, id, timeSeries);
       return bundle;
     }
-    
+
+    @Override
+    public HistoricalTimeSeriesBundle visitSwaptionSecurity(SwaptionSecurity security) {
+
+      if (security.getCurrency().equals(Currency.BRL)) {
+        throw new UnsupportedOperationException("Fixing series for Brazilian swaptions not yet implemented");
+      }
+      return EMPTY_TIME_SERIES_BUNDLE;
+    }
+
     @Override
     public HistoricalTimeSeriesBundle visitBondFutureSecurity(BondFutureSecurity security) {
       return new HistoricalTimeSeriesBundle();

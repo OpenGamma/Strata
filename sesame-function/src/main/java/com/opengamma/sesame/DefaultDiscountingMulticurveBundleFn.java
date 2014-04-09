@@ -6,9 +6,9 @@
 package com.opengamma.sesame;
 
 
-import static com.opengamma.financial.convention.businessday.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
+import static com.opengamma.util.result.FailureStatus.ERROR;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 
 import java.util.ArrayList;
@@ -87,7 +87,6 @@ import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -341,7 +340,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               final List<IborIndex> iborIndex = new ArrayList<>();
               final List<IndexON> overnightIndex = new ArrayList<>();
 
-              for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
+              for (final CurveTypeConfiguration type : entry.getValue()) {
                 if (type instanceof DiscountingCurveTypeConfiguration) {
                   final String reference = ((DiscountingCurveTypeConfiguration) type).getReference();
                   try {
@@ -356,11 +355,13 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 } else if (type instanceof OvernightCurveTypeConfiguration) {
                   overnightIndex.add(createIndexON((OvernightCurveTypeConfiguration) type));
                 } else {
-                  // todo - don't throw exception
-                  throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
-                }
-              } // type - end
+                  Result<?> typeFailure =
+                      Result.failure(ERROR, "Cannot handle curveTypeConfiguration with type {} whilst building curve: {}",
+                                     type.getClass(), curveName);
 
+                  curveBundleResult = Result.failure(curveBundleResult, typeFailure);
+                }
+              }
 
               if (!iborIndex.isEmpty()) {
                 forwardIborMap.put(curveName, iborIndex.toArray(new IborIndex[iborIndex.size()]));

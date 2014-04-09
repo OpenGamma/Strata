@@ -55,6 +55,18 @@ public final class OutputNames {
    * The PV01 of a cash-flow based fixed-income instrument.
    */
   public static final String PV01 = "PV01";
+  /**
+   * The implied volatility of an option contract.
+   */
+  public static final String IMPLIED_VOLATILITY = "Implied Volatility";
+  /**
+   * The bucketed PV01
+   */
+  public static final String BUCKETED_PV01 = "Bucketed PV01";
+  /**
+   * Bucketed SABR risk
+   */
+  public static final String BUCKETED_SABR_RISK = "Bucketed SABR Risk";
 
   /**
    * Restricted constructor.

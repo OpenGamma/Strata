@@ -23,8 +23,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.MutableFudgeMsg;
 import org.springframework.core.io.ClassPathResource;
@@ -81,6 +79,8 @@ import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * Tests that remoting to the new engine works. Starts up an engine on a
@@ -421,7 +421,8 @@ public class RemotingTest {
 
     return new LiveDataClient() {
 
-      final Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/usdMarketQuotes.properties", "Ticker");
+      final Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData(
+          "/usdMarketQuotes-20140122.properties", "Ticker");
       long counter = 0;
 
       @Override

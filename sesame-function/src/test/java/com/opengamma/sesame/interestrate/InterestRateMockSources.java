@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.mockito.Matchers;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
 import com.google.common.collect.ImmutableList;
@@ -55,6 +56,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
@@ -73,6 +75,7 @@ import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.MarketdataResourcesLoader;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
@@ -105,7 +108,7 @@ public class InterestRateMockSources {
   private static final String LIBOR_PAY_LEG_CONVENTION =  "USD IRS Fixed Leg";
   private static final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
   private static final String LIBOR_CONVENTION =  "USD Libor";
-  private static final String LIBOR_INDEX =  "Libor Index";
+  private static final String LIBOR_INDEX =  "USD 3M IRS Ibor Leg";
   private static final String USD_OVERNIGHT_CONVENTION =  "USD Overnight";
   private static final String USD_OVERNIGHT_INDEX =  "USD Overnight Index";
 
@@ -117,7 +120,7 @@ public class InterestRateMockSources {
   private static final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
   private static final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
 
-  private static final ExternalId _liborIndexId = ExternalId.of("CONVENTION", LIBOR_INDEX);
+  private static final ExternalId _liborIndexId = ExternalId.of("SEC", LIBOR_INDEX);
   private static final ExternalId _onIndexId = ExternalId.of("CONVENTION", USD_OVERNIGHT_INDEX);
   private static final String TICKER = "Ticker";
 
@@ -133,9 +136,11 @@ public class InterestRateMockSources {
     return generateComponentMap(mockHolidaySource(),
                                 mockRegionSource(),
                                 mockConventionSource(),
+                                mock(ConventionBundleSource.class),
                                 mockConfigSource(),
                                 mockSecuritySource(),
                                 mockHistoricalTimeSeriesSource(),
+                                mock(HistoricalTimeSeriesResolver.class),
                                 mock(HistoricalMarketDataFn.class),
                                 mock(CurrencyMatrix.class));
   }
@@ -147,14 +152,29 @@ public class InterestRateMockSources {
   }
 
   public StrategyAwareMarketDataSource createMarketDataSource() {
+    return createMarketDataSource(LocalDate.of(2014, 1, 22));
+  }
+
+  public StrategyAwareMarketDataSource createMarketDataSource(LocalDate date) {
+
+    String filename;
+    if (date.equals(LocalDate.of(2014,1,22))) {
+      filename = "/usdMarketQuotes-20140122.properties";
+    } else if (date.equals(LocalDate.of(2014,2,18))) {
+      filename = "/usdMarketQuotes-20140218.properties";
+    } else {
+      throw new OpenGammaRuntimeException("No data available for date: " + date);
+    }
+
     try {
-      Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/usdMarketQuotes.properties", TICKER);
+      Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData(filename, TICKER);
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
       return new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(fieldName, marketData).build();
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Exception whilst loading file", e);
     }
   }
+
 
   public ExposureFunctions mockExposureFunctions() {
     List<String> exposureFunctions =  ImmutableList.of("Currency");
@@ -367,16 +387,17 @@ public class InterestRateMockSources {
         .thenReturn(liborReceiveLegConvention);
     when(mock.getSingle(_liborReceiveLegConventionId, FinancialConvention.class))
         .thenReturn(liborReceiveLegConvention);
+    when(mock.getSingle(_liborReceiveLegConventionId))
+        .thenReturn(liborReceiveLegConvention);
 
     IborIndexConvention liborConvention =
         new IborIndexConvention(LIBOR_CONVENTION, _liborConventionId.toBundle(), act360, modifiedFollowing, 2,
-                                true, s_USD, LocalTime.of(11, 0), "Europe/London", s_USGBID, s_USID, "");
+                                false, s_USD, LocalTime.of(11, 0), "Europe/London", s_USGBID, s_USID, "");
     when(mock.getSingle(_liborConventionId, FinancialConvention.class))
         .thenReturn(liborConvention);
     when(mock.getSingle(any(ExternalId.class), eq(IborIndexConvention.class)))
         .thenReturn(liborConvention);
-    when(mock.getSingle(_liborConventionId))
-        .thenReturn(liborConvention);
+    when(mock.getSingle(_liborConventionId)).thenReturn(liborConvention);
     when(mock.getSingle(eq(_liborConventionId.toBundle()), any(VersionCorrection.class)))
         .thenReturn(liborConvention);
 
