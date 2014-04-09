@@ -99,6 +99,7 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
@@ -110,6 +111,7 @@ import com.opengamma.util.tuple.Pairs;
  * Tests the swaption analytics functions with expected values taken
  * from SwaptionPhysicalFixedIborSABRMethodE2ETest in og-analytics.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionFnTest {
 
   private static final double TOLERANCE_PV = 1.0E-3;
