@@ -9,7 +9,7 @@ package com.opengamma.sesame;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.ERROR;
-import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,13 +93,9 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.result.ResultStatus;
-import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
@@ -529,26 +525,26 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
     throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
   }
-
+  
+  
   private Result<MulticurveProviderDiscount> buildExogenousBundles(Environment env,
                                                                    CurveConstructionConfiguration curveConfig,
                                                                    Result<FXMatrix> fxMatrixResult) {
 
-    ResultStatus exogenousStatus = SuccessStatus.SUCCESS;
+    Result<Boolean> exogenousResult = Result.success(true);
     Set<MulticurveProviderDiscount> exogenousBundles = new HashSet<>();
 
     for (CurveConstructionConfiguration exogenousConfig : curveConfig.resolveCurveConfigurations()) {
 
       Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = generateBundle(env, exogenousConfig);
-
-      if (bundleResult.getStatus().isResultAvailable()) {
+      if (bundleResult.isSuccess()) {
         exogenousBundles.add(bundleResult.getValue().getFirst());
       } else {
-        exogenousStatus = bundleResult.getStatus();
+        exogenousResult = Result.failure(exogenousResult, bundleResult);
       }
     }
 
-    if (exogenousStatus.isResultAvailable() && fxMatrixResult.isSuccess()) {
+    if (Result.allSuccessful(exogenousResult, fxMatrixResult)) {
 
       FXMatrix fxMatrix = fxMatrixResult.getValue();
       if (exogenousBundles.isEmpty()) {
@@ -558,12 +554,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         MulticurveProviderDiscount provider = ProviderUtils.mergeDiscountingProviders(result, fxMatrix);
         return Result.success(provider);
       }
-    } else if (!exogenousStatus.isResultAvailable()) {
-
-      return Result.failure(MISSING_DATA, "Unable to build exogenous curve bundles");
     } else {
-
-      return Result.failure(fxMatrixResult);
+      return Result.failure(fxMatrixResult, exogenousResult);
     }
   }
 
