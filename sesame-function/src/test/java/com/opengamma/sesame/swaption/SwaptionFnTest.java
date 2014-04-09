@@ -40,6 +40,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.link.SecurityLink;
@@ -103,6 +104,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests the swaption analytics functions with expected values taken
@@ -172,9 +174,20 @@ public class SwaptionFnTest {
 
   @Test
   public void testImpliedVolatility() {
-    Result<Double> pvComputed = _swaptionFn.calculateImpliedVolatility(ENV, _swaptionSecurity);
-    assertThat(pvComputed.isSuccess(), is(true));
-    assertThat(pvComputed.getValue(), is(closeTo(0.298092262, 1E-8)));
+    Result<Double> impliedVolComputed = _swaptionFn.calculateImpliedVolatility(ENV, _swaptionSecurity);
+    assertThat(impliedVolComputed.isSuccess(), is(true));
+    assertThat(impliedVolComputed.getValue(), is(closeTo(0.298092262, 1E-8)));
+  }
+
+  @Test
+  public void testPV01() {
+
+    Result<ReferenceAmount<Pair<String, Currency>>> pv01Computed = _swaptionFn.calculatePV01(ENV, _swaptionSecurity);
+    assertThat(pv01Computed.isSuccess(), is(true));
+
+    Map<Pair<String, Currency>, Double> results = pv01Computed.getValue().getMap();
+    assertThat(results.get(Pairs.of("USD-ON-OIS", USD)), is(closeTo(-2253.115361063714, 1E-8)));
+    assertThat(results.get(Pairs.of("USD-LIBOR3M-FRAIRS", USD)), is(closeTo(32885.97222733803, 1E-8)));
   }
 
   @Test

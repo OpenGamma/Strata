@@ -8,11 +8,14 @@ package com.opengamma.sesame.swaption;
 import com.google.common.base.Function;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Calculate analytics values for a swaption using discounting methods.
@@ -52,6 +55,16 @@ public class SABRSwaptionFn implements SwaptionFn {
       @Override
       public Result<Double> apply(SwaptionCalculator calculator) {
         return calculator.calculateImpliedVolatility();
+      }
+    });
+  }
+
+  @Override
+  public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, SwaptionSecurity security) {
+    return calculate(env, security, new Function<SwaptionCalculator, Result<ReferenceAmount<Pair<String, Currency>>>>() {
+      @Override
+      public Result<ReferenceAmount<Pair<String, Currency>>> apply(SwaptionCalculator calculator) {
+        return calculator.calculatePV01();
       }
     });
   }

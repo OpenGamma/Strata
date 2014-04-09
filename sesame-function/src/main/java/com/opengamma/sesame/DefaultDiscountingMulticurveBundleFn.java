@@ -106,6 +106,12 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
  */
 public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticurveBundleFn {
 
+  private static final ParSpreadMarketQuoteDiscountingCalculator DISCOUNTING_CALCULATOR =
+      ParSpreadMarketQuoteDiscountingCalculator.getInstance();
+
+  private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator CURVE_SENSITIVITY_CALCULATOR =
+      ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
+
   private final CurveDefinitionFn _curveDefinitionProvider;
   private final CurveSpecificationFn _curveSpecificationProvider;
   private final CurveSpecificationMarketDataFn _curveSpecificationMarketDataProvider;
@@ -353,7 +359,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 } else if (type instanceof IborCurveTypeConfiguration) {
                   iborIndex.add(createIborIndex((IborCurveTypeConfiguration) type));
                 } else if (type instanceof OvernightCurveTypeConfiguration) {
-                  overnightIndex.add(createIndexON((OvernightCurveTypeConfiguration) type));
+                  overnightIndex.add(createOvernightIndex((OvernightCurveTypeConfiguration) type));
                 } else {
                   Result<?> typeFailure =
                       Result.failure(ERROR, "Cannot handle curveTypeConfiguration with type {} whilst building curve: {}",
@@ -395,8 +401,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                                     discountingMap,
                                                     forwardIborMap,
                                                     forwardONMap,
-                                                    ParSpreadMarketQuoteDiscountingCalculator.getInstance(),
-                                                    ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
+                                                    DISCOUNTING_CALCULATOR,
+                                                    CURVE_SENSITIVITY_CALCULATOR));
     } else {
       return Result.failure(exogenousBundle, curveBundleResult);
     }
@@ -411,7 +417,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     return snapshotDataBundle;
   }
 
-  private IndexON createIndexON(OvernightCurveTypeConfiguration type) {
+  private IndexON createOvernightIndex(OvernightCurveTypeConfiguration type) {
     OvernightIndex index  = SecurityLink.<OvernightIndex>of(type.getConvention().toBundle()).resolve();
     OvernightIndexConvention indexConvention = ConventionLink.<OvernightIndexConvention>of(index.getConventionId()).resolve();
     return ConverterUtils.indexON(index.getName(), indexConvention);
@@ -427,14 +433,14 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private MulticurveProviderDiscount adjustMulticurveBundle(Set<Currency> curvesToRemove,
                                                             MulticurveProviderDiscount multicurves) {
 
-    if (!curvesToRemove.isEmpty()) {
+    if (curvesToRemove.isEmpty()) {
+      return multicurves;
+    } else {
       MulticurveProviderDiscount copy = multicurves.copy();
       for (Currency currency : curvesToRemove) {
         copy.removeCurve(currency);
       }
       return copy;
-    } else {
-      return multicurves;
     }
   }
 

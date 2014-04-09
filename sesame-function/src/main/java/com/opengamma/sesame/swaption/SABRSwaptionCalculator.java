@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.interestrate.SABRSensitivityNodeCalcula
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabrswaption.PresentValueCurveSensitivitySABRSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabrswaption.PresentValueSABRSensitivitySABRSwaptionCalculator;
@@ -19,9 +20,12 @@ import com.opengamma.analytics.financial.provider.description.interestrate.SABRS
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Calculator for swaptions using SABR volatility data.
@@ -57,6 +61,10 @@ public class SABRSwaptionCalculator implements SwaptionCalculator {
    */
   private static final MarketQuoteSensitivityBlockCalculator<SABRSwaptionProviderInterface> BUCKETED_PV01_CALCULATOR =
       createBucketedPV01Calculator();
+
+
+  private static final PV01CurveParametersCalculator<SABRSwaptionProviderInterface> PV01_CALCULATOR =
+      createPV01Calculator();
 
   /**
    * Derivative form of the security.
@@ -108,6 +116,11 @@ public class SABRSwaptionCalculator implements SwaptionCalculator {
   }
 
   @Override
+  public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
+    return Result.success(_swaption.accept(PV01_CALCULATOR, _bundle));
+  }
+
+  @Override
   public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01() {
     return Result.success(BUCKETED_PV01_CALCULATOR.fromInstrument(_swaption, _bundle, _block).multipliedBy(BASIS_POINT_FACTOR));
   }
@@ -131,5 +144,7 @@ public class SABRSwaptionCalculator implements SwaptionCalculator {
     return new MarketQuoteSensitivityBlockCalculator<>(parameterSensitivityCalculator);
   }
 
-
+  private static PV01CurveParametersCalculator<SABRSwaptionProviderInterface> createPV01Calculator() {
+    return new PV01CurveParametersCalculator<>(PresentValueCurveSensitivitySABRSwaptionCalculator.getInstance());
+  }
 }
