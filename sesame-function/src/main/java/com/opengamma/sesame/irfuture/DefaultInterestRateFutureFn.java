@@ -8,6 +8,7 @@ package com.opengamma.sesame.irfuture;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -26,7 +27,7 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
   private final InterestRateFutureCalculatorFactory _interestRateFutureCalculatorFactory;
   
   public DefaultInterestRateFutureFn(InterestRateFutureCalculatorFactory interestRateFutureCalculatorFactory) {
-    _interestRateFutureCalculatorFactory = interestRateFutureCalculatorFactory;
+    _interestRateFutureCalculatorFactory = ArgumentChecker.notNull(interestRateFutureCalculatorFactory, "interestRateFutureCalculatorFactory");
   }
   
   @Override
@@ -35,7 +36,7 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateParRate());
+    return calculatorResult.getValue().calculateParRate();
   }
 
   @Override
@@ -44,7 +45,7 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV());
+    return calculatorResult.getValue().calculatePV();
   }
 
   @Override
@@ -53,7 +54,7 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV01());
+    return calculatorResult.getValue().calculatePV01();
   }
 
 }

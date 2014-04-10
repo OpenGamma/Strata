@@ -64,7 +64,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     
       HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();
     
-      InterestRateFutureCalculator calculator = new InterestRateFutureCalculator(trade, bundle, _converter, env.getValuationTime(), _definitionToDerivativeConverter, fixings);
+      InterestRateFutureCalculator calculator = new InterestRateFutureDiscountingCalculator(trade, bundle, _converter, env.getValuationTime(), _definitionToDerivativeConverter, fixings);
       
       return Result.success(calculator);
       
