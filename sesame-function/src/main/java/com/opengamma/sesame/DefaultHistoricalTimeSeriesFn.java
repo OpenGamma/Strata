@@ -27,6 +27,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
@@ -121,10 +122,40 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     }
     
     @Override
+    public HistoricalTimeSeriesBundle visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+      final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
+      
+      final String field = MarketDataRequirementNames.MARKET_VALUE;
+      final ExternalIdBundle securityId = security.getExternalIdBundle();
+      final boolean includeStart = true;
+      final boolean includeEnd = true;
+      final LocalDate startDate = _now.minus(Period.ofMonths(1));
+      final HistoricalTimeSeries securityTimeSeries = _htsSource.getHistoricalTimeSeries(field,
+                                                                                         securityId,
+                                                                                         _resolutionKey,
+                                                                                         startDate,
+                                                                                         includeStart,
+                                                                                         _now,
+                                                                                         includeEnd);
+      bundle.add(field, securityId, securityTimeSeries);
+      
+      final ExternalIdBundle underlyingId = security.getUnderlyingId().getExternalId().toBundle();
+      final HistoricalTimeSeries underlyingTimeSeries = _htsSource.getHistoricalTimeSeries(field,
+                                                                                           underlyingId,
+                                                                                           _resolutionKey,
+                                                                                           startDate,
+                                                                                           includeStart,
+                                                                                           _now,
+                                                                                           includeEnd);
+      bundle.add(field, underlyingId, underlyingTimeSeries);
+      return bundle;
+    }
+    
+    @Override
     public HistoricalTimeSeriesBundle visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
       final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
       
-      final String field = MarketDataRequirementNames.MARKET_VALUE; //TODO
+      final String field = MarketDataRequirementNames.MARKET_VALUE;
       final ExternalIdBundle id = security.getExternalIdBundle();
       final boolean includeStart = true;
       final boolean includeEnd = true;

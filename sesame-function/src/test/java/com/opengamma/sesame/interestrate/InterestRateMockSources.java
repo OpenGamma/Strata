@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.interestrate;
 
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -58,6 +60,7 @@ import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OISLegConvention;
@@ -69,6 +72,9 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.FedFundFutureAndFutureOptionMonthlyExpiryCalculator;
+import com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.OvernightIndex;
@@ -130,6 +136,10 @@ public class InterestRateMockSources {
 
   public ExternalId getLiborIndexId() {
     return _liborIndexId;
+  }
+  
+  public static ExternalId getOvernightIndexId() {
+    return _onIndexId;
   }
 
   public ImmutableMap<Class<?>, Object> generateBaseComponents() {
@@ -400,6 +410,17 @@ public class InterestRateMockSources {
     when(mock.getSingle(_liborConventionId)).thenReturn(liborConvention);
     when(mock.getSingle(eq(_liborConventionId.toBundle()), any(VersionCorrection.class)))
         .thenReturn(liborConvention);
+    
+    FederalFundsFutureConvention fedFundsFutureConvention =
+        new FederalFundsFutureConvention(PerCurrencyConventionHelper.FED_FUNDS_FUTURE,
+                                         ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE)),
+                                         ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME),
+                                         s_USID,
+                                         _onIndexId,
+                                         5000000);
+    when(mock.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE))).thenReturn(fedFundsFutureConvention);
+    when(mock.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class))
+        .thenReturn(fedFundsFutureConvention);
 
     return mock;
   }
