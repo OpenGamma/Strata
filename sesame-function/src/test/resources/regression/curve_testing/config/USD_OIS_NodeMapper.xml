@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</fudgeField0>
+   <name type="string">Temple USD OIS Node Mapper</name>
+   <swapIds type="message">
+      <P7D type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~7D</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P7D>
+      <P1M type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~1M</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P1M>
+      <P3M type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~3M</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P3M>
+      <P6M type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~6M</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P6M>
+      <P1Y type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~1Y</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P1Y>
+   </swapIds>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</fudgeField0>
+</fudgeEnvelope>

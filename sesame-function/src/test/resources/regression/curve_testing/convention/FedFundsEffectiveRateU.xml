@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.convention.OvernightIndexConvention">
+ <uniqueId>DbCnv~1145~1</uniqueId>
+ <externalIdBundle>
+  <externalIds>
+   <item>BLOOMBERG_CONVENTION_NAME~Federal Funds Effective Rate U</item>
+  </externalIds>
+ </externalIdBundle>
+ <attributes/>
+ <name>USD FF Convention</name>
+ <dayCount>Actual/360</dayCount>
+ <publicationLag>1</publicationLag>
+ <currency>USD</currency>
+ <regionCalendar>FINANCIAL_REGION~US</regionCalendar>
+</bean>

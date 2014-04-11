@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.security.index.OvernightIndex">
+ <uniqueId>DbSec~96909~0</uniqueId>
+ <externalIdBundle>
+  <externalIds>
+   <item>BLOOMBERG_BUID~NI332078</item>
+   <item>BLOOMBERG_TICKER~FEDL01 Index</item>
+  </externalIds>
+ </externalIdBundle>
+ <name>Federal Funds Effective Rate U</name>
+ <securityType>OVERNIGHT_INDEX</securityType>
+ <attributes/>
+ <indexFamilyId>BLOOMBERG_INDEX_FAMILY~Federal Funds Effective Rate U</indexFamilyId>
+ <conventionId>BLOOMBERG_CONVENTION_NAME~Federal Funds Effective Rate U</conventionId>
+</bean>
