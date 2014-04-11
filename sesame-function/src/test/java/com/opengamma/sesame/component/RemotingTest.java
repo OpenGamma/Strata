@@ -400,7 +400,6 @@ public class RemotingTest {
     // TODO - can we supply the config required directly rather than a file?
     Resource resource = new ClassPathResource("web-engine");
     jettyComponentFactory.setResourceBase(resource);
-    jettyComponentFactory.setLoginConfig(null);
     register(jettyComponentFactory, _componentRepository);
     _componentRepository.start();
   }
