@@ -296,6 +296,8 @@ public class RemotingTest {
 
     streamingClient.stop();
 
+    Thread.sleep(1000);
+
     assertThat(streamingClient.isRunning(), is(false));
     assertThat(streamingClient.isStopped(), is(true));
   }
