@@ -7,6 +7,7 @@ package com.opengamma.sesame;
 
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesPercentageChangeOperator;
+import com.opengamma.analytics.financial.timeseries.util.TimeSeriesWeightedVolatilityOperator;
 
 /**
  * Helper methods to create time series conversions for creating return series.
@@ -28,8 +29,12 @@ public final class TimeSeriesReturnConverterFactory {
     return new DifferenceOperatorReturnConverter(new TimeSeriesPercentageChangeOperator());
   }
 
-  public static TimeSeriesReturnConverter volatilityWeighted(double lambda) {
-    return new VolatilityWeightedReturnConverter(lambda);
+  public static TimeSeriesReturnConverter relativeVolatilityWeighted(double lambda) {
+    return new VolatilityWeightedReturnConverter(TimeSeriesWeightedVolatilityOperator.relative(lambda));
+  }
+
+  public static TimeSeriesReturnConverter absoluteVolatilityWeighted(double lambda) {
+    return new VolatilityWeightedReturnConverter(TimeSeriesWeightedVolatilityOperator.absolute(lambda));
   }
 
 }

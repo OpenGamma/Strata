@@ -18,10 +18,10 @@ public class VolatilityWeightedReturnConverter implements TimeSeriesReturnConver
   private static final TimeSeriesRelativeWeightedDifferenceOperator RELATIVE_WEIGHTED_DIFFERENCE =
       new TimeSeriesRelativeWeightedDifferenceOperator();
 
-  private TimeSeriesWeightedVolatilityOperator _weightedVolatilityOperator;
+  private final TimeSeriesWeightedVolatilityOperator _weightedVolatilityOperator;
 
-  public VolatilityWeightedReturnConverter(double volatilityWeightingLambda) {
-    _weightedVolatilityOperator = new TimeSeriesWeightedVolatilityOperator(volatilityWeightingLambda);
+  public VolatilityWeightedReturnConverter(TimeSeriesWeightedVolatilityOperator weightedVolatilityOperator) {
+    _weightedVolatilityOperator = weightedVolatilityOperator;
   }
 
   @Override
