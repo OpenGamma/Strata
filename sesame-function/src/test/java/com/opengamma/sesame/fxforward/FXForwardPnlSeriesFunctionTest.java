@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.hamcrest.MatcherAssert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,8 +40,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -112,8 +112,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPnlSeriesFunctionTest {
@@ -217,11 +215,8 @@ public class FXForwardPnlSeriesFunctionTest {
                 function(DiscountingFXForwardSpotPnLSeriesFn.class,
                          argument("useHistoricalSpot", true),
                          argument("dateRange", range),
-                         argument("outputCurrency", Optional.of(Currency.USD))),
-                function(DefaultFXReturnSeriesFn.class,
-                         argument("timeSeriesSamplingFunction", TimeSeriesSamplingFunctionFactory.NO_PADDING_FUNCTION),
-                         argument("timeSeriesConverter", TimeSeriesReturnConverterFactory.absolute()),
-                         argument("schedule", ScheduleCalculatorFactory.DAILY_CALCULATOR)),
+                         argument("outputCurrency", Optional.of(Currency.USD)),
+                         argument("timeSeriesConverter", TimeSeriesReturnConverterFactory.absolute())),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),
