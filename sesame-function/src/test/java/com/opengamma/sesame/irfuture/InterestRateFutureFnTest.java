@@ -86,12 +86,14 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
  * Tests the interest rate future analytics functions using the discounting calculator.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureFnTest {
 
   private static final InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
