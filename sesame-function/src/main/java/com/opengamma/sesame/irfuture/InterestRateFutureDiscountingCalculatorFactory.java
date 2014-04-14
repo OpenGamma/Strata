@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
@@ -26,7 +27,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class InterestRateFutureDiscountingCalculatorFactory implements InterestRateFutureCalculatorFactory {
 
-  private final FutureTradeConverter _converter;
+  private final InterestRateFutureTradeConverter _converter;
   
   private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
   
@@ -34,7 +35,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
   
   private final HistoricalTimeSeriesFn _htsFn;
   
-  public InterestRateFutureDiscountingCalculatorFactory(FutureTradeConverter converter,
+  public InterestRateFutureDiscountingCalculatorFactory(InterestRateFutureTradeConverter converter,
                                                         FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                         DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
                                                         HistoricalTimeSeriesFn htsFn) {

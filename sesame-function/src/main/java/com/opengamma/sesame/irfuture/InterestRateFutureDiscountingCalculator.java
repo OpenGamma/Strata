@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.money.Currency;
@@ -59,7 +60,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   
   public InterestRateFutureDiscountingCalculator(InterestRateFutureTrade irFutureTrade,
                                                  MulticurveProviderInterface bundle,
-                                                 FutureTradeConverter tradeConverter,
+                                                 InterestRateFutureTradeConverter tradeConverter,
                                                  ZonedDateTime valuationTime,
                                                  FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                  HistoricalTimeSeriesBundle fixings) {
@@ -91,7 +92,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   }
   
   private InstrumentDerivative createInstrumentDerivative(InterestRateFutureTrade irFutureTrade,
-                                                          FutureTradeConverter converter,
+                                                          InterestRateFutureTradeConverter converter,
                                                           ZonedDateTime valuationTime,
                                                           FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                           HistoricalTimeSeriesBundle fixings) {
