@@ -182,7 +182,22 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
     @Override
     public HistoricalTimeSeriesBundle visitBondFutureSecurity(BondFutureSecurity security) {
-      return new HistoricalTimeSeriesBundle();
+      final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
+      
+      final String field = MarketDataRequirementNames.MARKET_VALUE;
+      final ExternalIdBundle id = security.getExternalIdBundle();
+      final boolean includeStart = true;
+      final boolean includeEnd = true;
+      final LocalDate startDate = _now.minus(Period.ofMonths(1));
+      final HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(field,
+                                                                                 id,
+                                                                                 _resolutionKey,
+                                                                                 startDate,
+                                                                                 includeStart,
+                                                                                 _now,
+                                                                                 includeEnd);
+      bundle.add(field, id, timeSeries);
+      return bundle;
     }
   }
 
