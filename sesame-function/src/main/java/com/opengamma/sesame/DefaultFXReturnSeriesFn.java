@@ -71,7 +71,7 @@ public class DefaultFXReturnSeriesFn implements FXReturnSeriesFn {
   }
 
   @Override
-  //TODO this doesn't really apply specifically to FX. move elsewhere?
+  //TODO [SSM-243] this doesn't really apply specifically to FX. move elsewhere?
   public LocalDateDoubleTimeSeries calculateReturnSeries(Environment env, LocalDateDoubleTimeSeries timeSeries) {
     // todo - is faffing about with include start / end required?
     final LocalDate[] dates = HOLIDAY_REMOVER.getStrippedSchedule(
