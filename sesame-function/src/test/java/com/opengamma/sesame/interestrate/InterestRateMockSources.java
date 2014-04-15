@@ -134,7 +134,7 @@ public class InterestRateMockSources {
   private static final ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
   private static final Currency s_USD = Currency.USD;
 
-  public ExternalId getLiborIndexId() {
+  public static ExternalId getLiborIndexId() {
     return _liborIndexId;
   }
   

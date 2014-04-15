@@ -320,7 +320,7 @@ public class SwaptionFnTest {
     receiveLeg.setFixingDateCalendars(calendarUSNY);
     receiveLeg.setFixingDateOffset(-2);
     receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
-    receiveLeg.setFloatingReferenceRateId(ExternalId.of("CONVENTION", "USD 3M IRS Ibor Leg"));
+    receiveLeg.setFloatingReferenceRateId(InterestRateMockSources.getLiborIndexId());
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
     //receiveLeg.setRollConvention(RollConvention.EOM);
 
