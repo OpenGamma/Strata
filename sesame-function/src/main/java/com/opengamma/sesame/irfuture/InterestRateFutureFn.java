@@ -49,4 +49,22 @@ public interface InterestRateFutureFn {
    */
   @Output(value = OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateFutureTrade irFutureTrade);
+  
+  /**
+   * Returns the future contract reference price.
+   * @param env the environment.
+   * @param irFutureTrade the trade containing the interest rate future.
+   * @return the future contract reference price.
+   */
+  @Output(value = OutputNames.SECURITY_MARKET_PRICE)
+  Result<Double> getSecurityMarketPrice(Environment env, InterestRateFutureTrade irFutureTrade);
+  
+  /**
+   * Calculates the future contract price using a curve.
+   * @param env the environment that the future contract price will be calculated with.
+   * @param irFutureTrade the interest rate future trade to calculate the future contract price for.
+   * @return result containing the future contract price.
+   */
+  @Output(value = OutputNames.SECURITY_MODEL_PRICE)
+  Result<Double> calculateSecurityModelPrice(Environment env, InterestRateFutureTrade irFutureTrade);
 }

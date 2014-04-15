@@ -67,6 +67,14 @@ public final class OutputNames {
    * Bucketed SABR risk
    */
   public static final String BUCKETED_SABR_RISK = "Bucketed SABR Risk";
+  /**
+   * The market price of the security.
+   */
+  public static final String SECURITY_MARKET_PRICE = "Security Market Price";
+  /**
+   * The model price of the security.
+   */
+  public static final String SECURITY_MODEL_PRICE = "Security Model Price";
 
   /**
    * Restricted constructor.

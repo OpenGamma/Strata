@@ -56,5 +56,23 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
     }
     return calculatorResult.getValue().calculatePV01();
   }
+  
+  @Override
+  public Result<Double> getSecurityMarketPrice(Environment env, InterestRateFutureTrade irFutureTrade) {
+    // TODO this is not specific to a calculator, and should be pulled out - SSM-248
+    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFactory.createCalculator(env, irFutureTrade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().getSecurityMarketPrice();
+  }
 
+  @Override
+  public Result<Double> calculateSecurityModelPrice(Environment env, InterestRateFutureTrade irFutureTrade) {
+    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFactory.createCalculator(env, irFutureTrade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateSecurityModelPrice();
+  }
 }

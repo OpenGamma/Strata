@@ -21,4 +21,8 @@ public interface InterestRateFutureCalculator {
   Result<Double> calculateParRate();
   
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01();
+  
+  Result<Double> getSecurityMarketPrice();
+  
+  Result<Double> calculateSecurityModelPrice();
 }

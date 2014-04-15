@@ -11,6 +11,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.MarginPriceVisitor;
+import com.opengamma.analytics.financial.provider.calculator.discounting.MarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -18,7 +20,6 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
@@ -47,6 +48,10 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
    */
   private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01C =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
+      
+  private static final MarginPriceVisitor MPV = MarginPriceVisitor.getInstance();
+  
+  private static final MarketQuoteDiscountingCalculator MQDC = MarketQuoteDiscountingCalculator.getInstance();
 
   /**
    * Derivative form of the security.
@@ -81,6 +86,16 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
     return Result.success(calculateResult(PV01C));
+  }
+  
+  @Override
+  public Result<Double> getSecurityMarketPrice() {
+    return Result.success(_derivative.accept(MPV));
+  }
+  
+  @Override
+  public Result<Double> calculateSecurityModelPrice() {
+    return Result.success(calculateResult(MQDC));
   }
 
   private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, T> calculator) {
