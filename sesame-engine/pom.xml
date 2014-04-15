@@ -74,7 +74,7 @@
 
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>examples-simulated</artifactId>
+      <artifactId>og-integration</artifactId>
       <version>${project.version}</version>
     </dependency>
 
