@@ -199,6 +199,8 @@ public class InterestRateFutureFnTest {
     LocalDate tradeDate = LocalDate.of(2000, 1, 1);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
     SimpleTrade trade = new SimpleTrade(irFuture, tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremium(0.0);
+    trade.setPremiumCurrency(Currency.USD);
     return new InterestRateFutureTrade(trade);
   }
 }
