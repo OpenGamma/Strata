@@ -75,11 +75,15 @@ import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
+import com.opengamma.sesame.component.RetrievalPeriod;
+import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -97,7 +101,7 @@ public class InterestRateSwapFnTest {
   private static final double STD_TOLERANCE_RATE = 1.0E-5; //TODO What is the correct tolerance here
   private static final double STD_TOLERANCE_PV01 = 1.0E-5; //TODO What is the correct tolerance here
 
-  private static final double EXPECTED_PV = 0.0000; //TODO What is the correct PV here
+  private static final double EXPECTED_PV = -16376.245; //TODO What is the correct PV here
   private static final double EXPECTED_PAR_RATE = 0.0000; //TODO What is the correct par rate here
   private static final double EXPECTED_PV01 = 0.0000; //TODO What is the correct PV here
 
@@ -122,9 +126,9 @@ public class InterestRateSwapFnTest {
                      argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
             function(DefaultHistoricalTimeSeriesFn.class,
                      argument("resolutionKey", "DEFAULT_TSS"),
-                     argument("htsRetrievalPeriod", Period.ofYears(1))),
+                     argument("htsRetrievalPeriod",  RetrievalPeriod.of(Period.ofYears(1)))),
             function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", ImmutableSet.of()))),
+                     argument("impliedCurveNames",StringSet.of()))),
         implementations(InterestRateSwapFn.class, DiscountingInterestRateInterestRateSwapFn.class,
                         CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
@@ -138,7 +142,8 @@ public class InterestRateSwapFnTest {
                         CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                         CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                         HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class));
+                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                        MarketDataFn.class, DefaultMarketDataFn.class));
 
     ImmutableMap<Class<?>, Object> components = _interestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
