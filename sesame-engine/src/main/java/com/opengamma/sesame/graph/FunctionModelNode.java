@@ -270,8 +270,8 @@ public abstract class FunctionModelNode {
 
   /**
    * Checks the type of the constructor argument matches the expected type and returns it.
-   * Handles {@link Link}s and {@link Provider}s by checking the parameter type is a {@link Link} or {@link Provider}
-   * or that its type is compatible with the linked / provided object.
+   * Handles {@link Link}s and {@link Provider}s by checking the parameter type is a
+   * {@linkLink} or {@link Provider} or that its type is compatible with the linked / provided object.
    */
   private static Object getConstructorArgument(FunctionModelConfig functionModelConfig,
                                                Class<?> objectType,
@@ -287,7 +287,7 @@ public abstract class FunctionModelNode {
     } else if (arg instanceof Provider) {
       return arg;
     } else if (arg instanceof Link) {
-      if (ClassUtils.isAssignable(((Link<?, ?>) arg).getType(), parameter.getType(), true)) {
+      if (ClassUtils.isAssignable(((Link<?>) arg).getTargetType(), parameter.getType(), true)) {
         return arg;
       } else {
         throw new IncompatibleTypeException(path, "Link argument (" + arg + ") doesn't resolve to the " +
@@ -347,7 +347,7 @@ public abstract class FunctionModelNode {
       // TODO what's the logic I actually need here?
       return Provider.class.isAssignableFrom(_type) ? object : ((Provider<?>) object).get();
     } else if (object instanceof Link) {
-      return Link.class.isAssignableFrom(_type) ? object : ((Link<?, ?>) object).resolve();
+      return Link.class.isAssignableFrom(_type) ? object : ((Link<?>) object).resolve();
     } else {
       return object;
     }

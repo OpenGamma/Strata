@@ -182,7 +182,7 @@ import com.opengamma.util.result.Result;
       // the arg isn't a link, just return it
       return arg;
     } else {
-      return ((Link<?, ?>) arg).resolve();
+      return ((Link<?>) arg).resolve();
     }
   }
 

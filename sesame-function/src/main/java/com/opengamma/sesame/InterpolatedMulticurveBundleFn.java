@@ -222,12 +222,12 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   }
 
   private IndexON createIndexON(OvernightCurveTypeConfiguration type) {
-    OvernightIndexConvention indexConvention = ConventionLink.<OvernightIndexConvention>of(type.getConvention()).resolve();
+    OvernightIndexConvention indexConvention = ConventionLink.of(OvernightIndexConvention.class, type.getConvention()).resolve();
     return ConverterUtils.indexON(indexConvention.getName(), indexConvention);
   }
 
   private IborIndex createIborIndex(IborCurveTypeConfiguration type) {
-    IborIndexConvention indexConvention = ConventionLink.<IborIndexConvention>of(type.getConvention()).resolve();
+    IborIndexConvention indexConvention = ConventionLink.of(IborIndexConvention.class, type.getConvention()).resolve();
     return ConverterUtils.indexIbor(indexConvention.getName(), indexConvention, type.getTenor());
   }
   
