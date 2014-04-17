@@ -36,6 +36,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
+import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
@@ -325,7 +326,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                                                                              FXForwardSecurity security,
                                                                                              Result<CurrencyPair> cpResult) {
     final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(env, security);
-    final Result<CurveSpecification> curveSpecificationResult =
+    final Result<AbstractCurveSpecification> curveSpecificationResult =
         _curveSpecificationFunction.getCurveSpecification(env, _curveDefinition);
     LocalDate priceSeriesEnd = _dateRange.getEndDateInclusive();
     //take one week off the start date. this ensures that the start of the underlying
@@ -338,7 +339,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     if (Result.allSuccessful(calculatorResult, curveSpecificationResult, cpResult)) {
 
       final MultipleCurrencyParameterSensitivity bcs = calculatorResult.getValue().generateBlockCurveSensitivities(env);
-      final CurveSpecification curveSpecification = curveSpecificationResult.getValue();
+      final CurveSpecification curveSpecification = (CurveSpecification) curveSpecificationResult.getValue();
 
       // todo - extract common code between this method and calculateForImpliedCurve
       final String curveName = _curveDefinition.getName();
