@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeMsg;
 import org.springframework.jms.core.JmsTemplate;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
@@ -89,17 +90,22 @@ import com.opengamma.util.test.TestGroup;
 
 import net.sf.ehcache.CacheManager;
 
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class CurveBuildingIntegrationTest {
 
-  private static final RemoteProviderTestUtils TEST_UTILS = new RemoteProviderTestUtils();
+  private static RemoteProviderTestUtils s_testUtils;
+
+  @BeforeClass
+  public void setup() {
+    s_testUtils = new RemoteProviderTestUtils();
+  }
 
   // Create a view with known curve and try to get market data
   // from the market data server
   //@Test(groups = TestGroup.INTEGRATION)
-  @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void testCurveHasData() throws InterruptedException {
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
-    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
+    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
 
     FunctionModelConfig defaultConfig =
         config(
@@ -126,8 +132,8 @@ public class CurveBuildingIntegrationTest {
                                       config(
                                           arguments(
                                               function(DefaultDiscountingMulticurveBundleFn.class,
-                                                       argument("curveConfig", ConfigLink.of("Temple USD",
-                                                                                             CurveConstructionConfiguration.class))))))));
+                                                       argument("curveConfig", ConfigLink.resolved(
+                                                           CurveConstructionConfiguration.class))))))));
 
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);
@@ -193,7 +199,7 @@ public class CurveBuildingIntegrationTest {
 
   private LiveDataClient buildLiveDataClient() {
 
-    final LiveDataMetaDataProvider dataProvider = TEST_UTILS.getLiveDataMetaDataProvider("bloomberg");
+    final LiveDataMetaDataProvider dataProvider = s_testUtils.getLiveDataMetaDataProvider("bloomberg");
 
     LiveDataMetaData metaData =  dataProvider.metaData();
     URI jmsUri = metaData.getJmsBrokerUri();
@@ -237,7 +243,7 @@ public class CurveBuildingIntegrationTest {
     //bean.setConnectionFactory(pooledConnectionFactory);
     //bean.setClientBrokerUri(URI.create("failover:(tcp://activemq.hq.opengamma.com:61616?daemon=true)?timeout=3000"));
     //return bean.getObject();
-    return TEST_UTILS.getJmsConnector();
+    return s_testUtils.getJmsConnector();
   }
 
   private static class RemoteProviderTestUtils {
