@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
-import net.sf.ehcache.CacheManager;
-
 import org.hamcrest.MatcherAssert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -112,6 +110,8 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
+
+import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPnlSeriesFunctionTest {
@@ -203,9 +203,7 @@ public class FXForwardPnlSeriesFunctionTest {
   }
 
   private static FunctionModelConfig createFunctionConfig(CurrencyMatrix currencyMatrix) {
-    ConfigLink<ExposureFunctions> exposureConfig =
-        ConfigLink.of("EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS",
-                      mock(ExposureFunctions.class));
+    ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.resolved(mock(ExposureFunctions.class));
     LocalDateRange range = LocalDateRange.of(LocalDate.of(2013, 1, 1), LocalDate.of(2014, 1, 1), true);
     return
         config(

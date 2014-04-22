@@ -9,7 +9,6 @@ package com.opengamma.sesame;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.ERROR;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -99,6 +98,8 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
+
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
@@ -419,15 +420,20 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   }
 
   private IndexON createOvernightIndex(OvernightCurveTypeConfiguration type) {
-    OvernightIndex index  = SecurityLink.<OvernightIndex>of(type.getConvention().toBundle()).resolve();
-    OvernightIndexConvention indexConvention = ConventionLink.<OvernightIndexConvention>of(index.getConventionId()).resolve();
+    OvernightIndex index  = SecurityLink.resolvable(type.getConvention().toBundle(), OvernightIndex.class).resolve();
+    OvernightIndexConvention indexConvention =
+        ConventionLink.resolvable(index.getConventionId(), OvernightIndexConvention.class).resolve();
     return ConverterUtils.indexON(index.getName(), indexConvention);
   }
 
   private IborIndex createIborIndex(IborCurveTypeConfiguration type) {
+
     com.opengamma.financial.security.index.IborIndex indexSecurity =
-        SecurityLink.<com.opengamma.financial.security.index.IborIndex>of(type.getConvention().toBundle()).resolve();
-    IborIndexConvention indexConvention = ConventionLink.<IborIndexConvention>of(indexSecurity.getConventionId()).resolve();
+        SecurityLink.resolvable(type.getConvention(), com.opengamma.financial.security.index.IborIndex.class).resolve();
+
+    IborIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
+
     return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
   }
 

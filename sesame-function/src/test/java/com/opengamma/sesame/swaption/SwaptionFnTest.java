@@ -131,8 +131,7 @@ public class SwaptionFnTest {
     FunctionModelConfig config = config(
         arguments(
             function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.of("Test USD",
-                                                              _interestRateMockSources.mockExposureFunctions())) ),
+                     argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions())) ),
             function(RootFinderConfiguration.class,
                      argument("rootFinderAbsoluteTolerance", 1e-12),
                      argument("rootFinderRelativeTolerance", 1e-12),
@@ -331,7 +330,7 @@ public class SwaptionFnTest {
         LocalDate.of(2023, 1, 26), // maturity date,
         ImmutableSet.of(payLeg, receiveLeg));
 
-    SecurityLink<FinancialSecurity> swapLink = SecurityLink.of(swap, null, null);
+    SecurityLink<FinancialSecurity> swapLink = SecurityLink.resolved(swap);
 
     return new SwaptionSecurity(true, swapLink, true, new Expiry(LocalDate.of(2016, 1, 22).atStartOfDay(ZoneOffset.UTC)), false, USD, 100_000_000d,
                                 ExerciseType.of("European"), LocalDate.of(2016, 1, 26).atStartOfDay(ZoneOffset.UTC));

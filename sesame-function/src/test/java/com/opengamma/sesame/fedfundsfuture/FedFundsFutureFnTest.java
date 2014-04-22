@@ -110,7 +110,7 @@ public class FedFundsFutureFnTest {
     FunctionModelConfig config = config(
                                         arguments(
                                                   function(ConfigDbMarketExposureSelectorFn.class,
-                                                           argument("exposureConfig", ConfigLink.of("Test USD", _interestRateMockSources.mockExposureFunctions()))),
+                                                           argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions()))),
                                                   function(RootFinderConfiguration.class,
                                                            argument("rootFinderAbsoluteTolerance", 1e-9),
                                                            argument("rootFinderRelativeTolerance", 1e-9),
