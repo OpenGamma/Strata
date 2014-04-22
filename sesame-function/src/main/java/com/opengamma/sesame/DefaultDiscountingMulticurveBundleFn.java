@@ -420,16 +420,20 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   }
 
   private IndexON createOvernightIndex(OvernightCurveTypeConfiguration type) {
-    OvernightIndex index  = SecurityLink.of(OvernightIndex.class, type.getConvention().toBundle()).resolve();
-    OvernightIndexConvention indexConvention = ConventionLink.of(OvernightIndexConvention.class,
-                                                                 index.getConventionId()).resolve();
+    OvernightIndex index  = SecurityLink.resolvable(type.getConvention().toBundle(), OvernightIndex.class).resolve();
+    OvernightIndexConvention indexConvention =
+        ConventionLink.resolvable(index.getConventionId(), OvernightIndexConvention.class).resolve();
     return ConverterUtils.indexON(index.getName(), indexConvention);
   }
 
   private IborIndex createIborIndex(IborCurveTypeConfiguration type) {
+
     com.opengamma.financial.security.index.IborIndex indexSecurity =
-        SecurityLink.of(com.opengamma.financial.security.index.IborIndex.class, type.getConvention()).resolve();
-    IborIndexConvention indexConvention = ConventionLink.of(IborIndexConvention.class, indexSecurity.getConventionId()).resolve();
+        SecurityLink.resolvable(type.getConvention(), com.opengamma.financial.security.index.IborIndex.class).resolve();
+
+    IborIndexConvention indexConvention =
+        ConventionLink.resolvable(indexSecurity.getConventionId(), IborIndexConvention.class).resolve();
+
     return ConverterUtils.indexIbor(indexSecurity.getName(), indexConvention, indexSecurity.getTenor());
   }
 

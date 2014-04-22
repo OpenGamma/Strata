@@ -36,8 +36,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-import net.sf.ehcache.CacheManager;
-
 import org.hamcrest.MatcherAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,6 +145,8 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+
+import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFnTest {
@@ -279,7 +279,7 @@ public class FXForwardPVFnTest {
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void curveBundleOnly() throws IOException {
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
-    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.of("BloombergLiveData", CurrencyMatrix.class);
+    ConfigLink<CurrencyMatrix> currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
 
     ViewConfig viewConfig =
         configureView("Curve Bundle only",
@@ -300,7 +300,7 @@ public class FXForwardPVFnTest {
                                                argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                                       function(DefaultDiscountingMulticurveBundleFn.class,
                                                argument("impliedCurveNames", StringSet.of()),
-                                               argument("curveConfig", ConfigLink.of("Temple USD",
+                                               argument("curveConfig", ConfigLink.resolvable("Temple USD",
                                                                                      CurveConstructionConfiguration.class))),
                                       function(DefaultMarketDataFn.class,
                                                argument("currencyMatrix", currencyMatrixLink)),
@@ -376,7 +376,7 @@ public class FXForwardPVFnTest {
       trades.add(createRandomFxForwardTrade());
     }
     s_logger.info("created {} trades in {}ms", nTrades, System.currentTimeMillis() - startTrades);
-    ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.of("Temple Exposure Config", ExposureFunctions.class);
+    ConfigLink<ExposureFunctions> exposureConfig = ConfigLink.resolvable("Temple Exposure Config", ExposureFunctions.class);
 
     ViewConfig viewConfig =
         configureView("FX forward PV view",
@@ -506,7 +506,7 @@ public class FXForwardPVFnTest {
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfig", ConfigLink.of(exposureConfig, mock(ExposureFunctions.class)))),
+                         argument("exposureConfig", ConfigLink.resolved( mock(ExposureFunctions.class)))),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),

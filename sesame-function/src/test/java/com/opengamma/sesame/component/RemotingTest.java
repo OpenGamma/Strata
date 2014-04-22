@@ -338,7 +338,7 @@ public class RemotingTest {
   private ViewConfig createCurveBundleConfig(String curveBundleOutputName) {
 
     CurveConstructionConfiguration curveConstructionConfiguration =
-        ConfigLink.of("USD_ON-OIS_LIBOR3M-FRAIRS_1U", CurveConstructionConfiguration.class).resolve();
+        ConfigLink.resolvable("USD_ON-OIS_LIBOR3M-FRAIRS_1U", CurveConstructionConfiguration.class).resolve();
 
     return configureView("Curve Bundle only",
                   nonPortfolioOutput(curveBundleOutputName,

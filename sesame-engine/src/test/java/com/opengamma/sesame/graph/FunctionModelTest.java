@@ -225,7 +225,7 @@ public class FunctionModelTest {
 
   @Test
   public void linkWithWrongType() {
-    FunctionModelConfig config = config(arguments(function(WithLink.class, argument("arg", ConfigLink.of(123)))));
+    FunctionModelConfig config = config(arguments(function(WithLink.class, argument("arg", ConfigLink.resolved(123)))));
     FunctionMetadata metadata = EngineUtils.createMetadata(WithLink.class, "foo");
     FunctionModel model = FunctionModel.forFunction(metadata, config);
     assertFalse(model.isValid());

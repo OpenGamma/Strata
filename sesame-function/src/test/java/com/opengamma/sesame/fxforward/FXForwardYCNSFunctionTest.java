@@ -202,9 +202,9 @@ public class FXForwardYCNSFunctionTest {
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfig", ConfigLink.of(exposureConfig, mock(ExposureFunctions.class)))),
+                         argument("exposureConfig", ConfigLink.resolved(mock(ExposureFunctions.class)))),
                 function(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
-                         argument("curveDefinition", ConfigLink.of("Discounting", mock(CurveDefinition.class)))),
+                         argument("curveDefinition", ConfigLink.resolved(mock(CurveDefinition.class)))),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),

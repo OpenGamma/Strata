@@ -48,7 +48,6 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSou
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
@@ -113,7 +112,7 @@ public class InterestRateFutureFnTest {
     FunctionModelConfig config = config(
                                         arguments(
                                                   function(ConfigDbMarketExposureSelectorFn.class,
-                                                           argument("exposureConfig", ConfigLink.of("Test USD", _interestRateMockSources.mockExposureFunctions()))),
+                                                           argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions()))),
                                                   function(RootFinderConfiguration.class,
                                                            argument("rootFinderAbsoluteTolerance", 1e-9),
                                                            argument("rootFinderRelativeTolerance", 1e-9),
