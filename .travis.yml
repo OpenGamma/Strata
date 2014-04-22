@@ -1,0 +1,10 @@
+language: java
+install: true
+#install: mvn install --settings .travis-settings.xml -DskipTests=true -B -V
+script:  mvn package --settings .travis-settings.xml -B -V
+jdk:
+- openjdk7
+notifications:
+  hipchat:
+    rooms:
+      secure: oVrjG7BMHmAnd/gLyyKsL9ze0L03bV8DZTuEHFofQe18TXIG/Fvvhq6qCxmwtGKGuHNR92IF4jQz2YXesocuEJpjb1LqcqDop4ZDZMF5lJaLmj/D1gjwJJ73pMTDD2ft5GfkQm1nSiVqQSdIeIpxqJ6wRBbYMW/4iX1ADpi5zgY=
