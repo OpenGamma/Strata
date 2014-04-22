@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame;
 
-import com.opengamma.financial.analytics.curve.CurveDefinition;
-import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
+import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.util.result.Result;
 
 /**
@@ -22,6 +22,6 @@ public interface CurveSpecificationFn {
    * @param curveDefinition  the curve definition, not null
    * @return the curve specification, a failure result if not found
    */
-  Result<CurveSpecification> getCurveSpecification(Environment env, CurveDefinition curveDefinition);
+  Result<AbstractCurveSpecification> getCurveSpecification(Environment env, AbstractCurveDefinition curveDefinition);
 
 }

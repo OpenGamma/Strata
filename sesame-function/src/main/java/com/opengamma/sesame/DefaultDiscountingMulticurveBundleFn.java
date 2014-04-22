@@ -56,6 +56,8 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
+import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
+import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
@@ -91,6 +93,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -285,15 +288,18 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
       int j = 0;
 
-      for (final Map.Entry<CurveDefinition, List<? extends CurveTypeConfiguration>> entry : group.resolveTypesForCurves().entrySet()) {
+      for (final Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry : group.resolveTypesForCurves().entrySet()) {
 
-        CurveDefinition curve = entry.getKey();
+        AbstractCurveDefinition curve = entry.getKey();
         String curveName = curve.getName();
 
         if (_impliedCurveNames.contains(curveName)) {
-
-          if (exogenousBundle.isSuccess()) {
-
+          if (!(curve instanceof CurveDefinition)) {
+            Result.failure(curveBundleResult, Result.failure(FailureStatus.ERROR, "Curve {} was configured in " +
+                "function as an implied depo curve but is not a subclass of CurveDefinition in the db.", curveName));
+          } else if (!exogenousBundle.isSuccess()) {
+            curveBundleResult = Result.failure(curveBundleResult, exogenousBundle);
+          } else {
             Currency currency = null;
             for (CurveTypeConfiguration type : entry.getValue()) {
               if (type instanceof DiscountingCurveTypeConfiguration) {
@@ -306,22 +312,20 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               }
             }
             // TODO can this be valuationDate?
-            singleCurves[j] = buildImpliedDepositCurve(currency, curve, exogenousBundle.getValue(), env.getValuationTime());
+            singleCurves[j] = buildImpliedDepositCurve(currency, (CurveDefinition) curve, exogenousBundle.getValue(), env.getValuationTime());
             // todo note we do this below as well, refactor it to be common
             discountingMap.put(curveName, currency);
 
             // This curve needs to replace the existing discounting curve of the same currency
             curvesToRemove.add(currency);
-          } else {
-            curveBundleResult = Result.failure(curveBundleResult, exogenousBundle);
           }
         } else {
-          Result<CurveSpecification> curveSpecResult =
+          Result<AbstractCurveSpecification> curveSpecResult =
               _curveSpecificationProvider.getCurveSpecification(env, curve);
 
           if (curveSpecResult.isSuccess()) {
 
-            final CurveSpecification specification = curveSpecResult.getValue();
+            final CurveSpecification specification = (CurveSpecification) curveSpecResult.getValue();
 
             Result<Map<ExternalIdBundle, Double>> marketDataResult =
                 _curveSpecificationMarketDataProvider.requestData(env, specification);
@@ -503,7 +507,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     return derivativesForCurve;
   }
 
-  private GeneratorYDCurve getGenerator(final CurveDefinition definition, LocalDate valuationDate) {
+  private GeneratorYDCurve getGenerator(final AbstractCurveDefinition definition, LocalDate valuationDate) {
 
     if (definition instanceof InterpolatedCurveDefinition) {
       final InterpolatedCurveDefinition interpolatedDefinition = (InterpolatedCurveDefinition) definition;

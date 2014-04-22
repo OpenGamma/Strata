@@ -8,9 +8,9 @@ package com.opengamma.sesame;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
+import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
-import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
@@ -31,9 +31,9 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
 
   //-------------------------------------------------------------------------
   @Override
-  public Result<CurveSpecification> getCurveSpecification(Environment env, CurveDefinition curveDefinition) {
+  public Result<AbstractCurveSpecification> getCurveSpecification(Environment env, AbstractCurveDefinition curveDefinition) {
     // TODO - how can this possibly be correct when it's using LocalDate.now()?
-    return Result.success(_curveSpecificationBuilder.buildCurve(env.getValuationTime().toInstant(),
+    return Result.success(_curveSpecificationBuilder.buildSpecification(env.getValuationTime().toInstant(),
                                                                 LocalDate.now(),
                                                                 curveDefinition));
   }

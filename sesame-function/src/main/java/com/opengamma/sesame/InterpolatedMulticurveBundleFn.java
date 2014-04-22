@@ -33,11 +33,11 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
+import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.financial.analytics.curve.ConverterUtils;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
-import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
@@ -89,11 +89,11 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
     
     for (final CurveGroupConfiguration group: curveConfig.getCurveGroups()) {
       
-      for (final Map.Entry<CurveDefinition, List<? extends CurveTypeConfiguration>> entry: group.resolveTypesForCurves().entrySet()) {
+      for (final Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: group.resolveTypesForCurves().entrySet()) {
         
-        CurveDefinition curve = entry.getKey();
+        AbstractCurveDefinition curve = entry.getKey();
         
-        Result<CurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(env, curve);
+        Result<AbstractCurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(env, curve);
         
         if (curveSpecResult.isSuccess()) {
 
