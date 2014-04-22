@@ -49,6 +49,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -235,7 +236,7 @@ public class DiscountingMulticurveBundleFnTest {
   private void initConfigSource(ConfigSource cs) {
     InterpolatedCurveDefinition usdDiscountingCurve = loadConfig(InterpolatedCurveDefinition.class, "USD_Discounting.xml", false);
     when(cs.get(Object.class, "USD Discounting", LATEST)).thenReturn(Collections.singletonList(ConfigItem.<Object> of(usdDiscountingCurve)));
-    when(cs.get(CurveDefinition.class, "USD Discounting", LATEST)).thenReturn(Collections.singletonList(ConfigItem.<CurveDefinition> of(usdDiscountingCurve)));
+    when(cs.get(AbstractCurveDefinition.class, "USD Discounting", LATEST)).thenReturn(Collections.singletonList(ConfigItem.<AbstractCurveDefinition> of(usdDiscountingCurve)));
     when(cs.getSingle(InterpolatedCurveDefinition.class, "USD Discounting", LATEST)).thenReturn(usdDiscountingCurve);
     
     CurveNodeIdMapper nodeIdMapper = loadConfig(CurveNodeIdMapper.class, "USD_OIS_NodeMapper.xml", true);
