@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.hamcrest.MatcherAssert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -100,6 +102,9 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
+import com.opengamma.sesame.pnl.HistoricalPnLFXConverterFn;
+import com.opengamma.sesame.pnl.PnLPeriodBound;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -110,8 +115,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
-
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPnlSeriesFunctionTest {
@@ -210,6 +213,8 @@ public class FXForwardPnlSeriesFunctionTest {
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfig", exposureConfig)),
+                function(DefaultHistoricalPnLFXConverterFn.class,
+                         argument("periodBound", PnLPeriodBound.START)),
                 function(DiscountingFXForwardSpotPnLSeriesFn.class,
                          argument("useHistoricalSpot", true),
                          argument("dateRange", range),
@@ -250,7 +255,8 @@ public class FXForwardPnlSeriesFunctionTest {
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                             MarketDataFn.class, DefaultMarketDataFn.class,
-                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
+                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                            HistoricalPnLFXConverterFn.class, DefaultHistoricalPnLFXConverterFn.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {
