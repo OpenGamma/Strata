@@ -7,16 +7,18 @@ package com.opengamma.sesame.trade;
 
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Trade wrapper for deliverable swap future trades.
  */
-public class IRFutureOptionTrade extends TradeWrapper {
+public class IRFutureOptionTrade extends TradeWrapper<IRFutureOptionSecurity> {
 
+  /**
+   * Constructs an interest rate future option trade wrapper.
+   * @param trade a trade instance containing an interest rate future option.
+   */
   public IRFutureOptionTrade(Trade trade) {
-    super(trade);
-    if (!(trade.getSecurity() instanceof IRFutureOptionSecurity)) {
-      throw new IllegalArgumentException("Invalid trade type " + trade.getSecurity().getClass());
-    }
+    super(ArgumentChecker.notNull(trade, "trade"), IRFutureOptionSecurity.class);
   }
 }

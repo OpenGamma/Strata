@@ -62,7 +62,7 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
   @Override
   public Result<IRFutureOptionCalculator> createCalculator(Environment env, IRFutureOptionTrade trade) {
     
-    IRFutureOptionSecurity security = (IRFutureOptionSecurity) trade.getSecurity();
+    IRFutureOptionSecurity security = trade.getSecurity();
     
     Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, security);
     

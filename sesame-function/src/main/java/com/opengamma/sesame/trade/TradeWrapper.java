@@ -16,17 +16,28 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Base class that wraps a trade object.
+ * @param <S> instance of Security
  */
-public abstract class TradeWrapper implements Trade {
+public abstract class TradeWrapper<S extends Security> implements Trade {
   
   private final Trade _trade;
   
-  public TradeWrapper(Trade trade) {
-    _trade = trade;
+  private final Class<S> _clazz;
+  
+  /**
+   * Base trade wrapper constructor that wraps a trade in an explicit instrument type.
+   * @param trade the trade containing the instrument, not null.
+   * @param clazz the type of instrument, not null.
+   */
+  public TradeWrapper(Trade trade, Class<S> clazz) {
+    _trade = ArgumentChecker.notNull(trade, "trade");
+    _clazz = ArgumentChecker.notNull(clazz, "clazz");
+    ArgumentChecker.isTrue(trade.getSecurity().getClass().isAssignableFrom(clazz), trade.getSecurity() + " is not a " + clazz);
   }
 
   @Override
@@ -45,8 +56,8 @@ public abstract class TradeWrapper implements Trade {
   }
 
   @Override
-  public Security getSecurity() {
-    return _trade.getSecurity();
+  public S getSecurity() {
+    return (S) _clazz.cast(_trade.getSecurity());
   }
 
   @Override
