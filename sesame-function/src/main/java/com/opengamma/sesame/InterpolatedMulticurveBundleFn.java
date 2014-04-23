@@ -5,10 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,8 +76,10 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(Environment env,
                                                                                            CurveConstructionConfiguration curveConfig) {
-    
-    Collection<Result<?>> failures = new ArrayList<>();
+
+    // Interim result object used to build up the complete set of
+    // failures rather than exiting early
+    Result<Boolean> result = Result.success(true);
     
     ZonedDateTime now = env.getValuationTime();
     
@@ -198,19 +196,19 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
             unitBundles.put(curveName, Pairs.of(new CurveBuildingBlock(unitMap), new DoubleMatrix2D(jacobian)));
             totalNodes += nNodesForCurve;
           } else {
-            failures.add((FailureResult) marketDataResult);
+            result = Result.failure(result, marketDataResult);
           }
         } else {
-          failures.add((FailureResult) curveSpecResult);
+          result = Result.failure(result, curveSpecResult);;
         }
         
       }
     }
     
-    if (failures.isEmpty()) {
+    if (result.isSuccess()) {
       return Result.success(Pairs.of(curveBundle, new CurveBuildingBlockBundle(unitBundles)));
     } else {
-      return Result.failure(failures);
+      return Result.failure(result);
     }
   }
 
