@@ -29,6 +29,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -153,6 +154,26 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     
     @Override
     public HistoricalTimeSeriesBundle visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+      final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
+      
+      final String field = MarketDataRequirementNames.MARKET_VALUE;
+      final ExternalIdBundle id = security.getExternalIdBundle();
+      final boolean includeStart = true;
+      final boolean includeEnd = true;
+      final LocalDate startDate = _now.minus(Period.ofMonths(1));
+      final HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(field,
+                                                                                 id,
+                                                                                 _resolutionKey,
+                                                                                 startDate,
+                                                                                 includeStart,
+                                                                                 _now,
+                                                                                 includeEnd);
+      bundle.add(field, id, timeSeries);
+      return bundle;
+    }
+    
+    @Override
+    public HistoricalTimeSeriesBundle visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
       final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
       
       final String field = MarketDataRequirementNames.MARKET_VALUE;
