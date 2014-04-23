@@ -17,8 +17,15 @@ import com.opengamma.util.result.Result;
  */
 public class DefaultIRFutureOptionFn implements IRFutureOptionFn {
   
+  /**
+   * Factory that creates interest rate future option calculators.
+   */
   private final IRFutureOptionCalculatorFactory _irFutureOptionCalculatorFactory;
   
+  /**
+   * Constructs an instance of {@link IRFutureOptionFn} using a calculator created from a specified factory to compute values.
+   * @param irFutureOptionCalculatorFactory factory that creates a calculator.
+   */
   public DefaultIRFutureOptionFn(IRFutureOptionCalculatorFactory irFutureOptionCalculatorFactory) {
     _irFutureOptionCalculatorFactory = irFutureOptionCalculatorFactory;
   }
@@ -26,18 +33,20 @@ public class DefaultIRFutureOptionFn implements IRFutureOptionFn {
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, IRFutureOptionTrade trade) {
     Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
-    if (!(calculatorResult.isSuccess())) {
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculatePV();
+    } else {
       return Result.failure(calculatorResult);
     }
-    return calculatorResult.getValue().calculatePV();
   }
 
   @Override
   public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01(Environment env, IRFutureOptionTrade trade) {
     Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
-    if (!(calculatorResult.isSuccess())) {
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculatePV01();
+    } else {
       return Result.failure(calculatorResult);
     }
-    return calculatorResult.getValue().calculatePV01();
   }
 }

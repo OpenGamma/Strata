@@ -14,5 +14,11 @@ import com.opengamma.util.result.Result;
  */
 public interface IRFutureOptionCalculatorFactory {
 
+  /**
+   * Creates a calculator for the specified interest rate future option trade.
+   * @param env the current environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return result containing the calculator if successful, a failure result otherwise.
+   */
   Result<IRFutureOptionCalculator> createCalculator(Environment env, IRFutureOptionTrade trade);
 }

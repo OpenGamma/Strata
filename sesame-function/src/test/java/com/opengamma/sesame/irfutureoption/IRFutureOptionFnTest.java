@@ -228,6 +228,7 @@ public class IRFutureOptionFnTest {
     return new IRFutureOptionTrade(trade);
   }
   
+  @Test
   public void testPresentValue() {
     Result<MultipleCurrencyAmount> pvComputed = _irFutureOptionFn.calculatePV(ENV, _irFutureOptionTrade);
     if (!pvComputed.isSuccess()) {

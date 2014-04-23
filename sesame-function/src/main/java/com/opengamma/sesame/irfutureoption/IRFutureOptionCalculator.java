@@ -14,7 +14,15 @@ import com.opengamma.util.result.Result;
  */
 public interface IRFutureOptionCalculator {
 
+  /**
+   * Calculates the present value of the interest rate future option.
+   * @return the present value.
+   */
   Result<MultipleCurrencyAmount> calculatePV();
   
+  /**
+   * Calculates the PV01 of the interest rate future option.
+   * @return the PV01.
+   */
   Result<MultipleCurrencyMulticurveSensitivity> calculatePV01();
 }

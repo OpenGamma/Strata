@@ -21,14 +21,33 @@ import com.opengamma.util.result.Result;
  */
 public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalculatorFactory {
   
+  /**
+   * Converter used to create definition of the interest rate future option.
+   */
   private final InterestRateFutureOptionTradeConverter _converter;
   
+  /**
+   * Function used to generate a Black volatility provider.
+   */
   private final BlackSTIRFuturesProviderFn _blackProviderFn;
   
+  /**
+   * Converter used to create a definition from an interest rate future option.
+   */
   private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
   
+  /**
+   * Function used to retrieve the historical prices of the underlying interest rate future.
+   */
   private final HistoricalTimeSeriesFn _htsFn;
   
+  /**
+   * Constructs a calculator factory for interest rate future options that will create a Black calculator.
+   * @param converter converter used to create the definition of the interest rate future option, not null.
+   * @param blackProviderFn function used to generate a Black volatility provider, not null.
+   * @param definitionToDerivativeConverter converter used to create the derivative of the interest rate future option, not null.
+   * @param htsFn function used to retrieve the historical prices of the underlying interest rate future.
+   */
   public IRFutureOptionBlackCalculatorFactory(InterestRateFutureOptionTradeConverter converter,
                                               BlackSTIRFuturesProviderFn blackProviderFn,
                                               FixedIncomeConverterDataProvider definitionToDerivativeConverter,
