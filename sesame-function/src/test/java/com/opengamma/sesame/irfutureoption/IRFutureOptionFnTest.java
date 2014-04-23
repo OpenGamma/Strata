@@ -16,6 +16,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.fail;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -229,6 +230,8 @@ public class IRFutureOptionFnTest {
   
   public void testPresentValue() {
     Result<MultipleCurrencyAmount> pvComputed = _irFutureOptionFn.calculatePV(ENV, _irFutureOptionTrade);
-    assertThat(pvComputed.isSuccess(), is(true));
+    if (!pvComputed.isSuccess()) {
+      fail(pvComputed.getFailureMessage());
+    }
   }
 }
