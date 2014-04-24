@@ -57,7 +57,7 @@ public abstract class TradeWrapper<S extends Security> implements Trade {
 
   @Override
   public S getSecurity() {
-    return (S) _clazz.cast(_trade.getSecurity());
+    return _clazz.cast(_trade.getSecurity());
   }
 
   @Override
