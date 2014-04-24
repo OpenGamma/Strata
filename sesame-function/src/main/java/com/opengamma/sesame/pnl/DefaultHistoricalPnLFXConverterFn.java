@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.sesame.Environment;
@@ -41,6 +41,12 @@ public class DefaultHistoricalPnLFXConverterFn implements HistoricalPnLFXConvert
   
   private final boolean _rollRequired;
   
+  /**
+   * Constructs a new instance.
+   * @param fxMatrixFn the fx matrix for sourcing current spot rate
+   * @param historicalMarketDataFn the historical market data function to source the time series from
+   * @param periodBound the PnL period bound to use
+   */
   public DefaultHistoricalPnLFXConverterFn(FXMatrixFn fxMatrixFn, HistoricalMarketDataFn historicalMarketDataFn, PnLPeriodBound periodBound) {
     _fxMatrixFn = fxMatrixFn;
     _historicalMarketDataFn = historicalMarketDataFn;
@@ -56,7 +62,7 @@ public class DefaultHistoricalPnLFXConverterFn implements HistoricalPnLFXConvert
     s_logger.debug("Sourcing {} fx rates for period {}.", currencyPair, fxDateRange);
 
     Result<LocalDateDoubleTimeSeries> ccyPairHtsResult = _historicalMarketDataFn.getFxRates(env, currencyPair, fxDateRange);
-    Result<FXMatrix> fxMatrixResult = _fxMatrixFn.getFXMatrix(env, Sets.newHashSet(currencyPair.getBase(), currencyPair.getCounter()));
+    Result<FXMatrix> fxMatrixResult = _fxMatrixFn.getFXMatrix(env, ImmutableSet.of(currencyPair.getBase(), currencyPair.getCounter()));
     
     if (!Result.allSuccessful(fxMatrixResult, ccyPairHtsResult)) {
       return Result.failure(fxMatrixResult, ccyPairHtsResult);
