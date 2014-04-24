@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -69,8 +71,7 @@ import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
-
-import net.sf.ehcache.CacheManager;
+import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 
 /**
  * Component factory for the engine.
@@ -191,7 +192,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
                                       ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                                       FixedHistoricalMarketDataFactory.class,
                                       DefaultMarketDataFn.class,
-                                      DefaultHistoricalMarketDataFn.class);
+                                      DefaultHistoricalMarketDataFn.class,
+                                      DefaultHistoricalPnLFXConverterFn.class);
     return availableImplementations;
   }
 
