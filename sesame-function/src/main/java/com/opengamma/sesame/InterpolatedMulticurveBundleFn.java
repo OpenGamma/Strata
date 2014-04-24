@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +50,7 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureResult;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
@@ -77,8 +76,10 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(Environment env,
                                                                                            CurveConstructionConfiguration curveConfig) {
-    
-    boolean valid = true;
+
+    // Interim result object used to build up the complete set of
+    // failures rather than exiting early
+    Result<Boolean> result = Result.success(true);
     
     ZonedDateTime now = env.getValuationTime();
     
@@ -195,20 +196,19 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
             unitBundles.put(curveName, Pairs.of(new CurveBuildingBlock(unitMap), new DoubleMatrix2D(jacobian)));
             totalNodes += nNodesForCurve;
           } else {
-            valid = false;
+            result = Result.failure(result, marketDataResult);
           }
         } else {
-          valid = false;
+          result = Result.failure(result, curveSpecResult);;
         }
         
       }
     }
     
-    if (valid) {
+    if (result.isSuccess()) {
       return Result.success(Pairs.of(curveBundle, new CurveBuildingBlockBundle(unitBundles)));
     } else {
-      // todo - supply some useful information in the failure message!
-      return Result.failure(MISSING_DATA, "Unable to get intermediate data");
+      return Result.failure(result);
     }
   }
 

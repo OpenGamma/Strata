@@ -12,9 +12,9 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunction;
@@ -22,7 +22,6 @@ import com.opengamma.financial.analytics.curve.exposure.ExposureFunctionFactory;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -93,7 +92,7 @@ public class MarketExposureSelector {
   }
 
   private CurveConstructionConfiguration resolve(String name) {
-    return Iterables.getOnlyElement(_configSource.get(CurveConstructionConfiguration.class, name, VersionCorrection.LATEST)).getValue();
+    return ConfigLink.resolvable(name, CurveConstructionConfiguration.class).resolve();
   }
 
 }
