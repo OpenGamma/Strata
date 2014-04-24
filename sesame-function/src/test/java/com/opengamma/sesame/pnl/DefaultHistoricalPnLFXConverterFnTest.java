@@ -24,6 +24,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
 
+/**
+ * Tests calculation of conversion from historical rates to today's rates.
+ */
 public class DefaultHistoricalPnLFXConverterFnTest {
 
   private static double[] FX_RATES = {1.499, 1.5, 1.501, 1.502, 1.502, 1.503};
