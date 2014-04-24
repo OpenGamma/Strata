@@ -68,19 +68,24 @@ public class DefaultHistoricalPnLFXConverterFn implements HistoricalPnLFXConvert
       return Result.failure(fxMatrixResult, ccyPairHtsResult);
     }
     
-    LocalDateDoubleTimeSeries ccyPairHts = ccyPairHtsResult.getValue().reciprocal();
     FXMatrix fxMatrix = fxMatrixResult.getValue();
     
-    if (_rollRequired) {
-      s_logger.debug("Rolling {} series since period bound is {}", currencyPair, _periodBound);
-      ccyPairHts = rollSeries(ccyPairHts);
-    }
+    LocalDateDoubleTimeSeries ccyPairHts = rollIfRequired(currencyPair, ccyPairHtsResult.getValue().reciprocal());
     
     double envFxRate = fxMatrix.getFxRate(currencyPair.getBase(), currencyPair.getCounter());
     
     LocalDateDoubleTimeSeries resultHts = hts.multiply(ccyPairHts).divide(envFxRate);
     
     return Result.success(resultHts);
+  }
+
+  private LocalDateDoubleTimeSeries rollIfRequired(CurrencyPair currencyPair, LocalDateDoubleTimeSeries ccyPairHts) {
+    if (_rollRequired) {
+      s_logger.debug("Rolling {} series since period bound is {}", currencyPair, _periodBound);
+      return rollSeries(ccyPairHts);
+    } else {
+      return ccyPairHts;
+    }
   }
 
   /**
