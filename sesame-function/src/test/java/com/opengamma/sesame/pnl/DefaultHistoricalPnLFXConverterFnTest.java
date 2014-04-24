@@ -29,6 +29,10 @@ import com.opengamma.util.time.LocalDateRange;
  */
 public class DefaultHistoricalPnLFXConverterFnTest {
 
+  /**
+   * 
+   */
+  private static final double DELTA = 0.000001;
   private static double[] FX_RATES = {1.499, 1.5, 1.501, 1.502, 1.502, 1.503};
   private static double[] PNL = {100, 101, 99, 5, 55};
   private static LocalDate PNL_START = LocalDate.of(2014, 1, 8);
@@ -64,7 +68,7 @@ public class DefaultHistoricalPnLFXConverterFnTest {
     _fxMatrixFn = mock(FXMatrixFn.class);
     _mdFn = mock(HistoricalMarketDataFn.class);
     
-    fxMatrix.addCurrency(_ccyPair.getCounter(), _ccyPair.getBase(), 1. / FX_RATES[FX_RATES.length-1]);
+    fxMatrix.addCurrency(_ccyPair.getCounter(), _ccyPair.getBase(), 1.0 / FX_RATES[FX_RATES.length-1]);
 
     _inputPnL = ImmutableLocalDateDoubleTimeSeries.of(pnlDates, PNL);
     _reciprocalFxRates = ImmutableLocalDateDoubleTimeSeries.of(fxDates, FX_RATES).reciprocal();
@@ -89,7 +93,7 @@ public class DefaultHistoricalPnLFXConverterFnTest {
     assertTrue(result.isSuccess());
     
     assertEquals("Expected size of series to remain the same", _inputPnL.size(), result.getValue().size());
-    assertTrue("Converted PnL did not match expected results.", EqualityChecker.equals(result.getValue().valuesArrayFast(), EXPECTED_PNL_WITH_END_FX, 0.000001));
+    assertTrue("Converted PnL did not match expected results.", checkResult(result, EXPECTED_PNL_WITH_END_FX));
     
   }
   
@@ -103,8 +107,14 @@ public class DefaultHistoricalPnLFXConverterFnTest {
     Result<LocalDateDoubleTimeSeries> result = fn.convertToSpotRate(env, _ccyPair, _inputPnL);
     
     assertEquals("Expected size of series to remain the same", _inputPnL.size(), result.getValue().size());
-    assertTrue("Converted PnL did not match expected results.", EqualityChecker.equals(result.getValue().valuesArrayFast(), EXPECTED_PNL_WITH_START_FX, 0.000001));
+    assertTrue("Converted PnL did not match expected results.", checkResult(result, EXPECTED_PNL_WITH_START_FX));
     
   }
+
+  private boolean checkResult(Result<LocalDateDoubleTimeSeries> result, double[] expected) {
+    return EqualityChecker.equals(result.getValue().valuesArrayFast(), expected, DELTA);
+  }
+  
+  
 
 }
