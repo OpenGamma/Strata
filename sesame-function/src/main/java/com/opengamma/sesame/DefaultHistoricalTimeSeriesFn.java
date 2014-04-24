@@ -129,17 +129,18 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
      */
     private HistoricalTimeSeriesBundle getMarketValueTimeSeries(FinancialSecurity security) {
       final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-      appendPreviousMonthMarketValue(security.getExternalIdBundle(), bundle);
+      String field = MarketDataRequirementNames.MARKET_VALUE;
+      ExternalIdBundle id = security.getExternalIdBundle();
+      bundle.add(field, id, getPreviousMonthValues(field, id));
       return bundle;
     }
     
     /**
-     * Appends a time series of the previous month's market values for the specified external id into the time series bundle.
-     * @param id the external id of used to lookup the market values.
-     * @param bundle the time series bundle to append to.
+     * Appends a time series of the previous month's field values for the specified external id into the time series bundle.
+     * @param field the name of the value used to lookup.
+     * @param id the external id of used to lookup the field values.
      */
-    private void appendPreviousMonthMarketValue(ExternalIdBundle id, HistoricalTimeSeriesBundle bundle) {
-      final String field = MarketDataRequirementNames.MARKET_VALUE;
+    private HistoricalTimeSeries getPreviousMonthValues(String field, ExternalIdBundle id) {
       final boolean includeStart = true;
       final boolean includeEnd = true;
       final LocalDate startDate = _now.minus(Period.ofMonths(1));
@@ -150,14 +151,14 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
                                                                                  includeStart,
                                                                                  _now,
                                                                                  includeEnd);
-      bundle.add(field, id, timeSeries);
+      return timeSeries;
     }
     
     @Override
     public HistoricalTimeSeriesBundle visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
       final HistoricalTimeSeriesBundle bundle = getMarketValueTimeSeries(security);
       final ExternalIdBundle underlyingId = security.getUnderlyingId().getExternalId().toBundle();;
-      appendPreviousMonthMarketValue(underlyingId, bundle);
+      getPreviousMonthValues(MarketDataRequirementNames.MARKET_VALUE, underlyingId);
       return bundle;
     }
     
