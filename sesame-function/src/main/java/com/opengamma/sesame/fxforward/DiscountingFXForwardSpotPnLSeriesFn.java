@@ -47,7 +47,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
   private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
   
-  private final HistoricalPnLFXConverterFn _fxPnLConverter;
+  private final HistoricalPnLFXConverterFn _pnlFXConverterFn;
   
   /**
    * The time-series converter.
@@ -75,7 +75,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
                                              final LocalDateRange dateRange,
                                              final HistoricalMarketDataFn historicalMarketDataFn,
                                              final TimeSeriesReturnConverter timeSeriesConverter,
-                                             final HistoricalPnLFXConverterFn fxPnLConverter) {
+                                             final HistoricalPnLFXConverterFn pnlFXConverterFn) {
     _calculatorProvider = calculatorProvider;
     _currencyPairsFn = currencyPairsFn;
     _outputCurrency = outputCurrency;
@@ -85,7 +85,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
     _dateRange = dateRange;
     _historicalMarketDataFn = historicalMarketDataFn;
     _timeSeriesConverter = timeSeriesConverter;
-    _fxPnLConverter = fxPnLConverter;
+    _pnlFXConverterFn = pnlFXConverterFn;
   }
 
   @Override
@@ -152,7 +152,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
         if (!_useHistoricalSpot) {
           
-          Result<LocalDateDoubleTimeSeries> spotConvertedSeriesResult = _fxPnLConverter.convertToSpotRate(env, currencyPair, fxSpotReturnSeries);
+          Result<LocalDateDoubleTimeSeries> spotConvertedSeriesResult = _pnlFXConverterFn.convertToSpotRate(env, currencyPair, fxSpotReturnSeries);
           if (!spotConvertedSeriesResult.isSuccess()) {
             return Result.failure(spotConvertedSeriesResult);
           }
