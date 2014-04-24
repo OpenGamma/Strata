@@ -71,6 +71,9 @@ public class DefaultHistoricalPnLFXConverterFnTest {
     
     _range = LocalDateRange.of(PNL_START, PNL_START.plusDays(_inputPnL.size()-1), true);
     _adjustedRange = LocalDateRange.of(PNL_START.minusWeeks(1), _range.getEndDateInclusive(), true);
+    
+    when(_fxMatrixFn.getFXMatrix(env, Sets.newHashSet(_ccyPair.getBase(), _ccyPair.getCounter()))).thenReturn(Result.success(fxMatrix));
+
   }
   
   
@@ -80,8 +83,6 @@ public class DefaultHistoricalPnLFXConverterFnTest {
     HistoricalPnLFXConverterFn fn = new DefaultHistoricalPnLFXConverterFn(_fxMatrixFn, _mdFn, PnLPeriodBound.END);
     
     when(_mdFn.getFxRates(env, _ccyPair, _range)).thenReturn(Result.success(_reciprocalFxRates));
-    
-    when(_fxMatrixFn.getFXMatrix(env, Sets.newHashSet(_ccyPair.getBase(), _ccyPair.getCounter()))).thenReturn(Result.success(fxMatrix));
     
     Result<LocalDateDoubleTimeSeries> result = fn.convertToSpotRate(env, _ccyPair, _inputPnL);
     
@@ -98,8 +99,6 @@ public class DefaultHistoricalPnLFXConverterFnTest {
     HistoricalPnLFXConverterFn fn = new DefaultHistoricalPnLFXConverterFn(_fxMatrixFn, _mdFn, PnLPeriodBound.START);
     
     when(_mdFn.getFxRates(env, _ccyPair, _adjustedRange)).thenReturn(Result.success(_reciprocalFxRates));
-    
-    when(_fxMatrixFn.getFXMatrix(env, Sets.newHashSet(_ccyPair.getBase(), _ccyPair.getCounter()))).thenReturn(Result.success(fxMatrix));
     
     Result<LocalDateDoubleTimeSeries> result = fn.convertToSpotRate(env, _ccyPair, _inputPnL);
     
