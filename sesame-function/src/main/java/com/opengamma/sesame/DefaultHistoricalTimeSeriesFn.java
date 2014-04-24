@@ -123,9 +123,9 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     }
 
     /**
-     * Returns the market value time series for the specified security into to the time series bundle.
-     * @param security the security to retrieve fixings for.
-     * @param bundle the time series bundle to hold the fixings.
+     * Returns a time series bundle of the previous month's market values for the specified security.
+     * @param security the security to retrieve the market values for.
+     * @param bundle the time series bundle to hold the market values.
      */
     private HistoricalTimeSeriesBundle getMarketValueTimeSeries(FinancialSecurity security) {
       final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
@@ -136,7 +136,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     }
     
     /**
-     * Appends a time series of the previous month's field values for the specified external id into the time series bundle.
+     * Returns a time series of the previous month's field values for the specified external id into the time series bundle.
      * @param field the name of the value used to lookup.
      * @param id the external id of used to lookup the field values.
      */
@@ -157,8 +157,9 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     @Override
     public HistoricalTimeSeriesBundle visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
       final HistoricalTimeSeriesBundle bundle = getMarketValueTimeSeries(security);
-      final ExternalIdBundle underlyingId = security.getUnderlyingId().getExternalId().toBundle();;
-      getPreviousMonthValues(MarketDataRequirementNames.MARKET_VALUE, underlyingId);
+      String field = MarketDataRequirementNames.MARKET_VALUE;
+      final ExternalIdBundle underlyingId = security.getUnderlyingId().getExternalId().toBundle();
+      bundle.add(field, underlyingId, getPreviousMonthValues(field, underlyingId));
       return bundle;
     }
     
