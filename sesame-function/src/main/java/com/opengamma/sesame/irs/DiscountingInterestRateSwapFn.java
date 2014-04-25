@@ -16,47 +16,47 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Calculate discounting PV and par rate for a Swap.
  */
-public class DiscountingInterestRateInterestRateSwapFn implements InterestRateSwapFn {
+public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
 
-  private final InterestRateSwapCalculatorFn _interestRateSwapCalculatorFn;
+  private final InterestRateSwapCalculatorFactory _interestRateSwapCalculatorFactory;
 
   /**
    * Create the function.
    *
-   * @param interestRateSwapCalculatorFn function to generate the calculator for the security
+   * @param interestRateSwapCalculatorFactory function to generate the calculator for the security
    */
-  public DiscountingInterestRateInterestRateSwapFn(InterestRateSwapCalculatorFn interestRateSwapCalculatorFn) {
-    _interestRateSwapCalculatorFn = interestRateSwapCalculatorFn;
+  public DiscountingInterestRateSwapFn(InterestRateSwapCalculatorFactory interestRateSwapCalculatorFactory) {
+    _interestRateSwapCalculatorFactory = interestRateSwapCalculatorFactory;
 
   }
 
   @Override
   public Result<Double> calculateParRate(Environment env, InterestRateSwapSecurity security) {
-    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateRate());
+    return Result.success(calculatorResult.getValue().calculateRate().getValue());
   }
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, InterestRateSwapSecurity security) {
-    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV());
+    return Result.success(calculatorResult.getValue().calculatePV().getValue());
   }
 
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapSecurity security) {
-    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFn.generateCalculator(env, security);
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV01());
+    return Result.success(calculatorResult.getValue().calculatePV01().getValue());
   }
 }
