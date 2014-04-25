@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -95,8 +96,12 @@ public class RemotingTest {
   public static final String CLASSIFIER = "test";
 
   private ComponentRepository _componentRepository;
-  
+
   private InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
+
+  private int serverPort;
+
+  private String serverUrl;
 
   @Test
   public void testSingleExecution() {
@@ -109,7 +114,7 @@ public class RemotingTest {
     // cycle specifics (once/multiple/infinite)
     // Proxy options?
 
-    FunctionServer functionServer = new RemoteFunctionServer(URI.create("http://localhost:8080/jax"));
+    FunctionServer functionServer = new RemoteFunctionServer(URI.create(serverUrl));
 
     IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(ZonedDateTime.now())
@@ -156,7 +161,7 @@ public class RemotingTest {
     // cycle specifics (once/multiple/infinite)
     // Proxy options?
 
-    FunctionServer functionServer = new RemoteFunctionServer(URI.create("http://localhost:8080/jax"));
+    FunctionServer functionServer = new RemoteFunctionServer(URI.create(serverUrl));
 
     GlobalCycleOptions cycleOptions = GlobalCycleOptions.builder()
         .valuationTime(ZonedDateTime.now())
@@ -193,7 +198,7 @@ public class RemotingTest {
     // Proxy options?
 
     StreamingFunctionServer functionServer = new RemoteStreamingFunctionServer(
-        URI.create("http://localhost:8080/jax"),
+        URI.create(serverUrl),
         createJmsConnector(),
         Executors.newSingleThreadScheduledExecutor());
 
@@ -255,7 +260,7 @@ public class RemotingTest {
     // Proxy options?
 
     StreamingFunctionServer functionServer = new RemoteStreamingFunctionServer(
-        URI.create("http://localhost:8080/jax"),
+        URI.create(serverUrl),
         createJmsConnector(),
         Executors.newSingleThreadScheduledExecutor());
 
@@ -313,7 +318,7 @@ public class RemotingTest {
     // cycle specifics (once/multiple/infinite)
     // Proxy options?
 
-    FunctionServer functionServer = new RemoteFunctionServer(URI.create("http://localhost:8080/jax"));
+    FunctionServer functionServer = new RemoteFunctionServer(URI.create(serverUrl));
 
     IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(ZonedDateTime.now())
@@ -395,9 +400,14 @@ public class RemotingTest {
 
     // initialize server
 
+    // Pick a random port in the ephemeral port range (49152-65535)
+    // TODO - We need to detect if the port is in use and pick another one
+    serverPort = 49152 + new Random().nextInt(65535 - 49152);
+    serverUrl = "http://localhost:" + serverPort + "/jax";
 
     // initialise Jetty server
     EmbeddedJettyComponentFactory jettyComponentFactory = new EmbeddedJettyComponentFactory();
+    jettyComponentFactory.setPort(serverPort);
 
     // TODO - can we supply the config required directly rather than a file?
     Resource resource = new ClassPathResource("web-engine");
