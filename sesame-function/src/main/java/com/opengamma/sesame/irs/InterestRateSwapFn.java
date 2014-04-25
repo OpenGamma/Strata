@@ -16,7 +16,7 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculate PV and a par rate for a Swap.
+ * Calculate analytics values for a Swap.
  */
 public interface InterestRateSwapFn {
 

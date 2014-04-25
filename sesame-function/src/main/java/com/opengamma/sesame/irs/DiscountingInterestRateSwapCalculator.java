@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -54,22 +55,36 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    */
   private final MulticurveProviderInterface _bundle;
 
+  /**
+   * Creates a calculator for a InterestRateSwapSecurity.
+   *
+   * @param security the swap to calculate values for, not null
+   * @param bundle the multicurve bundle, including the curves, not null
+   * @param swapConverter the InterestRateSwapSecurityConverter, not null
+   * @param valuationTime the ZonedDateTime, not null
+   */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapSecurity security,
                                                MulticurveProviderInterface bundle,
                                                InterestRateSwapSecurityConverter swapConverter,
                                                ZonedDateTime valuationTime) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(swapConverter, "swapConverter");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
     _derivative = createInstrumentDerivative(security, swapConverter, valuationTime);
     _bundle = bundle;
   }
 
+  @Override
   public Result<MultipleCurrencyAmount> calculatePV() {
     return Result.success(calculateResult(PVDC));
   }
 
+  @Override
   public Result<Double> calculateRate() {
     return Result.success(calculateResult(PRDC));
   }
 
+  @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
     return Result.success(calculateResult(PV01C));
   }

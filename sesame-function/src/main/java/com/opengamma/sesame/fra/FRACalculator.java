@@ -17,14 +17,14 @@ public interface FRACalculator {
   /**
    * Calculates the present value for the security
    *
-   * @return the present value
+   * @return result containing the PV if successfully created, a failure result otherwise
    */
   Result<MultipleCurrencyAmount> calculatePV();
 
   /**
    * Calculates the par rate for the security
    *
-   * @return the par rate
+   * @return result containing the rate if successfully created, a failure result otherwise
    */
   Result<Double> calculateRate();
 

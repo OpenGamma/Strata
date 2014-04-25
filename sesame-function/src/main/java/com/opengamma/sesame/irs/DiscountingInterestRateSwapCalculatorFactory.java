@@ -31,16 +31,16 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
    */
   private final DiscountingMulticurveCombinerFn _discountingMulticurveCombinerFn;
 
+  /**
+   * Creates the factory.
+   *
+   * @param discountingMulticurveCombinerFn function for creating multicurve bundles, not null
+   * @param swapConverter converter for transforming a swap into its InstrumentDefinition form, not null
+   */
   public DiscountingInterestRateSwapCalculatorFactory(InterestRateSwapSecurityConverter swapConverter,
                                                       DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn) {
     _swapConverter = ArgumentChecker.notNull(swapConverter, "swapConverter");
     _discountingMulticurveCombinerFn = ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
-  }
-
-  public DiscountingInterestRateSwapCalculator createCalculator(Environment env,
-                                                     InterestRateSwapSecurity security,
-                                                     MulticurveProviderDiscount bundle) {
-    return new DiscountingInterestRateSwapCalculator(security, bundle, _swapConverter, env.getValuationTime());
   }
 
   @Override

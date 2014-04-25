@@ -13,7 +13,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
 /**
- * Calculate PV and a par rate for a FRA.
+ * Calculate analytics values for a FRA.
  */
 public interface FRAFn {
 

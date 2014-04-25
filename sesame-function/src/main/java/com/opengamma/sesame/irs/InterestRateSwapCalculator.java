@@ -20,21 +20,21 @@ public interface InterestRateSwapCalculator {
   /**
    * Calculates the present value for the security
    *
-   * @return the present value
+   * @return result containing the PV if successfully created, a failure result otherwise
    */
   Result<MultipleCurrencyAmount> calculatePV();
 
   /**
    * Calculates the par rate for the security
    *
-   * @return the par rate
+   * @return result containing the rate if successfully created, a failure result otherwise
    */
   Result<Double> calculateRate();
 
   /**
    * Calculates the PV01 for the security
    *
-   * @return the PV01
+   * @return result containing the PV01 if successfully created, a failure result otherwise
    */
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01();
 }

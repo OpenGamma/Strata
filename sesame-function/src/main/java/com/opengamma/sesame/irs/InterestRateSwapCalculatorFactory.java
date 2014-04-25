@@ -18,10 +18,8 @@ public interface InterestRateSwapCalculatorFactory {
    * Creates the calculator for the supplied InterestRateSwap.
    *
    * @param env the current environment, not null
-   * @param security the fra to create a calculator
-   * for, not null
-   * @return result containing the calculator if successfully
-   * created, a failure result otherwise
+   * @param security the fra to create a calculator for, not null
+   * @return result containing the calculator if successfully created, a failure result otherwise
    */
   Result<InterestRateSwapCalculator> createCalculator(Environment env, InterestRateSwapSecurity security);
 }

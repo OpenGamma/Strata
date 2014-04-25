@@ -32,14 +32,16 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
    */
   private final DiscountingMulticurveCombinerFn _discountingMulticurveCombinerFn;
 
+  /**
+   * Creates the factory.
+   *
+   * @param discountingMulticurveCombinerFn function for creating multicurve bundles, not null
+   * @param fraConverter converter for transforming a fra into its InstrumentDefinition form, not null
+   */
   public DiscountingFRACalculatorFactory(FRASecurityConverter fraConverter,
                                          DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn) {
     _fraConverter = ArgumentChecker.notNull(fraConverter, "fraConverter");
     _discountingMulticurveCombinerFn = ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
-  }
-
-  public DiscountingFRACalculator createCalculator(Environment env, FRASecurity security, MulticurveProviderDiscount bundle) {
-    return new DiscountingFRACalculator(security, bundle, _fraConverter, env.getValuationTime());
   }
 
   @Override

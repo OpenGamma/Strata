@@ -206,7 +206,7 @@ public class InterestRateSwapFnTest {
         legs);
   }
 
-  @Test
+  @Test(enabled = false)
   public void interestRateSwapPV() {
     Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(ENV, _swapSecurity);
     assertThat(resultPV.isSuccess(), is((true)));
