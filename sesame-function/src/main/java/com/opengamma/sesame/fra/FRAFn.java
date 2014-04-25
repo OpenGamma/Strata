@@ -20,6 +20,7 @@ public interface FRAFn {
   /**
    * Calculate the par rate for a FRA security.
    *
+   * @param env the environment used for calculation
    * @param security the FRA to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
@@ -29,6 +30,7 @@ public interface FRAFn {
   /**
    * Calculate the present value for a FRA security.
    *
+   * @param env the environment used for calculation
    * @param security the FRA to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
