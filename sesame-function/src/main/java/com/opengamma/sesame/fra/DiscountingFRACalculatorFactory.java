@@ -19,7 +19,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Factory class for creating a calculator for a discounting FRA.
  */
-public class DiscountingFRACalculatorFactory implements IFRACalculatorFactory {
+public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
 
   /**
    * Converter for a FRA.
@@ -43,13 +43,13 @@ public class DiscountingFRACalculatorFactory implements IFRACalculatorFactory {
   }
 
   @Override
-  public Result<IFRACalculator> createCalculator(Environment env, FRASecurity security) {
+  public Result<FRACalculator> createCalculator(Environment env, FRASecurity security) {
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
                _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, Result.success(new FXMatrix()));
 
     if (bundleResult.isSuccess()) {
-      IFRACalculator calculator = new DiscountingFRACalculator(security,
+      FRACalculator calculator = new DiscountingFRACalculator(security,
                                                                bundleResult.getValue().getFirst(),
                                                                _fraConverter,
                                                                env.getValuationTime());

@@ -16,20 +16,20 @@ import com.opengamma.util.result.Result;
  */
 public class DiscountingFRAFn implements FRAFn {
 
-  private final IFRACalculatorFactory _fraCalculatorFactory;
+  private final FRACalculatorFactory _fraCalculatorFactory;
 
   /**
    * Create the function.
    *
    * @param fraCalculatorFactory function to generate the calculator for the security
    */
-  public DiscountingFRAFn(IFRACalculatorFactory fraCalculatorFactory) {
+  public DiscountingFRAFn(FRACalculatorFactory fraCalculatorFactory) {
     _fraCalculatorFactory = fraCalculatorFactory;
   }
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, FRASecurity security) {
-    Result<IFRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
@@ -39,7 +39,7 @@ public class DiscountingFRAFn implements FRAFn {
 
   @Override
   public Result<Double> calculateParRate(Environment env, FRASecurity security) {
-    Result<IFRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
+    Result<FRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);

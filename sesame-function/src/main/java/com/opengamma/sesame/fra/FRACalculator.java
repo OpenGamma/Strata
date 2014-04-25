@@ -12,7 +12,7 @@ import com.opengamma.util.result.Result;
  * Calculator initialised with the data required to perform
  * analytics calculations for a particular security.
  */
-public interface IFRACalculator {
+public interface FRACalculator {
 
   /**
    * Calculates the present value for the security

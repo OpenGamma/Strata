@@ -19,7 +19,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Factory class for creating a calculator for a discounting swap.
  */
-public class DiscountingInterestRateSwapCalculatorFactory implements IInterestRateSwapCalculatorFactory {
+public class DiscountingInterestRateSwapCalculatorFactory implements InterestRateSwapCalculatorFactory {
 
   /**
    * Converter for a Swap

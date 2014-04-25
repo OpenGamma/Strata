@@ -132,7 +132,7 @@ public class InterestRateSwapFnTest {
         implementations(InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
                         CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                        IInterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class,
+                        InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class,
                         InterestRateSwapCalculator.class, DiscountingInterestRateSwapCalculator.class,
                         CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
                         FXMatrixFn.class, DefaultFXMatrixFn.class,

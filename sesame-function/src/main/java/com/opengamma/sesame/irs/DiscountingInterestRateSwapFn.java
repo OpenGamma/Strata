@@ -18,14 +18,14 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
 
-  private final IInterestRateSwapCalculatorFactory _interestRateSwapCalculatorFactory;
+  private final InterestRateSwapCalculatorFactory _interestRateSwapCalculatorFactory;
 
   /**
    * Create the function.
    *
    * @param interestRateSwapCalculatorFactory function to generate the calculator for the security
    */
-  public DiscountingInterestRateSwapFn(IInterestRateSwapCalculatorFactory interestRateSwapCalculatorFactory) {
+  public DiscountingInterestRateSwapFn(InterestRateSwapCalculatorFactory interestRateSwapCalculatorFactory) {
     _interestRateSwapCalculatorFactory = interestRateSwapCalculatorFactory;
 
   }

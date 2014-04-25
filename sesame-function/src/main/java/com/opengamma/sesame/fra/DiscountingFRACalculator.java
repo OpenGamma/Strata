@@ -22,7 +22,7 @@ import com.opengamma.util.result.Result;
 /**
  * Calculator for Discounting FRAs.
  */
-public class DiscountingFRACalculator implements IFRACalculator {
+public class DiscountingFRACalculator implements FRACalculator {
 
   /**
    * Calculator for present value.

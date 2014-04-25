@@ -13,7 +13,7 @@ import com.opengamma.util.result.Result;
 /**
  * Factory for creating a calculator for a FRA.
  */
-public interface IFRACalculatorFactory {
+public interface FRACalculatorFactory {
 
   /**
    * Creates the calculator for the supplied fra.
@@ -24,5 +24,5 @@ public interface IFRACalculatorFactory {
    * @return result containing the calculator if successfully
    * created, a failure result otherwise
    */
-  Result<IFRACalculator> createCalculator(Environment env, FRASecurity security);
+  Result<FRACalculator> createCalculator(Environment env, FRASecurity security);
 }

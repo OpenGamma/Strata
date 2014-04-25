@@ -12,7 +12,7 @@ import com.opengamma.util.result.Result;
 /**
  * Factory for creating a calculator for a InterestRateSwap.
  */
-public interface IInterestRateSwapCalculatorFactory {
+public interface InterestRateSwapCalculatorFactory {
 
   /**
    * Creates the calculator for the supplied InterestRateSwap.
