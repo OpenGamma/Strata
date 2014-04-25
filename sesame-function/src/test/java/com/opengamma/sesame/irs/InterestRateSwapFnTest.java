@@ -129,11 +129,11 @@ public class InterestRateSwapFnTest {
                      argument("htsRetrievalPeriod",  RetrievalPeriod.of(Period.ofYears(1)))),
             function(DefaultDiscountingMulticurveBundleFn.class,
                      argument("impliedCurveNames",StringSet.of()))),
-        implementations(InterestRateSwapFn.class, DiscountingInterestRateInterestRateSwapFn.class,
+        implementations(InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
                         CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                        InterestRateSwapCalculatorFn.class, InterestRateSwapDiscountingCalculatorFn.class,
-                        InterestRateSwapCalculatorFactory.class, InterestRateSwapCalculatorFactory.class,
+                        IInterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class,
+                        InterestRateSwapCalculator.class, DiscountingInterestRateSwapCalculator.class,
                         CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
                         FXMatrixFn.class, DefaultFXMatrixFn.class,
                         DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
@@ -206,7 +206,7 @@ public class InterestRateSwapFnTest {
         legs);
   }
 
-  @Test(enabled = false)
+  @Test
   public void interestRateSwapPV() {
     Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(ENV, _swapSecurity);
     assertThat(resultPV.isSuccess(), is((true)));

@@ -16,34 +16,34 @@ import com.opengamma.util.result.Result;
  */
 public class DiscountingFRAFn implements FRAFn {
 
-  private final FRACalculatorFn _FRACalculatorFn;
+  private final IFRACalculatorFactory _fraCalculatorFactory;
 
   /**
    * Create the function.
    *
-   * @param FRACalculatorFn function to generate the calculator for the security
+   * @param fraCalculatorFactory function to generate the calculator for the security
    */
-  public DiscountingFRAFn(FRACalculatorFn FRACalculatorFn) {
-    _FRACalculatorFn = FRACalculatorFn;
+  public DiscountingFRAFn(IFRACalculatorFactory fraCalculatorFactory) {
+    _fraCalculatorFactory = fraCalculatorFactory;
   }
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, FRASecurity security) {
-    Result<FRACalculator> calculatorResult = _FRACalculatorFn.generateCalculator(env, security);
+    Result<IFRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV());
+    return Result.success(calculatorResult.getValue().calculatePV().getValue());
   }
 
   @Override
   public Result<Double> calculateParRate(Environment env, FRASecurity security) {
-    Result<FRACalculator> calculatorResult = _FRACalculatorFn.generateCalculator(env, security);
+    Result<IFRACalculator> calculatorResult = _fraCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateRate());
+    return Result.success(calculatorResult.getValue().calculateRate().getValue());
   }
 }

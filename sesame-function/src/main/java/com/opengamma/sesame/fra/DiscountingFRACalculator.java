@@ -17,8 +17,12 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.result.Result;
 
-public class FRACalculator {
+/**
+ * Calculator for Discounting FRAs.
+ */
+public class DiscountingFRACalculator implements IFRACalculator {
 
   /**
    * Calculator for present value.
@@ -40,20 +44,20 @@ public class FRACalculator {
    */
   private final MulticurveProviderDiscount _bundle;
 
-  public FRACalculator(FRASecurity security,
-                       MulticurveProviderDiscount bundle,
-                       FRASecurityConverter fraConverter,
-                       ZonedDateTime valuationTime) {
+  public DiscountingFRACalculator(FRASecurity security,
+                                  MulticurveProviderDiscount bundle,
+                                  FRASecurityConverter fraConverter,
+                                  ZonedDateTime valuationTime) {
     _derivative = createInstrumentDerivative(security, fraConverter, valuationTime);
     _bundle = bundle;
   }
 
-  public MultipleCurrencyAmount calculatePV() {
-    return calculateResult(PVDC);
+  public Result<MultipleCurrencyAmount> calculatePV() {
+    return Result.success(calculateResult(PVDC));
   }
 
-  public double calculateRate() {
-    return calculateResult(PRDC);
+  public Result<Double> calculateRate() {
+    return Result.success(calculateResult(PRDC));
   }
 
   private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, T> calculator) {
