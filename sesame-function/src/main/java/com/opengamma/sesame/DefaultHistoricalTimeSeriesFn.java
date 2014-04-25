@@ -7,20 +7,20 @@ package com.opengamma.sesame;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.Lists;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -42,9 +42,10 @@ import com.opengamma.util.time.LocalDateRange;
 /**
  * Function implementation that provides a historical time-series bundle.
  */
+@SuppressWarnings("deprecation")
 public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalTimeSeriesFn.class);
+//  private static final Logger s_logger = LoggerFactory.getLogger(DefaultHistoricalTimeSeriesFn.class);
 
   private static final HistoricalTimeSeriesBundle EMPTY_TIME_SERIES_BUNDLE = new HistoricalTimeSeriesBundle();
 
@@ -207,52 +208,47 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     LocalDate endDate = dateRange.getEndDateInclusive();
     final boolean includeStart = true;
     final boolean includeEnd = true;
-
-    
-    List<Result<?>> failures = Lists.newArrayList();
-    
+    List<Result<?>> failures = Lists.newArrayList();    
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-    
-    ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
-    String dataField = node.getDataField();
-    // TODO use HistoricalMarketDataFn.getValues()?
-    HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate,
-                                                                         includeStart, endDate, includeEnd);
-    processResult(id, dataField, timeSeries, bundle, failures);
-
-    if (node instanceof PointsCurveNodeWithIdentifier) {
-      final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
-      id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
-      dataField = pointsNode.getUnderlyingDataField();
-      timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate, includeStart,
-                                                      endDate, includeEnd);
-      
-      processResult(id, dataField, timeSeries, bundle, failures);
-
+    /** Implementation node: fixing series are required for Fed Fund futures: underlying overnight index fixing (when fixing month has started) */
+    final String dataFieldDefault = MarketDataRequirementNames.MARKET_VALUE; //TODO The field should be in the config
+    if (node.getCurveNode() instanceof RateFutureNode) {
+      RateFutureNode nodeRateFut = (RateFutureNode) node.getCurveNode();
+      Convention conventionRateFut =  _conventionSource.getSingle(nodeRateFut.getFutureConvention());
+      if (conventionRateFut instanceof FederalFundsFutureConvention) {
+        FederalFundsFutureConvention conventionFedFundFut = (FederalFundsFutureConvention) conventionRateFut;
+        final ExternalIdBundle onIndexId = ExternalIdBundle.of(conventionFedFundFut.getIndexConvention());
+        final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(dataFieldDefault, onIndexId, _resolutionKey,
+            startDate, includeStart, endDate, includeEnd);
+        processResult(onIndexId, dataFieldDefault, priceIndexSeries, bundle, failures);
+      }
+      if (Result.anyFailures(failures)) {
+        return Result.failure(failures);
+      }
+      return Result.success(bundle);  
     }
 
+    /** Implementation node: fixing series are required for inflation swaps (starting price index) */
     if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
       final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
-      InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(),
-                                                                                  InflationLegConvention.class);
-      PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(),
-                                                                              PriceIndexConvention.class);
-      final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
+      InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
+      PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
       final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
-      final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField,
-                                                                                       priceIndexId,
-                                                                                       _resolutionKey,
-                                                                                       startDate,
-                                                                                       includeStart,
-                                                                                       endDate,
-                                                                                       includeEnd);
-      processResult(priceIndexId, priceIndexField, priceIndexSeries, bundle, failures);
+      final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(dataFieldDefault, priceIndexId, _resolutionKey,
+        startDate, includeStart, endDate, includeEnd);
+      processResult(priceIndexId, dataFieldDefault, priceIndexSeries, bundle, failures);
+      if (Result.anyFailures(failures)) {
+        return Result.failure(failures);
+      }
+      return Result.success(bundle);  
     }
+    
+    /** Implementation node: fixing series are required for Ibor swaps (when the UseFixing flag is true)  
+     *  [PLAT-6430] Add the UseFixing treatment. */
     
     if (Result.anyFailures(failures)) {
       return Result.failure(failures);
     }
-    
     return Result.success(bundle);  
   }
 

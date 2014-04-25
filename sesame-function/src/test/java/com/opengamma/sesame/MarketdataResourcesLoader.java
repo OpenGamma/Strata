@@ -24,7 +24,7 @@ import com.opengamma.id.ExternalScheme;
 public class MarketdataResourcesLoader {
 
   public static Map<ExternalIdBundle, Double> getData(String path, String scheme)  throws IOException {
-    return getData(path, ExternalScheme.of(scheme));
+    return getData(path, scheme == null ? null : ExternalScheme.of(scheme));
   }
 
   public static Map<ExternalIdBundle, Double> getData(String path, ExternalScheme scheme) throws IOException {
@@ -38,7 +38,12 @@ public class MarketdataResourcesLoader {
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
       String id = (String) entry.getKey();
       String value = (String) entry.getValue();
-      data.put(ExternalId.of(scheme, id).toBundle(), Double.valueOf(value));
+      
+      if (scheme != null ) {
+        data.put(ExternalId.of(scheme, id).toBundle(), Double.valueOf(value));
+      } else {
+        data.put(ExternalId.parse(id).toBundle(), Double.valueOf(value));
+      }
     }
     return data;
   }
