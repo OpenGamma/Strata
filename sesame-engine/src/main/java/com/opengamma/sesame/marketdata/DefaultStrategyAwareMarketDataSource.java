@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
@@ -89,5 +90,22 @@ public class DefaultStrategyAwareMarketDataSource implements StrategyAwareMarket
   @Override
   public void dispose() {
   }
-  
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_marketDataSpecification, _marketDataSource);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    DefaultStrategyAwareMarketDataSource other = (DefaultStrategyAwareMarketDataSource) obj;
+    return Objects.equals(this._marketDataSpecification, other._marketDataSpecification) &&
+           Objects.equals(this._marketDataSource, other._marketDataSource);
+  }
 }
