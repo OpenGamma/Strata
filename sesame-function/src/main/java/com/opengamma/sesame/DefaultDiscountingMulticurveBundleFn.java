@@ -497,7 +497,6 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         - inflation swaps (starting price index) 
         - Fed Fund futures: underlying overnight index fixing (when fixing month has started) 
         - Ibor swaps (when the UseFixing flag is true)  */
-        // todo - this lookup is not needed for all curves but we get it for all, can we restrict so we only get it when we need it?
         @SuppressWarnings("deprecation")
         final Result<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurveNode(env, node, env.getValuationDate());        
         if (!htsResult.isSuccess()) {

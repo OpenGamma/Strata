@@ -394,9 +394,8 @@ public class InterestRateMockSources {
       0.0014, 0.0015 };
     final LocalDateDoubleTimeSeries fixingFedFund = ImmutableLocalDateDoubleTimeSeries.of(dateFixing, rateFixing);
     final HistoricalTimeSeries hts = new SimpleHistoricalTimeSeries(_onIndexUniqueId, fixingFedFund);
-    final LocalDate startDate = LocalDate.of(2013, 4, 17);
-    final LocalDate endDate = LocalDate.of(2014, 4, 17);
-    when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE), eq(_onIndexId.toBundle()), eq("DEFAULT_TSS"), any(LocalDate.class), eq(true), any(LocalDate.class), eq(true))).thenReturn(hts);
+    when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE), eq(_onIndexId.toBundle()), eq("DEFAULT_TSS"), 
+        any(LocalDate.class), eq(true), any(LocalDate.class), eq(true))).thenReturn(hts);
     return mock;
   }
 
@@ -445,6 +444,8 @@ public class InterestRateMockSources {
             ExternalId.of("EXPIRY_CONVENTION", FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME), 
             s_USID, _onIndexId, 5000000);
     when(mock.getSingle(_fffConventionId, FinancialConvention.class))
+        .thenReturn(fffConvention);
+    when(mock.getSingle(eq(_fffConventionId.toBundle()), any(VersionCorrection.class)))
         .thenReturn(fffConvention);
 
     OISLegConvention descReceiveLegConvention =

@@ -163,25 +163,26 @@ public class FedFundFutureCurveTest {
     _fedFundsFutureFn = FunctionModel.build(FedFundsFutureFn.class, config, ComponentMap.of(components));
   }
   
-  @Test
   /**
    * Build the curve with Fed Fund futures (including the current one).
    * Re-price futures trade with trade date the calibration date and trade price the calibration price and compare to 0.
    */
+  @Test
   public void buildCurve() {
     MarketDataSource dataSource = _interestRateMockSources.createMarketDataSource(VALUATION_TIME.toLocalDate(), false);
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
     Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> pairProviderBlock = 
-        _curveBundle.generateBundle(env, ConfigLink.resolvable(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF , CurveConstructionConfiguration.class).resolve());
-        if (!pairProviderBlock.isSuccess()) { 
+        _curveBundle.generateBundle(env, ConfigLink.resolvable(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF , 
+            CurveConstructionConfiguration.class).resolve());
+    if (!pairProviderBlock.isSuccess()) {
       fail(pairProviderBlock.getFailureMessage());
     }
     // Re-pricing FF futures trades
     FedFundsFutureTrade[] ffTrades = new FedFundsFutureTrade[NB_TRADE];
-    for(int looptrade = 0; looptrade<NB_TRADE; looptrade++) {
+    for(int looptrade = 0; looptrade < NB_TRADE; looptrade++) {
       ffTrades[looptrade] = createFFTrade(EXPIRY_DATE[looptrade], EXPECTED_PRICE[looptrade]);
     }
-    for(int looptrade = 0; looptrade<NB_TRADE; looptrade++) {
+    for(int looptrade = 0; looptrade < NB_TRADE; looptrade++) {
       Result<MultipleCurrencyAmount> resultPVJ4 = _fedFundsFutureFn.calculatePV(env, ffTrades[looptrade]);
       if (resultPVJ4.isSuccess()) {
         MultipleCurrencyAmount mca = resultPVJ4.getValue();
@@ -194,7 +195,8 @@ public class FedFundFutureCurveTest {
   
   private FedFundsFutureTrade createFFTrade(LocalDate expiryDate, double tradePrice) {    
     Expiry expiry = new Expiry(ZonedDateTime.of(expiryDate, LocalTime.of(0, 0), ZoneId.systemDefault()));
-    FederalFundsFutureSecurity fedFundsFuture = new FederalFundsFutureSecurity(expiry, TRADING_EX, SETTLE_EX, CCY, UNIT_AMOUNT, FED_FUND_INDEX_ID, CATEGORY);
+    FederalFundsFutureSecurity fedFundsFuture = 
+        new FederalFundsFutureSecurity(expiry, TRADING_EX, SETTLE_EX, CCY, UNIT_AMOUNT, FED_FUND_INDEX_ID, CATEGORY);
     fedFundsFuture.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test future").toBundle());
     SimpleTrade trade = new SimpleTrade(fedFundsFuture, TRADE_QUANTITY, COUNTERPARTY, TRADE_DATE, TRADE_TIME);
     trade.setPremiumCurrency(Currency.USD);
@@ -210,8 +212,7 @@ public class FedFundFutureCurveTest {
       }
       builder.put(keys.getKey(), keys.getValue());
     }
-    ImmutableMap<Class<?>, Object> components = builder.build();
-    return components;
+    return builder.build();
   }
   
   private void appendHistoricalTimeSeriesSource(HistoricalTimeSeriesSource mock) {
