@@ -27,6 +27,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
@@ -187,6 +188,11 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     public HistoricalTimeSeriesBundle visitBondFutureSecurity(BondFutureSecurity security) {
       return getMarketValueTimeSeries(security);
     }
+    
+    @Override
+    public HistoricalTimeSeriesBundle visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security) {
+      return getMarketValueTimeSeries(security);
+    }   
     
     @Override
     public HistoricalTimeSeriesBundle visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
