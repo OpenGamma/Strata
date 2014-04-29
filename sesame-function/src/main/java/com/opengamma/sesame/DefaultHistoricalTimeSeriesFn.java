@@ -92,21 +92,9 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     return getHtsForCurveNode(env, node, LocalDateRange.of(startDate, endDate, true));
   }
 
-  private Result<HistoricalTimeSeries> processResult(ExternalIdBundle id, HistoricalTimeSeries timeSeries) {
-    if (timeSeries != null) {
-      if (timeSeries.getTimeSeries().isEmpty()) {
-        return Result.failure(FailureStatus.MISSING_DATA, "Time series for {} is empty", id);
-      } else {
-        return Result.success(timeSeries);
-      }
-    } else {
-      return Result.failure(FailureStatus.MISSING_DATA, "Couldn't get time series for {}", id);
-    }
-  }
-
   @Override
   public Result<HistoricalTimeSeriesBundle> getFixingsForSecurity(Environment env, FinancialSecurity security) {
-    final FixingRetriever retriever = new FixingRetriever(_htsSource, env);
+    final FixingRetriever retriever = new FixingRetriever(env.getValuationDate());
     try {
       return security.accept(retriever);
     } catch (Exception ex) {
@@ -120,22 +108,15 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   private class FixingRetriever extends FinancialSecurityVisitorAdapter<Result<HistoricalTimeSeriesBundle>> {
 
     /**
-     * HTSSource to obtain series from.
-     */
-    private final HistoricalTimeSeriesSource _htsSource;
-
-    /**
      * end date of the fixing series required
      */
     private final LocalDate _valuationDate;
 
     /**
-     * @param htsSource the historical timeseries source
-     * @param env the environment
+     * @param valuationDate the valuation date
      */
-    private FixingRetriever(HistoricalTimeSeriesSource htsSource, Environment env) {
-      _htsSource = htsSource;
-      _valuationDate = env.getValuationDate();
+    private FixingRetriever(LocalDate valuationDate) {
+      _valuationDate = valuationDate;
     }
 
     /**
@@ -173,8 +154,7 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
       final boolean includeStart = true;
       final boolean includeEnd = true;
       final LocalDate startDate = _valuationDate.minus(length);
-      HistoricalTimeSeries series = _htsSource.getHistoricalTimeSeries(field, id, _resolutionKey, startDate, includeStart, _valuationDate, includeEnd);
-      return processResult(id, series);
+      return getHistoricalTimeSeriesResult(field, id, _resolutionKey, startDate, includeStart, _valuationDate, includeEnd);
     }
 
     @Override
@@ -241,10 +221,9 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     ExternalIdBundle id = ExternalIdBundle.of(node.getIdentifier());
     String dataField = node.getDataField();
     // TODO use HistoricalMarketDataFn.getValues()?
-    HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate, includeStart, endDate, includeEnd);
-    Result<HistoricalTimeSeries> timeSeriesResult = processResult(id, timeSeries);
+    Result<HistoricalTimeSeries> timeSeriesResult = getHistoricalTimeSeriesResult(dataField, id, _resolutionKey, startDate, includeStart, endDate, includeEnd);
     if (timeSeriesResult.isSuccess()) {
-      bundle.add(dataField, id, timeSeries);
+      bundle.add(dataField, id, timeSeriesResult.getValue());
     } else {
       bundleResult = Result.failure(timeSeriesResult, bundleResult);
     }
@@ -253,10 +232,9 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
       final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
       id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
       dataField = pointsNode.getUnderlyingDataField();
-      timeSeries = _htsSource.getHistoricalTimeSeries(dataField, id, _resolutionKey, startDate, includeStart, endDate, includeEnd);
-      timeSeriesResult = processResult(id, timeSeries);
+      timeSeriesResult = getHistoricalTimeSeriesResult(dataField, id, _resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeriesResult.isSuccess()) {
-        bundle.add(dataField, id, timeSeries);
+        bundle.add(dataField, id, timeSeriesResult.getValue());
       } else {
         bundleResult = Result.failure(timeSeriesResult, bundleResult);
       }
@@ -271,13 +249,11 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
                                                                               PriceIndexConvention.class);
       final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
       final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
-      final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(priceIndexField, priceIndexId, _resolutionKey,
-                                                                                       startDate, includeStart, endDate, includeEnd);
-      timeSeriesResult = processResult(id, priceIndexSeries);
+      final Result<HistoricalTimeSeries> priceIndexResult = getHistoricalTimeSeriesResult(priceIndexField, priceIndexId, _resolutionKey, startDate, includeStart, endDate, includeEnd);
       if (timeSeriesResult.isSuccess()) {
-        bundle.add(dataField, id, priceIndexSeries);
+        bundle.add(dataField, id, priceIndexResult.getValue());
       } else {
-        bundleResult = Result.failure(timeSeriesResult, bundleResult);
+        bundleResult = Result.failure(bundleResult, priceIndexResult);
       }
     }
     
@@ -291,5 +267,28 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   @Override
   public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDateRange dateRange) {
     return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
+  }
+
+  /**
+   * Wraps the timeseries call and return a Result
+   * @param field the field
+   * @param id the id
+   * @param resolutionKey the resolution key
+   * @param startDate the start date
+   * @param includeStart should include start
+   * @param endDate the end date
+   * @param includeEnd should include end
+   * @return the time series Result
+   */
+  private Result<HistoricalTimeSeries> getHistoricalTimeSeriesResult(String field, ExternalIdBundle id, String resolutionKey, LocalDate startDate, boolean includeStart, LocalDate endDate, boolean includeEnd) {
+    HistoricalTimeSeries series = _htsSource.getHistoricalTimeSeries(field, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
+    if (series != null) {
+      if (series.getTimeSeries().isEmpty()) {
+        return Result.failure(FailureStatus.MISSING_DATA, "Time series for {} is empty", id);
+      } else {
+        return Result.success(series);
+      }
+    }
+    return Result.failure(FailureStatus.MISSING_DATA, "Couldn't get time series for {}", id);
   }
 }
