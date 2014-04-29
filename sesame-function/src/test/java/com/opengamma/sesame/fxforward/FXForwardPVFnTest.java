@@ -146,6 +146,7 @@ import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
@@ -155,11 +156,14 @@ public class FXForwardPVFnTest {
 
   private static final AtomicLong s_nextId = new AtomicLong(0);
   
-  private CacheManager _cacheManager;
+  private Cache _cache;
 
   @BeforeClass
   public void setUpClass() {
-    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    String cacheName = "testCache";
+    EHCacheUtils.addCache(cacheManager, cacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 
   @Test
@@ -205,7 +209,7 @@ public class FXForwardPVFnTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
     FXForwardPVFn pvFunction = FunctionModel.build(FXForwardPVFn.class,
                                                    createFunctionConfig(),
                                                    componentMap,
@@ -501,7 +505,6 @@ public class FXForwardPVFnTest {
   }
 
   private static FunctionModelConfig createFunctionConfig() {
-    String exposureConfig = "Temple Exposure Config";
     return
         config(
             arguments(

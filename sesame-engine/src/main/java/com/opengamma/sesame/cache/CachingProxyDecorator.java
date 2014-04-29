@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +31,7 @@ import com.opengamma.sesame.proxy.AbstractProxyInvocationHandler;
 import com.opengamma.sesame.proxy.InvocationHandlerFactory;
 import com.opengamma.sesame.proxy.ProxyInvocationHandler;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
@@ -46,21 +43,17 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 
-  private static final String VIEW_CACHE = "ViewCache";
-  private static final AtomicLong s_nextCacheId = new AtomicLong(0);
-
   private final Ehcache _cache;
   private final ExecutingMethodsThreadLocal _executingMethods;
-  private final CacheManager _cacheManager;
-  private final String _cacheName;
 
-  // TODO don't create the cache in here, need a level of indirection to allow dynamic rebinding
-  public CachingProxyDecorator(CacheManager cacheManager, ExecutingMethodsThreadLocal executingMethods) {
-    _cacheManager = ArgumentChecker.notNull(cacheManager, "cacheManager");
+  /**
+   * @param cache the cache used to store the calculated values
+   * @param executingMethods records the currently executing methods and allows cache entries to be removed when
+   *   the underlying data used to calculate them changes
+   */
+  public CachingProxyDecorator(Ehcache cache, ExecutingMethodsThreadLocal executingMethods) {
+    _cache = ArgumentChecker.notNull(cache, "cache");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
-    _cacheName = VIEW_CACHE + s_nextCacheId.getAndIncrement();
-    EHCacheUtils.addCache(cacheManager, _cacheName);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, _cacheName);
   }
 
   @Override
@@ -109,15 +102,6 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
     for (FunctionModelNode childNode : node.getDependencies()) {
       populateSubtreeImplementationTypes(childNode, accumulator);
     }
-  }
-
-  public Ehcache getCache() {
-    return _cache;
-  }
-
-  @Override
-  public void close() {
-    _cacheManager.removeCache(_cacheName);
   }
 
   /**
@@ -238,7 +222,7 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
         Element previous = _cache.putIfAbsent(new Element(key, task));
         // our task is the one in the cache, run it
         if (previous == null) {
-          s_logger.debug("Calculating value for key {}", key);
+          s_logger.debug("Calculating value for hash {}, key {}", key.hashCode(), key);
           task.run();
           return task.get();
         } else {

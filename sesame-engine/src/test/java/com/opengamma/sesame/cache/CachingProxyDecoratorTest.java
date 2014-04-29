@@ -45,8 +45,8 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 @SuppressWarnings("unchecked")
@@ -54,11 +54,14 @@ import net.sf.ehcache.Element;
 public class CachingProxyDecoratorTest {
 
   private static final Set<Class<?>> NO_COMPONENTS = ComponentMap.EMPTY.getComponentTypes();
-  private CacheManager _cacheManager;
+  private Cache _cache;
 
   @BeforeClass
   public void setUpClass() {
-    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    String cacheName = "testCAche";
+    EHCacheUtils.addCache(cacheManager, cacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
   
   /** check the cache contains the item returns from the function */
@@ -66,7 +69,7 @@ public class CachingProxyDecoratorTest {
   public void oneLookup() throws Exception {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
@@ -76,8 +79,7 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
-    Ehcache cache = cachingDecorator.getCache();
-    Element element = cache.get(key);
+    Element element = _cache.get(key);
     assertNotNull(element);
     FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
     assertSame(task.get(), results);
@@ -88,7 +90,7 @@ public class CachingProxyDecoratorTest {
   public void multipleFunctions() {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionBuilder functionBuilder = new FunctionBuilder();
 
@@ -109,7 +111,7 @@ public class CachingProxyDecoratorTest {
   public void multipleCalls() {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
@@ -123,7 +125,7 @@ public class CachingProxyDecoratorTest {
     FunctionModelConfig config2 = config(implementations(TestFn.class, Impl.class),
                                          arguments(function(Impl.class, argument("s", "a different string"))));
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config1, NO_COMPONENTS, cachingDecorator);
@@ -224,7 +226,7 @@ public class CachingProxyDecoratorTest {
                                                          DelegateFn.class, Delegate1.class),
                                          arguments(function(Delegate1.class, argument("s", "a different string"))));
     FunctionMetadata metadata = EngineUtils.createMetadata(TopLevelFn.class, "fn");
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config1, NO_COMPONENTS, cachingDecorator);
@@ -250,7 +252,7 @@ public class CachingProxyDecoratorTest {
                                                          DelegateFn.class, Delegate2.class),
                                          arguments(function(Delegate2.class, argument("s", "a string"))));
     FunctionMetadata metadata = EngineUtils.createMetadata(TopLevelFn.class, "fn");
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
 
     FunctionBuilder functionBuilder = new FunctionBuilder();
     FunctionModel functionModel1 = FunctionModel.forFunction(metadata, config1, NO_COMPONENTS, cachingDecorator);
@@ -267,7 +269,7 @@ public class CachingProxyDecoratorTest {
   @Test
   public void annotationOnClass() throws Exception {
     FunctionModelConfig config = config(implementations(TestFn2.class, Impl2.class));
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn2.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn2 fn = (TestFn2) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
@@ -277,8 +279,7 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
-    Ehcache cache = cachingDecorator.getCache();
-    Element element = cache.get(key);
+    Element element = _cache.get(key);
     assertNotNull(element);
     FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
     assertSame(task.get(), results);
@@ -307,7 +308,7 @@ public class CachingProxyDecoratorTest {
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
     ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
                                                                                 executingMethods));
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, executingMethods);
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, executingMethods);
     ExecutingMethodsI1 i1 = FunctionModel.build(ExecutingMethodsI1.class, config, components, cachingDecorator);
     i1.fn("s", 1);
   }
@@ -387,7 +388,7 @@ public class CachingProxyDecoratorTest {
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
     ComponentMap components = ComponentMap.of(ImmutableMap.<Class<?>, Object>of(ExecutingMethodsThreadLocal.class,
                                                                                 executingMethods));
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, executingMethods);
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, executingMethods);
     ScenarioArgumentsI1 i1 = FunctionModel.build(ScenarioArgumentsI1.class, config, components, cachingDecorator);
     ZonedDateTime valuationTime = ZonedDateTime.now();
     MarketDataSource marketDataSource = new MarketDataSource() {
@@ -406,17 +407,16 @@ public class CachingProxyDecoratorTest {
 
     ScenarioArgumentsC1 c1 = (ScenarioArgumentsC1) EngineUtils.getProxiedObject(i1);
     ScenarioArgumentsC2 c2 = (ScenarioArgumentsC2) EngineUtils.getProxiedObject(c1._i2);
-    Ehcache cache = cachingDecorator.getCache();
     Method method1 = EngineUtils.getMethod(ScenarioArgumentsI1.class, "fn");
     Method method2 = EngineUtils.getMethod(ScenarioArgumentsI2.class, "fn");
     MethodInvocationKey key1 = new MethodInvocationKey(c1, method1, new Object[]{env1, "s1", 1});
     MethodInvocationKey key2 = new MethodInvocationKey(c1, method1, new Object[]{env1, "s2", 2});
     MethodInvocationKey key3 = new MethodInvocationKey(c2, method2, new Object[]{env2, "s1", 1});
     MethodInvocationKey key4 = new MethodInvocationKey(c2, method2, new Object[]{env2, "s2", 2});
-    assertEquals("S1 1", ((FutureTask) cache.get(key1).getObjectValue()).get());
-    assertEquals("S2 2", ((FutureTask) cache.get(key2).getObjectValue()).get());
-    assertEquals("s1 1", ((FutureTask) cache.get(key3).getObjectValue()).get());
-    assertEquals("s2 2", ((FutureTask) cache.get(key4).getObjectValue()).get());
+    assertEquals("S1 1", ((FutureTask) _cache.get(key1).getObjectValue()).get());
+    assertEquals("S2 2", ((FutureTask) _cache.get(key2).getObjectValue()).get());
+    assertEquals("s1 1", ((FutureTask) _cache.get(key3).getObjectValue()).get());
+    assertEquals("s2 2", ((FutureTask) _cache.get(key4).getObjectValue()).get());
   }
 
   interface ScenarioArgumentsI1 {
