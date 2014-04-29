@@ -156,30 +156,10 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
           result = Result.failure(result, series);
         }
       }
-      if (Result.allSuccessful(result)) {
+      if (result.isSuccess()) {
         return Result.success(bundle);
       }
       return Result.failure(result);
-    }
-
-    /**
-     * Returns a time series bundle of the previous month's market values for the specified security.
-     * @param security the security to retrieve the market values for.
-     */
-    private Result<HistoricalTimeSeries> getMarketValueTimeSeries(FinancialSecurity security) {
-      String field = MarketDataRequirementNames.MARKET_VALUE;
-      ExternalIdBundle id = security.getExternalIdBundle();
-      return getPreviousMonthValues(field, id);
-    }
-
-    /**
-     * Returns a time series of the previous month's field values for the specified external id into the time series bundle.
-     * @param field the name of the value used to lookup.
-     * @param id the external id of used to lookup the field values.
-     * @return the time series result
-     */
-    private Result<HistoricalTimeSeries> getPreviousMonthValues(String field, ExternalIdBundle id) {
-      return getPreviousPeriodValues(field, id, ONE_MONTH);
     }
 
     /**
