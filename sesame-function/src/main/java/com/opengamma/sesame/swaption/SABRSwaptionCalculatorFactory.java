@@ -54,7 +54,7 @@ public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
   /**
    * Function used to retrieve SABR parameter data.
    */
-  private final SABRInterestRateParametersFn _sabrInterestRateParametersFn;
+  private final SABRParametersProviderFn _sabrParametersProviderFn;
 
   /**
    * Creates the factory.
@@ -66,22 +66,22 @@ public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
    * @param swaptionSecurityConverter converter for transforming a swaption into
    * its InstrumentDefinition form, not null
    * @param htsFn function used to retrieve time series data, not null
-   * @param sabrInterestRateParametersFn function used to retrieve SABR parameter
+   * @param sabrParametersProviderFn function used to retrieve SABR parameter
    * data, not null
    */
   public SABRSwaptionCalculatorFactory(FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                        DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
                                        SwaptionSecurityConverter swaptionSecurityConverter,
                                        HistoricalTimeSeriesFn htsFn,
-                                       SABRInterestRateParametersFn sabrInterestRateParametersFn) {
+                                       SABRParametersProviderFn sabrParametersProviderFn) {
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
     _discountingMulticurveCombinerFn =
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
     _swaptionSecurityConverter = ArgumentChecker.notNull(swaptionSecurityConverter, "swaptionSecurityConverter");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
-    _sabrInterestRateParametersFn =
-        ArgumentChecker.notNull(sabrInterestRateParametersFn, "sabrInterestRateParametersFn");
+    _sabrParametersProviderFn =
+        ArgumentChecker.notNull(sabrParametersProviderFn, "sabrParametersProviderFn");
 
   }
 
@@ -94,7 +94,7 @@ public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 
-    Result<SABRParametersConfig> sabrResult = _sabrInterestRateParametersFn.getSabrParameters(env, security);
+    Result<SabrParametersConfiguration> sabrResult = _sabrParametersProviderFn.getSabrParameters(env, security);
 
     if (Result.allSuccessful(bundleResult, fixingsResult, sabrResult)) {
 
@@ -102,7 +102,7 @@ public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
       CurveBuildingBlockBundle blockBundle = bundleResult.getValue().getSecond();
       SwaptionPhysicalFixedIbor swaption =
           createInstrumentDerivative(security, env.getValuationTime(), fixingsResult.getValue());
-      SABRParametersConfig sabrConfig = sabrResult.getValue();
+      SabrParametersConfiguration sabrConfig = sabrResult.getValue();
 
       SwaptionCalculator calculator =
           new SABRSwaptionCalculator(swaption, buildSabrBundle(multicurveBundle, sabrConfig), blockBundle, sabrConfig.getSabrParameters());
@@ -115,7 +115,7 @@ public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
 
 
   private SABRSwaptionProviderDiscount buildSabrBundle(MulticurveProviderDiscount multicurveBundle,
-                                                       SABRParametersConfig sabrConfig) {
+                                                       SabrParametersConfiguration sabrConfig) {
 
     return new SABRSwaptionProviderDiscount(multicurveBundle, sabrConfig.getSabrParameters(), sabrConfig.getSwapConvention());
   }
