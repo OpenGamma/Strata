@@ -31,9 +31,12 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
@@ -213,6 +216,17 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     public HistoricalTimeSeriesBundle visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
       return getMarketValueTimeSeries(security);
     }
+
+    @Override
+    public HistoricalTimeSeriesBundle visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+      final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
+      for (final FloatingInterestRateSwapLeg leg : security.getLegs(FloatingInterestRateSwapLeg.class)) {
+        ExternalId id = leg.getFloatingReferenceRateId();
+        getPreviousPeriodValues(MarketDataRequirementNames.MARKET_VALUE, id.toBundle(), Period.ofYears(1), bundle);
+      }
+      return bundle;
+    }
+
   }
 
   @Override
