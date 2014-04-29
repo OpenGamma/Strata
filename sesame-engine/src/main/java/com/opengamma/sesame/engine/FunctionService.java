@@ -28,9 +28,9 @@ public enum FunctionService {
   TIMING;
 
   /**
-   * Default services provided by the engine - caching and tracing of function calls.
+   * Default services provided by the engine - memoization based caching of calculated values.
    */
-  public static final EnumSet<FunctionService> DEFAULT_SERVICES = EnumSet.of(CACHING, TRACING);
+  public static final EnumSet<FunctionService> DEFAULT_SERVICES = EnumSet.of(CACHING);
 
   /**
    * Tells the engine to build the functions with no services.
