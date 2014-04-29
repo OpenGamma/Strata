@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -104,12 +105,16 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   @Override
   public Result<HistoricalTimeSeriesBundle> getFixingsForSecurity(Environment env, FinancialSecurity security) {
     HistoricalTimeSeriesBundle bundle;
+    final FixingRetriever retriever = new FixingRetriever(_htsSource, env);
     try {
-      bundle = security.accept(new FixingRetriever(_htsSource, env));
-    } catch (UnsupportedOperationException ex) {
+      bundle = security.accept(retriever);
+      if (Result.allSuccessful(retriever.getResults())) {
+        return Result.success(bundle);
+      }
+    } catch (Exception ex) {
       return Result.failure(ex);
     }
-    return Result.success(bundle);
+    return Result.failure(retriever.getResults());
   }
   
   private class FixingRetriever extends FinancialSecurityVisitorAdapter<HistoricalTimeSeriesBundle> {
@@ -117,23 +122,28 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     private final HistoricalTimeSeriesSource _htsSource;
     
     private final LocalDate _now;
-    
-    public FixingRetriever(HistoricalTimeSeriesSource htsSource,
-                           Environment env) {
+
+    private final List<Result<?>> _results;
+
+    public FixingRetriever(HistoricalTimeSeriesSource htsSource, Environment env) {
       _htsSource = htsSource;
       _now = env.getValuationDate();
+      _results = new ArrayList<>();
+    }
+
+    private List<Result<?>> getResults() {
+      return _results;
     }
 
     /**
      * Returns a time series bundle of the previous month's market values for the specified security.
      * @param security the security to retrieve the market values for.
-     * @param bundle the time series bundle to hold the market values.
      */
     private HistoricalTimeSeriesBundle getMarketValueTimeSeries(FinancialSecurity security) {
       final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
       String field = MarketDataRequirementNames.MARKET_VALUE;
       ExternalIdBundle id = security.getExternalIdBundle();
-      bundle.add(field, id, getPreviousMonthValues(field, id));
+      getPreviousMonthValues(field, id, bundle);
       return bundle;
     }
     
@@ -141,27 +151,33 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
      * Returns a time series of the previous month's field values for the specified external id into the time series bundle.
      * @param field the name of the value used to lookup.
      * @param id the external id of used to lookup the field values.
+     * @param bundle the time series bundle to hold the market values.
      */
-    private HistoricalTimeSeries getPreviousMonthValues(String field, ExternalIdBundle id) {
+    private void getPreviousMonthValues(String field, ExternalIdBundle id, HistoricalTimeSeriesBundle bundle) {
+      getPreviousPeriodValues(field, id, Period.ofMonths(1), bundle);
+    }
+
+    /**
+     * Returns a time series of the previous month's field values for the specified external id into the time series bundle.
+     * @param field the name of the value used to lookup.
+     * @param id the external id of used to lookup the field values.
+     * @param length the length of time to get values for.
+     * @param bundle the time series bundle to hold the market values.
+     */
+    private void getPreviousPeriodValues(String field, ExternalIdBundle id, Period length, HistoricalTimeSeriesBundle bundle) {
       final boolean includeStart = true;
       final boolean includeEnd = true;
-      final LocalDate startDate = _now.minus(Period.ofMonths(1));
-      final HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(field,
-                                                                                 id,
-                                                                                 _resolutionKey,
-                                                                                 startDate,
-                                                                                 includeStart,
-                                                                                 _now,
-                                                                                 includeEnd);
-      return timeSeries;
+      final LocalDate startDate = _now.minus(length);
+      HistoricalTimeSeries series = _htsSource.getHistoricalTimeSeries(field, id, _resolutionKey, startDate, includeStart, _now, includeEnd);
+      processResult(id, field, series, bundle, _results);
     }
-    
+
     @Override
     public HistoricalTimeSeriesBundle visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
       final HistoricalTimeSeriesBundle bundle = getMarketValueTimeSeries(security);
       String field = MarketDataRequirementNames.MARKET_VALUE;
       final ExternalIdBundle underlyingId = security.getUnderlyingId().getExternalId().toBundle();
-      bundle.add(field, underlyingId, getPreviousMonthValues(field, underlyingId));
+      getPreviousMonthValues(field, underlyingId, bundle);
       return bundle;
     }
     
@@ -177,7 +193,6 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
     @Override
     public HistoricalTimeSeriesBundle visitSwaptionSecurity(SwaptionSecurity security) {
-
       if (security.getCurrency().equals(Currency.BRL)) {
         throw new UnsupportedOperationException("Fixing series for Brazilian swaptions not yet implemented");
       }
