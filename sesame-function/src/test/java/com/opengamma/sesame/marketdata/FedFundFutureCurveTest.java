@@ -179,11 +179,11 @@ public class FedFundFutureCurveTest {
     }
     // Re-pricing FF futures trades
     FedFundsFutureTrade[] ffTrades = new FedFundsFutureTrade[NB_TRADE];
-    for(int looptrade = 0; looptrade < NB_TRADE; looptrade++) {
-      ffTrades[looptrade] = createFFTrade(EXPIRY_DATE[looptrade], EXPECTED_PRICE[looptrade]);
+    for(int i = 0; i < NB_TRADE; i++) {
+      ffTrades[i] = createFFTrade(EXPIRY_DATE[i], EXPECTED_PRICE[i]);
     }
-    for(int looptrade = 0; looptrade < NB_TRADE; looptrade++) {
-      Result<MultipleCurrencyAmount> resultPVJ4 = _fedFundsFutureFn.calculatePV(env, ffTrades[looptrade]);
+    for(int i = 0; i < NB_TRADE; i++) {
+      Result<MultipleCurrencyAmount> resultPVJ4 = _fedFundsFutureFn.calculatePV(env, ffTrades[i]);
       if (resultPVJ4.isSuccess()) {
         MultipleCurrencyAmount mca = resultPVJ4.getValue();
         assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, TOLERANCE_PV)));
