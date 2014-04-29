@@ -17,7 +17,9 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -66,11 +68,15 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   public DiscountingInterestRateSwapCalculator(InterestRateSwapSecurity security,
                                                MulticurveProviderInterface bundle,
                                                InterestRateSwapSecurityConverter swapConverter,
-                                               ZonedDateTime valuationTime) {
+                                               ZonedDateTime valuationTime,
+                                               FixedIncomeConverterDataProvider definitionConverter,
+                                               HistoricalTimeSeriesBundle fixings) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(swapConverter, "swapConverter");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _derivative = createInstrumentDerivative(security, swapConverter, valuationTime);
+    ArgumentChecker.notNull(definitionConverter, "definitionConverter");
+    ArgumentChecker.notNull(fixings, "fixings");
+    _derivative = createInstrumentDerivative(security, swapConverter, valuationTime, definitionConverter, fixings);
     _bundle = bundle;
   }
 
@@ -97,12 +103,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     return _derivative.accept(calculator, _bundle);
   }
 
-  private InstrumentDerivative createInstrumentDerivative(InterestRateSwapSecurity security,
-                                                          InterestRateSwapSecurityConverter swapConverter,
-                                                          ZonedDateTime valuationTime) {
+  private InstrumentDerivative createInstrumentDerivative(InterestRateSwapSecurity security, InterestRateSwapSecurityConverter swapConverter,
+                                                          ZonedDateTime valuationTime, FixedIncomeConverterDataProvider definitionConverter,
+                                                          HistoricalTimeSeriesBundle fixings) {
     InstrumentDefinition<?> definition = security.accept(swapConverter);
-    return definition.toDerivative(valuationTime);
+    return definitionConverter.convert(security, definition, valuationTime, fixings);
   }
-
 
 }
