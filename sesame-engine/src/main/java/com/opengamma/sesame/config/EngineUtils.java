@@ -306,25 +306,25 @@ public final class EngineUtils {
     return securityTypes;
   }
 
-
   /**
-   * Returns the cause of an exception if it's an {@link InvocationTargetException} or an
-   * {@link UndeclaredThrowableException}. These are the exception types that always wrap
-   * the underlying exceptions throw inside a proxy so they don't add anything except
-   * noise to the stack traces. Unwrapping the underlying exceptions makes it much easier
-   * to see what actually went wrong.
+   * Returns the cause of an exception if it's more meaningful than
+   * the exception itself. {@link InvocationTargetException} and
+   * {@link UndeclaredThrowableException} are exceptions which are
+   * thrown by the proxies in the engine when the underlying function
+   * being proxied throws an exception. Generally these wrap the
+   * underlying exceptions so they don't add anything except noise to
+   * the stack traces. Unwrapping the underlying exceptions makes it
+   * much easier to see what actually went wrong.
    *
-   * @param ex an exception
+   * @param ex  an exception
    * @return the underlying cause of the exception
    */
   public static Exception getCause(Exception ex) {
-    if (!(ex instanceof InvocationTargetException) && !(ex instanceof UndeclaredThrowableException)) {
-      return ex;
-    }
-    if (ex.getCause() != null && ex.getCause() instanceof Exception) {
-      return getCause((Exception) ex.getCause());
-    } else {
-      return ex;
-    }
+    return exceptionHasMoreMeaningfulCause(ex) ? getCause((Exception) ex.getCause()) : ex;
+  }
+
+  private static boolean exceptionHasMoreMeaningfulCause(Exception ex) {
+    return (ex instanceof InvocationTargetException || ex instanceof UndeclaredThrowableException) &&
+        ex.getCause() != null && ex.getCause() instanceof Exception;
   }
 }

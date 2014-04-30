@@ -38,7 +38,14 @@ public class ExceptionWrappingProxyTest {
                                   ExceptionWrappingProxy.INSTANCE);
     Object fn = functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
     assertThat(fn instanceof MockSingleFn, is(true));
-    assertThat(fn instanceof Proxy, is(false));
+    assertThat(Proxy.isProxyClass(fn.getClass()), is(false));
+  }
+
+  @Test
+  public void testProxyCreatedWhenMethodsReturnResult() {
+    // Counterpoint to the test above
+    MockFn fn = createHappyResultReturner();
+    assertThat(Proxy.isProxyClass(fn.getClass()), is(true));
   }
 
   @Test
@@ -124,7 +131,6 @@ public class ExceptionWrappingProxyTest {
       throw new RuntimeException("so sad");
     }
   }
-
 
   private interface MockSingleFn {
     @Output(value = "that")

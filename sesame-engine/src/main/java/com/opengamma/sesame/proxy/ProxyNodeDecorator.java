@@ -74,7 +74,8 @@ public abstract class ProxyNodeDecorator extends NodeDecorator implements Invoca
    * @param proxy  the proxy whose method was invoked, not null
    * @param delegate  the object being proxied, not null
    * @param method  the method that was invoked, not null
-   * @param args  the method arguments, not null
+   * @param args  the method arguments, null if the method takes
+   * no arguments
    * @return the return value of the call
    * @throws Throwable if something goes wrong with the underlying call
    * TODO param for the concrete type? or the proxy node itself?

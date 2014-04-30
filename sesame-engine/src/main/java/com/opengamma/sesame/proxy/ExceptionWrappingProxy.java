@@ -8,6 +8,7 @@ package com.opengamma.sesame.proxy;
 import java.lang.reflect.Method;
 
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.util.result.FailureResult;
 import com.opengamma.util.result.Result;
 
 /**
@@ -40,9 +41,9 @@ public class ExceptionWrappingProxy extends ProxyNodeDecorator {
    * We want all nodes where at least one method returns {@link Result} wrapped
    * in a proxy as potentially any of them could throw an exception.
    *
-   * @param interfaceType the type of the interface being decorated, not null
-   * @param implementationType the implementation type being decorated, not null
-   * @return true
+   * @param interfaceType  the type of the interface being decorated, not null
+   * @param implementationType  the implementation type being decorated, not null
+   * @return true if one or more of the methods on the interface returns {@link Result}
    */
   @Override
   protected boolean decorate(Class<?> interfaceType, Class<?> implementationType) {
@@ -55,14 +56,21 @@ public class ExceptionWrappingProxy extends ProxyNodeDecorator {
   }
 
   /**
-   * Called when a method on the proxy is invoked.
+   * Called when a method on the proxy is invoked. If the method called
+   * normally returns {@link Result} but throws an exception, the exception
+   * is wrapped in a Failure result. If the method does not return Result or
+   * the invocation does not throw an exception then the result is returned
+   * unaltered.
    *
-   * @param proxy the proxy whose method was invoked, not null
-   * @param delegate the object being proxied, not null
-   * @param method the method that was invoked, not null
-   * @param args the method arguments, not null
+   *
+   * @param proxy  the proxy whose method was invoked, not null
+   * @param delegate  the object being proxied, not null
+   * @param method  the method that was invoked, not null
+   * @param args  the method arguments, null if the method takes
+   * no arguments
    * @return the return value of the call
-   * @throws Throwable if something goes wrong with the underlying call
+   * @throws Throwable if something goes wrong with the underlying call and
+   * it cannot be safely wrapped in a {@link FailureResult}
    */
   @Override
   protected Object invoke(Object proxy, Object delegate, Method method, Object[] args) throws Throwable {

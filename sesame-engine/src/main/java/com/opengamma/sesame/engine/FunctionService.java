@@ -19,10 +19,6 @@ public enum FunctionService {
    */
   CACHING,
   /**
-   * Catch exceptions and replace with Failures
-   */
-  EXCEPTION_WRAPPING,
-  /**
    * The tracing service.
    */
   TRACING,
@@ -34,7 +30,7 @@ public enum FunctionService {
   /**
    * Default services provided by the engine - memoization based caching of calculated values.
    */
-  public static final EnumSet<FunctionService> DEFAULT_SERVICES = EnumSet.of(CACHING, EXCEPTION_WRAPPING);
+  public static final EnumSet<FunctionService> DEFAULT_SERVICES = EnumSet.of(CACHING);
 
   /**
    * Tells the engine to build the functions with no services.
