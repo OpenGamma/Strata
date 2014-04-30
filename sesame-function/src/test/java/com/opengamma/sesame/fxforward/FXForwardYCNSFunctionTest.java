@@ -101,6 +101,7 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
@@ -108,11 +109,14 @@ public class FXForwardYCNSFunctionTest {
 
   private static final ZonedDateTime s_valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
 
-  private CacheManager _cacheManager;
+  private Cache _cache;
 
   @BeforeClass
   public void setUpClass() {
-    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    String cacheName = "testCache";
+    EHCacheUtils.addCache(cacheManager, cacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 
   @Test
@@ -163,15 +167,12 @@ public class FXForwardYCNSFunctionTest {
     LocalDate date = LocalDate.of(2013, 11, 7);
     FixedHistoricalMarketDataSource dataSource = new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", null);
 
-    // TODO initialize service context and do this with a link
-    ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
-
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = serverComponents.with(comps);
 
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
     FXForwardYieldCurveNodeSensitivitiesFn ycnsFunction =
         FunctionModel.build(FXForwardYieldCurveNodeSensitivitiesFn.class,
                             createFunctionConfig(),
@@ -196,8 +197,6 @@ public class FXForwardYCNSFunctionTest {
 
 
   private static FunctionModelConfig createFunctionConfig() {
-    String exposureConfig = "EUR-USD_ON-OIS_EURIBOR6M-FRAIRS_EURIBOR3M-FRABS_-_ON-OIS_LIBOR3M-FRAIRS";
-
     return
         config(
             arguments(
