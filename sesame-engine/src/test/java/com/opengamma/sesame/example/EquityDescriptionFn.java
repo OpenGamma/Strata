@@ -17,8 +17,6 @@ public interface EquityDescriptionFn {
   /**
    * Returns a description of the security
    *
-   *
-   *
    * @param security A security
    * @return A description of the security
    */

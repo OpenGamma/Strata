@@ -11,6 +11,8 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -38,6 +40,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
@@ -89,6 +92,7 @@ import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.MarketdataResourcesLoader;
@@ -105,7 +109,10 @@ import com.opengamma.sesame.sabr.SabrNode;
 import com.opengamma.sesame.sabr.SabrSurfaceSelector;
 import com.opengamma.sesame.sabr.SabrSwaptionDataConfig;
 import com.opengamma.sesame.sabr.SabrSwaptionInterpolationConfig;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -403,8 +410,17 @@ public class InterestRateMockSources {
 
 
   private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
-    HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
+    // return 5 years of flat data.
+    final LocalDate now = LocalDate.now();
+    final LocalDateDoubleTimeSeriesBuilder series = ImmutableLocalDateDoubleTimeSeries.builder();
+    for (LocalDate date = LocalDate.now(); date.isAfter(now.minusYears(5)); date = DateUtils.previousWeekDay(date)) {
+      series.put(date, 0.01);
+    }
+    final HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
+    when(mock.getHistoricalTimeSeries(anyString(), eq(getLiborIndexId().toBundle()), anyString(),
+                                      any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
+        .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", LIBOR_INDEX), series.build()));
     return mock;
   }
 

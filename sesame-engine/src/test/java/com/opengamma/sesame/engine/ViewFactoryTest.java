@@ -15,6 +15,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.shiro.authz.AuthorizationException;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
@@ -35,6 +37,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.currency.CurrencyMatrix;
@@ -42,7 +45,11 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.EngineTestUtils;
+import com.opengamma.sesame.LazyLinkedPositionOrTrade;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -54,6 +61,7 @@ import com.opengamma.sesame.example.DefaultEquityDescriptionFn;
 import com.opengamma.sesame.example.DefaultIdSchemeFn;
 import com.opengamma.sesame.example.EquityDescriptionFn;
 import com.opengamma.sesame.example.EquityIdDescriptionFn;
+import com.opengamma.sesame.example.IdSchemeFn;
 import com.opengamma.sesame.example.MockEquityPresentValue;
 import com.opengamma.sesame.example.MockEquityPresentValueFn;
 import com.opengamma.sesame.function.AvailableImplementations;
@@ -68,6 +76,8 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.sesame.trace.CallGraph;
+import com.opengamma.util.result.FailureStatus;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -426,13 +436,86 @@ public class ViewFactoryTest {
                                               CacheManager.getInstance(),
                                               EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mock(MarketDataSource.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
     assertTrue(item.getResult().isSuccess());
     assertEquals("foobarbaz", item.getResult().getValue());
+  }
+
+  /**
+   * checks that authorization failures during security resolution cause the results to be failures with a status
+   * of PERMISSION_DENIED
+   */
+  @Test
+  public void insufficientPermissionsToViewSecurity() {
+    ViewConfig viewConfig =
+        configureView("name",
+                      column(OutputNames.DESCRIPTION,
+                             config(
+                                 implementations(EquityDescriptionFn.class, DefaultEquityDescriptionFn.class,
+                                                 CashFlowDescriptionFn.class, DefaultCashFlowDescriptionFn.class))),
+                      column(BLOOMBERG_HEADER, OutputNames.DESCRIPTION,
+                             config(
+                                 implementations(IdSchemeFn.class, DefaultIdSchemeFn.class),
+                                 arguments(
+                                     function(DefaultIdSchemeFn.class,
+                                              argument("scheme", ExternalSchemes.BLOOMBERG_TICKER)))),
+                             output(EquitySecurity.class,
+                                    config(
+                                        implementations(EquityDescriptionFn.class, EquityIdDescriptionFn.class))),
+                             output(CashFlowSecurity.class,
+                                    config(
+                                        implementations(CashFlowDescriptionFn.class, CashFlowIdDescriptionFn.class)))));
+
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityDescriptionFn.class, CashFlowDescriptionFn.class);
+    ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
+                                              ComponentMap.EMPTY,
+                                              availableOutputs,
+                                              new AvailableImplementationsImpl(),
+                                              FunctionModelConfig.EMPTY,
+                                              CacheManager.getInstance(),
+                                              EnumSet.noneOf(FunctionService.class));
+    Trade equityTrade = EngineTestUtils.createEquityTrade();
+    Trade cashFlowTrade = EngineTestUtils.createCashFlowTrade();
+
+    Security equitySecurity = equityTrade.getSecurity();
+    Security cashFlowSecurity = cashFlowTrade.getSecurity();
+
+    ExternalIdBundle equityId = equitySecurity.getExternalIdBundle();
+    ExternalIdBundle cashFlowId = cashFlowSecurity.getExternalIdBundle();
+
+    List<LazyLinkedPositionOrTrade> trades = ImmutableList.of(new LazyLinkedPositionOrTrade(equityTrade),
+                                                              new LazyLinkedPositionOrTrade(cashFlowTrade));
+    ZonedDateTime now = ZonedDateTime.now();
+    VersionCorrection versionCorrection = VersionCorrection.of(now.toInstant(), null);
+    SecuritySource securitySource = mock(SecuritySource.class);
+    when(securitySource.getSingle(equityId, versionCorrection)).thenReturn(equitySecurity);
+    when(securitySource.getSingle(cashFlowId, versionCorrection)).thenThrow(new AuthorizationException());
+
+    FixedInstantVersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(now.toInstant());
+    Map<Class<?>, Object> services = ImmutableMap.of(SecuritySource.class, securitySource,
+                                                     VersionCorrectionProvider.class, vcProvider);
+    ServiceContext serviceContext = ServiceContext.of(services);
+    ThreadLocalServiceContext.init(serviceContext);
+
+    View view = viewFactory.createView(viewConfig, EquitySecurity.class, CashFlowSecurity.class);
+    CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST, mock(MarketDataSource.class));
+    Results results = view.run(cycleArguments, trades);
+
+    // equity results should be ok as the user has permission to see the security
+    assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
+    assertEquals(EngineTestUtils.EQUITY_BLOOMBERG_TICKER, results.get(0, 1).getResult().getValue());
+
+    // cash flow results should all be failures with 'permission denied' messages
+    Result<?> result1 = results.get(1, 0).getResult();
+    Result<?> result2 = results.get(1, 1).getResult();
+    assertEquals(FailureStatus.PERMISSION_DENIED, result1.getStatus());
+    assertEquals(FailureStatus.PERMISSION_DENIED, result2.getStatus());
+    assertTrue(result1.getFailureMessage().startsWith("Permission Denied"));
+    assertTrue(result2.getFailureMessage().startsWith("Permission Denied"));
   }
 
   public interface NonPortfolioFunctionWithNoArgs {

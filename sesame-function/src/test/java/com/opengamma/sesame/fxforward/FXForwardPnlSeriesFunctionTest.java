@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
-import net.sf.ehcache.CacheManager;
-
 import org.hamcrest.MatcherAssert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -116,16 +114,22 @@ import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPnlSeriesFunctionTest {
 
   private static final ZonedDateTime s_valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
 
-  private CacheManager _cacheManager;
+  private Cache _cache;
 
   @BeforeClass
   public void setUpClass() {
-    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    String cacheName = "testCache";
+    EHCacheUtils.addCache(cacheManager, cacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 
   @Test
@@ -180,7 +184,7 @@ public class FXForwardPnlSeriesFunctionTest {
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = serverComponents.with(comps);
 
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
     FXForwardPnLSeriesFn pvFunction = FunctionModel.build(FXForwardPnLSeriesFn.class,
                                                           createFunctionConfig(currencyMatrix),
                                                           componentMap,

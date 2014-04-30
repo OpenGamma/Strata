@@ -8,8 +8,10 @@ package com.opengamma.sesame.config;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -302,5 +304,27 @@ public final class EngineUtils {
       securityTypes.add(security.getClass());
     }
     return securityTypes;
+  }
+
+  /**
+   * Returns the cause of an exception if it's more meaningful than
+   * the exception itself. {@link InvocationTargetException} and
+   * {@link UndeclaredThrowableException} are exceptions which are
+   * thrown by the proxies in the engine when the underlying function
+   * being proxied throws an exception. Generally these wrap the
+   * underlying exceptions so they don't add anything except noise to
+   * the stack traces. Unwrapping the underlying exceptions makes it
+   * much easier to see what actually went wrong.
+   *
+   * @param ex  an exception
+   * @return the underlying cause of the exception
+   */
+  public static Exception getCause(Exception ex) {
+    return exceptionHasMoreMeaningfulCause(ex) ? getCause((Exception) ex.getCause()) : ex;
+  }
+
+  private static boolean exceptionHasMoreMeaningfulCause(Exception ex) {
+    return (ex instanceof InvocationTargetException || ex instanceof UndeclaredThrowableException) &&
+        ex.getCause() != null && ex.getCause() instanceof Exception;
   }
 }

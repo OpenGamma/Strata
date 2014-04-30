@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.apache.shiro.authz.AuthorizationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.function.InvokableFunction;
+import com.opengamma.sesame.function.PermissionDeniedFunction;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphModel;
@@ -175,9 +177,14 @@ public class View implements AutoCloseable {
           function = inputFunction;
           functionInput = input;
         } else if (input instanceof PositionOrTrade) {
-          Security security = ((PositionOrTrade) input).getSecurity();
-          function = functions.get(security.getClass());
-          functionInput = security;
+          try {
+            Security security = ((PositionOrTrade) input).getSecurity();
+            function = functions.get(security.getClass());
+            functionInput = security;
+          } catch (AuthorizationException e) {
+            function = new PermissionDeniedFunction(e.getMessage());
+            functionInput = input;
+          }
         } else {
           function = null;
           functionInput = null;

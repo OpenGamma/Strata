@@ -13,6 +13,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,30 +53,36 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
 
 /**
- * TODO does the engine actually need to exist? all it does is store a couple of fields and create a view
- * could the views be created directly? or should it just be renamed ViewFactory?
+ *
  */
 public class ViewFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewFactory.class);
+
+  private static final String VIEW_CACHE = "ViewCache";
+  private static final AtomicLong s_nextCacheId = new AtomicLong(0);
 
   private final ExecutorService _executor;
   private final ComponentMap _components;
   private final AvailableOutputs _availableOutputs;
   private final AvailableImplementations _availableImplementations;
   private final EnumSet<FunctionService> _defaultServices;
-  private final CacheManager _cacheManager;
+  private final Ehcache _cache;
   private final FunctionModelConfig _defaultConfig;
   private final FunctionBuilder _functionBuilder = new FunctionBuilder();
+  private final CacheManager _cacheManager;
 
   /* package */ ViewFactory(ExecutorService executor,
                             AvailableOutputs availableOutputs,
@@ -89,7 +96,6 @@ public class ViewFactory {
          FunctionService.DEFAULT_SERVICES);
   }
 
-  // TODO parameter to allow arbitrary NodeDecorators to be passed in?
   public ViewFactory(ExecutorService executor,
                      ComponentMap components,
                      AvailableOutputs availableOutputs,
@@ -103,9 +109,11 @@ public class ViewFactory {
     _cacheManager = ArgumentChecker.notNull(cacheManager, "cacheManager");
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _executor = ArgumentChecker.notNull(executor, "executor");
-    // TODO wrap sources in cache aware versions
-    // TODO listen for changes in the source data
     _components = ArgumentChecker.notNull(components, "components");
+    String cacheName = VIEW_CACHE + s_nextCacheId.getAndIncrement();
+    // TODO configure the cache to not save to disk SSM-259
+    EHCacheUtils.addCache(cacheManager, cacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 
   /**
@@ -156,18 +164,20 @@ public class ViewFactory {
    */
   public View createView(ViewConfig viewConfig, EnumSet<FunctionService> services, Set<Class<?>> inputTypes) {
     NodeDecorator decorator;
+    // TODO the CacheInvalidator needs to be created in ViewFactoryComponentFactory and passed in
+    // that will allow it to be linked to the decorated sources at the point where they're created
     CacheInvalidator cacheInvalidator;
 
     if (services.isEmpty()) {
-      decorator = NodeDecorator.IDENTITY;
+      decorator = ExceptionWrappingProxy.INSTANCE;
       cacheInvalidator = new NoOpCacheInvalidator();
     } else {
       List<NodeDecorator> decorators = Lists.newArrayListWithCapacity(services.size());
       if (services.contains(FunctionService.CACHING)) {
         ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
-        CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, executingMethods);
+        CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, executingMethods);
         decorators.add(cachingDecorator);
-        cacheInvalidator = new DefaultCacheInvalidator(executingMethods, cachingDecorator.getCache());
+        cacheInvalidator = new DefaultCacheInvalidator(executingMethods, _cache);
       } else {
         cacheInvalidator = new NoOpCacheInvalidator();
       }
@@ -177,11 +187,11 @@ public class ViewFactory {
       if (services.contains(FunctionService.TRACING)) {
         decorators.add(TracingProxy.INSTANCE);
       }
+      // Ensure we always have the exception wrapping
+      // behaviour, whether or not it is passed
+      decorators.add(ExceptionWrappingProxy.INSTANCE);
       decorator = CompositeNodeDecorator.compose(decorators);
     }
-
-    // TODO everything below here could move into the View constructor
-
     SourceListener sourceListener = new SourceListener();
     Pair<ComponentMap, Collection<ChangeManager>> pair = decorateSources(_components, cacheInvalidator, sourceListener);
     ComponentMap components = pair.getFirst();
@@ -204,15 +214,17 @@ public class ViewFactory {
   }
 
   /**
+   * TODO this needs to move into ViewFactoryComponentFactory so the service context has the decorated sources
    * Decorates the sources with cache aware versions that register when data is queried so cache entries can be
    * invalidated when it changes. The returned component map contains the cache aware sources in place of the originals.
    * The returns collection contains the change managers for all decorated sources. This allows listeners to
    * be removed when the view closes and prevents a resource leak.
+   *
    * @param components Platform components used by functions
    * @param cacheInvalidator For registering dependencies between values in the cache and the values used to calculate them
    * @param sourceListener Listens for changes in items in the database
    * @return A map of components containing the decorated sources instead of the originals, and a collection of
-   * change managers which had a listener added to them
+   *   change managers which had a listener added to them
    */
   private static Pair<ComponentMap, Collection<ChangeManager>> decorateSources(ComponentMap components,
                                                                                CacheInvalidator cacheInvalidator,
@@ -257,6 +269,13 @@ public class ViewFactory {
       changeManager.addChangeListener(sourceListener);
     }
     return Pairs.of(components, changeManagers);
+  }
+
+  /**
+   * Closes this factory and removes its cache from the cache manager.
+   */
+  public void close() {
+    _cacheManager.removeCache(_cache.getName());
   }
 
   //----------------------------------------------------------

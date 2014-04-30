@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean type="com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition">
+ <uniqueId>DbCfg~2261220~543</uniqueId>
+ <name>USD DiscountingDiscountFactorNodes</name>
+ <nodes>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P7D</tenor>
+   </item>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P1M</tenor>
+   </item>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P3M</tenor>
+   </item>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P6M</tenor>
+   </item>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P1Y</tenor>
+   </item>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P2Y</tenor>
+   </item>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P3Y</tenor>
+   </item>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P5Y</tenor>
+   </item>
+   <item type="com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode">
+     <curveNodeIdMapperName>USD OIS Node Mapper</curveNodeIdMapperName>
+     <tenor>P10Y</tenor>
+   </item>
+  </nodes>
+
+ <interpolatorName>Linear</interpolatorName>
+ <rightExtrapolatorName>FlatExtrapolator</rightExtrapolatorName>
+ <leftExtrapolatorName>FlatExtrapolator</leftExtrapolatorName>
+</bean>
