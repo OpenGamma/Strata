@@ -32,7 +32,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 /**
  * Responsible for determining what SABR data is required for
  * the trade/security that is passed. Contains a map from
- * security to he SABR config to be used.
+ * security to the SABR config to be used.
  */
 @BeanDefinition
 @Config(group = "SABR Params", description = "SABR Config Selector")
