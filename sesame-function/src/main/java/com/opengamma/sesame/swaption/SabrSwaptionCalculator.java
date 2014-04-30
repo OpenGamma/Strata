@@ -30,7 +30,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Calculator for swaptions using SABR volatility data.
  */
-public class SABRSwaptionCalculator implements SwaptionCalculator {
+public class SabrSwaptionCalculator implements SwaptionCalculator {
 
   /**
    * Provides scaling to/from basis points.
@@ -94,7 +94,7 @@ public class SABRSwaptionCalculator implements SwaptionCalculator {
    * @param block the curve building block for the multicurve bundle, not null
    * @param sabrInterestRateParameters the SABR parameter data, not null
    */
-  public SABRSwaptionCalculator(SwaptionPhysicalFixedIbor swaption,
+  public SabrSwaptionCalculator(SwaptionPhysicalFixedIbor swaption,
                                 SABRSwaptionProviderDiscount bundle,
                                 CurveBuildingBlockBundle block,
                                 SABRInterestRateParameters sabrInterestRateParameters) {

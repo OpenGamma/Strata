@@ -3,17 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.swaption;
+package com.opengamma.sesame.sabr;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Holds the configuration required for using SABR parameters for
+ * Holds the complete configuration required for using SABR parameters for
  * volatility data.
  */
-public class SABRParametersConfig {
+public class SabrParametersConfiguration {
 
   /**
    * The sabr data, not null.
@@ -31,7 +31,7 @@ public class SABRParametersConfig {
    * @param sabrParameters the sabr data, not null
    * @param swapConvention the swap convention to be used, not null
    */
-  public SABRParametersConfig(SABRInterestRateParameters sabrParameters, GeneratorSwapFixedIbor swapConvention) {
+  public SabrParametersConfiguration(SABRInterestRateParameters sabrParameters, GeneratorSwapFixedIbor swapConvention) {
     _sabrParameters = ArgumentChecker.notNull(sabrParameters, "sabrParameters");
     _swapConvention = ArgumentChecker.notNull(swapConvention, "swapConvention");
   }
@@ -48,7 +48,7 @@ public class SABRParametersConfig {
   /**
    * Get the swap convention to be used.
    *
-   * @returnthe swap convention, not null
+   * @return the swap convention, not null
    */
   public GeneratorSwapFixedIbor getSwapConvention() {
     return _swapConvention;
