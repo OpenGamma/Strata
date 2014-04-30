@@ -25,7 +25,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.springframework.core.io.ClassPathResource;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
@@ -51,7 +51,6 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
-import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
@@ -136,7 +135,7 @@ public class DiscountingMulticurveBundleFnTest {
 
   private CurveConstructionConfiguration _usdDiscountingCCC;
 
-  @BeforeTest
+  @BeforeClass
   public void init() throws IOException {
     //builds graph, initializing mocks
     

@@ -16,13 +16,14 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculate PV and a par rate for a Swap.
+ * Calculate analytics values for a Swap.
  */
 public interface InterestRateSwapFn {
 
   /**
    * Calculate the par rate for a Swap security.
    *
+   * @param env the environment used for calculation
    * @param security the Swap to calculate the rate for
    * @return result containing the rate if successful, a Failure otherwise
    */
@@ -32,6 +33,7 @@ public interface InterestRateSwapFn {
   /**
    * Calculate the present value for a Swap security.
    *
+   * @param env the environment used for calculation
    * @param security the Swap to calculate the PV for
    * @return result containing the present value if successful, a Failure otherwise
    */
@@ -41,7 +43,7 @@ public interface InterestRateSwapFn {
   /**
    * Calculate the PV01 for a Swap security.
    *
-   *
+   * @param env the environment used for calculation
    * @param security the Swap to calculate the PV01 for
    * @return result containing the PV01 if successful, a Failure otherwise
    */

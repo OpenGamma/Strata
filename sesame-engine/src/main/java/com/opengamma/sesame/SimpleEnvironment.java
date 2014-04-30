@@ -109,9 +109,17 @@ public final class SimpleEnvironment implements Environment {
       return false;
     }
     final SimpleEnvironment other = (SimpleEnvironment) obj;
-    return
-        Objects.equals(this._valuationTime, other._valuationTime) &&
-        Objects.equals(this._marketDataSource, other._marketDataSource) &&
-        Objects.equals(this._scenarioArguments, other._scenarioArguments);
+    return Objects.equals(this._valuationTime, other._valuationTime) &&
+           Objects.equals(this._marketDataSource, other._marketDataSource) &&
+           Objects.equals(this._scenarioArguments, other._scenarioArguments);
+  }
+
+  @Override
+  public String toString() {
+    return "SimpleEnvironment [" +
+        "_valuationTime=" + _valuationTime +
+        ", _marketDataSource=" + _marketDataSource +
+        ", _scenarioArguments=" + _scenarioArguments +
+        "]";
   }
 }

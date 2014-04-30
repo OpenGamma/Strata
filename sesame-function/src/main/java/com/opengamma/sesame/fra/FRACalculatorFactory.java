@@ -5,24 +5,22 @@
  */
 package com.opengamma.sesame.fra;
 
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.Result;
 
-public class FRACalculatorFactory {
+/**
+ * Factory for creating a calculator for a FRA.
+ */
+public interface FRACalculatorFactory {
 
   /**
-   * Converter for a FRA.
+   * Creates the calculator for the supplied fra.
+   *
+   * @param env the current environment, not null
+   * @param security the fra to create a calculator for, not null
+   * @return result containing the calculator if successfully created, a failure result otherwise
    */
-  private final FRASecurityConverter _fraConverter;
-
-  public FRACalculatorFactory(FRASecurityConverter fraConverter) {
-    _fraConverter = ArgumentChecker.notNull(fraConverter, "fraConverter");
-  }
-
-  public FRACalculator createCalculator(Environment env, FRASecurity security, MulticurveProviderDiscount bundle) {
-    return new FRACalculator(security, bundle, _fraConverter, env.getValuationTime());
-  }
+  Result<FRACalculator> createCalculator(Environment env, FRASecurity security);
 }

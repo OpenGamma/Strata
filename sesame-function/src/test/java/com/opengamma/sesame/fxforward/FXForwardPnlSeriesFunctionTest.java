@@ -100,6 +100,9 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
+import com.opengamma.sesame.pnl.HistoricalPnLFXConverterFn;
+import com.opengamma.sesame.pnl.PnLPeriodBound;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -214,6 +217,8 @@ public class FXForwardPnlSeriesFunctionTest {
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfig", exposureConfig)),
+                function(DefaultHistoricalPnLFXConverterFn.class,
+                         argument("periodBound", PnLPeriodBound.START)),
                 function(DiscountingFXForwardSpotPnLSeriesFn.class,
                          argument("useHistoricalSpot", true),
                          argument("dateRange", range),
@@ -254,7 +259,8 @@ public class FXForwardPnlSeriesFunctionTest {
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                             MarketDataFn.class, DefaultMarketDataFn.class,
-                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
+                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                            HistoricalPnLFXConverterFn.class, DefaultHistoricalPnLFXConverterFn.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {

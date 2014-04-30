@@ -5,27 +5,21 @@
  */
 package com.opengamma.sesame.irs;
 
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.Result;
 
-public class InterestRateSwapCalculatorFactory {
+/**
+ * Factory for creating a calculator for a InterestRateSwap.
+ */
+public interface InterestRateSwapCalculatorFactory {
 
   /**
-   * Converter for a Swap
+   * Creates the calculator for the supplied InterestRateSwap.
+   *
+   * @param env the current environment, not null
+   * @param security the fra to create a calculator for, not null
+   * @return result containing the calculator if successfully created, a failure result otherwise
    */
-  private final InterestRateSwapSecurityConverter _swapConverter;
-
-  public InterestRateSwapCalculatorFactory(InterestRateSwapSecurityConverter swapConverter) {
-    _swapConverter = ArgumentChecker.notNull(swapConverter, "swapConverter");
-  }
-
-  public InterestRateSwapCalculator createCalculator(Environment env,
-                                                     InterestRateSwapSecurity security,
-                                                     MulticurveProviderDiscount bundle) {
-    return new InterestRateSwapCalculator(security, bundle, _swapConverter, env.getValuationTime());
-  }
-
+  Result<InterestRateSwapCalculator> createCalculator(Environment env, InterestRateSwapSecurity security);
 }

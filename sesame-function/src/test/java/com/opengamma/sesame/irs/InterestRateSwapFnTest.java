@@ -102,13 +102,15 @@ public class InterestRateSwapFnTest {
   private static final double STD_TOLERANCE_PV01 = 1.0E-5; //TODO What is the correct tolerance here
 
   private static final double EXPECTED_PV = -16376.245; //TODO What is the correct PV here
+  private static final double EXPECTED_PV2 = -23949.702; //TODO What is the correct PV here
   private static final double EXPECTED_PAR_RATE = 0.0000; //TODO What is the correct par rate here
   private static final double EXPECTED_PV01 = 0.0000; //TODO What is the correct PV here
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
 
   private InterestRateSwapFn _swapFunction;
-  private InterestRateSwapSecurity _swapSecurity = createSingleSwap();
+  private InterestRateSwapSecurity _swapSecurity = createSingleSwap(LocalDate.of(2014, 3, 19), LocalDate.of(2015, 3, 18));
+  private InterestRateSwapSecurity _swapSecurity2 = createSingleSwap(LocalDate.of(2013, 3, 19), LocalDate.of(2015, 3, 18));
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
       _interestRateMockSources.createMarketDataSource());
 
@@ -129,11 +131,11 @@ public class InterestRateSwapFnTest {
                      argument("htsRetrievalPeriod",  RetrievalPeriod.of(Period.ofYears(1)))),
             function(DefaultDiscountingMulticurveBundleFn.class,
                      argument("impliedCurveNames",StringSet.of()))),
-        implementations(InterestRateSwapFn.class, DiscountingInterestRateInterestRateSwapFn.class,
+        implementations(InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
                         CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                        InterestRateSwapCalculatorFn.class, InterestRateSwapDiscountingCalculatorFn.class,
-                        InterestRateSwapCalculatorFactory.class, InterestRateSwapCalculatorFactory.class,
+                        InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class,
+                        InterestRateSwapCalculator.class, DiscountingInterestRateSwapCalculator.class,
                         CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
                         FXMatrixFn.class, DefaultFXMatrixFn.class,
                         DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
@@ -153,7 +155,7 @@ public class InterestRateSwapFnTest {
     _swapFunction = FunctionModel.build(InterestRateSwapFn.class, config, ComponentMap.of(components));
   }
 
-  private InterestRateSwapSecurity createSingleSwap() {
+  private InterestRateSwapSecurity createSingleSwap(LocalDate effectiveDate, LocalDate maturityDate) {
 
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1_000_000);
 
@@ -201,18 +203,27 @@ public class InterestRateSwapFnTest {
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
         "test swap",
-        LocalDate.of(2014, 3, 19), // effective date
-        LocalDate.of(2015, 3, 18), // maturity date,
+        effectiveDate, // effective date
+        maturityDate, // maturity date,
         legs);
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   public void interestRateSwapPV() {
     Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(ENV, _swapSecurity);
     assertThat(resultPV.isSuccess(), is((true)));
 
     MultipleCurrencyAmount mca = resultPV.getValue();
     assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
+  }
+
+  @Test(enabled = true)
+  public void interestRateSwapPV2() {
+    Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(ENV, _swapSecurity2);
+    assertThat(resultPV.isSuccess(), is((true)));
+
+    MultipleCurrencyAmount mca = resultPV.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV2, STD_TOLERANCE_PV)));
   }
 
   @Test(enabled = false)

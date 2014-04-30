@@ -4,6 +4,9 @@ install: true
 script:  mvn package --settings .travis-settings.xml -B -V
 jdk:
 - openjdk7
+branches:
+  except:
+    - /^wip\/.*/
 notifications:
   hipchat:
     rooms:
