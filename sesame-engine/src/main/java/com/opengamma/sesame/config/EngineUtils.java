@@ -8,8 +8,10 @@ package com.opengamma.sesame.config;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -302,5 +304,27 @@ public final class EngineUtils {
       securityTypes.add(security.getClass());
     }
     return securityTypes;
+  }
+
+
+  /**
+   * Returns the cause of an exception if it's an {@link InvocationTargetException} or an
+   * {@link UndeclaredThrowableException}. These are the exception types that always wrap
+   * the underlying exceptions throw inside a proxy so they don't add anything except
+   * noise to the stack traces. Unwrapping the underlying exceptions makes it much easier
+   * to see what actually went wrong.
+   *
+   * @param ex an exception
+   * @return the underlying cause of the exception
+   */
+  public static Exception getCause(Exception ex) {
+    if (!(ex instanceof InvocationTargetException) && !(ex instanceof UndeclaredThrowableException)) {
+      return ex;
+    }
+    if (ex.getCause() != null && ex.getCause() instanceof Exception) {
+      return getCause((Exception) ex.getCause());
+    } else {
+      return ex;
+    }
   }
 }
