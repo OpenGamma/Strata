@@ -53,6 +53,7 @@ import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
+import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
@@ -168,7 +169,7 @@ public class ViewFactory {
     CacheInvalidator cacheInvalidator;
 
     if (services.isEmpty()) {
-      decorator = NodeDecorator.IDENTITY;
+      decorator = ExceptionWrappingProxy.INSTANCE;
       cacheInvalidator = new NoOpCacheInvalidator();
     } else {
       List<NodeDecorator> decorators = Lists.newArrayListWithCapacity(services.size());
@@ -186,6 +187,9 @@ public class ViewFactory {
       if (services.contains(FunctionService.TRACING)) {
         decorators.add(TracingProxy.INSTANCE);
       }
+      // Ensure we always have the exception wrapping
+      // behaviour, whether or not it is passed
+      decorators.add(ExceptionWrappingProxy.INSTANCE);
       decorator = CompositeNodeDecorator.compose(decorators);
     }
     SourceListener sourceListener = new SourceListener();

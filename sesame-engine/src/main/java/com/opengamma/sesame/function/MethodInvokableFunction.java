@@ -7,7 +7,6 @@ package com.opengamma.sesame.function;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -98,7 +97,7 @@ import com.opengamma.util.result.Result;
     } catch (IllegalAccessException e) {
       throw new OpenGammaRuntimeException("Unable to access method", e);
     } catch (InvocationTargetException e) {
-      Exception cause = getCause(e);
+      Exception cause = EngineUtils.getCause(e);
       String methodName = _method.getDeclaringClass().getSimpleName() + "." + _method.getName() + "()";
       s_logger.warn("Exception invoking " + methodName, cause);
       return Result.failure(cause);
@@ -147,26 +146,6 @@ import com.opengamma.util.result.Result;
     }
     result = Result.failure(FailureStatus.MISSING_ARGUMENT, message);
     return result;
-  }
-
-  /**
-   * Returns the cause of an exception if it's an {@link InvocationTargetException} or an
-   * {@link UndeclaredThrowableException}. These are the exception types that always wrap the underlying exceptions
-   * throw inside a proxy so they don't add anything except noise to the stack traces. Unwrapping the underlying
-   * exceptions makes it much easier to see what actually went wrong.
-   *
-   * @param e an exception
-   * @return the underlying cause of the exception
-   */
-  private static Exception getCause(Exception e) {
-    if (!(e instanceof InvocationTargetException) && !(e instanceof UndeclaredThrowableException)) {
-      return e;
-    }
-    if (e.getCause() != null && e.getCause() instanceof Exception) {
-      return getCause((Exception) e.getCause());
-    } else {
-      return e;
-    }
   }
 
   /**
