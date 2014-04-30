@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.swaption;
+package com.opengamma.sesame.sabr;
 
 import java.util.Map;
 import java.util.NoSuchElementException;

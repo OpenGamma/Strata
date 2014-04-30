@@ -42,10 +42,7 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.sesame.swaption.SabrParametersConfiguration;
-import com.opengamma.sesame.swaption.SabrSwaptionInterpolationConfig;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Triple;
@@ -206,7 +203,8 @@ public class SabrSwaptionConfig implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the sabr data
+   * Gets link pointing to a config object holding the SABR surface
+   * data required for pricing swaptions.
    * @return the value of the property, not null
    */
   public ConfigLink<SabrSwaptionDataConfig> getSabrDataConfig() {
@@ -215,7 +213,8 @@ public class SabrSwaptionConfig implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the sabrInterpolationConfig.
+   * Gets link pointing to a config object holding the interpolation
+   * required for SABR surfaces.
    * @return the value of the property, not null
    */
   public ConfigLink<SabrSwaptionInterpolationConfig> getSabrInterpolationConfig() {

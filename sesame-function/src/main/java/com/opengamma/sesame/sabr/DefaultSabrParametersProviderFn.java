@@ -3,14 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.swaption;
+package com.opengamma.sesame.sabr;
 
 import javax.annotation.Nonnull;
 
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.sabr.SabrConfigSelector;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
@@ -21,7 +20,7 @@ import com.opengamma.util.result.Result;
  * uses that to get the SABR data.
  */
 @Nonnull
-public class DefaultSABRParametersProviderFn implements SABRParametersProviderFn {
+public class DefaultSabrParametersProviderFn implements SabrParametersProviderFn {
 
   /**
    * The name of the configuration which contains the SABR
@@ -38,7 +37,7 @@ public class DefaultSABRParametersProviderFn implements SABRParametersProviderFn
    * @param configurationName  the name of a {@link SabrConfigSelector}
    * config object, not null
    */
-  public DefaultSABRParametersProviderFn(String configurationName) {
+  public DefaultSabrParametersProviderFn(String configurationName) {
     _configurationName = ArgumentChecker.notNull(configurationName, "_configurationName");
   }
 

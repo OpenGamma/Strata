@@ -28,18 +28,9 @@ import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
@@ -49,7 +40,6 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSou
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -95,6 +85,8 @@ import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.sabr.DefaultSabrParametersProviderFn;
+import com.opengamma.sesame.sabr.SabrParametersProviderFn;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -139,15 +131,15 @@ public class SwaptionFnTest {
             function(DefaultHistoricalTimeSeriesFn.class,
                      argument("resolutionKey", "DEFAULT_TSS"),
                      argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
-            function(DefaultSABRParametersProviderFn.class,
+            function(DefaultSabrParametersProviderFn.class,
                      argument("configurationName", "TEST_SABR")),
             function(DefaultDiscountingMulticurveBundleFn.class,
                      argument("impliedCurveNames", StringSet.of()))
         ),
-        implementations(SwaptionFn.class, SABRSwaptionFn.class,
+        implementations(SwaptionFn.class, SabrSwaptionFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                        SwaptionCalculatorFactory.class, SABRSwaptionCalculatorFactory.class,
-                        SABRParametersProviderFn.class, DefaultSABRParametersProviderFn.class,
+                        SwaptionCalculatorFactory.class, SabrSwaptionCalculatorFactory.class,
+                        SabrParametersProviderFn.class, DefaultSabrParametersProviderFn.class,
                         CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
                         FXMatrixFn.class, DefaultFXMatrixFn.class,
                         DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,

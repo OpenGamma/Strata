@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.swaption;
+package com.opengamma.sesame.sabr;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.Environment;
@@ -13,7 +13,7 @@ import com.opengamma.util.result.Result;
  * Provides a set of SABR parameters based on the
  * security passed.
  */
-public interface SABRParametersProviderFn {
+public interface SabrParametersProviderFn {
 
   /**
    * Retrieve the SABR parameters from a source of data.

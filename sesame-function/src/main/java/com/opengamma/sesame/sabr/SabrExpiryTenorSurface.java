@@ -184,7 +184,7 @@ public final class SabrExpiryTenorSurface implements ImmutableBean, NamedSnapsho
   /**
    * Gets the points forming the surface. There must be at least one point
    * specified. Sorted so that viewing in a UI is straightforward and
-   * creating analytics objects is simple.
+   * creating analytics objects is straightforward.
    * @return the value of the property, not null
    */
   public List<SabrNode> getSabrData() {

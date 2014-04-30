@@ -104,7 +104,7 @@ import com.opengamma.sesame.sabr.SabrExpiryTenorSurface;
 import com.opengamma.sesame.sabr.SabrNode;
 import com.opengamma.sesame.sabr.SabrSurfaceSelector;
 import com.opengamma.sesame.sabr.SabrSwaptionDataConfig;
-import com.opengamma.sesame.swaption.SabrSwaptionInterpolationConfig;
+import com.opengamma.sesame.sabr.SabrSwaptionInterpolationConfig;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -257,21 +257,77 @@ public class InterestRateMockSources {
     Set<CurveNode> nodes = new TreeSet<>();
     nodes.add(new CashNode(Tenor.ofDays(0), Tenor.OVERNIGHT, _discConventionId, USD_DISC_MAPPER));
     nodes.add(new CashNode(Tenor.OVERNIGHT, Tenor.OVERNIGHT, _discConventionId, USD_DISC_OVERNIGHT_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ONE_MONTH, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TWO_MONTHS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.ONE_MONTH,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.TWO_MONTHS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.THREE_MONTHS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.SIX_MONTHS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.NINE_MONTHS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ONE_YEAR, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TWO_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.THREE_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.FOUR_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.FIVE_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.SIX_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.SEVEN_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.EIGHT_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.NINE_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TEN_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.SIX_MONTHS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.NINE_MONTHS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.ONE_YEAR,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.TWO_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.THREE_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.FOUR_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.FIVE_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.SIX_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.SEVEN_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.EIGHT_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.NINE_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0),
+                           Tenor.TEN_YEARS,
+                           _discPayLegConventionId,
+                           _discReceiveLegConventionId,
+                           USD_DISC_MAPPER));
     return new InterpolatedCurveDefinition(ON_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 

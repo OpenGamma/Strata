@@ -20,6 +20,8 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.sabr.SabrParametersConfiguration;
+import com.opengamma.sesame.sabr.SabrParametersProviderFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -27,7 +29,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Factory class for creating a calculator for a swaption using SABR data.
  */
-public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory {
+public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory {
 
   /**
    * Converter for transforming a swaption into its derivative form.
@@ -54,7 +56,7 @@ public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
   /**
    * Function used to retrieve SABR parameter data.
    */
-  private final SABRParametersProviderFn _sabrParametersProviderFn;
+  private final SabrParametersProviderFn _sabrParametersProviderFn;
 
   /**
    * Creates the factory.
@@ -69,11 +71,11 @@ public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
    * @param sabrParametersProviderFn function used to retrieve SABR parameter
    * data, not null
    */
-  public SABRSwaptionCalculatorFactory(FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+  public SabrSwaptionCalculatorFactory(FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                        DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
                                        SwaptionSecurityConverter swaptionSecurityConverter,
                                        HistoricalTimeSeriesFn htsFn,
-                                       SABRParametersProviderFn sabrParametersProviderFn) {
+                                       SabrParametersProviderFn sabrParametersProviderFn) {
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
     _discountingMulticurveCombinerFn =
@@ -105,7 +107,7 @@ public class SABRSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
       SabrParametersConfiguration sabrConfig = sabrResult.getValue();
 
       SwaptionCalculator calculator =
-          new SABRSwaptionCalculator(swaption, buildSabrBundle(multicurveBundle, sabrConfig), blockBundle, sabrConfig.getSabrParameters());
+          new SabrSwaptionCalculator(swaption, buildSabrBundle(multicurveBundle, sabrConfig), blockBundle, sabrConfig.getSabrParameters());
 
       return Result.success(calculator);
     } else {

@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.config.Config;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.sesame.swaption.SabrParametersConfiguration;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import org.joda.beans.Bean;
@@ -33,7 +32,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 /**
  * Responsible for determining what SABR data is required for
  * the trade/security that is passed. Contains a map from
- * security to 
+ * security to he SABR config to be used.
  */
 @BeanDefinition
 @Config(group = "SABR Params", description = "SABR Config Selector")
@@ -42,14 +41,21 @@ public class SabrConfigSelector implements ImmutableBean {
   @PropertyDefinition
   private final Map<Class<? extends FinancialSecurity>, SabrSwaptionConfig> _configurations;
 
+  /**
+   * Get the SABR config to use for a particular security.
+   *
+   * @param security the security to find the config for
+   * @return Result containing the configuration to use
+   * if available, a FailureResult otherwise
+   */
   public Result<SabrParametersConfiguration> getSabrConfig(FinancialSecurity security) {
 
     if (_configurations.containsKey(security.getClass())) {
       SabrSwaptionConfig config = _configurations.get(security.getClass());
       return config.createSABRParametersConfig((SwaptionSecurity) security);
     } else {
-      return Result.failure(FailureStatus.MISSING_DATA,
-                            "Unable to get SABR config for security of type: {}", security.getClass());
+      return Result.failure(
+          FailureStatus.MISSING_DATA, "Unable to get SABR config for security of type: {}", security.getClass());
     }
   }
 

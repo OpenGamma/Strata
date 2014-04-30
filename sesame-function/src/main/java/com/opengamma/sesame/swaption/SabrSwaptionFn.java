@@ -18,9 +18,9 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculate analytics values for a swaption using discounting methods.
+ * Calculate analytics values for a swaption using SABR model.
  */
-public class SABRSwaptionFn implements SwaptionFn {
+public class SabrSwaptionFn implements SwaptionFn {
 
   /**
    * Function which will generate a calculator for a swaption security, not null.
@@ -33,7 +33,7 @@ public class SABRSwaptionFn implements SwaptionFn {
    * @param swaptionCalculatorFactory function which will generate a calculator
    * for a swaption security, not null
    */
-  public SABRSwaptionFn(SwaptionCalculatorFactory swaptionCalculatorFactory) {
+  public SabrSwaptionFn(SwaptionCalculatorFactory swaptionCalculatorFactory) {
     _swaptionCalculatorFactory = ArgumentChecker.notNull(swaptionCalculatorFactory, "swaptionCalculatorFactory");
   }
 
