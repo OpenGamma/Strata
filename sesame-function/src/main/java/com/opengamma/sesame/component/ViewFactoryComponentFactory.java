@@ -129,8 +129,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
                            MAX_CACHE_ENTRIES;
 
     int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    Cache<MethodInvocationKey, FutureTask<Object>> cache
-        = CacheBuilder.newBuilder().maximumSize(maxCacheEntries).concurrencyLevel(concurrencyLevel).build();
+    Cache<MethodInvocationKey, FutureTask<Object>> cache =
+        CacheBuilder.newBuilder().maximumSize(maxCacheEntries).concurrencyLevel(concurrencyLevel).build();
     ViewFactory viewFactory = new ViewFactory(executor,
                                               componentMap,
                                               availableOutputs,
