@@ -42,7 +42,6 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.link.ConventionLink;
@@ -96,17 +95,18 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.MarketdataResourcesLoader;
+import com.opengamma.sesame.holidays.USDHolidaySource;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.LDClient;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
-import com.opengamma.sesame.sabr.SabrSwaptionConfig;
 import com.opengamma.sesame.sabr.SabrConfigSelector;
 import com.opengamma.sesame.sabr.SabrExpiryTenorSurface;
 import com.opengamma.sesame.sabr.SabrNode;
 import com.opengamma.sesame.sabr.SabrSurfaceSelector;
+import com.opengamma.sesame.sabr.SabrSwaptionConfig;
 import com.opengamma.sesame.sabr.SabrSwaptionDataConfig;
 import com.opengamma.sesame.sabr.SabrSwaptionInterpolationConfig;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -421,11 +421,14 @@ public class InterestRateMockSources {
     when(mock.getHistoricalTimeSeries(anyString(), eq(getLiborIndexId().toBundle()), anyString(),
                                       any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
         .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", LIBOR_INDEX), series.build()));
+    when(mock.getHistoricalTimeSeries(anyString(), eq(getOvernightIndexId().toBundle()), anyString(),
+                                      any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
+        .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", USD_OVERNIGHT_CONVENTION), series.build()));
     return mock;
   }
 
   private HolidaySource mockHolidaySource() {
-    return new WeekendHolidaySource();
+    return new USDHolidaySource();
   }
 
   private RegionSource mockRegionSource() {
