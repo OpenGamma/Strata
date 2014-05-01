@@ -35,7 +35,7 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
   /**
    * The multicurve bundle.
    */
-  private final MulticurveProviderInterface _bundle;
+  private final MulticurveProviderInterface _multicurve;
   
   /**
    * Constructs a calculator using the discounting method.
@@ -53,12 +53,12 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
                                                     FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                     HistoricalTimeSeriesBundle tsBundle) {
     _derivative = createInstrumentDerivative(trade, converter, valDateTime, definitionToDerivativeConverter, tsBundle);
-    _bundle = multicurve;
+    _multicurve = multicurve;
   }
  
   @Override
   public Result<Double> calculateSecurityModelPrice() {
-    return Result.success(_derivative.accept(MQDC, _bundle));
+    return Result.success(_derivative.accept(MQDC, _multicurve));
   }
   
   /**
