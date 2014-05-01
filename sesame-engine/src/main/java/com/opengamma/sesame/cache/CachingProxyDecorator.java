@@ -12,12 +12,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.sesame.Environment;
@@ -32,9 +32,6 @@ import com.opengamma.sesame.proxy.InvocationHandlerFactory;
 import com.opengamma.sesame.proxy.ProxyInvocationHandler;
 import com.opengamma.util.ArgumentChecker;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-
 /**
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  * TODO thorough docs for the basis of caching, i.e. has to be the same function instance but instances are shared
@@ -43,7 +40,7 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 
-  private final Ehcache _cache;
+  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
   private final ExecutingMethodsThreadLocal _executingMethods;
 
   /**
@@ -51,7 +48,8 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
    * @param executingMethods records the currently executing methods and allows cache entries to be removed when
    *   the underlying data used to calculate them changes
    */
-  public CachingProxyDecorator(Ehcache cache, ExecutingMethodsThreadLocal executingMethods) {
+  public CachingProxyDecorator(Cache<MethodInvocationKey, FutureTask<Object>> cache,
+                               ExecutingMethodsThreadLocal executingMethods) {
     _cache = ArgumentChecker.notNull(cache, "cache");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
   }
@@ -106,18 +104,20 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
 
   /**
    * Creates an instance of {@link Handler} when the graph is built.
+   * The handler is invoked when a cacheable method is called and takes care of returning a cached result
+   * or calculating one and putting it in the cache.
    */
   private static final class CachingHandlerFactory implements InvocationHandlerFactory {
 
     private final Class<?> _interfaceType;
     private final Class<?> _implementationType;
-    private final Ehcache _cache;
+    private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
     private final Set<Class<?>> _subtreeTypes;
 
     private CachingHandlerFactory(Class<?> implementationType,
                                   Class<?> interfaceType,
-                                  Ehcache cache,
+                                  Cache<MethodInvocationKey, FutureTask<Object>> cache,
                                   ExecutingMethodsThreadLocal executingMethods,
                                   Set<Class<?>> subtreeTypes) {
       _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
@@ -188,13 +188,13 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
     private final Object _delegate;
     private final Object _proxiedObject;
     private final Set<Method> _cachedMethods;
-    private final Ehcache _cache;
+    private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
     private final ExecutingMethodsThreadLocal _executingMethods;
     private final Set<Class<?>> _subtreeTypes;
 
     private Handler(Object delegate,
                     Set<Method> cachedMethods,
-                    Ehcache cache,
+                    Cache<MethodInvocationKey, FutureTask<Object>> cache,
                     ExecutingMethodsThreadLocal executingMethods,
                     Set<Class<?>> subtreeTypes) {
       super(delegate);
@@ -212,14 +212,13 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
       if (_cachedMethods.contains(method)) {
         Object[] keyArgs = getArgumentsForCacheKey(args);
         MethodInvocationKey key = new MethodInvocationKey(_proxiedObject, method, keyArgs);
-        Element element = _cache.get(key);
-        if (element != null) {
-          FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
+        FutureTask<Object> cachedTask = _cache.getIfPresent(key);
+        if (cachedTask != null) {
           s_logger.debug("Returning cached value for key {}", key);
-          return task.get();
+          return cachedTask.get();
         }
         FutureTask<Object> task = new FutureTask<>(new CallableMethod(key, method, args));
-        Element previous = _cache.putIfAbsent(new Element(key, task));
+        FutureTask<Object> previous = _cache.asMap().putIfAbsent(key, task);
         // our task is the one in the cache, run it
         if (previous == null) {
           s_logger.debug("Calculating value for hash {}, key {}", key.hashCode(), key);
@@ -228,7 +227,7 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
         } else {
           // someone else's task is there already, block until it completes
           s_logger.debug("Waiting for cached value to be calculated for key {}", key);
-          return ((Future<Object>) previous.getObjectValue()).get();
+          return previous.get();
         }
       } else {
         try {

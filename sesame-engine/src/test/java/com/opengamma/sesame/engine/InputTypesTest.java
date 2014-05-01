@@ -32,9 +32,6 @@ import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.test.TestGroup;
-
-import net.sf.ehcache.CacheManager;
-
 /**
  * Test that demonstrates functions that take something other than a trade, position or security as their input.
  * It shows the creation of types that wrap a trade and security, functions that accept them and how a view
@@ -56,8 +53,8 @@ public class InputTypesTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              CacheManager.getInstance(),
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCache());
 
     View view = viewFactory.createView(viewConfig, EquityTradeWithSecurity.class, CashFlowTradeWithSecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mock(MarketDataSource.class));

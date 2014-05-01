@@ -12,7 +12,6 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.util.EnumSet;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
@@ -28,22 +27,13 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.util.ehcache.EHCacheUtils;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Tests the behaviour of {@link ViewFactory} WRT cache behaviour.
  */
 public class ViewFactoryCacheTest {
 
-  private CacheManager _cacheManager;
-
-  @BeforeClass
-  public void setUpClass() {
-    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
-  }
-
+  /**
   /**
    * checks that cached values created by a view are available next time it's run.
    */
@@ -93,8 +83,8 @@ public class ViewFactoryCacheTest {
                            availableOutputs,
                            availableImplementations,
                            FunctionModelConfig.EMPTY,
-                           _cacheManager,
-                           EnumSet.of(FunctionService.CACHING));
+                           EnumSet.of(FunctionService.CACHING),
+                           EngineTestUtils.createCache());
   }
 
   public interface TestFn {

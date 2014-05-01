@@ -10,8 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import net.sf.ehcache.CacheManager;
+import java.util.concurrent.FutureTask;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
@@ -26,6 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -48,6 +49,7 @@ import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -73,11 +75,16 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * Component factory for the engine.
  */
 @BeanDefinition
 public class ViewFactoryComponentFactory extends AbstractComponentFactory {
+
+  /** The default maximum size of the view factory cache if none is specified in the config. */
+  private static final long MAX_CACHE_ENTRIES = 100_000;
 
   /**
    * The classifier that the factory should publish under.
@@ -87,14 +94,20 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   /**
    * The cache manager.
+   * @deprecated This isn't used any more
    */
-  @PropertyDefinition(validate = "notNull")
+  @Deprecated
+  @PropertyDefinition
   private CacheManager _cacheManager;
   /**
    * For obtaining the live market data provider names.
    */
   @PropertyDefinition
   private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
+
+  /** Maximum number of entries to store in the cache. */
+  @PropertyDefinition
+  private Long _maxCacheEntries;
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -111,15 +124,20 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
     AvailableOutputs availableOutputs = initAvailableOutputs();
     AvailableImplementations availableImplementations = initAvailableImplementations();
+    long maxCacheEntries = _maxCacheEntries != null ?
+                           _maxCacheEntries :
+                           MAX_CACHE_ENTRIES;
 
+    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
+    Cache<MethodInvocationKey, FutureTask<Object>> cache =
+        CacheBuilder.newBuilder().maximumSize(maxCacheEntries).concurrencyLevel(concurrencyLevel).build();
     ViewFactory viewFactory = new ViewFactory(executor,
                                               componentMap,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              getCacheManager(),
-                                              //EnumSet.of(EngineService.CACHING, EngineService.TIMING));
-                                              FunctionService.DEFAULT_SERVICES);
+                                              FunctionService.DEFAULT_SERVICES,
+                                              cache);
 
     ComponentInfo engineInfo = new ComponentInfo(ViewFactory.class, getClassifier());
     repo.registerComponent(engineInfo, viewFactory);
@@ -245,25 +263,30 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the cache manager.
-   * @return the value of the property, not null
+   * @deprecated This isn't used any more
+   * @return the value of the property
    */
+  @Deprecated
   public CacheManager getCacheManager() {
     return _cacheManager;
   }
 
   /**
    * Sets the cache manager.
-   * @param cacheManager  the new value of the property, not null
+   * @deprecated This isn't used any more
+   * @param cacheManager  the new value of the property
    */
+  @Deprecated
   public void setCacheManager(CacheManager cacheManager) {
-    JodaBeanUtils.notNull(cacheManager, "cacheManager");
     this._cacheManager = cacheManager;
   }
 
   /**
    * Gets the the {@code cacheManager} property.
+   * @deprecated This isn't used any more
    * @return the property, not null
    */
+  @Deprecated
   public final Property<CacheManager> cacheManager() {
     return metaBean().cacheManager().createProperty(this);
   }
@@ -294,6 +317,31 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets maximum number of entries to store in the cache.
+   * @return the value of the property
+   */
+  public Long getMaxCacheEntries() {
+    return _maxCacheEntries;
+  }
+
+  /**
+   * Sets maximum number of entries to store in the cache.
+   * @param maxCacheEntries  the new value of the property
+   */
+  public void setMaxCacheEntries(Long maxCacheEntries) {
+    this._maxCacheEntries = maxCacheEntries;
+  }
+
+  /**
+   * Gets the the {@code maxCacheEntries} property.
+   * @return the property, not null
+   */
+  public final Property<Long> maxCacheEntries() {
+    return metaBean().maxCacheEntries().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public ViewFactoryComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -309,6 +357,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
+          JodaBeanUtils.equal(getMaxCacheEntries(), other.getMaxCacheEntries()) &&
           super.equals(obj);
     }
     return false;
@@ -320,12 +369,13 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxCacheEntries());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("ViewFactoryComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -342,6 +392,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
     buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
+    buf.append("maxCacheEntries").append('=').append(JodaBeanUtils.toString(getMaxCacheEntries())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -370,13 +421,19 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
         this, "liveMarketDataProviderFactory", ViewFactoryComponentFactory.class, LiveMarketDataProviderFactory.class);
     /**
+     * The meta-property for the {@code maxCacheEntries} property.
+     */
+    private final MetaProperty<Long> _maxCacheEntries = DirectMetaProperty.ofReadWrite(
+        this, "maxCacheEntries", ViewFactoryComponentFactory.class, Long.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "cacheManager",
-        "liveMarketDataProviderFactory");
+        "liveMarketDataProviderFactory",
+        "maxCacheEntries");
 
     /**
      * Restricted constructor.
@@ -393,6 +450,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           return _cacheManager;
         case -301472921:  // liveMarketDataProviderFactory
           return _liveMarketDataProviderFactory;
+        case -949200334:  // maxCacheEntries
+          return _maxCacheEntries;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -423,8 +482,10 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code cacheManager} property.
+     * @deprecated This isn't used any more
      * @return the meta-property, not null
      */
+    @Deprecated
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
     }
@@ -437,6 +498,14 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       return _liveMarketDataProviderFactory;
     }
 
+    /**
+     * The meta-property for the {@code maxCacheEntries} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Long> maxCacheEntries() {
+      return _maxCacheEntries;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -447,6 +516,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           return ((ViewFactoryComponentFactory) bean).getCacheManager();
         case -301472921:  // liveMarketDataProviderFactory
           return ((ViewFactoryComponentFactory) bean).getLiveMarketDataProviderFactory();
+        case -949200334:  // maxCacheEntries
+          return ((ViewFactoryComponentFactory) bean).getMaxCacheEntries();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -463,6 +534,9 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         case -301472921:  // liveMarketDataProviderFactory
           ((ViewFactoryComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
           return;
+        case -949200334:  // maxCacheEntries
+          ((ViewFactoryComponentFactory) bean).setMaxCacheEntries((Long) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -470,7 +544,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((ViewFactoryComponentFactory) bean)._classifier, "classifier");
-      JodaBeanUtils.notNull(((ViewFactoryComponentFactory) bean)._cacheManager, "cacheManager");
       super.validate(bean);
     }
 

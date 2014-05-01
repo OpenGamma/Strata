@@ -12,10 +12,13 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -24,20 +27,23 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.sesame.cache.MethodInvocationKey;
 
 /**
  * Helper methods for engine tests.
  */
 public class EngineTestUtils {
 
-  private static final UniqueId EQUITY_TRADE_ID = UniqueId.of("trdId", "321");
   public static final String EQUITY_NAME = "An equity security";
-  private static final UniqueId CASH_FLOW_TRADE_ID = UniqueId.of("trdId", "432");
   public static final String CASH_FLOW_NAME = "A cash flow security";
   public static final String EQUITY_BLOOMBERG_TICKER = "ACME US Equity";
   public static final String EQUITY_ACTIV_SYMBOL = "ACME.";
   public static final String CASH_FLOW_BLOOMBERG_TICKER = "TEST US Cash Flow";
   public static final String CASH_FLOW_ACTIV_SYMBOL = "CASHFLOW.";
+
+  private static final UniqueId EQUITY_TRADE_ID = UniqueId.of("trdId", "321");
+  private static final UniqueId CASH_FLOW_TRADE_ID = UniqueId.of("trdId", "432");
+  private static final long MAX_CACHE_ENTRIES = 100_000;
 
   private EngineTestUtils() {
   }
@@ -70,6 +76,14 @@ public class EngineTestUtils {
     trade.setSecurityLink(securityLink);
     trade.setUniqueId(CASH_FLOW_TRADE_ID);
     return trade;
+  }
+
+  /**
+   * @return a cache configured for use with the engine
+   */
+  public static Cache<MethodInvocationKey, FutureTask<Object>> createCache() {
+    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
+    return CacheBuilder.newBuilder().maximumSize(MAX_CACHE_ENTRIES).concurrencyLevel(concurrencyLevel).build();
   }
 
   /**

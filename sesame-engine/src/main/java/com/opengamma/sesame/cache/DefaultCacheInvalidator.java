@@ -8,11 +8,13 @@ package com.opengamma.sesame.cache;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.FutureTask;
 
 import javax.inject.Provider;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
@@ -25,32 +27,27 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
-import net.sf.ehcache.Ehcache;
-
 /**
  * TODO if this turns out to be a point of contention will need to remove the locking and make thread safe
  * or have multiple thread local copies and merge them at the end of the cycle before the invalidation step
  */
 public class DefaultCacheInvalidator implements CacheInvalidator {
 
-  // TODO need to know the config version correction during invalidation.
-  // if it changes invalidate all cache values that depend on DB data
-
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
-
   private final SetMultimap<ObjectId, MethodInvocationKey> _objectIdsToKeys = HashMultimap.create();
-
-  // TODO should the keys be MarketDataRequirements?
   private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
-
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> _valuationTimeEntries = Lists.newArrayList();
-
-  private final Ehcache _cache;
+  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
 
   private MarketDataSource _marketDataSource;
   private VersionCorrection _configVersionCorrection;
 
-  public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods, Ehcache cache) {
+  /**
+   * @param executingMethods provides the keys representing the cacheable methods that are currently executing
+   * @param cache the cache whose entries should be invalidated when data changes
+   */
+  public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods,
+                                 Cache<MethodInvocationKey, FutureTask<Object>> cache) {
     _cache = ArgumentChecker.notNull(cache, "cache");
     _executingMethods = ArgumentChecker.notNull(executingMethods, "executingMethods");
   }
@@ -97,7 +94,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
     // if the market data provider has changed every value that uses market data is potentially invalid
     if (!marketDataSource.equals(_marketDataSource)) {
       _marketDataSource = marketDataSource;
-      _cache.removeAll(_externalIdsToKeys.values());
+      _cache.invalidateAll(_externalIdsToKeys.values());
       _objectIdsToKeys.clear();
     }
 
@@ -107,10 +104,10 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
     _configVersionCorrection = configVersionCorrection;
 
     for (ExternalId externalId : marketData) {
-      _cache.removeAll(_externalIdsToKeys.removeAll(externalId));
+      _cache.invalidateAll(_externalIdsToKeys.removeAll(externalId));
     }
     for (ObjectId objectId : dbIds) {
-      _cache.removeAll(_objectIdsToKeys.removeAll(objectId));
+      _cache.invalidateAll(_objectIdsToKeys.removeAll(objectId));
     }
   }
 
@@ -120,7 +117,7 @@ public class DefaultCacheInvalidator implements CacheInvalidator {
       MethodInvocationKey key = pair.getFirst();
       ValuationTimeCacheEntry timeEntry = pair.getSecond();
       if (!timeEntry.isValidAt(valuationTime)) {
-        _cache.remove(key);
+        _cache.invalidate(key);
         itr.remove();
       }
     }

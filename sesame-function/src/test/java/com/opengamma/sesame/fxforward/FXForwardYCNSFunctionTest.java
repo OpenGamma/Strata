@@ -27,7 +27,6 @@ import java.net.URI;
 import java.util.Map;
 
 import org.hamcrest.MatcherAssert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
@@ -90,34 +89,21 @@ import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
+import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.proxy.TimingProxy;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardYCNSFunctionTest {
 
   private static final ZonedDateTime s_valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
-
-  private Cache _cache;
-
-  @BeforeClass
-  public void setUpClass() {
-    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass());
-    String cacheName = "testCache";
-    EHCacheUtils.addCache(cacheManager, cacheName);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
-  }
 
   @Test
   public void buildGraph() {
@@ -172,7 +158,8 @@ public class FXForwardYCNSFunctionTest {
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = serverComponents.with(comps);
 
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCache(),
+                                                                       new ExecutingMethodsThreadLocal());
     FXForwardYieldCurveNodeSensitivitiesFn ycnsFunction =
         FunctionModel.build(FXForwardYieldCurveNodeSensitivitiesFn.class,
                             createFunctionConfig(),

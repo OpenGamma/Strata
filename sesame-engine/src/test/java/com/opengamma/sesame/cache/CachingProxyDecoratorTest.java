@@ -23,13 +23,14 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.EngineUtils;
@@ -41,35 +42,24 @@ import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 @SuppressWarnings("unchecked")
 @Test(groups = TestGroup.UNIT)
 public class CachingProxyDecoratorTest {
 
   private static final Set<Class<?>> NO_COMPONENTS = ComponentMap.EMPTY.getComponentTypes();
-  private Cache _cache;
 
-  @BeforeClass
-  public void setUpClass() {
-    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass());
-    String cacheName = "testCAche";
-    EHCacheUtils.addCache(cacheManager, cacheName);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
-  }
-  
+  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache = EngineTestUtils.createCache();
+
   /** check the cache contains the item returns from the function */
   @Test
   public void oneLookup() throws Exception {
     FunctionModelConfig config = config(implementations(TestFn.class, Impl.class),
                                         arguments(function(Impl.class, argument("s", "s"))));
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache,
+                                                                       new ExecutingMethodsThreadLocal());
     FunctionMetadata metadata = EngineUtils.createMetadata(TestFn.class, "foo");
     FunctionModel functionModel = FunctionModel.forFunction(metadata, config, NO_COMPONENTS, cachingDecorator);
     TestFn fn = (TestFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
@@ -79,9 +69,8 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
-    Element element = _cache.get(key);
-    assertNotNull(element);
-    FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
+    FutureTask<Object> task = _cache.getIfPresent(key);
+    assertNotNull(task);
     assertSame(task.get(), results);
   }
 
@@ -279,9 +268,8 @@ public class CachingProxyDecoratorTest {
     MethodInvocationKey key = new MethodInvocationKey(delegate, foo, new Object[]{"bar"});
 
     Object results = fn.foo("bar");
-    Element element = _cache.get(key);
-    assertNotNull(element);
-    FutureTask<Object> task = (FutureTask<Object>) element.getObjectValue();
+    FutureTask<Object> task = _cache.getIfPresent(key);
+    assertNotNull(task);
     assertSame(task.get(), results);
   }
 
@@ -409,14 +397,23 @@ public class CachingProxyDecoratorTest {
     ScenarioArgumentsC2 c2 = (ScenarioArgumentsC2) EngineUtils.getProxiedObject(c1._i2);
     Method method1 = EngineUtils.getMethod(ScenarioArgumentsI1.class, "fn");
     Method method2 = EngineUtils.getMethod(ScenarioArgumentsI2.class, "fn");
-    MethodInvocationKey key1 = new MethodInvocationKey(c1, method1, new Object[]{env1, "s1", 1});
-    MethodInvocationKey key2 = new MethodInvocationKey(c1, method1, new Object[]{env1, "s2", 2});
-    MethodInvocationKey key3 = new MethodInvocationKey(c2, method2, new Object[]{env2, "s1", 1});
-    MethodInvocationKey key4 = new MethodInvocationKey(c2, method2, new Object[]{env2, "s2", 2});
-    assertEquals("S1 1", ((FutureTask) _cache.get(key1).getObjectValue()).get());
-    assertEquals("S2 2", ((FutureTask) _cache.get(key2).getObjectValue()).get());
-    assertEquals("s1 1", ((FutureTask) _cache.get(key3).getObjectValue()).get());
-    assertEquals("s2 2", ((FutureTask) _cache.get(key4).getObjectValue()).get());
+
+    checkValue(env1, "s1", 1, c1, method1, "S1 1");
+    checkValue(env1, "s2", 2, c1, method1, "S2 2");
+    checkValue(env2, "s1", 1, c2, method2, "s1 1");
+    checkValue(env2, "s2", 2, c2, method2, "s2 2");
+  }
+
+  private void checkValue(Environment env,
+                          String stringArg,
+                          int intArg,
+                          Object receiver,
+                          Method method,
+                          String expectedValue) throws InterruptedException, ExecutionException {
+    MethodInvocationKey key = new MethodInvocationKey(receiver, method, new Object[]{env, stringArg, intArg});
+    FutureTask<Object> value = _cache.getIfPresent(key);
+    assertNotNull(value);
+    assertEquals(expectedValue, value.get());
   }
 
   interface ScenarioArgumentsI1 {
