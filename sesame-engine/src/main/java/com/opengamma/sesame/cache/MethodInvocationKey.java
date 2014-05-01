@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Cache key containing encapsulating a method invocation including its arguments and receiver.
  */
-/* package */ class MethodInvocationKey {
+public class MethodInvocationKey {
 
   private final Object _receiver;
   private final Method _method;

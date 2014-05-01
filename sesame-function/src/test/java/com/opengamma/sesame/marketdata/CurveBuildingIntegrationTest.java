@@ -88,8 +88,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
-import net.sf.ehcache.CacheManager;
-
 @Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class CurveBuildingIntegrationTest {
 
@@ -163,9 +161,7 @@ public class CurveBuildingIntegrationTest {
                                               availableOutputs,
                                               availableImplementations,
                                               defaultConfig,
-                                              CacheManager.getInstance(),
                                               EnumSet.noneOf(FunctionService.class));
-
     View view = viewFactory.createView(viewConfig);
 
     LiveDataManager liveDataManager = new LiveDataManager(buildLiveDataClient());

@@ -14,28 +14,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 import javax.inject.Provider;
 
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.test.TestGroup;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
 
 @Test(groups = TestGroup.UNIT)
 public class CacheInvalidatorTest {
@@ -43,23 +40,20 @@ public class CacheInvalidatorTest {
   private static final MethodInvocationKey METHOD_KEY_1 = methodKey(new ArrayList<>(), "subList", new Object[]{1, 2});
   private static final MethodInvocationKey METHOD_KEY_2 = methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"});
   private static final MethodInvocationKey METHOD_KEY_3 = methodKey(new ArrayList<>(), "size", null);
+  private static final Callable<Object> CALLABLE = new Callable<Object>() {
+    @Override
+    public Object call() throws Exception {
+      return null;
+    }
+  };
 
-  private Cache _cache;
-
-  @BeforeClass
-  public void createCache() {
-    PersistenceConfiguration persistenceConfiguration =
-        new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE);
-    CacheConfiguration config = new CacheConfiguration("test", 100).eternal(true).persistence(persistenceConfiguration);
-    _cache = new Cache(config);
-    CacheManager.getInstance().addCache(_cache);
-  }
+  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache = EngineTestUtils.createCache();
 
   private void populateCache() {
-    _cache.removeAll();
-    _cache.put(new Element(METHOD_KEY_1, new Object()));
-    _cache.put(new Element(METHOD_KEY_2, new Object()));
-    _cache.put(new Element(METHOD_KEY_3, new Object()));
+    _cache.invalidateAll();
+    _cache.put(METHOD_KEY_1, new FutureTask<>(CALLABLE));
+    _cache.put(METHOD_KEY_2, new FutureTask<>(CALLABLE));
+    _cache.put(METHOD_KEY_3, new FutureTask<>(CALLABLE));
   }
 
   private static MethodInvocationKey methodKey(Object receiver, String methodName, Object[] args) {
@@ -82,7 +76,7 @@ public class CacheInvalidatorTest {
         return keys;
       }
     };
-    _cache.removeAll();
+    _cache.invalidateAll();
     CacheInvalidator invalidator = new DefaultCacheInvalidator(provider, _cache);
     // this makes sure the market data factory is set before adding any data
     invalidator.invalidate(marketDataSource,
@@ -109,9 +103,9 @@ public class CacheInvalidatorTest {
                            VersionCorrection.LATEST,
                            Lists.newArrayList(abc1),
                            Collections.<ObjectId>emptyList());
-    assertNull(_cache.get(METHOD_KEY_1));
-    assertNotNull(_cache.get(METHOD_KEY_2));
-    assertNotNull(_cache.get(METHOD_KEY_3));
+    assertNull(_cache.getIfPresent(METHOD_KEY_1));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_2));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_3));
 
     populateCache();
     invalidator.invalidate(marketDataSource,
@@ -119,9 +113,9 @@ public class CacheInvalidatorTest {
                            VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Lists.newArrayList(abc2));
-    assertNull(_cache.get(METHOD_KEY_1));
-    assertNull(_cache.get(METHOD_KEY_2));
-    assertNotNull(_cache.get(METHOD_KEY_3));
+    assertNull(_cache.getIfPresent(METHOD_KEY_1));
+    assertNull(_cache.getIfPresent(METHOD_KEY_2));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_3));
 
     populateCache();
     invalidator.invalidate(marketDataSource,
@@ -129,9 +123,9 @@ public class CacheInvalidatorTest {
                            VersionCorrection.LATEST,
                            Lists.newArrayList(bnd1),
                            Collections.<ObjectId>emptyList());
-    assertNull(_cache.get(METHOD_KEY_1));
-    assertNotNull(_cache.get(METHOD_KEY_2));
-    assertNotNull(_cache.get(METHOD_KEY_3));
+    assertNull(_cache.getIfPresent(METHOD_KEY_1));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_2));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_3));
 
     populateCache();
     invalidator.invalidate(marketDataSource,
@@ -139,9 +133,9 @@ public class CacheInvalidatorTest {
                            VersionCorrection.LATEST,
                            Lists.newArrayList(bnd2),
                            Collections.<ObjectId>emptyList());
-    assertNull(_cache.get(METHOD_KEY_1));
-    assertNotNull(_cache.get(METHOD_KEY_2));
-    assertNotNull(_cache.get(METHOD_KEY_3));
+    assertNull(_cache.getIfPresent(METHOD_KEY_1));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_2));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_3));
   }
 
   @Test
@@ -171,23 +165,23 @@ public class CacheInvalidatorTest {
                            VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
-    assertNotNull(_cache.get(METHOD_KEY_1));
-    assertNotNull(_cache.get(METHOD_KEY_2));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_1));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_2));
 
     invalidator.invalidate(marketDataSource,
                            valuationTime.plusHours(1),
                            VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
-    assertNull(_cache.get(METHOD_KEY_1));
-    assertNotNull(_cache.get(METHOD_KEY_2));
+    assertNull(_cache.getIfPresent(METHOD_KEY_1));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_2));
 
     invalidator.invalidate(marketDataSource,
                            valuationTime.plusDays(1),
                            VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
-    assertNull(_cache.get(METHOD_KEY_2));
+    assertNull(_cache.getIfPresent(METHOD_KEY_2));
   }
 
   @Test
@@ -220,9 +214,9 @@ public class CacheInvalidatorTest {
     invalidator.register(ExternalId.of("externalScheme", "3"));
     invalidator.register(ObjectId.of("objectScheme", "4"));
 
-    assertNotNull(_cache.get(METHOD_KEY_1));
-    assertNotNull(_cache.get(METHOD_KEY_2));
-    assertNotNull(_cache.get(METHOD_KEY_3));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_1));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_2));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_3));
 
     // Different instance of the mock to the MD Function above
     invalidator.invalidate(mockMarketDataSource(),
@@ -230,9 +224,9 @@ public class CacheInvalidatorTest {
                            VersionCorrection.LATEST,
                            Collections.<ExternalId>emptyList(),
                            Collections.<ObjectId>emptyList());
-    assertNull(_cache.get(METHOD_KEY_1));
-    assertNotNull(_cache.get(METHOD_KEY_2));
-    assertNull(_cache.get(METHOD_KEY_3));
+    assertNull(_cache.getIfPresent(METHOD_KEY_1));
+    assertNotNull(_cache.getIfPresent(METHOD_KEY_2));
+    assertNull(_cache.getIfPresent(METHOD_KEY_3));
   }
 
   private MarketDataSource mockMarketDataSource() {

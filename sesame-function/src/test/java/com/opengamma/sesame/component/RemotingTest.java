@@ -81,8 +81,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
-import net.sf.ehcache.CacheManager;
-
 /**
  * Tests that remoting to the new engine works. Starts up an engine on a
  * separate thread in the setup method and then makes requests to it via
@@ -378,7 +376,6 @@ public class RemotingTest {
     //  initialise engine
     ViewFactoryComponentFactory engineComponentFactory = new ViewFactoryComponentFactory();
     engineComponentFactory.setClassifier(CLASSIFIER);
-    engineComponentFactory.setCacheManager(CacheManager.create());
     register(engineComponentFactory, _componentRepository, properties);
 
     registerFunctionServerComponentFactory();

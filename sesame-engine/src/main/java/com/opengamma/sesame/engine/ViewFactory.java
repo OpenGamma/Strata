@@ -13,11 +13,13 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.FutureTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -34,9 +36,11 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.cache.CacheInvalidator;
+import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.DefaultCacheInvalidator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
+import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.cache.source.CacheAwareConfigSource;
 import com.opengamma.sesame.cache.source.CacheAwareConventionSource;
@@ -57,43 +61,43 @@ import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-
 /**
- *
+ * Factory for creating instances of {@link View}.
+ * This is one of the key classes of the calculation engine. The {@link #createView} methods take a view configuration
+ * and returns a view that is ready to be executed.
+ * <p>
+ * Each view factory contains a cache which is shared by all views it creates.
  */
 public class ViewFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewFactory.class);
 
-  private static final String VIEW_CACHE = "ViewCache";
-  private static final AtomicLong s_nextCacheId = new AtomicLong(0);
+  /**
+   * Default maximum size of the cache.
+   * This is used to store return values of methods annotated with {@link Cacheable}.
+   * The same cache is shared between all views created by this factory.
+   */
+  public static final long MAX_CACHE_ENTRIES = 100_000;
 
   private final ExecutorService _executor;
   private final ComponentMap _components;
   private final AvailableOutputs _availableOutputs;
   private final AvailableImplementations _availableImplementations;
   private final EnumSet<FunctionService> _defaultServices;
-  private final Ehcache _cache;
+  private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
   private final FunctionModelConfig _defaultConfig;
   private final FunctionBuilder _functionBuilder = new FunctionBuilder();
-  private final CacheManager _cacheManager;
 
-  /* package */ ViewFactory(ExecutorService executor,
-                            AvailableOutputs availableOutputs,
-                            AvailableImplementations availableImplementations) {
-    this(executor,
-         ComponentMap.EMPTY,
-         availableOutputs,
-         availableImplementations,
-         FunctionModelConfig.EMPTY,
-         CacheManager.getInstance(),
-         FunctionService.DEFAULT_SERVICES);
+  public ViewFactory(ExecutorService executor,
+                     ComponentMap components,
+                     AvailableOutputs availableOutputs,
+                     AvailableImplementations availableImplementations,
+                     FunctionModelConfig defaultConfig,
+                     EnumSet<FunctionService> defaultServices) {
+    this(executor, components, availableOutputs, availableImplementations, defaultConfig, defaultServices, MAX_CACHE_ENTRIES);
   }
 
   public ViewFactory(ExecutorService executor,
@@ -101,19 +105,16 @@ public class ViewFactory {
                      AvailableOutputs availableOutputs,
                      AvailableImplementations availableImplementations,
                      FunctionModelConfig defaultConfig,
-                     CacheManager cacheManager,
-                     EnumSet<FunctionService> defaultServices) {
+                     EnumSet<FunctionService> defaultServices,
+                     long maxCacheEntries) {
     _availableOutputs = ArgumentChecker.notNull(availableOutputs, "availableOutputs");
     _availableImplementations = ArgumentChecker.notNull(availableImplementations, "availableImplementations");
     _defaultServices = ArgumentChecker.notNull(defaultServices, "defaultServices");
-    _cacheManager = ArgumentChecker.notNull(cacheManager, "cacheManager");
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _executor = ArgumentChecker.notNull(executor, "executor");
     _components = ArgumentChecker.notNull(components, "components");
-    String cacheName = VIEW_CACHE + s_nextCacheId.getAndIncrement();
-    // TODO configure the cache to not save to disk SSM-259
-    EHCacheUtils.addCache(cacheManager, cacheName);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
+    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
+    _cache = CacheBuilder.newBuilder().maximumSize(maxCacheEntries).concurrencyLevel(concurrencyLevel).build();
   }
 
   /**
@@ -269,13 +270,6 @@ public class ViewFactory {
       changeManager.addChangeListener(sourceListener);
     }
     return Pairs.of(components, changeManagers);
-  }
-
-  /**
-   * Closes this factory and removes its cache from the cache manager.
-   */
-  public void close() {
-    _cacheManager.removeCache(_cache.getName());
   }
 
   //----------------------------------------------------------

@@ -39,7 +39,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.hamcrest.MatcherAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
@@ -129,6 +128,7 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.FunctionMetadata;
+import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
@@ -139,15 +139,11 @@ import com.opengamma.sesame.marketdata.LDClient;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.sesame.proxy.TimingProxy;
-import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFnTest {
@@ -155,16 +151,6 @@ public class FXForwardPVFnTest {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardPVFnTest.class);
 
   private static final AtomicLong s_nextId = new AtomicLong(0);
-  
-  private Cache _cache;
-
-  @BeforeClass
-  public void setUpClass() {
-    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass());
-    String cacheName = "testCache";
-    EHCacheUtils.addCache(cacheManager, cacheName);
-    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
-  }
 
   @Test
   public void buildGraph() {
@@ -209,7 +195,8 @@ public class FXForwardPVFnTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCache(),
+                                                                       new ExecutingMethodsThreadLocal());
     FXForwardPVFn pvFunction = FunctionModel.build(FXForwardPVFn.class,
                                                    createFunctionConfig(),
                                                    componentMap,
@@ -343,12 +330,11 @@ public class FXForwardPVFnTest {
     ThreadLocalServiceContext.init(serviceContext);
 
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-                               componentMap,
-                               availableOutputs,
-                               availableImplementations,
-                               FunctionModelConfig.EMPTY,
-                               CacheManager.getInstance(),
-                               EnumSet.noneOf(FunctionService.class));
+                                              componentMap,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.noneOf(FunctionService.class));
     View view = viewFactory.createView(viewConfig);
     Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
@@ -438,12 +424,12 @@ public class FXForwardPVFnTest {
     ThreadLocalServiceContext.init(serviceContext);
 
     ViewFactory viewFactory = new ViewFactory(executor,
-                               componentMap,
-                               availableOutputs,
-                               availableImplementations,
-                               FunctionModelConfig.EMPTY,
-                               CacheManager.getInstance(),
-                               EnumSet.of(FunctionService.CACHING, FunctionService.TRACING));
+                                              componentMap,
+                                              availableOutputs,
+                                              availableImplementations,
+                                              FunctionModelConfig.EMPTY,
+                                              EnumSet.of(FunctionService.CACHING, FunctionService.TRACING)
+    );
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
     View view = viewFactory.createView(viewConfig, FXForwardSecurity.class);
