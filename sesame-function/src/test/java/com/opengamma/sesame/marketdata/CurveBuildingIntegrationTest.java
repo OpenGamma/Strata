@@ -76,6 +76,7 @@ import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
+import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
@@ -161,7 +162,8 @@ public class CurveBuildingIntegrationTest {
                                               availableOutputs,
                                               availableImplementations,
                                               defaultConfig,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              FunctionTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
 
     LiveDataManager liveDataManager = new LiveDataManager(buildLiveDataClient());

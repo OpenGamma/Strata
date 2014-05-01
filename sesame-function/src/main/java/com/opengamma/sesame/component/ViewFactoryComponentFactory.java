@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
@@ -24,6 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -46,6 +49,7 @@ import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
@@ -78,6 +82,9 @@ import net.sf.ehcache.CacheManager;
  */
 @BeanDefinition
 public class ViewFactoryComponentFactory extends AbstractComponentFactory {
+
+  /** The default maximum size of the view factory cache if none is specified in the config. */
+  private static final long MAX_CACHE_ENTRIES = 100_000;
 
   /**
    * The classifier that the factory should publish under.
@@ -119,15 +126,18 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     AvailableImplementations availableImplementations = initAvailableImplementations();
     long maxCacheEntries = _maxCacheEntries != null ?
                            _maxCacheEntries :
-                           ViewFactory.MAX_CACHE_ENTRIES;
+                           MAX_CACHE_ENTRIES;
 
+    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
+    Cache<MethodInvocationKey, FutureTask<Object>> cache
+        = CacheBuilder.newBuilder().maximumSize(maxCacheEntries).concurrencyLevel(concurrencyLevel).build();
     ViewFactory viewFactory = new ViewFactory(executor,
                                               componentMap,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
                                               FunctionService.DEFAULT_SERVICES,
-                                              maxCacheEntries);
+                                              cache);
 
     ComponentInfo engineInfo = new ComponentInfo(ViewFactory.class, getClassifier());
     repo.registerComponent(engineInfo, viewFactory);

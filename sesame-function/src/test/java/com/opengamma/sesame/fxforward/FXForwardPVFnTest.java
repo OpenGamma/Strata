@@ -334,7 +334,8 @@ public class FXForwardPVFnTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              FunctionTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
     Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
@@ -428,8 +429,8 @@ public class FXForwardPVFnTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.of(FunctionService.CACHING, FunctionService.TRACING)
-    );
+                                              EnumSet.of(FunctionService.CACHING, FunctionService.TRACING),
+                                              FunctionTestUtils.createCache());
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
     View view = viewFactory.createView(viewConfig, FXForwardSecurity.class);

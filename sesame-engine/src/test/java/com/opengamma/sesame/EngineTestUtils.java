@@ -28,7 +28,6 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.sesame.cache.MethodInvocationKey;
-import com.opengamma.sesame.engine.ViewFactory;
 
 /**
  * Helper methods for engine tests.
@@ -44,6 +43,7 @@ public class EngineTestUtils {
 
   private static final UniqueId EQUITY_TRADE_ID = UniqueId.of("trdId", "321");
   private static final UniqueId CASH_FLOW_TRADE_ID = UniqueId.of("trdId", "432");
+  private static final long MAX_CACHE_ENTRIES = 100_000;
 
   private EngineTestUtils() {
   }
@@ -83,7 +83,7 @@ public class EngineTestUtils {
    */
   public static Cache<MethodInvocationKey, FutureTask<Object>> createCache() {
     int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    return CacheBuilder.newBuilder().maximumSize(ViewFactory.MAX_CACHE_ENTRIES).concurrencyLevel(concurrencyLevel).build();
+    return CacheBuilder.newBuilder().maximumSize(MAX_CACHE_ENTRIES).concurrencyLevel(concurrencyLevel).build();
   }
 
   /**

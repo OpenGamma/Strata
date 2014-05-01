@@ -25,6 +25,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Callables;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -40,12 +41,7 @@ public class CacheInvalidatorTest {
   private static final MethodInvocationKey METHOD_KEY_1 = methodKey(new ArrayList<>(), "subList", new Object[]{1, 2});
   private static final MethodInvocationKey METHOD_KEY_2 = methodKey(new LinkedList<>(), "set", new Object[]{3, "foo"});
   private static final MethodInvocationKey METHOD_KEY_3 = methodKey(new ArrayList<>(), "size", null);
-  private static final Callable<Object> CALLABLE = new Callable<Object>() {
-    @Override
-    public Object call() throws Exception {
-      return null;
-    }
-  };
+  private static final Callable<Object> CALLABLE = Callables.returning(null);
 
   private final Cache<MethodInvocationKey, FutureTask<Object>> _cache = EngineTestUtils.createCache();
 

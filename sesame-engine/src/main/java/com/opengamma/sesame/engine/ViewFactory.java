@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -36,7 +35,6 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.sesame.cache.CacheInvalidator;
-import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.DefaultCacheInvalidator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
@@ -75,13 +73,6 @@ public class ViewFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewFactory.class);
 
-  /**
-   * Default maximum size of the cache.
-   * This is used to store return values of methods annotated with {@link Cacheable}.
-   * The same cache is shared between all views created by this factory.
-   */
-  public static final long MAX_CACHE_ENTRIES = 100_000;
-
   private final ExecutorService _executor;
   private final ComponentMap _components;
   private final AvailableOutputs _availableOutputs;
@@ -96,25 +87,15 @@ public class ViewFactory {
                      AvailableOutputs availableOutputs,
                      AvailableImplementations availableImplementations,
                      FunctionModelConfig defaultConfig,
-                     EnumSet<FunctionService> defaultServices) {
-    this(executor, components, availableOutputs, availableImplementations, defaultConfig, defaultServices, MAX_CACHE_ENTRIES);
-  }
-
-  public ViewFactory(ExecutorService executor,
-                     ComponentMap components,
-                     AvailableOutputs availableOutputs,
-                     AvailableImplementations availableImplementations,
-                     FunctionModelConfig defaultConfig,
                      EnumSet<FunctionService> defaultServices,
-                     long maxCacheEntries) {
+                     Cache<MethodInvocationKey, FutureTask<Object>> cache) {
     _availableOutputs = ArgumentChecker.notNull(availableOutputs, "availableOutputs");
     _availableImplementations = ArgumentChecker.notNull(availableImplementations, "availableImplementations");
     _defaultServices = ArgumentChecker.notNull(defaultServices, "defaultServices");
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _executor = ArgumentChecker.notNull(executor, "executor");
     _components = ArgumentChecker.notNull(components, "components");
-    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    _cache = CacheBuilder.newBuilder().maximumSize(maxCacheEntries).concurrencyLevel(concurrencyLevel).build();
+    _cache = ArgumentChecker.notNull(cache, "cache");
   }
 
   /**

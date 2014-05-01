@@ -104,6 +104,8 @@ public class CachingProxyDecorator extends NodeDecorator implements AutoCloseabl
 
   /**
    * Creates an instance of {@link Handler} when the graph is built.
+   * The handler is invoked when a cacheable method is called and takes care of returning a cached result
+   * or calculating one and putting it in the cache.
    */
   private static final class CachingHandlerFactory implements InvocationHandlerFactory {
 

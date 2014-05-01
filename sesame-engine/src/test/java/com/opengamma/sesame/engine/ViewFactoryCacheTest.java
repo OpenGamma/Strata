@@ -83,7 +83,8 @@ public class ViewFactoryCacheTest {
                            availableOutputs,
                            availableImplementations,
                            FunctionModelConfig.EMPTY,
-                           EnumSet.of(FunctionService.CACHING));
+                           EnumSet.of(FunctionService.CACHING),
+                           EngineTestUtils.createCache());
   }
 
   public interface TestFn {

@@ -106,7 +106,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
-                                              FunctionService.DEFAULT_SERVICES);
+                                              FunctionService.DEFAULT_SERVICES,
+                                              EngineTestUtils.createCache());
     List<Trade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
@@ -132,7 +133,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
-                                              FunctionService.DEFAULT_SERVICES);
+                                              FunctionService.DEFAULT_SERVICES,
+                                              EngineTestUtils.createCache());
     List<Security> securities = ImmutableList.of(EngineTestUtils.createEquityTrade().getSecurity());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
@@ -159,7 +161,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
-                                              FunctionService.NONE);
+                                              FunctionService.NONE,
+                                              EngineTestUtils.createCache());
     Trade trade = EngineTestUtils.createEquityTrade();
     List<Trade> trades = ImmutableList.of(trade);
 
@@ -192,7 +195,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
-                                              FunctionService.DEFAULT_SERVICES);
+                                              FunctionService.DEFAULT_SERVICES,
+                                              EngineTestUtils.createCache());
     List<Trade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
@@ -245,7 +249,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               availableImplementations,
                                               defaultConfig,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCache());
     List<Trade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade(), EngineTestUtils.createCashFlowTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class, CashFlowSecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
@@ -279,7 +284,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.of(FunctionService.TRACING));
+                                              EnumSet.of(FunctionService.TRACING),
+                                              EngineTestUtils.createCache());
     List<Trade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     @SuppressWarnings("unchecked")
@@ -312,7 +318,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
                                                        mock(MarketDataSource.class));
@@ -344,7 +351,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
                                                        mock(MarketDataSource.class));
@@ -370,7 +378,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.of(FunctionService.TRACING));
+                                              EnumSet.of(FunctionService.TRACING),
+                                              EngineTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        VersionCorrection.LATEST,
@@ -406,7 +415,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
                                                        mock(MarketDataSource.class));
@@ -439,7 +449,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mock(MarketDataSource.class));
     Results results = view.run(cycleArguments);
@@ -481,7 +492,8 @@ public class ViewFactoryTest {
                                               availableOutputs,
                                               new AvailableImplementationsImpl(),
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCache());
     Trade equityTrade = EngineTestUtils.createEquityTrade();
     Trade cashFlowTrade = EngineTestUtils.createCashFlowTrade();
 

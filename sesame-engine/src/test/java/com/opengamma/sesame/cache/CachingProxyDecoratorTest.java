@@ -397,22 +397,23 @@ public class CachingProxyDecoratorTest {
     ScenarioArgumentsC2 c2 = (ScenarioArgumentsC2) EngineUtils.getProxiedObject(c1._i2);
     Method method1 = EngineUtils.getMethod(ScenarioArgumentsI1.class, "fn");
     Method method2 = EngineUtils.getMethod(ScenarioArgumentsI2.class, "fn");
-    MethodInvocationKey key1 = new MethodInvocationKey(c1, method1, new Object[]{env1, "s1", 1});
-    MethodInvocationKey key2 = new MethodInvocationKey(c1, method1, new Object[]{env1, "s2", 2});
-    MethodInvocationKey key3 = new MethodInvocationKey(c2, method2, new Object[]{env2, "s1", 1});
-    MethodInvocationKey key4 = new MethodInvocationKey(c2, method2, new Object[]{env2, "s2", 2});
-    FutureTask<Object> value1 = _cache.getIfPresent(key1);
-    FutureTask<Object> value2 = _cache.getIfPresent(key2);
-    FutureTask<Object> value3 = _cache.getIfPresent(key3);
-    FutureTask<Object> value4 = _cache.getIfPresent(key4);
-    assertNotNull(value1);
-    assertNotNull(value2);
-    assertNotNull(value3);
-    assertNotNull(value4);
-    assertEquals("S1 1", value1.get());
-    assertEquals("S2 2", value2.get());
-    assertEquals("s1 1", value3.get());
-    assertEquals("s2 2", value4.get());
+
+    checkValue(env1, "s1", 1, c1, method1, "S1 1");
+    checkValue(env1, "s2", 2, c1, method1, "S2 2");
+    checkValue(env2, "s1", 1, c2, method2, "s1 1");
+    checkValue(env2, "s2", 2, c2, method2, "s2 2");
+  }
+
+  private void checkValue(Environment env,
+                          String stringArg,
+                          int intArg,
+                          Object receiver,
+                          Method method,
+                          String expectedValue) throws InterruptedException, ExecutionException {
+    MethodInvocationKey key = new MethodInvocationKey(receiver, method, new Object[]{env, stringArg, intArg});
+    FutureTask<Object> value = _cache.getIfPresent(key);
+    assertNotNull(value);
+    assertEquals(expectedValue, value.get());
   }
 
   interface ScenarioArgumentsI1 {

@@ -53,7 +53,8 @@ public class InputTypesTest {
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              EnumSet.noneOf(FunctionService.class));
+                                              EnumSet.noneOf(FunctionService.class),
+                                              EngineTestUtils.createCache());
 
     View view = viewFactory.createView(viewConfig, EquityTradeWithSecurity.class, CashFlowTradeWithSecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mock(MarketDataSource.class));

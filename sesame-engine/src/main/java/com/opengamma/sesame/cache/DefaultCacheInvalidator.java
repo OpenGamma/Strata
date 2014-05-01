@@ -33,23 +33,19 @@ import com.opengamma.util.tuple.Pairs;
  */
 public class DefaultCacheInvalidator implements CacheInvalidator {
 
-  // TODO need to know the config version correction during invalidation.
-  // if it changes invalidate all cache values that depend on DB data
-
   private final Provider<Collection<MethodInvocationKey>> _executingMethods;
-
   private final SetMultimap<ObjectId, MethodInvocationKey> _objectIdsToKeys = HashMultimap.create();
-
-  // TODO should the keys be MarketDataRequirements?
   private final SetMultimap<ExternalId, MethodInvocationKey> _externalIdsToKeys = HashMultimap.create();
-
   private final List<Pair<MethodInvocationKey, ValuationTimeCacheEntry>> _valuationTimeEntries = Lists.newArrayList();
-
   private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
 
   private MarketDataSource _marketDataSource;
   private VersionCorrection _configVersionCorrection;
 
+  /**
+   * @param executingMethods provides the keys representing the cacheable methods that are currently executing
+   * @param cache the cache whose entries should be invalidated when data changes
+   */
   public DefaultCacheInvalidator(Provider<Collection<MethodInvocationKey>> executingMethods,
                                  Cache<MethodInvocationKey, FutureTask<Object>> cache) {
     _cache = ArgumentChecker.notNull(cache, "cache");
