@@ -374,18 +374,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               if (!overnightIndex.isEmpty()) {
                 forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
               }
-
-//<<<<<<< HEAD
               if (derivativesForCurve.isSuccess()) {
                 final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
                 singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve.getValue(), generator.initialGuess(parameterGuessForCurves), generator);
               } else {
                 curveBundleResult = Result.failure(curveBundleResult, derivativesForCurve);
-//=======
-//              final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
-//              if (curveBundleResult.isSuccess()) {
-//                singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
-//>>>>>>> master
               }
             } else {
               curveBundleResult = Result.failure(curveBundleResult, fxMatrixResult, marketDataResult);
