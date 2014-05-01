@@ -34,5 +34,67 @@
          <typeField type="string">OUTRIGHT</typeField>
       </P1Y>
    </swapIds>
+   <discountFactorIds type="message">
+      <P7D type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~7D</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P7D>
+      <P1M type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~1M</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P1M>
+      <P3M type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~3M</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P3M>
+      <P6M type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~6M</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P6M>
+      <P1Y type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~1Y</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P1Y>
+      <P2Y type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~2Y</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P2Y>
+      <P3Y type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~3Y</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P3Y>
+      <P4Y type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~4Y</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P4Y>
+      <P5Y type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~5Y</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P5Y>
+      <P10Y type="message">
+         <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider</fudgeField0>
+         <instrument type="string">Ticker~10Y</instrument>
+         <dataField type="string">Market_Value</dataField>
+         <typeField type="string">OUTRIGHT</typeField>
+      </P10Y>
+   </discountFactorIds>
    <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.curve.CurveNodeIdMapper</fudgeField0>
 </fudgeEnvelope>

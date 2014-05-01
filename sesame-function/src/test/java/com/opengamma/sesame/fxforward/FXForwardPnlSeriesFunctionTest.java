@@ -100,6 +100,9 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataSource;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
+import com.opengamma.sesame.pnl.HistoricalPnLFXConverterFn;
+import com.opengamma.sesame.pnl.PnLPeriodBound;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -111,6 +114,7 @@ import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
 @Test(groups = TestGroup.UNIT)
@@ -118,11 +122,14 @@ public class FXForwardPnlSeriesFunctionTest {
 
   private static final ZonedDateTime s_valuationTime = ZonedDateTime.of(2013, 11, 7, 11, 0, 0, 0, ZoneOffset.UTC);
 
-  private CacheManager _cacheManager;
+  private Cache _cache;
 
   @BeforeClass
   public void setUpClass() {
-    _cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    CacheManager cacheManager = EHCacheUtils.createTestCacheManager(getClass());
+    String cacheName = "testCache";
+    EHCacheUtils.addCache(cacheManager, cacheName);
+    _cache = EHCacheUtils.getCacheFromManager(cacheManager, cacheName);
   }
 
   @Test
@@ -177,7 +184,7 @@ public class FXForwardPnlSeriesFunctionTest {
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = serverComponents.with(comps);
 
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cacheManager, new ExecutingMethodsThreadLocal());
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(_cache, new ExecutingMethodsThreadLocal());
     FXForwardPnLSeriesFn pvFunction = FunctionModel.build(FXForwardPnLSeriesFn.class,
                                                           createFunctionConfig(currencyMatrix),
                                                           componentMap,
@@ -210,6 +217,8 @@ public class FXForwardPnlSeriesFunctionTest {
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfig", exposureConfig)),
+                function(DefaultHistoricalPnLFXConverterFn.class,
+                         argument("periodBound", PnLPeriodBound.START)),
                 function(DiscountingFXForwardSpotPnLSeriesFn.class,
                          argument("useHistoricalSpot", true),
                          argument("dateRange", range),
@@ -250,7 +259,8 @@ public class FXForwardPnlSeriesFunctionTest {
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                             MarketDataFn.class, DefaultMarketDataFn.class,
-                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class));
+                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                            HistoricalPnLFXConverterFn.class, DefaultHistoricalPnLFXConverterFn.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {

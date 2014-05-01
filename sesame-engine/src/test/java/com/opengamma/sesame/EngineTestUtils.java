@@ -50,7 +50,7 @@ public class EngineTestUtils {
     security.addExternalId(ExternalId.of(ExternalSchemes.ACTIVFEED_TICKER, EQUITY_ACTIV_SYMBOL));
     SimpleTrade trade = new SimpleTrade();
     trade.setQuantity(BigDecimal.ONE);
-    SimpleSecurityLink securityLink = new SimpleSecurityLink(ExternalId.of("extId", "123"));
+    SimpleSecurityLink securityLink = new SimpleSecurityLink(security.getExternalIdBundle());
     securityLink.setTarget(security);
     trade.setSecurityLink(securityLink);
     trade.setUniqueId(EQUITY_TRADE_ID);
@@ -65,7 +65,7 @@ public class EngineTestUtils {
     security.addExternalId(ExternalId.of(ExternalSchemes.ACTIVFEED_TICKER, CASH_FLOW_ACTIV_SYMBOL));
     SimpleTrade trade = new SimpleTrade();
     trade.setQuantity(BigDecimal.ONE);
-    SimpleSecurityLink securityLink = new SimpleSecurityLink(ExternalId.of("extId", "234"));
+    SimpleSecurityLink securityLink = new SimpleSecurityLink(security.getExternalIdBundle());
     securityLink.setTarget(security);
     trade.setSecurityLink(securityLink);
     trade.setUniqueId(CASH_FLOW_TRADE_ID);

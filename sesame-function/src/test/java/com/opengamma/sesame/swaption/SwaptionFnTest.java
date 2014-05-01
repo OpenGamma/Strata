@@ -28,18 +28,9 @@ import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
@@ -49,7 +40,6 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSou
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -95,6 +85,8 @@ import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
+import com.opengamma.sesame.sabr.DefaultSabrParametersProviderFn;
+import com.opengamma.sesame.sabr.SabrParametersProviderFn;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -139,13 +131,15 @@ public class SwaptionFnTest {
             function(DefaultHistoricalTimeSeriesFn.class,
                      argument("resolutionKey", "DEFAULT_TSS"),
                      argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+            function(DefaultSabrParametersProviderFn.class,
+                     argument("configurationName", "TEST_SABR")),
             function(DefaultDiscountingMulticurveBundleFn.class,
                      argument("impliedCurveNames", StringSet.of()))
         ),
-        implementations(SwaptionFn.class, SABRSwaptionFn.class,
+        implementations(SwaptionFn.class, SabrSwaptionFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                        SwaptionCalculatorFactory.class, SABRSwaptionCalculatorFactory.class,
-                        SABRInterestRateParametersFn.class, MockSabrProvider.class,
+                        SwaptionCalculatorFactory.class, SabrSwaptionCalculatorFactory.class,
+                        SabrParametersProviderFn.class, DefaultSabrParametersProviderFn.class,
                         CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
                         FXMatrixFn.class, DefaultFXMatrixFn.class,
                         DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
@@ -334,90 +328,5 @@ public class SwaptionFnTest {
 
     return new SwaptionSecurity(true, swapLink, true, new Expiry(LocalDate.of(2016, 1, 22).atStartOfDay(ZoneOffset.UTC)), false, USD, 100_000_000d,
                                 ExerciseType.of("European"), LocalDate.of(2016, 1, 26).atStartOfDay(ZoneOffset.UTC));
-  }
-
-  public static class MockSabrProvider implements SABRInterestRateParametersFn {
-
-    private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-        Interpolator1DFactory.LINEAR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-        Interpolator1DFactory.FLAT_EXTRAPOLATOR);
-    private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
-
-    private final InterpolatedDoublesSurface alphaSurface = InterpolatedDoublesSurface.from(
-        new double[]{0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
-        new double[]{1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10},
-        new double[]{0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06},
-        INTERPOLATOR_2D);
-    private final InterpolatedDoublesSurface betaSurface = InterpolatedDoublesSurface.from(
-        new double[]{0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
-        new double[]{1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10},
-        new double[]{0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5},
-        INTERPOLATOR_2D);
-    private final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(
-        new double[]{0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
-        new double[]{1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10},
-        new double[]{-0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00},
-        INTERPOLATOR_2D);
-    private final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(
-        new double[]{0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
-        new double[]{1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10},
-        new double[]{0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30},
-        INTERPOLATOR_2D);
-
-    @Override
-    public Result<SABRParametersConfig> getSabrParameters(Environment env, SwaptionSecurity security) {
-      SABRInterestRateParameters sabrInterestRateParameters =
-          new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface,
-                                         new SABRHaganVolatilityFunction());
-
-
-      IborIndex iborIndex =
-          new IborIndex(Currency.USD, Period.ofMonths(3), 2, DayCounts.ACT_360,
-                        BusinessDayConventions.MODIFIED_FOLLOWING, true, "USDLIBOR3M");
-
-      GeneratorSwapFixedIbor swapConvention =
-          new GeneratorSwapFixedIbor("USD6MLIBOR3M", Period.ofMonths(6),
-                                     DayCounts.THIRTY_U_360, iborIndex, new NYCalendar());
-
-      return Result.success(new SABRParametersConfig(sabrInterestRateParameters, swapConvention));
-    }
-  }
-
-  private static final class NYCalendar extends MondayToFridayCalendar {
-
-    public NYCalendar() {
-      super("NYC");
-
-      final int startYear = 2013;
-      final int endYear = 2063;
-      for (int i = startYear; i <= endYear; i++) {
-        addNonWorkingDay(LocalDate.of(i, 1, 1));
-        addNonWorkingDay(LocalDate.of(i, 7, 4));
-        addNonWorkingDay(LocalDate.of(i, 12, 25));
-      }
-      addNonWorkingDay(LocalDate.of(2015, 1, 19));
-      addNonWorkingDay(LocalDate.of(2015, 2, 16));
-      addNonWorkingDay(LocalDate.of(2015, 5, 25));
-      addNonWorkingDay(LocalDate.of(2015, 9, 7));
-      addNonWorkingDay(LocalDate.of(2015, 10, 12));
-      addNonWorkingDay(LocalDate.of(2015, 11, 11));
-      addNonWorkingDay(LocalDate.of(2015, 11, 26));
-      addNonWorkingDay(LocalDate.of(2016, 1, 18));
-      addNonWorkingDay(LocalDate.of(2016, 2, 15));
-      addNonWorkingDay(LocalDate.of(2016, 5, 30));
-      addNonWorkingDay(LocalDate.of(2016, 9, 5));
-      addNonWorkingDay(LocalDate.of(2016, 10, 10));
-      addNonWorkingDay(LocalDate.of(2016, 11, 11));
-      addNonWorkingDay(LocalDate.of(2016, 11, 24));
-      addNonWorkingDay(LocalDate.of(2016, 12, 26));
-      addNonWorkingDay(LocalDate.of(2017, 1, 2));
-      addNonWorkingDay(LocalDate.of(2017, 1, 16));
-      addNonWorkingDay(LocalDate.of(2017, 2, 20));
-      addNonWorkingDay(LocalDate.of(2017, 5, 29));
-      addNonWorkingDay(LocalDate.of(2017, 9, 4));
-      addNonWorkingDay(LocalDate.of(2017, 10, 9));
-      addNonWorkingDay(LocalDate.of(2017, 11, 23));
-    }
   }
 }

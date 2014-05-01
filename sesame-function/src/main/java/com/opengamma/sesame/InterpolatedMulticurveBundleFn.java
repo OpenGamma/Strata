@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +30,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.link.ConventionLink;
+import com.opengamma.core.link.SecurityLink;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
@@ -50,6 +49,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.PeriodicallyCompoundedRateNode;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.security.index.OvernightIndex;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -75,10 +75,11 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   }
 
   @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(Environment env,
-                                                                                           CurveConstructionConfiguration curveConfig) {
-    
-    boolean valid = true;
+  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(Environment env, CurveConstructionConfiguration curveConfig) {
+
+    // Interim result object used to build up the complete set of
+    // failures rather than exiting early
+    Result<Boolean> result = Result.success(true);
     
     ZonedDateTime now = env.getValuationTime();
     
@@ -195,20 +196,19 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
             unitBundles.put(curveName, Pairs.of(new CurveBuildingBlock(unitMap), new DoubleMatrix2D(jacobian)));
             totalNodes += nNodesForCurve;
           } else {
-            valid = false;
+            result = Result.failure(result, marketDataResult);
           }
         } else {
-          valid = false;
+          result = Result.failure(result, curveSpecResult);;
         }
         
       }
     }
     
-    if (valid) {
+    if (result.isSuccess()) {
       return Result.success(Pairs.of(curveBundle, new CurveBuildingBlockBundle(unitBundles)));
     } else {
-      // todo - supply some useful information in the failure message!
-      return Result.failure(MISSING_DATA, "Unable to get intermediate data");
+      return Result.failure(result);
     }
   }
 
@@ -222,17 +222,17 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   }
 
   private IndexON createIndexON(OvernightCurveTypeConfiguration type) {
-    OvernightIndexConvention indexConvention =
-        ConventionLink.resolvable(type.getConvention(), OvernightIndexConvention.class).resolve();
-    return ConverterUtils.indexON(indexConvention.getName(), indexConvention);
+    final OvernightIndex security = SecurityLink.resolvable(type.getConvention(), OvernightIndex.class).resolve();
+    final OvernightIndexConvention indexConvention = ConventionLink.resolvable(security.getConventionId(), OvernightIndexConvention.class).resolve();
+    return ConverterUtils.indexON(security.getName(), indexConvention);
   }
 
   private IborIndex createIborIndex(IborCurveTypeConfiguration type) {
-    IborIndexConvention indexConvention =
-        ConventionLink.resolvable(type.getConvention(), IborIndexConvention.class).resolve();
-    return ConverterUtils.indexIbor(indexConvention.getName(), indexConvention, type.getTenor());
+    final com.opengamma.financial.security.index.IborIndex security = SecurityLink.resolvable(type.getConvention(), com.opengamma.financial.security.index.IborIndex.class).resolve();
+    final IborIndexConvention indexConvention = ConventionLink.resolvable(security.getConventionId(), IborIndexConvention.class).resolve();
+    return ConverterUtils.indexIbor(security.getName(), indexConvention, security.getTenor());
   }
-  
+
   @Override
   public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(Environment env, CurveConstructionConfiguration curveConfig) {
     throw new UnsupportedOperationException();

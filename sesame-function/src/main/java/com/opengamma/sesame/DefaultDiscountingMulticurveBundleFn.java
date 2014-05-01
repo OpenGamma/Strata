@@ -9,6 +9,7 @@ package com.opengamma.sesame;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.ERROR;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,8 +99,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
@@ -341,10 +340,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               final int nNodes = specification.getNodes().size();
               final double[] parameterGuessForCurves = new double[nNodes];
               Arrays.fill(parameterGuessForCurves, 0.02);  // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
-
               final Result<InstrumentDerivative[]> derivativesForCurve =
                   extractInstrumentDerivatives(env, specification, snapshot, fxMatrix, env.getValuationTime());
-
               final List<IborIndex> iborIndex = new ArrayList<>();
               final List<IndexON> overnightIndex = new ArrayList<>();
 
@@ -378,11 +375,17 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
               }
 
+//<<<<<<< HEAD
               if (derivativesForCurve.isSuccess()) {
                 final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
                 singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve.getValue(), generator.initialGuess(parameterGuessForCurves), generator);
               } else {
                 curveBundleResult = Result.failure(curveBundleResult, derivativesForCurve);
+//=======
+//              final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
+//              if (curveBundleResult.isSuccess()) {
+//                singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
+//>>>>>>> master
               }
             } else {
               curveBundleResult = Result.failure(curveBundleResult, fxMatrixResult, marketDataResult);

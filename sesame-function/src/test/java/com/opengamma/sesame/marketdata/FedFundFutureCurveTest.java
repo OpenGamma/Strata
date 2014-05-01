@@ -186,7 +186,7 @@ public class FedFundFutureCurveTest {
       Result<MultipleCurrencyAmount> resultPVJ4 = _fedFundsFutureFn.calculatePV(env, ffTrades[i]);
       if (resultPVJ4.isSuccess()) {
         MultipleCurrencyAmount mca = resultPVJ4.getValue();
-        assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, TOLERANCE_PV)));
+        assertThat("FedFundFutureCurve: node " + i, mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, TOLERANCE_PV)));
       } else {
         fail(resultPVJ4.getFailureMessage());
       }      

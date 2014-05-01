@@ -5,12 +5,11 @@
  */
 package com.opengamma.sesame;
 
-import java.util.List;
-
+import java.util.ArrayList;
+import java.util.Collection;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.google.common.collect.Lists;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -18,6 +17,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -28,9 +28,15 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.financial.security.option.BondFutureOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
@@ -47,6 +53,7 @@ import com.opengamma.util.time.LocalDateRange;
 public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
 
   private static final HistoricalTimeSeriesBundle EMPTY_TIME_SERIES_BUNDLE = new HistoricalTimeSeriesBundle();
+  private static final Period ONE_MONTH = Period.ofMonths(1);
 
   private final HistoricalTimeSeriesSource _htsSource;
   private final String _resolutionKey;
@@ -83,122 +90,122 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     
     final LocalDate startDate = endDate.minus(_htsRetrievalPeriod);
     return getHtsForCurveNode(env, node, LocalDateRange.of(startDate, endDate, true));
-
-  }
-
-  private void processResult(ExternalIdBundle id, String dataField, HistoricalTimeSeries timeSeries, final HistoricalTimeSeriesBundle bundle, List<Result<?>> failures) {
-    if (timeSeries != null) {
-      if (timeSeries.getTimeSeries().isEmpty()) {
-        failures.add(Result.failure(FailureStatus.MISSING_DATA, "Time series for {} is empty", id));
-      } else {
-        bundle.add(dataField, id, timeSeries);
-      }
-    } else {
-      failures.add(Result.failure(FailureStatus.MISSING_DATA, "Couldn't get time series for {}", id));
-    }
   }
 
   @Override
   public Result<HistoricalTimeSeriesBundle> getFixingsForSecurity(Environment env, FinancialSecurity security) {
-    HistoricalTimeSeriesBundle bundle;
+    final FixingRetriever retriever = new FixingRetriever(env.getValuationDate());
     try {
-      bundle = security.accept(new FixingRetriever(_htsSource, env));
-    } catch (UnsupportedOperationException ex) {
+      return security.accept(retriever);
+    } catch (Exception ex) {
       return Result.failure(ex);
     }
-    return Result.success(bundle);
   }
-  
-  private class FixingRetriever extends FinancialSecurityVisitorAdapter<HistoricalTimeSeriesBundle> {
 
-    private final HistoricalTimeSeriesSource _htsSource;
-    
-    private final LocalDate _now;
-    
-    public FixingRetriever(HistoricalTimeSeriesSource htsSource,
-                           Environment env) {
-      _htsSource = htsSource;
-      _now = env.getValuationDate();
+  /**
+   * Class that returns a timeseries bundle of the fixing timeseries required by a security.
+   */
+  private final class FixingRetriever extends FinancialSecurityVisitorAdapter<Result<HistoricalTimeSeriesBundle>> {
+
+    /**
+     * end date of the fixing series required
+     */
+    private final LocalDate _valuationDate;
+
+    /**
+     * @param valuationDate the valuation date
+     */
+    private FixingRetriever(LocalDate valuationDate) {
+      _valuationDate = valuationDate;
     }
-    
-    @Override
-    public HistoricalTimeSeriesBundle visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+
+    /**
+     * Returns a time series bundle of the previous month's market values for the specified security.
+     * @param dataField the data field, usually Market_Value
+     * @param period the period of time to return data for
+     * @param ids the externalIdBundles to get series for
+     * @return a historical time series bundle
+     */
+    private Result<HistoricalTimeSeriesBundle> getTimeSeriesBundle(String dataField, Period period, ExternalIdBundle... ids) {
       final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-      
-      final String field = MarketDataRequirementNames.MARKET_VALUE;
-      final ExternalIdBundle securityId = security.getExternalIdBundle();
+      Result<?> result = Result.success(true);
+      for (ExternalIdBundle id : ids) {
+        Result<HistoricalTimeSeries> series = getPreviousPeriodValues(dataField, id, period);
+        if (series.isSuccess()) {
+          bundle.add(dataField, id, series.getValue());
+        } else {
+          result = Result.failure(result, series);
+        }
+      }
+      if (result.isSuccess()) {
+        return Result.success(bundle);
+      }
+      return Result.failure(result);
+    }
+
+    /**
+     * Returns a time series of the previous month's field values for the specified external id into the time series bundle.
+     * @param field the name of the value used to lookup.
+     * @param id the external id of used to lookup the field values.
+     * @param length the length of time to get values for.
+     * @return the time series result
+     */
+    private Result<HistoricalTimeSeries> getPreviousPeriodValues(String field, ExternalIdBundle id, Period length) {
       final boolean includeStart = true;
       final boolean includeEnd = true;
-      final LocalDate startDate = _now.minus(Period.ofMonths(1));
-      final HistoricalTimeSeries securityTimeSeries = _htsSource.getHistoricalTimeSeries(field,
-                                                                                         securityId,
-                                                                                         _resolutionKey,
-                                                                                         startDate,
-                                                                                         includeStart,
-                                                                                         _now,
-                                                                                         includeEnd);
-      bundle.add(field, securityId, securityTimeSeries);
-      
-      final ExternalIdBundle underlyingId = security.getUnderlyingId().getExternalId().toBundle();
-      final HistoricalTimeSeries underlyingTimeSeries = _htsSource.getHistoricalTimeSeries(field,
-                                                                                           underlyingId,
-                                                                                           _resolutionKey,
-                                                                                           startDate,
-                                                                                           includeStart,
-                                                                                           _now,
-                                                                                           includeEnd);
-      bundle.add(field, underlyingId, underlyingTimeSeries);
-      return bundle;
+      final LocalDate startDate = _valuationDate.minus(length);
+      return getHistoricalTimeSeriesResult(field, id, _resolutionKey, startDate, includeStart, _valuationDate, includeEnd);
+    }
+
+    @Override
+    public Result<HistoricalTimeSeriesBundle> visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, ONE_MONTH,
+                                 security.getExternalIdBundle(), security.getUnderlyingId().toBundle());
     }
     
     @Override
-    public HistoricalTimeSeriesBundle visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-      final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-      
-      final String field = MarketDataRequirementNames.MARKET_VALUE;
-      final ExternalIdBundle id = security.getExternalIdBundle();
-      final boolean includeStart = true;
-      final boolean includeEnd = true;
-      final LocalDate startDate = _now.minus(Period.ofMonths(1));
-      final HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(field,
-                                                                                 id,
-                                                                                 _resolutionKey,
-                                                                                 startDate,
-                                                                                 includeStart,
-                                                                                 _now,
-                                                                                 includeEnd);
-      bundle.add(field, id, timeSeries);
-      return bundle;
+    public Result<HistoricalTimeSeriesBundle> visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, ONE_MONTH, security.getExternalIdBundle());
+    }
+    
+    @Override
+    public Result<HistoricalTimeSeriesBundle> visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, ONE_MONTH, security.getExternalIdBundle());
     }
 
     @Override
-    public HistoricalTimeSeriesBundle visitSwaptionSecurity(SwaptionSecurity security) {
-
+    public Result<HistoricalTimeSeriesBundle> visitSwaptionSecurity(SwaptionSecurity security) {
       if (security.getCurrency().equals(Currency.BRL)) {
         throw new UnsupportedOperationException("Fixing series for Brazilian swaptions not yet implemented");
       }
-      return EMPTY_TIME_SERIES_BUNDLE;
+      return Result.success(EMPTY_TIME_SERIES_BUNDLE);
     }
 
     @Override
-    public HistoricalTimeSeriesBundle visitBondFutureSecurity(BondFutureSecurity security) {
-      final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-      
-      final String field = MarketDataRequirementNames.MARKET_VALUE;
-      final ExternalIdBundle id = security.getExternalIdBundle();
-      final boolean includeStart = true;
-      final boolean includeEnd = true;
-      final LocalDate startDate = _now.minus(Period.ofMonths(1));
-      final HistoricalTimeSeries timeSeries = _htsSource.getHistoricalTimeSeries(field,
-                                                                                 id,
-                                                                                 _resolutionKey,
-                                                                                 startDate,
-                                                                                 includeStart,
-                                                                                 _now,
-                                                                                 includeEnd);
-      bundle.add(field, id, timeSeries);
-      return bundle;
+    public Result<HistoricalTimeSeriesBundle> visitBondFutureSecurity(BondFutureSecurity security) {
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, ONE_MONTH, security.getExternalIdBundle());
     }
+    
+    @Override
+    public Result<HistoricalTimeSeriesBundle> visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security) {
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, ONE_MONTH, security.getExternalIdBundle());
+    }   
+    
+    @Override
+    public Result<HistoricalTimeSeriesBundle> visitBondFutureOptionSecurity(BondFutureOptionSecurity security) {
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, ONE_MONTH, security.getExternalIdBundle());
+    }
+
+    @Override
+    public Result<HistoricalTimeSeriesBundle> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+      Collection<ExternalIdBundle> ids = new ArrayList<>();
+      for (final FloatingInterestRateSwapLeg leg : security.getLegs(FloatingInterestRateSwapLeg.class)) {
+        ExternalId id = leg.getFloatingReferenceRateId();
+        ids.add(id.toBundle());
+      }
+      return getTimeSeriesBundle(MarketDataRequirementNames.MARKET_VALUE, Period.ofYears(1), ids.toArray(new ExternalIdBundle[ids.size()]));
+    }
+
   }
 
   @Override
@@ -207,46 +214,53 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
     LocalDate endDate = dateRange.getEndDateInclusive();
     final boolean includeStart = true;
     final boolean includeEnd = true;
-    List<Result<?>> failures = Lists.newArrayList();    
-    final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-    /** Fixing series are required for Fed Fund futures: underlying overnight index fixing (when fixing month has started) */
     final String dataFieldDefault = MarketDataRequirementNames.MARKET_VALUE; //TODO The field should be in the config
+    Result<?> bundleResult = Result.success(true);
+    final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
     if (node.getCurveNode() instanceof RateFutureNode) {
+      /** Fixing series are required for Fed Fund futures: underlying overnight index fixing (when fixing month has started) */
       RateFutureNode nodeRateFut = (RateFutureNode) node.getCurveNode();
       Convention conventionRateFut =  ConventionLink.resolvable(nodeRateFut.getFutureConvention(), Convention.class).resolve();
       if (conventionRateFut instanceof FederalFundsFutureConvention) {
         FederalFundsFutureConvention conventionFedFundFut = (FederalFundsFutureConvention) conventionRateFut;
         final ExternalIdBundle onIndexId = ExternalIdBundle.of(conventionFedFundFut.getIndexConvention());
-        final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(dataFieldDefault, onIndexId, _resolutionKey,
+        final Result<HistoricalTimeSeries> priceIndexSeries = getHistoricalTimeSeriesResult(dataFieldDefault, onIndexId, _resolutionKey,
             startDate, includeStart, endDate, includeEnd);
-        processResult(onIndexId, dataFieldDefault, priceIndexSeries, bundle, failures);
+        if (priceIndexSeries.isSuccess()) {
+          bundle.add(dataFieldDefault, onIndexId, priceIndexSeries.getValue());
+        } else {
+          bundleResult = Result.failure(priceIndexSeries, bundleResult);
+        }
       }
-      if (Result.anyFailures(failures)) {
-        return Result.failure(failures);
+    } else if (node instanceof PointsCurveNodeWithIdentifier) {
+      final PointsCurveNodeWithIdentifier pointsNode = (PointsCurveNodeWithIdentifier) node;
+      ExternalIdBundle id = ExternalIdBundle.of(pointsNode.getUnderlyingIdentifier());
+      String dataField = pointsNode.getUnderlyingDataField();
+      Result<HistoricalTimeSeries> timeSeriesResult = getHistoricalTimeSeriesResult(dataField, id, _resolutionKey, startDate, includeStart, endDate, includeEnd);
+      if (timeSeriesResult.isSuccess()) {
+        bundle.add(dataField, id, timeSeriesResult.getValue());
+      } else {
+        bundleResult = Result.failure(timeSeriesResult, bundleResult);
       }
-      return Result.success(bundle);  
     }
-
     /** Fixing series are required for inflation swaps (starting price index) */
     if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
       final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
       InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
       PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
       final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
-      final HistoricalTimeSeries priceIndexSeries = _htsSource.getHistoricalTimeSeries(dataFieldDefault, priceIndexId, _resolutionKey,
-        startDate, includeStart, endDate, includeEnd);
-      processResult(priceIndexId, dataFieldDefault, priceIndexSeries, bundle, failures);
-      if (Result.anyFailures(failures)) {
-        return Result.failure(failures);
+      final Result<HistoricalTimeSeries> priceIndexResult = getHistoricalTimeSeriesResult(dataFieldDefault, priceIndexId, _resolutionKey, startDate, includeStart, endDate, includeEnd);
+      if (priceIndexResult.isSuccess()) {
+        bundle.add(dataFieldDefault, priceIndexId, priceIndexResult.getValue());
+      } else {
+        bundleResult = Result.failure(bundleResult, priceIndexResult);
       }
-      return Result.success(bundle);  
     }
-    
     /** Fixing series are required for Ibor swaps (when the UseFixing flag is true)  
      *  [PLAT-6430] Add the UseFixing treatment. */
     
-    if (Result.anyFailures(failures)) {
-      return Result.failure(failures);
+    if (!bundleResult.isSuccess()) {
+      return Result.failure(bundleResult);
     }
     return Result.success(bundle);  
   }
@@ -254,5 +268,29 @@ public class DefaultHistoricalTimeSeriesFn implements HistoricalTimeSeriesFn {
   @Override
   public Result<LocalDateDoubleTimeSeries> getHtsForCurrencyPair(Environment env, CurrencyPair currencyPair, LocalDateRange dateRange) {
     return _historicalMarketDataFn.getFxRates(env, currencyPair, dateRange);
+  }
+
+  /**
+   * Wraps the timeseries call and return a Result
+   * @param field the field
+   * @param id the id
+   * @param resolutionKey the resolution key
+   * @param startDate the start date
+   * @param includeStart should include start
+   * @param endDate the end date
+   * @param includeEnd should include end
+   * @return the time series Result
+   */
+  private Result<HistoricalTimeSeries> getHistoricalTimeSeriesResult(String field, ExternalIdBundle id, String resolutionKey, LocalDate startDate, 
+      boolean includeStart, LocalDate endDate, boolean includeEnd) {
+    HistoricalTimeSeries series = _htsSource.getHistoricalTimeSeries(field, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
+    if (series != null) {
+      if (series.getTimeSeries().isEmpty()) {
+        return Result.failure(FailureStatus.MISSING_DATA, "Time series for {} is empty", id);
+      } else {
+        return Result.success(series);
+      }
+    }
+    return Result.failure(FailureStatus.MISSING_DATA, "Couldn't get time series for {}", id);
   }
 }

@@ -52,7 +52,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
   public Result<InterestRateFutureCalculator> createCalculator(Environment env,
                                                                InterestRateFutureTrade trade) {
 
-    FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
+    FinancialSecurity security = trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
         _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, Result.success(new FXMatrix()));

@@ -5,14 +5,20 @@
  */
 package com.opengamma.sesame.interestrate;
 
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +45,9 @@ import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.link.ConfigLink;
+import com.opengamma.core.link.ConventionLink;
+import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
@@ -81,8 +90,10 @@ import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExp
 import com.opengamma.financial.convention.expirycalc.FedFundFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper;
 import com.opengamma.financial.currency.CurrencyMatrix;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.OvernightIndex;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -95,9 +106,18 @@ import com.opengamma.sesame.marketdata.LDClient;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.sabr.SabrSwaptionConfig;
+import com.opengamma.sesame.sabr.SabrConfigSelector;
+import com.opengamma.sesame.sabr.SabrExpiryTenorSurface;
+import com.opengamma.sesame.sabr.SabrNode;
+import com.opengamma.sesame.sabr.SabrSurfaceSelector;
+import com.opengamma.sesame.sabr.SabrSwaptionDataConfig;
+import com.opengamma.sesame.sabr.SabrSwaptionInterpolationConfig;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -124,7 +144,7 @@ public class InterestRateMockSources {
   private static final String DISC_LEG_CONVENTION =  "USD 1Y Pay Lag Fixed Leg";
   private static final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
   private static final String DISC_CONVENTION =  "USD DepositON";
-  private static final String LIBOR_PAY_LEG_CONVENTION =  "USD IRS Fixed Leg";
+  private static final String LIBOR_PAY_LEG_CONVENTION_NAME =  "USD IRS Fixed Leg";
   private static final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
   private static final String LIBOR_CONVENTION =  "USD Libor";
   private static final String LIBOR_INDEX =  "USD 3M IRS Ibor Leg";
@@ -135,7 +155,7 @@ public class InterestRateMockSources {
   private static final ExternalId _discPayLegConventionId = ExternalId.of("CONVENTION", DISC_LEG_CONVENTION);
   private static final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);
   private static final ExternalId _discConventionId = ExternalId.of("CONVENTION", DISC_CONVENTION);
-  private static final ExternalId _liborPayLegConventionId = ExternalId.of("CONVENTION", LIBOR_PAY_LEG_CONVENTION);
+  private static final ExternalId _liborPayLegConventionId = ExternalId.of("CONVENTION", LIBOR_PAY_LEG_CONVENTION_NAME);
   private static final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION);
   private static final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
   private static final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
@@ -149,6 +169,11 @@ public class InterestRateMockSources {
   private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
   private static final ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
   private static final Currency s_USD = Currency.USD;
+
+  private static final SwapFixedLegConvention LIBOR_PAY_LEG_CONVENTION =
+      new SwapFixedLegConvention(LIBOR_PAY_LEG_CONVENTION_NAME, _liborPayLegConventionId.toBundle(),
+                                 Tenor.SIX_MONTHS, DayCounts.THIRTY_U_360, BusinessDayConventions.MODIFIED_FOLLOWING,
+                                 s_USD, s_USGBID, 2, true, StubType.SHORT_START, false, 0);
 
   public static ExternalId getLiborIndexId() {
     return _liborIndexId;
@@ -384,7 +409,13 @@ public class InterestRateMockSources {
 
 
   private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
-    HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
+    // return 5 years of flat data.
+    final LocalDate now = LocalDate.now();
+    final LocalDateDoubleTimeSeriesBuilder series = ImmutableLocalDateDoubleTimeSeries.builder();
+    for (LocalDate date = LocalDate.now(); date.isAfter(now.minusYears(5)); date = DateUtils.previousWeekDay(date)) {
+      series.put(date, 0.01);
+    }
+    final HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
     final LocalDate[] dateFixing = new LocalDate[] {LocalDate.of(2014, 4, 1), LocalDate.of(2014, 4, 2), LocalDate.of(2014, 4, 3), LocalDate.of(2014, 4, 4),
       LocalDate.of(2014, 4, 7), LocalDate.of(2014, 4, 8), LocalDate.of(2014, 4, 9), LocalDate.of(2014, 4, 10), LocalDate.of(2014, 4, 11),
@@ -396,6 +427,9 @@ public class InterestRateMockSources {
     final HistoricalTimeSeries hts = new SimpleHistoricalTimeSeries(_onIndexUniqueId, fixingFedFund);
     when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE), eq(_onIndexId.toBundle()), eq("DEFAULT_TSS"), 
         any(LocalDate.class), eq(true), any(LocalDate.class), eq(true))).thenReturn(hts);
+    when(mock.getHistoricalTimeSeries(anyString(), eq(getLiborIndexId().toBundle()), anyString(),
+                                      any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
+        .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", LIBOR_INDEX), series.build()));
     return mock;
   }
 
@@ -414,11 +448,8 @@ public class InterestRateMockSources {
   }
 
   private ConventionSource mockConventionSource() {
-    BusinessDayConvention modifiedFollowing = BusinessDayConventions.MODIFIED_FOLLOWING;
     BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
-    DayCount thirtyU360 = DayCounts.THIRTY_U_360;
     DayCount act360 = DayCounts.ACT_360;
-    StubType shortStart = StubType.SHORT_START;
     StubType noStub = StubType.NONE;
 
     ConventionSource mock = mock(ConventionSource.class);
@@ -426,7 +457,9 @@ public class InterestRateMockSources {
 
     SwapFixedLegConvention descPayLegConvention =
         new SwapFixedLegConvention(DISC_LEG_CONVENTION, _discPayLegConventionId.toBundle(), Tenor.ONE_YEAR,
-                                   act360, modifiedFollowing, s_USD, s_USID, 2, true, shortStart, false, 2);
+                                   act360,
+                                   BusinessDayConventions.MODIFIED_FOLLOWING, s_USD, s_USID, 2, true,
+                                   StubType.SHORT_START, false, 2);
     when(mock.getSingle(_discPayLegConventionId, FinancialConvention.class))
         .thenReturn(descPayLegConvention);
 
@@ -450,7 +483,8 @@ public class InterestRateMockSources {
 
     OISLegConvention descReceiveLegConvention =
         new OISLegConvention(DISC_RECEIVE_LEG_CONVENTION, _discReceiveLegConventionId.toBundle(),
-                             _onIndexId, Tenor.ONE_YEAR, modifiedFollowing, 2, true, noStub, false, 2);
+                             _onIndexId, Tenor.ONE_YEAR,
+                             BusinessDayConventions.MODIFIED_FOLLOWING, 2, true, noStub, false, 2);
     when(mock.getSingle(_discReceiveLegConventionId, FinancialConvention.class))
         .thenReturn(descReceiveLegConvention);
 
@@ -460,16 +494,14 @@ public class InterestRateMockSources {
         .thenReturn(descConvention);
     when(mock.getSingle(_discConventionId))
         .thenReturn(descConvention);
-
-    SwapFixedLegConvention liborPayLegConvention =
-        new SwapFixedLegConvention(LIBOR_PAY_LEG_CONVENTION, _liborPayLegConventionId.toBundle(), Tenor.SIX_MONTHS,
-                                   thirtyU360, modifiedFollowing, s_USD, s_USGBID, 2, true, shortStart, false, 0);
+    
     when(mock.getSingle(_liborPayLegConventionId, FinancialConvention.class))
-        .thenReturn(liborPayLegConvention);
+        .thenReturn(LIBOR_PAY_LEG_CONVENTION);
 
     VanillaIborLegConvention liborReceiveLegConvention =
         new VanillaIborLegConvention(LIBOR_RECEIVE_LEG_CONVENTION, _liborReceiveLegConventionId.toBundle(),
-                                     _liborIndexId, true, "Linear", Tenor.THREE_MONTHS, 2, true, shortStart, false, 0);
+                                     _liborIndexId, true, "Linear", Tenor.THREE_MONTHS, 2, true,
+                                     StubType.SHORT_START, false, 0);
     when(mock.getSingle(any(ExternalId.class), eq(VanillaIborLegConvention.class)))
         .thenReturn(liborReceiveLegConvention);
     when(mock.getSingle(_liborReceiveLegConventionId, FinancialConvention.class))
@@ -478,7 +510,8 @@ public class InterestRateMockSources {
         .thenReturn(liborReceiveLegConvention);
 
     IborIndexConvention liborConvention =
-        new IborIndexConvention(LIBOR_CONVENTION, _liborConventionId.toBundle(), act360, modifiedFollowing, 2,
+        new IborIndexConvention(LIBOR_CONVENTION, _liborConventionId.toBundle(), act360,
+                                BusinessDayConventions.MODIFIED_FOLLOWING, 2,
                                 false, s_USD, LocalTime.of(11, 0), "Europe/London", s_USGBID, s_USID, "");
     when(mock.getSingle(_liborConventionId, FinancialConvention.class))
         .thenReturn(liborConvention);
@@ -576,7 +609,81 @@ public class InterestRateMockSources {
 
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 
+    SabrConfigSelector sabrConfigSelector = buildSabrConfigSelector();
+    when(mock.get(any(Class.class), eq("TEST_SABR"), any(VersionCorrection.class)))
+        .thenReturn(ImmutableList.of(ConfigItem.of(sabrConfigSelector)));
+
     return mock;
+  }
+
+  private SabrConfigSelector buildSabrConfigSelector() {
+
+    SabrExpiryTenorSurface alphaSurface = buildSabrExpiryTenorSurface(
+        "USD_ALPHA",
+        new double[]{0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
+        new double[]{1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10},
+        new double[]{0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06});
+
+    SabrExpiryTenorSurface betaSurface = buildSabrExpiryTenorSurface(
+        "USD_BETA",
+        new double[]{0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
+        new double[]{1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10},
+        new double[]{0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5});
+
+    SabrExpiryTenorSurface rhoSurface = buildSabrExpiryTenorSurface(
+        "USD_RHO",
+        new double[]{0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
+        new double[]{1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10},
+        new double[]{-0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, 0.00, 0.00, 0.00, 0.00});
+
+    SabrExpiryTenorSurface nuSurface = buildSabrExpiryTenorSurface(
+        "USD_NU",
+        new double[]{0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10, 0.0, 0.5, 1, 2, 5, 10},
+        new double[]{1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10},
+        new double[]{0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.30, 0.30, 0.30, 0.30});
+
+    Map<SabrSurfaceName, SnapshotLink<SabrExpiryTenorSurface>> surfaceMap = ImmutableMap.of(
+        SabrSurfaceName.ALPHA, SnapshotLink.resolved(alphaSurface),
+        SabrSurfaceName.BETA, SnapshotLink.resolved(betaSurface),
+        SabrSurfaceName.RHO, SnapshotLink.resolved(rhoSurface),
+        SabrSurfaceName.NU, SnapshotLink.resolved(nuSurface));
+
+    SabrSurfaceSelector<SwapFixedLegConvention, SabrExpiryTenorSurface> usdSurfaceSelector =
+        SabrSurfaceSelector.<SwapFixedLegConvention, SabrExpiryTenorSurface>builder()
+            .convention(ConventionLink.resolved(LIBOR_PAY_LEG_CONVENTION))
+            .sabrSurfaceMap(surfaceMap)
+            .build();
+
+    SabrSwaptionDataConfig sabrSwaptionDataConfig = SabrSwaptionDataConfig.builder()
+        .currencyMap(ImmutableMap.of(Currency.USD, usdSurfaceSelector))
+        .build();
+
+    SabrSwaptionInterpolationConfig interpolationConfig = SabrSwaptionInterpolationConfig.builder()
+        .expiryInterpolatorName(LINEAR)
+        .leftExpiryExtrapolatorName(FLAT_EXTRAPOLATOR)
+        .rightExpiryExtrapolatorName(FLAT_EXTRAPOLATOR)
+        .tenorInterpolatorName(LINEAR)
+        .leftTenorExtrapolatorName(FLAT_EXTRAPOLATOR)
+        .rightTenorExtrapolatorName(FLAT_EXTRAPOLATOR)
+        .build();
+
+    SabrSwaptionConfig sabrConfig = SabrSwaptionConfig.builder()
+        .sabrDataConfig(ConfigLink.resolved(sabrSwaptionDataConfig))
+        .sabrInterpolationConfig(ConfigLink.resolved(interpolationConfig))
+        .build();
+
+    Map<Class<? extends FinancialSecurity>, SabrSwaptionConfig> configurations =
+        ImmutableMap.<Class<? extends FinancialSecurity>, SabrSwaptionConfig>of(SwaptionSecurity.class, sabrConfig);
+
+    return SabrConfigSelector.builder().configurations(configurations).build();
+  }
+
+  private SabrExpiryTenorSurface buildSabrExpiryTenorSurface(String name, double[] xs, double[] ys, double[] zs) {
+    List<SabrNode> nodes = new ArrayList<>();
+    for (int i = 0; i < xs.length; i++) {
+      nodes.add(SabrNode.builder().x(xs[i]).y(ys[i]).z(zs[i]).build());
+    }
+    return new SabrExpiryTenorSurface(name, nodes);
   }
 
 }
