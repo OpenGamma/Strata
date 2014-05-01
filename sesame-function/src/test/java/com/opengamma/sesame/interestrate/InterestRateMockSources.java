@@ -39,6 +39,7 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
@@ -62,11 +63,14 @@ import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
+import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DepositConvention;
@@ -110,6 +114,7 @@ import com.opengamma.sesame.sabr.SabrSurfaceSelector;
 import com.opengamma.sesame.sabr.SabrSwaptionDataConfig;
 import com.opengamma.sesame.sabr.SabrSwaptionInterpolationConfig;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -122,14 +127,19 @@ public class InterestRateMockSources {
 
   private static final ChangeManager MOCK_CHANGE_MANAGER = mock(ChangeManager.class);
 
-  private static final String CURVE_CONSTRUCTION_CONFIGURATION = "USD_ON-OIS_LIBOR3M-FRAIRS_1U";
+  private static final String CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3 = "USD_ON-OIS_LIBOR3M-FRAIRS_1U";
+  private static final String CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF = "USD_ON-FFF";
+  
+  private static final String OG_TICKER = "OG_TICKER";
 
   private static final String USD_DISC_MAPPER = "Test USD Discounting Mapper";
+  private static final String USD_FF_MAPPER = "USD FFS-FFF OG Mapper";
   private static final String USD_DISC_OVERNIGHT_MAPPER = "Test USD Discounting Overnight Mapper";
-  private static final String LIBOR_3M_MAPPER = "Test 3m Libor Mapper";
+  private static final String USD_LIBOR3M_MAPPER = "Test 3m Libor Mapper";
 
-  private static final String LIBOR_CURVE_NAME ="USD-LIBOR3M-FRAIRS";
-  private static final String ON_CURVE_NAME ="USD-ON-OIS";
+  private static final String USD_LIBOR3M_CURVE_NAME ="USD-LIBOR3M-FRAIRS";
+  private static final String USD_OIS_CURVE_NAME ="USD-ON-OIS";
+  private static final String USD_FFF_CURVE_NAME ="USD-ON-FFF";
 
   private static final String DISC_LEG_CONVENTION =  "USD 1Y Pay Lag Fixed Leg";
   private static final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
@@ -139,7 +149,8 @@ public class InterestRateMockSources {
   private static final String LIBOR_CONVENTION =  "USD Libor";
   private static final String LIBOR_INDEX =  "USD 3M IRS Ibor Leg";
   private static final String USD_OVERNIGHT_CONVENTION =  "USD Overnight";
-  private static final String USD_OVERNIGHT_INDEX =  "USD Overnight Index";
+  private static final String USD_FEDFUND_INDEX =  "USD Fed Funds";
+  private static final String USD_FEDFUNDFUTURES_CONVENTION =  "Fed Funds Future";
 
   private static final ExternalId _discPayLegConventionId = ExternalId.of("CONVENTION", DISC_LEG_CONVENTION);
   private static final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);
@@ -148,9 +159,11 @@ public class InterestRateMockSources {
   private static final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION);
   private static final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
   private static final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
+  private static final ExternalId _fffConventionId = ExternalId.of("CONVENTION", USD_FEDFUNDFUTURES_CONVENTION);
 
   private static final ExternalId _liborIndexId = ExternalId.of("SEC", LIBOR_INDEX);
-  private static final ExternalId _onIndexId = ExternalId.of("CONVENTION", USD_OVERNIGHT_INDEX);
+  private static final ExternalId _onIndexId = ExternalId.of(OG_TICKER, USD_FEDFUND_INDEX);
+  private static final UniqueId _onIndexUniqueId = UniqueId.of(OG_TICKER, USD_FEDFUND_INDEX);
   private static final String TICKER = "Ticker";
 
   private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
@@ -192,20 +205,27 @@ public class InterestRateMockSources {
   public StrategyAwareMarketDataSource createMarketDataSource() {
     return createMarketDataSource(LocalDate.of(2014, 1, 22));
   }
+  
+  
 
   public StrategyAwareMarketDataSource createMarketDataSource(LocalDate date) {
+    return createMarketDataSource(date, true);
+  }
 
+    public StrategyAwareMarketDataSource createMarketDataSource(LocalDate date, boolean generateTicker) {
     String filename;
     if (date.equals(LocalDate.of(2014,1,22))) {
       filename = "/usdMarketQuotes-20140122.properties";
     } else if (date.equals(LocalDate.of(2014,2,18))) {
       filename = "/usdMarketQuotes-20140218.properties";
+    } else if (date.equals(LocalDate.of(2014,4,17))) {
+      filename = "/usdMarketQuotes-20140417.properties";
     } else {
       throw new OpenGammaRuntimeException("No data available for date: " + date);
     }
 
     try {
-      Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData(filename, TICKER);
+      Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData(filename, generateTicker ? TICKER : null);
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
       return new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(fieldName, marketData).build();
     } catch (IOException e) {
@@ -217,14 +237,22 @@ public class InterestRateMockSources {
   public ExposureFunctions mockExposureFunctions() {
     List<String> exposureFunctions =  ImmutableList.of("Currency");
     Map<ExternalId, String> idsToNames = new HashMap<>();
-    idsToNames.put(ExternalId.of("CurrencyISO", "USD"), CURVE_CONSTRUCTION_CONFIGURATION);
+    idsToNames.put(ExternalId.of("CurrencyISO", "USD"), CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3);
     return new ExposureFunctions("USD_ON-OIS_LIBOR3M-FRAIRS", exposureFunctions, idsToNames);
+  }
+
+
+  public ExposureFunctions mockFFExposureFunctions() {
+    List<String> exposureFunctions =  ImmutableList.of("Currency");
+    Map<ExternalId, String> idsToNames = new HashMap<>();
+    idsToNames.put(ExternalId.of("CurrencyISO", "USD"), CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF);
+    return new ExposureFunctions("USD_FFF", exposureFunctions, idsToNames);
   }
 
 
   private CurveNodeIdMapper getUSDDiscountingCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
-    cashNodes.put(Tenor.ONE_DAY, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D1")));
+    cashNodes.put(Tenor.ON, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D1")));
     cashNodes.put(Tenor.TWO_DAYS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
 
     Map<Tenor, CurveInstrumentProvider> swapNodes = Maps.newHashMap();
@@ -253,89 +281,60 @@ public class InterestRateMockSources {
 
   private CurveNodeIdMapper getUSDDiscountingOvernightCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
-    cashNodes.put(Tenor.OVERNIGHT, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
+    cashNodes.put(Tenor.ON, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
     return CurveNodeIdMapper.builder()
         .name(USD_DISC_OVERNIGHT_MAPPER)
         .cashNodeIds(cashNodes)
         .build();
   }
 
+  /**
+   * The node Id mapper for (USD) Fed Fund futures.
+   * @return The mapper.
+   */
+  private CurveNodeIdMapper getUSDFFMapper() {
+    Map<Tenor, CurveInstrumentProvider> futuresNodes = Maps.newHashMap();
+    futuresNodes.put(Tenor.ONE_DAY, new BloombergFutureCurveInstrumentProvider("FF", "Comdty", MarketDataRequirementNames.MARKET_VALUE, DataFieldType.OUTRIGHT));
+    return CurveNodeIdMapper.builder()
+        .name(USD_FF_MAPPER)
+        .rateFutureNodeIds(futuresNodes)
+        .build();
+  }
+
   private InterpolatedCurveDefinition getUSDDiscountingCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
-    nodes.add(new CashNode(Tenor.ofDays(0), Tenor.OVERNIGHT, _discConventionId, USD_DISC_MAPPER));
-    nodes.add(new CashNode(Tenor.OVERNIGHT, Tenor.OVERNIGHT, _discConventionId, USD_DISC_OVERNIGHT_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.ONE_MONTH,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.TWO_MONTHS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
+    nodes.add(new CashNode(Tenor.ofDays(0), Tenor.ON, _discConventionId, USD_DISC_MAPPER));
+    nodes.add(new CashNode(Tenor.ON, Tenor.ON, _discConventionId, USD_DISC_OVERNIGHT_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ONE_MONTH, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TWO_MONTHS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.THREE_MONTHS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.SIX_MONTHS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.NINE_MONTHS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.ONE_YEAR,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.TWO_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.THREE_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.FOUR_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.FIVE_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.SIX_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.SEVEN_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.EIGHT_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.NINE_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    nodes.add(new SwapNode(Tenor.ofDays(0),
-                           Tenor.TEN_YEARS,
-                           _discPayLegConventionId,
-                           _discReceiveLegConventionId,
-                           USD_DISC_MAPPER));
-    return new InterpolatedCurveDefinition(ON_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.SIX_MONTHS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.NINE_MONTHS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ONE_YEAR, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TWO_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.THREE_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.FOUR_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.FIVE_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.SIX_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.SEVEN_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.EIGHT_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.NINE_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TEN_YEARS, _discPayLegConventionId, _discReceiveLegConventionId, USD_DISC_MAPPER));
+    return new InterpolatedCurveDefinition(USD_OIS_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
+  }
+
+
+  /**
+   * Returns the interpolated curve definition for a curve based on Fed Fund futures.
+   * @return The definition.
+   */
+  private InterpolatedCurveDefinition getUSDFedFundFuturesCurveDefinition() {
+    Set<CurveNode> nodes = new TreeSet<>();
+    nodes.add(new RateFutureNode(1, Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.ONE_DAY, _fffConventionId, USD_FF_MAPPER, "FFF-1"));
+    nodes.add(new RateFutureNode(2, Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.ONE_DAY, _fffConventionId, USD_FF_MAPPER, "FFF-2"));
+    nodes.add(new RateFutureNode(3, Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.ONE_DAY, _fffConventionId, USD_FF_MAPPER, "FFF-3"));
+    nodes.add(new RateFutureNode(4, Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.ONE_DAY, _fffConventionId, USD_FF_MAPPER, "FFF-4"));
+    return new InterpolatedCurveDefinition(USD_FFF_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 
   private CurveNodeIdMapper get3MLiborCurveMapper() {
@@ -361,7 +360,7 @@ public class InterestRateMockSources {
     swapNodes.put(Tenor.ofYears(30),new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L15")));
 
     return CurveNodeIdMapper.builder()
-        .name(LIBOR_3M_MAPPER)
+        .name(USD_LIBOR3M_MAPPER)
         .cashNodeIds(cashNodes)
         .fraNodeIds(fraNodes)
         .swapNodeIds(swapNodes)
@@ -370,34 +369,34 @@ public class InterestRateMockSources {
 
   private InterpolatedCurveDefinition get3MLiborCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
-    nodes.add(new CashNode(Tenor.ofDays(0), Tenor.THREE_MONTHS, _liborIndexId, LIBOR_3M_MAPPER));
-    nodes.add(new FRANode(Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, _liborIndexId, LIBOR_3M_MAPPER));
-    nodes.add(new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, _liborIndexId, LIBOR_3M_MAPPER));
+    nodes.add(new CashNode(Tenor.ofDays(0), Tenor.THREE_MONTHS, _liborIndexId, USD_LIBOR3M_MAPPER));
+    nodes.add(new FRANode(Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, _liborIndexId, USD_LIBOR3M_MAPPER));
+    nodes.add(new FRANode(Tenor.SIX_MONTHS, Tenor.NINE_MONTHS, _liborIndexId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ONE_YEAR,
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TWO_YEARS,
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.THREE_YEARS,
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.FOUR_YEARS,
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.FIVE_YEARS,
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.SEVEN_YEARS,
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.TEN_YEARS,
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ofYears(12),
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ofYears(15),
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ofYears(20),
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ofYears(25),
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
     nodes.add(new SwapNode(Tenor.ofDays(0), Tenor.ofYears(30),
-                           _liborPayLegConventionId, _liborReceiveLegConventionId, LIBOR_3M_MAPPER));
-    return new InterpolatedCurveDefinition(LIBOR_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
+                           _liborPayLegConventionId, _liborReceiveLegConventionId, USD_LIBOR3M_MAPPER));
+    return new InterpolatedCurveDefinition(USD_LIBOR3M_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 
   private ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {
@@ -418,6 +417,16 @@ public class InterestRateMockSources {
     }
     final HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
+    final LocalDate[] dateFixing = new LocalDate[] {LocalDate.of(2014, 4, 1), LocalDate.of(2014, 4, 2), LocalDate.of(2014, 4, 3), LocalDate.of(2014, 4, 4),
+      LocalDate.of(2014, 4, 7), LocalDate.of(2014, 4, 8), LocalDate.of(2014, 4, 9), LocalDate.of(2014, 4, 10), LocalDate.of(2014, 4, 11),
+      LocalDate.of(2014, 4, 14), LocalDate.of(2014, 4, 15) };
+    final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013,
+      0.0014, 0.0015, 0.0015, 0.0015, 0.0015,
+      0.0014, 0.0015 };
+    final LocalDateDoubleTimeSeries fixingFedFund = ImmutableLocalDateDoubleTimeSeries.of(dateFixing, rateFixing);
+    final HistoricalTimeSeries hts = new SimpleHistoricalTimeSeries(_onIndexUniqueId, fixingFedFund);
+    when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE), eq(_onIndexId.toBundle()), eq("DEFAULT_TSS"), 
+        any(LocalDate.class), eq(true), any(LocalDate.class), eq(true))).thenReturn(hts);
     when(mock.getHistoricalTimeSeries(anyString(), eq(getLiborIndexId().toBundle()), anyString(),
                                       any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
         .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", LIBOR_INDEX), series.build()));
@@ -462,6 +471,15 @@ public class InterestRateMockSources {
         .thenReturn(onConvention);
     when(mock.getSingle(eq(_onConventionId.toBundle()), any(VersionCorrection.class)))
         .thenReturn(onConvention);
+    
+    FederalFundsFutureConvention fffConvention =
+        new FederalFundsFutureConvention(USD_FEDFUNDFUTURES_CONVENTION, _fffConventionId.toBundle(), 
+            ExternalId.of("EXPIRY_CONVENTION", FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME), 
+            s_USID, _onIndexId, 5000000);
+    when(mock.getSingle(_fffConventionId, FinancialConvention.class))
+        .thenReturn(fffConvention);
+    when(mock.getSingle(eq(_fffConventionId.toBundle()), any(VersionCorrection.class)))
+        .thenReturn(fffConvention);
 
     OISLegConvention descReceiveLegConvention =
         new OISLegConvention(DISC_RECEIVE_LEG_CONVENTION, _discReceiveLegConventionId.toBundle(),
@@ -476,9 +494,7 @@ public class InterestRateMockSources {
         .thenReturn(descConvention);
     when(mock.getSingle(_discConventionId))
         .thenReturn(descConvention);
-
-  //  SwapFixedLegConvention LIBOR_PAY_LEG_CONVENTION =
-   //     LIBOR_PAY_LEG_CONVENTION;
+    
     when(mock.getSingle(_liborPayLegConventionId, FinancialConvention.class))
         .thenReturn(LIBOR_PAY_LEG_CONVENTION);
 
@@ -523,7 +539,7 @@ public class InterestRateMockSources {
     SecuritySource mock = mock(SecuritySource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 
-    OvernightIndex onIndex = new OvernightIndex(USD_OVERNIGHT_INDEX, _onConventionId);
+    OvernightIndex onIndex = new OvernightIndex(USD_FEDFUND_INDEX, _onConventionId);
     when(mock.getSingle(_onIndexId.toBundle()))
         .thenReturn(onIndex);
     when(mock.getSingle(eq(_onIndexId.toBundle()), any(VersionCorrection.class)))
@@ -549,32 +565,47 @@ public class InterestRateMockSources {
 
     Map<String, List<? extends CurveTypeConfiguration>> curveNameTypeMap = Maps.newHashMap();
 
-    curveNameTypeMap.put(LIBOR_CURVE_NAME, Arrays.asList(liborCurveTypeConfig));
-    curveNameTypeMap.put(ON_CURVE_NAME, Arrays.asList(onCurveTypeConfig, discCurveTypeConfig));
+    curveNameTypeMap.put(USD_LIBOR3M_CURVE_NAME, Arrays.asList(liborCurveTypeConfig));
+    curveNameTypeMap.put(USD_OIS_CURVE_NAME, Arrays.asList(onCurveTypeConfig, discCurveTypeConfig));
 
     CurveGroupConfiguration curveGroupConfig = new CurveGroupConfiguration(0, curveNameTypeMap);
     List<CurveGroupConfiguration> curveGroupConfigs = ImmutableList.of(curveGroupConfig);
 
     List<String> exogenousConfigurations = ImmutableList.of();
-    CurveConstructionConfiguration curveConfig = new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIGURATION, curveGroupConfigs, exogenousConfigurations);
+    CurveConstructionConfiguration curveConfig = new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3, curveGroupConfigs, exogenousConfigurations);
     when(mock.get(eq(CurveConstructionConfiguration.class),
-                  eq(CURVE_CONSTRUCTION_CONFIGURATION),
+                  eq(CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3),
                   any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(ConfigItem.of(curveConfig)));
+    
+    Map<String, List<? extends CurveTypeConfiguration>> fffCurveNameTypeMap = 
+        ImmutableMap.<String, List<? extends CurveTypeConfiguration>>of(USD_FFF_CURVE_NAME, Arrays.asList(onCurveTypeConfig, discCurveTypeConfig));
 
+    CurveGroupConfiguration fffCurveGroupConfig = new CurveGroupConfiguration(0, fffCurveNameTypeMap);
+    List<CurveGroupConfiguration> fffCurveGroupConfigs = ImmutableList.of(fffCurveGroupConfig);
+    CurveConstructionConfiguration fffCurveConfig = new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF, fffCurveGroupConfigs, exogenousConfigurations);
+    when(mock.get(eq(CurveConstructionConfiguration.class),
+                  eq(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF),
+                  any(VersionCorrection.class)))
+        .thenReturn(ImmutableSet.of(ConfigItem.of(fffCurveConfig)));
+    
     //return curve definitions via mock
-    when(mock.get(eq(Object.class), eq(ON_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.get(eq(Object.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(getUSDDiscountingCurveDefinition())));
-    when(mock.get(eq(Object.class), eq(LIBOR_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.get(eq(Object.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(get3MLiborCurveDefinition())));
+    when(mock.get(eq(Object.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
+    .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(getUSDFedFundFuturesCurveDefinition())));
 
     //return node mappers via mock
     when(mock.getSingle(CurveNodeIdMapper.class, USD_DISC_MAPPER, VersionCorrection.LATEST))
         .thenReturn(getUSDDiscountingCurveMapper());
     when(mock.getSingle(CurveNodeIdMapper.class, USD_DISC_OVERNIGHT_MAPPER, VersionCorrection.LATEST))
         .thenReturn(getUSDDiscountingOvernightCurveMapper());
-    when(mock.getSingle(CurveNodeIdMapper.class, LIBOR_3M_MAPPER, VersionCorrection.LATEST))
+    when(mock.getSingle(CurveNodeIdMapper.class, USD_LIBOR3M_MAPPER, VersionCorrection.LATEST))
         .thenReturn(get3MLiborCurveMapper());
+    when(mock.getSingle(CurveNodeIdMapper.class, USD_FF_MAPPER, VersionCorrection.LATEST))
+        .thenReturn(getUSDFFMapper());
 
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 

@@ -32,9 +32,9 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
   //-------------------------------------------------------------------------
   @Override
   public Result<AbstractCurveSpecification> getCurveSpecification(Environment env, AbstractCurveDefinition curveDefinition) {
-    // TODO - how can this possibly be correct when it's using LocalDate.now()?
+    // TODO - the valuation time never seems to be used
     return Result.success(_curveSpecificationBuilder.buildSpecification(env.getValuationTime().toInstant(),
-                                                                LocalDate.now(),
+                                                                env.getValuationDate(),
                                                                 curveDefinition));
   }
 }

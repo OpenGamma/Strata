@@ -340,13 +340,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               final int nNodes = specification.getNodes().size();
               final double[] parameterGuessForCurves = new double[nNodes];
               Arrays.fill(parameterGuessForCurves, 0.02);  // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
-              InstrumentDerivative[] derivativesForCurve = null;
-              try {
-                derivativesForCurve = extractInstrumentDerivatives(env, specification, snapshot, fxMatrix, env.getValuationTime());
-              } catch (Exception e) {
-                curveBundleResult = Result.failure(curveBundleResult, Result.failure(e));
-              }
-
+              final Result<InstrumentDerivative[]> derivativesForCurve =
+                  extractInstrumentDerivatives(env, specification, snapshot, fxMatrix, env.getValuationTime());
               final List<IborIndex> iborIndex = new ArrayList<>();
               final List<IndexON> overnightIndex = new ArrayList<>();
 
@@ -379,10 +374,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
               if (!overnightIndex.isEmpty()) {
                 forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
               }
-
-              final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
-              if (curveBundleResult.isSuccess()) {
-                singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
+              if (derivativesForCurve.isSuccess()) {
+                final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
+                singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve.getValue(), generator.initialGuess(parameterGuessForCurves), generator);
+              } else {
+                curveBundleResult = Result.failure(curveBundleResult, derivativesForCurve);
               }
             } else {
               curveBundleResult = Result.failure(curveBundleResult, fxMatrixResult, marketDataResult);
@@ -477,7 +473,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     return result;
   }
 
-  private InstrumentDerivative[] extractInstrumentDerivatives(Environment env, 
+  private Result<InstrumentDerivative[]> extractInstrumentDerivatives(Environment env, 
                                                               CurveSpecification specification,
                                                               SnapshotDataBundle snapshot,
                                                               FXMatrix fxMatrix,
@@ -487,32 +483,38 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nodes.size()];
     
     Iterator<CurveNodeWithIdentifier> nodeIt = nodes.iterator();
+    Result<Boolean> interimResult = Result.success(true);
     
-    for (int i = 0; i < nodes.size(); i++) {
-      
+    for (int i = 0; i < nodes.size(); i++) {      
       CurveNodeWithIdentifier node = nodeIt.next();
       HistoricalTimeSeriesBundle htsBundle = null;
-      
       if (CurveNodeConverter.requiresFixingSeries(node.getCurveNode())) {
-        // todo - this lookup is not needed for all curves but we get it for all, can we restrict so we only get it when we need it?
-        final Result<HistoricalTimeSeriesBundle> htsResult =
-            _historicalTimeSeriesProvider.getHtsForCurveNode(env, node, env.getValuationDate());
-        
+      /** Implementation node: fixing series are required for 
+        - inflation swaps (starting price index) 
+        - Fed Fund futures: underlying overnight index fixing (when fixing month has started) 
+        - Ibor swaps (when the UseFixing flag is true)  */
+        @SuppressWarnings("deprecation")
+        final Result<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurveNode(env, node, env.getValuationDate());        
         if (!htsResult.isSuccess()) {
-          //TODO does it make sense to continue here?
-          continue;
+          interimResult = Result.failure(interimResult, htsResult);
+        } else {
+          htsBundle = htsResult.getValue();
         }
+      }      
+      if (interimResult.isSuccess()) {
+        final InstrumentDefinition<?> definitionForNode =
+            node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationTime, fxMatrix));
+        // todo - we may need to allow the node converter implementation to be changed
+        derivativesForCurve[i] =
+            (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, valuationTime, htsBundle);
       }
-      
-      final InstrumentDefinition<?> definitionForNode =
-          node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationTime, fxMatrix));
-      
-      // todo - we may need to allow the node converter implementation to be changed
-      derivativesForCurve[i] =
-          (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, valuationTime, htsBundle);
     }
 
-    return derivativesForCurve;
+    if (interimResult.isSuccess()) {
+      return Result.success(derivativesForCurve);
+    } else {
+      return Result.failure(interimResult);
+    }
   }
 
   private GeneratorYDCurve getGenerator(final AbstractCurveDefinition definition, LocalDate valuationDate) {
