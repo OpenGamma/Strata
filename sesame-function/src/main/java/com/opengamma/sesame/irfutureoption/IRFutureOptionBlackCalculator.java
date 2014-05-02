@@ -9,6 +9,11 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceBlackSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PositionDeltaSTIRFutureOptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PositionGammaSTIRFutureOptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PositionThetaSTIRFutureOptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PositionVegaSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueBlackSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
@@ -35,6 +40,27 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
    * Calculator for the PV01 of the interest rate future option.
    */
   private static final PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator PV01_CALC = PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator.getInstance();
+  
+  /**
+   * Calculator the model price of the interest rate future option.
+   */
+  private static final FuturesPriceBlackSTIRFuturesCalculator PRICE_CALC = FuturesPriceBlackSTIRFuturesCalculator.getInstance();
+  /**
+   * Calculate for the delta of the interest rate future option.
+   */
+  private static final PositionDeltaSTIRFutureOptionCalculator DELTA_CALC = PositionDeltaSTIRFutureOptionCalculator.getInstance();
+  /**
+   * Calculate for the gamma of the interest rate future option.
+   */
+  private static final PositionGammaSTIRFutureOptionCalculator GAMMA_CALC = PositionGammaSTIRFutureOptionCalculator.getInstance();
+  /**
+   * Calculate for the vega of the interest rate future option.
+   */
+  private static final PositionVegaSTIRFutureOptionCalculator VEGA_CALC = PositionVegaSTIRFutureOptionCalculator.getInstance();
+  /**
+   * Calculate for the theta of the interest rate future option.
+   */
+  private static final PositionThetaSTIRFutureOptionCalculator THETA_CALC = PositionThetaSTIRFutureOptionCalculator.getInstance();
   
   /**
    * Derivative form on the security.
@@ -86,5 +112,30 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
   @Override
   public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01() {
     return Result.success(_derivative.accept(PV01_CALC, _black));
+  }
+  
+  @Override
+  public Result<Double> calculateModelPrice() {
+    return Result.success(_derivative.accept(PRICE_CALC, _black));
+  }
+
+  @Override
+  public Result<Double> calculateDelta() {
+    return Result.success(_derivative.accept(DELTA_CALC, _black));
+  }
+
+  @Override
+  public Result<Double> calculateGamma() {
+    return Result.success(_derivative.accept(GAMMA_CALC, _black));
+  }
+
+  @Override
+  public Result<Double> calculateVega() {
+    return Result.success(_derivative.accept(VEGA_CALC, _black));
+  }
+  
+  @Override
+  public Result<Double> calculateTheta() {
+    return Result.success(_derivative.accept(THETA_CALC, _black));
   }
 }
