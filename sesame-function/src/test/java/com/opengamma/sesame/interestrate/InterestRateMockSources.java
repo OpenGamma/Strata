@@ -95,7 +95,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.MarketdataResourcesLoader;
-import com.opengamma.sesame.holidays.USDHolidaySource;
+import com.opengamma.sesame.holidays.UsdHolidaySource;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.LDClient;
@@ -428,7 +428,7 @@ public class InterestRateMockSources {
   }
 
   private HolidaySource mockHolidaySource() {
-    return new USDHolidaySource();
+    return new UsdHolidaySource();
   }
 
   private RegionSource mockRegionSource() {

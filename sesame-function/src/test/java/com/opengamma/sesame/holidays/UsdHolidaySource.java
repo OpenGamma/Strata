@@ -18,17 +18,16 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 
-public class USDHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
+public class UsdHolidaySource extends AbstractSource<Holiday> implements HolidaySource {
 
   /**
    * Map of exception dates and whether they are working or non-working.
    */
-
   private final ConcurrentMap<LocalDate, Boolean> _nonWorkingDay = new ConcurrentHashMap<>();
 
-  public USDHolidaySource() {
-    final int startYear = 2013;
-    final int endYear = 2063;
+  public UsdHolidaySource() {
+    int startYear = 2013;
+    int endYear = 2063;
     for (int loopy = startYear; loopy <= endYear; loopy++) {
       addNonWorkingDay(LocalDate.of(loopy, 1, 1));
       addNonWorkingDay(LocalDate.of(loopy, 7, 4));
@@ -63,7 +62,7 @@ public class USDHolidaySource extends AbstractSource<Holiday> implements Holiday
   }
 
   private boolean isHoliday(LocalDate dateToCheck) {
-    final DayOfWeek day = dateToCheck.getDayOfWeek();
+    DayOfWeek day = dateToCheck.getDayOfWeek();
     if (day.equals(DayOfWeek.SATURDAY) || day.equals(DayOfWeek.SUNDAY)) {
       return true;
     }
