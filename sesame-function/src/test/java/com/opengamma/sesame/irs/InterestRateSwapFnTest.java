@@ -30,6 +30,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
@@ -96,23 +97,31 @@ import com.opengamma.util.tuple.Pair;
 public class InterestRateSwapFnTest {
 
   private static final InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
-  
-  private static final double STD_TOLERANCE_PV = 1.0E-2;
-  private static final double STD_TOLERANCE_RATE = 1.0E-5; //TODO What is the correct tolerance here
-  private static final double STD_TOLERANCE_PV01 = 1.0E-5; //TODO What is the correct tolerance here
 
-  private static final double EXPECTED_PV = -16376.245; //TODO What is the correct PV here
-  private static final double EXPECTED_PV2 = -23949.702; //TODO What is the correct PV here
-  private static final double EXPECTED_PAR_RATE = 0.0000; //TODO What is the correct par rate here
-  private static final double EXPECTED_PV01 = 0.0000; //TODO What is the correct PV here
+  private static final double STD_TOLERANCE_PV = 1.0E-3;
+  private static final double STD_TOLERANCE_RATE = 1.0E-8;
+  private static final double STD_TOLERANCE_PV01 = 1.0E-4;
+
+  private static final double EXPECTED_ON_PV = -9723.264518929138;
+  private static final double EXPECTED_ON_PAR_RATE =  6.560723881400023E-4;
+  private static final double EXPECTED_ON_PV01 = 0.0000; //TODO What is the correct PV here
+
+  private static final double EXPECTED_3M_PV = 7170391.798257509;
+  private static final double EXPECTED_3M_PAR_RATE = 0.025894715668195054;
+
+  private static final double EXPECTED_FIXING_PV = -2434664.6871909914;
+
+  private static final double NOTIONAL = 100000000; //100m
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
 
-  private InterestRateSwapFn _swapFunction;
-  private InterestRateSwapSecurity _swapSecurity = createSingleSwap(LocalDate.of(2014, 3, 19), LocalDate.of(2015, 3, 18));
-  private InterestRateSwapSecurity _swapSecurity2 = createSingleSwap(LocalDate.of(2013, 3, 19), LocalDate.of(2015, 3, 18));
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
-      _interestRateMockSources.createMarketDataSource());
+                                                               _interestRateMockSources.createMarketDataSource(
+                                                                   LocalDate.of(2014, 2, 18)));
+  private InterestRateSwapFn _swapFunction;
+  private InterestRateSwapSecurity _fixedVsOnCompoundedSwapSecurity = createFixedVsOnCompoundedSwap();
+  private InterestRateSwapSecurity _fixedVsLibor3mSwapSecurity = createFixedVsLibor3mSwap();
+  private InterestRateSwapSecurity _fixedVsLiborWithFixingSwapSecurity = createFixedVsLiborWithFixingSwap();
 
   @BeforeClass
   public void setUpClass() throws IOException {
@@ -121,9 +130,9 @@ public class InterestRateSwapFnTest {
             function(ConfigDbMarketExposureSelectorFn.class,
                      argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions()))),
             function(RootFinderConfiguration.class,
-                     argument("rootFinderAbsoluteTolerance", 1e-9),
-                     argument("rootFinderRelativeTolerance", 1e-9),
-                     argument("rootFinderMaxIterations", 1000)),
+                     argument("rootFinderAbsoluteTolerance", 1e-10),
+                     argument("rootFinderRelativeTolerance", 1e-10),
+                     argument("rootFinderMaxIterations", 5000)),
             function(DefaultCurrencyPairsFn.class,
                      argument("currencyPairs", ImmutableSet.of(/*no pairs*/))),
             function(DefaultHistoricalTimeSeriesFn.class,
@@ -155,14 +164,114 @@ public class InterestRateSwapFnTest {
     _swapFunction = FunctionModel.build(InterestRateSwapFn.class, config, ComponentMap.of(components));
   }
 
-  private InterestRateSwapSecurity createSingleSwap(LocalDate effectiveDate, LocalDate maturityDate) {
+  private InterestRateSwapSecurity createFixedVsLiborWithFixingSwap() {
 
-    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1_000_000);
-
+    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, NOTIONAL);
     List<InterestRateSwapLeg> legs = new ArrayList<>();
-
     PeriodFrequency freq6m = PeriodFrequency.of(Period.ofMonths(6));
+    PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
+    Set<ExternalId> calendarUsNy = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
+
+    FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
+    payLeg.setNotional(notional);
+    payLeg.setDayCountConvention(DayCounts.THIRTY_U_360);
+    payLeg.setPaymentDateFrequency(freq6m);
+    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setPaymentDateCalendars(calendarUsNy);
+    payLeg.setAccrualPeriodFrequency(freq6m);
+    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setAccrualPeriodCalendars(calendarUsNy);
+    payLeg.setRate(new Rate(0.02));
+    payLeg.setPayReceiveType(PayReceiveType.PAY);
+    legs.add(payLeg);
+
+    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
+    receiveLeg.setNotional(notional);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setPaymentDateFrequency(freq3m);
+    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setPaymentDateCalendars(calendarUsNy);
+    receiveLeg.setAccrualPeriodFrequency(freq3m);
+    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setAccrualPeriodCalendars(calendarUsNy);
+    receiveLeg.setResetPeriodFrequency(freq3m);
+    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setResetPeriodCalendars(calendarUsNy);
+    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    receiveLeg.setFixingDateCalendars(calendarUsNy);
+    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
+    receiveLeg.setFloatingReferenceRateId(_interestRateMockSources.getLiborIndexId());
+    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
+    receiveLeg.setRollConvention(RollConvention.EOM);
+    legs.add(receiveLeg);
+
+    return new InterestRateSwapSecurity(
+        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
+        "Fixed vs Libor with fixing",
+        LocalDate.of(2013, 3, 19), // effective date
+        LocalDate.of(2015, 3, 18), // maturity date,
+        legs);
+  }
+
+  private InterestRateSwapSecurity createFixedVsOnCompoundedSwap() {
+
+    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, NOTIONAL);
+    List<InterestRateSwapLeg> legs = new ArrayList<>();
+    PeriodFrequency freq1y = PeriodFrequency.of(Period.ofYears(1));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
+
+    FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
+    payLeg.setNotional(notional);
+    payLeg.setDayCountConvention(DayCounts.ACT_360);
+    payLeg.setPaymentDateFrequency(freq1y);
+    payLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setPaymentDateCalendars(calendarUSNY);
+    payLeg.setAccrualPeriodFrequency(freq1y);
+    payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    payLeg.setAccrualPeriodCalendars(calendarUSNY);
+    payLeg.setPaymentOffset(2);
+    payLeg.setRate(new Rate(0.00123));
+    payLeg.setPayReceiveType(PayReceiveType.PAY);
+    legs.add(payLeg);
+
+    FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
+    receiveLeg.setNotional(notional);
+    receiveLeg.setDayCountConvention(DayCounts.ACT_360);
+    receiveLeg.setPaymentDateFrequency(freq1y);
+    receiveLeg.setPaymentDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setPaymentDateCalendars(calendarUSNY);
+    receiveLeg.setAccrualPeriodFrequency(PeriodFrequency.DAILY);
+    receiveLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setAccrualPeriodCalendars(calendarUSNY);
+    receiveLeg.setResetPeriodFrequency(freq1y);
+    receiveLeg.setResetPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
+    receiveLeg.setResetPeriodCalendars(calendarUSNY);
+    receiveLeg.setFixingDateBusinessDayConvention(BusinessDayConventions.PRECEDING);
+    receiveLeg.setFixingDateCalendars(calendarUSNY);
+    receiveLeg.setFixingDateOffset(-2);
+    receiveLeg.setPaymentOffset(2);
+    receiveLeg.setFloatingRateType(FloatingRateType.OIS);
+    receiveLeg.setFloatingReferenceRateId(_interestRateMockSources.getOvernightIndexId());
+    receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
+    receiveLeg.setCompoundingMethod(CompoundingMethod.FLAT);
+    legs.add(receiveLeg);
+
+    return new InterestRateSwapSecurity(
+        ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
+        "Fixed vs ON compounded",
+        LocalDate.of(2014, 2, 5),
+        LocalDate.of(2014, 4, 7), // maturity date,
+        legs);
+  }
+
+  private InterestRateSwapSecurity createFixedVsLibor3mSwap() {
+
+    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, NOTIONAL);
+    PeriodFrequency freq6m = PeriodFrequency.of(Period.ofMonths(6));
+    PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
+    Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
+    List<InterestRateSwapLeg> legs = new ArrayList<>();
 
     FixedInterestRateSwapLeg payLeg = new FixedInterestRateSwapLeg();
     payLeg.setNotional(notional);
@@ -173,11 +282,9 @@ public class InterestRateSwapFnTest {
     payLeg.setAccrualPeriodFrequency(freq6m);
     payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     payLeg.setAccrualPeriodCalendars(calendarUSNY);
-    payLeg.setRate(new Rate(0.02));
+    payLeg.setRate(new Rate(0.0150));
     payLeg.setPayReceiveType(PayReceiveType.PAY);
     legs.add(payLeg);
-
-    PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
 
     FloatingInterestRateSwapLeg receiveLeg = new FloatingInterestRateSwapLeg();
     receiveLeg.setNotional(notional);
@@ -197,57 +304,79 @@ public class InterestRateSwapFnTest {
     receiveLeg.setFloatingRateType(FloatingRateType.IBOR);
     receiveLeg.setFloatingReferenceRateId(_interestRateMockSources.getLiborIndexId());
     receiveLeg.setPayReceiveType(PayReceiveType.RECEIVE);
-    receiveLeg.setRollConvention(RollConvention.EOM);
+
     legs.add(receiveLeg);
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "test swap",
-        effectiveDate, // effective date
-        maturityDate, // maturity date,
+        "Fixed vs Libor 3m",
+        LocalDate.of(2014, 9, 12), // effective date
+        LocalDate.of(2021, 9, 12), // maturity date,
         legs);
   }
 
-  @Test(enabled = true)
-  public void interestRateSwapPV() {
-    Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(ENV, _swapSecurity);
-    assertThat(resultPV.isSuccess(), is((true)));
+  @Test
+  public void fixedVsOnCompoundedSwapPv() {
+    Result<MultipleCurrencyAmount> resultPv = _swapFunction.calculatePV(ENV, _fixedVsOnCompoundedSwapSecurity);
+    assertThat(resultPv.isSuccess(), is((true)));
 
-    MultipleCurrencyAmount mca = resultPV.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV, STD_TOLERANCE_PV)));
+    MultipleCurrencyAmount mca = resultPv.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_ON_PV, STD_TOLERANCE_PV)));
   }
 
-  @Test(enabled = true)
-  public void interestRateSwapPV2() {
-    Result<MultipleCurrencyAmount> resultPV = _swapFunction.calculatePV(ENV, _swapSecurity2);
-    assertThat(resultPV.isSuccess(), is((true)));
+  @Test
+  public void fixedVsLibor3mSwapPv() {
+    Result<MultipleCurrencyAmount> resultPv = _swapFunction.calculatePV(ENV, _fixedVsLibor3mSwapSecurity);
+    assertThat(resultPv.isSuccess(), is((true)));
 
-    MultipleCurrencyAmount mca = resultPV.getValue();
-    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_PV2, STD_TOLERANCE_PV)));
+    MultipleCurrencyAmount mca = resultPv.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_3M_PV, STD_TOLERANCE_PV)));
   }
 
+  //TODO when converting a swap to derivative and then getting the par rate via the ParRateDiscounting Calculator,
+  //par rate is not available as the converted swap is not of type SwapFixedCoupon
   @Test(enabled = false)
-  public void interestRateSwapParRate() {
-    Result<Double> resultParRate = _swapFunction.calculateParRate(ENV, _swapSecurity);
+  public void fixedVsOnCompoundedSwapParRate() {
+    Result<Double> resultParRate = _swapFunction.calculateParRate(ENV, _fixedVsOnCompoundedSwapSecurity);
     assertThat(resultParRate.isSuccess(), is((true)));
 
     Double parRate = resultParRate.getValue();
-    assertThat(parRate, is(closeTo(EXPECTED_PAR_RATE, STD_TOLERANCE_RATE)));
+    assertThat(parRate, is(closeTo(EXPECTED_ON_PAR_RATE, STD_TOLERANCE_RATE)));
   }
 
-  @Test(enabled = false)
-  public void interestRateSwapPV01() {
-    Result<ReferenceAmount<Pair<String,Currency>>> resultPV01 = _swapFunction.calculatePV01(ENV, _swapSecurity);
-    assertThat(resultPV01.isSuccess(), is((true)));
+  @Test
+  public void fixedVsLibor3mWithFixingSwapPv() {
+    Result<MultipleCurrencyAmount> resultPv = _swapFunction.calculatePV(ENV, _fixedVsLiborWithFixingSwapSecurity);
+    assertThat(resultPv.isSuccess(), is((true)));
 
-    ReferenceAmount<Pair<String,Currency>> pv01s = resultPV01.getValue();
+    MultipleCurrencyAmount mca = resultPv.getValue();
+    assertThat(mca.getCurrencyAmount(Currency.USD).getAmount(), is(closeTo(EXPECTED_FIXING_PV, STD_TOLERANCE_PV)));
+  }
+
+  @Test
+  public void fixedVsLibor3mSwapParRate() {
+    Result<Double> resultParRate = _swapFunction.calculateParRate(ENV, _fixedVsLibor3mSwapSecurity);
+    assertThat(resultParRate.isSuccess(), is((true)));
+
+    Double parRate = resultParRate.getValue();
+    assertThat(parRate, is(closeTo(EXPECTED_3M_PAR_RATE, STD_TOLERANCE_RATE)));
+  }
+
+  //TODO enable test when PV01 expected is available
+  @Test(enabled = false)
+  public void interestRateSwapPv01() {
+    Result<ReferenceAmount<Pair<String,Currency>>> resultPv01 =
+        _swapFunction.calculatePV01(ENV, _fixedVsOnCompoundedSwapSecurity);
+    assertThat(resultPv01.isSuccess(), is((true)));
+
+    ReferenceAmount<Pair<String,Currency>> pv01s = resultPv01.getValue();
     double pv01 = 0;
     for (final Map.Entry<Pair<String, Currency>, Double> entry : pv01s.getMap().entrySet()) {
       if (entry.getKey().getSecond().equals(Currency.USD)) {
         pv01 += entry.getValue();
       }
     }
-    assertThat(pv01, is(closeTo(EXPECTED_PV01, STD_TOLERANCE_PV01)));
+    assertThat(pv01, is(closeTo(EXPECTED_ON_PV01, STD_TOLERANCE_PV01)));
   }
 
 }
