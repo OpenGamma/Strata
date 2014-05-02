@@ -23,7 +23,7 @@ public interface BondFutureOptionFn {
    * @param trade the bond future option trade, not null.
    * @return the present value of the bond future option.
    */
-  @Output(value = OutputNames.PRESENT_VALUE)
+  @Output(OutputNames.PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePV(Environment env, BondFutureOptionTrade trade);
 
   /**
@@ -32,7 +32,7 @@ public interface BondFutureOptionFn {
    * @param trade the bond future option trade, not null.
    * @return the model price of the bond future option.
    */
-  @Output(value = OutputNames.SECURITY_MODEL_PRICE)
+  @Output(OutputNames.SECURITY_MODEL_PRICE)
   Result<Double> calculateSecurityModelPrice(Environment env, BondFutureOptionTrade trade);
   
   /**
@@ -41,7 +41,7 @@ public interface BondFutureOptionFn {
    * @param trade the bond future option trade, not null.
    * @return the delta of the bond future option.
    */
-  @Output(value = OutputNames.DELTA)
+  @Output(OutputNames.DELTA)
   Result<Double> calculateDelta(Environment env, BondFutureOptionTrade trade);
   
   /**
@@ -50,7 +50,7 @@ public interface BondFutureOptionFn {
    * @param trade the bond future option trade, not null.
    * @return the gamma of the bond future option.
    */
-  @Output(value = OutputNames.GAMMA)
+  @Output(OutputNames.GAMMA)
   Result<Double> calculateGamma(Environment env, BondFutureOptionTrade trade);
   
   /**
@@ -59,7 +59,7 @@ public interface BondFutureOptionFn {
    * @param trade the bond future option trade, not null.
    * @return the vega of the bond future option.
    */
-  @Output(value = OutputNames.VEGA)
+  @Output(OutputNames.VEGA)
   Result<Double> calculateVega(Environment env, BondFutureOptionTrade trade);
   
   /**
@@ -68,6 +68,6 @@ public interface BondFutureOptionFn {
    * @param trade the bond future option trade, not null.
    * @return the theta of the bond future option.
    */
-  @Output(value = OutputNames.THETA)
+  @Output(OutputNames.THETA)
   Result<Double> calculateTheta(Environment env, BondFutureOptionTrade trade);
 }
