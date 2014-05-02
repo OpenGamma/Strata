@@ -15,8 +15,18 @@ import com.opengamma.util.tuple.Pair;
  */
 public interface DeliverableSwapFutureCalculator {
 
+  /**
+   * Calculates the price of the DeliverableSwapFuture via curves.
+   *
+   * @return result containing the Price if successfully created, a failure result otherwise.
+   */
   Result<Double> calculateSecurityModelPrice();
   
+  /**
+   * Calculates the per curve PV01 of the DeliverableSwapFuture.
+   *
+   * @return result containing the, per curve, PV01 if successfully created, a failure result otherwise.
+   */
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01();
 
 }

@@ -24,7 +24,7 @@ public interface DeliverableSwapFutureFn {
    * @param delivSwapFutureTrade the interest rate future trade to calculate the future contract price for.
    * @return result containing the future contract price.
    */
-  @Output(value = OutputNames.SECURITY_MODEL_PRICE)
+  @Output(OutputNames.SECURITY_MODEL_PRICE)
   Result<Double> calculateSecurityModelPrice(Environment env, DeliverableSwapFutureTrade delivSwapFutureTrade);
   
   /**
@@ -33,6 +33,6 @@ public interface DeliverableSwapFutureFn {
    * @param delivSwapFutureTrade the swap future trade to calculate the, per curve, PV01 for.
    * @return result containing the PV01 for each curve.
    */
-  @Output(value = OutputNames.PV01)
+  @Output(OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, DeliverableSwapFutureTrade delivSwapFutureTrade);
 }
