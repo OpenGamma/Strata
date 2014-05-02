@@ -5,11 +5,14 @@
  */
 package com.opengamma.sesame.deliverableswapfuture;
 
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
 /**
  * Deliverable swap future function to calculate PV, PV01 etc.
  */
@@ -21,7 +24,15 @@ public interface DeliverableSwapFutureFn {
    * @param delivSwapFutureTrade the interest rate future trade to calculate the future contract price for.
    * @return result containing the future contract price.
    */
-  @Output(value = OutputNames.SECURITY_MODEL_PRICE)
+  @Output(OutputNames.SECURITY_MODEL_PRICE)
   Result<Double> calculateSecurityModelPrice(Environment env, DeliverableSwapFutureTrade delivSwapFutureTrade);
   
+  /**
+   * Calculates the PV01 of the deliverable swap future contract.
+   * @param env the environment that the PV01 will be calculated with.
+   * @param delivSwapFutureTrade the swap future trade to calculate the, per curve, PV01 for.
+   * @return result containing the PV01 for each curve.
+   */
+  @Output(OutputNames.PV01)
+  Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, DeliverableSwapFutureTrade delivSwapFutureTrade);
 }

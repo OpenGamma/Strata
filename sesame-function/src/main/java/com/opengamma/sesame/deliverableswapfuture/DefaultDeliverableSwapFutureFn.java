@@ -5,10 +5,13 @@
  */
 package com.opengamma.sesame.deliverableswapfuture;
 
+import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Default implementation of the {@link DeliverableSwapFutureFn} that uses a specified calculator function to calculate
@@ -33,5 +36,14 @@ public class DefaultDeliverableSwapFutureFn implements DeliverableSwapFutureFn {
       return Result.failure(calculatorResult);
     }
     return calculatorResult.getValue().calculateSecurityModelPrice();
+  }
+
+  @Override
+  public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, DeliverableSwapFutureTrade trade) {
+    Result<DeliverableSwapFutureCalculator> calculatorResult = _deliverableSwapFutureCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }        
+    return calculatorResult.getValue().calculatePV01();
   }
 }
