@@ -11,6 +11,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.future.calculator.DeltaBlackBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceBlackBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.GammaBlackBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.ThetaBlackBondFuturesCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.VegaBlackBondFuturesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackbondfutures.PresentValueCurveSensitivityBlackBondFuturesOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
@@ -33,6 +38,16 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
   private static final PresentValueBlackBondFuturesOptionCalculator PV_CALC = PresentValueBlackBondFuturesOptionCalculator.getInstance();
   
   private static final PresentValueCurveSensitivityBlackBondFuturesOptionCalculator PV01_CALC = PresentValueCurveSensitivityBlackBondFuturesOptionCalculator.getInstance();
+
+  private static final FuturesPriceBlackBondFuturesCalculator PRICE_CALC = FuturesPriceBlackBondFuturesCalculator.getInstance();
+  
+  private static final DeltaBlackBondFuturesCalculator DELTA_CALC = DeltaBlackBondFuturesCalculator.getInstance();
+  
+  private static final GammaBlackBondFuturesCalculator GAMMA_CALC = GammaBlackBondFuturesCalculator.getInstance();
+  
+  private static final VegaBlackBondFuturesCalculator VEGA_CALC = VegaBlackBondFuturesCalculator.getInstance();
+  
+  private static final ThetaBlackBondFuturesCalculator THETA_CALC = ThetaBlackBondFuturesCalculator.getInstance();
   
   private final InstrumentDerivative _derivative;
   
@@ -64,6 +79,31 @@ public class BondFutureOptionBlackCalculator implements BondFutureOptionCalculat
   
   public Result<MultipleCurrencyMulticurveSensitivity> calculatePV01() {
     return Result.success(_derivative.accept(PV01_CALC, _black));
+  }
+  
+  @Override
+  public Result<Double> calculateModelPrice() {
+    return Result.success(_derivative.accept(PRICE_CALC, _black));
+  }
+  
+  @Override
+  public Result<Double> calculateDelta() {
+    return Result.success(_derivative.accept(DELTA_CALC, _black));
+  }
+  
+  @Override
+  public Result<Double> calculateGamma() {
+    return Result.success(_derivative.accept(GAMMA_CALC, _black));
+  }
+  
+  @Override
+  public Result<Double> calculateVega() {
+    return Result.success(_derivative.accept(VEGA_CALC, _black));
+  }
+  
+  @Override
+  public Result<Double> calculateTheta() {
+    return Result.success(_derivative.accept(THETA_CALC, _black));
   }
   
   @SuppressWarnings("unchecked")

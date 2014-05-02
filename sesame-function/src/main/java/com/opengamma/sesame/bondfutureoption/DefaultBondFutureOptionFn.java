@@ -34,5 +34,49 @@ public class DefaultBondFutureOptionFn implements BondFutureOptionFn {
     }
     return calculatorResult.getValue().calculatePV();
   }
-
+  
+  @Override
+  public Result<Double> calculateSecurityModelPrice(Environment env, BondFutureOptionTrade trade) {
+    Result<BondFutureOptionCalculator> calculatorResult = _bondFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateModelPrice();
+  }
+  
+  @Override
+  public Result<Double> calculateDelta(Environment env, BondFutureOptionTrade trade) {
+    Result<BondFutureOptionCalculator> calculatorResult = _bondFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateDelta();
+  }
+  
+  @Override
+  public Result<Double> calculateGamma(Environment env, BondFutureOptionTrade trade) {
+    Result<BondFutureOptionCalculator> calculatorResult = _bondFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateGamma();
+  }
+  
+  @Override
+  public Result<Double> calculateVega(Environment env, BondFutureOptionTrade trade) {
+    Result<BondFutureOptionCalculator> calculatorResult = _bondFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateVega();
+  }
+  
+  @Override
+  public Result<Double> calculateTheta(Environment env, BondFutureOptionTrade trade) {
+    Result<BondFutureOptionCalculator> calculatorResult = _bondFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateTheta();
+  }
 }

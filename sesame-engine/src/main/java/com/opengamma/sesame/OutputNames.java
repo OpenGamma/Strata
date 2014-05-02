@@ -75,7 +75,23 @@ public final class OutputNames {
    * The model price of the security.
    */
   public static final String SECURITY_MODEL_PRICE = "Security Model Price";
-
+  /**
+   * The delta.
+   */
+  public static final String DELTA = "Delta";
+  /**
+   * The gamma.
+   */
+  public static final String GAMMA = "Gamma";
+  /**
+   * The vega.
+   */
+  public static final String VEGA = "Vega";
+  /**
+   * The theta.
+   */
+  public static final String THETA = "Theta";
+  
   /**
    * Restricted constructor.
    */

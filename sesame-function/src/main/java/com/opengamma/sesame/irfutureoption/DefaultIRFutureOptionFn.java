@@ -49,4 +49,54 @@ public class DefaultIRFutureOptionFn implements IRFutureOptionFn {
       return Result.failure(calculatorResult);
     }
   }
+  
+  @Override
+  public Result<Double> calculateModelPrice(Environment env, IRFutureOptionTrade trade) {
+    Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateModelPrice();
+    } else {
+      return Result.failure(calculatorResult);
+    }
+  }
+  
+  @Override
+  public Result<Double> calculateDelta(Environment env, IRFutureOptionTrade trade) {
+    Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateDelta();
+    } else {
+      return Result.failure(calculatorResult);
+    }
+  }
+  
+  @Override
+  public Result<Double> calculateGamma(Environment env, IRFutureOptionTrade trade) {
+    Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateGamma();
+    } else {
+      return Result.failure(calculatorResult);
+    }
+  }
+  
+  @Override
+  public Result<Double> calculateVega(Environment env, IRFutureOptionTrade trade) {
+    Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateVega();
+    } else {
+      return Result.failure(calculatorResult);
+    }
+  }
+  
+  @Override
+  public Result<Double> calculateTheta(Environment env, IRFutureOptionTrade trade) {
+    Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateTheta();
+    } else {
+      return Result.failure(calculatorResult);
+    }
+  }
 }

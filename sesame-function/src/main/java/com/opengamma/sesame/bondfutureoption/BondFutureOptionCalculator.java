@@ -25,4 +25,34 @@ public interface BondFutureOptionCalculator {
    * @return the PV01 of the bond future option.
    */
   Result<MultipleCurrencyMulticurveSensitivity> calculatePV01();
+  
+  /**
+   * Calculates the model price of the bond future option.
+   * @return the model price of the bond future option.
+   */
+  Result<Double> calculateModelPrice();
+  
+  /**
+   * Calculates the delta of the bond future option.
+   * @return the delta of the bond future option.
+   */
+  Result<Double> calculateDelta();
+  
+  /**
+   * Calculates the gamma of the bond future option.
+   * @return the gamma of the bond future option.
+   */
+  Result<Double> calculateGamma();
+  
+  /**
+   * Calculates the vega of the bond future option.
+   * @return the vega of the bond future option.
+   */
+  Result<Double> calculateVega();
+  
+  /**
+   * Calculates the theta of the bond future option.
+   * @return the theta of the bond future option.
+   */
+  Result<Double> calculateTheta();
 }

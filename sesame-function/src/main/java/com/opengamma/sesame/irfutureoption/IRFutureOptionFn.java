@@ -18,9 +18,66 @@ import com.opengamma.util.result.Result;
  */
 public interface IRFutureOptionFn {
 
-  @Output(value = OutputNames.PRESENT_VALUE)
+  /**
+   * Calculates the present value of the interest rate future option.
+   * @param env the environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return the present value of the interest rate future option.
+   */
+  @Output(OutputNames.PRESENT_VALUE)
   Result<MultipleCurrencyAmount> calculatePV(Environment env, IRFutureOptionTrade trade);
   
-  @Output(value = OutputNames.PV01)
+  /**
+   * Calculates the PV01 of the interest rate future option.
+   * @param env the environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return the PV01 of the interest rate future option.
+   */
+  @Output(OutputNames.PV01)
   Result<MultipleCurrencyMulticurveSensitivity> calculatePV01(Environment env, IRFutureOptionTrade trade);
+  
+  /**
+   * Calculates the model price of the interest rate future option.
+   * @param env the environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return the model price of the interest rate future option.
+   */
+  @Output(OutputNames.SECURITY_MODEL_PRICE)
+  Result<Double> calculateModelPrice(Environment env, IRFutureOptionTrade trade);
+  
+  /**
+   * Calculates the delta of the interest rate future option.
+   * @param env the environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return the delta of the interest rate future option.
+   */
+  @Output(OutputNames.DELTA)
+  Result<Double> calculateDelta(Environment env, IRFutureOptionTrade trade);
+  
+  /**
+   * Calculates the gamma of the interest rate future option.
+   * @param env the environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return the gamma of the interest rate future option.
+   */
+  @Output(OutputNames.GAMMA)
+  Result<Double> calculateGamma(Environment env, IRFutureOptionTrade trade);
+  
+  /**
+   * Calculates the vega of the interest rate future option.
+   * @param env the environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return the vega of the interest rate future option.
+   */
+  @Output(OutputNames.VEGA)
+  Result<Double> calculateVega(Environment env, IRFutureOptionTrade trade);
+  
+  /**
+   * Calculates the theta of the interest rate future option.
+   * @param env the environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return the theta of the interest rate future option.
+   */
+  @Output(OutputNames.THETA)
+  Result<Double> calculateTheta(Environment env, IRFutureOptionTrade trade);
 }

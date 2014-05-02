@@ -25,4 +25,34 @@ public interface IRFutureOptionCalculator {
    * @return the PV01.
    */
   Result<MultipleCurrencyMulticurveSensitivity> calculatePV01();
+  
+  /**
+   * Calculates the model price of the interest rate future option.
+   * @return the model price.
+   */
+  Result<Double> calculateModelPrice();
+  
+  /**
+   * Calculate the delta of the interest rate future option.
+   * @return the delta.
+   */
+  Result<Double> calculateDelta();
+  
+  /**
+   * Calculate the gamma of the interest rate future option.
+   * @return the gamma.
+   */
+  Result<Double> calculateGamma();
+  
+  /**
+   * Calculate the vega of the interest rate future option.
+   * @return the vega.
+   */
+  Result<Double> calculateVega();
+  
+  /**
+   * Calculate the theta of the interest rate future option.
+   * @return the theta.
+   */
+  Result<Double> calculateTheta();
 }
