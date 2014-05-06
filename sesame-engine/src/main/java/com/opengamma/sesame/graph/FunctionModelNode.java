@@ -254,11 +254,7 @@ public abstract class FunctionModelNode {
       return false;
     }
     if (argument instanceof FunctionModelConfig) {
-      if (parameterType.isAssignableFrom(FunctionModelConfig.class)) {
-        return true;
-      } else {
-        return false;
-      }
+      return parameterType.isAssignableFrom(FunctionModelConfig.class);
     }
     return true;
   }
