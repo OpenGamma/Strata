@@ -24,6 +24,7 @@ import com.opengamma.core.link.Link;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -211,7 +212,14 @@ public abstract class FunctionModelNode {
       }
       Object argument = getConstructorArgument(config, implType, path, parameter);
       if (argument != null) {
-        return nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
+        FunctionModelNode node;
+        if (argument instanceof FunctionModelConfig && !parameter.getType().isAssignableFrom(FunctionModelConfig.class)) {
+          FunctionModelConfig subtreeConfig = CompositeFunctionModelConfig.compose(((FunctionModelConfig) argument), config);
+          node = createNode(parameter.getType(), subtreeConfig, availableComponents, nodeDecorator, path, parameter);
+        } else {
+          node = new ArgumentNode(parameter.getType(), argument, parameter);
+        }
+        return nodeDecorator.decorateNode(node);
       }
       FunctionModelNode createdNode = createNode(parameter.getType(), config, availableComponents, nodeDecorator, path, parameter);
 
@@ -293,6 +301,8 @@ public abstract class FunctionModelNode {
         throw new IncompatibleTypeException(path, "Link argument (" + arg + ") doesn't resolve to the " +
             "required type for " + parameter.getFullName());
       }
+    } else if (arg instanceof FunctionModelConfig) {
+      return arg;
     } else {
       throw new IncompatibleTypeException(path, "Argument (" + arg + ": " + arg.getClass().getSimpleName() + ") isn't of the " +
           "required type for " + parameter.getFullName());
