@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
@@ -24,6 +25,7 @@ import com.opengamma.core.link.Link;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -74,12 +76,13 @@ public abstract class FunctionModelNode {
     return createNode(type, config, availableComponents, nodeDecorator, Lists.<Parameter>newArrayList(), null);
   }
 
+  @Nullable
   private static FunctionModelNode createNode(Class<?> type,
                                               FunctionModelConfig config,
                                               Set<Class<?>> availableComponents,
                                               NodeDecorator nodeDecorator,
                                               List<Parameter> path,
-                                              Parameter parameter) {
+                                              @Nullable Parameter parameter) {
     if (!isEligibleForBuilding(type)) {
       return null;
     }
@@ -135,7 +138,7 @@ public abstract class FunctionModelNode {
   private static Class<?> getImplementationType(Class<?> type,
                                                 FunctionModelConfig config,
                                                 List<Parameter> path,
-                                                Parameter parameter) {
+                                                @Nullable Parameter parameter) {
     Class<?> implType = null;
 
     if (parameter != null) {
@@ -209,11 +212,20 @@ public abstract class FunctionModelNode {
         // the parameter can be satisfied by an existing component, no need to build it or look up a user argument
         return nodeDecorator.decorateNode(new ComponentNode(parameter));
       }
+      // has the user explicitly provided an argument?
       Object argument = getConstructorArgument(config, implType, path, parameter);
-      if (argument != null) {
-        return nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), argument, parameter));
+
+      // can we use this argument directly?
+      if (canInjectArgument(argument, parameter.getType())) {
+        return new ArgumentNode(parameter.getType(), argument, parameter);
       }
-      FunctionModelNode createdNode = createNode(parameter.getType(), config, availableComponents, nodeDecorator, path, parameter);
+      // if the user has specified function config as the argument we use it to build the subtree
+      // otherwise we use the existing config to build it
+      FunctionModelConfig subtreeConfig =
+          argument != null ?
+              CompositeFunctionModelConfig.compose(((FunctionModelConfig) argument), config) :
+              config;
+      FunctionModelNode createdNode = createNode(parameter.getType(), subtreeConfig, availableComponents, nodeDecorator, path, parameter);
 
       if (createdNode != null) {
         return createdNode;
@@ -226,6 +238,25 @@ public abstract class FunctionModelNode {
     } catch (InvalidGraphException e) {
       return new ErrorNode(type, e, parameter);
     }
+  }
+
+  /**
+   * Checks whether the argument can be used to satisfy a parameter of the specified type.
+   * Returns false if the argument is null or the argument type is {@link FunctionModelConfig}
+   * but the parameter type isn't.
+   *
+   * @param argument the argument
+   * @param parameterType the type of the parameter
+   * @return true if the argument can be used to satisfy the parameter
+   */
+  private static boolean canInjectArgument(@Nullable Object argument, Class<?> parameterType) {
+    if (argument == null) {
+      return false;
+    }
+    if (argument instanceof FunctionModelConfig) {
+      return parameterType.isAssignableFrom(FunctionModelConfig.class);
+    }
+    return true;
   }
 
   /**
@@ -271,7 +302,7 @@ public abstract class FunctionModelNode {
   /**
    * Checks the type of the constructor argument matches the expected type and returns it.
    * Handles {@link Link}s and {@link Provider}s by checking the parameter type is a
-   * {@linkLink} or {@link Provider} or that its type is compatible with the linked / provided object.
+   * {@link Link} or {@link Provider} or that its type is compatible with the linked / provided object.
    */
   private static Object getConstructorArgument(FunctionModelConfig functionModelConfig,
                                                Class<?> objectType,
@@ -279,12 +310,11 @@ public abstract class FunctionModelNode {
                                                Parameter parameter) {
     FunctionArguments args = functionModelConfig.getFunctionArguments(objectType);
     Object arg = args.getArgument(parameter.getName());
-    if (arg == null) {
-      return null;
+
+    if (arg == null || arg instanceof Provider || arg instanceof FunctionModelConfig) {
+      return arg;
       // this takes into account boxing of primitives which Class.isAssignableFrom() doesn't
     } else if (ClassUtils.isAssignable(arg.getClass(), parameter.getType(), true)) {
-      return arg;
-    } else if (arg instanceof Provider) {
       return arg;
     } else if (arg instanceof Link) {
       if (ClassUtils.isAssignable(((Link<?>) arg).getTargetType(), parameter.getType(), true)) {
