@@ -167,9 +167,8 @@ public class InterpolatedMulticurveBundleFnTest {
     _multicurveBundleFn = FunctionModel.build(DiscountingMulticurveBundleFn.class, config, components);
     
     ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
-    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/regression/curve_testing/usdMarketQuotes.discountFactors.properties", "Ticker");
-    MarketDataSource marketDataSource = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(
-        MARKET_VALUE, marketData).build();
+    MarketDataSource marketDataSource =
+        MarketdataResourcesLoader.getPreloadedSource("/regression/curve_testing/usdMarketQuotes.discountFactors.properties", "Ticker");
 
     _environment = new SimpleEnvironment(valuationDate, marketDataSource);
     

@@ -9,31 +9,41 @@ import org.fudgemsg.FudgeMsg;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.marketdata.LiveDataManager.SubscriptionRequest;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
-// todo - this probably deserves to be a standalone class
+/**
+ * Client which subscribes to market data via the LiveDataManager.
+ * As {@link LiveDataManager} keeps track of which client has which
+ * subscriptions the client needs to be used across multiple engine
+ * cycles for a view.
+ */
 // Note name is because LiveDataClient is already used elsewhere in OG
-public class LDClient implements LiveDataManager.LDListener {
+public class LDClient implements LDListener {
 
+  /**
+   * The manager to get the live data from.
+   */
   private final LiveDataManager _liveDataManager;
 
-  private final Map<ExternalIdBundle, FudgeMsg> _latestSnapshot = new HashMap<>();
+  /**
+   * The latest set of values retrieved from the market data manager.
+   */
+  private final Map<ExternalIdBundle, Result<FudgeMsg>> _latestSnapshot = new HashMap<>();
 
-  private final Set<ExternalIdBundle> _pendingSubscriptions = new HashSet<>();
-
-  private final Map<ExternalIdBundle, String> _failedSubscriptions = new HashMap<>();
-
+  /**
+   * Flag indicating whether updated values are available
+   * from the live data manager.
+   */
   private boolean _valuesPending;
 
+  /**
+   * Create the client.
+   *
+   * @param liveDataManager the live data manager
+   */
   public LDClient(LiveDataManager liveDataManager) {
     _liveDataManager = liveDataManager;
-  }
-
-  @Override
-  public void receiveSubscriptionResponse(LiveDataManager.SubscriptionResponse<ExternalIdBundle> subscriptionResponse) {
-    _failedSubscriptions.putAll(subscriptionResponse.getFailures());
-    _pendingSubscriptions.removeAll(subscriptionResponse.getSuccesses());
   }
 
   @Override
@@ -41,6 +51,11 @@ public class LDClient implements LiveDataManager.LDListener {
     _valuesPending = true;
   }
 
+  /**
+   * Subscribe to market data.
+   *
+   * @param requests the data to be subscribed to
+   */
   public void subscribe(Set<Pair<ExternalIdBundle, FieldName>> requests) {
 
     if (!requests.isEmpty()) {
@@ -49,26 +64,35 @@ public class LDClient implements LiveDataManager.LDListener {
 
         ExternalIdBundle id = request.getFirst();
 
-        if (!_latestSnapshot.containsKey(id) && !_failedSubscriptions.containsKey(id) && !_pendingSubscriptions.contains(id)) {
+        if (!_latestSnapshot.containsKey(id)) {
           subscriptions.add(id);
         }
       }
-      _pendingSubscriptions.addAll(subscriptions);
       if (!subscriptions.isEmpty()) {
-        _liveDataManager.makeSubscriptionRequest(createSubscriptionRequest(subscriptions));
+        _liveDataManager.makeSubscriptionRequest(this, createSubscriptionRequest(subscriptions));
       }
     }
   }
 
   private SubscriptionRequest<ExternalIdBundle> createSubscriptionRequest(Set<ExternalIdBundle> subscriptions) {
-    return new SubscriptionRequest<>(this, LiveDataManager.RequestType.SUBSCRIBE, subscriptions);
+    return new SubscriptionRequest<>(SubscriptionRequest.RequestType.SUBSCRIBE, subscriptions);
   }
 
+  /**
+   * Wait until results for all market data are available.
+   */
   public void waitForSubscriptions() {
     _liveDataManager.waitForAllData(this);
   }
 
-  public Map<ExternalIdBundle, FudgeMsg> retrieveLatestData() {
+  /**
+   * Get the latest market data if it has been updated since last
+   * requested. If not updated the previous snapshot will be
+   * returned.
+   *
+   * @return the latest market data
+   */
+  public Map<ExternalIdBundle, Result<FudgeMsg>> retrieveLatestData() {
     if (_valuesPending) {
       _valuesPending = false;
       _latestSnapshot.clear();
@@ -77,14 +101,10 @@ public class LDClient implements LiveDataManager.LDListener {
     return ImmutableMap.copyOf(_latestSnapshot);
   }
 
-  public Map<ExternalIdBundle, String> getFailures() {
-    return ImmutableMap.copyOf(_failedSubscriptions);
-  }
-
-  public Set<ExternalIdBundle> getPending() {
-    return _pendingSubscriptions;
-  }
-  
+  /**
+   * Remove all subscriptions for this client. To be called when
+   * this client has completed all its work.
+   */
   public void dispose() {
     _liveDataManager.unregister(this);
   }

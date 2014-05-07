@@ -8,8 +8,6 @@ package com.opengamma.sesame.marketdata;
 import java.util.Set;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Extension to the MarketDataSource that means an non-eager
@@ -19,34 +17,25 @@ import com.opengamma.util.tuple.Pair;
 public interface StrategyAwareMarketDataSource extends MarketDataSource {
 
   /**
-   * Returns the market data requests that have been made of
-   * this source since its instantiation. This is used with
-   * non-eager data sources (@see #isEagerDataSource) so that
-   * a bulk retrieval of all market data can be done.
+   * Create a new market data source based on this one which
+   * is primed with a new set of market data.
    *
-   * As this method will generally only be called for non-eager
-   * data sources, eager data sources do not need to track requests
-   * made of them and can just return an empty Set.
-   *
-   * @return the market data requests made since instantiation, not null
+   * @return a new market data source
    */
-  Set<Pair<ExternalIdBundle, FieldName>> getRequestedData();
+  StrategyAwareMarketDataSource createPrimedSource();
 
   /**
-   * Returns the market data that this source is already handling.
+   * Indicates if this market data source is compatible with
+   * the supplied specification.
    *
-   * As this method will generally only be called for non-eager
-   * data sources, eager data sources do not need to track requests
-   * made of them and can just return an empty Set.
-   *
-   * @return the market data that this source is already handling, not null
+   * @param specification  the specification to check compatibility with
+   * @return true if this source is compatible
    */
-  Set<Pair<ExternalIdBundle, FieldName>> getManagedData();
-  
-  StrategyAwareMarketDataSource createPrimedSource();
-  
   boolean isCompatible(MarketDataSpecification specification);
-  
+
+  /**
+   * Dispose of this market data source. Cleans up an resources
+   * that may be associated with the source.
+   */
   void dispose();
-  
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.function.scenarios.curvedata;
+package com.opengamma.sesame.marketdata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +13,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -24,7 +22,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Trivial market data source backed by an immutable map.
  */
-public class MapMarketDataSource implements MarketDataSource {
+public final class MapMarketDataSource implements MarketDataSource {
 
   public static final FieldName DEFAULT_FIELD = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 

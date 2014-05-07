@@ -170,11 +170,8 @@ public class DiscountingMulticurveBundleFnTest {
     _multicurveBundleFn = FunctionModel.build(DiscountingMulticurveBundleFn.class, config, components);
     
     ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
-//    HistoricalTimeSeriesSource historicalTimeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
-//    FixedHistoricalMarketDataSource marketDataSource = new FixedHistoricalMarketDataSource(historicalTimeSeriesSource, valuationDate.toLocalDate(), "BLOOMBERG", "");
-    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/regression/curve_testing/usdMarketQuotes.properties", "Ticker");
-    FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataSource marketDataSource = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(fieldName, marketData).build();
+    MarketDataSource marketDataSource =
+        MarketdataResourcesLoader.getPreloadedSource("/regression/curve_testing/usdMarketQuotes.properties", "Ticker");
 
     _environment = new SimpleEnvironment(valuationDate, marketDataSource);
     

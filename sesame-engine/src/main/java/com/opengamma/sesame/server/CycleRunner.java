@@ -9,9 +9,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
@@ -190,16 +188,6 @@ public class CycleRunner {
    * suitable initial value.
    */
   private static class InitialMarketDataSource implements StrategyAwareMarketDataSource {
-
-    @Override
-    public Set<Pair<ExternalIdBundle, FieldName>> getRequestedData() {
-      return ImmutableSet.of();
-    }
-
-    @Override
-    public Set<Pair<ExternalIdBundle, FieldName>> getManagedData() {
-      return ImmutableSet.of();
-    }
 
     @Override
     public Result<?> get(ExternalIdBundle id, FieldName fieldName) {

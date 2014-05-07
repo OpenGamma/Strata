@@ -33,6 +33,7 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.result.Result;

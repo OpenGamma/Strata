@@ -17,6 +17,8 @@ import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 
 /**
  * Load key/value pair marketdata resources as a map of {@link ExternalIdBundle} to double.
@@ -46,5 +48,13 @@ public class MarketdataResourcesLoader {
       }
     }
     return data;
+  }
+
+  public static MarketDataSource getPreloadedSource(String path, String scheme) throws IOException {
+    MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
+    for (Map.Entry<ExternalIdBundle, Double> entry : getData(path, scheme).entrySet()) {
+      builder.add(entry.getKey(), entry.getValue());
+    }
+    return builder.build();
   }
 }
