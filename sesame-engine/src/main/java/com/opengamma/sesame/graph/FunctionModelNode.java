@@ -150,7 +150,7 @@ public abstract class FunctionModelNode {
       }
       implType = type;
     }
-    if (!type.isAssignableFrom(implType)) {
+    if (!type.isAssignableFrom(implType) && !Provider.class.isAssignableFrom(implType)) {
       throw new InvalidImplementationException(path, "Function not an implementation of parent: " + implType.getSimpleName());
     }
     if (!isValidImplementationType(implType)) {

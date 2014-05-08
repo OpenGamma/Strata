@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Provider;
+
 import com.google.common.collect.Maps;
 import com.opengamma.sesame.OutputName;
 
@@ -179,7 +181,7 @@ public final class ConfigBuilder {
       for (int i = 0; i < implementations.length; i += 2) {
         Class<?> parent = implementations[i];
         Class<?> impl = implementations[i + 1];
-        if (!parent.isAssignableFrom(impl)) {
+        if (!parent.isAssignableFrom(impl) && !Provider.class.isAssignableFrom(impl)) {
           throw new IllegalArgumentException(impl + " function not an implementation of " + parent);
         }
         _implementations.put(parent, impl);
