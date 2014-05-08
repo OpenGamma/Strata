@@ -178,7 +178,7 @@ public final class ConfigBuilder {
       }
       for (int i = 0; i < implementations.length; i += 2) {
         Class<?> parent = implementations[i];
-        Class<?> impl = implementations[i  + 1];
+        Class<?> impl = implementations[i + 1];
         if (!parent.isAssignableFrom(impl)) {
           throw new IllegalArgumentException(impl + " function not an implementation of " + parent);
         }
