@@ -17,6 +17,7 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Provider;
 
@@ -27,7 +28,9 @@ import com.google.common.collect.Lists;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.sesame.config.DecoratorConfig;
 import com.opengamma.sesame.config.EngineUtils;
+import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.config.SimpleFunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
@@ -258,6 +261,18 @@ public class FunctionModelTest {
     FunctionModelConfig config = config(implementations(TestFn.class, BasicImpl.class));
     FunctionModelNode node = FunctionModelNode.create(TestFn.class, config, Collections.<Class<?>>emptySet(), NodeDecorator.IDENTITY);
     FunctionModel.forFunction(metadata, node);
+  }
+
+  @Test
+  public void invalidFunctionImplementation() {
+    Map<Class<?>, Class<?>> impls =  ImmutableMap.<Class<?>, Class<?>>of(Fn.class, Object.class);
+    FunctionModelConfig config = new SimpleFunctionModelConfig(impls, Collections.<Class<?>, FunctionArguments>emptyMap());
+    FunctionMetadata metadata = EngineUtils.createMetadata(Fn.class, "foo");
+    FunctionModel model = FunctionModel.forFunction(metadata, config);
+    assertFalse(model.isValid());
+    assertTrue(model.getRoot() instanceof ErrorNode);
+    assertFalse(model.getRoot().getExceptions().isEmpty());
+    assertTrue(model.getRoot().getExceptions().get(0) instanceof InvalidImplementationException);
   }
 
   public interface Fn {
