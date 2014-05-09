@@ -429,20 +429,23 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
   private void doValueUpdate(LiveDataValueUpdate valueUpdate) {
 
-    ExternalIdBundle idBundle = valueUpdate.getSpecification().getIdentifiers();
-    ExternalIdBundle mappedBundle = _specificationMapping.get(idBundle);
-    if (mappedBundle == null) {
-      s_logger.warn("Received value update for which no subscription mapping was found: {}", idBundle);
+    // The market data server id bundle
+    ExternalIdBundle serverIdBundle = valueUpdate.getSpecification().getIdentifiers();
+
+    // The engine id bundle
+    ExternalIdBundle idBundle = _specificationMapping.get(serverIdBundle);
+    if (idBundle == null) {
+      s_logger.warn("Received value update for which no subscription mapping was found: {}", serverIdBundle);
       return;
     }
 
-    if (!_clientSubscriptions.containsSubscription(mappedBundle)) {
-      s_logger.warn("Received value update for which no subscriptions were found: {}", mappedBundle);
+    if (!_clientSubscriptions.containsSubscription(idBundle)) {
+      s_logger.warn("Received value update for which no subscriptions were found: {}", idBundle);
       return;
     }
 
     FudgeMsg newValues = valueUpdate.getFields();
-    updateCurrentValue(mappedBundle, newValues);
+    updateCurrentValue(idBundle, newValues);
     notifyClients(idBundle);
   }
 
