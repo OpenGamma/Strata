@@ -104,7 +104,7 @@ import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
-import com.opengamma.sesame.MarketdataResourcesLoader;
+import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -184,7 +184,7 @@ public class FXForwardPVFnTest {
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
     Result<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(
-        MarketdataResourcesLoader.getData("marketdata.properties", ExternalSchemes.BLOOMBERG_TICKER));
+        MarketDataResourcesLoader.getData("marketdata.properties", ExternalSchemes.BLOOMBERG_TICKER));
     assertNotNull(pv);
     assertThat(pv.getStatus(), is((ResultStatus) SUCCESS));
   }
@@ -233,7 +233,7 @@ public class FXForwardPVFnTest {
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
-    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("yield-curve-marketdata.properties",
+    Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("yield-curve-marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     marketData.put(ExternalIdBundle.of(ExternalSchemes.BLOOMBERG_TICKER, "JPY Curncy"), 98.86);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
@@ -337,7 +337,7 @@ public class FXForwardPVFnTest {
                                               EnumSet.noneOf(FunctionService.class),
                                               FunctionTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
-    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/marketdata.properties",
+    Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
     ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
@@ -439,7 +439,7 @@ public class FXForwardPVFnTest {
     //Set<Pair<Integer, Integer>> traceFunctions = Sets.newHashSet(Pairs.of(0, 0), Pairs.of(1, 0));
     //CycleArguments cycleArguments = new CycleArguments(valuationTime, marketDataFactory, traceFunctions);
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
-    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("marketdata.properties",
+    Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
     ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));

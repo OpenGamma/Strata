@@ -98,7 +98,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.sesame.MarketdataResourcesLoader;
+import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.holidays.UsdHolidaySource;
 import com.opengamma.sesame.marketdata.FieldName;
@@ -224,7 +224,8 @@ public class InterestRateMockSources {
     }
 
     try {
-      Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData(filename, generateTicker ? TICKER : null);
+      Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData(filename,
+                                                                                   generateTicker ? TICKER : null);
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 
       MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
