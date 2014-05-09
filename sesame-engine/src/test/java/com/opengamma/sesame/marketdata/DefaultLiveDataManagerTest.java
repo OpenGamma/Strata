@@ -1,6 +1,9 @@
 package com.opengamma.sesame.marketdata;
 
 import static com.opengamma.livedata.msg.LiveDataSubscriptionResult.NOT_PRESENT;
+import static com.opengamma.sesame.marketdata.DefaultLiveDataManagerTest.WaitState.DONE;
+import static com.opengamma.sesame.marketdata.DefaultLiveDataManagerTest.WaitState.INITIAL;
+import static com.opengamma.sesame.marketdata.DefaultLiveDataManagerTest.WaitState.WAITING;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.FailureStatus.PENDING_DATA;
 import static com.opengamma.util.result.FailureStatus.PERMISSION_DENIED;
@@ -269,16 +272,16 @@ public class DefaultLiveDataManagerTest {
     // Start in another thread and wait on data
     new Thread(client).start();
 
-    waitForStateChange(client, WaitState.INITIAL, WaitState.WAITING);
+    waitForStateChange(client, INITIAL, WAITING);
 
     _manager.subscriptionResultsReceived
         (ImmutableSet.of(buildFailureResponse("T1"), buildFailureResponse("T2")));
 
     // No response for T3 so still waiting
-    assertThat(client.getWaitState(), is(WaitState.WAITING));
+    assertThat(client.getWaitState(), is(WAITING));
 
     _manager.subscriptionResultsReceived(ImmutableSet.of(buildFailureResponse("T3")));
-    waitForStateChange(client, WaitState.WAITING, WaitState.DONE);
+    waitForStateChange(client, WAITING, WaitState.DONE);
   }
 
   /**
@@ -297,27 +300,29 @@ public class DefaultLiveDataManagerTest {
     // Start in another thread and wait on data
     new Thread(client).start();
 
-    waitForStateChange(client, WaitState.INITIAL, WaitState.WAITING);
+    waitForStateChange(client, INITIAL, WAITING);
 
     _manager.subscriptionResultsReceived
         (ImmutableSet.of(buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3")));
 
     // No data for T2 or T3 so still waiting
-    assertThat(client.getWaitState(), is(WaitState.WAITING));
+    assertThat(client.getWaitState(), is(WAITING));
 
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T2"), _fudgeContext.newMessage()));
 
     // No data for T3 so still waiting
-    assertThat(client.getWaitState(), is(WaitState.WAITING));
+    assertThat(client.getWaitState(), is(WAITING));
 
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T3"), _fudgeContext.newMessage()));
-    waitForStateChange(client, WaitState.WAITING, WaitState.DONE);
+    waitForStateChange(client, WAITING, WaitState.DONE);
   }
 
   private void waitForStateChange(WaitingClient client, WaitState state1, WaitState state2) throws InterruptedException {
 
+    // Add time check so tests don't hang
+    long start = System.currentTimeMillis();
     ArgumentChecker.isTrue(state1.compareTo(state2) < 0, "state: {} comes after state: {}", state1, state2);
-    while (client.getWaitState().compareTo(state1) <= 0) {
+    while (client.getWaitState().compareTo(state1) <= 0 && (System.currentTimeMillis() - start < 5000)) {
       Thread.sleep(1);
     }
     assertThat(client.getWaitState(), is(state2));
@@ -468,9 +473,9 @@ public class DefaultLiveDataManagerTest {
     new Thread(client2).start();
     new Thread(client3).start();
 
-    waitForStateChange(client1, WaitState.WAITING, WaitState.DONE);
-    waitForStateChange(client2, WaitState.WAITING, WaitState.DONE);
-    waitForStateChange(client3, WaitState.WAITING, WaitState.DONE);
+    waitForStateChange(client1, WAITING, WaitState.DONE);
+    waitForStateChange(client2, WAITING, WaitState.DONE);
+    waitForStateChange(client3, WAITING, WaitState.DONE);
 
     assertThat(_manager.snapshot(client1).keySet(),
                containsInAnyOrder(createBundle("T1"), createBundle("T2"), createBundle("T3")));
@@ -504,22 +509,22 @@ public class DefaultLiveDataManagerTest {
 
     // Client 1 first
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T2"), _fudgeContext.newMessage()));
-    assertThat(client1.getWaitState(), is(WaitState.WAITING));
+    assertThat(client1.getWaitState(), is(WAITING));
 
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T3"), _fudgeContext.newMessage()));
-    waitForStateChange(client1, WaitState.WAITING, WaitState.DONE);
+    waitForStateChange(client1, WAITING, WaitState.DONE);
 
     // Now client 2
-    assertThat(client2.getWaitState(), is(WaitState.WAITING));
+    assertThat(client2.getWaitState(), is(WAITING));
 
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T5"), _fudgeContext.newMessage()));
-    waitForStateChange(client2, WaitState.WAITING, WaitState.DONE);
+    waitForStateChange(client2, WAITING, WaitState.DONE);
 
     // Now client 3
-    assertThat(client3.getWaitState(), is(WaitState.WAITING));
+    assertThat(client3.getWaitState(), is(WAITING));
 
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T6"), _fudgeContext.newMessage()));
-    waitForStateChange(client2, WaitState.WAITING, WaitState.DONE);
+    waitForStateChange(client2, WAITING, WaitState.DONE);
 
     assertThat(_manager.snapshot(client1).keySet(),
                containsInAnyOrder(createBundle("T1"), createBundle("T2"), createBundle("T3")));
@@ -536,12 +541,12 @@ public class DefaultLiveDataManagerTest {
 
     _manager.subscribe(client, createIdBundles("T1", "T2", "T3"));
 
-    Set<LiveDataSubscriptionResponse> responses = new HashSet<>();
     // Server responds with a different id for the ticker - all
     // messages it sends will be against the new id
-    responses.add(buildSuccessResponse("T1", "M1"));
-    responses.add(buildFailureResponse("T2", "M2"));
-    responses.add(buildSuccessResponse("T3", "M3"));
+    Set<LiveDataSubscriptionResponse> responses = ImmutableSet.of(
+        buildSuccessResponse("T1", "M1"),
+        buildFailureResponse("T2", "M2"),
+        buildSuccessResponse("T3", "M3"));
 
     _manager.subscriptionResultsReceived(responses);
 
@@ -560,6 +565,33 @@ public class DefaultLiveDataManagerTest {
     checkSnapshotEntry(snapshot, "T1", SUCCESS);
     checkSnapshotEntry(snapshot, "T2", SUCCESS);
     checkSnapshotEntry(snapshot, "T3", PENDING_DATA);
+  }
+
+
+  @Test
+  public void testReceivingMappedTickerUpdatesClient() throws InterruptedException {
+
+    WaitingClient client = new WaitingClient(_manager);
+
+    _manager.subscribe(client, createIdBundles("T1", "T2"));
+
+    // Server responds with a different id for the ticker - all
+    // messages it sends will be against the new id
+    Set<LiveDataSubscriptionResponse> responses = ImmutableSet.of(
+        buildSuccessResponse("T1", "M1"), buildSuccessResponse("T2", "M2"));
+
+    _manager.subscriptionResultsReceived(responses);
+
+    new Thread(client).start();
+
+    MutableFudgeMsg msg = _fudgeContext.newMessage();
+
+    // Now send the value updates against the mapped id
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("M1"), msg));
+    waitForStateChange(client, INITIAL, WAITING);
+
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("M2"), msg));
+    waitForStateChange(client, WAITING, DONE);
   }
 
   @Test
@@ -787,7 +819,7 @@ public class DefaultLiveDataManagerTest {
 
     private final LiveDataManager _manager;
 
-    private WaitState _waitState = WaitState.INITIAL;
+    private WaitState _waitState = INITIAL;
 
     public WaitingClient(LiveDataManager manager) {
       _manager = manager;
@@ -795,7 +827,7 @@ public class DefaultLiveDataManagerTest {
 
     @Override
     public void run() {
-      _waitState = WaitState.WAITING;
+      _waitState = WAITING;
       _manager.waitForAllData(this);
       _waitState = WaitState.DONE;
     }
