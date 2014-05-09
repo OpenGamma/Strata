@@ -284,9 +284,8 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     if (_currentValues.containsKey(idBundle)) {
 
       Result<FudgeMsg> result = _currentValues.get(idBundle);
-      return isUserPermitted(result) ?
-          result :
-          Result.<FudgeMsg>failure(PERMISSION_DENIED, "User does not have access to data with id: {}", idBundle);
+      // Only need to permission check if we are actually returning market data
+      return result.isSuccess() ? checkPermissions(result, idBundle) : result;
 
     } else {
       // This case would suggest an error in the class which means we haven't
@@ -296,17 +295,17 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     }
   }
 
-  private boolean isUserPermitted(Result<FudgeMsg> result) {
-
-    // Only need to permission check if we are actually returning market data
-    if (result.isSuccess()) {
-      FudgeMsg fields = result.getValue();
-      // TODO - it may be worth storing the permissions field separately if profiling shows it as a bottleneck
-      Set<String> tickerPermissions = getRequiredPermissions(fields);
-      Set<Permission> requiredPermissions = AuthUtils.getPermissionResolver().resolvePermissions(tickerPermissions);
-      return AuthUtils.getSubject().isPermittedAll(requiredPermissions);
-    } else {
-      return true;
+  private Result<FudgeMsg> checkPermissions(Result<FudgeMsg> result, ExternalIdBundle idBundle) {
+    FudgeMsg fields = result.getValue();
+    // TODO - it may be worth storing the permissions field separately if profiling shows it as a bottleneck
+    Set<String> tickerPermissions = getRequiredPermissions(fields);
+    Set<Permission> requiredPermissions = AuthUtils.getPermissionResolver().resolvePermissions(tickerPermissions);
+    try {
+      // Throws exception if not permitted
+      AuthUtils.getSubject().checkPermissions(requiredPermissions);
+      return result;
+    } catch (Exception ex) {
+      return Result.failure(PERMISSION_DENIED, ex, "User does not have access to data with id: {}", idBundle);
     }
   }
 
