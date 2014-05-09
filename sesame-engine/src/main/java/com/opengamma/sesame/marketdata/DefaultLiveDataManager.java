@@ -364,18 +364,22 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
   @Override
   public void waitForAllData(final LDListener listener) {
 
-    // Latch retrieval needs to go via the command queue, but the
-    // waiting needs to happen on the caller's thread
+    // We want to wait on the latch which was setup when the
+    // original subscription was. However, to get it we need
+    // to go via the command queue and return it in a future.
+    // We can then wait on the latch. Note that we must not
+    // wait in the single threaded part as everything would
+    // seize up. This accounts for the slightly clunky mechanism
     CountDownLatch latch = retrieveLatch(listener);
 
-    if (latch != null && latch.getCount() > 0) {
+    if (latch != null) {
       try {
         latch.await();
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Got error waiting for latch on market data", e);
       }
 
-      // Latch retrieval must also go via the command queue
+      // Latch removal must also go via the command queue
       removeLatch(listener);
     }
   }
