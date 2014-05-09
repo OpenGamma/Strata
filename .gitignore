@@ -25,6 +25,10 @@ build.number
 javadoc-data.json
 *.pyc
 
+/sesame-*/
+!/sesame-engine/
+!/sesame-function/
+
 # IntelliJ config files
 *.iws
 *.iml
