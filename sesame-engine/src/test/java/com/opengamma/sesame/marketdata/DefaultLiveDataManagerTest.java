@@ -1,7 +1,6 @@
 package com.opengamma.sesame.marketdata;
 
 import static com.opengamma.livedata.msg.LiveDataSubscriptionResult.NOT_PRESENT;
-import static com.opengamma.sesame.marketdata.SubscriptionRequest.RequestType;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.FailureStatus.PENDING_DATA;
 import static com.opengamma.util.result.FailureStatus.PERMISSION_DENIED;
@@ -106,7 +105,7 @@ public class DefaultLiveDataManagerTest {
     LDListener client = mock(LDListener.class);
 
     String[] tickers = {"T1", "T2", "T3"};
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest(tickers));
+    _manager.subscribe(client, createIdBundles(tickers));
     Map<ExternalIdBundle, Result<FudgeMsg>> snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
@@ -129,7 +128,7 @@ public class DefaultLiveDataManagerTest {
     LDListener client = mock(LDListener.class);
 
     String[] tickers = {"T1", "T2", "T3"};
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest(tickers));
+    _manager.subscribe(client, createIdBundles(tickers));
 
     // Now simulate market data server returning its response
     // indicating data is not available
@@ -187,7 +186,7 @@ public class DefaultLiveDataManagerTest {
         "T3", // Pending
         "T4"  // Available and received
     };
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest(tickers));
+    _manager.subscribe(client, createIdBundles(tickers));
 
     Set<LiveDataSubscriptionResponse> responses = new HashSet<>();
     responses.add(buildSuccessResponse("T1"));
@@ -216,7 +215,7 @@ public class DefaultLiveDataManagerTest {
 
     LDListener client = mock(LDListener.class);
 
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest("T1", "T2", "T3"));
+    _manager.subscribe(client, createIdBundles("T1", "T2", "T3"));
 
     _manager.subscriptionResultsReceived(ImmutableSet.of(buildSuccessResponse("T1"), buildFailureResponse("T2")));
 
@@ -234,7 +233,7 @@ public class DefaultLiveDataManagerTest {
     checkSnapshotEntry(snapshot, "T3", PENDING_DATA);
 
     // Now subscribe to more
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest("T4", "T5"));
+    _manager.subscribe(client, createIdBundles("T4", "T5"));
 
     _manager.subscriptionResultsReceived(ImmutableSet.of(
         buildSuccessResponse("T3"), buildSuccessResponse("T4"), buildFailureResponse("T5")));
@@ -265,7 +264,7 @@ public class DefaultLiveDataManagerTest {
     WaitingClient client = new WaitingClient(_manager);
 
     String[] tickers = {"T1", "T2", "T3"};
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest(tickers));
+    _manager.subscribe(client, createIdBundles(tickers));
 
     // Start in another thread and wait on data
     new Thread(client).start();
@@ -293,7 +292,7 @@ public class DefaultLiveDataManagerTest {
     WaitingClient client = new WaitingClient(_manager);
 
     String[] tickers = {"T1", "T2", "T3"};
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest(tickers));
+    _manager.subscribe(client, createIdBundles(tickers));
 
     // Start in another thread and wait on data
     new Thread(client).start();
@@ -335,7 +334,7 @@ public class DefaultLiveDataManagerTest {
     LDListener client = mock(LDListener.class);
 
     String[] tickers = {"T1", "T2", "T3"};
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest(tickers));
+    _manager.subscribe(client, createIdBundles(tickers));
 
     Set<LiveDataSubscriptionResponse> responses = new HashSet<>();
     responses.add(buildSuccessResponse("T1"));
@@ -369,7 +368,7 @@ public class DefaultLiveDataManagerTest {
     LDListener client = mock(LDListener.class);
 
     String[] tickers = {"T1", "T2", "T3"};
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest(tickers));
+    _manager.subscribe(client, createIdBundles(tickers));
 
     Set<LiveDataSubscriptionResponse> responses = new HashSet<>();
     responses.add(buildSuccessResponse("T1"));
@@ -400,10 +399,10 @@ public class DefaultLiveDataManagerTest {
     PermissionedClient client2 = new PermissionedClient(_manager, "T1-Perm", "T2-Perm");
     PermissionedClient client3 = new PermissionedClient(_manager);
 
-    SubscriptionRequest<ExternalIdBundle> subscriptionRequest = createSubscriptionRequest("T1", "T2", "T3");
-    _manager.makeSubscriptionRequest(client1, subscriptionRequest);
-    _manager.makeSubscriptionRequest(client2, subscriptionRequest);
-    _manager.makeSubscriptionRequest(client3, subscriptionRequest);
+    Set<ExternalIdBundle> subscriptionRequest = createIdBundles("T1", "T2", "T3");
+    _manager.subscribe(client1, subscriptionRequest);
+    _manager.subscribe(client2, subscriptionRequest);
+    _manager.subscribe(client3, subscriptionRequest);
 
     Set<LiveDataSubscriptionResponse> responses = ImmutableSet.of(
         buildSuccessResponse("T1"),
@@ -451,9 +450,9 @@ public class DefaultLiveDataManagerTest {
     WaitingClient client2 = new WaitingClient(_manager);
     WaitingClient client3 = new WaitingClient(_manager);
 
-    _manager.makeSubscriptionRequest(client1, createSubscriptionRequest("T1", "T2", "T3"));
-    _manager.makeSubscriptionRequest(client2, createSubscriptionRequest("T3", "T4", "T5"));
-    _manager.makeSubscriptionRequest(client3, createSubscriptionRequest("T1", "T4", "T6"));
+    _manager.subscribe(client1, createIdBundles("T1", "T2", "T3"));
+    _manager.subscribe(client2, createIdBundles("T3", "T4", "T5"));
+    _manager.subscribe(client3, createIdBundles("T1", "T4", "T6"));
 
     _manager.subscriptionResultsReceived
         (ImmutableSet.of(buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3"),
@@ -490,9 +489,9 @@ public class DefaultLiveDataManagerTest {
     WaitingClient client2 = new WaitingClient(_manager);
     WaitingClient client3 = new WaitingClient(_manager);
 
-    _manager.makeSubscriptionRequest(client1, createSubscriptionRequest("T1", "T2", "T3"));
-    _manager.makeSubscriptionRequest(client2, createSubscriptionRequest("T3", "T4", "T5"));
-    _manager.makeSubscriptionRequest(client3, createSubscriptionRequest("T1", "T4", "T6"));
+    _manager.subscribe(client1, createIdBundles("T1", "T2", "T3"));
+    _manager.subscribe(client2, createIdBundles("T3", "T4", "T5"));
+    _manager.subscribe(client3, createIdBundles("T1", "T4", "T6"));
 
     _manager.subscriptionResultsReceived
         (ImmutableSet.of(buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3"),
@@ -535,7 +534,7 @@ public class DefaultLiveDataManagerTest {
 
     LDListener client = mock(LDListener.class);
 
-    _manager.makeSubscriptionRequest(client, createSubscriptionRequest("T1", "T2", "T3"));
+    _manager.subscribe(client, createIdBundles("T1", "T2", "T3"));
 
     Set<LiveDataSubscriptionResponse> responses = new HashSet<>();
     // Server responds with a different id for the ticker - all
@@ -572,11 +571,11 @@ public class DefaultLiveDataManagerTest {
     LDListener client3 = mock(LDListener.class);
 
     // Subscribe for 2 tickers
-    _manager.makeSubscriptionRequest(client1, createSubscriptionRequest("T1", "T2"));
+    _manager.subscribe(client1, createIdBundles("T1", "T2"));
     // Subscribe for 1 additional ticker
-    _manager.makeSubscriptionRequest(client2, createSubscriptionRequest("T1", "T3"));
+    _manager.subscribe(client2, createIdBundles("T1", "T3"));
     // No subscription required
-    _manager.makeSubscriptionRequest(client3, createSubscriptionRequest("T2", "T3"));
+    _manager.subscribe(client3, createIdBundles("T2", "T3"));
 
     // Sleep as the subscribe/unsubscribe is happening on another thread
     Thread.sleep(10);
@@ -592,14 +591,14 @@ public class DefaultLiveDataManagerTest {
     LDListener client1 = mock(LDListener.class);
     LDListener client2 = mock(LDListener.class);
 
-    _manager.makeSubscriptionRequest(client1, createSubscriptionRequest("T1", "T2"));
-    _manager.makeSubscriptionRequest(client2, createSubscriptionRequest("T1", "T3"));
+    _manager.subscribe(client1, createIdBundles("T1", "T2"));
+    _manager.subscribe(client2, createIdBundles("T1", "T3"));
 
     _manager.subscriptionResultsReceived(ImmutableSet.of(
         buildSuccessResponse("T1", "M1"), buildSuccessResponse("T2", "M2"), buildSuccessResponse("T3", "M3")));
 
     // Client 2 also has subscription
-    _manager.makeSubscriptionRequest(client1, createUnsubscribeRequest("T1"));
+    _manager.unsubscribe(client1, createIdBundles("T1"));
 
     // Sleep as the subscribe/unsubscribe is happening on another thread
     Thread.sleep(10);
@@ -608,14 +607,14 @@ public class DefaultLiveDataManagerTest {
         .unsubscribe(any(UserPrincipal.class), any(Collection.class), any(LiveDataListener.class));
 
     // Only client 1 subscribed, so should go through
-    _manager.makeSubscriptionRequest(client1, createUnsubscribeRequest("T2"));
+    _manager.unsubscribe(client1, createIdBundles("T2"));
     Thread.sleep(10);
 
     verify(_mockLiveDataClient)
         .unsubscribe(any(UserPrincipal.class), any(Collection.class), any(LiveDataListener.class));
 
     // Client 2 is only one with subs
-    _manager.makeSubscriptionRequest(client2, createUnsubscribeRequest("T1", "T3"));
+    _manager.unsubscribe(client2, createIdBundles("T1", "T3"));
     Thread.sleep(10);
 
     // Times(2) as mockito keeps track of all calls - we had 1 previously so now we have 2
@@ -630,14 +629,14 @@ public class DefaultLiveDataManagerTest {
     LDListener client1 = mock(LDListener.class);
     LDListener client2 = mock(LDListener.class);
 
-    _manager.makeSubscriptionRequest(client1, createSubscriptionRequest("T1", "T2"));
-    _manager.makeSubscriptionRequest(client2, createSubscriptionRequest("T1", "T3"));
+    _manager.subscribe(client1, createIdBundles("T1", "T2"));
+    _manager.subscribe(client2, createIdBundles("T1", "T3"));
 
     _manager.subscriptionResultsReceived(ImmutableSet.of(
         buildSuccessResponse("T1", "M1"), buildSuccessResponse("T2", "M2"), buildSuccessResponse("T3", "M3")));
 
     // Client 2 does not have subscription to T2
-    _manager.makeSubscriptionRequest(client2, createUnsubscribeRequest("T2"));
+    _manager.unsubscribe(client2, createIdBundles("T2"));
 
     // Sleep as the subscribe/unsubscribe is happening on another thread
     Thread.sleep(10);
@@ -655,8 +654,8 @@ public class DefaultLiveDataManagerTest {
     LDListener client1 = mock(LDListener.class);
     LDListener client2 = mock(LDListener.class);
 
-    _manager.makeSubscriptionRequest(client1, createSubscriptionRequest("T1", "T2"));
-    _manager.makeSubscriptionRequest(client2, createSubscriptionRequest("T1", "T3"));
+    _manager.subscribe(client1, createIdBundles("T1", "T2"));
+    _manager.subscribe(client2, createIdBundles("T1", "T3"));
 
     _manager.subscriptionResultsReceived(ImmutableSet.of(
         buildSuccessResponse("T1", "M1"), buildSuccessResponse("T2", "M2"), buildSuccessResponse("T3", "M3")));
@@ -679,8 +678,8 @@ public class DefaultLiveDataManagerTest {
     LDListener client2 = mock(LDListener.class);
 
     // All client1's tickers are wanted by client2
-    _manager.makeSubscriptionRequest(client1, createSubscriptionRequest("T1", "T2"));
-    _manager.makeSubscriptionRequest(client2, createSubscriptionRequest("T1", "T2"));
+    _manager.subscribe(client1, createIdBundles("T1", "T2"));
+    _manager.subscribe(client2, createIdBundles("T1", "T2"));
 
     _manager.subscriptionResultsReceived(ImmutableSet.of(
         buildSuccessResponse("T1", "M1"), buildSuccessResponse("T2", "M2"), buildSuccessResponse("T3", "M3")));
@@ -762,19 +761,7 @@ public class DefaultLiveDataManagerTest {
     }
   }
 
-  private SubscriptionRequest<ExternalIdBundle> createUnsubscribeRequest(String... tickers) {
-    return createSubscriptionRequest(RequestType.UNSUBSCRIBE, tickers);
-  }
-
-  private SubscriptionRequest<ExternalIdBundle> createSubscriptionRequest(String... tickers) {
-    return createSubscriptionRequest(RequestType.SUBSCRIBE, tickers);
-  }
-
-  private SubscriptionRequest<ExternalIdBundle> createSubscriptionRequest(RequestType requestType, String[] tickers) {
-    return new SubscriptionRequest<>(requestType, createIdBundles(tickers));
-  }
-
-  private Set<ExternalIdBundle> createIdBundles(String[] tickers) {
+  private Set<ExternalIdBundle> createIdBundles(String... tickers) {
     Set<ExternalIdBundle> subs = new HashSet<>();
     for (String ticker : tickers) {
       subs.add(createBundle(ticker));
@@ -818,7 +805,7 @@ public class DefaultLiveDataManagerTest {
     }
 
     @Override
-    public void valueUpdated(ExternalIdBundle idBundle) {
+    public void valueUpdated() {
     }
   }
 
@@ -852,7 +839,7 @@ public class DefaultLiveDataManagerTest {
     }
 
     @Override
-    public void valueUpdated(ExternalIdBundle idBundle) {
+    public void valueUpdated() {
     }
   }
 }

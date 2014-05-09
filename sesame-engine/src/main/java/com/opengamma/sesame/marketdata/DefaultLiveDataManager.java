@@ -6,7 +6,6 @@
 package com.opengamma.sesame.marketdata;
 
 import static com.opengamma.livedata.permission.PermissionUtils.LIVE_DATA_PERMISSION_FIELD;
-import static com.opengamma.sesame.marketdata.SubscriptionRequest.RequestType.SUBSCRIBE;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.FailureStatus.PENDING_DATA;
 import static com.opengamma.util.result.FailureStatus.PERMISSION_DENIED;
@@ -35,6 +34,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalIdBundle;
@@ -95,13 +95,15 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
   /**
    * In order to avoid both race conditions and synchronization, all
    * methods are routed through this central queue. As data is read
-   * off the queue, the Callable is run which in turn will call the
-   * appropriate internal method.
+   * off the queue, the Callable or Runnable is run which in turn will
+   * call the appropriate internal method.
    */
   private final ScheduledExecutorService _commandQueue = Executors.newSingleThreadScheduledExecutor();
 
   /**
-   * Maintains the mapping between clients and their subscriptions.
+   * Maintains the mapping between clients and their subscriptions. Note
+   * that we keep track of tickers as they are known to the engine, not the
+   * fully qualified specs that may be returned from market data servers.
    */
   private final ClientSubscriptionManager _clientSubscriptions = new ClientSubscriptionManager();
 
@@ -114,8 +116,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
   private final Map<ExternalIdBundle, Result<FudgeMsg>> _currentValues = new HashMap<>();
 
   /**
-   * Mapping between received spec and requested spec e.g. we request
-   * a Bloomberg ticker but get results as Bloomberg BUIDs.
+   * Mapping from the ticker received from the market data server to the
+   * ticker originally requested in the engine. E.g. we request a Bloomberg
+   * ticker but get results as Bloomberg BUIDs, so this map would hold
+   * a mapping of BUID -> Ticker.
    */
   private final Map<ExternalIdBundle, ExternalIdBundle> _specificationMapping = new HashMap<>();
 
@@ -181,10 +185,9 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Error waiting on result from future", e);
     } catch (ExecutionException e) {
-      throwCause(e);
+      // Throw the cause of the exception, possibly wrapping in RuntimeException
+      throw Throwables.propagate(e.getCause());
     }
-    // never reached as throwCause always throws something
-    return null;
   }
 
   private Map<ExternalIdBundle, Result<FudgeMsg>> doSnapshot(LDListener client) {
@@ -200,25 +203,25 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
   }
 
   @Override
-  public void makeSubscriptionRequest(final LDListener client,
-                                      final SubscriptionRequest<ExternalIdBundle> request) {
-    _commandQueue.submit(new Callable<Void>() {
+  public void subscribe(final LDListener client,
+                        final Set<ExternalIdBundle> tickers) {
+    _commandQueue.submit(new Runnable() {
       @Override
-      public Void call() throws Exception {
-        doMakeSubscriptionRequest(client, request);
-        return null;
+      public void run() {
+        doSubscribe(client, tickers);
       }
     });
   }
 
-  private void doMakeSubscriptionRequest(LDListener client, SubscriptionRequest<ExternalIdBundle> request) {
-    Set<ExternalIdBundle> subscriptionKeys = request.getSubscriptionKeys();
-
-    if (request.getRequestType() == SUBSCRIBE) {
-      subscribe(client, subscriptionKeys);
-    } else {
-      unsubscribe(client, subscriptionKeys);
-    }
+  @Override
+  public void unsubscribe(final LDListener client,
+                        final Set<ExternalIdBundle> tickers) {
+    _commandQueue.submit(new Runnable() {
+      @Override
+      public void run() {
+        doUnsubscribe(client, tickers);
+      }
+    });
   }
 
   @Override
@@ -228,11 +231,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
   @Override
   public void subscriptionResultsReceived(final Collection<LiveDataSubscriptionResponse> subscriptionResponses) {
-    _commandQueue.submit(new Callable<Object>() {
+    _commandQueue.submit(new Runnable() {
       @Override
-      public Object call() throws Exception {
+      public void run() {
         doSubscriptionResultsReceived(subscriptionResponses);
-        return null;
       }
     });
   }
@@ -278,25 +280,13 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     notifyClients(responsesReceived);
   }
 
-  private void throwCause(ExecutionException e) {
-    Throwable cause = e.getCause();
-
-    if (cause instanceof RuntimeException) {
-      throw (RuntimeException) cause;
-    } else if (cause instanceof Exception) {
-      throw new OpenGammaRuntimeException("Error whilst executing future", cause);
-    } else {
-      throw (Error) cause;
-    }
-  }
-
   private Result<FudgeMsg> getCurrentValue(ExternalIdBundle idBundle) {
     if (_currentValues.containsKey(idBundle)) {
 
       Result<FudgeMsg> result = _currentValues.get(idBundle);
-      return result.isSuccess() && !isUserPermitted(result.getValue()) ?
-          Result.<FudgeMsg>failure(PERMISSION_DENIED, "User does not have access to data with id: {}", idBundle) :
-          result;
+      return isUserPermitted(result) ?
+          result :
+          Result.<FudgeMsg>failure(PERMISSION_DENIED, "User does not have access to data with id: {}", idBundle);
 
     } else {
       // This case would suggest an error in the class which means we haven't
@@ -306,14 +296,21 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     }
   }
 
-  private boolean isUserPermitted(FudgeMsg fields) {
-    // TODO - it may be worth storing the permissions field separately if profiling shows it as a bottleneck
-    Set<String> tickerPermissions = getRequiredPermissions(fields);
-    Set<Permission> requiredPermissions = AuthUtils.getPermissionResolver().resolvePermissions(tickerPermissions);
-    return AuthUtils.getSubject().isPermittedAll(requiredPermissions);
+  private boolean isUserPermitted(Result<FudgeMsg> result) {
+
+    // Only need to permission check if we are actually returning market data
+    if (result.isSuccess()) {
+      FudgeMsg fields = result.getValue();
+      // TODO - it may be worth storing the permissions field separately if profiling shows it as a bottleneck
+      Set<String> tickerPermissions = getRequiredPermissions(fields);
+      Set<Permission> requiredPermissions = AuthUtils.getPermissionResolver().resolvePermissions(tickerPermissions);
+      return AuthUtils.getSubject().isPermittedAll(requiredPermissions);
+    } else {
+      return true;
+    }
   }
 
-  private void subscribe(LDListener client, Set<ExternalIdBundle> subscriptionKeys) {
+  private void doSubscribe(LDListener client, Set<ExternalIdBundle> subscriptionKeys) {
 
     // Subscriptions we are actually going to have to ask the
     // market data source for
@@ -324,7 +321,9 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
       // Add in placeholder if one isn't there already
       if (!_currentValues.containsKey(id)) {
-        _currentValues.put(id, createPendingResult(id));
+        Result<FudgeMsg> pendingResult =
+            Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for id: {}", id);
+        _currentValues.put(id, pendingResult);
         requiredSubscriptions.add(id);
       }
     }
@@ -340,7 +339,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     }
   }
 
-  private void unsubscribe(LDListener client, Set<ExternalIdBundle> subscriptionKeys) {
+  private void doUnsubscribe(LDListener client, Set<ExternalIdBundle> subscriptionKeys) {
     Set<ExternalIdBundle> redundant = _clientSubscriptions.removeClientSubscriptions(client, subscriptionKeys);
     scheduleUnsubscribe(redundant);
   }
@@ -348,10 +347,6 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
   private UserPrincipal getMarketDataUser() {
     // TODO the use of UserPrincipal is definitely wrong but MDS currently requires one
     return UserPrincipal.getTestUser();
-  }
-
-  private Result<FudgeMsg> createPendingResult(ExternalIdBundle id) {
-    return Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for id: {}", id);
   }
 
   private Set<LiveDataSpecification> createSpecifications(Set<ExternalIdBundle> requiredSubscriptions) {
@@ -387,11 +382,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
   private void removeLatch(final LDListener listener) {
 
-    _commandQueue.submit(new Callable<Void>() {
+    _commandQueue.submit(new Runnable() {
       @Override
-      public Void call() throws Exception {
+      public void run() {
         _latches.remove(listener);
-        return null;
       }
     });
   }
@@ -409,10 +403,9 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Error whilst waiting to retrieve latch");
     } catch (ExecutionException e) {
-      throwCause(e);
+      // Throw the cause of the exception, possibly wrapping in RuntimeException
+      throw Throwables.propagate(e.getCause());
     }
-    // Never reached
-    return null;
   }
 
   @Override
@@ -422,11 +415,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
   @Override
   public void valueUpdate(final LiveDataValueUpdate valueUpdate) {
-    _commandQueue.submit(new Callable<Void>() {
+    _commandQueue.submit(new Runnable() {
       @Override
-      public Void call() throws Exception {
+      public void run() {
         doValueUpdate(valueUpdate);
-        return null;
       }
     });
   }
@@ -457,30 +449,36 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
   private void notifyClients(ExternalIdBundle idBundle) {
     for (LDListener listener : _clientSubscriptions.getClientsForSubscription(idBundle)) {
-      notifyClient(listener, idBundle);
+      notifyClient(listener);
     }
   }
 
   private void notifyClients(Set<ExternalIdBundle> idBundles) {
 
-    // The set of clients that we haven't informed of new data
-    // There may be nothing for them in this set of updates, but
-    // if the set becomes empty we know we can stop processing
+    // We only want to notify each client once for the whole
+    // set of tickers, not once per ticker. For this reason we
+    // start with the set of all clients. If we notify a client,
+    // we remove them from this set so they don't get notified
+    // again. There may be nothing for a client in this set of
+    // updates (but we have to go through them all before we
+    // know this). However, if the set becomes empty we know we
+    // can stop processing as we must have notified each client
+    // already.
     Set<LDListener> unnotified = new HashSet<>(_clientSubscriptions.getClients());
 
     for (Iterator<ExternalIdBundle> it = idBundles.iterator(); it.hasNext() && !unnotified.isEmpty();) {
       ExternalIdBundle idBundle = it.next();
       for (LDListener client : _clientSubscriptions.getClientsForSubscription(idBundle)) {
         if (unnotified.contains(client)) {
-          notifyClient(client, idBundle);
+          notifyClient(client);
           unnotified.remove(client);
         }
       }
     }
   }
 
-  private void notifyClient(LDListener listener, ExternalIdBundle idBundle) {
-    listener.valueUpdated(idBundle);
+  private void notifyClient(LDListener listener) {
+    listener.valueUpdated();
 
     // Check if this client is potentially waiting on data completion
     final CountDownLatch latch = _latches.get(listener);
@@ -516,11 +514,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
   @Override
   public void unregister(final LDListener listener) {
-    _commandQueue.submit(new Callable<Object>() {
+    _commandQueue.submit(new Runnable() {
       @Override
-      public Object call() throws Exception {
+      public void run() {
         doUnregister(listener);
-        return null;
       }
     });
   }
@@ -534,11 +531,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
     if (!redundantSubscriptions.isEmpty()) {
 
-      Callable<Void> unsubscribeCommand = new Callable<Void>() {
+      Runnable unsubscribeCommand = new Runnable() {
         @Override
-        public Void call() throws Exception {
+        public void run() {
           doUnsubscribe(redundantSubscriptions);
-          return null;
         }
       };
 
@@ -588,7 +584,9 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
   /**
    * Keeps track of the client/subscription mapping. Internally uses
-   * a {@link BidirectionalMultiMap} to maintain the mapping.
+   * a {@link BidirectionalMultiMap} to maintain the mapping. Internally
+   * we keep track of tickers as they are known to the system, not the
+   * fully qualified specs that may be returned from market data servers.
    */
   private static class ClientSubscriptionManager {
 
@@ -601,7 +599,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
      * @param client  the client to check for mappings
      * @return true if the client has mappings
      */
-    public boolean containsClient(LDListener client) {
+    private boolean containsClient(LDListener client) {
       return _clientSubscriptions.containsKey(client);
     }
 
@@ -611,7 +609,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
      * @param client  the client
      * @param subscription  the subscription id
      */
-    public void addClientSubscription(LDListener client, ExternalIdBundle subscription) {
+    private void addClientSubscription(LDListener client, ExternalIdBundle subscription) {
       _clientSubscriptions.put(client, subscription);
     }
 
@@ -621,7 +619,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
      * @param subscription  the client to check for mappings
      * @return true if the client has mappings
      */
-    public boolean containsSubscription(ExternalIdBundle subscription) {
+    private boolean containsSubscription(ExternalIdBundle subscription) {
       return _clientSubscriptions.inverse().containsKey(subscription);
     }
 
@@ -631,7 +629,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
      * @param client  the client to get mappings for
      * @return the set of subscriptions
      */
-    public Set<ExternalIdBundle> getSubscriptionsForClient(LDListener client) {
+    private Set<ExternalIdBundle> getSubscriptionsForClient(LDListener client) {
       return _clientSubscriptions.get(client);
     }
 
@@ -641,7 +639,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
      * @param subscription  the subscription to get mappings for
      * @return the set of clients
      */
-    public Collection<LDListener> getClientsForSubscription(ExternalIdBundle subscription) {
+    private Collection<LDListener> getClientsForSubscription(ExternalIdBundle subscription) {
       return _clientSubscriptions.inverse().get(subscription);
     }
 
@@ -650,7 +648,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
      *
      * @return the set of clients
      */
-    public Set<LDListener> getClients() {
+    private Set<LDListener> getClients() {
       return _clientSubscriptions.keySet();
     }
 
@@ -662,7 +660,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
      * @return the subset of the subscriptions which are no
      * longer mapped to any client
      */
-    public Set<ExternalIdBundle> removeClientSubscriptions(LDListener client, Set<ExternalIdBundle> subscriptions) {
+    private Set<ExternalIdBundle> removeClientSubscriptions(LDListener client, Set<ExternalIdBundle> subscriptions) {
       Set<ExternalIdBundle> redundantSpecs = new HashSet<>();
       for (ExternalIdBundle key : subscriptions) {
         _clientSubscriptions.remove(client, key);
@@ -681,7 +679,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
      * @return the subset of the client's subscriptions which are no
      * longer mapped to any client
      */
-    public Set<ExternalIdBundle> removeClient(LDListener client) {
+    private Set<ExternalIdBundle> removeClient(LDListener client) {
       Set<ExternalIdBundle> redundantSpecs = new HashSet<>();
       Set<ExternalIdBundle> removed = _clientSubscriptions.removeAll(client);
       for (ExternalIdBundle key : removed) {

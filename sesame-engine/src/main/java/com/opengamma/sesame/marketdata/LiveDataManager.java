@@ -6,6 +6,7 @@
 package com.opengamma.sesame.marketdata;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
 
@@ -29,16 +30,14 @@ import com.opengamma.util.result.Result;
 public interface LiveDataManager {
 
   /**
-   * Make a subscription for market data for the specified
+   * Subscribe to a set of market data tickers for the specified
    * client. The data will be requested from a market data
    * source and latest values can be obtained by calling the
    * {@link #snapshot(LDListener)} method.
-   *
-   * @param client  the client the data is for, not null
-   * @param request  the market data subscriptions required, not null
+   *  @param client  the client the data is for, not null
+   * @param tickers  the market data subscriptions required, not null
    */
-  void makeSubscriptionRequest(LDListener client,
-                               SubscriptionRequest<ExternalIdBundle> request);
+  void subscribe(LDListener client, Set<ExternalIdBundle> tickers);
 
   /**
    * Block until all subscriptions requested for this client
@@ -67,10 +66,25 @@ public interface LiveDataManager {
    *
    * @param client  the client to use, not null
    * @return the snapshot, not null
-   * @throws IllegalStateException if {@link #makeSubscriptionRequest(LDListener, SubscriptionRequest)}
+   * @throws IllegalStateException if {@link #subscribe(LDListener, Set)}
    * has not previously been called, or the client has been unregistered
    */
   Map<ExternalIdBundle, Result<FudgeMsg>> snapshot(LDListener client);
+
+  /**
+   * Unsubscribe from a set of tickers for the specified
+   * client. This affects only a single client's subscriptions,
+   * other clients may be subscribed to the same tickers and those
+   * subscriptions will persist.
+   * <p>
+   * Once unsubscribed, the client will no longer be notified of
+   * updates to the tickers, nor will they appear in the results
+   * returned from the {@link #snapshot(LDListener)} method.
+   *
+   * @param client  the client who is unsubscribing, not null
+   * @param tickers  the set of tickers to unsubscribe from, not null
+   */
+  void unsubscribe(LDListener client, Set<ExternalIdBundle> tickers);
 
   /**
    * Unregister the client. This will unsubscribe tickers for which

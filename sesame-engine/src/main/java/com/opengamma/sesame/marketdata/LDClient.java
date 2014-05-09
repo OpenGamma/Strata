@@ -47,7 +47,7 @@ public class LDClient implements LDListener {
   }
 
   @Override
-  public void valueUpdated(ExternalIdBundle idBundle) {
+  public void valueUpdated() {
     _valuesPending = true;
   }
 
@@ -69,14 +69,12 @@ public class LDClient implements LDListener {
         }
       }
       if (!subscriptions.isEmpty()) {
-        _liveDataManager.makeSubscriptionRequest(this, createSubscriptionRequest(subscriptions));
+        _liveDataManager.subscribe(this, subscriptions);
       }
     }
   }
 
-  private SubscriptionRequest<ExternalIdBundle> createSubscriptionRequest(Set<ExternalIdBundle> subscriptions) {
-    return new SubscriptionRequest<>(SubscriptionRequest.RequestType.SUBSCRIBE, subscriptions);
-  }
+  // TODO - should handle unsubscription once the market data source needs it
 
   /**
    * Wait until results for all market data are available.

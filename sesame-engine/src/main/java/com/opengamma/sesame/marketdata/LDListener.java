@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import com.opengamma.id.ExternalIdBundle;
-
 /**
  * Client listener for the market data manager. The manager notifies
  * the listener as soon as data it is interested in has been updated.
@@ -22,11 +20,9 @@ import com.opengamma.id.ExternalIdBundle;
 public interface LDListener {
 
   /**
-   * Indicates that a value that the listener registered an interest in
-   * has been updated. It is for the listener to decide what action it
-   * wants to take in response to this.
-   *
-   * @param idBundle the id of the data that was updated, not null
+   * Indicates that a value or values that the listener registered an
+   * interest in has been updated. It is for the listener to decide what
+   * action it wants to take in response to this.
    */
-  void valueUpdated(ExternalIdBundle idBundle);
+  void valueUpdated();
 }
