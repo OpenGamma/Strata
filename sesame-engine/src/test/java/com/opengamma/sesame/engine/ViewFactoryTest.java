@@ -39,7 +39,6 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -71,10 +70,9 @@ import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.LDClient;
+import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -167,10 +165,7 @@ public class ViewFactoryTest {
     List<Trade> trades = ImmutableList.of(trade);
 
     ExternalIdBundle securityId = trade.getSecurity().getExternalIdBundle();
-    Pair<ExternalIdBundle, FieldName> key = Pairs.of(securityId, FieldName.of(MarketDataRequirementNames.MARKET_VALUE));
-    Map<Pair<ExternalIdBundle, FieldName>, Object> marketData = ImmutableMap.<Pair<ExternalIdBundle, FieldName>, Object>of(key, 123.45);
-    ResettableLiveMarketDataSource dataSource = new ResettableLiveMarketDataSource(LiveMarketDataSpecification.of("test"),
-        mock(LDClient.class), marketData, ImmutableSet.<Pair<ExternalIdBundle, FieldName>>of(), ImmutableSet.<Pair<ExternalIdBundle, FieldName>>of());
+    MarketDataSource dataSource = MapMarketDataSource.builder().add(securityId, 123.45).build();
 
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, dataSource);

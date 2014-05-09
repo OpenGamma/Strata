@@ -52,7 +52,6 @@ import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -79,10 +78,8 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.LDClient;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
@@ -167,9 +164,10 @@ public class InterpolatedMulticurveBundleFnTest {
     _multicurveBundleFn = FunctionModel.build(DiscountingMulticurveBundleFn.class, config, components);
     
     ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
-    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/regression/curve_testing/usdMarketQuotes.discountFactors.properties", "Ticker");
-    MarketDataSource marketDataSource = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(
-        MARKET_VALUE, marketData).build();
+    MarketDataSource marketDataSource =
+        MarketDataResourcesLoader.getPreloadedSource(
+            "/regression/curve_testing/usdMarketQuotes.discountFactors.properties",
+            "Ticker");
 
     _environment = new SimpleEnvironment(valuationDate, marketDataSource);
     

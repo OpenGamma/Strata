@@ -28,7 +28,7 @@ public class LiveMarketDataFactory implements MarketDataFactory {
     ImmutableMap.Builder<String, LiveDataManager> builder = ImmutableMap.builder();
     for (LiveDataMetaDataProvider provider : providers) {
       LiveDataClient liveDataClient = LiveMarketDataProviderFactoryComponentFactory.createLiveDataClient(provider, jmsConnector);
-      builder.put(provider.metaData().getDescription(), new LiveDataManager(liveDataClient));
+      builder.put(provider.metaData().getDescription(), new DefaultLiveDataManager(liveDataClient));
     }
     _liveDataManagerBySource = builder.build();
   }

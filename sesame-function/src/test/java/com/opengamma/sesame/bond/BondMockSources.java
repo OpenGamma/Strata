@@ -41,7 +41,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
@@ -66,11 +65,12 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.LDClient;
-import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Unit test helper to mock sources for bond pricing.
@@ -137,15 +137,18 @@ public class BondMockSources {
     return new ExposureFunctions(BOND_EXPOSURE_FUNCTIONS, exposureFunctions, idsToNames);
   }
   
-  public StrategyAwareMarketDataSource createMarketDataSource() {
-    Map<ExternalIdBundle, Double> marketData = Maps.newHashMap();
-    marketData.put(ExternalId.of(TICKER, "B1").toBundle(), 0.01);
-    marketData.put(ExternalId.of(TICKER, "B2").toBundle(), 0.015);
-    marketData.put(ExternalId.of(TICKER, "B3").toBundle(), 0.02);
-    marketData.put(ExternalId.of(TICKER, "B4").toBundle(), 0.025);
-    marketData.put(ExternalId.of(TICKER, "B5").toBundle(), 0.03);
-    FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    return new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(fieldName, marketData).build();
+  public MarketDataSource createMarketDataSource() {
+    return MapMarketDataSource.builder()
+        .add(createId("B1"), 0.01)
+        .add(createId("B2"), 0.015)
+        .add(createId("B3"), 0.02)
+        .add(createId("B4"), 0.025)
+        .add(createId("B5"), 0.03)
+        .build();
+  }
+
+  private ExternalId createId(String ticker) {
+    return ExternalId.of(TICKER, ticker);
   }
 
   private ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {

@@ -47,8 +47,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -63,7 +61,6 @@ import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.service.ServiceContext;
@@ -75,12 +72,9 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.LDClient;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
@@ -170,11 +164,8 @@ public class DiscountingMulticurveBundleFnTest {
     _multicurveBundleFn = FunctionModel.build(DiscountingMulticurveBundleFn.class, config, components);
     
     ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
-//    HistoricalTimeSeriesSource historicalTimeSeriesSource = components.getComponent(HistoricalTimeSeriesSource.class);
-//    FixedHistoricalMarketDataSource marketDataSource = new FixedHistoricalMarketDataSource(historicalTimeSeriesSource, valuationDate.toLocalDate(), "BLOOMBERG", "");
-    Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData("/regression/curve_testing/usdMarketQuotes.properties", "Ticker");
-    FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataSource marketDataSource = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(fieldName, marketData).build();
+    MarketDataSource marketDataSource =
+        MarketDataResourcesLoader.getPreloadedSource("/regression/curve_testing/usdMarketQuotes.properties", "Ticker");
 
     _environment = new SimpleEnvironment(valuationDate, marketDataSource);
     

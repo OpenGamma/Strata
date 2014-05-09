@@ -5,12 +5,16 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Set;
 
+import org.hamcrest.Matchers;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -18,6 +22,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -43,7 +48,7 @@ public class ResettableLiveMarketDataSourceTest {
     ResettableLiveMarketDataSource dataSource = builder.pending(_id1, _fieldName).build();
 
     Result<?> result = dataSource.get(_id1, _fieldName);
-    assertEquals(result.getStatus(), FailureStatus.PENDING_DATA);
+    assertThat(result.getStatus(), Matchers.<ResultStatus>is(FailureStatus.PENDING_DATA));
     assertTrue(dataSource.getRequestedData().isEmpty());
   }
 

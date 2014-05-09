@@ -51,7 +51,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -98,14 +98,14 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.sesame.MarketdataResourcesLoader;
+import com.opengamma.sesame.MarketDataResourcesLoader;
+import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.holidays.UsdHolidaySource;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.LDClient;
+import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
-import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.sabr.SabrConfigSelector;
 import com.opengamma.sesame.sabr.SabrExpiryTenorSurface;
 import com.opengamma.sesame.sabr.SabrNode;
@@ -198,21 +198,20 @@ public class InterestRateMockSources {
 
   public MarketDataFactory createMarketDataFactory() {
     MarketDataFactory mock = mock(MarketDataFactory.class);
-    when(mock.create(Matchers.<MarketDataSpecification>any())).thenReturn(createMarketDataSource());
+    when(mock.create(Matchers.<MarketDataSpecification>any())).thenReturn(new DefaultStrategyAwareMarketDataSource(
+        LiveMarketDataSpecification.LIVE_SPEC, createMarketDataSource()));
     return mock;
   }
 
-  public StrategyAwareMarketDataSource createMarketDataSource() {
+  public MarketDataSource createMarketDataSource() {
     return createMarketDataSource(LocalDate.of(2014, 1, 22));
   }
   
-  
-
-  public StrategyAwareMarketDataSource createMarketDataSource(LocalDate date) {
+  public MarketDataSource createMarketDataSource(LocalDate date) {
     return createMarketDataSource(date, true);
   }
 
-    public StrategyAwareMarketDataSource createMarketDataSource(LocalDate date, boolean generateTicker) {
+  public MarketDataSource createMarketDataSource(LocalDate date, boolean generateTicker) {
     String filename;
     if (date.equals(LocalDate.of(2014,1,22))) {
       filename = "/usdMarketQuotes-20140122.properties";
@@ -225,9 +224,15 @@ public class InterestRateMockSources {
     }
 
     try {
-      Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData(filename, generateTicker ? TICKER : null);
+      Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData(filename,
+                                                                                   generateTicker ? TICKER : null);
       FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-      return new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class)).data(fieldName, marketData).build();
+
+      MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
+      for (Map.Entry<ExternalIdBundle, Double> entry : marketData.entrySet()) {
+        builder.add(entry.getKey(), entry.getValue());
+      }
+      return builder.build();
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Exception whilst loading file", e);
     }

@@ -57,7 +57,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.MarketdataResourcesLoader;
+import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.config.ViewConfig;
@@ -427,7 +427,7 @@ public class RemotingTest {
 
     return new LiveDataClient() {
 
-      final Map<ExternalIdBundle, Double> marketData = MarketdataResourcesLoader.getData(
+      final Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData(
           "/usdMarketQuotes-20140122.properties", "Ticker");
       long counter = 0;
 

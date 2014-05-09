@@ -166,7 +166,8 @@ public class CurveBuildingIntegrationTest {
                                               FunctionTestUtils.createCache());
     View view = viewFactory.createView(viewConfig);
 
-    LiveDataManager liveDataManager = new LiveDataManager(buildLiveDataClient());
+    LiveDataManager liveDataManager = new DefaultLiveDataManager(buildLiveDataClient());
+    // TODO provide appropriate mock values
     LDClient liveDataClient = new LDClient(liveDataManager);
     StrategyAwareMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(MarketData.live(), liveDataClient);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource);

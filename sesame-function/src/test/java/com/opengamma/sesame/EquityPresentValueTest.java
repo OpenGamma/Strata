@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame;
 
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.FailureStatus.PENDING_DATA;
 import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.CoreMatchers.is;
@@ -28,8 +29,11 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.LDClient;
+import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 
@@ -50,7 +54,7 @@ public class EquityPresentValueTest {
     Map<ExternalIdBundle, Double> marketData = Collections.emptyMap();
     Environment env = new SimpleEnvironment(ZonedDateTime.now(), marketDataSource(marketData));
     Result<Double> result = _equityPresentValueFn.presentValue(env, security);
-    assertThat(result.getStatus(), is((ResultStatus) PENDING_DATA));
+    assertThat(result.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
   @Test
@@ -63,16 +67,18 @@ public class EquityPresentValueTest {
     //MarketDataRequirement requirement = MarketDataRequirementFactory.of(security, MarketDataRequirementNames.MARKET_VALUE);
     //marketData.put(requirement, MarketDataItem.available(123.45));
     Map<ExternalIdBundle, Double> marketData = ImmutableMap.of(security.getExternalIdBundle(), 123.45);
-    ResettableLiveMarketDataSource dataSource = marketDataSource(marketData);
+    MarketDataSource dataSource = marketDataSource(marketData);
     Environment env = new SimpleEnvironment(ZonedDateTime.now(), dataSource);
     Result<Double> result = _equityPresentValueFn.presentValue(env, security);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
     assertThat(result.getValue(), is(123.45));
   }
 
-  private ResettableLiveMarketDataSource marketDataSource(Map<ExternalIdBundle, Double> marketData) {
-    FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
-    return builder.data(fieldName, marketData).build();
+  private MarketDataSource marketDataSource(Map<ExternalIdBundle, Double> marketData) {
+    MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
+    for (Map.Entry<ExternalIdBundle, Double> entry : marketData.entrySet()) {
+      builder.add(entry.getKey(), entry.getValue());
+    }
+    return builder.build();
   }
 }

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.function.scenarios.curvedata;
+package com.opengamma.sesame.marketdata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +13,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -22,14 +20,26 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * Trivial market data source backed by an immutable map.
+ * Simple market data source backed by an immutable map. This class
+ * will generally only be useful for test scenarios.
  */
-public class MapMarketDataSource implements MarketDataSource {
+public final class MapMarketDataSource implements MarketDataSource {
 
+  /**
+   * Field to be returned if not specified in request..
+   */
   public static final FieldName DEFAULT_FIELD = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 
+  /**
+   * The fixed set of values to be returned on request.
+   */
   private final Map<Pair<ExternalIdBundle, FieldName>, Object> _values;
 
+  /**
+   * Private constructor to create the map - used only by the builder.
+   *
+   * @param values values to be held for this source
+   */
   private MapMarketDataSource(Map<Pair<ExternalIdBundle, FieldName>, Object> values) {
     _values = ImmutableMap.copyOf(values);
   }
@@ -43,15 +53,12 @@ public class MapMarketDataSource implements MarketDataSource {
   }
 
   /**
-   * @return a builder for building a data source
+   * Creates a builder for populating the source.
+   *
+   * @return a builder
    */
   public static Builder builder() {
     return new Builder();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(_values);
   }
 
   @Override
@@ -66,13 +73,24 @@ public class MapMarketDataSource implements MarketDataSource {
     return Objects.equals(this._values, other._values);
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(_values);
+  }
+
   /**
-   * Builds a data source.
+   * Builder for the data source.
    */
   public static class Builder {
 
+    /**
+     * The set of values being built up.
+     */
     private final Map<Pair<ExternalIdBundle, FieldName>, Object> _values = new HashMap<>();
 
+    /**
+     * Private constructor
+     */
     private Builder() {
     }
 
@@ -128,6 +146,9 @@ public class MapMarketDataSource implements MarketDataSource {
     }
 
     /**
+     * Build the MarketDataSource using the values which have been
+     * added to the builder.
+     * 
      * @return a data source built from this builder's data
      */
     public MarketDataSource build() {
