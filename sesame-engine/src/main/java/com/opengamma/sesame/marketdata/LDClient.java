@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeMsg;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Client which subscribes to market data via the LiveDataManager.
@@ -33,9 +33,11 @@ public class LDClient implements LDListener {
 
   /**
    * Flag indicating whether updated values are available
-   * from the live data manager.
+   * from the live data manager. As it will be read and
+   * written from multiple threads we must ensure we have
+   * a consistent value, hence using the atomic reference.
    */
-  private boolean _valuesPending;
+  private final AtomicReference<Boolean> _valuesPending = new AtomicReference<>(false);
 
   /**
    * Create the client.
@@ -48,7 +50,7 @@ public class LDClient implements LDListener {
 
   @Override
   public void valueUpdated() {
-    _valuesPending = true;
+    _valuesPending.set(true);
   }
 
   /**
@@ -56,14 +58,11 @@ public class LDClient implements LDListener {
    *
    * @param requests the data to be subscribed to
    */
-  public void subscribe(Set<Pair<ExternalIdBundle, FieldName>> requests) {
+  public void subscribe(Set<ExternalIdBundle> requests) {
 
     if (!requests.isEmpty()) {
       Set<ExternalIdBundle> subscriptions = new HashSet<>();
-      for (Pair<ExternalIdBundle, FieldName> request : requests) {
-
-        ExternalIdBundle id = request.getFirst();
-
+      for (ExternalIdBundle id : requests) {
         if (!_latestSnapshot.containsKey(id)) {
           subscriptions.add(id);
         }
@@ -91,8 +90,7 @@ public class LDClient implements LDListener {
    * @return the latest market data
    */
   public Map<ExternalIdBundle, Result<FudgeMsg>> retrieveLatestData() {
-    if (_valuesPending) {
-      _valuesPending = false;
+    if (_valuesPending.compareAndSet(true, false)) {
       _latestSnapshot.clear();
       _latestSnapshot.putAll(_liveDataManager.snapshot(this));
     }

@@ -1,9 +1,19 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.sesame.marketdata;
 
-import static com.opengamma.livedata.msg.LiveDataSubscriptionResult.NOT_PRESENT;
 import static com.opengamma.sesame.marketdata.DefaultLiveDataManagerTest.WaitState.DONE;
 import static com.opengamma.sesame.marketdata.DefaultLiveDataManagerTest.WaitState.INITIAL;
 import static com.opengamma.sesame.marketdata.DefaultLiveDataManagerTest.WaitState.WAITING;
+import static com.opengamma.sesame.marketdata.MarketDataTestUtils.buildFailureResponse;
+import static com.opengamma.sesame.marketdata.MarketDataTestUtils.buildSuccessResponse;
+import static com.opengamma.sesame.marketdata.MarketDataTestUtils.createBundle;
+import static com.opengamma.sesame.marketdata.MarketDataTestUtils.createLiveDataManager;
+import static com.opengamma.sesame.marketdata.MarketDataTestUtils.createLiveDataSpec;
+import static com.opengamma.sesame.marketdata.MarketDataTestUtils.createMockLiveDataClient;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.FailureStatus.PENDING_DATA;
 import static com.opengamma.util.result.FailureStatus.PERMISSION_DENIED;
@@ -49,15 +59,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.permission.PermissionUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.auth.PermissiveSecurityManager;
@@ -83,10 +90,8 @@ public class DefaultLiveDataManagerTest {
     ThreadContext.bind(new PermissiveSecurityManager());
 
     _fudgeContext = new FudgeContext();
-    _mockLiveDataClient = mock(LiveDataClient.class);
-
-    // Don't delay unsubscribe events as it hampers testing
-    _manager = new DefaultLiveDataManager(_mockLiveDataClient, 0);
+    _mockLiveDataClient = createMockLiveDataClient();
+    _manager = createLiveDataManager(_mockLiveDataClient);
   }
 
   @AfterMethod
@@ -152,32 +157,6 @@ public class DefaultLiveDataManagerTest {
     }
   }
 
-  private LiveDataSubscriptionResponse buildFailureResponse(String ticker) {
-    LiveDataSpecification specification = createLiveDataSpec(ticker);
-    return new LiveDataSubscriptionResponse(specification, NOT_PRESENT, "Data is not available", null, null, null);
-  }
-
-  private LiveDataSubscriptionResponse buildFailureResponse(String ticker, String mappedTicker) {
-    LiveDataSpecification specification = createLiveDataSpec(ticker);
-    LiveDataSpecification fqSpecification = createLiveDataSpec(mappedTicker);
-    return new LiveDataSubscriptionResponse(specification, NOT_PRESENT, "Data is not available", fqSpecification, null, null);
-  }
-
-  private LiveDataSubscriptionResponse buildSuccessResponse(String ticker) {
-    LiveDataSpecification specification = createLiveDataSpec(ticker);
-    return new LiveDataSubscriptionResponse(specification, LiveDataSubscriptionResult.SUCCESS, null, null, null, null);
-  }
-
-  private LiveDataSubscriptionResponse buildSuccessResponse(String ticker, String mappedTicker) {
-    LiveDataSpecification specification = createLiveDataSpec(ticker);
-    LiveDataSpecification fqSpecification = createLiveDataSpec(mappedTicker);
-    return new LiveDataSubscriptionResponse(specification, LiveDataSubscriptionResult.SUCCESS, null, fqSpecification, null, null);
-  }
-
-  private LiveDataSpecification createLiveDataSpec(String ticker) {
-    return new LiveDataSpecification("OpenGamma", createBundle(ticker));
-  }
-
   @Test
   public void testMixedResults() {
 
@@ -191,12 +170,8 @@ public class DefaultLiveDataManagerTest {
     };
     _manager.subscribe(client, createIdBundles(tickers));
 
-    Set<LiveDataSubscriptionResponse> responses = new HashSet<>();
-    responses.add(buildSuccessResponse("T1"));
-    responses.add(buildFailureResponse("T2"));
-    responses.add(buildSuccessResponse("T4"));
-
-    _manager.subscriptionResultsReceived(responses);
+    _manager.subscriptionResultsReceived(ImmutableSet.of(
+        buildSuccessResponse("T1"), buildFailureResponse("T2"), buildSuccessResponse("T4")));
 
     // Now send the value update for T4
     MutableFudgeMsg msg = _fudgeContext.newMessage();
@@ -302,8 +277,8 @@ public class DefaultLiveDataManagerTest {
 
     waitForStateChange(client, INITIAL, WAITING);
 
-    _manager.subscriptionResultsReceived
-        (ImmutableSet.of(buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3")));
+    _manager.subscriptionResultsReceived(ImmutableSet.of(
+        buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3")));
 
     // No data for T2 or T3 so still waiting
     assertThat(client.getWaitState(), is(WAITING));
@@ -459,9 +434,9 @@ public class DefaultLiveDataManagerTest {
     _manager.subscribe(client2, createIdBundles("T3", "T4", "T5"));
     _manager.subscribe(client3, createIdBundles("T1", "T4", "T6"));
 
-    _manager.subscriptionResultsReceived
-        (ImmutableSet.of(buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3"),
-                         buildFailureResponse("T4"), buildSuccessResponse("T5"), buildSuccessResponse("T6")));
+    _manager.subscriptionResultsReceived(ImmutableSet.of(
+        buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3"),
+        buildFailureResponse("T4"), buildSuccessResponse("T5"), buildSuccessResponse("T6")));
 
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T2"), _fudgeContext.newMessage()));
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T3"), _fudgeContext.newMessage()));
@@ -498,14 +473,16 @@ public class DefaultLiveDataManagerTest {
     _manager.subscribe(client2, createIdBundles("T3", "T4", "T5"));
     _manager.subscribe(client3, createIdBundles("T1", "T4", "T6"));
 
-    _manager.subscriptionResultsReceived
-        (ImmutableSet.of(buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3"),
-                         buildFailureResponse("T4"), buildSuccessResponse("T5"), buildSuccessResponse("T6")));
+    _manager.subscriptionResultsReceived(ImmutableSet.of(
+        buildFailureResponse("T1"), buildSuccessResponse("T2"), buildSuccessResponse("T3"),
+        buildFailureResponse("T4"), buildSuccessResponse("T5"), buildSuccessResponse("T6")));
 
     // Start in another thread and wait on data
     new Thread(client1).start();
     new Thread(client2).start();
     new Thread(client3).start();
+
+    Thread.sleep(10);
 
     // Client 1 first
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T2"), _fudgeContext.newMessage()));
@@ -566,7 +543,6 @@ public class DefaultLiveDataManagerTest {
     checkSnapshotEntry(snapshot, "T2", SUCCESS);
     checkSnapshotEntry(snapshot, "T3", PENDING_DATA);
   }
-
 
   @Test
   public void testReceivingMappedTickerUpdatesClient() throws InterruptedException {
@@ -677,8 +653,6 @@ public class DefaultLiveDataManagerTest {
         .unsubscribe(any(UserPrincipal.class), any(Collection.class), any(LiveDataListener.class));
   }
 
-  // test client unregistering with other users wanting ticker
-
   @Test
   @SuppressWarnings("unchecked")
   public void testClientUnregisteringWithUnusedTickers() throws InterruptedException {
@@ -726,9 +700,79 @@ public class DefaultLiveDataManagerTest {
         .unsubscribe(any(UserPrincipal.class), any(Collection.class), any(LiveDataListener.class));
   }
 
+  @Test
+  public void testDataCanBeRetrieved() {
+    LDListener client = mock(LDListener.class);
+    _manager.subscribe(client, createIdBundles("T1"));
+    _manager.subscriptionResultsReceived(ImmutableSet.of(buildSuccessResponse("T1")));
+    MutableFudgeMsg msg = _fudgeContext.newMessage();
+    msg.add("Market_Value", 1.23);
+    msg.add("Another", "testIt");
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg));
+
+    _manager.waitForAllData(client);
+    Result<FudgeMsg> t1 = _manager.snapshot(client).get(createBundle("T1"));
+    assertThat(t1.isSuccess(), is(true));
+
+    FudgeMsg t1Value = t1.getValue();
+    assertThat(t1Value.getDouble("Market_Value"), is(1.23));
+    assertThat(t1Value.getString("Another"), is("testIt"));
+  }
+
+  @Test
+  public void testMultipleUpdatesCanBeReceived() {
+    LDListener client = mock(LDListener.class);
+    _manager.subscribe(client, createIdBundles("T1"));
+    _manager.subscriptionResultsReceived(ImmutableSet.of(buildSuccessResponse("T1")));
+    MutableFudgeMsg msg = _fudgeContext.newMessage();
+    msg.add("Market_Value", 1.23);
+    msg.add("Another", "testIt");
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg));
+    // Send the same update again
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg));
+
+    _manager.waitForAllData(client);
+    Result<FudgeMsg> t1 = _manager.snapshot(client).get(createBundle("T1"));
+    assertThat(t1.isSuccess(), is(true));
+
+    FudgeMsg t1Value = t1.getValue();
+    assertThat(t1Value.getDouble("Market_Value"), is(1.23));
+    assertThat(t1Value.getString("Another"), is("testIt"));
+  }
+
+  @Test
+  public void testMultipleUpdatesCanBeReceivedAndGetMerged() {
+    LDListener client = mock(LDListener.class);
+    _manager.subscribe(client, createIdBundles("T1"));
+    _manager.subscriptionResultsReceived(ImmutableSet.of(buildSuccessResponse("T1")));
+    MutableFudgeMsg msg1 = _fudgeContext.newMessage();
+    msg1.add("Market_Value", 1.23);
+    msg1.add("Another", "testIt");
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg1));
+    _manager.waitForAllData(client);
+
+    Result<FudgeMsg> t1_1 = _manager.snapshot(client).get(createBundle("T1"));
+    assertThat(t1_1.isSuccess(), is(true));
+
+    FudgeMsg t1_1Value = t1_1.getValue();
+    assertThat(t1_1Value.getDouble("Market_Value"), is(1.23));
+    assertThat(t1_1Value.getString("Another"), is("testIt"));
+
+    MutableFudgeMsg msg2 = _fudgeContext.newMessage();
+    msg2.add("Market_Value", 2.34);
+
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg2));
+
+    Result<FudgeMsg> t1_2 = _manager.snapshot(client).get(createBundle("T1"));
+    assertThat(t1_2.isSuccess(), is(true));
+
+    FudgeMsg t1_2Value = t1_2.getValue();
+    assertThat(t1_2Value.getDouble("Market_Value"), is(2.34)); // updated
+    assertThat(t1_2Value.getString("Another"), is("testIt")); // unchanged even though not sent
+  }
+
   // TODO - additional tests:
-  // test merging of fudge messages when receiving updates
-  // test
+  // test multiple threads for one client all waiting on same latch
   // test multiple clients all on separate threads and data ticking in
 
   private SecurityManager createSecurityManagerAllowing(final String... permissions) {
@@ -801,21 +845,12 @@ public class DefaultLiveDataManagerTest {
     return subs;
   }
 
-  private ExternalIdBundle createBundle(String ticker) {
-    return createTicker(ticker).toBundle();
-  }
-
-  private ExternalId createTicker(String ticker) {
-    return ExternalId.of("TICKER", ticker);
-  }
-
   /**
    * Helper class that will run on another thread and immediately wait
    * for the manager to indicate that data is available. The state can
    * be monitored to check the behaviour is as expected.
    */
   private static class WaitingClient implements LDListener, Runnable {
-
 
     private final LiveDataManager _manager;
 
