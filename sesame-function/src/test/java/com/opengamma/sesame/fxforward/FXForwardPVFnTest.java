@@ -62,7 +62,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -135,9 +134,9 @@ import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.LDClient;
+import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -211,8 +210,7 @@ public class FXForwardPVFnTest {
 
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
-    ResettableLiveMarketDataSource dataSource = builder.data(fieldName, marketData).build();
+    MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
     SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
 
     for (int i = 0; i < 100; i++) {
@@ -220,7 +218,6 @@ public class FXForwardPVFnTest {
       System.out.println();
     }
     //System.out.println(TracingProxy.end().prettyPrint());
-    System.out.println("requested data: " + dataSource.getRequestedData());
     return result;
   }
 
@@ -242,24 +239,16 @@ public class FXForwardPVFnTest {
     DiscountingMulticurveBundleFn bundleProvider =
         FunctionModel.build(DiscountingMulticurveBundleFn.class, createFunctionConfig(), componentMap);
     Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
-    ResettableLiveMarketDataSource dataSource = null;
 
-    try {
-      ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
-      CurveConstructionConfiguration curveConfig = configSource.get(CurveConstructionConfiguration.class, "Z-Marc JPY Dsc - FX USD", VersionCorrection.LATEST)
-          .iterator().next().getValue();
+    ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
+    CurveConstructionConfiguration curveConfig = configSource.get(CurveConstructionConfiguration.class, "Z-Marc JPY Dsc - FX USD", VersionCorrection.LATEST)
+        .iterator().next().getValue();
 
-      FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-      ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
-      dataSource = builder.data(fieldName, marketData).build();
-      SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
-      result = bundleProvider.generateBundle(env, curveConfig);
-    } catch (Exception e) {
-      if (dataSource != null) {
-        System.out.println(dataSource.getRequestedData());
-      }
-      throw e;
-    }
+    FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
+    MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
+    SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
+    result = bundleProvider.generateBundle(env, curveConfig);
+
     assertNotNull(result);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
 
@@ -340,8 +329,7 @@ public class FXForwardPVFnTest {
     Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
-    ResettableLiveMarketDataSource dataSource = builder.data(fieldName, marketData).build();
+    MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
     Results results = view.run(cycleArguments);
     System.out.println(results);
@@ -442,8 +430,7 @@ public class FXForwardPVFnTest {
     Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    ResettableLiveMarketDataSource.Builder builder = new ResettableLiveMarketDataSource.Builder(MarketData.live(), mock(LDClient.class));
-    ResettableLiveMarketDataSource dataSource = builder.data(fieldName, marketData).build();
+    MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
     //int nRuns = 1;
     int nRuns = 20;
@@ -457,6 +444,14 @@ public class FXForwardPVFnTest {
       s_logger.info("view executed in {}ms", time);
       Thread.sleep(1000);
     }
+  }
+
+  private MarketDataSource createMarketDataSource(Map<ExternalIdBundle, Double> marketData, FieldName fieldName) {
+    MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
+    for (Map.Entry<ExternalIdBundle, Double> entry : marketData.entrySet()) {
+      builder.add(entry.getKey(), fieldName, entry.getValue());
+    }
+    return builder.build();
   }
 
   private static Trade createRandomFxForwardTrade() {

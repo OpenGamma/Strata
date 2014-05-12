@@ -22,8 +22,6 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  * A source of live data that is primed with a set of market data
@@ -44,18 +42,18 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
   private final LDClient _liveDataClient;
 
   /** The market data. */
-  private final Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _data;
+  private final Map<ExternalIdBundle, Result<FudgeMsg>> _data;
 
   /** Market data that has been requested. */
-  private final Set<Pair<ExternalIdBundle, FieldName>> _requests =
-      Collections.newSetFromMap(new ConcurrentHashMap<Pair<ExternalIdBundle, FieldName>, Boolean>());
+  private final Set<ExternalIdBundle> _requests =
+      Collections.newSetFromMap(new ConcurrentHashMap<ExternalIdBundle, Boolean>());
 
   public ResettableLiveMarketDataSource(MarketDataSpecification marketDataSpec, LDClient liveDataClient) {
-    this(marketDataSpec, liveDataClient, ImmutableMap.<Pair<ExternalIdBundle, FieldName>, Result<?>>of());
+    this(marketDataSpec, liveDataClient, ImmutableMap.<ExternalIdBundle, Result<FudgeMsg>>of());
   }
   
   private ResettableLiveMarketDataSource(MarketDataSpecification marketDataSpecification, LDClient liveDataClient,
-      Map<Pair<ExternalIdBundle, FieldName>, Result<?>> data) {
+                                         Map<ExternalIdBundle, Result<FudgeMsg>> data) {
     _marketDataSpecification = ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
     _liveDataClient = ArgumentChecker.notNull(liveDataClient, "liveDataClient");
     _data = ArgumentChecker.notNull(data, "data");
@@ -64,59 +62,59 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
   @Override
   public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
 
-    Pair<ExternalIdBundle, FieldName> key = Pairs.of(id, fieldName);
-    Result<?> value = _data.get(key);
+    Result<FudgeMsg> value = _data.get(id);
 
     if (value != null) {
-      return value;
+      if (value.isSuccess()) {
+        Object result = value.getValue().getValue(fieldName.getName());
+        if (result != null) {
+          return Result.success(result);
+        } else {
+          return Result.failure(
+              FailureStatus.MISSING_DATA, "Data is available for id: {}, but not for field: {}", id, fieldName);
+        }
+      } else {
+        return value;
+      }
     } else {
-      _requests.add(key);
+      _requests.add(id);
       return Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", id, fieldName);
     }
   }
 
-  public Set<Pair<ExternalIdBundle, FieldName>> getRequestedData() {
+  public Set<ExternalIdBundle> getRequestedData() {
     return Collections.unmodifiableSet(_requests);
   }
 
   @Override
   public StrategyAwareMarketDataSource createPrimedSource() {
-    Set<Pair<ExternalIdBundle, FieldName>> requests = getRequestedData();
-    _liveDataClient.subscribe(requests);
+    _liveDataClient.subscribe(_requests);
     _liveDataClient.waitForSubscriptions();
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> latestData = _liveDataClient.retrieveLatestData();
-
-    Map<Pair<ExternalIdBundle, FieldName>, Result<?>> data = new HashMap<>();
+    Map<ExternalIdBundle, Result<FudgeMsg>> data = new HashMap<>();
 
     // Iterate over the combination of newly requested data (to get initial
     // values for the request) and the existing data (to pick up any
     // updated values)
-    for (Pair<ExternalIdBundle, FieldName> request : Iterables.concat(requests, _data.keySet())) {
-      ExternalIdBundle idBundle = request.getFirst();
-      FieldName fieldName = request.getSecond();
-      if (latestData.containsKey(idBundle)) {
-        Result<FudgeMsg> result = latestData.get(idBundle);
-        if (result.isSuccess()) {
-          FudgeMsg msg = result.getValue();
-          Object value = msg.getValue(fieldName.getName());
-          if (value != null) {
-            data.put(request, Result.success(value));
-          } else {
-            data.put(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for id: {}, field: {}", idBundle, fieldName));
-          }
-        } else {
-          data.put(request, result);
-        }
-      } else {
-        // Fallback case that we really shouldn't see as in requesting
-        // market data we should have generated a pending status
-        s_logger.error("Mismatching market data subscriptions - no tracking for request: {}/{}", idBundle, fieldName);
-        data.put(request, Result.failure(FailureStatus.MISSING_DATA, "No data available for id: {}, field: {}", idBundle, fieldName));
-      }
+    for (ExternalIdBundle idBundle : Iterables.concat(_requests, _data.keySet())) {
+      data.put(idBundle, generateRequestResult(idBundle));
     }
 
     return new ResettableLiveMarketDataSource(_marketDataSpecification, _liveDataClient, data);
+  }
+
+  private Result<FudgeMsg> generateRequestResult(ExternalIdBundle idBundle) {
+
+    Map<ExternalIdBundle, Result<FudgeMsg>> latestData = _liveDataClient.retrieveLatestData();
+
+    if (latestData.containsKey(idBundle)) {
+      return latestData.get(idBundle);
+    } else {
+      // Fallback case that we really shouldn't see as in requesting
+      // market data we should have at least generated a pending status
+      s_logger.error("Mismatching market data subscriptions - no data received for id: {}", idBundle);
+      return Result.failure(FailureStatus.MISSING_DATA, "No data available for id: {}", idBundle);
+    }
   }
 
   @Override
@@ -128,74 +126,4 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
   public boolean isCompatible(MarketDataSpecification specification) {
     return _marketDataSpecification.equals(specification);
   }
-  
-  /**
-   * Builder for the class.
-   */
-  public static final class Builder {
-
-    private final MarketDataSpecification _marketDataSpecification;
-    private final LDClient _liveDataClient;
-    private final Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _data = new HashMap<>();
-
-    public Builder(MarketDataSpecification marketDataSpecification, LDClient liveDataClient) {
-      _marketDataSpecification = marketDataSpecification;
-      _liveDataClient = liveDataClient;
-    }
-    
-    public Builder data(Map<Pair<ExternalIdBundle, FieldName>, Object> data) {
-      ArgumentChecker.notNull(data, "data");
-      for (Map.Entry<Pair<ExternalIdBundle, FieldName>, Object> entry : data.entrySet()) {
-        _data.put(entry.getKey(), Result.success(entry.getValue()));
-      }
-      return this;
-    }
-
-    public Builder data(FieldName fieldName, Map<ExternalIdBundle, ?> data) {
-      ArgumentChecker.notNull(fieldName, "fieldName");
-
-      for (Map.Entry<ExternalIdBundle, ?> entry : data.entrySet()) {
-        _data.put(Pairs.of(entry.getKey(), fieldName), Result.success(entry.getValue()));
-      }
-      return this;
-    }
-
-    public Builder data(ExternalIdBundle id, FieldName fieldName, Object data) {
-      _data.put(key(id, fieldName), Result.success(ArgumentChecker.notNull(data, "data")));
-      return this;
-    }
-
-    public Builder pending(Set<Pair<ExternalIdBundle, FieldName>> pending) {
-      for (Pair<ExternalIdBundle, FieldName> pair : pending) {
-        _data.put(pair, Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", pair.getFirst(), pair.getSecond()));
-      }
-      return this;
-    }
-
-    public Builder pending(ExternalIdBundle id, FieldName fieldName) {
-      _data.put(key(id, fieldName), Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", id, fieldName));
-      return this;
-    }
-
-    public Builder missing(Set<Pair<ExternalIdBundle, FieldName>> missing) {
-      for (Pair<ExternalIdBundle, FieldName> pair : missing) {
-        _data.put(pair, Result.failure(FailureStatus.MISSING_DATA, "No data available for: {}", pair.getFirst()));
-      }
-      return this;
-    }
-
-    public Builder missing(ExternalIdBundle id, FieldName fieldName) {
-      _data.put(key(id, fieldName), Result.failure(FailureStatus.MISSING_DATA, "No data available for: {}", id));
-      return this;
-    }
-
-    public ResettableLiveMarketDataSource build() {
-      return new ResettableLiveMarketDataSource(_marketDataSpecification, _liveDataClient, _data);
-    }
-
-    private static Pair<ExternalIdBundle, FieldName> key(ExternalIdBundle id, FieldName fieldName) {
-      return Pairs.of(ArgumentChecker.notNull(id, "id"), ArgumentChecker.notNull(fieldName, "fieldName"));
-    }
-  }
-  
 }
