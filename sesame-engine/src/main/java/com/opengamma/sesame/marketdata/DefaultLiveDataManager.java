@@ -377,20 +377,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Got error waiting for latch on market data", e);
       }
-
-      // Latch removal must also go via the command queue
-      removeLatch(listener);
     }
-  }
-
-  private void removeLatch(final LDListener listener) {
-
-    _commandQueue.submit(new Runnable() {
-      @Override
-      public void run() {
-        _latches.remove(listener);
-      }
-    });
   }
 
   private CountDownLatch retrieveLatch(final LDListener listener) {
@@ -487,10 +474,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     listener.valueUpdated();
 
     // Check if this client is potentially waiting on data completion
-    final CountDownLatch latch = _latches.get(listener);
-    if (latch != null && clientsRequirementsAreSatisfied(listener)) {
-      latch.countDown();
-      _latches.remove(listener);
+    if (_latches.containsKey(listener) && clientsRequirementsAreSatisfied(listener)) {
+      // Latch is no longer required so we can remove
+      // it and complete it
+      _latches.remove(listener).countDown();
     }
   }
 
