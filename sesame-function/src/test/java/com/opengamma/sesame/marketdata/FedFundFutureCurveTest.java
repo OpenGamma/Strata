@@ -50,10 +50,12 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
@@ -89,7 +91,6 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
-@SuppressWarnings("deprecation")
 @Test(groups = TestGroup.UNIT)
 public class FedFundFutureCurveTest {
 
@@ -110,7 +111,6 @@ public class FedFundFutureCurveTest {
     EXPIRY_DATE[1] = LocalDate.of(2014, 5, 30);
     EXPIRY_DATE[2] = LocalDate.of(2014, 6, 30);
   }
-  
 
   private static final String TRADING_EX = "CME";
   private static final String SETTLE_EX = "CME";
@@ -132,26 +132,38 @@ public class FedFundFutureCurveTest {
   
   @BeforeClass
   public void setUpClass() throws IOException {
-    FunctionModelConfig config = config(
-      arguments( 
-          function(ConfigDbMarketExposureSelectorFn.class,
-              argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockFFExposureFunctions()))),
-              function(DefaultDiscountingMulticurveBundleFn.class, argument("impliedCurveNames", StringSet.of())),
-        function(RootFinderConfiguration.class, argument("rootFinderAbsoluteTolerance", 1e-9),
-            argument("rootFinderRelativeTolerance", 1e-9), argument("rootFinderMaxIterations", 1000)),
-        function(DefaultHistoricalTimeSeriesFn.class, argument("resolutionKey", "DEFAULT_TSS"), argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1))))),
-      implementations(FedFundsFutureFn.class, DefaultFedFundsFutureFn.class,
-          FedFundsFutureCalculatorFactory.class, FedFundsFutureDiscountingCalculatorFactory.class,
-          CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
-                        CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                        FXMatrixFn.class, DefaultFXMatrixFn.class,
-                        DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                        MarketDataFn.class, DefaultMarketDataFn.class));
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(ConfigDbMarketExposureSelectorFn.class,
+                         argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockFFExposureFunctions()))),
+                function(DefaultDiscountingMulticurveBundleFn.class,
+                         argument("impliedCurveNames", StringSet.of())),
+                function(DefaultHistoricalTimeSeriesFn.class,
+                         argument("resolutionKey", "DEFAULT_TSS"),
+                         argument("htsRetrievalPeriod",  RetrievalPeriod.of(Period.ofYears(1)))),
+                function(DefaultHistoricalMarketDataFn.class,
+                         argument("dataSource", "BLOOMBERG")),
+                function(RootFinderConfiguration.class,
+                         argument("rootFinderAbsoluteTolerance", 1e-9),
+                         argument("rootFinderRelativeTolerance", 1e-9),
+                         argument("rootFinderMaxIterations", 1000)),
+                function(DefaultCurveNodeConverterFn.class,
+                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1))))),
+            implementations(FedFundsFutureFn.class, DefaultFedFundsFutureFn.class,
+                            FedFundsFutureCalculatorFactory.class, FedFundsFutureDiscountingCalculatorFactory.class,
+                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                            CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                            FXMatrixFn.class, DefaultFXMatrixFn.class,
+                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                            HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                            MarketDataFn.class, DefaultMarketDataFn.class));
 
     ImmutableMap<Class<?>, Object> components = generateComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
@@ -228,4 +240,3 @@ public class FedFundFutureCurveTest {
   
 }
 
-  

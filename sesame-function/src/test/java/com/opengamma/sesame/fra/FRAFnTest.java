@@ -36,21 +36,21 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -61,7 +61,9 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.money.Currency;
@@ -99,9 +101,10 @@ public class FRAFnTest {
                      argument("rootFinderAbsoluteTolerance", 1e-9),
                      argument("rootFinderRelativeTolerance", 1e-9),
                      argument("rootFinderMaxIterations", 1000)),
-            function(DefaultHistoricalTimeSeriesFn.class,
-                     argument("resolutionKey", "DEFAULT_TSS"),
-                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+            function(DefaultCurveNodeConverterFn.class,
+                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+            function(DefaultHistoricalMarketDataFn.class,
+                     argument("dataSource", "BLOOMBERG")),
             function(DefaultDiscountingMulticurveBundleFn.class,
                      argument("impliedCurveNames", StringSet.of()))),
         implementations(FRAFn.class, DiscountingFRAFn.class,
@@ -112,11 +115,12 @@ public class FRAFnTest {
                         CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
                         FXMatrixFn.class, DefaultFXMatrixFn.class,
                         DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                        CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                         CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                         DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
                         CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                        HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                         CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                         MarketDataFn.class, DefaultMarketDataFn.class));
 
@@ -152,7 +156,7 @@ public class FRAFnTest {
 
   private FRASecurity createSingleFra() {
     return new FRASecurity(Currency.USD, ExternalSchemes.financialRegionId("US"), STD_ACCRUAL_START_DATE,
-                           STD_ACCRUAL_END_DATE, 0.0125, -10000000, new InterestRateMockSources().getLiborIndexId(),
+                           STD_ACCRUAL_END_DATE, 0.0125, -10000000, InterestRateMockSources.getLiborIndexId(),
                            STD_REFERENCE_DATE);
   }
 

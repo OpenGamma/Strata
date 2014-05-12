@@ -88,10 +88,12 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
@@ -102,9 +104,8 @@ import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
-import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
+import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -501,43 +502,28 @@ public class FXForwardPVFnTest {
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),
                          argument("rootFinderMaxIterations", 1000)),
+                function(DefaultCurveNodeConverterFn.class,
+                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultCurrencyPairsFn.class,
                          argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
                                                                    CurrencyPair.of(EUR, USD),
                                                                    CurrencyPair.of(GBP, USD)))),
-                function(DefaultHistoricalTimeSeriesFn.class,
-                         argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
                          argument("impliedCurveNames", StringSet.of()))),
-            implementations(FXForwardPVFn.class,
-                            DiscountingFXForwardPVFn.class,
-                            FXForwardCalculatorFn.class,
-                            FXForwardDiscountingCalculatorFn.class,
-                            MarketExposureSelectorFn.class,
-                            ConfigDbMarketExposureSelectorFn.class,
-                            CurrencyPairsFn.class,
-                            DefaultCurrencyPairsFn.class,
-                            FinancialSecurityVisitor.class,
-                            FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class,
-                            ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataFn.class,
-                            DefaultCurveSpecificationMarketDataFn.class,
-                            FXMatrixFn.class,
-                            DefaultFXMatrixFn.class,
-                            CurveDefinitionFn.class,
-                            DefaultCurveDefinitionFn.class,
-                            DiscountingMulticurveBundleFn.class,
-                            DefaultDiscountingMulticurveBundleFn.class,
-                            DiscountingMulticurveCombinerFn.class,
-                            ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                            CurveSpecificationFn.class,
-                            DefaultCurveSpecificationFn.class,
-                            CurveConstructionConfigurationSource.class,
-                            ConfigDBCurveConstructionConfigurationSource.class,
-                            HistoricalTimeSeriesFn.class,
-                            DefaultHistoricalTimeSeriesFn.class));
+            implementations(FXForwardPVFn.class, DiscountingFXForwardPVFn.class,
+                            FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
+                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                            CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                            FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
+                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                            FXMatrixFn.class, DefaultFXMatrixFn.class,
+                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class));
   }
 
   private static ComponentMap componentMap(Class<?>... componentTypes) {

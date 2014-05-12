@@ -17,8 +17,6 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.FXMatrixFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.TimeSeriesReturnConverter;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.pnl.HistoricalPnLFXConverterFn;
@@ -43,10 +41,6 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
    */
   private final Optional<Currency> _outputCurrency;
   private final Boolean _useHistoricalSpot;
-  private final FXMatrixFn _fxMatrixFn;
-
-  private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
-  
   private final HistoricalPnLFXConverterFn _pnlFXConverterFn;
   
   /**
@@ -66,22 +60,18 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
   private final LocalDateRange _dateRange;
   
   @Inject
-  public DiscountingFXForwardSpotPnLSeriesFn(final FXForwardCalculatorFn calculatorProvider,
-                                             final CurrencyPairsFn currencyPairsFn,
-                                             final Optional<Currency> outputCurrency,
-                                             final Boolean useHistoricalSpot,
-                                             final HistoricalTimeSeriesFn historicalTimeSeriesProvider,
-                                             final FXMatrixFn fxMatrixFn, 
-                                             final LocalDateRange dateRange,
-                                             final HistoricalMarketDataFn historicalMarketDataFn,
-                                             final TimeSeriesReturnConverter timeSeriesConverter,
-                                             final HistoricalPnLFXConverterFn pnlFXConverterFn) {
+  public DiscountingFXForwardSpotPnLSeriesFn(FXForwardCalculatorFn calculatorProvider,
+                                             CurrencyPairsFn currencyPairsFn,
+                                             Optional<Currency> outputCurrency,
+                                             Boolean useHistoricalSpot,
+                                             LocalDateRange dateRange,
+                                             HistoricalMarketDataFn historicalMarketDataFn,
+                                             TimeSeriesReturnConverter timeSeriesConverter,
+                                             HistoricalPnLFXConverterFn pnlFXConverterFn) {
     _calculatorProvider = calculatorProvider;
     _currencyPairsFn = currencyPairsFn;
     _outputCurrency = outputCurrency;
     _useHistoricalSpot = useHistoricalSpot;
-    _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
-    _fxMatrixFn = fxMatrixFn;
     _dateRange = dateRange;
     _historicalMarketDataFn = historicalMarketDataFn;
     _timeSeriesConverter = timeSeriesConverter;
@@ -100,29 +90,6 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
     final Result<CurrencyPair> cpResult = _currencyPairsFn.getCurrencyPair(pair);
 
     final Result<FXForwardCalculator> calculatorResult = _calculatorProvider.generateCalculator(env, security);
-
-    // todo this if/else nesting is fairly horrible - is there a nicer way? E.g:
-      //return gatherResults(cpResult, returnSeriesResult, calculatorResult).whenAvailable(new Doer() {
-    //
-    //  public Result doIt(CurrencyPair pair, LocalDateDoubleTimeSeries series, FxForwardCalculator calculator) {
-    //    Result<LocalDateDoubleTimeSeries> conversionSeriesResult = _historicalTimeSeriesProvider.getHtsForCurrencyPair(
-    //        CurrencyPair.of(baseCurrency, _outputCurrency.get()));
-    //
-    //    final Currency baseCurrency = pair.getBase();
-    //    final double exposure = mca.getAmount(pair.getCounter());
-    //    final LocalDateDoubleTimeSeries conversionSeries = conversionSeriesResult.getValue();
-    //
-    //    if (conversionSeriesResult.isValueAvailable()) {
-    //
-    //      final LocalDateDoubleTimeSeries convertedSeries = conversionSeries.multiply(exposure);
-    //      return success(convertedSeries.multiply(series));
-    //
-    //    } else {
-    //      return propagateFailure(conversionSeriesResult);
-    //    }
-    //  }
-    //});
-    // or "flatMap that shit!"
 
     if (calculatorResult.isSuccess()) {
 
@@ -164,7 +131,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
           CurrencyPair outputPair = CurrencyPair.of(baseCurrency, _outputCurrency.get());
           final Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
-              _historicalTimeSeriesProvider.getHtsForCurrencyPair(env, outputPair, endDate);
+              _historicalMarketDataFn.getFxRates(env, outputPair, adjustedRange);
 
           if (conversionSeriesResult.isSuccess()) {
 

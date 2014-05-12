@@ -55,6 +55,7 @@ import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
@@ -65,6 +66,7 @@ import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.GlobalCycleOptions;
@@ -342,25 +344,27 @@ public class RemotingTest {
         ConfigLink.resolvable("USD_ON-OIS_LIBOR3M-FRAIRS_1U", CurveConstructionConfiguration.class).resolve();
 
     return configureView("Curve Bundle only",
-                  nonPortfolioOutput(curveBundleOutputName,
-                                     output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
-                                            config(
-                                                arguments(
-                                                    function(
-                                                        RootFinderConfiguration.class,
-                                                        argument("rootFinderAbsoluteTolerance", 1e-9),
-                                                        argument("rootFinderRelativeTolerance", 1e-9),
-                                                        argument("rootFinderMaxIterations", 1000)),
-                                                    function(
-                                                        DefaultHistoricalTimeSeriesFn.class,
-                                                        argument("resolutionKey", "DEFAULT_TSS"),
-                                                        argument("htsRetrievalPeriod",
-                                                                 RetrievalPeriod.of((Period.ofYears(1))))),
-                                                    function(
-                                                        DefaultDiscountingMulticurveBundleFn.class,
-                                                        argument("impliedCurveNames", StringSet.of()),
-                                                        argument("curveConfig",
-                                                                 curveConstructionConfiguration)))))));
+                         nonPortfolioOutput(curveBundleOutputName,
+                                            output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE,
+                                                   config(
+                                                       arguments(
+                                                           function(
+                                                               RootFinderConfiguration.class,
+                                                               argument("rootFinderAbsoluteTolerance", 1e-9),
+                                                               argument("rootFinderRelativeTolerance", 1e-9),
+                                                               argument("rootFinderMaxIterations", 1000)),
+                                                           function(DefaultCurveNodeConverterFn.class,
+                                                                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                                                           function(DefaultHistoricalMarketDataFn.class,
+                                                                    argument("dataSource", "BLOOMBERG")),
+                                                           function(
+                                                               DefaultHistoricalTimeSeriesFn.class,
+                                                               argument("resolutionKey", "DEFAULT_TSS"),
+                                                               argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
+                                                           function(
+                                                               DefaultDiscountingMulticurveBundleFn.class,
+                                                               argument("impliedCurveNames", StringSet.of()),
+                                                               argument("curveConfig", curveConstructionConfiguration)))))));
   }
 
   // test execution with streaming results

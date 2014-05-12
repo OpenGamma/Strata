@@ -41,6 +41,7 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
@@ -211,6 +212,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
                                       FixedHistoricalMarketDataFactory.class,
                                       DefaultMarketDataFn.class,
                                       DefaultHistoricalMarketDataFn.class,
+                                      DefaultCurveNodeConverterFn.class,
                                       DefaultHistoricalPnLFXConverterFn.class);
     return availableImplementations;
   }

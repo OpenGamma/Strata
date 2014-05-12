@@ -63,10 +63,12 @@ import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeries
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
@@ -227,6 +229,8 @@ public class FXForwardPnlSeriesFunctionTest {
                 function(DefaultHistoricalMarketDataFn.class,
                          argument("dataSource", "BLOOMBERG"),
                          argument("currencyMatrix", currencyMatrix)),
+                function(DefaultCurveNodeConverterFn.class,
+                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultMarketDataFn.class,
                          argument("currencyMatrix", currencyMatrix))),
 
@@ -244,6 +248,7 @@ public class FXForwardPnlSeriesFunctionTest {
                             DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
                             CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                             MarketDataFn.class, DefaultMarketDataFn.class,
                             HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,

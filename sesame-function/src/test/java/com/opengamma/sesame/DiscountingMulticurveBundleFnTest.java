@@ -6,7 +6,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -147,19 +146,17 @@ public class DiscountingMulticurveBundleFnTest {
     
     FunctionModelConfig config = config(
         arguments(
-            function(DefaultHistoricalTimeSeriesFn.class,
-                     argument("resolutionKey", "DEFAULT_TSS_CONFIG"),
-                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofDays(1)))),
             function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", StringSet.of("Implied Deposit Curve KRW")))),
-         implementations(CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-             CurveSpecificationFn.class, DefaultCurveSpecificationFn.class, 
-             CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-             FXMatrixFn.class, DefaultFXMatrixFn.class,
-             DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-             MarketDataFn.class, DefaultMarketDataFn.class)
-           );
+                     argument("impliedCurveNames", StringSet.of("Implied Deposit Curve KRW"))),
+            function(DefaultCurveNodeConverterFn.class,
+                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofDays(1))))),
+        implementations(CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                        CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                        CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                        FXMatrixFn.class, DefaultFXMatrixFn.class,
+                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                        MarketDataFn.class, DefaultMarketDataFn.class));
 
     _multicurveBundleFn = FunctionModel.build(DiscountingMulticurveBundleFn.class, config, components);
     

@@ -63,10 +63,12 @@ import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeries
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
@@ -202,36 +204,25 @@ public class FXForwardYCNSFunctionTest {
                 function(DefaultHistoricalTimeSeriesFn.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
                          argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
+                function(DefaultCurveNodeConverterFn.class,
+                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
                          argument("impliedCurveNames", StringSet.of()))),
-            implementations(FXForwardYieldCurveNodeSensitivitiesFn.class,
-                            DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
-                            FXForwardCalculatorFn.class,
-                            FXForwardDiscountingCalculatorFn.class,
-                            MarketExposureSelectorFn.class,
-                            ConfigDbMarketExposureSelectorFn.class,
-                            CurrencyPairsFn.class,
-                            DefaultCurrencyPairsFn.class,
-                            FinancialSecurityVisitor.class,
-                            FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class,
-                            ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataFn.class,
-                            DefaultCurveSpecificationMarketDataFn.class,
-                            DiscountingMulticurveCombinerFn.class,
-                            ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                            FXMatrixFn.class,
-                            DefaultFXMatrixFn.class,
-                            CurveDefinitionFn.class,
-                            DefaultCurveDefinitionFn.class,
-                            DiscountingMulticurveBundleFn.class,
-                            DefaultDiscountingMulticurveBundleFn.class,
-                            CurveSpecificationFn.class,
-                            DefaultCurveSpecificationFn.class,
-                            CurveConstructionConfigurationSource.class,
-                            ConfigDBCurveConstructionConfigurationSource.class,
-                            HistoricalTimeSeriesFn.class,
-                            DefaultHistoricalTimeSeriesFn.class));
+            implementations(FXForwardYieldCurveNodeSensitivitiesFn.class, DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
+                            FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
+                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                            CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
+                            FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
+                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
+                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                            FXMatrixFn.class, DefaultFXMatrixFn.class,
+                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                            HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class));
   }
 
   private static ComponentMap componentMap(Map<Class<?>, Object> components) {
