@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.equity;
 
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static com.opengamma.util.result.SuccessStatus.SUCCESS;
@@ -18,6 +18,10 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.SimpleEnvironment;
+import com.opengamma.sesame.equity.DefaultEquityPresentValueFn;
+import com.opengamma.sesame.equity.EquityPresentValueFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -25,13 +29,13 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 
-public class EquityPresentValueTest {
+public class DefaultEquityPresentValueFnTest {
 
   private EquityPresentValueFn _equityPresentValueFn;
 
   @BeforeMethod
   public void setUp() {
-    _equityPresentValueFn = new EquityPresentValue(new DefaultMarketDataFn(mock(CurrencyMatrix.class)));
+    _equityPresentValueFn = new DefaultEquityPresentValueFn(new DefaultMarketDataFn(mock(CurrencyMatrix.class)));
   }
 
   @Test
