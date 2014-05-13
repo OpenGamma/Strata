@@ -59,9 +59,11 @@ import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveNodeConverterFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
@@ -83,7 +85,9 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.sabr.DefaultSabrParametersProviderFn;
 import com.opengamma.sesame.sabr.SabrParametersProviderFn;
@@ -133,9 +137,13 @@ public class SwaptionFnTest {
                      argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),
             function(DefaultSabrParametersProviderFn.class,
                      argument("configurationName", "TEST_SABR")),
+            function(DefaultCurveNodeConverterFn.class,
+                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+            function(DefaultHistoricalMarketDataFn.class,
+                     argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1))),
+                     argument("dataSource", "BLOOMBERG")),
             function(DefaultDiscountingMulticurveBundleFn.class,
-                     argument("impliedCurveNames", StringSet.of()))
-        ),
+                     argument("impliedCurveNames", StringSet.of()))),
         implementations(SwaptionFn.class, SabrSwaptionFn.class,
                         InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
                         SwaptionCalculatorFactory.class, SabrSwaptionCalculatorFactory.class,
@@ -146,11 +154,12 @@ public class SwaptionFnTest {
                         CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                         DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
                         CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                        CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                         CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                        HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                         HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                        MarketDataFn.class, DefaultMarketDataFn.class)
-    );
+                        MarketDataFn.class, DefaultMarketDataFn.class));
 
     ImmutableMap<Class<?>, Object> components = _interestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());

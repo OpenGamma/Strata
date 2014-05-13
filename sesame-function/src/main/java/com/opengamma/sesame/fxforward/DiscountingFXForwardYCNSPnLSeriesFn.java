@@ -32,7 +32,6 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
@@ -41,18 +40,16 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
-import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.component.StringSet;
+import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -84,7 +81,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final Optional<Currency> _outputCurrency;
 
   private final FXReturnSeriesFn _fxReturnSeriesProvider;
-  private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
+  private final HistoricalMarketDataFn _historicalMarketDataFn;
   private final CurveSpecificationFn _curveSpecificationFunction;
   private final CurrencyPairsFn _currencyPairsFn;
   private final MarketDataFactory _marketDataFactory;
@@ -104,7 +101,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              CurveConstructionConfiguration curveConfig,
                                              Optional<Currency> outputCurrency,
                                              FXReturnSeriesFn fxReturnSeriesProvider,
-                                             HistoricalTimeSeriesFn historicalTimeSeriesProvider,
+                                             HistoricalMarketDataFn historicalMarketDataFn,
                                              CurveSpecificationFn curveSpecificationFunction,
                                              CurrencyPairsFn currencyPairsFn,
                                              MarketDataFactory marketDataFactory,
@@ -118,7 +115,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _curveConfig = curveConfig;
     _outputCurrency = outputCurrency;
     _fxReturnSeriesProvider = fxReturnSeriesProvider;
-    _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
+    _historicalMarketDataFn = historicalMarketDataFn;
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
     _marketDataFactory = marketDataFactory;
@@ -372,18 +369,17 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
           curveCurrency,
           priceSeriesRange);
       //TODO - [SSM-192] may want to use today's spot rate for conversion here
-      return calculateSeriesForNodes(env, sensitivity, nodes, conversionSeries, curveName, priceSeriesRange);
+      return calculateSeriesForNodes(env, sensitivity, nodes, conversionSeries, priceSeriesRange);
     }
     return Result.failure(calculatorResult, curveSpecificationResult, cpResult);
   }
 
   private LocalDateDoubleTimeSeries generateConversionSeries(Environment env, Currency curveCurrency, LocalDateRange priceSeriesRange) {
-
     if (conversionIsRequired(curveCurrency)) {
 
       CurrencyPair currencyPair = CurrencyPair.of(curveCurrency, _outputCurrency.get());
-      final Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
-          _historicalTimeSeriesProvider.getHtsForCurrencyPair(env, currencyPair, priceSeriesRange);
+      Result<LocalDateDoubleTimeSeries> conversionSeriesResult =
+          _historicalMarketDataFn.getFxRates(env, currencyPair, priceSeriesRange);
 
       if (conversionSeriesResult.isSuccess()) {
         return conversionSeriesResult.getValue();
@@ -397,7 +393,6 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                                                                          DoubleMatrix1D sensitivities,
                                                                                          Set<CurveNodeWithIdentifier> nodes,
                                                                                          LocalDateDoubleTimeSeries fxConversionSeries, 
-                                                                                         String curveName, 
                                                                                          LocalDateRange priceSeriesRange) {
     final int size = sensitivities.getNumberOfElements();
 
@@ -407,35 +402,20 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
     int i = 0;
     for (final CurveNodeWithIdentifier curveNodeWithId : nodes) {
+      Result<LocalDateDoubleTimeSeries> timeSeriesResult =
+          _historicalMarketDataFn.getCurveNodeValues(env, curveNodeWithId, priceSeriesRange);
 
-      final Result<HistoricalTimeSeriesBundle> curveSeriesBundleResult =
-          _historicalTimeSeriesProvider.getHtsForCurveNode(env, curveNodeWithId, priceSeriesRange);
-      
-      if (!curveSeriesBundleResult.isSuccess()) {
-        s_logger.error("Failed to resolve HTS for curve node {}. Failure: {}", curveNodeWithId, curveSeriesBundleResult.getFailureMessage());
-        continue;
+      if (!timeSeriesResult.isSuccess()) {
+        return Result.failure(timeSeriesResult);
       }
-      
-      HistoricalTimeSeriesBundle curveSeriesBundle = curveSeriesBundleResult.getValue();
-      
-      final String field = curveNodeWithId.getDataField();
-      final ExternalId id = curveNodeWithId.getIdentifier();
-      final HistoricalTimeSeries hts = curveSeriesBundle.get(field, id);
-
-      if (hts == null || hts.getTimeSeries().isEmpty()) {
-        return Result.failure(FailureStatus.MISSING_DATA, "Could not get time series for {} with field {}", id, field);
-      }
-      
-      LocalDateDoubleTimeSeries ts = trimSeries(hts.getTimeSeries());
+      LocalDateDoubleTimeSeries ts = trimSeries(timeSeriesResult.getValue());
       final LocalDateDoubleTimeSeries returnSeries = calculateConvertedReturnSeries(env, ts, fxConversionSeries);
 
       keys[i] = curveNodeWithId.getCurveNode().getResolvedMaturity();
       String curveNodeName = curveNodeWithId.getCurveNode().getName();
       labels[i] = curveNodeName != null ? curveNodeName : keys[i];
       values[i] = returnSeries.multiply(sensitivities.getEntry(i));
-      
       i++;
-      
     }
 
     return Result.success(new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(keys, labels, values));

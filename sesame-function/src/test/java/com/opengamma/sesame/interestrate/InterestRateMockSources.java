@@ -99,10 +99,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.MarketDataResourcesLoader;
-import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.holidays.UsdHolidaySource;
+import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -192,7 +191,6 @@ public class InterestRateMockSources {
                                 mockSecuritySource(),
                                 mockHistoricalTimeSeriesSource(),
                                 mock(HistoricalTimeSeriesResolver.class),
-                                mock(HistoricalMarketDataFn.class),
                                 mock(CurrencyMatrix.class));
   }
 
@@ -430,7 +428,7 @@ public class InterestRateMockSources {
       0.0014, 0.0015 };
     final LocalDateDoubleTimeSeries fixingFedFund = ImmutableLocalDateDoubleTimeSeries.of(dateFixing, rateFixing);
     final HistoricalTimeSeries hts = new SimpleHistoricalTimeSeries(_onIndexUniqueId, fixingFedFund);
-    when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE), eq(_onIndexId.toBundle()), eq("DEFAULT_TSS"), 
+    when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE), eq(_onIndexId.toBundle()), eq("DEFAULT_TSS"),
         any(LocalDate.class), eq(true), any(LocalDate.class), eq(true))).thenReturn(hts);
     when(mock.getHistoricalTimeSeries(anyString(), eq(getLiborIndexId().toBundle()), anyString(),
                                       any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
@@ -438,6 +436,12 @@ public class InterestRateMockSources {
     when(mock.getHistoricalTimeSeries(anyString(), eq(getOvernightIndexId().toBundle()), anyString(),
                                       any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
         .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", USD_OVERNIGHT_CONVENTION), series.build()));
+
+    // TODO this is because DefaultHistoricalMarketDataFn uses a different method on the TS source from DefaultHistoricalTimeSeriesFn
+    when(mock.getHistoricalTimeSeries(eq(getOvernightIndexId().toBundle()), anyString(), anyString(),
+                                      anyString(), any(LocalDate.class), anyBoolean(), any(LocalDate.class), anyBoolean()))
+        .thenReturn(new SimpleHistoricalTimeSeries(UniqueId.of("HTSid", USD_OVERNIGHT_CONVENTION), series.build()));
+
     return mock;
   }
 

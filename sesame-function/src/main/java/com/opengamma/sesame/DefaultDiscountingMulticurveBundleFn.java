@@ -9,12 +9,10 @@ package com.opengamma.sesame;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.ERROR;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +54,6 @@ import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
-import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
@@ -82,7 +79,6 @@ import com.opengamma.financial.analytics.curve.ThreeLegBasisSwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -100,6 +96,8 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 /**
  * Function implementation that provides a discounting multi-curve bundle.
  */
@@ -115,12 +113,12 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   private final CurveSpecificationFn _curveSpecificationProvider;
   private final CurveSpecificationMarketDataFn _curveSpecificationMarketDataProvider;
   private final FXMatrixFn _fxMatrixProvider;
-  private final HistoricalTimeSeriesFn _historicalTimeSeriesProvider;
 
   private final SecuritySource _securitySource;
   private final ConventionSource _conventionSource;
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
+  private final CurveNodeConverterFn _curveNodeConverter;
 
   private final RootFinderConfiguration _rootFinderConfiguration;
 
@@ -135,11 +133,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                               CurveSpecificationFn curveSpecificationProvider,
                                               CurveSpecificationMarketDataFn curveSpecificationMarketDataProvider,
                                               FXMatrixFn fxMatrixProvider,
-                                              HistoricalTimeSeriesFn historicalTimeSeriesProvider,
                                               SecuritySource securitySource,
                                               ConventionSource conventionSource,
                                               HolidaySource holidaySource,
                                               RegionSource regionSource,
+                                              CurveNodeConverterFn curveNodeConverter,
                                               RootFinderConfiguration rootFinderConfiguration,
                                               StringSet impliedCurveNames) {
 
@@ -147,11 +145,11 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     _curveSpecificationProvider = curveSpecificationProvider;
     _curveSpecificationMarketDataProvider = curveSpecificationMarketDataProvider;
     _fxMatrixProvider = fxMatrixProvider;
-    _historicalTimeSeriesProvider = historicalTimeSeriesProvider;
     _securitySource = securitySource;
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
+    _curveNodeConverter = curveNodeConverter;
     _rootFinderConfiguration = rootFinderConfiguration;
     _impliedCurveNames = impliedCurveNames.getStrings();
   }
@@ -473,47 +471,31 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     return result;
   }
 
-  private Result<InstrumentDerivative[]> extractInstrumentDerivatives(Environment env, 
-                                                              CurveSpecification specification,
-                                                              SnapshotDataBundle snapshot,
-                                                              FXMatrix fxMatrix,
-                                                              ZonedDateTime valuationTime) {
-
+  private Result<InstrumentDerivative[]> extractInstrumentDerivatives(Environment env,
+                                                                      CurveSpecification specification,
+                                                                      SnapshotDataBundle snapshot,
+                                                                      FXMatrix fxMatrix,
+                                                                      ZonedDateTime valuationTime) {
     Set<CurveNodeWithIdentifier> nodes = specification.getNodes();
-    final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nodes.size()];
-    
-    Iterator<CurveNodeWithIdentifier> nodeIt = nodes.iterator();
-    Result<Boolean> interimResult = Result.success(true);
-    
-    for (int i = 0; i < nodes.size(); i++) {      
-      CurveNodeWithIdentifier node = nodeIt.next();
-      HistoricalTimeSeriesBundle htsBundle = null;
-      if (CurveNodeConverter.requiresFixingSeries(node.getCurveNode())) {
-      /** Implementation node: fixing series are required for 
-        - inflation swaps (starting price index) 
-        - Fed Fund futures: underlying overnight index fixing (when fixing month has started) 
-        - Ibor swaps (when the UseFixing flag is true)  */
-        @SuppressWarnings("deprecation")
-        final Result<HistoricalTimeSeriesBundle> htsResult = _historicalTimeSeriesProvider.getHtsForCurveNode(env, node, env.getValuationDate());        
-        if (!htsResult.isSuccess()) {
-          interimResult = Result.failure(interimResult, htsResult);
-        } else {
-          htsBundle = htsResult.getValue();
-        }
-      }      
-      if (interimResult.isSuccess()) {
-        final InstrumentDefinition<?> definitionForNode =
-            node.getCurveNode().accept(createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationTime, fxMatrix));
-        // todo - we may need to allow the node converter implementation to be changed
-        derivativesForCurve[i] =
-            (new CurveNodeConverter(_conventionSource)).getDerivative(node, definitionForNode, valuationTime, htsBundle);
+    List<InstrumentDerivative> derivativesForCurve = new ArrayList<>(nodes.size());
+    List<Result<?>> failures = new ArrayList<>();
+
+    for (CurveNodeWithIdentifier node : nodes) {
+      CurveNodeVisitor<InstrumentDefinition<?>> nodeVisitor =
+          createCurveNodeVisitor(node.getIdentifier(), snapshot, valuationTime, fxMatrix);
+      InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(nodeVisitor);
+      Result<InstrumentDerivative> derivativeResult =
+          _curveNodeConverter.getDerivative(env, node, definitionForNode, valuationTime);
+      if (derivativeResult.isSuccess()) {
+        derivativesForCurve.add(derivativeResult.getValue());
+      } else {
+        failures.add(derivativeResult);
       }
     }
-
-    if (interimResult.isSuccess()) {
-      return Result.success(derivativesForCurve);
+    if (failures.isEmpty()) {
+      return Result.success(derivativesForCurve.toArray(new InstrumentDerivative[derivativesForCurve.size()]));
     } else {
-      return Result.failure(interimResult);
+      return Result.failure(failures);
     }
   }
 
