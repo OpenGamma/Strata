@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
@@ -44,21 +43,15 @@ import com.opengamma.util.time.LocalDateRange;
  */
 public class DefaultCurveNodeConverterFn implements CurveNodeConverterFn {
 
-  /** The convention source */
-  private final ConventionSource _conventionSource;
-
   private final HistoricalMarketDataFn _historicalMarketDataFn;
 
   // TODO where should this come from?
   private final Period _timeSeriesDuration;
 
-  public DefaultCurveNodeConverterFn(ConventionSource conventionSource,
-                                     HistoricalMarketDataFn historicalMarketDataFn,
-                                     // TODO use a real Period when Joda supports it
-                                     RetrievalPeriod timeSeriesDuration) {
+  // TODO use a real Period when Joda supports it
+  public DefaultCurveNodeConverterFn(HistoricalMarketDataFn historicalMarketDataFn, RetrievalPeriod timeSeriesDuration) {
     _timeSeriesDuration = ArgumentChecker.notNull(timeSeriesDuration, "timeSeriesDuration").getRetrievalPeriod();
     _historicalMarketDataFn = ArgumentChecker.notNull(historicalMarketDataFn, "historicalMarketDataFn");
-    _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
   }
 
   @SuppressWarnings("unchecked")
@@ -78,7 +71,8 @@ public class DefaultCurveNodeConverterFn implements CurveNodeConverterFn {
         ExternalId priceIndexId;
         ZeroCouponInflationNode zeroCouponInflationNode = (ZeroCouponInflationNode) node.getCurveNode();
         ExternalId conventionId = zeroCouponInflationNode.getInflationLegConvention();
-        InflationLegConvention convention = _conventionSource.getSingle(conventionId, InflationLegConvention.class);
+        ConventionLink<InflationLegConvention> conventionLink = ConventionLink.resolvable(conventionId, InflationLegConvention.class);
+        InflationLegConvention convention = conventionLink.resolve();
         priceIndexId = convention.getPriceIndexConvention();
         LocalDateRange dateRange = LocalDateRange.of(valuationTime.toLocalDate().minus(_timeSeriesDuration), valuationTime.toLocalDate(), true);
         Result<LocalDateDoubleTimeSeries> timeSeriesResult =
