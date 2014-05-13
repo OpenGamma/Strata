@@ -91,22 +91,21 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
     _liveDataClient.subscribe(_requests);
     _liveDataClient.waitForSubscriptions();
 
+    Map<ExternalIdBundle, Result<FudgeMsg>> latestData = _liveDataClient.retrieveLatestData();
     Map<ExternalIdBundle, Result<FudgeMsg>> data = new HashMap<>();
 
     // Iterate over the combination of newly requested data (to get initial
     // values for the request) and the existing data (to pick up any
     // updated values)
     for (ExternalIdBundle idBundle : Iterables.concat(_requests, _data.keySet())) {
-      data.put(idBundle, generateRequestResult(idBundle));
+      data.put(idBundle, generateRequestResult(idBundle, latestData));
     }
 
     return new ResettableLiveMarketDataSource(_marketDataSpecification, _liveDataClient, data);
   }
 
-  private Result<FudgeMsg> generateRequestResult(ExternalIdBundle idBundle) {
-
-    Map<ExternalIdBundle, Result<FudgeMsg>> latestData = _liveDataClient.retrieveLatestData();
-
+  private Result<FudgeMsg> generateRequestResult(ExternalIdBundle idBundle,
+                                                 Map<ExternalIdBundle, Result<FudgeMsg>> latestData) {
     if (latestData.containsKey(idBundle)) {
       return latestData.get(idBundle);
     } else {

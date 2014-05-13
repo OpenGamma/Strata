@@ -1,10 +1,15 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.sesame.marketdata;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.fudgemsg.FudgeMsg;
 
@@ -36,8 +41,14 @@ public class LDClient implements LDListener {
    * from the live data manager. As it will be read and
    * written from multiple threads we must ensure we have
    * a consistent value, hence using the atomic reference.
+   * <p>
+   * Note that we initialise to true as if we don't and no
+   * subscriptions need to be made (as another client has
+   * requested the data already) and no data updates are
+   * received from the provider, then we will create an
+   * empty snapshot.
    */
-  private final AtomicReference<Boolean> _valuesPending = new AtomicReference<>(false);
+  private final AtomicBoolean _valuesPending = new AtomicBoolean(true);
 
   /**
    * Create the client.
