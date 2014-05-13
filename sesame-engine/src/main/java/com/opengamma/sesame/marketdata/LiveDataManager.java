@@ -5,14 +5,10 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.Map;
 import java.util.Set;
-
-import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.Result;
 
 /**
  * Responsible for managing live market data subscriptions
@@ -69,7 +65,7 @@ public interface LiveDataManager {
    * @throws IllegalStateException if {@link #subscribe(LDListener, Set)}
    * has not previously been called, or the client has been unregistered
    */
-  Map<ExternalIdBundle, Result<FudgeMsg>> snapshot(LDListener client);
+  ImmutableLiveDataResultMapper snapshot(LDListener client);
 
   /**
    * Unsubscribe from a set of tickers for the specified

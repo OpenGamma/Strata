@@ -5,17 +5,12 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.fudgemsg.FudgeMsg;
-
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.result.Result;
 
 /**
  * Client which subscribes to market data via the LiveDataManager.
@@ -34,7 +29,8 @@ public class LDClient implements LDListener {
   /**
    * The latest set of values retrieved from the market data manager.
    */
-  private final Map<ExternalIdBundle, Result<FudgeMsg>> _latestSnapshot = new HashMap<>();
+  private final AtomicReference<ImmutableLiveDataResultMapper> _latestSnapshot =
+      new AtomicReference<>(DefaultImmutableLiveDataResultMapper.EMPTY);
 
   /**
    * Flag indicating whether updated values are available
@@ -74,7 +70,7 @@ public class LDClient implements LDListener {
     if (!requests.isEmpty()) {
       Set<ExternalIdBundle> subscriptions = new HashSet<>();
       for (ExternalIdBundle id : requests) {
-        if (!_latestSnapshot.containsKey(id)) {
+        if (!_latestSnapshot.get().containsKey(id)) {
           subscriptions.add(id);
         }
       }
@@ -100,12 +96,11 @@ public class LDClient implements LDListener {
    *
    * @return the latest market data
    */
-  public Map<ExternalIdBundle, Result<FudgeMsg>> retrieveLatestData() {
+  public ImmutableLiveDataResultMapper retrieveLatestData() {
     if (_valuesPending.compareAndSet(true, false)) {
-      _latestSnapshot.clear();
-      _latestSnapshot.putAll(_liveDataManager.snapshot(this));
+      _latestSnapshot.set(_liveDataManager.snapshot(this));
     }
-    return ImmutableMap.copyOf(_latestSnapshot);
+    return _latestSnapshot.get();
   }
 
   /**
