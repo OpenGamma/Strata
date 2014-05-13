@@ -17,8 +17,16 @@ import com.opengamma.util.result.Result;
  */
 public interface CurveNodeConverterFn {
 
+  /**
+   * Converts a time independent instrument definition into a time dependent instrument derivative.
+   *
+   * @param node The curve node
+   * @param definition The definition
+   * @param valuationTime The valuation time
+   * @return A derivative instrument
+   */
   Result<InstrumentDerivative> getDerivative(Environment env,
                                              CurveNodeWithIdentifier node,
                                              InstrumentDefinition<?> definition,
-                                             ZonedDateTime now);
+                                             ZonedDateTime valuationTime);
 }

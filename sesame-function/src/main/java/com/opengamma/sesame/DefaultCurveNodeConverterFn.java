@@ -61,16 +61,15 @@ public class DefaultCurveNodeConverterFn implements CurveNodeConverterFn {
     _conventionSource = ArgumentChecker.notNull(conventionSource, "conventionSource");
   }
 
-  // TODO does this need to take a date range? do the calling functions know the length of the required time series?
   @SuppressWarnings("unchecked")
   @Override
   public Result<InstrumentDerivative> getDerivative(Environment env,
                                                     CurveNodeWithIdentifier node,
                                                     InstrumentDefinition<?> definition,
-                                                    ZonedDateTime time) {
+                                                    ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(definition, "definition");
-    ArgumentChecker.notNull(time, "time");
+    ArgumentChecker.notNull(valuationTime, "time");
 
     if (definition instanceof InstrumentDefinitionWithData<?, ?> && requiresFixingSeries(node.getCurveNode())) {
       String dataField = node.getDataField();
@@ -81,7 +80,7 @@ public class DefaultCurveNodeConverterFn implements CurveNodeConverterFn {
         ExternalId conventionId = zeroCouponInflationNode.getInflationLegConvention();
         InflationLegConvention convention = _conventionSource.getSingle(conventionId, InflationLegConvention.class);
         priceIndexId = convention.getPriceIndexConvention();
-        LocalDateRange dateRange = LocalDateRange.of(time.toLocalDate().minus(_timeSeriesDuration), time.toLocalDate(), true);
+        LocalDateRange dateRange = LocalDateRange.of(valuationTime.toLocalDate().minus(_timeSeriesDuration), valuationTime.toLocalDate(), true);
         Result<LocalDateDoubleTimeSeries> timeSeriesResult =
             _historicalMarketDataFn.getValues(env, priceIndexId.toBundle(), FieldName.of(dataField), dateRange);
 
@@ -94,7 +93,7 @@ public class DefaultCurveNodeConverterFn implements CurveNodeConverterFn {
         InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries[]> definitionWithData =
             (InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries[]>) definition;
         ZonedDateTimeDoubleTimeSeries[] timeSeriesArray = {scaledSeries, scaledSeries};
-        InstrumentDerivative derivative = definitionWithData.toDerivative(time, timeSeriesArray);
+        InstrumentDerivative derivative = definitionWithData.toDerivative(valuationTime, timeSeriesArray);
         return Result.success(derivative);
       }
 
@@ -102,7 +101,7 @@ public class DefaultCurveNodeConverterFn implements CurveNodeConverterFn {
         RateFutureNode nodeFFF = (RateFutureNode) node.getCurveNode();
         FederalFundsFutureConvention conventionFFF =  ConventionLink.resolvable(nodeFFF.getFutureConvention(),
                                                                                 FederalFundsFutureConvention.class).resolve();
-        LocalDateRange dateRange = LocalDateRange.of(time.toLocalDate().minus(_timeSeriesDuration), time.toLocalDate(), true);
+        LocalDateRange dateRange = LocalDateRange.of(valuationTime.toLocalDate().minus(_timeSeriesDuration), valuationTime.toLocalDate(), true);
         ExternalIdBundle indexConventionId = conventionFFF.getIndexConvention().toBundle();
         Result<LocalDateDoubleTimeSeries> timeSeriesResult =
             _historicalMarketDataFn.getValues(env, indexConventionId, FieldName.of(dataField), dateRange);
@@ -110,21 +109,21 @@ public class DefaultCurveNodeConverterFn implements CurveNodeConverterFn {
         if (!timeSeriesResult.isSuccess()) {
           return Result.failure(timeSeriesResult);
         }
-        ZonedDateTimeDoubleTimeSeries convertedSeries = convertTimeSeries(time.getZone(), timeSeriesResult.getValue());
+        ZonedDateTimeDoubleTimeSeries convertedSeries = convertTimeSeries(valuationTime.getZone(), timeSeriesResult.getValue());
         // No time series is passed for the closing price; for curve calibration only the trade price is required.
         InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]> definitionInstWithData =
             (InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]>) definition;
-        return Result.success(definitionInstWithData.toDerivative(time, new DoubleTimeSeries[]{convertedSeries}));
+        return Result.success(definitionInstWithData.toDerivative(valuationTime, new DoubleTimeSeries[]{convertedSeries}));
       }
 
       if (node.getCurveNode() instanceof RateFutureNode || node.getCurveNode() instanceof DeliverableSwapFutureNode) {
         InstrumentDefinitionWithData<?, Double> definitionWithData = (InstrumentDefinitionWithData<?, Double>) definition;
-        return Result.success(definitionWithData.toDerivative(time, (Double) null));
+        return Result.success(definitionWithData.toDerivative(valuationTime, (Double) null));
         // No last closing price is passed; for curve calibration only the trade price is required.
       }
       throw new OpenGammaRuntimeException("Cannot handle swaps with fixings");
     }
-    return Result.success(definition.toDerivative(time));
+    return Result.success(definition.toDerivative(valuationTime));
   }
 
   public static boolean requiresFixingSeries(CurveNode node) {
