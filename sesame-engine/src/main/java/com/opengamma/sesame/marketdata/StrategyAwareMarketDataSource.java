@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.Set;
-
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
 /**

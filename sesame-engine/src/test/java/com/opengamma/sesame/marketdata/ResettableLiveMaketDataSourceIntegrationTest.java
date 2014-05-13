@@ -276,6 +276,44 @@ public class ResettableLiveMaketDataSourceIntegrationTest {
   }
 
   @Test
+  public void testNewClientGetsData() {
+    _manager.subscribe(_client, ImmutableSet.of(createBundle("T1")));
+    _manager.subscriptionResultsReceived(ImmutableSet.of(buildSuccessResponse("T1")));
+
+    // Make requests for the data, pending as client hasn't asked before
+    assertThat(_source.get(createBundle("T1"), FieldName.of("Market_Value")).getStatus(),
+               is((ResultStatus) PENDING_DATA));
+    // No request made for dividend date
+
+    MutableFudgeMsg msgT1 = _fudgeContext.newMessage();
+    msgT1.add("Market_Value", 1.23);
+
+    // Now send the value updates
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msgT1));
+
+    StrategyAwareMarketDataSource newSource = _source.createPrimedSource();
+
+    Result<?> t1Result = newSource.get(createBundle("T1"), FieldName.of("Market_Value"));
+    assertThat(t1Result.isSuccess(), is(true));
+    assertThat(t1Result.getValue(), is((Object) 1.23));
+
+    LDClient newClient = new LDClient(_manager);
+    StrategyAwareMarketDataSource newClientSource =
+        new ResettableLiveMarketDataSource(LiveMarketDataSpecification.LIVE_SPEC, newClient);
+
+    // Make requests for the data, pending as this client hasn't asked before
+    assertThat(newClientSource.get(createBundle("T1"), FieldName.of("Market_Value")).getStatus(),
+               is((ResultStatus) PENDING_DATA));
+
+    StrategyAwareMarketDataSource updatedSource = newClientSource.createPrimedSource();
+
+    Result<?> newClientResult = updatedSource.get(createBundle("T1"), FieldName.of("Market_Value"));
+    assertThat(newClientResult.isSuccess(), is(true));
+    assertThat(newClientResult.getValue(), is((Object) 1.23));
+
+  }
+
+  @Test
   public void testReusingTheSameSourceIsNotRecommendedButWorks() {
     // Test introduced after previous testing accidentally
     // uncovered issue with reuse of source
