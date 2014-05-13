@@ -20,6 +20,7 @@ public interface CurveNodeConverterFn {
   /**
    * Converts a time independent instrument definition into a time dependent instrument derivative.
    *
+   * @param env the function execution environment
    * @param node The curve node
    * @param definition The definition
    * @param valuationTime The valuation time
