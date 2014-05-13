@@ -35,6 +35,7 @@
   <modules>
     <module>sesame-engine</module>
     <module>sesame-function</module>
+    <module>sesame-component</module>
   </modules>
 
   <!-- ==================================================================== -->

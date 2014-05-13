@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
-import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -27,7 +26,6 @@ import org.threeten.bp.Instant;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -78,15 +76,15 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 
-import net.sf.ehcache.CacheManager;
-
 /**
  * Component factory for the engine.
  */
 @BeanDefinition
 public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
-  /** The default maximum size of the view factory cache if none is specified in the config. */
+  /**
+   * The default maximum size of the view factory cache if none is specified in the config.
+   */
   private static final long MAX_CACHE_ENTRIES = 100_000;
 
   /**
@@ -94,24 +92,18 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-
-  /**
-   * The cache manager.
-   * @deprecated This isn't used any more
-   */
-  @Deprecated
-  @PropertyDefinition
-  private CacheManager _cacheManager;
   /**
    * For obtaining the live market data provider names.
    */
   @PropertyDefinition
   private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
-
-  /** Maximum number of entries to store in the cache. */
+  /**
+   * Maximum number of entries to store in the cache.
+   */
   @PropertyDefinition
-  private Long _maxCacheEntries;
+  private long _maxCacheEntries = MAX_CACHE_ENTRIES;
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
@@ -123,17 +115,11 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     // Indicate remaining configuration has been used
     configuration.clear();
 
-    initServiceContext(components);
+    initServiceContext(repo, components);
 
-    AvailableOutputs availableOutputs = initAvailableOutputs();
-    AvailableImplementations availableImplementations = initAvailableImplementations();
-    long maxCacheEntries = _maxCacheEntries != null ?
-                           _maxCacheEntries :
-                           MAX_CACHE_ENTRIES;
-
-    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
-    Cache<MethodInvocationKey, FutureTask<Object>> cache =
-        CacheBuilder.newBuilder().maximumSize(maxCacheEntries).concurrencyLevel(concurrencyLevel).build();
+    AvailableOutputs availableOutputs = createAvailableOutputs(repo);
+    AvailableImplementations availableImplementations = createAvailableImplementations(repo);
+    Cache<MethodInvocationKey, FutureTask<Object>> cache = createCache(repo);
     ViewFactory viewFactory = new ViewFactory(executor,
                                               componentMap,
                                               availableOutputs,
@@ -152,73 +138,95 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     repo.registerComponent(implsInfo, availableImplementations);
   }
 
-  private void initServiceContext(Map<Class<?>, Object> components) {
+  private Map<Class<?>, Object> getComponents(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+    Map<String, ComponentInfo> infos = repo.findInfos(configuration);
+    configuration.keySet().removeAll(infos.keySet());
+    Map<Class<?>, Object> components = new HashMap<>();
+    for (ComponentInfo info : infos.values()) {
+      components.put(info.getType(), repo.getInstance(info));
+    }
+    return components;
+  }
 
+  /**
+   * Initializes the static {@code ServiceContext}.
+   * 
+   * @param repo  the component repository, typically not used, not null
+   * @param components  the map of components, not null
+   */
+  protected void initServiceContext(ComponentRepository repo, Map<Class<?>, Object> components) {
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     final ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
   }
 
-  private Map<Class<?>, Object> getComponents(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    Map<Class<?>, Object> components = new HashMap<>();
-    for (Map.Entry<String, String> entry : configuration.entrySet()) {
-      String key = entry.getKey();
-      String valueStr = entry.getValue();
-      if (!valueStr.contains("::")) {
-        throw new OpenGammaRuntimeException("Property " + key + " does not reference a component: " + valueStr);
-      }
-      final String type = StringUtils.substringBefore(valueStr, "::");
-      final String classifier = StringUtils.substringAfter(valueStr, "::");
-      final ComponentInfo info = repo.findInfo(type, classifier);
-      if (info == null) {
-        throw new IllegalArgumentException("Component not found: " + valueStr);
-      }
-      final Object instance = repo.getInstance(info);
-      components.put(info.getType(), instance);
-    }
-    return components;
+  /**
+   * Create the available outputs.
+   * 
+   * @param repo  the component repository, typically not used, not null
+   * @return the available outputs, not null
+   */
+  protected AvailableOutputs createAvailableOutputs(ComponentRepository repo) {
+    AvailableOutputs available = new AvailableOutputsImpl();
+    available.register(DiscountingMulticurveBundleFn.class);
+    available.register(EquityPresentValueFn.class);
+    available.register(FRAFn.class);
+    available.register(InterestRateSwapFn.class);
+    available.register(FXForwardPnLSeriesFn.class);
+    available.register(FXForwardPVFn.class);
+    available.register(FXForwardYCNSPnLSeriesFn.class);
+    available.register(FXForwardYieldCurveNodeSensitivitiesFn.class);
+    return available;
   }
 
-  protected AvailableOutputs initAvailableOutputs() {
-    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
-    availableOutputs.register(DiscountingMulticurveBundleFn.class);
-    availableOutputs.register(EquityPresentValueFn.class);
-    availableOutputs.register(FRAFn.class);
-    availableOutputs.register(InterestRateSwapFn.class);
-    availableOutputs.register(FXForwardPnLSeriesFn.class);
-    availableOutputs.register(FXForwardPVFn.class);
-    availableOutputs.register(FXForwardYCNSPnLSeriesFn.class);
-    availableOutputs.register(FXForwardYieldCurveNodeSensitivitiesFn.class);
-    return availableOutputs;
+  /**
+   * Create the available implementations.
+   * 
+   * @param repo  the component repository, typically not used, not null
+   * @return the available implementations, not null
+   */
+  protected AvailableImplementations createAvailableImplementations(ComponentRepository repo) {
+    AvailableImplementations available = new AvailableImplementationsImpl();
+    available.register(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class);
+    available.register(DiscountingFXForwardSpotPnLSeriesFn.class);
+    available.register(DiscountingFXForwardYCNSPnLSeriesFn.class);
+    available.register(DiscountingFXForwardPVFn.class);
+    available.register(DefaultFXReturnSeriesFn.class);
+    available.register(DefaultCurrencyPairsFn.class);
+    available.register(DefaultEquityPresentValueFn.class);
+    available.register(FXForwardSecurityConverter.class);
+    available.register(ConfigDBInstrumentExposuresProvider.class);
+    available.register(DefaultCurveSpecificationMarketDataFn.class);
+    available.register(DefaultFXMatrixFn.class);
+    available.register(DefaultCurveDefinitionFn.class);
+    available.register(DefaultDiscountingMulticurveBundleFn.class);
+    available.register(DefaultCurveSpecificationFn.class);
+    available.register(ConfigDBCurveConstructionConfigurationSource.class);
+    available.register(DefaultHistoricalTimeSeriesFn.class);
+    available.register(FXForwardDiscountingCalculatorFn.class);
+    available.register(ConfigDbMarketExposureSelectorFn.class);
+    available.register(ExposureFunctionsDiscountingMulticurveCombinerFn.class);
+    available.register(FixedHistoricalMarketDataFactory.class);
+    available.register(DefaultMarketDataFn.class);
+    available.register(DefaultHistoricalMarketDataFn.class);
+    available.register(DefaultCurveNodeConverterFn.class);
+    available.register(DefaultHistoricalPnLFXConverterFn.class);
+    return available;
   }
 
-  protected AvailableImplementations initAvailableImplementations() {
-    AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
-    availableImplementations.register(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class);
-    availableImplementations.register(DiscountingFXForwardSpotPnLSeriesFn.class);
-    availableImplementations.register(DiscountingFXForwardYCNSPnLSeriesFn.class);
-    availableImplementations.register(DiscountingFXForwardPVFn.class);
-    availableImplementations.register(DefaultFXReturnSeriesFn.class);
-    availableImplementations.register(DefaultCurrencyPairsFn.class);
-    availableImplementations.register(DefaultEquityPresentValueFn.class);
-    availableImplementations.register(FXForwardSecurityConverter.class);
-    availableImplementations.register(ConfigDBInstrumentExposuresProvider.class);
-    availableImplementations.register(DefaultCurveSpecificationMarketDataFn.class);
-    availableImplementations.register(DefaultFXMatrixFn.class);
-    availableImplementations.register(DefaultCurveDefinitionFn.class);
-    availableImplementations.register(DefaultDiscountingMulticurveBundleFn.class);
-    availableImplementations.register(DefaultCurveSpecificationFn.class);
-    availableImplementations.register(ConfigDBCurveConstructionConfigurationSource.class);
-    availableImplementations.register(DefaultHistoricalTimeSeriesFn.class);
-    availableImplementations.register(FXForwardDiscountingCalculatorFn.class);
-    availableImplementations.register(ConfigDbMarketExposureSelectorFn.class);
-    availableImplementations.register(ExposureFunctionsDiscountingMulticurveCombinerFn.class);
-    availableImplementations.register(FixedHistoricalMarketDataFactory.class);
-    availableImplementations.register(DefaultMarketDataFn.class);
-    availableImplementations.register(DefaultHistoricalMarketDataFn.class);
-    availableImplementations.register(DefaultCurveNodeConverterFn.class);
-    availableImplementations.register(DefaultHistoricalPnLFXConverterFn.class);
-    return availableImplementations;
+  /**
+   * Create the cache.
+   * 
+   * @param repo  the component repository, typically not used, not null
+   * @return the cache, not null
+   */
+  protected Cache<MethodInvocationKey, FutureTask<Object>> createCache(ComponentRepository repo) {
+    int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
+    Cache<MethodInvocationKey, FutureTask<Object>> cache = CacheBuilder.newBuilder()
+        .maximumSize(getMaxCacheEntries())
+        .concurrencyLevel(concurrencyLevel)
+        .build();
+    return cache;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -268,37 +276,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the cache manager.
-   * @deprecated This isn't used any more
-   * @return the value of the property
-   */
-  @Deprecated
-  public CacheManager getCacheManager() {
-    return _cacheManager;
-  }
-
-  /**
-   * Sets the cache manager.
-   * @deprecated This isn't used any more
-   * @param cacheManager  the new value of the property
-   */
-  @Deprecated
-  public void setCacheManager(CacheManager cacheManager) {
-    this._cacheManager = cacheManager;
-  }
-
-  /**
-   * Gets the the {@code cacheManager} property.
-   * @deprecated This isn't used any more
-   * @return the property, not null
-   */
-  @Deprecated
-  public final Property<CacheManager> cacheManager() {
-    return metaBean().cacheManager().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets for obtaining the live market data provider names.
    * @return the value of the property
    */
@@ -327,7 +304,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    * Gets maximum number of entries to store in the cache.
    * @return the value of the property
    */
-  public Long getMaxCacheEntries() {
+  public long getMaxCacheEntries() {
     return _maxCacheEntries;
   }
 
@@ -335,7 +312,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    * Sets maximum number of entries to store in the cache.
    * @param maxCacheEntries  the new value of the property
    */
-  public void setMaxCacheEntries(Long maxCacheEntries) {
+  public void setMaxCacheEntries(long maxCacheEntries) {
     this._maxCacheEntries = maxCacheEntries;
   }
 
@@ -361,9 +338,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     if (obj != null && obj.getClass() == this.getClass()) {
       ViewFactoryComponentFactory other = (ViewFactoryComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
-          JodaBeanUtils.equal(getMaxCacheEntries(), other.getMaxCacheEntries()) &&
+          (getMaxCacheEntries() == other.getMaxCacheEntries()) &&
           super.equals(obj);
     }
     return false;
@@ -373,7 +349,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxCacheEntries());
     return hash ^ super.hashCode();
@@ -381,7 +356,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("ViewFactoryComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -396,7 +371,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
     buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
     buf.append("maxCacheEntries").append('=').append(JodaBeanUtils.toString(getMaxCacheEntries())).append(',').append(' ');
   }
@@ -417,11 +391,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", ViewFactoryComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code cacheManager} property.
-     */
-    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
-        this, "cacheManager", ViewFactoryComponentFactory.class, CacheManager.class);
-    /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
      */
     private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
@@ -430,14 +399,13 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
      * The meta-property for the {@code maxCacheEntries} property.
      */
     private final MetaProperty<Long> _maxCacheEntries = DirectMetaProperty.ofReadWrite(
-        this, "maxCacheEntries", ViewFactoryComponentFactory.class, Long.class);
+        this, "maxCacheEntries", ViewFactoryComponentFactory.class, Long.TYPE);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "cacheManager",
         "liveMarketDataProviderFactory",
         "maxCacheEntries");
 
@@ -452,8 +420,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -1452875317:  // cacheManager
-          return _cacheManager;
         case -301472921:  // liveMarketDataProviderFactory
           return _liveMarketDataProviderFactory;
         case -949200334:  // maxCacheEntries
@@ -487,16 +453,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code cacheManager} property.
-     * @deprecated This isn't used any more
-     * @return the meta-property, not null
-     */
-    @Deprecated
-    public final MetaProperty<CacheManager> cacheManager() {
-      return _cacheManager;
-    }
-
-    /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
      * @return the meta-property, not null
      */
@@ -518,8 +474,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return ((ViewFactoryComponentFactory) bean).getClassifier();
-        case -1452875317:  // cacheManager
-          return ((ViewFactoryComponentFactory) bean).getCacheManager();
         case -301472921:  // liveMarketDataProviderFactory
           return ((ViewFactoryComponentFactory) bean).getLiveMarketDataProviderFactory();
         case -949200334:  // maxCacheEntries
@@ -533,9 +487,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           ((ViewFactoryComponentFactory) bean).setClassifier((String) newValue);
-          return;
-        case -1452875317:  // cacheManager
-          ((ViewFactoryComponentFactory) bean).setCacheManager((CacheManager) newValue);
           return;
         case -301472921:  // liveMarketDataProviderFactory
           ((ViewFactoryComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);

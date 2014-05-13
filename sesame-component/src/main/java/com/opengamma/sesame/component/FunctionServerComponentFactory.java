@@ -31,12 +31,13 @@ import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.server.CycleRunnerFactory;
 import com.opengamma.sesame.server.DataFunctionServerResource;
 import com.opengamma.sesame.server.DefaultFunctionServer;
+import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.streaming.DataStreamingFunctionServerResource;
 import com.opengamma.sesame.server.streaming.DefaultStreamingFunctionServer;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
- * Component factory for the engine.
+ * Component factory for the function server.
  */
 @BeanDefinition
 public class FunctionServerComponentFactory extends AbstractComponentFactory {
@@ -46,70 +47,61 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-
   /**
    * Should the component be published over a REST interface. Set to false
    * if there is no desire to connect to the component remotely.
    */
   @PropertyDefinition(validate = "notNull")
   private boolean _publishRest = true;
-
   /**
    * Should the component enable streaming results. If set to true, then the
-   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be
-   * null.
+   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
    */
   @PropertyDefinition(validate = "notNull")
   private boolean _enableStreamedResults = true;
-
   /**
    * The view factory that is responsible for creating views.
    */
   @PropertyDefinition(validate = "notNull")
   private ViewFactory _viewFactory;
-
   /**
    * The factory for market data sources.
    */
   @PropertyDefinition(validate = "notNull")
   private MarketDataFactory _marketDataFactory;
-
   /**
    * The JMS connector used for streaming of live results to clients. If null, then
    * streaming will not be available.
    */
   @PropertyDefinition
   private JmsConnector _jmsConnector;
-
   /**
    * The client to use for connecting to live market data.
    */
   @PropertyDefinition
   private LiveDataClient _liveDataClient;
-
-  // TODO - should we create a default one of these or allows expect it to be passed - if default then what pool size etc
+  /**
+   * The scheduled executor service.
+   */
   @PropertyDefinition
   private ScheduledExecutorService _scheduledExecutor = Executors.newScheduledThreadPool(5);
 
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
     CycleRunnerFactory cycleRunnerFactory =
-        new CycleRunnerFactory(_viewFactory, new DefaultMarketDataSourceManager(_marketDataFactory));
-
+        new CycleRunnerFactory(getViewFactory(), new DefaultMarketDataSourceManager(getMarketDataFactory()));
     DefaultFunctionServer server = initFunctionServer(repo, cycleRunnerFactory);
-
-    if (_enableStreamedResults) {
+    if (isEnableStreamedResults()) {
       initStreamingServer(repo, server, cycleRunnerFactory);
     }
   }
 
   private DefaultFunctionServer initFunctionServer(ComponentRepository repo, CycleRunnerFactory cycleRunnerFactory) {
-
     DefaultFunctionServer server = new DefaultFunctionServer(cycleRunnerFactory);
-    repo.registerComponent(DefaultFunctionServer.class, getClassifier(), server);
-
-    if (_publishRest) {
+    repo.registerComponent(FunctionServer.class, getClassifier(), server);
+    if (isPublishRest()) {
       repo.getRestComponents().publishResource(new DataFunctionServerResource(server));
     }
     return server;
@@ -120,17 +112,16 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
                                    CycleRunnerFactory cycleRunnerFactory) {
 
     String msg = "Streaming results have been requested but %s is null - streaming will not be available";
-    if (_jmsConnector == null) {
+    if (getJmsConnector() == null) {
       throw new OpenGammaRuntimeException(String.format(msg, "jmsConnector"));
-    } else if (_scheduledExecutor == null) {
+    } else if (getScheduledExecutor() == null) {
       throw new OpenGammaRuntimeException(String.format(msg, "scheduledExecutor"));
     }
 
     DefaultStreamingFunctionServer streamingServer = new DefaultStreamingFunctionServer(server, cycleRunnerFactory);
     repo.registerComponent(DefaultStreamingFunctionServer.class, getClassifier(), streamingServer);
-
-    if (_publishRest) {
-      repo.getRestComponents().publishResource(new DataStreamingFunctionServerResource(streamingServer, _jmsConnector, _scheduledExecutor));
+    if (isPublishRest()) {
+      repo.getRestComponents().publishResource(new DataStreamingFunctionServerResource(streamingServer, getJmsConnector(), getScheduledExecutor()));
     }
   }
 
@@ -211,8 +202,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets should the component enable streaming results. If set to true, then the
-   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be
-   * null.
+   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
    * @return the value of the property, not null
    */
   public boolean isEnableStreamedResults() {
@@ -221,8 +211,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets should the component enable streaming results. If set to true, then the
-   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be
-   * null.
+   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
    * @param enableStreamedResults  the new value of the property, not null
    */
   public void setEnableStreamedResults(boolean enableStreamedResults) {
@@ -232,8 +221,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code enableStreamedResults} property.
-   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be
-   * null.
+   * {@link #_jmsConnector} and {@link #_scheduledExecutor} should not be null.
    * @return the property, not null
    */
   public final Property<Boolean> enableStreamedResults() {
@@ -347,7 +335,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the scheduledExecutor.
+   * Gets the scheduled executor service.
    * @return the value of the property
    */
   public ScheduledExecutorService getScheduledExecutor() {
@@ -355,7 +343,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the scheduledExecutor.
+   * Sets the scheduled executor service.
    * @param scheduledExecutor  the new value of the property
    */
   public void setScheduledExecutor(ScheduledExecutorService scheduledExecutor) {
