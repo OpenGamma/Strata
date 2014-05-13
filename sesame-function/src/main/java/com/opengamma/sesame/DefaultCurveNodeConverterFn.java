@@ -105,19 +105,22 @@ public class DefaultCurveNodeConverterFn implements CurveNodeConverterFn {
         }
         ZonedDateTimeDoubleTimeSeries convertedSeries = convertTimeSeries(valuationTime.getZone(), timeSeriesResult.getValue());
         // No time series is passed for the closing price; for curve calibration only the trade price is required.
-        InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]> definitionInstWithData =
-            (InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>[]>) definition;
+        @SuppressWarnings("rawtypes")  // handle difference between Eclipse and Javac via raw types
+        InstrumentDefinitionWithData definitionInstWithData = (InstrumentDefinitionWithData) definition;
         return Result.success(definitionInstWithData.toDerivative(valuationTime, new DoubleTimeSeries[]{convertedSeries}));
       }
 
       if (node.getCurveNode() instanceof RateFutureNode || node.getCurveNode() instanceof DeliverableSwapFutureNode) {
-        InstrumentDefinitionWithData<?, Double> definitionWithData = (InstrumentDefinitionWithData<?, Double>) definition;
+        @SuppressWarnings("rawtypes")  // handle difference between Eclipse and Javac via raw types
+        InstrumentDefinitionWithData definitionWithData = (InstrumentDefinitionWithData) definition;
         return Result.success(definitionWithData.toDerivative(valuationTime, (Double) null));
         // No last closing price is passed; for curve calibration only the trade price is required.
       }
       throw new OpenGammaRuntimeException("Cannot handle swaps with fixings");
     }
-    return Result.success(definition.toDerivative(valuationTime));
+    @SuppressWarnings("rawtypes")  // handle difference between Eclipse and Javac via raw types
+    InstrumentDefinition untypedDefinition = (InstrumentDefinition) definition;
+    return Result.success(untypedDefinition.toDerivative(valuationTime));
   }
 
   public static boolean requiresFixingSeries(CurveNode node) {
