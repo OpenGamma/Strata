@@ -66,7 +66,6 @@ public final class GraphBuilder {
     ArgumentChecker.notNull(viewConfig, "viewConfig");
     ArgumentChecker.notNull(inputTypes, "inputTypes");
     ImmutableMap.Builder<String, Map<Class<?>, FunctionModel>> builder = ImmutableMap.builder();
-    // TODO each column could easily be done in parallel
     FunctionModelConfig modelConfig = viewConfig.getDefaultConfig();
     FunctionModelConfig defaultConfig = CompositeFunctionModelConfig.compose(modelConfig, _defaultConfig, _defaultImplProvider);
 
@@ -81,9 +80,10 @@ public final class GraphBuilder {
 
         FunctionModel existingFunction = functions.get(inputType);
         OutputName outputName = column.getOutputName(inputType);
-        FunctionMetadata function = outputName == null ?
-                                    null :
-                                    _availableOutputs.getOutputFunction(outputName, inputType);
+        FunctionMetadata function =
+            outputName != null ?
+                _availableOutputs.getOutputFunction(outputName, inputType) :
+                null;
 
         if (existingFunction == null && function != null) {
           FunctionModelConfig columnConfig = column.getFunctionConfig(inputType);
@@ -93,7 +93,13 @@ public final class GraphBuilder {
           s_logger.debug("created function for {}/{}\n{}",
                          column.getName(), inputType.getSimpleName(), functionModel.prettyPrint());
         } else {
-          s_logger.warn("No function available for column '{}' for input type {}", column, inputType.getSimpleName());
+          if (outputName != null) {
+            s_logger.warn("No function registered as an available output for input type {}, output name '{}', column '{}'",
+                          inputType.getSimpleName(), outputName.getName(), column.getName());
+          } else {
+            s_logger.warn("No function registered as an available output for input type {}, column '{}'",
+                          inputType.getSimpleName(), column.getName());
+          }
           functions.put(inputType, FunctionModel.forFunction(NoOutputFunction.METADATA));
         }
       }
