@@ -6,6 +6,7 @@
 package com.opengamma.sesame.marketdata;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,9 +85,16 @@ public class DefaultLiveDataResult implements LiveDataResult {
   @Override
   public LiveDataResult update(LiveDataUpdate updatedValues) {
     ArgumentChecker.notNull(updatedValues, "updatedValues");
+
+    // Merge the data values
     Map<FieldName, Object> updated = new HashMap<>(_fields);
     updated.putAll(updatedValues.getFields());
-    return new DefaultLiveDataResult(_ticker, updatedValues.getRequiredPermissions(), updated);
+
+    // Merge the permissions
+    Set<Permission> permissions = new HashSet<>(_requiredPermissions);
+    permissions.addAll(updatedValues.getRequiredPermissions());
+
+    return new DefaultLiveDataResult(_ticker, permissions, updated);
   }
 
 }
