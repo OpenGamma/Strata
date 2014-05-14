@@ -91,7 +91,14 @@ public final class OutputNames {
    * The theta.
    */
   public static final String THETA = "Theta";
-  
+  /**
+   * The cash flows of the swap pay leg.
+   */
+  public static final String PAY_LEG_CASH_FLOWS = "Pay Leg Cash Flow Details";
+  /**
+   * The cash flows of the swap receive leg.
+   */
+  public static final String RECEIVE_LEG_CASH_FLOWS = "Receive Leg Cash Flow Details";
   /**
    * Restricted constructor.
    */

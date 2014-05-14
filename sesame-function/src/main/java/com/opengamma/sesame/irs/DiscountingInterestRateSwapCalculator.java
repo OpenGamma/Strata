@@ -7,7 +7,7 @@ package com.opengamma.sesame.irs;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
@@ -21,15 +21,25 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.sesame.cashflows.CashFlowDetailsCalculator;
+import com.opengamma.sesame.cashflows.CashFlowDetailsProvider;
+import com.opengamma.sesame.cashflows.SwapLegCashFlows;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
+
 /**
  * Calculator for Discounting swaps.
  */
 public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCalculator {
+
+  /**
+   * Calculator for cash flows.
+   */
+  private static final CashFlowDetailsCalculator CFDC = CashFlowDetailsCalculator.getInstance();
 
   /**
    * Calculator for present value.
@@ -58,12 +68,29 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   private final MulticurveProviderInterface _bundle;
 
   /**
+   * The swap definition.
+   */
+  private final SwapDefinition _definition;
+
+  /**
+   * The swap security.
+   */
+  private final InterestRateSwapSecurity _security;
+
+  /**
+   * The ZonedDateTime valuation time.
+   */
+  private final ZonedDateTime _valuationTime;
+
+  /**
    * Creates a calculator for a InterestRateSwapSecurity.
    *
    * @param security the swap to calculate values for, not null
    * @param bundle the multicurve bundle, including the curves, not null
    * @param swapConverter the InterestRateSwapSecurityConverter, not null
    * @param valuationTime the ZonedDateTime, not null
+   * @param definitionConverter the FixedIncomeConverterDataProvider, not null
+   * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects, not null
    */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapSecurity security,
                                                MulticurveProviderInterface bundle,
@@ -76,8 +103,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     ArgumentChecker.notNull(valuationTime, "valuationTime");
     ArgumentChecker.notNull(definitionConverter, "definitionConverter");
     ArgumentChecker.notNull(fixings, "fixings");
-    _derivative = createInstrumentDerivative(security, swapConverter, valuationTime, definitionConverter, fixings);
+    _definition = (SwapDefinition) security.accept(swapConverter);
+    _derivative = createInstrumentDerivative(security, valuationTime, definitionConverter, fixings);
     _bundle = bundle;
+    _valuationTime = valuationTime;
+    _security = security;
   }
 
   @Override
@@ -95,6 +125,16 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     return Result.success(calculateResult(PV01C));
   }
 
+  @Override
+  public Result<SwapLegCashFlows> calculatePayLegCashFlows() {
+    return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.PAY)));
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculateReceiveLegCashFlows() {
+    return Result.success(_derivative.accept(CFDC, createCashFlowDetailsProvider(PayReceiveType.RECEIVE)));
+  }
+
   private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, T> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
@@ -103,11 +143,15 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     return _derivative.accept(calculator, _bundle);
   }
 
-  private InstrumentDerivative createInstrumentDerivative(InterestRateSwapSecurity security, InterestRateSwapSecurityConverter swapConverter,
-                                                          ZonedDateTime valuationTime, FixedIncomeConverterDataProvider definitionConverter,
+  private InstrumentDerivative createInstrumentDerivative(InterestRateSwapSecurity security,
+                                                          ZonedDateTime valuationTime,
+                                                          FixedIncomeConverterDataProvider definitionConverter,
                                                           HistoricalTimeSeriesBundle fixings) {
-    InstrumentDefinition<?> definition = security.accept(swapConverter);
-    return definitionConverter.convert(security, definition, valuationTime, fixings);
+    return definitionConverter.convert(security, _definition, valuationTime, fixings);
+  }
+
+  private CashFlowDetailsProvider createCashFlowDetailsProvider(PayReceiveType type) {
+    return new CashFlowDetailsProvider(_bundle, _valuationTime, _definition, _security, type);
   }
 
 }

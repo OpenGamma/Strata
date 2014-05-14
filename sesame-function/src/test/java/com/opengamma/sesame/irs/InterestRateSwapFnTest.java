@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 , present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,6 +10,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
@@ -78,6 +79,9 @@ import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
+import com.opengamma.sesame.cashflows.FixedLegCashFlows;
+import com.opengamma.sesame.cashflows.FloatingLegCashFlows;
+import com.opengamma.sesame.cashflows.SwapLegCashFlows;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -91,6 +95,7 @@ import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -105,6 +110,7 @@ public class InterestRateSwapFnTest {
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final double STD_TOLERANCE_RATE = 1.0E-8;
   private static final double STD_TOLERANCE_PV01 = 1.0E-4;
+  private static final double STD_TOLERANCE_AMOUNT = 1.0E-3;
 
   private static final double EXPECTED_ON_PV = -9723.264518929138;
   private static final double EXPECTED_ON_PAR_RATE =  6.560723881400023E-4;
@@ -325,6 +331,125 @@ public class InterestRateSwapFnTest {
         LocalDate.of(2014, 9, 12), // effective date
         LocalDate.of(2021, 9, 12), // maturity date,
         legs);
+  }
+
+  @Test
+  public void fixedVsLibor3mSwapLegDetails() {
+    Result<SwapLegCashFlows> payResult = _swapFunction.calculatePayLegCashFlows(ENV,_fixedVsLibor3mSwapSecurity);
+    assertThat(payResult.isSuccess(), is((true)));
+    SwapLegCashFlows payDetails = payResult.getValue();
+
+    assertThat(payDetails, is((instanceOf(FixedLegCashFlows.class))));
+    FixedLegCashFlows fixedLegCashFlows = (FixedLegCashFlows) payDetails;
+    
+    CurrencyAmount[] actualPaymentAmounts = fixedLegCashFlows.getPaymentAmounts();
+    CurrencyAmount[] expectedPaymentAmounts = {
+            CurrencyAmount.of("USD", -750000.0),
+            CurrencyAmount.of("USD", -758333.3333333333),
+            CurrencyAmount.of("USD", -750000.0),
+            CurrencyAmount.of("USD", -741666.6666666667),
+            CurrencyAmount.of("USD", -754166.6666666666),
+            CurrencyAmount.of("USD", -745833.3333333334),
+            CurrencyAmount.of("USD", -750000.0),
+            CurrencyAmount.of("USD", -750000.0),
+            CurrencyAmount.of("USD", -750000.0),
+            CurrencyAmount.of("USD", -750000.0),
+            CurrencyAmount.of("USD", -750000.0),
+            CurrencyAmount.of("USD", -758333.3333333333),
+            CurrencyAmount.of("USD", -741666.6666666667),
+            CurrencyAmount.of("USD", -754166.6666666666)
+        };
+
+    int i = 0;
+    for(CurrencyAmount amount : expectedPaymentAmounts) {
+      assertThat(amount.getAmount(), is(closeTo(actualPaymentAmounts[i].getAmount(), STD_TOLERANCE_AMOUNT)));
+      i++;
+    }
+
+    LocalDate[] actualAccrualStart = fixedLegCashFlows.getAccrualStart();
+    LocalDate[] expectedAccrualStart = {
+        LocalDate.of(2014,9,12),
+        LocalDate.of(2015,3,12),
+        LocalDate.of(2015,9,14),
+        LocalDate.of(2016,3,14),
+        LocalDate.of(2016,9,12),
+        LocalDate.of(2017,3,13),
+        LocalDate.of(2017,9,12),
+        LocalDate.of(2018,3,12),
+        LocalDate.of(2018,9,12),
+        LocalDate.of(2019,3,12),
+        LocalDate.of(2019,9,12),
+        LocalDate.of(2020,3,12),
+        LocalDate.of(2020,9,14),
+        LocalDate.of(2021,3,12)
+    };
+
+    i = 0;
+    for(LocalDate date : expectedAccrualStart) {
+      assertThat(date, is(actualAccrualStart[i]));
+      i++;
+    }
+
+    Result<SwapLegCashFlows> receiveResult = _swapFunction.calculateReceiveLegCashFlows(ENV,_fixedVsLibor3mSwapSecurity);
+    assertThat(receiveResult.isSuccess(), is((true)));
+    SwapLegCashFlows receiveDetails = receiveResult.getValue();
+
+    assertThat(receiveDetails, is((instanceOf(FloatingLegCashFlows.class))));
+    FloatingLegCashFlows floatingLegCashFlows = (FloatingLegCashFlows) receiveDetails;
+
+    Double[] expectedForwardRates = floatingLegCashFlows.getForwardRates();
+    Double[] actualForwardRates = {
+        0.002830776043127479, 0.003889725581109005, 0.00534820864384384, 0.006272357544524368, 0.007191464409902153, 
+        0.01010956533411408, 0.013521579956778747, 0.015318507913146722, 0.01710597237713002, 0.019924700484298726, 
+        0.02285929744200523, 0.024965464562180496, 0.027083323913778736, 0.028774171062606158, 0.03044395193791545, 
+        0.03248279019018542, 0.03450994398725367, 0.03441329882138877, 0.0342129941075707, 0.03585838813458806, 
+        0.03749357371138418, 0.03903671874199058, 0.04064520492792625, 0.04230705788571235, 0.04394811214893466, 
+        0.04127235310120026, 0.038531753356691775, 0.03959796966266573 };
+
+    i = 0;
+    for(Double rate : expectedForwardRates) {
+      assertThat(rate, is(closeTo(actualForwardRates[i], STD_TOLERANCE_RATE)));
+      i++;
+    }
+
+    LocalDate[] actualAccrualEnd  = floatingLegCashFlows.getAccrualEnd();
+    LocalDate[] expectedAccrualEnd = {
+      LocalDate.of(2014,12,12),
+      LocalDate.of(2015,3,12),
+      LocalDate.of(2015,6,12),
+      LocalDate.of(2015,9,14),
+      LocalDate.of(2015,12,14),
+      LocalDate.of(2016,3,14),
+      LocalDate.of(2016,6,13),
+      LocalDate.of(2016,9,12),
+      LocalDate.of(2016,12,12),
+      LocalDate.of(2017,3,13),
+      LocalDate.of(2017,6,12),
+      LocalDate.of(2017,9,12),
+      LocalDate.of(2017,12,12),
+      LocalDate.of(2018,3,12),
+      LocalDate.of(2018,6,12),
+      LocalDate.of(2018,9,12),
+      LocalDate.of(2018,12,12),
+      LocalDate.of(2019,3,12),
+      LocalDate.of(2019,6,12),
+      LocalDate.of(2019,9,12),
+      LocalDate.of(2019,12,12),
+      LocalDate.of(2020,3,12),
+      LocalDate.of(2020,6,12),
+      LocalDate.of(2020,9,14),
+      LocalDate.of(2020,12,14),
+      LocalDate.of(2021,3,12),
+      LocalDate.of(2021,6,14),
+      LocalDate.of(2021,9,13)
+    };
+
+    i = 0;
+    for(LocalDate date : expectedAccrualEnd) {
+      assertThat(date, is(actualAccrualEnd[i]));
+      i++;
+    }
+
   }
 
   @Test

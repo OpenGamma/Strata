@@ -8,6 +8,7 @@ package com.opengamma.sesame.irs;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.cashflows.SwapLegCashFlows;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -59,4 +60,25 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     }
     return Result.success(calculatorResult.getValue().calculatePV01().getValue());
   }
+
+  @Override
+  public Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return Result.success(calculatorResult.getValue().calculateReceiveLegCashFlows().getValue());
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return Result.success(calculatorResult.getValue().calculatePayLegCashFlows().getValue());
+  }
+
 }
