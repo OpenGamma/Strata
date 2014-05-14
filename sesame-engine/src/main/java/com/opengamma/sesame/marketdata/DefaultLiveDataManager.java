@@ -96,12 +96,12 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
   private final ClientSubscriptionManager _clientSubscriptions = new ClientSubscriptionManager();
 
   /**
-   * LiveDataResultMapper storing the latest values for all subscriptions
+   * LiveDataResults storing the latest values for all subscriptions
    * that have been requested across the entire set of listeners. The value
    * held will either be a Success and contain the underlying market data or will
    * be a Failure and hold the failure reason.
    */
-  private final MutableLiveDataResultMapper _currentValues;
+  private final MutableLiveDataResults _currentValues;
 
   /**
    * Mapping from the ticker received from the market data server to the
@@ -149,15 +149,15 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
                                int unsubscriptionDelay) {
     _marketDataConnection = ArgumentChecker.notNull(marketDataConnection, "marketDataConnection");
     _unsubscriptionDelaySeconds = unsubscriptionDelay;
-    _currentValues = new DefaultMutableLiveDataResultMapper();
+    _currentValues = new DefaultMutableLiveDataResults();
   }
 
   @Override
-  public ImmutableLiveDataResultMapper snapshot(final LDListener listener) {
+  public ImmutableLiveDataResults snapshot(final LDListener listener) {
 
-    Callable<ImmutableLiveDataResultMapper> callable = new Callable<ImmutableLiveDataResultMapper>() {
+    Callable<ImmutableLiveDataResults> callable = new Callable<ImmutableLiveDataResults>() {
       @Override
-      public ImmutableLiveDataResultMapper call() {
+      public ImmutableLiveDataResults call() {
         return doSnapshot(listener);
       }
     };
@@ -165,7 +165,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     // We need to ensure that we run the callable with the same user
     // details as the client was using
     Subject subject = SecurityUtils.getSubject();
-    Future<ImmutableLiveDataResultMapper> future = _commandQueue.submit(subject.associateWith(callable));
+    Future<ImmutableLiveDataResults> future = _commandQueue.submit(subject.associateWith(callable));
 
     try {
       return future.get();
@@ -177,7 +177,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     }
   }
 
-  private ImmutableLiveDataResultMapper doSnapshot(LDListener client) {
+  private ImmutableLiveDataResults doSnapshot(LDListener client) {
     if (_clientSubscriptions.containsClient(client)) {
       Set<ExternalIdBundle> subscriptions = _clientSubscriptions.getSubscriptionsForClient(client);
       return _currentValues.createSnapshot(subscriptions);
@@ -254,10 +254,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
                         response.getRequestedSpecification(), response);
           // We are not expecting this as generally the market data server has
           // access to all data which we check permissions for in this class
-          _currentValues.addPermissionDenied(requestedBundle, response.getUserMessage());
+          _currentValues.markAsPermissionDenied(requestedBundle, response.getUserMessage());
         } else {
           s_logger.warn("Subscription to ticker {} failed with response: [{}]", response.getRequestedSpecification(), response);
-          _currentValues.addMissing(requestedBundle, response.getUserMessage());
+          _currentValues.markAsMissing(requestedBundle, response.getUserMessage());
         }
       }
     }
@@ -274,8 +274,8 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
       _clientSubscriptions.addClientSubscription(client, id);
 
       // Add in placeholder if one isn't there already
-      if (!_currentValues.containsKey(id)) {
-        _currentValues.addPending(id);
+      if (!_currentValues.containsTicker(id)) {
+        _currentValues.markAsPending(id);
         requiredSubscriptions.add(id);
       }
     }

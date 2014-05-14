@@ -32,7 +32,7 @@ public class PermissionDeniedLiveDataResult implements LiveDataResult {
   public PermissionDeniedLiveDataResult(ExternalIdBundle ticker, Exception ex) {
     ArgumentChecker.notNull(ticker, "ticker");
     ArgumentChecker.notNull(ex, "ex");
-    _result =  Result.failure(PERMISSION_DENIED, ex, "User does not have access to data with id: {}", ticker);
+    _result = Result.failure(PERMISSION_DENIED, ex, "User does not have access to data with id: {}", ticker);
   }
 
   /**
@@ -41,7 +41,7 @@ public class PermissionDeniedLiveDataResult implements LiveDataResult {
    * @param message  the message explaining the failure, not null
    */
   public PermissionDeniedLiveDataResult(String message) {
-    _result =  Result.failure(PERMISSION_DENIED, ArgumentChecker.notNull(message, "message"));
+    _result = Result.failure(PERMISSION_DENIED, ArgumentChecker.notNull(message, "message"));
   }
 
   @Override

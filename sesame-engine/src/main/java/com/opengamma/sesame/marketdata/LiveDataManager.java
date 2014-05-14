@@ -65,7 +65,7 @@ public interface LiveDataManager {
    * @throws IllegalStateException if {@link #subscribe(LDListener, Set)}
    * has not previously been called, or the client has been unregistered
    */
-  ImmutableLiveDataResultMapper snapshot(LDListener client);
+  ImmutableLiveDataResults snapshot(LDListener client);
 
   /**
    * Unsubscribe from a set of tickers for the specified

@@ -12,7 +12,7 @@ import com.opengamma.id.ExternalIdBundle;
  * source. The results may be actual values or maybe indications
  * that something is in error.
  */
-public interface LiveDataResultMapper {
+public interface LiveDataResults {
 
   /**
    * Indicates if a result is held for the specified ticker.
@@ -22,7 +22,7 @@ public interface LiveDataResultMapper {
    * @param ticker  the ticker to check, not null
    * @return true if a result is held for the ticker
    */
-  boolean containsKey(ExternalIdBundle ticker);
+  boolean containsTicker(ExternalIdBundle ticker);
 
   /**
    * Retrieves the result held for the specified ticker.

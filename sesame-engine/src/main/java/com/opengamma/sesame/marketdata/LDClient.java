@@ -29,8 +29,8 @@ public class LDClient implements LDListener {
   /**
    * The latest set of values retrieved from the market data manager.
    */
-  private final AtomicReference<ImmutableLiveDataResultMapper> _latestSnapshot =
-      new AtomicReference<>(DefaultImmutableLiveDataResultMapper.EMPTY);
+  private final AtomicReference<ImmutableLiveDataResults> _latestSnapshot =
+      new AtomicReference<>(DefaultImmutableLiveDataResults.EMPTY);
 
   /**
    * Flag indicating whether updated values are available
@@ -70,7 +70,7 @@ public class LDClient implements LDListener {
     if (!requests.isEmpty()) {
       Set<ExternalIdBundle> subscriptions = new HashSet<>();
       for (ExternalIdBundle id : requests) {
-        if (!_latestSnapshot.get().containsKey(id)) {
+        if (!_latestSnapshot.get().containsTicker(id)) {
           subscriptions.add(id);
         }
       }
@@ -96,7 +96,7 @@ public class LDClient implements LDListener {
    *
    * @return the latest market data
    */
-  public ImmutableLiveDataResultMapper retrieveLatestData() {
+  public ImmutableLiveDataResults retrieveLatestData() {
     if (_valuesPending.compareAndSet(true, false)) {
       _latestSnapshot.set(_liveDataManager.snapshot(this));
     }

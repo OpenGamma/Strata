@@ -27,7 +27,7 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
   private final LDClient _liveDataClient;
 
   /** The market data. */
-  private final ImmutableLiveDataResultMapper _data;
+  private final ImmutableLiveDataResults _data;
 
   /** Market data that has been requested. */
   private final Set<ExternalIdBundle> _requests =
@@ -36,7 +36,7 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
   /**
    * Create a ResettableLiveMarketDataSource for the specified market
    * data spec and live data client. Instance will be initialized
-   * with an empty LiveDataResultMapper.
+   * with an empty LiveDataResults.
    *
    * @param marketDataSpecification  the specification for the market data
    * being retrieved, not null
@@ -44,13 +44,13 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
    * data, not null
    */
   public ResettableLiveMarketDataSource(MarketDataSpecification marketDataSpecification, LDClient liveDataClient) {
-    this(marketDataSpecification, liveDataClient, DefaultImmutableLiveDataResultMapper.EMPTY);
+    this(marketDataSpecification, liveDataClient, DefaultImmutableLiveDataResults.EMPTY);
   }
 
   /**
    * Create a ResettableLiveMarketDataSource for the specified market
    * data spec and live data client, initialized with the supplied
-   * LiveDataResultMapper.
+   * LiveDataResults.
    *
    * @param marketDataSpecification  the specification for the market data
    * being retrieved, not null
@@ -59,7 +59,7 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
    * @param liveDataResultMapper  the result data to be used
    */
   public ResettableLiveMarketDataSource(MarketDataSpecification marketDataSpecification, LDClient liveDataClient,
-                                        ImmutableLiveDataResultMapper liveDataResultMapper) {
+                                        ImmutableLiveDataResults liveDataResultMapper) {
     _marketDataSpecification = ArgumentChecker.notNull(marketDataSpecification, "marketDataSpecification");
     _liveDataClient = ArgumentChecker.notNull(liveDataClient, "liveDataClient");
     _data = ArgumentChecker.notNull(liveDataResultMapper, "data");
@@ -68,11 +68,11 @@ public class ResettableLiveMarketDataSource implements StrategyAwareMarketDataSo
   @Override
   public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
 
-    if (!_data.containsKey(id)) {
+    if (!_data.containsTicker(id)) {
       _requests.add(id);
     }
 
-    LiveDataResult value = _data.containsKey(id) ? _data.get(id) : new PendingLiveDataResult(id);
+    LiveDataResult value = _data.containsTicker(id) ? _data.get(id) : new PendingLiveDataResult(id);
     return value.getValue(fieldName);
   }
 

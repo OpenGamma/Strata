@@ -62,10 +62,13 @@ public class LiveDataUpdate {
     Map<FieldName, Object> converted = new HashMap<>();
     Set<String> permissions = new HashSet<>();
     for (FudgeField field : updatedValues) {
-      if (field.getName().equals(LIVE_DATA_PERMISSION_FIELD)) {
-        permissions.add((String) field.getValue());
-      } else {
-        converted.put(FieldName.of(field.getName()), field.getValue());
+      Object fieldValue = field.getValue();
+      if (fieldValue != null) {
+        if (field.getName().equals(LIVE_DATA_PERMISSION_FIELD)) {
+          permissions.add((String) fieldValue);
+        } else {
+          converted.put(FieldName.of(field.getName()), fieldValue);
+        }
       }
     }
     Set<Permission> requiredPermissions = AuthUtils.getPermissionResolver().resolvePermissions(permissions);

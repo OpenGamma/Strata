@@ -113,7 +113,7 @@ public class DefaultLiveDataManagerTest {
 
     String[] tickers = {"T1", "T2", "T3"};
     _manager.subscribe(client, createIdBundles(tickers));
-    LiveDataResultMapper snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -122,11 +122,11 @@ public class DefaultLiveDataManagerTest {
     }
   }
 
-  private void checkSnapshotEntry(LiveDataResultMapper snapshot,
+  private void checkSnapshotEntry(LiveDataResults snapshot,
                                   String ticker, ResultStatus status) {
     ExternalIdBundle bundle = createBundle(ticker);
     // Check we actually hold an entry
-    assertThat(snapshot.containsKey(bundle), is(true));
+    assertThat(snapshot.containsTicker(bundle), is(true));
     if (status == SUCCESS) {
       // Check object is what we expect
       assertThat(snapshot.get(bundle), is(instanceOf(DefaultLiveDataResult.class)));
@@ -153,7 +153,7 @@ public class DefaultLiveDataManagerTest {
 
     _manager.subscriptionResultsReceived(responses);
 
-    LiveDataResultMapper snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -182,7 +182,7 @@ public class DefaultLiveDataManagerTest {
     MutableFudgeMsg msg = _fudgeContext.newMessage();
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T4"), msg));
 
-    LiveDataResultMapper snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(4));
 
@@ -206,7 +206,7 @@ public class DefaultLiveDataManagerTest {
     MutableFudgeMsg msg = _fudgeContext.newMessage();
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg));
 
-    LiveDataResultMapper snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -224,7 +224,7 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T3"), msg));
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T4"), msg));
 
-    LiveDataResultMapper snapshot2 = _manager.snapshot(client);
+    LiveDataResults snapshot2 = _manager.snapshot(client);
 
     assertThat(snapshot2.size(), is(5));
 
@@ -334,7 +334,7 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(2, createLiveDataSpec("T2"), msg));
     _manager.valueUpdate(new LiveDataValueUpdateBean(3, createLiveDataSpec("T3"), msg));
 
-    LiveDataResultMapper snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -367,7 +367,7 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(2, createLiveDataSpec("T2"), buildPermissionedMsg("T2-Perm")));
     _manager.valueUpdate(new LiveDataValueUpdateBean(3, createLiveDataSpec("T3"), buildPermissionedMsg("T3-Perm")));
 
-    LiveDataResultMapper snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -406,20 +406,20 @@ public class DefaultLiveDataManagerTest {
     // Delay to allow the clients to pick up their data
     Thread.sleep(50);
 
-    LiveDataResultMapper snapshot1 = client1.getSnapshot();
-    //assertThat(snapshot1.size(), is(3));
+    LiveDataResults snapshot1 = client1.getSnapshot();
+    assertThat(snapshot1.size(), is(3));
     checkSnapshotEntry(snapshot1, "T1", SUCCESS);
     checkSnapshotEntry(snapshot1, "T2", SUCCESS);
     checkSnapshotEntry(snapshot1, "T3", SUCCESS);
 
-    LiveDataResultMapper snapshot2 = client2.getSnapshot();
-    //assertThat(snapshot2.size(), is(3));
+    LiveDataResults snapshot2 = client2.getSnapshot();
+    assertThat(snapshot2.size(), is(3));
     checkSnapshotEntry(snapshot2, "T1", SUCCESS);
     checkSnapshotEntry(snapshot2, "T2", SUCCESS);
     checkSnapshotEntry(snapshot2, "T3", PERMISSION_DENIED);
 
-    LiveDataResultMapper snapshot3 = client3.getSnapshot();
-    //assertThat(snapshot3.size(), is(3));
+    LiveDataResults snapshot3 = client3.getSnapshot();
+    assertThat(snapshot3.size(), is(3));
     checkSnapshotEntry(snapshot3, "T1", PERMISSION_DENIED);
     checkSnapshotEntry(snapshot3, "T2", PERMISSION_DENIED);
     checkSnapshotEntry(snapshot3, "T3", PERMISSION_DENIED);
@@ -510,7 +510,7 @@ public class DefaultLiveDataManagerTest {
 
   private void checkSnapshotContainsTickers(LDListener client, String... tickers) {
     for (String ticker : tickers) {
-      assertThat(_manager.snapshot(client).containsKey(createBundle(ticker)), is(true));
+      assertThat(_manager.snapshot(client).containsTicker(createBundle(ticker)), is(true));
     }
   }
 
@@ -538,7 +538,7 @@ public class DefaultLiveDataManagerTest {
     // Use the original ticker - should end up still PENDING
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T3"), msg));
 
-    LiveDataResultMapper snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -876,7 +876,7 @@ public class DefaultLiveDataManagerTest {
 
     private final LiveDataManager _manager;
     private final String[] _allowedPerms;
-    private LiveDataResultMapper _snapshot;
+    private LiveDataResults _snapshot;
 
     public PermissionedClient(LiveDataManager manager, String... allowedPerms) {
       _manager = manager;
@@ -892,7 +892,7 @@ public class DefaultLiveDataManagerTest {
       _snapshot = _manager.snapshot(this);
     }
 
-    public LiveDataResultMapper getSnapshot() {
+    public LiveDataResults getSnapshot() {
       return _snapshot;
     }
 

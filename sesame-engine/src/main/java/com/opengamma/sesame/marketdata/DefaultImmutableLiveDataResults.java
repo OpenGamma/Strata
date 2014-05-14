@@ -11,17 +11,17 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * An immutable LiveDataResultMapper. No mutator methods are
- * available and the objects held are all immutable.
+ * An immutable LiveDataResults implementation. No mutator methods
+ * are available and the objects held are all immutable.
  */
-public class DefaultImmutableLiveDataResultMapper implements ImmutableLiveDataResultMapper {
+public class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults {
 
   /**
    * Convenience static field for returning an
-   * empty ImmutableLiveDataResultMapper.
+   * empty ImmutableLiveDataResults.
    */
-  public static final ImmutableLiveDataResultMapper EMPTY =
-      new DefaultImmutableLiveDataResultMapper(ImmutableMap.<ExternalIdBundle, LiveDataResult>of());
+  public static final ImmutableLiveDataResults EMPTY =
+      new DefaultImmutableLiveDataResults(ImmutableMap.<ExternalIdBundle, LiveDataResult>of());
 
   /**
    * The market data results.
@@ -34,14 +34,14 @@ public class DefaultImmutableLiveDataResultMapper implements ImmutableLiveDataRe
    *
    * @param results  the results to populate the mapper with, not null
    */
-  public DefaultImmutableLiveDataResultMapper(Map<ExternalIdBundle, LiveDataResult> results) {
+  public DefaultImmutableLiveDataResults(Map<ExternalIdBundle, LiveDataResult> results) {
     // ImmutableMap implementation will take care of
     // non-null field, keys and values
     _results = ImmutableMap.copyOf(results);
   }
 
   @Override
-  public boolean containsKey(ExternalIdBundle ticker) {
+  public boolean containsTicker(ExternalIdBundle ticker) {
     return _results.containsKey(ticker);
   }
 
@@ -52,7 +52,7 @@ public class DefaultImmutableLiveDataResultMapper implements ImmutableLiveDataRe
 
   @Override
   public boolean isPending(ExternalIdBundle ticker) {
-    if (containsKey(ticker)) {
+    if (containsTicker(ticker)) {
       return _results.get(ticker).isPending();
     } else {
       throw new IllegalArgumentException("No result found for ticker: " + ticker);

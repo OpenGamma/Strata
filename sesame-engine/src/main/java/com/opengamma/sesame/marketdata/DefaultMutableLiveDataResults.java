@@ -12,11 +12,12 @@ import java.util.Set;
 import org.slf4j.helpers.MessageFormatter;
 
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * A LiveDataResultMapper which maintains the set of results in place.
+ * A LiveDataResults implementation which maintains the set of results in place.
  */
-public class DefaultMutableLiveDataResultMapper implements MutableLiveDataResultMapper {
+public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
 
   /**
    * The set of results being maintained.
@@ -24,7 +25,7 @@ public class DefaultMutableLiveDataResultMapper implements MutableLiveDataResult
   private final Map<ExternalIdBundle, LiveDataResult> _currentResults = new HashMap<>();
 
   @Override
-  public boolean containsKey(ExternalIdBundle ticker) {
+  public boolean containsTicker(ExternalIdBundle ticker) {
     return _currentResults.containsKey(ticker);
   }
 
@@ -54,47 +55,47 @@ public class DefaultMutableLiveDataResultMapper implements MutableLiveDataResult
   }
 
   @Override
-  public DefaultImmutableLiveDataResultMapper createSnapshot(Set<ExternalIdBundle> tickers) {
+  public DefaultImmutableLiveDataResults createSnapshot(Set<ExternalIdBundle> tickers) {
 
     Map<ExternalIdBundle, LiveDataResult> results = new HashMap<>();
 
-    for (ExternalIdBundle ticker : tickers) {
+    for (ExternalIdBundle ticker : ArgumentChecker.notNull(tickers, "tickers")) {
       LiveDataResult result = _currentResults.get(ticker);
       results.put(ticker, result.permissionCheck());
     }
 
-    return new DefaultImmutableLiveDataResultMapper(results);
+    return new DefaultImmutableLiveDataResults(results);
   }
 
   @Override
-  public ImmutableLiveDataResultMapper createSnapshot() {
-    return new DefaultImmutableLiveDataResultMapper(_currentResults);
+  public ImmutableLiveDataResults createSnapshot() {
+    return new DefaultImmutableLiveDataResults(_currentResults);
   }
 
   @Override
-  public void addPending(ExternalIdBundle ticker) {
-    _currentResults.put(ticker, new PendingLiveDataResult(ticker));
+  public void markAsPending(ExternalIdBundle ticker) {
+    _currentResults.put(ArgumentChecker.notNull(ticker, "ticker"), new PendingLiveDataResult(ticker));
   }
 
   @Override
-  public void addMissing(ExternalIdBundle ticker, String userMessage, Object... args) {
+  public void markAsMissing(ExternalIdBundle ticker, String userMessage, Object... args) {
     String message = formatMessage(userMessage, args);
-    _currentResults.put(ticker, new MissingLiveDataResult(ticker, message));
+    _currentResults.put(ArgumentChecker.notNull(ticker, "ticker"), new MissingLiveDataResult(ticker, message));
   }
 
   @Override
-  public void addPermissionDenied(ExternalIdBundle ticker, String userMessage, Object... args) {
+  public void markAsPermissionDenied(ExternalIdBundle ticker, String userMessage, Object... args) {
     String message = formatMessage(userMessage, args);
-    _currentResults.put(ticker, new PermissionDeniedLiveDataResult(message));
+    _currentResults.put(ArgumentChecker.notNull(ticker, "ticker"), new PermissionDeniedLiveDataResult(message));
   }
 
   private String formatMessage(String userMessage, Object[] args) {
-    return MessageFormatter.format(userMessage, args).getMessage();
+    return MessageFormatter.format(ArgumentChecker.notNull(userMessage, "userMessage"), args).getMessage();
   }
 
   @Override
   public boolean isPending(ExternalIdBundle ticker) {
-    if (containsKey(ticker)) {
+    if (containsTicker(ticker)) {
       return _currentResults.get(ticker).isPending();
     } else {
       throw new IllegalArgumentException("No result found for ticker: " + ticker);

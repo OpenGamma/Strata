@@ -45,7 +45,7 @@ public interface LiveDataResult {
 
   /**
    * Create a new LiveDataResult object, updating any fields
-   * with values from the supplied Fudge message.
+   * with values from the supplied LiveDataUpdate.
    *
    * @param updatedValues  the new values to update the current values
    * with, not null

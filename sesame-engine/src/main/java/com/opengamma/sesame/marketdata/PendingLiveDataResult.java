@@ -6,6 +6,7 @@
 package com.opengamma.sesame.marketdata;
 
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
@@ -31,7 +32,7 @@ public class PendingLiveDataResult implements LiveDataResult {
    * @param ticker  the ticker this result is for, not null
    */
   public PendingLiveDataResult(ExternalIdBundle ticker) {
-    _ticker = ticker;
+    _ticker = ArgumentChecker.notNull(ticker, "ticker");
     _result = Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for {}/{}", ticker);
   }
 

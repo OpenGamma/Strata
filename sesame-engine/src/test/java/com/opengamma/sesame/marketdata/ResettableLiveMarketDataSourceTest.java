@@ -89,7 +89,7 @@ public class ResettableLiveMarketDataSourceTest {
 
   class ResettableLiveMarketDataSourceBuilder {
 
-    private final MutableLiveDataResultMapper _data = new DefaultMutableLiveDataResultMapper();
+    private final MutableLiveDataResults _data = new DefaultMutableLiveDataResults();
 
     ResettableLiveMarketDataSourceBuilder data(ExternalIdBundle id, FieldName fieldName, Object value) {
       _data.update(id, new LiveDataUpdate(ImmutableMap.of(fieldName, value), ImmutableSet.<Permission>of()));
@@ -97,12 +97,12 @@ public class ResettableLiveMarketDataSourceTest {
     }
 
     ResettableLiveMarketDataSourceBuilder missing(ExternalIdBundle id) {
-      _data.addMissing(id, "No data for this");
+      _data.markAsMissing(id, "No data for this");
       return this;
     }
 
     ResettableLiveMarketDataSourceBuilder pending(ExternalIdBundle id) {
-      _data.addPending(id);
+      _data.markAsPending(id);
       return this;
     }
 

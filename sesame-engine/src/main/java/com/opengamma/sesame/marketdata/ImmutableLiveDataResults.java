@@ -6,10 +6,10 @@
 package com.opengamma.sesame.marketdata;
 
 /**
- * An immutable LiveDataResultMapper.
+ * An immutable version of LiveDataResults.
  * <p>
- * Marker interface to ensure that a MutableLiveDataResultMapper
+ * Marker interface to ensure that a MutableLiveDataResults
  * cannot be returned where an immutable one is wanted.
  */
-public interface ImmutableLiveDataResultMapper extends LiveDataResultMapper {
+public interface ImmutableLiveDataResults extends LiveDataResults {
 }
