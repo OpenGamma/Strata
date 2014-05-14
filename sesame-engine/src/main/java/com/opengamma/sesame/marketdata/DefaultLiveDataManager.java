@@ -5,17 +5,12 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import static com.opengamma.livedata.permission.PermissionUtils.LIVE_DATA_PERMISSION_FIELD;
-import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-import static com.opengamma.util.result.FailureStatus.PENDING_DATA;
-import static com.opengamma.util.result.FailureStatus.PERMISSION_DENIED;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -26,11 +21,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authz.Permission;
 import org.apache.shiro.subject.Subject;
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +39,6 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.auth.AuthUtils;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.Result;
 
 /**
  * Responsible for the management of live market data subscriptions
@@ -108,12 +96,12 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
   private final ClientSubscriptionManager _clientSubscriptions = new ClientSubscriptionManager();
 
   /**
-   * Map storing the latest values for all subscriptions that have been
-   * requested across the entire set of listeners. The value held will
-   * either be a Success and contain the underlying market data or will
+   * LiveDataResults storing the latest values for all subscriptions
+   * that have been requested across the entire set of listeners. The value
+   * held will either be a Success and contain the underlying market data or will
    * be a Failure and hold the failure reason.
    */
-  private final Map<ExternalIdBundle, Result<FudgeMsg>> _currentValues = new HashMap<>();
+  private final MutableLiveDataResults _currentValues;
 
   /**
    * Mapping from the ticker received from the market data server to the
@@ -142,8 +130,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
    * supplied market data connection. This uses a default value
    * for an unsubscription delay.
    *
-   * @param marketDataConnection  the connection to use to subscribe
-   * to market data, not null
+   * @param marketDataConnection  the connection to use to subscribe, not null
    */
   public DefaultLiveDataManager(LiveDataClient marketDataConnection) {
    this(marketDataConnection, DEFAULT_UNSUBSCRIPTION_DELAY_SECONDS);
@@ -155,21 +142,22 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
    * the unsubscribe will not be sent to the market data source
    * until at least the specified number of seconds has elapsed.
    *
-   * @param marketDataConnection  the connection to use to subscribe
-   * @param unsubscriptionDelay  number of seconds to wait before
-   * unsubscribing from a ticker
+   * @param marketDataConnection  the connection to use to subscribe, not null
+   * @param unsubscriptionDelay  number of seconds to wait before unsubscribing
    */
-  public DefaultLiveDataManager(LiveDataClient marketDataConnection, int unsubscriptionDelay) {
+  public DefaultLiveDataManager(LiveDataClient marketDataConnection,
+                               int unsubscriptionDelay) {
     _marketDataConnection = ArgumentChecker.notNull(marketDataConnection, "marketDataConnection");
     _unsubscriptionDelaySeconds = unsubscriptionDelay;
+    _currentValues = new DefaultMutableLiveDataResults();
   }
 
   @Override
-  public Map<ExternalIdBundle, Result<FudgeMsg>> snapshot(final LDListener listener) {
+  public ImmutableLiveDataResults snapshot(final LDListener listener) {
 
-    Callable<Map<ExternalIdBundle, Result<FudgeMsg>>> callable = new Callable<Map<ExternalIdBundle, Result<FudgeMsg>>>() {
+    Callable<ImmutableLiveDataResults> callable = new Callable<ImmutableLiveDataResults>() {
       @Override
-      public Map<ExternalIdBundle, Result<FudgeMsg>> call() {
+      public ImmutableLiveDataResults call() {
         return doSnapshot(listener);
       }
     };
@@ -177,8 +165,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     // We need to ensure that we run the callable with the same user
     // details as the client was using
     Subject subject = SecurityUtils.getSubject();
-    Future<Map<ExternalIdBundle, Result<FudgeMsg>>> future =
-        _commandQueue.submit(subject.associateWith(callable));
+    Future<ImmutableLiveDataResults> future = _commandQueue.submit(subject.associateWith(callable));
 
     try {
       return future.get();
@@ -190,13 +177,10 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
     }
   }
 
-  private Map<ExternalIdBundle, Result<FudgeMsg>> doSnapshot(LDListener client) {
+  private ImmutableLiveDataResults doSnapshot(LDListener client) {
     if (_clientSubscriptions.containsClient(client)) {
-      Map<ExternalIdBundle, Result<FudgeMsg>> result = new HashMap<>();
-      for (ExternalIdBundle idBundle : _clientSubscriptions.getSubscriptionsForClient(client)) {
-        result.put(idBundle, getCurrentValue(idBundle));
-      }
-      return result;
+      Set<ExternalIdBundle> subscriptions = _clientSubscriptions.getSubscriptionsForClient(client);
+      return _currentValues.createSnapshot(subscriptions);
     } else {
       throw new IllegalStateException("Listener must make subscription requests before asking for snapshot");
     }
@@ -270,43 +254,14 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
                         response.getRequestedSpecification(), response);
           // We are not expecting this as generally the market data server has
           // access to all data which we check permissions for in this class
-          _currentValues.put(requestedBundle, Result.<FudgeMsg>failure(PERMISSION_DENIED, response.getUserMessage()));
+          _currentValues.markAsPermissionDenied(requestedBundle, response.getUserMessage());
         } else {
-          s_logger.warn("Subscription to {} failed: {}", response.getRequestedSpecification(), response);
-          _currentValues.put(requestedBundle, Result.<FudgeMsg>failure(MISSING_DATA, response.getUserMessage()));
+          s_logger.warn("Subscription to ticker {} failed with response: [{}]", response.getRequestedSpecification(), response);
+          _currentValues.markAsMissing(requestedBundle, response.getUserMessage());
         }
       }
     }
     notifyClients(responsesReceived);
-  }
-
-  private Result<FudgeMsg> getCurrentValue(ExternalIdBundle idBundle) {
-    if (_currentValues.containsKey(idBundle)) {
-
-      Result<FudgeMsg> result = _currentValues.get(idBundle);
-      // Only need to permission check if we are actually returning market data
-      return result.isSuccess() ? checkPermissions(result, idBundle) : result;
-
-    } else {
-      // This case would suggest an error in the class which means we haven't
-      // cleanly captured the requests
-      s_logger.error("Attempting to get value for id: {} but have no request for data recorded", idBundle);
-      return Result.failure(MISSING_DATA, "No market data available for id: {}", idBundle);
-    }
-  }
-
-  private Result<FudgeMsg> checkPermissions(Result<FudgeMsg> result, ExternalIdBundle idBundle) {
-    FudgeMsg fields = result.getValue();
-    // TODO - it may be worth storing the permissions field separately if profiling shows it as a bottleneck
-    Set<String> tickerPermissions = getRequiredPermissions(fields);
-    Set<Permission> requiredPermissions = AuthUtils.getPermissionResolver().resolvePermissions(tickerPermissions);
-    try {
-      // Throws exception if not permitted
-      AuthUtils.getSubject().checkPermissions(requiredPermissions);
-      return result;
-    } catch (Exception ex) {
-      return Result.failure(PERMISSION_DENIED, ex, "User does not have access to data with id: {}", idBundle);
-    }
   }
 
   private void doSubscribe(LDListener client, Set<ExternalIdBundle> subscriptionKeys) {
@@ -319,10 +274,8 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
       _clientSubscriptions.addClientSubscription(client, id);
 
       // Add in placeholder if one isn't there already
-      if (!_currentValues.containsKey(id)) {
-        Result<FudgeMsg> pendingResult =
-            Result.failure(FailureStatus.PENDING_DATA, "Awaiting data for id: {}", id);
-        _currentValues.put(id, pendingResult);
+      if (!_currentValues.containsTicker(id)) {
+        _currentValues.markAsPending(id);
         requiredSubscriptions.add(id);
       }
     }
@@ -430,14 +383,13 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
       return;
     }
 
-    FudgeMsg newValues = valueUpdate.getFields();
-    updateCurrentValue(idBundle, newValues);
+    updateCurrentValue(idBundle, valueUpdate.getFields());
     notifyClients(idBundle);
   }
 
-  private void updateCurrentValue(ExternalIdBundle idBundle, FudgeMsg newValues) {
-    Result<FudgeMsg> currentResult = _currentValues.get(idBundle);
-    _currentValues.put(idBundle, mergeFields(currentResult, newValues));
+  private void updateCurrentValue(ExternalIdBundle idBundle, FudgeMsg updatedValues) {
+    LiveDataUpdate update = LiveDataUpdate.fromFudge(updatedValues);
+    _currentValues.update(idBundle, update);
   }
 
   private void notifyClients(ExternalIdBundle idBundle) {
@@ -479,30 +431,6 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
       // it and complete it
       _latches.remove(listener).countDown();
     }
-  }
-
-  private Result<FudgeMsg> mergeFields(Result<FudgeMsg> currentResult, FudgeMsg newValues) {
-    if (currentResult.isSuccess()) {
-      FudgeMsg originalValues = currentResult.getValue();
-      MutableFudgeMsg unionMsg = OpenGammaFudgeContext.getInstance().newMessage(newValues);
-      Set<String> missingFields = originalValues.getAllFieldNames();
-      missingFields.removeAll(newValues.getAllFieldNames());
-      for (String missingField : missingFields) {
-        unionMsg.add(originalValues.getByName(missingField));
-      }
-      return Result.<FudgeMsg>success(unionMsg);
-    } else {
-      return Result.success(newValues);
-    }
-  }
-
-  private Set<String> getRequiredPermissions(FudgeMsg mergedValues) {
-    Set<String> requiredPerms = new HashSet<>();
-    List<FudgeField> perms = mergedValues.getAllByName(LIVE_DATA_PERMISSION_FIELD);
-    for (FudgeField field : perms) {
-      requiredPerms.add((String) field.getValue());
-    }
-    return requiredPerms;
   }
 
   @Override
@@ -568,7 +496,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
   private boolean clientsRequirementsAreSatisfied(LDListener client) {
     for (ExternalIdBundle requirement : _clientSubscriptions.getSubscriptionsForClient(client)) {
-      if (!_currentValues.keySet().contains(requirement) || _currentValues.get(requirement).getStatus() == PENDING_DATA) {
+      if (_currentValues.isPending(requirement)) {
         return false;
       }
     }

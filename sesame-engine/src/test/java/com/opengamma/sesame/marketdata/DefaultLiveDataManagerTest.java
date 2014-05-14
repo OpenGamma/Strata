@@ -19,9 +19,8 @@ import static com.opengamma.util.result.FailureStatus.PENDING_DATA;
 import static com.opengamma.util.result.FailureStatus.PERMISSION_DENIED;
 import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -31,7 +30,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.shiro.authc.AuthenticationException;
@@ -52,7 +50,6 @@ import org.apache.shiro.subject.SubjectContext;
 import org.apache.shiro.util.ThreadContext;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -68,7 +65,6 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.permission.PermissionUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.auth.PermissiveSecurityManager;
-import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
@@ -77,6 +73,9 @@ import com.opengamma.util.test.TestGroup;
  */
 @Test(groups = TestGroup.UNIT)
 public class DefaultLiveDataManagerTest {
+
+  public static final FieldName MARKET_VALUE_FIELD = FieldName.of("Market_Value");
+  public static final FieldName ANOTHER_FIELD = FieldName.of("Another");
 
   private DefaultLiveDataManager _manager;
   private FudgeContext _fudgeContext;
@@ -114,7 +113,7 @@ public class DefaultLiveDataManagerTest {
 
     String[] tickers = {"T1", "T2", "T3"};
     _manager.subscribe(client, createIdBundles(tickers));
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -123,11 +122,17 @@ public class DefaultLiveDataManagerTest {
     }
   }
 
-  private void checkSnapshotEntry(Map<ExternalIdBundle, Result<FudgeMsg>> snapshot,
+  private void checkSnapshotEntry(LiveDataResults snapshot,
                                   String ticker, ResultStatus status) {
     ExternalIdBundle bundle = createBundle(ticker);
-    assertThat(snapshot.get(bundle), is(notNullValue()));
-    assertThat(snapshot.get(bundle).getStatus(), is(status));
+    // Check we actually hold an entry
+    assertThat(snapshot.containsTicker(bundle), is(true));
+    if (status == SUCCESS) {
+      // Check object is what we expect
+      assertThat(snapshot.get(bundle), is(instanceOf(DefaultLiveDataResult.class)));
+    } else {
+      assertThat(snapshot.get(bundle).getValue(FieldName.of("any field")).getStatus(), is(status));
+    }
   }
 
   @Test
@@ -148,7 +153,7 @@ public class DefaultLiveDataManagerTest {
 
     _manager.subscriptionResultsReceived(responses);
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -177,7 +182,7 @@ public class DefaultLiveDataManagerTest {
     MutableFudgeMsg msg = _fudgeContext.newMessage();
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T4"), msg));
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(4));
 
@@ -201,7 +206,7 @@ public class DefaultLiveDataManagerTest {
     MutableFudgeMsg msg = _fudgeContext.newMessage();
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg));
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -219,7 +224,7 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T3"), msg));
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T4"), msg));
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot2 = _manager.snapshot(client);
+    LiveDataResults snapshot2 = _manager.snapshot(client);
 
     assertThat(snapshot2.size(), is(5));
 
@@ -329,7 +334,7 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(2, createLiveDataSpec("T2"), msg));
     _manager.valueUpdate(new LiveDataValueUpdateBean(3, createLiveDataSpec("T3"), msg));
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -362,7 +367,7 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(2, createLiveDataSpec("T2"), buildPermissionedMsg("T2-Perm")));
     _manager.valueUpdate(new LiveDataValueUpdateBean(3, createLiveDataSpec("T3"), buildPermissionedMsg("T3-Perm")));
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -384,12 +389,10 @@ public class DefaultLiveDataManagerTest {
     _manager.subscribe(client2, subscriptionRequest);
     _manager.subscribe(client3, subscriptionRequest);
 
-    Set<LiveDataSubscriptionResponse> responses = ImmutableSet.of(
+    _manager.subscriptionResultsReceived(ImmutableSet.of(
         buildSuccessResponse("T1"),
         buildSuccessResponse("T2"),
-        buildSuccessResponse("T3"));
-
-    _manager.subscriptionResultsReceived(responses);
+        buildSuccessResponse("T3")));
 
     // Now send the value updates for all, with individual permissioning
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), buildPermissionedMsg("T1-Perm")));
@@ -403,19 +406,19 @@ public class DefaultLiveDataManagerTest {
     // Delay to allow the clients to pick up their data
     Thread.sleep(50);
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot1 = client1.getSnapshot();
+    LiveDataResults snapshot1 = client1.getSnapshot();
     assertThat(snapshot1.size(), is(3));
     checkSnapshotEntry(snapshot1, "T1", SUCCESS);
     checkSnapshotEntry(snapshot1, "T2", SUCCESS);
     checkSnapshotEntry(snapshot1, "T3", SUCCESS);
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot2 = client2.getSnapshot();
+    LiveDataResults snapshot2 = client2.getSnapshot();
     assertThat(snapshot2.size(), is(3));
     checkSnapshotEntry(snapshot2, "T1", SUCCESS);
     checkSnapshotEntry(snapshot2, "T2", SUCCESS);
     checkSnapshotEntry(snapshot2, "T3", PERMISSION_DENIED);
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot3 = client3.getSnapshot();
+    LiveDataResults snapshot3 = client3.getSnapshot();
     assertThat(snapshot3.size(), is(3));
     checkSnapshotEntry(snapshot3, "T1", PERMISSION_DENIED);
     checkSnapshotEntry(snapshot3, "T2", PERMISSION_DENIED);
@@ -452,12 +455,9 @@ public class DefaultLiveDataManagerTest {
     waitForStateChange(client2, WAITING, WaitState.DONE);
     waitForStateChange(client3, WAITING, WaitState.DONE);
 
-    assertThat(_manager.snapshot(client1).keySet(),
-               containsInAnyOrder(createBundle("T1"), createBundle("T2"), createBundle("T3")));
-    assertThat(_manager.snapshot(client2).keySet(),
-               containsInAnyOrder(createBundle("T3"), createBundle("T4"), createBundle("T5")));
-    assertThat(_manager.snapshot(client3).keySet(),
-               containsInAnyOrder(createBundle("T1"), createBundle("T4"), createBundle("T6")));
+    checkSnapshotContainsTickers(client1, "T1", "T2", "T3");
+    checkSnapshotContainsTickers(client2, "T3", "T4", "T5");
+    checkSnapshotContainsTickers(client3, "T1", "T4", "T6");
   }
 
   // test multiple clients stop waiting as their results arrive
@@ -503,12 +503,15 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T6"), _fudgeContext.newMessage()));
     waitForStateChange(client2, WAITING, WaitState.DONE);
 
-    assertThat(_manager.snapshot(client1).keySet(),
-               containsInAnyOrder(createBundle("T1"), createBundle("T2"), createBundle("T3")));
-    assertThat(_manager.snapshot(client2).keySet(),
-               containsInAnyOrder(createBundle("T3"), createBundle("T4"), createBundle("T5")));
-    assertThat(_manager.snapshot(client3).keySet(),
-               containsInAnyOrder(createBundle("T1"), createBundle("T4"), createBundle("T6")));
+    checkSnapshotContainsTickers(client1, "T1", "T2", "T3");
+    checkSnapshotContainsTickers(client2, "T3", "T4", "T5");
+    checkSnapshotContainsTickers(client3, "T1", "T4", "T6");
+  }
+
+  private void checkSnapshotContainsTickers(LDListener client, String... tickers) {
+    for (String ticker : tickers) {
+      assertThat(_manager.snapshot(client).containsTicker(createBundle(ticker)), is(true));
+    }
   }
 
   @Test
@@ -535,7 +538,7 @@ public class DefaultLiveDataManagerTest {
     // Use the original ticker - should end up still PENDING
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T3"), msg));
 
-    Map<ExternalIdBundle, Result<FudgeMsg>> snapshot = _manager.snapshot(client);
+    LiveDataResults snapshot = _manager.snapshot(client);
 
     assertThat(snapshot.size(), is(3));
 
@@ -669,7 +672,7 @@ public class DefaultLiveDataManagerTest {
     _manager.unregister(client1);
 
     // Sleep as the subscribe/unsubscribe is happening on another thread
-    Thread.sleep(10);
+    Thread.sleep(100);
 
     // Unsubscribe from the T2 ticker should happen
     verify(_mockLiveDataClient)
@@ -711,12 +714,9 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg));
 
     _manager.waitForAllData(client);
-    Result<FudgeMsg> t1 = _manager.snapshot(client).get(createBundle("T1"));
-    assertThat(t1.isSuccess(), is(true));
-
-    FudgeMsg t1Value = t1.getValue();
-    assertThat(t1Value.getDouble("Market_Value"), is(1.23));
-    assertThat(t1Value.getString("Another"), is("testIt"));
+    LiveDataResult t1 = _manager.snapshot(client).get(createBundle("T1"));
+    assertThat(t1.getValue(MARKET_VALUE_FIELD).getValue(), is((Object) 1.23));
+    assertThat(t1.getValue(ANOTHER_FIELD).getValue(), is((Object) "testIt"));
   }
 
   @Test
@@ -732,12 +732,9 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg));
 
     _manager.waitForAllData(client);
-    Result<FudgeMsg> t1 = _manager.snapshot(client).get(createBundle("T1"));
-    assertThat(t1.isSuccess(), is(true));
-
-    FudgeMsg t1Value = t1.getValue();
-    assertThat(t1Value.getDouble("Market_Value"), is(1.23));
-    assertThat(t1Value.getString("Another"), is("testIt"));
+    LiveDataResult t1 = _manager.snapshot(client).get(createBundle("T1"));
+    assertThat(t1.getValue(MARKET_VALUE_FIELD).getValue(), is((Object) 1.23));
+    assertThat(t1.getValue(ANOTHER_FIELD).getValue(), is((Object) "testIt"));
   }
 
   @Test
@@ -751,24 +748,18 @@ public class DefaultLiveDataManagerTest {
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg1));
     _manager.waitForAllData(client);
 
-    Result<FudgeMsg> t1_1 = _manager.snapshot(client).get(createBundle("T1"));
-    assertThat(t1_1.isSuccess(), is(true));
-
-    FudgeMsg t1_1Value = t1_1.getValue();
-    assertThat(t1_1Value.getDouble("Market_Value"), is(1.23));
-    assertThat(t1_1Value.getString("Another"), is("testIt"));
+    LiveDataResult t1_1 = _manager.snapshot(client).get(createBundle("T1"));
+    assertThat(t1_1.getValue(MARKET_VALUE_FIELD).getValue(), is((Object) 1.23));
+    assertThat(t1_1.getValue(ANOTHER_FIELD).getValue(), is((Object) "testIt"));
 
     MutableFudgeMsg msg2 = _fudgeContext.newMessage();
     msg2.add("Market_Value", 2.34);
 
     _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg2));
 
-    Result<FudgeMsg> t1_2 = _manager.snapshot(client).get(createBundle("T1"));
-    assertThat(t1_2.isSuccess(), is(true));
-
-    FudgeMsg t1_2Value = t1_2.getValue();
-    assertThat(t1_2Value.getDouble("Market_Value"), is(2.34)); // updated
-    assertThat(t1_2Value.getString("Another"), is("testIt")); // unchanged even though not sent
+    LiveDataResult t1_2 = _manager.snapshot(client).get(createBundle("T1"));
+    assertThat(t1_2.getValue(MARKET_VALUE_FIELD).getValue(), is((Object) 2.34)); // updated
+    assertThat(t1_2.getValue(ANOTHER_FIELD).getValue(), is((Object) "testIt")); // unchanged even though not sent
   }
 
   // TODO - additional tests:
@@ -885,7 +876,7 @@ public class DefaultLiveDataManagerTest {
 
     private final LiveDataManager _manager;
     private final String[] _allowedPerms;
-    private Map<ExternalIdBundle, Result<FudgeMsg>> _snapshot;
+    private LiveDataResults _snapshot;
 
     public PermissionedClient(LiveDataManager manager, String... allowedPerms) {
       _manager = manager;
@@ -901,7 +892,7 @@ public class DefaultLiveDataManagerTest {
       _snapshot = _manager.snapshot(this);
     }
 
-    public Map<ExternalIdBundle, Result<FudgeMsg>> getSnapshot() {
+    public LiveDataResults getSnapshot() {
       return _snapshot;
     }
 
