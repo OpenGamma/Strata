@@ -56,6 +56,8 @@ import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.equity.DefaultEquityPresentValueFn;
+import com.opengamma.sesame.equity.EquityPresentValueFn;
 import com.opengamma.sesame.fra.FRAFn;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
@@ -180,6 +182,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   protected AvailableOutputs initAvailableOutputs() {
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(DiscountingMulticurveBundleFn.class);
+    availableOutputs.register(EquityPresentValueFn.class);
     availableOutputs.register(FRAFn.class);
     availableOutputs.register(InterestRateSwapFn.class);
     availableOutputs.register(FXForwardPnLSeriesFn.class);
@@ -191,29 +194,30 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   protected AvailableImplementations initAvailableImplementations() {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
-    availableImplementations.register(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
-                                      DiscountingFXForwardSpotPnLSeriesFn.class,
-                                      DiscountingFXForwardYCNSPnLSeriesFn.class,
-                                      DiscountingFXForwardPVFn.class,
-                                      DefaultFXReturnSeriesFn.class,
-                                      DefaultCurrencyPairsFn.class,
-                                      FXForwardSecurityConverter.class,
-                                      ConfigDBInstrumentExposuresProvider.class,
-                                      DefaultCurveSpecificationMarketDataFn.class,
-                                      DefaultFXMatrixFn.class,
-                                      DefaultCurveDefinitionFn.class,
-                                      DefaultDiscountingMulticurveBundleFn.class,
-                                      DefaultCurveSpecificationFn.class,
-                                      ConfigDBCurveConstructionConfigurationSource.class,
-                                      DefaultHistoricalTimeSeriesFn.class,
-                                      FXForwardDiscountingCalculatorFn.class,
-                                      ConfigDbMarketExposureSelectorFn.class,
-                                      ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                                      FixedHistoricalMarketDataFactory.class,
-                                      DefaultMarketDataFn.class,
-                                      DefaultHistoricalMarketDataFn.class,
-                                      DefaultCurveNodeConverterFn.class,
-                                      DefaultHistoricalPnLFXConverterFn.class);
+    availableImplementations.register(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class);
+    availableImplementations.register(DiscountingFXForwardSpotPnLSeriesFn.class);
+    availableImplementations.register(DiscountingFXForwardYCNSPnLSeriesFn.class);
+    availableImplementations.register(DiscountingFXForwardPVFn.class);
+    availableImplementations.register(DefaultFXReturnSeriesFn.class);
+    availableImplementations.register(DefaultCurrencyPairsFn.class);
+    availableImplementations.register(DefaultEquityPresentValueFn.class);
+    availableImplementations.register(FXForwardSecurityConverter.class);
+    availableImplementations.register(ConfigDBInstrumentExposuresProvider.class);
+    availableImplementations.register(DefaultCurveSpecificationMarketDataFn.class);
+    availableImplementations.register(DefaultFXMatrixFn.class);
+    availableImplementations.register(DefaultCurveDefinitionFn.class);
+    availableImplementations.register(DefaultDiscountingMulticurveBundleFn.class);
+    availableImplementations.register(DefaultCurveSpecificationFn.class);
+    availableImplementations.register(ConfigDBCurveConstructionConfigurationSource.class);
+    availableImplementations.register(DefaultHistoricalTimeSeriesFn.class);
+    availableImplementations.register(FXForwardDiscountingCalculatorFn.class);
+    availableImplementations.register(ConfigDbMarketExposureSelectorFn.class);
+    availableImplementations.register(ExposureFunctionsDiscountingMulticurveCombinerFn.class);
+    availableImplementations.register(FixedHistoricalMarketDataFactory.class);
+    availableImplementations.register(DefaultMarketDataFn.class);
+    availableImplementations.register(DefaultHistoricalMarketDataFn.class);
+    availableImplementations.register(DefaultCurveNodeConverterFn.class);
+    availableImplementations.register(DefaultHistoricalPnLFXConverterFn.class);
     return availableImplementations;
   }
 
