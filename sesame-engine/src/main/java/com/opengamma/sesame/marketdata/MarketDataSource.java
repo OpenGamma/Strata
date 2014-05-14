@@ -20,12 +20,14 @@ public interface MarketDataSource {
   /**
    * Returns an item of market data.
    * <p>
-   * If the market data is not present, the result will be returned with a
-   * status of {@link FailureStatus#MISSING_DATA}.
+   * If the market data is not present, the result will be returned as a failure.
+   * Example reasons are {@link FailureStatus#PENDING_DATA}, {@link FailureStatus#MISSING_DATA}
+   * and {@link FailureStatus#PERMISSION_DENIED}.
    *
    * @param id  the external identifier of the data
    * @param fieldName  the name of the field in the market data record
-   * @return a success result of the market data value, or a failure result of {@code MISSING_DATA}
+   * @return a success result containing the market data value,
+   *  or a failure result with a status explaining why data was not returned
    */
   Result<?> get(ExternalIdBundle id, FieldName fieldName);
 
