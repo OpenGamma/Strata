@@ -7,7 +7,6 @@ package com.opengamma.sesame.credit;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 
 import org.threeten.bp.LocalDate;
@@ -23,63 +22,62 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
-import com.opengamma.financial.analytics.curve.ISDAYieldCurveDefinition;
+import com.opengamma.financial.analytics.curve.IsdaYieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
-import com.opengamma.financial.analytics.ircurve.strips.ISDAYieldCurveNode;
-import com.opengamma.financial.convention.ISDAYieldCurveConvention;
+import com.opengamma.financial.analytics.ircurve.strips.IsdaYieldCurveNode;
+import com.opengamma.financial.convention.IsdaYieldCurveConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.Environment;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Default implementation. Builds an ISDA yield curve from the given {@link ISDAYieldCurveDefinition}.
+ * Default implementation. Builds an ISDA yield curve from the given {@link IsdaYieldCurveDefinition}.
  * The returned {@link ISDACompliantYieldCurve} is the yield curve used in ISDA compliant analytic
  * credit computations.
  */
-public class DefaultISDACompliantYieldCurveFn implements ISDACompliantYieldCurveFn {
+public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurveFn {
 
 
-  private final CurveSpecificationMarketDataFn _curveSpecificationMarketDataProvider;
+  private final CurveSpecificationMarketDataFn _curveSpecMarketDataProvider;
   
   //TODO SSM-293 - these should not be necessary in future 
   //once we switch to using a CalendarLink
   private final RegionSource _regionSource;
   private final HolidaySource _holidaySource;
   
-  
   /**
    * Constructs the function.
-   * @param curveSpecificationMarketDataProvider used to resolve market data for the derived curve spec
+   * @param curveSpecMarketDataProvider used to resolve market data for the derived curve spec
    * @param regionSource used for resolving calendar data (see SSM-293)
    * @param holidaySource used for resolving calendar data (see SSM-293)
    */
-  public DefaultISDACompliantYieldCurveFn(CurveSpecificationMarketDataFn curveSpecificationMarketDataProvider, RegionSource regionSource, HolidaySource holidaySource) {
-    _curveSpecificationMarketDataProvider = curveSpecificationMarketDataProvider;
-    _regionSource = regionSource;
-    _holidaySource = holidaySource;
+  public DefaultIsdaCompliantYieldCurveFn(CurveSpecificationMarketDataFn curveSpecMarketDataProvider, 
+      RegionSource regionSource, HolidaySource holidaySource) {
+    _curveSpecMarketDataProvider = ArgumentChecker.notNull(curveSpecMarketDataProvider, "curveSpecMarketDataProvider");
+    _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
+    _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
   }
 
 
   @Override
-  public Result<ISDACompliantYieldCurve> buildISDACompliantCurve(Environment env, ISDAYieldCurveDefinition definition) {
+  public Result<ISDACompliantYieldCurve> buildISDACompliantCurve(Environment env, IsdaYieldCurveDefinition definition) {
   
     CurveSpecification spec = buildSpec(definition, env.getValuationDate());
     
     Result<Map<ExternalIdBundle, Double>> marketDataResult =
-        _curveSpecificationMarketDataProvider.requestData(env, spec);
+        _curveSpecMarketDataProvider.requestData(env, spec);
     
-    if (!marketDataResult.isSuccess()) {
+    if (marketDataResult.isSuccess()) {
+      return Result.success(buildCurve(env.getValuationDate(), definition, marketDataResult.getValue()));
+    } else {
       return Result.failure(marketDataResult);
     }
-    
-    ISDACompliantYieldCurve curve = buildCurve(env, definition, marketDataResult.getValue());
-    
-    return Result.success(curve);
   }
 
 
@@ -92,12 +90,12 @@ public class DefaultISDACompliantYieldCurveFn implements ISDACompliantYieldCurve
    * are stored on the node. However, calling the {@link CurveSpecificationMarketDataFn} to load market
    * data allows us to reuse other implementations, including scenario type classes.
    */
-  private CurveSpecification buildSpec(ISDAYieldCurveDefinition definition, LocalDate valuationDate) {
+  private CurveSpecification buildSpec(IsdaYieldCurveDefinition definition, LocalDate valuationDate) {
     //no need to use the normal CurveSpecificationFn for this since no CurveNodeIdMapper
     //exists for ISDAYieldCurveDefinitions. Tickers live on the definition itself.
     SortedSet<CurveNodeWithIdentifier> nodes = Sets.newTreeSet();
     
-    for (ISDAYieldCurveNode node : definition.getNodes()) {
+    for (IsdaYieldCurveNode node : definition.getNodes()) {
       CurveNodeWithIdentifier nodeWithId = new CurveNodeWithIdentifier(node, 
                                                 node.getTicker(), 
                                                 node.getDataField(), 
@@ -112,14 +110,18 @@ public class DefaultISDACompliantYieldCurveFn implements ISDACompliantYieldCurve
   /**
    * Builds the curve using the curve definition and the resolved market data.
    */
-  private ISDACompliantYieldCurve buildCurve(Environment env, ISDAYieldCurveDefinition definition, Map<ExternalIdBundle, Double> marketData) {
+  private ISDACompliantYieldCurve buildCurve(LocalDate valuationDate, 
+                                             IsdaYieldCurveDefinition definition, 
+                                             Map<ExternalIdBundle, Double> marketData) {
     
-    ISDAYieldCurveConvention ycConvention = definition.getCurveConventionLink().resolve();
+    IsdaYieldCurveConvention ycConvention = definition.getCurveConventionLink().resolve();
     
     //TODO SSM-293 - switch to use a CalendarLink
     Calendar ycCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ycConvention.getRegionCalendar());
     
-    LocalDate spotDate = ScheduleCalculator.getAdjustedDate(env.getValuationDate(), ycConvention.getSettlementDays(), ycCalendar);
+    LocalDate spotDate = ScheduleCalculator.getAdjustedDate(valuationDate, 
+                                                            ycConvention.getSettlementDays(), 
+                                                            ycCalendar);
     
     int curveNodesLength = definition.getNodes().size();
     
@@ -127,11 +129,10 @@ public class DefaultISDACompliantYieldCurveFn implements ISDACompliantYieldCurve
     double[] rates = new double[curveNodesLength];
     ISDAInstrumentTypes[] instrumentTypes = new ISDAInstrumentTypes[curveNodesLength];
     
-    List<ISDAYieldCurveNode> nodeList = Lists.newArrayList(definition.getNodes());
+    List<IsdaYieldCurveNode> nodeList = Lists.newArrayList(definition.getNodes());
 
-    Set<ISDAInstrumentTypes> types = Sets.newHashSet();
     for (int i = 0; i < curveNodesLength; i++) {
-      ISDAYieldCurveNode node = nodeList.get(i);
+      IsdaYieldCurveNode node = nodeList.get(i);
       
       ExternalId ticker = node.getTicker();
       Tenor tenor = node.getResolvedMaturity();
@@ -139,12 +140,10 @@ public class DefaultISDACompliantYieldCurveFn implements ISDACompliantYieldCurve
       instrumentTypes[i] = node.getISDAInstrumentType();
       
       rates[i] = marketData.get(ticker.toBundle());
-      
-      types.add(node.getISDAInstrumentType());
     }
     
     ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(
-            env.getValuationDate(), 
+            valuationDate, 
             spotDate, 
             instrumentTypes, 
             periods,
@@ -157,7 +156,6 @@ public class DefaultISDACompliantYieldCurveFn implements ISDACompliantYieldCurve
     );
     
     return builder.build(rates);
-    
   }
 
 

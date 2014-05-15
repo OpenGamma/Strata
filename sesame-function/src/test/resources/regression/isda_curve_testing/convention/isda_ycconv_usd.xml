@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bean type="com.opengamma.financial.convention.ISDAYieldCurveConvention">
+<bean type="com.opengamma.financial.convention.IsdaYieldCurveConvention">
  <externalIdBundle><externalIds><item>CONVENTION~ISDA YC USD</item></externalIds></externalIdBundle>
  <name>ISDA YC USD</name>
  <settlementDays>2</settlementDays>

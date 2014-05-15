@@ -8,7 +8,7 @@ package com.opengamma.sesame.credit;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
-import com.opengamma.financial.analytics.curve.ISDAYieldCurveDefinition;
+import com.opengamma.financial.analytics.curve.IsdaYieldCurveDefinition;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.result.Result;
 
@@ -16,8 +16,7 @@ import com.opengamma.util.result.Result;
  * Function for producing {@link ISDACompliantYieldCurve}s, the analytics object for
  * representing yield curves in ISDA compliant credit calculations.
  */
-public interface ISDACompliantYieldCurveFn {
-  
+public interface IsdaCompliantYieldCurveFn {
   
   /**
    * Builds an {@link ISDACompliantYieldCurve} from the passed {@link CurveConstructionConfiguration}.
@@ -25,7 +24,6 @@ public interface ISDACompliantYieldCurveFn {
    * @param definition the curve config to use
    * @return a result containing an {@link ISDACompliantCurve} if successful, or failure
    */
-  Result<ISDACompliantYieldCurve> buildISDACompliantCurve(Environment env, ISDAYieldCurveDefinition definition);
-  
+  Result<ISDACompliantYieldCurve> buildISDACompliantCurve(Environment env, IsdaYieldCurveDefinition definition);
   
 }

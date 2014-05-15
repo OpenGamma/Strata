@@ -185,6 +185,18 @@ public final class MapMarketDataSource implements MarketDataSource {
     public Builder add(ExternalId id, Object value) {
       return add(id.toBundle(), value);
     }
+    
+    /**
+     * Adds all of the pairs in the given map.
+     * @param valueMap the map of values
+     * @return this builder
+     */
+    public Builder addAll(Map<ExternalIdBundle, ? extends Object> valueMap) {
+      for (Map.Entry<ExternalIdBundle, ? extends Object> entry : valueMap.entrySet()) {
+        add(entry.getKey(), entry.getValue());
+      }
+      return this;
+    }
 
     /**
      * Build the data source using the values which have been added to the builder.
