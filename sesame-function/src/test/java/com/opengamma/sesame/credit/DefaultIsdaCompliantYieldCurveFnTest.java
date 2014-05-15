@@ -117,7 +117,7 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
   public void init() throws IOException {
     //builds graph, initializing mocks
     
-    ClassToInstanceMap<Object> mocks = MockUtils.strictMocks(MOCK_CLASSES);
+    ClassToInstanceMap<Object> mocks = MockUtils.mocks(MOCK_CLASSES);
     
     initConfigSource(mocks.getInstance(ConfigSource.class));
     initConventionSource(mocks.getInstance(ConventionSource.class));
@@ -154,8 +154,6 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
     
     ServiceContext serviceContext = ServiceContext.of(mocks).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
-    
-    MockUtils.enableStrict();
     
     _usdISDAYC = createISDAYieldCurveConstructionConfig();
     
