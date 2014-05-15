@@ -160,7 +160,7 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
   }
   
   private void initRegionSource(RegionSource mock) {
-    Region usRegion = MockUtils.strictMock(Region.class);
+    Region usRegion = mock(Region.class);
     when(usRegion.getCurrency()).thenReturn(Currency.USD);
     when(mock.getHighestLevelRegion(ExternalId.of("FINANCIAL_REGION", "US"))).thenReturn(usRegion);
   }
