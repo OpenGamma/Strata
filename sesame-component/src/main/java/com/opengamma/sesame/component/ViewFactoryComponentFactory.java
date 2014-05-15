@@ -168,14 +168,14 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   protected AvailableOutputs createAvailableOutputs(ComponentRepository repo) {
     AvailableOutputs available = new AvailableOutputsImpl();
-    available.register(DiscountingMulticurveBundleFn.class);
-    available.register(EquityPresentValueFn.class);
-    available.register(FRAFn.class);
-    available.register(InterestRateSwapFn.class);
-    available.register(FXForwardPnLSeriesFn.class);
-    available.register(FXForwardPVFn.class);
-    available.register(FXForwardYCNSPnLSeriesFn.class);
-    available.register(FXForwardYieldCurveNodeSensitivitiesFn.class);
+    available.register(DiscountingMulticurveBundleFn.class,
+        EquityPresentValueFn.class,
+        FRAFn.class,
+        InterestRateSwapFn.class,
+        FXForwardPnLSeriesFn.class,
+        FXForwardPVFn.class,
+        FXForwardYCNSPnLSeriesFn.class,
+        FXForwardYieldCurveNodeSensitivitiesFn.class);
     return available;
   }
 
@@ -187,30 +187,31 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   protected AvailableImplementations createAvailableImplementations(ComponentRepository repo) {
     AvailableImplementations available = new AvailableImplementationsImpl();
-    available.register(DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class);
-    available.register(DiscountingFXForwardSpotPnLSeriesFn.class);
-    available.register(DiscountingFXForwardYCNSPnLSeriesFn.class);
-    available.register(DiscountingFXForwardPVFn.class);
-    available.register(DefaultFXReturnSeriesFn.class);
-    available.register(DefaultCurrencyPairsFn.class);
-    available.register(DefaultEquityPresentValueFn.class);
-    available.register(FXForwardSecurityConverter.class);
-    available.register(ConfigDBInstrumentExposuresProvider.class);
-    available.register(DefaultCurveSpecificationMarketDataFn.class);
-    available.register(DefaultFXMatrixFn.class);
-    available.register(DefaultCurveDefinitionFn.class);
-    available.register(DefaultDiscountingMulticurveBundleFn.class);
-    available.register(DefaultCurveSpecificationFn.class);
-    available.register(ConfigDBCurveConstructionConfigurationSource.class);
-    available.register(DefaultHistoricalTimeSeriesFn.class);
-    available.register(FXForwardDiscountingCalculatorFn.class);
-    available.register(ConfigDbMarketExposureSelectorFn.class);
-    available.register(ExposureFunctionsDiscountingMulticurveCombinerFn.class);
-    available.register(FixedHistoricalMarketDataFactory.class);
-    available.register(DefaultMarketDataFn.class);
-    available.register(DefaultHistoricalMarketDataFn.class);
-    available.register(DefaultCurveNodeConverterFn.class);
-    available.register(DefaultHistoricalPnLFXConverterFn.class);
+    available.register(
+        DiscountingFXForwardYieldCurveNodeSensitivitiesFn.class,
+        DiscountingFXForwardSpotPnLSeriesFn.class,
+        DiscountingFXForwardYCNSPnLSeriesFn.class,
+        DiscountingFXForwardPVFn.class,
+        DefaultFXReturnSeriesFn.class,
+        DefaultCurrencyPairsFn.class,
+        DefaultEquityPresentValueFn.class,
+        FXForwardSecurityConverter.class,
+        ConfigDBInstrumentExposuresProvider.class,
+        DefaultCurveSpecificationMarketDataFn.class,
+        DefaultFXMatrixFn.class,
+        DefaultCurveDefinitionFn.class,
+        DefaultDiscountingMulticurveBundleFn.class,
+        DefaultCurveSpecificationFn.class,
+        ConfigDBCurveConstructionConfigurationSource.class,
+        DefaultHistoricalTimeSeriesFn.class,
+        FXForwardDiscountingCalculatorFn.class,
+        ConfigDbMarketExposureSelectorFn.class,
+        ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+        FixedHistoricalMarketDataFactory.class,
+        DefaultMarketDataFn.class,
+        DefaultHistoricalMarketDataFn.class,
+        DefaultCurveNodeConverterFn.class,
+        DefaultHistoricalPnLFXConverterFn.class);
     return available;
   }
 
