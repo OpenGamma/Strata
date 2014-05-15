@@ -131,7 +131,8 @@ public final class SabrSurfaceSelector<C extends Convention, S extends NamedSnap
 
   /**
    * Returns a builder used to create an instance of the bean.
-   * @param <C, S>  the type
+   * @param <C>  the type
+   * @param <S>  the type
    * @return the builder, not null
    */
   public static <C extends Convention, S extends NamedSnapshot> SabrSurfaceSelector.Builder<C, S> builder() {
