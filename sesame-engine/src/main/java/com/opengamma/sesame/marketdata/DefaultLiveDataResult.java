@@ -6,7 +6,6 @@
 package com.opengamma.sesame.marketdata;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import org.apache.shiro.authz.Permission;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.auth.AuthUtils;
@@ -91,8 +91,7 @@ public class DefaultLiveDataResult implements LiveDataResult {
     updated.putAll(updatedValues.getFields());
 
     // Merge the permissions
-    Set<Permission> permissions = new HashSet<>(_requiredPermissions);
-    permissions.addAll(updatedValues.getRequiredPermissions());
+    Set<Permission> permissions = Sets.union(_requiredPermissions, updatedValues.getRequiredPermissions());
 
     return new DefaultLiveDataResult(_ticker, permissions, updated);
   }
