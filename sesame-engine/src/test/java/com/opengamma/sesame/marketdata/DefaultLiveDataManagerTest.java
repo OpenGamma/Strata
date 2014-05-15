@@ -762,6 +762,54 @@ public class DefaultLiveDataManagerTest {
     assertThat(t1_2.getValue(ANOTHER_FIELD).getValue(), is((Object) "testIt")); // unchanged even though not sent
   }
 
+  @Test
+  public void testPermissionsGetMerged() {
+
+    // Created to prevent regression of issue raised in SSM-320
+
+    ThreadContext.bind(createSecurityManagerAllowing("T1-Perm"));
+
+    LDListener client = mock(LDListener.class);
+
+    _manager.subscribe(client, createIdBundles("T1", "T2"));
+    _manager.subscriptionResultsReceived(ImmutableSet.of(buildSuccessResponse("T1"), buildSuccessResponse("T2")));
+
+    // Permitted
+    MutableFudgeMsg msg1 = buildPermissionedMsg("T1-Perm");
+    msg1.add("Market_Value", 1.23);
+    // Denied
+    MutableFudgeMsg msg2 = buildPermissionedMsg("T2-Perm");
+    msg2.add("Market_Value", 2.34);
+
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg1));
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T2"), msg2));
+    _manager.waitForAllData(client);
+
+    LiveDataResults snapshot1 = _manager.snapshot(client);
+
+    assertThat(snapshot1.size(), is(2));
+    checkSnapshotEntry(snapshot1, "T1", SUCCESS);
+    checkSnapshotEntry(snapshot1, "T2", PERMISSION_DENIED);
+
+    // Now send an update but without permission field
+    // as only deltas are sent
+    msg1 = _fudgeContext.newMessage();
+    msg1.add("Market_Value", 1.13);
+    msg2 = _fudgeContext.newMessage();
+    msg2.add("Market_Value", 2.54);
+
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T1"), msg1));
+    _manager.valueUpdate(new LiveDataValueUpdateBean(1, createLiveDataSpec("T2"), msg2));
+    _manager.waitForAllData(client);
+
+    // Again we shouldn't see T2
+    LiveDataResults snapshot2 = _manager.snapshot(client);
+
+    assertThat(snapshot2.size(), is(2));
+    checkSnapshotEntry(snapshot2, "T1", SUCCESS);
+    checkSnapshotEntry(snapshot2, "T2", PERMISSION_DENIED);
+  }
+
   // TODO - additional tests:
   // test multiple threads for one client all waiting on same latch
   // test multiple clients all on separate threads and data ticking in

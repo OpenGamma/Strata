@@ -13,6 +13,7 @@ import org.apache.shiro.authz.Permission;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.auth.AuthUtils;
@@ -84,9 +85,15 @@ public class DefaultLiveDataResult implements LiveDataResult {
   @Override
   public LiveDataResult update(LiveDataUpdate updatedValues) {
     ArgumentChecker.notNull(updatedValues, "updatedValues");
+
+    // Merge the data values
     Map<FieldName, Object> updated = new HashMap<>(_fields);
     updated.putAll(updatedValues.getFields());
-    return new DefaultLiveDataResult(_ticker, updatedValues.getRequiredPermissions(), updated);
+
+    // Merge the permissions
+    Set<Permission> permissions = Sets.union(_requiredPermissions, updatedValues.getRequiredPermissions());
+
+    return new DefaultLiveDataResult(_ticker, permissions, updated);
   }
 
 }
