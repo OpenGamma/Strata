@@ -75,9 +75,9 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
     }
 
     //sanitize the derivative/definition arrays
-    List<Double> paymentTimes = Lists.newArrayList(Doubles.asList(legDerivative.accept(AnnuityPaymentTimesVisitor.getInstance())));
-    List<Double> paymentFractions = Lists.newArrayList(Doubles.asList(legDerivative.accept(AnnuityPaymentFractionsVisitor.getInstance())));
-    List<Double> discountFactors = Lists.newArrayList(Doubles.asList(legDerivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), bundle)));
+    List<Double> paymentTimes = Doubles.asList(legDerivative.accept(AnnuityPaymentTimesVisitor.getInstance()));
+    List<Double> paymentFractions = Doubles.asList(legDerivative.accept(AnnuityPaymentFractionsVisitor.getInstance()));
+    List<Double> discountFactors = Doubles.asList(legDerivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), bundle));
     List<CurrencyAmount> notionals = Lists.newArrayList(legDefinition.accept(AnnuityNotionalsVisitor.getInstance(), valuationTime.toLocalDate()));
     List<Double> fixedRates = Lists.newArrayList(legDerivative.accept(AnnuityFixedRatesVisitor.getInstance()));
     List<CurrencyAmount> paymentAmounts = Lists.newArrayList(legDerivative.accept(AnnuityPaymentAmountsVisitor.getInstance()));
@@ -100,8 +100,8 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
     //sanitize the derivative/definition arrays
     List<Double> fixingYearFractions = Lists.newArrayList(legDefinition.accept(AnnuityFixingYearFractionsVisitor.getInstance(), valuationTime));
     List<Double> forwardRates = Lists.newArrayList(legDerivative.accept(AnnuityForwardRatesVisitor.getInstance(), bundle));
-    List<Double> spreads = Lists.newArrayList(Doubles.asList(legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), valuationTime)));
-    List<Double> gearings = Lists.newArrayList(Doubles.asList(legDefinition.accept(AnnuityGearingsVisitor.getInstance(), valuationTime)));
+    List<Double> spreads = Doubles.asList(legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), valuationTime));
+    List<Double> gearings = Doubles.asList(legDefinition.accept(AnnuityGearingsVisitor.getInstance(), valuationTime));
     List<LocalDate> paymentDates = Lists.newArrayList(legDefinition.accept(AnnuityPaymentDatesVisitor.getInstance(), valuationTime));
     List<CurrencyAmount> projectedAmounts = Lists.newArrayList(legDerivative.accept(AnnuityProjectedPaymentsVisitor.getInstance(), bundle));
     List<Tenor> indexTenors = Lists.newArrayList(legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), valuationTime));
