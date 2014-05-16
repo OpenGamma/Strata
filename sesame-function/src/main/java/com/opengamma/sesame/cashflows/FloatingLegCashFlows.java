@@ -12,6 +12,7 @@ package com.opengamma.sesame.cashflows;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -32,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.Tenor;
@@ -248,23 +250,23 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
                               List<Double> fixedRates, List<LocalDate> paymentDates, List<Double> paymentTimes, List<Double> paymentDiscountFactors,
                               List<CurrencyAmount> paymentAmounts, List<CurrencyAmount> projectedAmounts, List<CurrencyAmount> notionals, List<Double> spreads,
                               List<Double> gearings, List<Tenor> indexTenors) {
-    _accrualStart = startAccrualDates;
-    _accrualEnd = endAccrualDates;
-    _notionals = notionals;
-    _paymentTimes = paymentTimes;
-    _accrualYearFractions = accrualYearFractions;
-    _fixingStart = fixingStart;
-    _fixingEnd = fixingEnd;
-    _fixingYearFractions = fixingYearFractions;
-    _forwardRates = forwardRates;
-    _paymentDates = paymentDates;
-    _fixedRates = fixedRates;
-    _paymentDiscountFactors = paymentDiscountFactors;
-    _paymentAmounts = paymentAmounts;
-    _projectedAmounts = projectedAmounts;
-    _spreads = spreads;
-    _gearings = gearings;
-    _indexTenors = indexTenors;
+    _accrualStart = Collections.unmodifiableList(Lists.newArrayList(startAccrualDates));
+    _accrualEnd = Collections.unmodifiableList(Lists.newArrayList(endAccrualDates));
+    _notionals = Collections.unmodifiableList(Lists.newArrayList(notionals));
+    _paymentTimes = Collections.unmodifiableList(Lists.newArrayList(paymentTimes));
+    _accrualYearFractions = Collections.unmodifiableList(Lists.newArrayList(accrualYearFractions));
+    _fixingStart = Collections.unmodifiableList(Lists.newArrayList(fixingStart));
+    _fixingEnd = Collections.unmodifiableList(Lists.newArrayList(fixingEnd));
+    _fixingYearFractions = Collections.unmodifiableList(Lists.newArrayList(fixingYearFractions));
+    _forwardRates = Collections.unmodifiableList(Lists.newArrayList(forwardRates));
+    _paymentDates = Collections.unmodifiableList(Lists.newArrayList(paymentDates));
+    _fixedRates = Collections.unmodifiableList(Lists.newArrayList(fixedRates));
+    _paymentDiscountFactors = Collections.unmodifiableList(Lists.newArrayList(paymentDiscountFactors));
+    _paymentAmounts = Collections.unmodifiableList(Lists.newArrayList(paymentAmounts));
+    _projectedAmounts = Collections.unmodifiableList(Lists.newArrayList(projectedAmounts));
+    _spreads = Collections.unmodifiableList(Lists.newArrayList(spreads));
+    _gearings = Collections.unmodifiableList(Lists.newArrayList(gearings));
+    _indexTenors = Collections.unmodifiableList(Lists.newArrayList(indexTenors));
 
     final int n = notionals.size();
     ArgumentChecker.isTrue(n == startAccrualDates.size(), "number of accrual start dates must equal number of notionals");

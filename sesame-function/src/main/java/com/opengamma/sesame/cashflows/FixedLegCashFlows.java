@@ -6,6 +6,7 @@
 package com.opengamma.sesame.cashflows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -26,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -139,14 +141,14 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   public FixedLegCashFlows(List<LocalDate> startAccrualDates, List<LocalDate> endAccrualDates,
                            List<Double> discountFactors, List<Double> paymentTimes, List<Double> paymentFractions,
                            List<CurrencyAmount> paymentAmounts, List<CurrencyAmount> notionals, List<Double> fixedRates) {
-    _accrualStart = startAccrualDates;
-    _accrualEnd = endAccrualDates;
-    _notionals = notionals;
-    _paymentTimes = paymentTimes;
-    _discountFactors = discountFactors;
-    _paymentFractions = paymentFractions;
-    _paymentAmounts = paymentAmounts;
-    _fixedRates = fixedRates;
+    _accrualStart = Collections.unmodifiableList(Lists.newArrayList(startAccrualDates));
+    _accrualEnd = Collections.unmodifiableList(Lists.newArrayList(endAccrualDates));
+    _notionals = Collections.unmodifiableList(Lists.newArrayList(notionals));
+    _paymentTimes = Collections.unmodifiableList(Lists.newArrayList(paymentTimes));
+    _discountFactors = Collections.unmodifiableList(Lists.newArrayList(discountFactors));
+    _paymentFractions = Collections.unmodifiableList(Lists.newArrayList(paymentFractions));
+    _paymentAmounts = Collections.unmodifiableList(Lists.newArrayList(paymentAmounts));
+    _fixedRates = Collections.unmodifiableList(Lists.newArrayList(fixedRates));
     final int n = startAccrualDates.size();
     ArgumentChecker.isTrue(n == endAccrualDates.size(), "Must have same number of start and end accrual dates");
     ArgumentChecker.isTrue(n == discountFactors.size(), "Must have same number of start accrual dates and discount factors");
