@@ -8,6 +8,7 @@ package com.opengamma.sesame.irs;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.cashflows.SwapLegCashFlows;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -37,7 +38,11 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateRate().getValue());
+    Result<Double> rateResult = calculatorResult.getValue().calculateRate();
+    if (!rateResult.isSuccess()) {
+      return Result.failure(rateResult);
+    }
+    return Result.success(rateResult.getValue());
   }
 
   @Override
@@ -47,7 +52,11 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV().getValue());
+    Result<MultipleCurrencyAmount> pvResult = calculatorResult.getValue().calculatePV();
+    if (!pvResult.isSuccess()) {
+      return Result.failure(pvResult);
+    }
+    return Result.success(pvResult.getValue());
   }
 
   @Override
@@ -57,6 +66,39 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV01().getValue());
+    Result<ReferenceAmount<Pair<String, Currency>>> pv01Result = calculatorResult.getValue().calculatePV01();
+    if (!pv01Result.isSuccess()) {
+      return Result.failure(pv01Result);
+    }
+    return Result.success(pv01Result.getValue());
   }
+
+  @Override
+  public Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    Result<SwapLegCashFlows> legResult = calculatorResult.getValue().calculateReceiveLegCashFlows();
+    if (!legResult.isSuccess()) {
+      return Result.failure(legResult);
+    }
+    return Result.success(legResult.getValue());
+  }
+
+  @Override
+  public Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    Result<SwapLegCashFlows> legResult = calculatorResult.getValue().calculatePayLegCashFlows();
+    if (!legResult.isSuccess()) {
+      return Result.failure(legResult);
+    }
+    return Result.success(legResult.getValue());
+  }
+
 }

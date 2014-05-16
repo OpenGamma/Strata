@@ -10,6 +10,7 @@ import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.cashflows.SwapLegCashFlows;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -49,5 +50,25 @@ public interface InterestRateSwapFn {
    */
   @Output(value = OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapSecurity security);
+
+  /**
+   * Calculate the receive leg cash flow for a Swap leg.
+   *
+   * @param env the environment used for calculation
+   * @param security the InterestRateSwapSecurity to calculate the cash flows for
+   * @return result containing the fixed cash flows if successful, a Failure otherwise
+   */
+  @Output(value = OutputNames.RECEIVE_LEG_CASH_FLOWS)
+  Result<SwapLegCashFlows> calculateReceiveLegCashFlows(Environment env, InterestRateSwapSecurity security);
+
+  /**
+   * Calculate the pay leg cash flow for a Swap leg.
+   *
+   * @param env the environment used for calculation
+   * @param security the InterestRateSwapSecurity to calculate the cash flows for
+   * @return result containing the fixed cash flows if successful, a Failure otherwise
+   */
+  @Output(value = OutputNames.PAY_LEG_CASH_FLOWS)
+  Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, InterestRateSwapSecurity security);
 
 }

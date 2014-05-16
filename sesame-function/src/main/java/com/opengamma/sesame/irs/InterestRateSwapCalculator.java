@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irs;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.sesame.cashflows.SwapLegCashFlows;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -37,4 +38,18 @@ public interface InterestRateSwapCalculator {
    * @return result containing the PV01 if successfully created, a failure result otherwise
    */
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01();
+
+  /**
+   * Calculate the swap pay leg cash flow.
+   *
+   * @return result containing the cash flows if successful, a Failure otherwise
+   */
+  Result<SwapLegCashFlows> calculatePayLegCashFlows();
+
+  /**
+   * Calculate the swap receive leg cash flow.
+   *
+   * @return result containing the cash flows if successful, a Failure otherwise
+   */
+  Result<SwapLegCashFlows> calculateReceiveLegCashFlows();
 }
