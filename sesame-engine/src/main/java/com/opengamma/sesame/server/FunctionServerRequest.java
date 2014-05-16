@@ -28,27 +28,29 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.config.ViewConfig;
 
 /**
- * A request for function execution. The request contains details of what columns
- * should be in the view, the valuation time and market data to be used and the
- * securities (or trades or portfolios) for which calculations need to be performed.
- * Note that the latter is optional i.e. you can specify a view which contains only
- * non-portfolio outputs.
+ * A request for function execution.
+ * <p>
+ * The request contains details of what columns should be in the view, the valuation
+ * time and market data to be used and the securities (or trades or portfolios) for
+ * which calculations need to be performed. Note that the latter is optional as it
+ * is possible to specify a view which contains only non-portfolio outputs.
+ * 
+ * @param <T> the cycle option type
  */
 @BeanDefinition
-public final class FunctionServerRequest<T extends CycleOptions> implements ImmutableBean {
+public final class FunctionServerRequest<T extends CycleOptions>
+    implements ImmutableBean {
 
   /**
    * The configuration for the view to be executed.
    */
   @PropertyDefinition(validate = "notNull")
   private final ViewConfig _viewConfig;
-
   /**
    * The cycle options used to control how the view is run.
    */
   @PropertyDefinition(validate = "notNull")
   private final T _cycleOptions;
-
   /**
    * The inputs for which the view is to be executed, may be empty.
    */

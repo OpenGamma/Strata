@@ -11,31 +11,39 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
- * Function to handle the situation where the user doesn't have permission to view a position or trade's security.
+ * Function to handle the situation where the user does not have permission to view an input.
+ * <p>
+ * This handles permission denied on trades, positions and securities.
  * It always returns a failure result with status {@link FailureStatus#PERMISSION_DENIED}.
  */
 public class PermissionDeniedFunction implements InvokableFunction {
 
+  /**
+   * The message.
+   */
   private final String _message;
 
   /**
-   * @param message message to include in the function's result
+   * Creates the function.
+   * 
+   * @param message  the message to include in the result of the function
    */
   public PermissionDeniedFunction(String message) {
     _message = message;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Always returns a failure result with status {@link FailureStatus#PERMISSION_DENIED}.
    *
-   * @param env ignored
-   * @param input ignored
-   * @param args ignored
+   * @param env  ignored
+   * @param input  ignored
+   * @param args  ignored
    * @return a failure result with status {@link FailureStatus#PERMISSION_DENIED}
    */
   @Override
   public Object invoke(Environment env, Object input, FunctionArguments args) {
-    return Result.failure(FailureStatus.PERMISSION_DENIED, "Permission Denied. {}", _message);
+    return Result.failure(FailureStatus.PERMISSION_DENIED, "Permission Denied: {}", _message);
   }
 
   @Override

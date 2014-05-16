@@ -26,73 +26,61 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * Responsible for running a cycles of the engine, checking the
- * source of market data and ensuring that all required data is
- * retrieved. To achieve this for data sources which do not
- * eagerly retrieve data (e.g. most live data providers), a cycle
- * may be run multiple times until all its market data requirements
- * are fulfilled.
+ * Responsible for running a cycles of the engine.
+ * <p>
+ * This involves checking the source of market data and ensuring that
+ * all required data is retrieved. To achieve this for data sources which
+ * do not eagerly retrieve data (e.g. most live data providers), a cycle may
+ * be run multiple times until all its market data requirements are fulfilled.
  */
 public class CycleRunner {
 
   /**
-   * The view to be executed, not null.
-   */
-  private final View _view;
-
-  /**
-   * The manager of the market data sources, not null.
-   */
-  private final MarketDataSourceManager _marketDataSourceManager;
-
-  /**
-   * The cycle options determining how the cycles of the view
-   * should be executed, not null.
-   */
-  private final CycleOptions _cycleOptions;
-
-  /**
-   * The trades/securities to execute the cycles with, not null
-   * but may be empty.
-   */
-  private final List<ManageableSecurity> _inputs;
-
-  /**
-   * Handles the results produced by each cycle of the engine, not null.
-   */
-  private final CycleResultsHandler _handler;
-
-  /**
-   * Determines whether the execution of the cycles should be terminated,
-   * not null. This is generally used when an infinite set of cycles
-   * has been requested and we want to stop processing (e.g. a UI using
-   * streaming data, which the user then decides they have finished with).
-   *
-   */
-  private final CycleTerminator _cycleTerminator;
-
-  /**
-   * A market data source used for setting up cycles. It is not
-   * expected to be used to access market data but merely
+   * A market data source used for setting up cycles.
+   * It is not expected to be used to access market data but merely
    * provides a suitable initial value.
    */
   public static final StrategyAwareMarketDataSource INITIAL_MARKET_DATA_SOURCE = new InitialMarketDataSource();
 
   /**
+   * The view to be executed, not null.
+   */
+  private final View _view;
+  /**
+   * The manager of the market data sources, not null.
+   */
+  private final MarketDataSourceManager _marketDataSourceManager;
+  /**
+   * The cycle options determining how the cycles of the view
+   * should be executed, not null.
+   */
+  private final CycleOptions _cycleOptions;
+  /**
+   * The trades/securities to execute the cycles with, not null
+   * but may be empty.
+   */
+  private final List<ManageableSecurity> _inputs;
+  /**
+   * Handles the results produced by each cycle of the engine, not null.
+   */
+  private final CycleResultsHandler _handler;
+  /**
+   * Determines whether the execution of the cycles should be terminated, not null.
+   * This is generally used when an infinite set of cycles has been requested
+   * and we want to stop processing (e.g. a UI using streaming data, which the
+   * user then decides they have finished with).
+   */
+  private final CycleTerminator _cycleTerminator;
+
+  /**
    * Creates the new cycle runner.
    *
-   * @param view the view to be executed, not null
-   * @param marketDataSourceManager the manager of the market data
-   * sources, not null
-   * @param cycleOptions the cycle options determining how the cycles
-   * of the view should be executed, not null
-   * @param inputs the trades/securities to execute the cycles
-   * with, not null
-   * but may be empty
-   * @param handler handler for the results produced by each cycle
-   * of the engine, not null
-   * @param cycleTerminator determines whether the execution of the
-   * cycles should be terminated, not null
+   * @param view  the view to be executed
+   * @param marketDataSourceManager  the manager of the market data sources
+   * @param cycleOptions  the cycle options determining how the cycles of the view should be executed
+   * @param inputs  the trades/securities to execute the cycles with, may be empty
+   * @param handler  handler for the results produced by each cycle of the engine
+   * @param cycleTerminator  determines whether the execution of the cycles should be terminated
    */
   public CycleRunner(View view,
                      MarketDataSourceManager marketDataSourceManager,
@@ -109,6 +97,7 @@ public class CycleRunner {
     _cycleTerminator = cycleTerminator;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Execute the view with each of the cycle options, checking if
    * early termination is required. We keep track of the market data

@@ -294,7 +294,9 @@ public final class EngineUtils {
   }
 
   /**
-   * @param securities some securities
+   * Converts a set of inputs to security types.
+   * 
+   * @param inputs  the collection of input objects
    * @return a set of the types of the securities
    */
   public static Set<Class<?>> getSecurityTypes(List<ManageableSecurity> securities) {
