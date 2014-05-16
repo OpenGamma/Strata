@@ -35,6 +35,8 @@
   <modules>
     <module>sesame-engine</module>
     <module>sesame-function</module>
+    <module>sesame-web</module>
+    <module>sesame-war-main</module>
     <module>sesame-component</module>
   </modules>
 
