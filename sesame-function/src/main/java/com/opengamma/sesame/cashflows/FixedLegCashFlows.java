@@ -164,15 +164,15 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * @return the discounted cashflows
    */
   @DerivedProperty
-  public CurrencyAmount[] getDiscountedPaymentAmounts() {
-    final CurrencyAmount[] cashflows = new CurrencyAmount[getNumberOfCashFlows()];
+  public List<CurrencyAmount> getDiscountedPaymentAmounts() {
+    List<CurrencyAmount> cashflows = new ArrayList<>();
     for (int i = 0; i < getNumberOfCashFlows(); i++) {
       final CurrencyAmount payment = getPaymentAmounts().get(i);
       if (payment == null) {
-        continue;
+        cashflows.add(null);
       }
       final double df = getDiscountFactors().get(i);
-      cashflows[i] = CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df);
+      cashflows.add(CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df));
     }
     return cashflows;
   }
@@ -456,8 +456,9 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     /**
      * The meta-property for the {@code discountedPaymentAmounts} property.
      */
-    private final MetaProperty<CurrencyAmount[]> _discountedPaymentAmounts = DirectMetaProperty.ofDerived(
-        this, "discountedPaymentAmounts", FixedLegCashFlows.class, CurrencyAmount[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<CurrencyAmount>> _discountedPaymentAmounts = DirectMetaProperty.ofDerived(
+        this, "discountedPaymentAmounts", FixedLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code numberOfCashFlows} property.
      */
@@ -596,7 +597,7 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
      * The meta-property for the {@code discountedPaymentAmounts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyAmount[]> discountedPaymentAmounts() {
+    public final MetaProperty<List<CurrencyAmount>> discountedPaymentAmounts() {
       return _discountedPaymentAmounts;
     }
 
