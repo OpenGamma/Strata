@@ -61,6 +61,7 @@ import com.opengamma.util.time.Tenor;
 @BeanDefinition
 public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
+  //TODO replace these static strings with an annotation and reference linked to the corresponding variable - PLAT-6507
   /**
    * The accrual fraction label.
    */
