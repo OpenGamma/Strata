@@ -318,15 +318,15 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * @return the discounted cashflows
    */
   @DerivedProperty
-  public CurrencyAmount[] getDiscountedPaymentAmounts() {
-    final CurrencyAmount[] cashflows = new CurrencyAmount[getNumberOfCashFlows()];
+  public List<CurrencyAmount> getDiscountedPaymentAmounts() {
+    List<CurrencyAmount> cashflows = new ArrayList<>();
     for (int i = 0; i < getNumberOfCashFlows(); i++) {
       final CurrencyAmount payment = getPaymentAmounts().get(i);
       if (payment == null) {
-        continue;
+        cashflows.add(null);
       }
       final double df = getPaymentDiscountFactors().get(i);
-      cashflows[i] = CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df);
+      cashflows.add(CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df));
     }
     return cashflows;
   }
@@ -336,15 +336,15 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * @return the discounted cashflows
    */
   @DerivedProperty
-  public CurrencyAmount[] getDiscountedProjectedAmounts() {
-    final CurrencyAmount[] cashflows = new CurrencyAmount[getNumberOfCashFlows()];
+  public List<CurrencyAmount> getDiscountedProjectedAmounts() {
+    List<CurrencyAmount> cashflows = new ArrayList<>();
     for (int i = 0; i < getNumberOfCashFlows(); i++) {
       final CurrencyAmount payment = getProjectedAmounts().get(i);
       if (payment == null) {
-        continue;
+        cashflows.add(null);
       }
       final double df = getPaymentDiscountFactors().get(i);
-      cashflows[i] = CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df);
+      cashflows.add(CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df));
     }
     return cashflows;
   }
@@ -822,13 +822,15 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     /**
      * The meta-property for the {@code discountedPaymentAmounts} property.
      */
-    private final MetaProperty<CurrencyAmount[]> _discountedPaymentAmounts = DirectMetaProperty.ofDerived(
-        this, "discountedPaymentAmounts", FloatingLegCashFlows.class, CurrencyAmount[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<CurrencyAmount>> _discountedPaymentAmounts = DirectMetaProperty.ofDerived(
+        this, "discountedPaymentAmounts", FloatingLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code discountedProjectedAmounts} property.
      */
-    private final MetaProperty<CurrencyAmount[]> _discountedProjectedAmounts = DirectMetaProperty.ofDerived(
-        this, "discountedProjectedAmounts", FloatingLegCashFlows.class, CurrencyAmount[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<CurrencyAmount>> _discountedProjectedAmounts = DirectMetaProperty.ofDerived(
+        this, "discountedProjectedAmounts", FloatingLegCashFlows.class, (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -1094,7 +1096,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
      * The meta-property for the {@code discountedPaymentAmounts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyAmount[]> discountedPaymentAmounts() {
+    public final MetaProperty<List<CurrencyAmount>> discountedPaymentAmounts() {
       return _discountedPaymentAmounts;
     }
 
@@ -1102,7 +1104,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
      * The meta-property for the {@code discountedProjectedAmounts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyAmount[]> discountedProjectedAmounts() {
+    public final MetaProperty<List<CurrencyAmount>> discountedProjectedAmounts() {
       return _discountedProjectedAmounts;
     }
 
