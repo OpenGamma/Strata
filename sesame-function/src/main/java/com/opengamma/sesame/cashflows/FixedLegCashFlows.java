@@ -5,21 +5,27 @@
  */
 package com.opengamma.sesame.cashflows;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.DerivedProperty;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -39,7 +45,7 @@ import com.opengamma.util.money.CurrencyAmount;
  * There is an entry for each coupon in a fixed leg.
  */
 @BeanDefinition
-public class FixedLegCashFlows extends SwapLegCashFlows {
+public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
   /**
    * The payment year fraction label.
@@ -61,65 +67,94 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
    * The discounted payment amount
    */
   public static final String DISCOUNTED_PAYMENT_AMOUNT = "Discounted Payment Amount";
-
+  /**
+   * The start accrual dates label.
+   */
+  public static final String START_ACCRUAL_DATES = "Start Accrual Date";
+  /**
+   * The end accrual dates label.
+   */
+  public static final String END_ACCRUAL_DATES = "End Accrual Date";
+  /**
+   * The notional label.
+   */
+  public static final String NOTIONAL = "Notional";
+  /**
+   * The payment time label.
+   */
+  public static final String PAYMENT_TIME = "Payment Time";
+  /**
+   * An array of accrual start dates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<LocalDate> _accrualStart;
+  /**
+   * An array of accrual end dates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<LocalDate> _accrualEnd;
+  /**
+   * An array of notionals.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<CurrencyAmount> _notionals;
+  /**
+   * An array of payment times.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<Double> _paymentTimes;
   /**
    * An array of discount factors for the payments.
    */
   @PropertyDefinition(validate = "notNull")
-  private double[] _discountFactors;
-
+  private final List<Double> _discountFactors;
   /**
    * An array of payment year fractions.
    */
   @PropertyDefinition(validate = "notNull")
-  private double[] _paymentFractions;
+  private final List<Double> _paymentFractions;
   /**
    * An array of payment amounts.
    */
   @PropertyDefinition(validate = "notNull")
-  private  CurrencyAmount[] _paymentAmounts;
+  private final List<CurrencyAmount> _paymentAmounts;
   /**
    * An array of fixed rates.
    */
   @PropertyDefinition(validate = "notNull")
-  private Double[] _fixedRates;
+  private final List<Double> _fixedRates;
 
   /**
    * All arrays must be the same length.
    * @param startAccrualDates The start accrual dates, not null
    * @param endAccrualDates The end accrual dates, not null
+   * @param discountFactors The discount factors, not null
    * @param paymentTimes The payment times, not null
    * @param paymentFractions The payment year fractions, not null
-   * @param discountFactors The discount factors, not null
    * @param paymentAmounts The payment amounts, not null
    * @param notionals The notionals, not null
    * @param fixedRates The fixed rates, not null
    */
-  public FixedLegCashFlows(final LocalDate[] startAccrualDates, final LocalDate[] endAccrualDates,
-                             final double[] discountFactors, final double[] paymentTimes, final double[] paymentFractions,
-                             final CurrencyAmount[] paymentAmounts, final CurrencyAmount[] notionals, final Double[] fixedRates) {
-    super(startAccrualDates, endAccrualDates, paymentTimes, notionals);
-    setDiscountFactors(discountFactors);
-    setPaymentFractions(paymentFractions);
-    setPaymentAmounts(paymentAmounts);
-    setFixedRates(fixedRates);
-    final int n = startAccrualDates.length;
-    ArgumentChecker.isTrue(n == endAccrualDates.length, "Must have same number of start and end accrual dates");
-    ArgumentChecker.isTrue(n == discountFactors.length, "Must have same number of start accrual dates and discount factors");
-    ArgumentChecker.isTrue(n == paymentTimes.length, "Must have same number of start accrual dates and payment times");
-    ArgumentChecker.isTrue(n == paymentFractions.length, "Must have same number of start accrual dates and payment year fractions");
-    ArgumentChecker.isTrue(n == paymentAmounts.length, "Must have same number of start accrual dates and payment amounts");
-    ArgumentChecker.isTrue(n == notionals.length, "Must have same number of start accrual dates and notionals");
-    ArgumentChecker.isTrue(n == fixedRates.length, "Must have same number of start accrual dates and fixed rates");
+  public FixedLegCashFlows(List<LocalDate> startAccrualDates, List<LocalDate> endAccrualDates,
+                           List<Double> discountFactors, List<Double> paymentTimes, List<Double> paymentFractions,
+                           List<CurrencyAmount> paymentAmounts, List<CurrencyAmount> notionals, List<Double> fixedRates) {
+    _accrualStart = startAccrualDates;
+    _accrualEnd = endAccrualDates;
+    _notionals = notionals;
+    _paymentTimes = paymentTimes;
+    _discountFactors = discountFactors;
+    _paymentFractions = paymentFractions;
+    _paymentAmounts = paymentAmounts;
+    _fixedRates = fixedRates;
+    final int n = startAccrualDates.size();
+    ArgumentChecker.isTrue(n == endAccrualDates.size(), "Must have same number of start and end accrual dates");
+    ArgumentChecker.isTrue(n == discountFactors.size(), "Must have same number of start accrual dates and discount factors");
+    ArgumentChecker.isTrue(n == paymentTimes.size(), "Must have same number of start accrual dates and payment times");
+    ArgumentChecker.isTrue(n == paymentFractions.size(), "Must have same number of start accrual dates and payment year fractions");
+    ArgumentChecker.isTrue(n == paymentAmounts.size(), "Must have same number of start accrual dates and payment amounts");
+    ArgumentChecker.isTrue(n == notionals.size(), "Must have same number of start accrual dates and notionals");
+    ArgumentChecker.isTrue(n == fixedRates.size(), "Must have same number of start accrual dates and fixed rates");
   }
-
-  /**
-   * For the builder.
-   */
-  private FixedLegCashFlows() {
-    super();
-  }
-
 
   /**
    * Gets the discounted payment amounts.
@@ -129,11 +164,11 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
   public CurrencyAmount[] getDiscountedPaymentAmounts() {
     final CurrencyAmount[] cashflows = new CurrencyAmount[getNumberOfCashFlows()];
     for (int i = 0; i < getNumberOfCashFlows(); i++) {
-      final CurrencyAmount payment = getPaymentAmounts()[i];
+      final CurrencyAmount payment = getPaymentAmounts().get(i);
       if (payment == null) {
         continue;
       }
-      final double df = getDiscountFactors()[i];
+      final double df = getDiscountFactors().get(i);
       cashflows[i] = CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df);
     }
     return cashflows;
@@ -145,7 +180,7 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
    */
   @DerivedProperty
   public int getNumberOfCashFlows() {
-    return getNotionals().length;
+    return getNotionals().size();
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -162,9 +197,86 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
     JodaBeanUtils.registerMetaBean(FixedLegCashFlows.Meta.INSTANCE);
   }
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static FixedLegCashFlows.Builder builder() {
+    return new FixedLegCashFlows.Builder();
+  }
+
+  /**
+   * Restricted constructor.
+   * @param builder  the builder to copy from, not null
+   */
+  protected FixedLegCashFlows(FixedLegCashFlows.Builder builder) {
+    JodaBeanUtils.notNull(builder._accrualStart, "accrualStart");
+    JodaBeanUtils.notNull(builder._accrualEnd, "accrualEnd");
+    JodaBeanUtils.notNull(builder._notionals, "notionals");
+    JodaBeanUtils.notNull(builder._paymentTimes, "paymentTimes");
+    JodaBeanUtils.notNull(builder._discountFactors, "discountFactors");
+    JodaBeanUtils.notNull(builder._paymentFractions, "paymentFractions");
+    JodaBeanUtils.notNull(builder._paymentAmounts, "paymentAmounts");
+    JodaBeanUtils.notNull(builder._fixedRates, "fixedRates");
+    this._accrualStart = ImmutableList.copyOf(builder._accrualStart);
+    this._accrualEnd = ImmutableList.copyOf(builder._accrualEnd);
+    this._notionals = ImmutableList.copyOf(builder._notionals);
+    this._paymentTimes = ImmutableList.copyOf(builder._paymentTimes);
+    this._discountFactors = ImmutableList.copyOf(builder._discountFactors);
+    this._paymentFractions = ImmutableList.copyOf(builder._paymentFractions);
+    this._paymentAmounts = ImmutableList.copyOf(builder._paymentAmounts);
+    this._fixedRates = ImmutableList.copyOf(builder._fixedRates);
+  }
+
   @Override
   public FixedLegCashFlows.Meta metaBean() {
     return FixedLegCashFlows.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets an array of accrual start dates.
+   * @return the value of the property, not null
+   */
+  public List<LocalDate> getAccrualStart() {
+    return _accrualStart;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets an array of accrual end dates.
+   * @return the value of the property, not null
+   */
+  public List<LocalDate> getAccrualEnd() {
+    return _accrualEnd;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets an array of notionals.
+   * @return the value of the property, not null
+   */
+  public List<CurrencyAmount> getNotionals() {
+    return _notionals;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets an array of payment times.
+   * @return the value of the property, not null
+   */
+  public List<Double> getPaymentTimes() {
+    return _paymentTimes;
   }
 
   //-----------------------------------------------------------------------
@@ -172,25 +284,8 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
    * Gets an array of discount factors for the payments.
    * @return the value of the property, not null
    */
-  public double[] getDiscountFactors() {
+  public List<Double> getDiscountFactors() {
     return _discountFactors;
-  }
-
-  /**
-   * Sets an array of discount factors for the payments.
-   * @param discountFactors  the new value of the property, not null
-   */
-  public void setDiscountFactors(double[] discountFactors) {
-    JodaBeanUtils.notNull(discountFactors, "discountFactors");
-    this._discountFactors = discountFactors;
-  }
-
-  /**
-   * Gets the the {@code discountFactors} property.
-   * @return the property, not null
-   */
-  public final Property<double[]> discountFactors() {
-    return metaBean().discountFactors().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -198,25 +293,8 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
    * Gets an array of payment year fractions.
    * @return the value of the property, not null
    */
-  public double[] getPaymentFractions() {
+  public List<Double> getPaymentFractions() {
     return _paymentFractions;
-  }
-
-  /**
-   * Sets an array of payment year fractions.
-   * @param paymentFractions  the new value of the property, not null
-   */
-  public void setPaymentFractions(double[] paymentFractions) {
-    JodaBeanUtils.notNull(paymentFractions, "paymentFractions");
-    this._paymentFractions = paymentFractions;
-  }
-
-  /**
-   * Gets the the {@code paymentFractions} property.
-   * @return the property, not null
-   */
-  public final Property<double[]> paymentFractions() {
-    return metaBean().paymentFractions().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -224,25 +302,8 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
    * Gets an array of payment amounts.
    * @return the value of the property, not null
    */
-  public CurrencyAmount[] getPaymentAmounts() {
+  public List<CurrencyAmount> getPaymentAmounts() {
     return _paymentAmounts;
-  }
-
-  /**
-   * Sets an array of payment amounts.
-   * @param paymentAmounts  the new value of the property, not null
-   */
-  public void setPaymentAmounts(CurrencyAmount[] paymentAmounts) {
-    JodaBeanUtils.notNull(paymentAmounts, "paymentAmounts");
-    this._paymentAmounts = paymentAmounts;
-  }
-
-  /**
-   * Gets the the {@code paymentAmounts} property.
-   * @return the property, not null
-   */
-  public final Property<CurrencyAmount[]> paymentAmounts() {
-    return metaBean().paymentAmounts().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -250,49 +311,22 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
    * Gets an array of fixed rates.
    * @return the value of the property, not null
    */
-  public Double[] getFixedRates() {
+  public List<Double> getFixedRates() {
     return _fixedRates;
   }
 
-  /**
-   * Sets an array of fixed rates.
-   * @param fixedRates  the new value of the property, not null
-   */
-  public void setFixedRates(Double[] fixedRates) {
-    JodaBeanUtils.notNull(fixedRates, "fixedRates");
-    this._fixedRates = fixedRates;
-  }
-
-  /**
-   * Gets the the {@code fixedRates} property.
-   * @return the property, not null
-   */
-  public final Property<Double[]> fixedRates() {
-    return metaBean().fixedRates().createProperty(this);
-  }
-
   //-----------------------------------------------------------------------
   /**
-   * Gets the the {@code discountedPaymentAmounts} property.
-   * @return the property, not null
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
    */
-  public final Property<CurrencyAmount[]> discountedPaymentAmounts() {
-    return metaBean().discountedPaymentAmounts().createProperty(this);
+  public Builder toBuilder() {
+    return new Builder(this);
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the the {@code numberOfCashFlows} property.
-   * @return the property, not null
-   */
-  public final Property<Integer> numberOfCashFlows() {
-    return metaBean().numberOfCashFlows().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public FixedLegCashFlows clone() {
-    return JodaBeanUtils.cloneAlways(this);
+    return this;
   }
 
   @Override
@@ -302,32 +336,39 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedLegCashFlows other = (FixedLegCashFlows) obj;
-      return JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
+      return JodaBeanUtils.equal(getAccrualStart(), other.getAccrualStart()) &&
+          JodaBeanUtils.equal(getAccrualEnd(), other.getAccrualEnd()) &&
+          JodaBeanUtils.equal(getNotionals(), other.getNotionals()) &&
+          JodaBeanUtils.equal(getPaymentTimes(), other.getPaymentTimes()) &&
+          JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
           JodaBeanUtils.equal(getPaymentFractions(), other.getPaymentFractions()) &&
           JodaBeanUtils.equal(getPaymentAmounts(), other.getPaymentAmounts()) &&
           JodaBeanUtils.equal(getFixedRates(), other.getFixedRates()) &&
           JodaBeanUtils.equal(getDiscountedPaymentAmounts(), other.getDiscountedPaymentAmounts()) &&
-          (getNumberOfCashFlows() == other.getNumberOfCashFlows()) &&
-          super.equals(obj);
+          (getNumberOfCashFlows() == other.getNumberOfCashFlows());
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = 7;
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualStart());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualEnd());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTimes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFractions());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentAmounts());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountedPaymentAmounts());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfCashFlows());
-    return hash ^ super.hashCode();
+    return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("FixedLegCashFlows{");
     int len = buf.length();
     toString(buf);
@@ -338,9 +379,11 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
     return buf.toString();
   }
 
-  @Override
   protected void toString(StringBuilder buf) {
-    super.toString(buf);
+    buf.append("accrualStart").append('=').append(JodaBeanUtils.toString(getAccrualStart())).append(',').append(' ');
+    buf.append("accrualEnd").append('=').append(JodaBeanUtils.toString(getAccrualEnd())).append(',').append(' ');
+    buf.append("notionals").append('=').append(JodaBeanUtils.toString(getNotionals())).append(',').append(' ');
+    buf.append("paymentTimes").append('=').append(JodaBeanUtils.toString(getPaymentTimes())).append(',').append(' ');
     buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors())).append(',').append(' ');
     buf.append("paymentFractions").append('=').append(JodaBeanUtils.toString(getPaymentFractions())).append(',').append(' ');
     buf.append("paymentAmounts").append('=').append(JodaBeanUtils.toString(getPaymentAmounts())).append(',').append(' ');
@@ -353,32 +396,60 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
   /**
    * The meta-bean for {@code FixedLegCashFlows}.
    */
-  public static class Meta extends SwapLegCashFlows.Meta {
+  public static class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code accrualStart} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<LocalDate>> _accrualStart = DirectMetaProperty.ofImmutable(
+        this, "accrualStart", FixedLegCashFlows.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code accrualEnd} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<LocalDate>> _accrualEnd = DirectMetaProperty.ofImmutable(
+        this, "accrualEnd", FixedLegCashFlows.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code notionals} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<CurrencyAmount>> _notionals = DirectMetaProperty.ofImmutable(
+        this, "notionals", FixedLegCashFlows.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code paymentTimes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Double>> _paymentTimes = DirectMetaProperty.ofImmutable(
+        this, "paymentTimes", FixedLegCashFlows.class, (Class) List.class);
+    /**
      * The meta-property for the {@code discountFactors} property.
      */
-    private final MetaProperty<double[]> _discountFactors = DirectMetaProperty.ofReadWrite(
-        this, "discountFactors", FixedLegCashFlows.class, double[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Double>> _discountFactors = DirectMetaProperty.ofImmutable(
+        this, "discountFactors", FixedLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code paymentFractions} property.
      */
-    private final MetaProperty<double[]> _paymentFractions = DirectMetaProperty.ofReadWrite(
-        this, "paymentFractions", FixedLegCashFlows.class, double[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Double>> _paymentFractions = DirectMetaProperty.ofImmutable(
+        this, "paymentFractions", FixedLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code paymentAmounts} property.
      */
-    private final MetaProperty<CurrencyAmount[]> _paymentAmounts = DirectMetaProperty.ofReadWrite(
-        this, "paymentAmounts", FixedLegCashFlows.class, CurrencyAmount[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<CurrencyAmount>> _paymentAmounts = DirectMetaProperty.ofImmutable(
+        this, "paymentAmounts", FixedLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code fixedRates} property.
      */
-    private final MetaProperty<Double[]> _fixedRates = DirectMetaProperty.ofReadWrite(
-        this, "fixedRates", FixedLegCashFlows.class, Double[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Double>> _fixedRates = DirectMetaProperty.ofImmutable(
+        this, "fixedRates", FixedLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code discountedPaymentAmounts} property.
      */
@@ -393,7 +464,11 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, null,
+        "accrualStart",
+        "accrualEnd",
+        "notionals",
+        "paymentTimes",
         "discountFactors",
         "paymentFractions",
         "paymentAmounts",
@@ -410,6 +485,14 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1071260659:  // accrualStart
+          return _accrualStart;
+        case 1846909100:  // accrualEnd
+          return _accrualEnd;
+        case 1910080819:  // notionals
+          return _notionals;
+        case -507430688:  // paymentTimes
+          return _paymentTimes;
         case -91613053:  // discountFactors
           return _discountFactors;
         case 1206997835:  // paymentFractions
@@ -427,8 +510,8 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
     }
 
     @Override
-    public BeanBuilder<? extends FixedLegCashFlows> builder() {
-      return new DirectBeanBuilder<FixedLegCashFlows>(new FixedLegCashFlows());
+    public FixedLegCashFlows.Builder builder() {
+      return new FixedLegCashFlows.Builder();
     }
 
     @Override
@@ -443,10 +526,42 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code accrualStart} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<LocalDate>> accrualStart() {
+      return _accrualStart;
+    }
+
+    /**
+     * The meta-property for the {@code accrualEnd} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<LocalDate>> accrualEnd() {
+      return _accrualEnd;
+    }
+
+    /**
+     * The meta-property for the {@code notionals} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<CurrencyAmount>> notionals() {
+      return _notionals;
+    }
+
+    /**
+     * The meta-property for the {@code paymentTimes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<Double>> paymentTimes() {
+      return _paymentTimes;
+    }
+
+    /**
      * The meta-property for the {@code discountFactors} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<double[]> discountFactors() {
+    public final MetaProperty<List<Double>> discountFactors() {
       return _discountFactors;
     }
 
@@ -454,7 +569,7 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
      * The meta-property for the {@code paymentFractions} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<double[]> paymentFractions() {
+    public final MetaProperty<List<Double>> paymentFractions() {
       return _paymentFractions;
     }
 
@@ -462,7 +577,7 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
      * The meta-property for the {@code paymentAmounts} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<CurrencyAmount[]> paymentAmounts() {
+    public final MetaProperty<List<CurrencyAmount>> paymentAmounts() {
       return _paymentAmounts;
     }
 
@@ -470,7 +585,7 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
      * The meta-property for the {@code fixedRates} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double[]> fixedRates() {
+    public final MetaProperty<List<Double>> fixedRates() {
       return _fixedRates;
     }
 
@@ -494,6 +609,14 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 1071260659:  // accrualStart
+          return ((FixedLegCashFlows) bean).getAccrualStart();
+        case 1846909100:  // accrualEnd
+          return ((FixedLegCashFlows) bean).getAccrualEnd();
+        case 1910080819:  // notionals
+          return ((FixedLegCashFlows) bean).getNotionals();
+        case -507430688:  // paymentTimes
+          return ((FixedLegCashFlows) bean).getPaymentTimes();
         case -91613053:  // discountFactors
           return ((FixedLegCashFlows) bean).getDiscountFactors();
         case 1206997835:  // paymentFractions
@@ -512,40 +635,251 @@ public class FixedLegCashFlows extends SwapLegCashFlows {
 
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case -91613053:  // discountFactors
-          ((FixedLegCashFlows) bean).setDiscountFactors((double[]) newValue);
-          return;
-        case 1206997835:  // paymentFractions
-          ((FixedLegCashFlows) bean).setPaymentFractions((double[]) newValue);
-          return;
-        case -1875448267:  // paymentAmounts
-          ((FixedLegCashFlows) bean).setPaymentAmounts((CurrencyAmount[]) newValue);
-          return;
-        case 1695350911:  // fixedRates
-          ((FixedLegCashFlows) bean).setFixedRates((Double[]) newValue);
-          return;
-        case 178231285:  // discountedPaymentAmounts
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: discountedPaymentAmounts");
-        case -338982286:  // numberOfCashFlows
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: numberOfCashFlows");
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
       }
-      super.propertySet(bean, propertyName, newValue, quiet);
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code FixedLegCashFlows}.
+   */
+  public static class Builder extends DirectFieldsBeanBuilder<FixedLegCashFlows> {
+
+    private List<LocalDate> _accrualStart = new ArrayList<LocalDate>();
+    private List<LocalDate> _accrualEnd = new ArrayList<LocalDate>();
+    private List<CurrencyAmount> _notionals = new ArrayList<CurrencyAmount>();
+    private List<Double> _paymentTimes = new ArrayList<Double>();
+    private List<Double> _discountFactors = new ArrayList<Double>();
+    private List<Double> _paymentFractions = new ArrayList<Double>();
+    private List<CurrencyAmount> _paymentAmounts = new ArrayList<CurrencyAmount>();
+    private List<Double> _fixedRates = new ArrayList<Double>();
+
+    /**
+     * Restricted constructor.
+     */
+    protected Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    protected Builder(FixedLegCashFlows beanToCopy) {
+      this._accrualStart = new ArrayList<LocalDate>(beanToCopy.getAccrualStart());
+      this._accrualEnd = new ArrayList<LocalDate>(beanToCopy.getAccrualEnd());
+      this._notionals = new ArrayList<CurrencyAmount>(beanToCopy.getNotionals());
+      this._paymentTimes = new ArrayList<Double>(beanToCopy.getPaymentTimes());
+      this._discountFactors = new ArrayList<Double>(beanToCopy.getDiscountFactors());
+      this._paymentFractions = new ArrayList<Double>(beanToCopy.getPaymentFractions());
+      this._paymentAmounts = new ArrayList<CurrencyAmount>(beanToCopy.getPaymentAmounts());
+      this._fixedRates = new ArrayList<Double>(beanToCopy.getFixedRates());
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1071260659:  // accrualStart
+          return _accrualStart;
+        case 1846909100:  // accrualEnd
+          return _accrualEnd;
+        case 1910080819:  // notionals
+          return _notionals;
+        case -507430688:  // paymentTimes
+          return _paymentTimes;
+        case -91613053:  // discountFactors
+          return _discountFactors;
+        case 1206997835:  // paymentFractions
+          return _paymentFractions;
+        case -1875448267:  // paymentAmounts
+          return _paymentAmounts;
+        case 1695350911:  // fixedRates
+          return _fixedRates;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case 1071260659:  // accrualStart
+          this._accrualStart = (List<LocalDate>) newValue;
+          break;
+        case 1846909100:  // accrualEnd
+          this._accrualEnd = (List<LocalDate>) newValue;
+          break;
+        case 1910080819:  // notionals
+          this._notionals = (List<CurrencyAmount>) newValue;
+          break;
+        case -507430688:  // paymentTimes
+          this._paymentTimes = (List<Double>) newValue;
+          break;
+        case -91613053:  // discountFactors
+          this._discountFactors = (List<Double>) newValue;
+          break;
+        case 1206997835:  // paymentFractions
+          this._paymentFractions = (List<Double>) newValue;
+          break;
+        case -1875448267:  // paymentAmounts
+          this._paymentAmounts = (List<CurrencyAmount>) newValue;
+          break;
+        case 1695350911:  // fixedRates
+          this._fixedRates = (List<Double>) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
     }
 
     @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((FixedLegCashFlows) bean)._discountFactors, "discountFactors");
-      JodaBeanUtils.notNull(((FixedLegCashFlows) bean)._paymentFractions, "paymentFractions");
-      JodaBeanUtils.notNull(((FixedLegCashFlows) bean)._paymentAmounts, "paymentAmounts");
-      JodaBeanUtils.notNull(((FixedLegCashFlows) bean)._fixedRates, "fixedRates");
-      super.validate(bean);
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public FixedLegCashFlows build() {
+      return new FixedLegCashFlows(this);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code accrualStart} property in the builder.
+     * @param accrualStart  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder accrualStart(List<LocalDate> accrualStart) {
+      JodaBeanUtils.notNull(accrualStart, "accrualStart");
+      this._accrualStart = accrualStart;
+      return this;
+    }
+
+    /**
+     * Sets the {@code accrualEnd} property in the builder.
+     * @param accrualEnd  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder accrualEnd(List<LocalDate> accrualEnd) {
+      JodaBeanUtils.notNull(accrualEnd, "accrualEnd");
+      this._accrualEnd = accrualEnd;
+      return this;
+    }
+
+    /**
+     * Sets the {@code notionals} property in the builder.
+     * @param notionals  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder notionals(List<CurrencyAmount> notionals) {
+      JodaBeanUtils.notNull(notionals, "notionals");
+      this._notionals = notionals;
+      return this;
+    }
+
+    /**
+     * Sets the {@code paymentTimes} property in the builder.
+     * @param paymentTimes  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder paymentTimes(List<Double> paymentTimes) {
+      JodaBeanUtils.notNull(paymentTimes, "paymentTimes");
+      this._paymentTimes = paymentTimes;
+      return this;
+    }
+
+    /**
+     * Sets the {@code discountFactors} property in the builder.
+     * @param discountFactors  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder discountFactors(List<Double> discountFactors) {
+      JodaBeanUtils.notNull(discountFactors, "discountFactors");
+      this._discountFactors = discountFactors;
+      return this;
+    }
+
+    /**
+     * Sets the {@code paymentFractions} property in the builder.
+     * @param paymentFractions  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder paymentFractions(List<Double> paymentFractions) {
+      JodaBeanUtils.notNull(paymentFractions, "paymentFractions");
+      this._paymentFractions = paymentFractions;
+      return this;
+    }
+
+    /**
+     * Sets the {@code paymentAmounts} property in the builder.
+     * @param paymentAmounts  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder paymentAmounts(List<CurrencyAmount> paymentAmounts) {
+      JodaBeanUtils.notNull(paymentAmounts, "paymentAmounts");
+      this._paymentAmounts = paymentAmounts;
+      return this;
+    }
+
+    /**
+     * Sets the {@code fixedRates} property in the builder.
+     * @param fixedRates  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder fixedRates(List<Double> fixedRates) {
+      JodaBeanUtils.notNull(fixedRates, "fixedRates");
+      this._fixedRates = fixedRates;
+      return this;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(288);
+      buf.append("FixedLegCashFlows.Builder{");
+      int len = buf.length();
+      toString(buf);
+      if (buf.length() > len) {
+        buf.setLength(buf.length() - 2);
+      }
+      buf.append('}');
+      return buf.toString();
+    }
+
+    protected void toString(StringBuilder buf) {
+      buf.append("accrualStart").append('=').append(JodaBeanUtils.toString(_accrualStart)).append(',').append(' ');
+      buf.append("accrualEnd").append('=').append(JodaBeanUtils.toString(_accrualEnd)).append(',').append(' ');
+      buf.append("notionals").append('=').append(JodaBeanUtils.toString(_notionals)).append(',').append(' ');
+      buf.append("paymentTimes").append('=').append(JodaBeanUtils.toString(_paymentTimes)).append(',').append(' ');
+      buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(_discountFactors)).append(',').append(' ');
+      buf.append("paymentFractions").append('=').append(JodaBeanUtils.toString(_paymentFractions)).append(',').append(' ');
+      buf.append("paymentAmounts").append('=').append(JodaBeanUtils.toString(_paymentAmounts)).append(',').append(' ');
+      buf.append("fixedRates").append('=').append(JodaBeanUtils.toString(_fixedRates)).append(',').append(' ');
     }
 
   }

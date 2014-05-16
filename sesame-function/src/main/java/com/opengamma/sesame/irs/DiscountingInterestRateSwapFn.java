@@ -38,7 +38,11 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateRate().getValue());
+    Result<Double> rateResult = calculatorResult.getValue().calculateRate();
+    if (!rateResult.isSuccess()) {
+      return Result.failure(rateResult);
+    }
+    return Result.success(rateResult.getValue());
   }
 
   @Override
@@ -48,7 +52,11 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV().getValue());
+    Result<MultipleCurrencyAmount> pvResult = calculatorResult.getValue().calculatePV();
+    if (!pvResult.isSuccess()) {
+      return Result.failure(pvResult);
+    }
+    return Result.success(pvResult.getValue());
   }
 
   @Override
@@ -58,7 +66,11 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePV01().getValue());
+    Result<ReferenceAmount<Pair<String, Currency>>> pv01Result = calculatorResult.getValue().calculatePV01();
+    if (!pv01Result.isSuccess()) {
+      return Result.failure(pv01Result);
+    }
+    return Result.success(pv01Result.getValue());
   }
 
   @Override
@@ -68,7 +80,11 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculateReceiveLegCashFlows().getValue());
+    Result<SwapLegCashFlows> legResult = calculatorResult.getValue().calculateReceiveLegCashFlows();
+    if (!legResult.isSuccess()) {
+      return Result.failure(legResult);
+    }
+    return Result.success(legResult.getValue());
   }
 
   @Override
@@ -78,7 +94,11 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
-    return Result.success(calculatorResult.getValue().calculatePayLegCashFlows().getValue());
+    Result<SwapLegCashFlows> legResult = calculatorResult.getValue().calculatePayLegCashFlows();
+    if (!legResult.isSuccess()) {
+      return Result.failure(legResult);
+    }
+    return Result.success(legResult.getValue());
   }
 
 }

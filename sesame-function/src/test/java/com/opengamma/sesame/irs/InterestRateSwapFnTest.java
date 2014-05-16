@@ -30,6 +30,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
@@ -342,8 +343,9 @@ public class InterestRateSwapFnTest {
     assertThat(payDetails, is((instanceOf(FixedLegCashFlows.class))));
     FixedLegCashFlows fixedLegCashFlows = (FixedLegCashFlows) payDetails;
     
-    CurrencyAmount[] actualPaymentAmounts = fixedLegCashFlows.getPaymentAmounts();
-    CurrencyAmount[] expectedPaymentAmounts = {
+    List<CurrencyAmount> actualPaymentAmounts = fixedLegCashFlows.getPaymentAmounts();
+    List<CurrencyAmount> expectedPaymentAmounts =
+        Lists.newArrayList(
             CurrencyAmount.of("USD", -750000.0),
             CurrencyAmount.of("USD", -758333.3333333333),
             CurrencyAmount.of("USD", -750000.0),
@@ -358,35 +360,36 @@ public class InterestRateSwapFnTest {
             CurrencyAmount.of("USD", -758333.3333333333),
             CurrencyAmount.of("USD", -741666.6666666667),
             CurrencyAmount.of("USD", -754166.6666666666)
-        };
+        );
 
     int i = 0;
     for(CurrencyAmount amount : expectedPaymentAmounts) {
-      assertThat(amount.getAmount(), is(closeTo(actualPaymentAmounts[i].getAmount(), STD_TOLERANCE_AMOUNT)));
+      assertThat(amount.getAmount(), is(closeTo(actualPaymentAmounts.get(i).getAmount(), STD_TOLERANCE_AMOUNT)));
       i++;
     }
 
-    LocalDate[] actualAccrualStart = fixedLegCashFlows.getAccrualStart();
-    LocalDate[] expectedAccrualStart = {
-        LocalDate.of(2014,9,12),
-        LocalDate.of(2015,3,12),
-        LocalDate.of(2015,9,14),
-        LocalDate.of(2016,3,14),
-        LocalDate.of(2016,9,12),
-        LocalDate.of(2017,3,13),
-        LocalDate.of(2017,9,12),
-        LocalDate.of(2018,3,12),
-        LocalDate.of(2018,9,12),
-        LocalDate.of(2019,3,12),
-        LocalDate.of(2019,9,12),
-        LocalDate.of(2020,3,12),
-        LocalDate.of(2020,9,14),
-        LocalDate.of(2021,3,12)
-    };
+    List<LocalDate> actualAccrualStart = fixedLegCashFlows.getAccrualStart();
+    List<LocalDate> expectedAccrualStart =
+        Lists.newArrayList(
+          LocalDate.of(2014,9,12),
+          LocalDate.of(2015,3,12),
+          LocalDate.of(2015,9,14),
+          LocalDate.of(2016,3,14),
+          LocalDate.of(2016,9,12),
+          LocalDate.of(2017,3,13),
+          LocalDate.of(2017,9,12),
+          LocalDate.of(2018,3,12),
+          LocalDate.of(2018,9,12),
+          LocalDate.of(2019,3,12),
+          LocalDate.of(2019,9,12),
+          LocalDate.of(2020,3,12),
+          LocalDate.of(2020,9,14),
+          LocalDate.of(2021,3,12)
+        );
 
     i = 0;
     for(LocalDate date : expectedAccrualStart) {
-      assertThat(date, is(actualAccrualStart[i]));
+      assertThat(date, is(actualAccrualStart.get(i)));
       i++;
     }
 
@@ -397,59 +400,88 @@ public class InterestRateSwapFnTest {
     assertThat(receiveDetails, is((instanceOf(FloatingLegCashFlows.class))));
     FloatingLegCashFlows floatingLegCashFlows = (FloatingLegCashFlows) receiveDetails;
 
-    Double[] expectedForwardRates = floatingLegCashFlows.getForwardRates();
-    Double[] actualForwardRates = {
+    List<Double> expectedForwardRates = floatingLegCashFlows.getForwardRates();
+    List<Double> actualForwardRates = Lists.newArrayList(
         0.002830776043127479, 0.003889725581109005, 0.00534820864384384, 0.006272357544524368, 0.007191464409902153, 
         0.01010956533411408, 0.013521579956778747, 0.015318507913146722, 0.01710597237713002, 0.019924700484298726, 
         0.02285929744200523, 0.024965464562180496, 0.027083323913778736, 0.028774171062606158, 0.03044395193791545, 
         0.03248279019018542, 0.03450994398725367, 0.03441329882138877, 0.0342129941075707, 0.03585838813458806, 
         0.03749357371138418, 0.03903671874199058, 0.04064520492792625, 0.04230705788571235, 0.04394811214893466, 
-        0.04127235310120026, 0.038531753356691775, 0.03959796966266573 };
+        0.04127235310120026, 0.038531753356691775, 0.03959796966266573);
 
     i = 0;
     for(Double rate : expectedForwardRates) {
-      assertThat(rate, is(closeTo(actualForwardRates[i], STD_TOLERANCE_RATE)));
+      assertThat(rate, is(closeTo(actualForwardRates.get(i), STD_TOLERANCE_RATE)));
       i++;
     }
 
-    LocalDate[] actualAccrualEnd  = floatingLegCashFlows.getAccrualEnd();
-    LocalDate[] expectedAccrualEnd = {
-      LocalDate.of(2014,12,12),
-      LocalDate.of(2015,3,12),
-      LocalDate.of(2015,6,12),
-      LocalDate.of(2015,9,14),
-      LocalDate.of(2015,12,14),
-      LocalDate.of(2016,3,14),
-      LocalDate.of(2016,6,13),
-      LocalDate.of(2016,9,12),
-      LocalDate.of(2016,12,12),
-      LocalDate.of(2017,3,13),
-      LocalDate.of(2017,6,12),
-      LocalDate.of(2017,9,12),
-      LocalDate.of(2017,12,12),
-      LocalDate.of(2018,3,12),
-      LocalDate.of(2018,6,12),
-      LocalDate.of(2018,9,12),
-      LocalDate.of(2018,12,12),
-      LocalDate.of(2019,3,12),
-      LocalDate.of(2019,6,12),
-      LocalDate.of(2019,9,12),
-      LocalDate.of(2019,12,12),
-      LocalDate.of(2020,3,12),
-      LocalDate.of(2020,6,12),
-      LocalDate.of(2020,9,14),
-      LocalDate.of(2020,12,14),
-      LocalDate.of(2021,3,12),
-      LocalDate.of(2021,6,14),
-      LocalDate.of(2021,9,13)
-    };
+    List<LocalDate> actualAccrualEnd  = floatingLegCashFlows.getAccrualEnd();
+    List<LocalDate> expectedAccrualEnd =
+        Lists.newArrayList(
+          LocalDate.of(2014,12,12),
+          LocalDate.of(2015,3,12),
+          LocalDate.of(2015,6,12),
+          LocalDate.of(2015,9,14),
+          LocalDate.of(2015,12,14),
+          LocalDate.of(2016,3,14),
+          LocalDate.of(2016,6,13),
+          LocalDate.of(2016,9,12),
+          LocalDate.of(2016,12,12),
+          LocalDate.of(2017,3,13),
+          LocalDate.of(2017,6,12),
+          LocalDate.of(2017,9,12),
+          LocalDate.of(2017,12,12),
+          LocalDate.of(2018,3,12),
+          LocalDate.of(2018,6,12),
+          LocalDate.of(2018,9,12),
+          LocalDate.of(2018,12,12),
+          LocalDate.of(2019,3,12),
+          LocalDate.of(2019,6,12),
+          LocalDate.of(2019,9,12),
+          LocalDate.of(2019,12,12),
+          LocalDate.of(2020,3,12),
+          LocalDate.of(2020,6,12),
+          LocalDate.of(2020,9,14),
+          LocalDate.of(2020,12,14),
+          LocalDate.of(2021,3,12),
+          LocalDate.of(2021,6,14),
+          LocalDate.of(2021,9,13)
+        );
 
     i = 0;
     for(LocalDate date : expectedAccrualEnd) {
-      assertThat(date, is(actualAccrualEnd[i]));
+      assertThat(date, is(actualAccrualEnd.get(i)));
       i++;
     }
 
+  }
+
+  public void fixedVsOnCompoundedSwapLegDetails() {
+    Result<SwapLegCashFlows> payResult = _swapFunction.calculatePayLegCashFlows(ENV,_fixedVsOnCompoundedSwapSecurity);
+    assertThat(payResult.isSuccess(), is((true)));
+    SwapLegCashFlows payDetails = payResult.getValue();
+
+    assertThat(payDetails, is((instanceOf(FixedLegCashFlows.class))));
+
+    Result<SwapLegCashFlows> receiveResult = _swapFunction.calculateReceiveLegCashFlows(ENV,_fixedVsOnCompoundedSwapSecurity);
+    assertThat(receiveResult.isSuccess(), is((true)));
+    SwapLegCashFlows receiveDetails = receiveResult.getValue();
+
+    assertThat(receiveDetails, is((instanceOf(FloatingLegCashFlows.class))));
+  }
+
+  public void fixedVsLiborWithFixingSwapLegDetails() {
+    Result<SwapLegCashFlows> payResult = _swapFunction.calculatePayLegCashFlows(ENV,_fixedVsLiborWithFixingSwapSecurity);
+    assertThat(payResult.isSuccess(), is((true)));
+    SwapLegCashFlows payDetails = payResult.getValue();
+
+    assertThat(payDetails, is((instanceOf(FixedLegCashFlows.class))));
+
+    Result<SwapLegCashFlows> receiveResult = _swapFunction.calculateReceiveLegCashFlows(ENV,_fixedVsLiborWithFixingSwapSecurity);
+    assertThat(receiveResult.isSuccess(), is((true)));
+    SwapLegCashFlows receiveDetails = receiveResult.getValue();
+
+    assertThat(receiveDetails, is((instanceOf(FloatingLegCashFlows.class))));
   }
 
   @Test

@@ -39,7 +39,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   /**
    * Calculator for cash flows.
    */
-  private static final CashFlowDetailsCalculator CFDC = CashFlowDetailsCalculator.getInstance();
+  private static final CashFlowDetailsCalculator CFDC = new CashFlowDetailsCalculator();
 
   /**
    * Calculator for present value.

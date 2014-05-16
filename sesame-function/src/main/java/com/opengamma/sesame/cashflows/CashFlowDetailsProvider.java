@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Container to provide the ValuationTime, MulticurveProviderInterface and Swap InstrumentDefinition
@@ -40,7 +41,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final MulticurveProviderInterface _multicurveProviderInterface;
   /**
-   * The ZonedDateTime valuation time
+   * The valuation time
    */
   @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime _zonedDateTime;
@@ -48,7 +49,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
    * Boolean, whether the leg is fixed or floating
    */
   @PropertyDefinition(validate = "notNull")
-  private final Boolean _fixed;
+  private final boolean _fixed;
   /**
    * The swap definition
    */
@@ -63,9 +64,9 @@ public class CashFlowDetailsProvider implements ImmutableBean {
   /**
    * Creates an instance
    *
-   * @param multicurveProviderInterface the MulticurveProviderInterface, not null
-   * @param zonedDateTime the ZonedDateTime, not null
-   * @param definition the SwapDefinition containing the payment definitions, not null
+   * @param multicurveProviderInterface the MulticurveProviderInterface
+   * @param zonedDateTime the ZonedDateTime
+   * @param definition the SwapDefinition containing the payment definitions
    * @param security the InterestRateSwapSecurity
    * @param type the PayReceiveType, either pay or receive
    */
@@ -74,6 +75,10 @@ public class CashFlowDetailsProvider implements ImmutableBean {
                                  SwapDefinition definition,
                                  InterestRateSwapSecurity security,
                                  PayReceiveType type) {
+    ArgumentChecker.notNull(multicurveProviderInterface, "multicurveProviderInterface");
+    ArgumentChecker.notNull(zonedDateTime, "zonedDateTime");
+    ArgumentChecker.notNull(definition, "definition");
+    ArgumentChecker.notNull(type, "type");
     _multicurveProviderInterface = multicurveProviderInterface;
     _zonedDateTime = zonedDateTime;
     _definition = definition;
@@ -151,7 +156,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the ZonedDateTime valuation time
+   * Gets the valuation time
    * @return the value of the property, not null
    */
   public ZonedDateTime getZonedDateTime() {
@@ -163,7 +168,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
    * Gets boolean, whether the leg is fixed or floating
    * @return the value of the property, not null
    */
-  public Boolean getFixed() {
+  public boolean isFixed() {
     return _fixed;
   }
 
@@ -208,7 +213,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
       CashFlowDetailsProvider other = (CashFlowDetailsProvider) obj;
       return JodaBeanUtils.equal(getMulticurveProviderInterface(), other.getMulticurveProviderInterface()) &&
           JodaBeanUtils.equal(getZonedDateTime(), other.getZonedDateTime()) &&
-          JodaBeanUtils.equal(getFixed(), other.getFixed()) &&
+          (isFixed() == other.isFixed()) &&
           JodaBeanUtils.equal(getDefinition(), other.getDefinition()) &&
           JodaBeanUtils.equal(getType(), other.getType());
     }
@@ -220,7 +225,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getMulticurveProviderInterface());
     hash += hash * 31 + JodaBeanUtils.hashCode(getZonedDateTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixed());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFixed());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDefinition());
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
     return hash;
@@ -242,7 +247,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
   protected void toString(StringBuilder buf) {
     buf.append("multicurveProviderInterface").append('=').append(JodaBeanUtils.toString(getMulticurveProviderInterface())).append(',').append(' ');
     buf.append("zonedDateTime").append('=').append(JodaBeanUtils.toString(getZonedDateTime())).append(',').append(' ');
-    buf.append("fixed").append('=').append(JodaBeanUtils.toString(getFixed())).append(',').append(' ');
+    buf.append("fixed").append('=').append(JodaBeanUtils.toString(isFixed())).append(',').append(' ');
     buf.append("definition").append('=').append(JodaBeanUtils.toString(getDefinition())).append(',').append(' ');
     buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
   }
@@ -271,7 +276,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
      * The meta-property for the {@code fixed} property.
      */
     private final MetaProperty<Boolean> _fixed = DirectMetaProperty.ofImmutable(
-        this, "fixed", CashFlowDetailsProvider.class, Boolean.class);
+        this, "fixed", CashFlowDetailsProvider.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code definition} property.
      */
@@ -381,7 +386,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
         case -1255723533:  // zonedDateTime
           return ((CashFlowDetailsProvider) bean).getZonedDateTime();
         case 97445748:  // fixed
-          return ((CashFlowDetailsProvider) bean).getFixed();
+          return ((CashFlowDetailsProvider) bean).isFixed();
         case -1014418093:  // definition
           return ((CashFlowDetailsProvider) bean).getDefinition();
         case 3575610:  // type
@@ -409,7 +414,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
 
     private MulticurveProviderInterface _multicurveProviderInterface;
     private ZonedDateTime _zonedDateTime;
-    private Boolean _fixed;
+    private boolean _fixed;
     private SwapDefinition _definition;
     private PayReceiveType _type;
 
@@ -426,7 +431,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
     protected Builder(CashFlowDetailsProvider beanToCopy) {
       this._multicurveProviderInterface = beanToCopy.getMulticurveProviderInterface();
       this._zonedDateTime = beanToCopy.getZonedDateTime();
-      this._fixed = beanToCopy.getFixed();
+      this._fixed = beanToCopy.isFixed();
       this._definition = beanToCopy.getDefinition();
       this._type = beanToCopy.getType();
     }
@@ -531,7 +536,7 @@ public class CashFlowDetailsProvider implements ImmutableBean {
      * @param fixed  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixed(Boolean fixed) {
+    public Builder fixed(boolean fixed) {
       JodaBeanUtils.notNull(fixed, "fixed");
       this._fixed = fixed;
       return this;
