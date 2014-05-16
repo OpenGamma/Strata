@@ -39,28 +39,27 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
    */
   @PropertyDefinition(validate = "notNull")
   private final boolean _awaitAllMarketData;
-  
   /**
-   * Number of cycles to run. 0 or less indicates to run forever.
+   * Number of cycles to run.
+   * Zero or less indicates to run forever.
    */
   // todo this works but is somewhat dependent on magic values
   @PropertyDefinition
-  private final int numCycles;
-
+  private final int _numCycles;
   /**
    * The specification for the market data to use during the execution.
    */
   // todo - should be able to specify a generator which either returns a fixed spec on every call or can produce a sequence of values e.g. different historic dates
   @PropertyDefinition(validate = "notNull")
   private final MarketDataSpecification _marketDataSpec;
-
   /**
    * The valuation time to be used during the execution.
    */
   // todo - should be able to specify a generator
   @PropertyDefinition(validate = "notNull")
   private final ZonedDateTime _valuationTime;
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public Iterator<IndividualCycleOptions> iterator() {
     return new Iterator<IndividualCycleOptions>() {
@@ -72,7 +71,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
 
       @Override
       public boolean hasNext() {
-        return numCycles <= 0 || _index < numCycles;
+        return _numCycles <= 0 || _index < _numCycles;
       }
 
       @Override
@@ -129,7 +128,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
     JodaBeanUtils.notNull(marketDataSpec, "marketDataSpec");
     JodaBeanUtils.notNull(valuationTime, "valuationTime");
     this._awaitAllMarketData = awaitAllMarketData;
-    this.numCycles = numCycles;
+    this._numCycles = numCycles;
     this._marketDataSpec = marketDataSpec;
     this._valuationTime = valuationTime;
   }
@@ -166,7 +165,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
    * @return the value of the property
    */
   public int getNumCycles() {
-    return numCycles;
+    return _numCycles;
   }
 
   //-----------------------------------------------------------------------
@@ -381,7 +380,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
   public static final class Builder extends DirectFieldsBeanBuilder<GlobalCycleOptions> {
 
     private boolean _awaitAllMarketData;
-    private int numCycles;
+    private int _numCycles;
     private MarketDataSpecification _marketDataSpec;
     private ZonedDateTime _valuationTime;
 
@@ -397,7 +396,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
      */
     private Builder(GlobalCycleOptions beanToCopy) {
       this._awaitAllMarketData = beanToCopy.isAwaitAllMarketData();
-      this.numCycles = beanToCopy.getNumCycles();
+      this._numCycles = beanToCopy.getNumCycles();
       this._marketDataSpec = beanToCopy.getMarketDataSpec();
       this._valuationTime = beanToCopy.getValuationTime();
     }
@@ -409,7 +408,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
         case -32240431:  // awaitAllMarketData
           return _awaitAllMarketData;
         case 780459891:  // numCycles
-          return numCycles;
+          return _numCycles;
         case 843018977:  // marketDataSpec
           return _marketDataSpec;
         case 113591406:  // valuationTime
@@ -426,7 +425,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
           this._awaitAllMarketData = (Boolean) newValue;
           break;
         case 780459891:  // numCycles
-          this.numCycles = (Integer) newValue;
+          this._numCycles = (Integer) newValue;
           break;
         case 843018977:  // marketDataSpec
           this._marketDataSpec = (MarketDataSpecification) newValue;
@@ -468,7 +467,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
     public GlobalCycleOptions build() {
       return new GlobalCycleOptions(
           _awaitAllMarketData,
-          numCycles,
+          _numCycles,
           _marketDataSpec,
           _valuationTime);
     }
@@ -491,7 +490,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
      * @return this, for chaining, not null
      */
     public Builder numCycles(int numCycles) {
-      this.numCycles = numCycles;
+      this._numCycles = numCycles;
       return this;
     }
 
@@ -523,7 +522,7 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
       StringBuilder buf = new StringBuilder(160);
       buf.append("GlobalCycleOptions.Builder{");
       buf.append("awaitAllMarketData").append('=').append(JodaBeanUtils.toString(_awaitAllMarketData)).append(',').append(' ');
-      buf.append("numCycles").append('=').append(JodaBeanUtils.toString(numCycles)).append(',').append(' ');
+      buf.append("numCycles").append('=').append(JodaBeanUtils.toString(_numCycles)).append(',').append(' ');
       buf.append("marketDataSpec").append('=').append(JodaBeanUtils.toString(_marketDataSpec)).append(',').append(' ');
       buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime));
       buf.append('}');

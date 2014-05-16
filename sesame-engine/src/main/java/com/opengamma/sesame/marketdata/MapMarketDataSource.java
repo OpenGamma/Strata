@@ -7,7 +7,6 @@ package com.opengamma.sesame.marketdata;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -20,36 +19,52 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * Simple market data source backed by an immutable map. This class
- * will generally only be useful for test scenarios.
+ * Simple market data source backed by an immutable map.
+ * <p>
+ * This is primarily intended for use in test cases.
  */
 public final class MapMarketDataSource implements MarketDataSource {
 
   /**
-   * Field to be returned if not specified in request..
+   * Field to be returned if not specified in request.
    */
   public static final FieldName DEFAULT_FIELD = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
 
   /**
    * The fixed set of values to be returned on request.
    */
-  private final Map<Pair<ExternalIdBundle, FieldName>, Object> _values;
+  private final ImmutableMap<Pair<ExternalIdBundle, FieldName>, Object> _values;
 
+  //-------------------------------------------------------------------------
   /**
-   * Private constructor to create the map - used only by the builder.
+   * Obtains an empty data source with no market data values.
    *
-   * @param values values to be held for this source
+   * @return the empty market data source
    */
-  private MapMarketDataSource(Map<Pair<ExternalIdBundle, FieldName>, Object> values) {
-    _values = ImmutableMap.copyOf(values);
+  public static MarketDataSource of() {
+    return new MapMarketDataSource(ImmutableMap.<Pair<ExternalIdBundle, FieldName>, Object>of());
   }
 
-  @Override
-  public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
-    Object value = _values.get(Pairs.of(id, fieldName));
-    return value != null ?
-           Result.success(value) :
-           Result.failure(FailureStatus.MISSING_DATA, "No value for {}/{}", id, fieldName);
+  /**
+   * Obtains a simple single element data source using the field name {@link #DEFAULT_FIELD}.
+   *
+   * @param id  the external identifiers of the value
+   * @param value  the value
+   * @return the single element market data source
+   */
+  public static MarketDataSource of(ExternalIdBundle id, Object value) {
+    return builder().add(id, value).build();
+  }
+
+  /**
+   * Obtains a simple single element data source using the field name {@link #DEFAULT_FIELD}.
+   *
+   * @param id  the external identifier of the value
+   * @param value  the value
+   * @return the single element market data source
+   */
+  public static MarketDataSource of(ExternalId id, Object value) {
+    return builder().add(id, value).build();
   }
 
   /**
@@ -61,27 +76,53 @@ public final class MapMarketDataSource implements MarketDataSource {
     return new Builder();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Private constructor to create the map - used only by the builder.
+   *
+   * @param values values to be held for this source
+   */
+  private MapMarketDataSource(Map<Pair<ExternalIdBundle, FieldName>, Object> values) {
+    _values = ImmutableMap.copyOf(values);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
+    Object value = _values.get(Pairs.of(id, fieldName));
+    return value != null ?
+           Result.success(value) :
+           Result.failure(FailureStatus.MISSING_DATA, "No value for {}/{}", id, fieldName);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
+    if (obj instanceof MapMarketDataSource) {
+      final MapMarketDataSource other = (MapMarketDataSource) obj;
+      return _values.equals(other._values);
     }
-    final MapMarketDataSource other = (MapMarketDataSource) obj;
-    return Objects.equals(this._values, other._values);
+    return false;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_values);
+    return _values.hashCode();
   }
 
+  @Override
+  public String toString() {
+    return _values.toString();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Builder for the data source.
    */
-  public static class Builder {
+  public static final class Builder {
 
     /**
      * The set of values being built up.
@@ -97,10 +138,10 @@ public final class MapMarketDataSource implements MarketDataSource {
     /**
      * Adds a value to the data source.
      *
-     * @param id the value's ID
-     * @param fieldName the value's field name
-     * @param value the value
-     * @return this builder
+     * @param id  the external identifiers of the value
+     * @param fieldName  the field name of the value
+     * @param value  the value
+     * @return this builder, for method chaining
      */
     public Builder add(ExternalIdBundle id, FieldName fieldName, Object value) {
       ArgumentChecker.notNull(id, "id");
@@ -114,10 +155,10 @@ public final class MapMarketDataSource implements MarketDataSource {
     /**
      * Adds a value to the data source.
      *
-     * @param id the value's ID
-     * @param fieldName the value's field name
-     * @param value the value
-     * @return this builder
+     * @param id  the external identifier of the value
+     * @param fieldName  the field name of the value
+     * @param value  the value
+     * @return this builder, for method chaining
      */
     public Builder add(ExternalId id, FieldName fieldName, Object value) {
       return add(id.toBundle(), fieldName, value);
@@ -126,9 +167,9 @@ public final class MapMarketDataSource implements MarketDataSource {
     /**
      * Adds a value to the data source using the field name {@link #DEFAULT_FIELD}.
      *
-     * @param id the value's ID
-     * @param value the value
-     * @return this builder
+     * @param id  the external identifiers of the value
+     * @param value  the value
+     * @return this builder, for method chaining
      */
     public Builder add(ExternalIdBundle id, Object value) {
       return add(id, DEFAULT_FIELD, value);
@@ -137,17 +178,28 @@ public final class MapMarketDataSource implements MarketDataSource {
     /**
      * Adds a value to the data source using the field name {@link #DEFAULT_FIELD}.
      *
-     * @param id the value's ID
-     * @param value the value
-     * @return this builder
+     * @param id  the external identifier of the value
+     * @param value  the value
+     * @return this builder, for method chaining
      */
     public Builder add(ExternalId id, Object value) {
       return add(id.toBundle(), value);
     }
+    
+    /**
+     * Adds all of the pairs in the given map.
+     * @param valueMap the map of values
+     * @return this builder
+     */
+    public Builder addAll(Map<ExternalIdBundle, ? extends Object> valueMap) {
+      for (Map.Entry<ExternalIdBundle, ? extends Object> entry : valueMap.entrySet()) {
+        add(entry.getKey(), entry.getValue());
+      }
+      return this;
+    }
 
     /**
-     * Build the MarketDataSource using the values which have been
-     * added to the builder.
+     * Build the data source using the values which have been added to the builder.
      * 
      * @return a data source built from this builder's data
      */
@@ -155,4 +207,5 @@ public final class MapMarketDataSource implements MarketDataSource {
       return new MapMarketDataSource(_values);
     }
   }
+
 }

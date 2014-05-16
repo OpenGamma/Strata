@@ -38,7 +38,6 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -69,7 +68,6 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -165,7 +163,7 @@ public class ViewFactoryTest {
     List<Trade> trades = ImmutableList.of(trade);
 
     ExternalIdBundle securityId = trade.getSecurity().getExternalIdBundle();
-    MarketDataSource dataSource = MapMarketDataSource.builder().add(securityId, 123.45).build();
+    MarketDataSource dataSource = MapMarketDataSource.of(securityId, 123.45);
 
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, dataSource);
