@@ -14,6 +14,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.core.IsNull.notNullValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -127,19 +128,23 @@ public class InterestRateSwapFnTest {
 
   private static final double EXPECTED_3M_PV = 7170391.798257509;
   private static final double EXPECTED_3M_PAR_RATE = 0.025894715668195054;
-  private static final Map<Pair<String, Currency>, DoubleMatrix1D> EXPECTED_3M_BUCKETED_PV01 = ImmutableMap.<Pair<String, Currency>, DoubleMatrix1D>builder().
-      put(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD),
-          new DoubleMatrix1D(-2.006128288990294, -2.0061296821289525, -8.674474462036337E-5, 0.0011745459584018116,
-                             1.4847039748268902, -56.94910798756204, 1.1272953905008014, -86.07354103199485, -166.96224130769323,
-                             -242.22201141057718, -314.1940601301674, -385.90291779006617, -463.27621838407424, -979.7315579072819,
-                             -243.35533454746522, 243.5314116731397, 139.99052668955744)).
-      put(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD),
-          new DoubleMatrix1D(-2604.935862485561, -2632.099517240145, -1176.1264079088776, 27.132459445836727,
-                             -34.13622855060674, -8.299063014960922, -10.516911339441654, 0.5088197267155414,
-                             56648.04062946332, 15520.134985387911, 1.1803422588258187E-10, -2.746886018748557E-10,
-                             1.2282414271537867E-10, 2.5897954580662176E-11, -1.309540899491159E-10)).
+  private static final Map<Pair<String, Currency>, DoubleMatrix1D> EXPECTED_3M_BUCKETED_PV01 =
+      ImmutableMap.<Pair<String, Currency>, DoubleMatrix1D>builder().
+        put(Pairs.of(InterestRateMockSources.USD_OIS_CURVE_NAME, Currency.USD),
+            new DoubleMatrix1D(-2.006128288990294, -2.0061296821289525, -8.674474462036337E-5, 0.0011745459584018116,
+                               1.4847039748268902, -56.94910798756204, 1.1272953905008014, -86.07354103199485,
+                               -166.96224130769323, -242.22201141057718, -314.1940601301674, -385.90291779006617,
+                               -463.27621838407424, -979.7315579072819, -243.35533454746522, 243.5314116731397,
+                               139.99052668955744)
+        ).
+        put(Pairs.of(InterestRateMockSources.USD_LIBOR3M_CURVE_NAME, Currency.USD),
+            new DoubleMatrix1D(-2604.935862485561, -2632.099517240145, -1176.1264079088776, 27.132459445836727,
+                               -34.13622855060674, -8.299063014960922, -10.516911339441654, 0.5088197267155414,
+                               56648.04062946332, 15520.134985387911, 1.1803422588258187E-10, -2.746886018748557E-10,
+                               1.2282414271537867E-10, 2.5897954580662176E-11, -1.309540899491159E-10)
+        ).
 
-          build();
+        build();
 
   private static final double EXPECTED_FIXING_PV = -2434664.6871909914;
 
@@ -563,7 +568,7 @@ public class InterestRateSwapFnTest {
   public void interestRateSwapPv01() {
     Result<ReferenceAmount<Pair<String,Currency>>> resultPv01 =
         _swapFunction.calculatePV01(ENV, _fixedVsOnCompoundedSwapSecurity);
-    assertThat(resultPv01.isSuccess(), is((true)));
+    assertThat(resultPv01.isSuccess(), is(true));
 
     ReferenceAmount<Pair<String,Currency>> pv01s = resultPv01.getValue();
     double pv01 = 0;
@@ -577,14 +582,15 @@ public class InterestRateSwapFnTest {
 
   @Test
   public void interestRateSwapBucketedPv01() {
-    Result<MultipleCurrencyParameterSensitivity> resultPv01 = _swapFunction.calculateBucketedPV01(ENV, _fixedVsLibor3mSwapSecurity);
-    assertThat(resultPv01.isSuccess(), is((true)));
+    Result<MultipleCurrencyParameterSensitivity> resultPv01 = _swapFunction.calculateBucketedPV01(ENV,
+                                                                                                  _fixedVsLibor3mSwapSecurity);
+    assertThat(resultPv01.isSuccess(), is(true));
 
     Map<Pair<String, Currency>, DoubleMatrix1D> pv01s = resultPv01.getValue().getSensitivities();
     assertThat(pv01s.size(), is(EXPECTED_3M_BUCKETED_PV01.size()));
     for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> sensitivity : pv01s.entrySet()) {
       DoubleMatrix1D expectedSensitivities = EXPECTED_3M_BUCKETED_PV01.get(sensitivity.getKey());
-      assertThat(sensitivity.getKey() + " not an expected sensitivity", expectedSensitivities, IsNull.notNullValue());
+      assertThat(sensitivity.getKey() + " not an expected sensitivity", expectedSensitivities, is(notNullValue()));
       assertThat(sensitivity.getValue().getNumberOfElements(), is(expectedSensitivities.getNumberOfElements()));
       for (int i = 0; i < expectedSensitivities.getNumberOfElements(); i++) {
         assertThat(sensitivity.getValue().getEntry(i), is(closeTo(expectedSensitivities.getEntry(i), STD_TOLERANCE_PV01)));

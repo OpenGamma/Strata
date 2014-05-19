@@ -110,13 +110,13 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   /**
    * Creates a calculator for a InterestRateSwapSecurity.
    *
-   * @param security the swap to calculate values for, not null
-   * @param bundle the multicurve bundle, including the curves, not null
-   * @param curveBuildingBlockBundle the curve block building bundle, not null
-   * @param swapConverter the InterestRateSwapSecurityConverter, not null
-   * @param valuationTime the ZonedDateTime, not null
-   * @param definitionConverter the FixedIncomeConverterDataProvider, not null
-   * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects, not null
+   * @param security the swap to calculate values for
+   * @param bundle the multicurve bundle, including the curves
+   * @param curveBuildingBlockBundle the curve block building bundle
+   * @param swapConverter the InterestRateSwapSecurityConverter
+   * @param valuationTime the ZonedDateTime
+   * @param definitionConverter the FixedIncomeConverterDataProvider
+   * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
    */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapSecurity security,
                                                MulticurveProviderInterface bundle,
