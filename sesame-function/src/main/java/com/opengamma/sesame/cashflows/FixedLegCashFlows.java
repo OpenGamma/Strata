@@ -147,6 +147,16 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
                            List<CurrencyAmount> paymentAmounts,
                            List<CurrencyAmount> notionals,
                            List<Double> fixedRates) {
+
+    ArgumentChecker.notNull(startAccrualDates, "startAccrualDates");
+    ArgumentChecker.notNull(endAccrualDates, "endAccrualDates");
+    ArgumentChecker.notNull(discountFactors, "discountFactors");
+    ArgumentChecker.notNull(paymentTimes, "paymentTimes");
+    ArgumentChecker.notNull(paymentFractions, "paymentFractions");
+    ArgumentChecker.notNull(paymentAmounts, "paymentAmounts");
+    ArgumentChecker.notNull(notionals, "notionals");
+    ArgumentChecker.notNull(fixedRates, "fixedRates");
+
     _accrualStart = Collections.unmodifiableList(Lists.newArrayList(startAccrualDates));
     _accrualEnd = Collections.unmodifiableList(Lists.newArrayList(endAccrualDates));
     _notionals = Collections.unmodifiableList(Lists.newArrayList(notionals));
@@ -155,6 +165,7 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     _paymentFractions = Collections.unmodifiableList(Lists.newArrayList(paymentFractions));
     _paymentAmounts = Collections.unmodifiableList(Lists.newArrayList(paymentAmounts));
     _fixedRates = Collections.unmodifiableList(Lists.newArrayList(fixedRates));
+
     int n = startAccrualDates.size();
     ArgumentChecker.isTrue(n == endAccrualDates.size(), "Must have same number of start and end accrual dates");
     ArgumentChecker.isTrue(n == discountFactors.size(), "Must have same number of start accrual dates and discount factors");
@@ -173,12 +184,12 @@ public class FixedLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   public List<CurrencyAmount> getDiscountedPaymentAmounts() {
     List<CurrencyAmount> cashflows = new ArrayList<>();
     for (int i = 0; i < getNumberOfCashFlows(); i++) {
-      final CurrencyAmount payment = getPaymentAmounts().get(i);
+      CurrencyAmount payment = getPaymentAmounts().get(i);
       if (payment == null) {
         cashflows.add(null);
         continue;
       }
-      final double df = getDiscountFactors().get(i);
+      double df = getDiscountFactors().get(i);
       cashflows.add(CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df));
     }
     return cashflows;

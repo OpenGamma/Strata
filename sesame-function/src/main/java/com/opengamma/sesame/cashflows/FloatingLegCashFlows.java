@@ -263,6 +263,25 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
                               List<Double> spreads,
                               List<Double> gearings,
                               List<Tenor> indexTenors) {
+
+    ArgumentChecker.notNull(startAccrualDates, "startAccrualDates");
+    ArgumentChecker.notNull(endAccrualDates, "endAccrualDates");
+    ArgumentChecker.notNull(accrualYearFractions, "accrualYearFractions");
+    ArgumentChecker.notNull(fixingStart, "fixingStart");
+    ArgumentChecker.notNull(fixingEnd, "fixingEnd");
+    ArgumentChecker.notNull(fixingYearFractions, "fixingYearFractions");
+    ArgumentChecker.notNull(forwardRates, "forwardRates");
+    ArgumentChecker.notNull(fixedRates, "fixedRates");
+    ArgumentChecker.notNull(paymentDates, "paymentDates");
+    ArgumentChecker.notNull(paymentTimes, "paymentTimes");
+    ArgumentChecker.notNull(paymentDiscountFactors, "paymentDiscountFactors");
+    ArgumentChecker.notNull(paymentAmounts, "paymentAmounts");
+    ArgumentChecker.notNull(projectedAmounts, "projectedAmounts");
+    ArgumentChecker.notNull(notionals, "notionals");
+    ArgumentChecker.notNull(spreads, "spreads");
+    ArgumentChecker.notNull(gearings, "gearings");
+    ArgumentChecker.notNull(indexTenors, "indexTenors");
+
     _accrualStart = Collections.unmodifiableList(Lists.newArrayList(startAccrualDates));
     _accrualEnd = Collections.unmodifiableList(Lists.newArrayList(endAccrualDates));
     _notionals = Collections.unmodifiableList(Lists.newArrayList(notionals));
