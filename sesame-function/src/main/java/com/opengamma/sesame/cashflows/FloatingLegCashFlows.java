@@ -22,6 +22,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.DerivedProperty;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -32,7 +33,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
@@ -151,16 +151,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   @PropertyDefinition(validate = "notNull")
   private final List<LocalDate> _accrualEnd;
   /**
-   * An array of notionals.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final List<CurrencyAmount> _notionals;
-  /**
-   * An array of payment times.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final List<Double> _paymentTimes;
-  /**
    * An array of accrual year fractions.
    */
   @PropertyDefinition(validate = "notNull")
@@ -196,10 +186,30 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   @PropertyDefinition(validate = "notNull")
   private final List<LocalDate> _paymentDates;
   /**
+   * An array of payment times.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<Double> _paymentTimes;
+  /**
+   * An array of payment discount factors.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<Double> _paymentDiscountFactors;
+  /**
    * An array of payment amounts. May contain nulls if there have been no fixings as of the valuation date.
    */
   @PropertyDefinition(validate = "notNull")
   private final List<CurrencyAmount> _paymentAmounts;
+  /**
+   * An array of projected amounts. May contain nulls if there has been a fixing as of the valuation date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<CurrencyAmount> _projectedAmounts;
+  /**
+   * An array of notionals.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final List<CurrencyAmount> _notionals;
   /**
    * An array of spreads.
    */
@@ -210,16 +220,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    */
   @PropertyDefinition(validate = "notNull")
   private final List<Double> _gearings;
-  /**
-   * An array of payment discount factors.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final List<Double> _paymentDiscountFactors;
-  /**
-   * An array of projected amounts. May contain nulls if there has been a fixing as of the valuation date.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final List<CurrencyAmount> _projectedAmounts;
   /**
    * An array of index tenors. May contain nulls if there has been a fixing as of the valuation date.
    */
@@ -245,11 +245,43 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    * @param gearings The gearings, not null
    * @param indexTenors The index tenors, not null
    */
-  public FloatingLegCashFlows(List<LocalDate> startAccrualDates, List<LocalDate> endAccrualDates, List<Double> accrualYearFractions,
-                              List<LocalDate> fixingStart, List<LocalDate> fixingEnd, List<Double> fixingYearFractions, List<Double> forwardRates,
-                              List<Double> fixedRates, List<LocalDate> paymentDates, List<Double> paymentTimes, List<Double> paymentDiscountFactors,
-                              List<CurrencyAmount> paymentAmounts, List<CurrencyAmount> projectedAmounts, List<CurrencyAmount> notionals, List<Double> spreads,
-                              List<Double> gearings, List<Tenor> indexTenors) {
+  @ImmutableConstructor
+  public FloatingLegCashFlows(List<LocalDate> startAccrualDates,
+                              List<LocalDate> endAccrualDates,
+                              List<Double> accrualYearFractions,
+                              List<LocalDate> fixingStart,
+                              List<LocalDate> fixingEnd,
+                              List<Double> fixingYearFractions,
+                              List<Double> forwardRates,
+                              List<Double> fixedRates,
+                              List<LocalDate> paymentDates,
+                              List<Double> paymentTimes,
+                              List<Double> paymentDiscountFactors,
+                              List<CurrencyAmount> paymentAmounts,
+                              List<CurrencyAmount> projectedAmounts,
+                              List<CurrencyAmount> notionals,
+                              List<Double> spreads,
+                              List<Double> gearings,
+                              List<Tenor> indexTenors) {
+
+    ArgumentChecker.notNull(startAccrualDates, "startAccrualDates");
+    ArgumentChecker.notNull(endAccrualDates, "endAccrualDates");
+    ArgumentChecker.notNull(accrualYearFractions, "accrualYearFractions");
+    ArgumentChecker.notNull(fixingStart, "fixingStart");
+    ArgumentChecker.notNull(fixingEnd, "fixingEnd");
+    ArgumentChecker.notNull(fixingYearFractions, "fixingYearFractions");
+    ArgumentChecker.notNull(forwardRates, "forwardRates");
+    ArgumentChecker.notNull(fixedRates, "fixedRates");
+    ArgumentChecker.notNull(paymentDates, "paymentDates");
+    ArgumentChecker.notNull(paymentTimes, "paymentTimes");
+    ArgumentChecker.notNull(paymentDiscountFactors, "paymentDiscountFactors");
+    ArgumentChecker.notNull(paymentAmounts, "paymentAmounts");
+    ArgumentChecker.notNull(projectedAmounts, "projectedAmounts");
+    ArgumentChecker.notNull(notionals, "notionals");
+    ArgumentChecker.notNull(spreads, "spreads");
+    ArgumentChecker.notNull(gearings, "gearings");
+    ArgumentChecker.notNull(indexTenors, "indexTenors");
+
     _accrualStart = Collections.unmodifiableList(Lists.newArrayList(startAccrualDates));
     _accrualEnd = Collections.unmodifiableList(Lists.newArrayList(endAccrualDates));
     _notionals = Collections.unmodifiableList(Lists.newArrayList(notionals));
@@ -268,7 +300,7 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     _gearings = Collections.unmodifiableList(Lists.newArrayList(gearings));
     _indexTenors = Collections.unmodifiableList(Lists.newArrayList(indexTenors));
 
-    final int n = notionals.size();
+    int n = notionals.size();
     ArgumentChecker.isTrue(n == startAccrualDates.size(), "number of accrual start dates must equal number of notionals");
     ArgumentChecker.isTrue(n == endAccrualDates.size(), "number of accrual end dates must equal number of notionals");
     ArgumentChecker.isTrue(n == accrualYearFractions.size(), "number of accrual year fractions must equal number of notionals");
@@ -321,11 +353,12 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   public List<CurrencyAmount> getDiscountedPaymentAmounts() {
     List<CurrencyAmount> cashflows = new ArrayList<>();
     for (int i = 0; i < getNumberOfCashFlows(); i++) {
-      final CurrencyAmount payment = getPaymentAmounts().get(i);
+      CurrencyAmount payment = getPaymentAmounts().get(i);
       if (payment == null) {
         cashflows.add(null);
+        continue;
       }
-      final double df = getPaymentDiscountFactors().get(i);
+      double df = getPaymentDiscountFactors().get(i);
       cashflows.add(CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df));
     }
     return cashflows;
@@ -339,11 +372,12 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   public List<CurrencyAmount> getDiscountedProjectedAmounts() {
     List<CurrencyAmount> cashflows = new ArrayList<>();
     for (int i = 0; i < getNumberOfCashFlows(); i++) {
-      final CurrencyAmount payment = getProjectedAmounts().get(i);
+      CurrencyAmount payment = getProjectedAmounts().get(i);
       if (payment == null) {
         cashflows.add(null);
+        continue;
       }
-      final double df = getPaymentDiscountFactors().get(i);
+      double df = getPaymentDiscountFactors().get(i);
       cashflows.add(CurrencyAmount.of(payment.getCurrency(), payment.getAmount() * df));
     }
     return cashflows;
@@ -368,47 +402,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    */
   public static FloatingLegCashFlows.Builder builder() {
     return new FloatingLegCashFlows.Builder();
-  }
-
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected FloatingLegCashFlows(FloatingLegCashFlows.Builder builder) {
-    JodaBeanUtils.notNull(builder._accrualStart, "accrualStart");
-    JodaBeanUtils.notNull(builder._accrualEnd, "accrualEnd");
-    JodaBeanUtils.notNull(builder._notionals, "notionals");
-    JodaBeanUtils.notNull(builder._paymentTimes, "paymentTimes");
-    JodaBeanUtils.notNull(builder._accrualYearFractions, "accrualYearFractions");
-    JodaBeanUtils.notNull(builder._fixingStart, "fixingStart");
-    JodaBeanUtils.notNull(builder._fixingEnd, "fixingEnd");
-    JodaBeanUtils.notNull(builder._fixingYearFractions, "fixingYearFractions");
-    JodaBeanUtils.notNull(builder._forwardRates, "forwardRates");
-    JodaBeanUtils.notNull(builder._fixedRates, "fixedRates");
-    JodaBeanUtils.notNull(builder._paymentDates, "paymentDates");
-    JodaBeanUtils.notNull(builder._paymentAmounts, "paymentAmounts");
-    JodaBeanUtils.notNull(builder._spreads, "spreads");
-    JodaBeanUtils.notNull(builder._gearings, "gearings");
-    JodaBeanUtils.notNull(builder._paymentDiscountFactors, "paymentDiscountFactors");
-    JodaBeanUtils.notNull(builder._projectedAmounts, "projectedAmounts");
-    JodaBeanUtils.notNull(builder._indexTenors, "indexTenors");
-    this._accrualStart = ImmutableList.copyOf(builder._accrualStart);
-    this._accrualEnd = ImmutableList.copyOf(builder._accrualEnd);
-    this._notionals = ImmutableList.copyOf(builder._notionals);
-    this._paymentTimes = ImmutableList.copyOf(builder._paymentTimes);
-    this._accrualYearFractions = ImmutableList.copyOf(builder._accrualYearFractions);
-    this._fixingStart = ImmutableList.copyOf(builder._fixingStart);
-    this._fixingEnd = ImmutableList.copyOf(builder._fixingEnd);
-    this._fixingYearFractions = ImmutableList.copyOf(builder._fixingYearFractions);
-    this._forwardRates = ImmutableList.copyOf(builder._forwardRates);
-    this._fixedRates = ImmutableList.copyOf(builder._fixedRates);
-    this._paymentDates = ImmutableList.copyOf(builder._paymentDates);
-    this._paymentAmounts = ImmutableList.copyOf(builder._paymentAmounts);
-    this._spreads = ImmutableList.copyOf(builder._spreads);
-    this._gearings = ImmutableList.copyOf(builder._gearings);
-    this._paymentDiscountFactors = ImmutableList.copyOf(builder._paymentDiscountFactors);
-    this._projectedAmounts = ImmutableList.copyOf(builder._projectedAmounts);
-    this._indexTenors = ImmutableList.copyOf(builder._indexTenors);
   }
 
   @Override
@@ -442,24 +435,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    */
   public List<LocalDate> getAccrualEnd() {
     return _accrualEnd;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets an array of notionals.
-   * @return the value of the property, not null
-   */
-  public List<CurrencyAmount> getNotionals() {
-    return _notionals;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets an array of payment times.
-   * @return the value of the property, not null
-   */
-  public List<Double> getPaymentTimes() {
-    return _paymentTimes;
   }
 
   //-----------------------------------------------------------------------
@@ -527,11 +502,47 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets an array of payment times.
+   * @return the value of the property, not null
+   */
+  public List<Double> getPaymentTimes() {
+    return _paymentTimes;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets an array of payment discount factors.
+   * @return the value of the property, not null
+   */
+  public List<Double> getPaymentDiscountFactors() {
+    return _paymentDiscountFactors;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets an array of payment amounts. May contain nulls if there have been no fixings as of the valuation date.
    * @return the value of the property, not null
    */
   public List<CurrencyAmount> getPaymentAmounts() {
     return _paymentAmounts;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets an array of projected amounts. May contain nulls if there has been a fixing as of the valuation date.
+   * @return the value of the property, not null
+   */
+  public List<CurrencyAmount> getProjectedAmounts() {
+    return _projectedAmounts;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets an array of notionals.
+   * @return the value of the property, not null
+   */
+  public List<CurrencyAmount> getNotionals() {
+    return _notionals;
   }
 
   //-----------------------------------------------------------------------
@@ -550,24 +561,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
    */
   public List<Double> getGearings() {
     return _gearings;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets an array of payment discount factors.
-   * @return the value of the property, not null
-   */
-  public List<Double> getPaymentDiscountFactors() {
-    return _paymentDiscountFactors;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets an array of projected amounts. May contain nulls if there has been a fixing as of the valuation date.
-   * @return the value of the property, not null
-   */
-  public List<CurrencyAmount> getProjectedAmounts() {
-    return _projectedAmounts;
   }
 
   //-----------------------------------------------------------------------
@@ -602,8 +595,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       FloatingLegCashFlows other = (FloatingLegCashFlows) obj;
       return JodaBeanUtils.equal(getAccrualStart(), other.getAccrualStart()) &&
           JodaBeanUtils.equal(getAccrualEnd(), other.getAccrualEnd()) &&
-          JodaBeanUtils.equal(getNotionals(), other.getNotionals()) &&
-          JodaBeanUtils.equal(getPaymentTimes(), other.getPaymentTimes()) &&
           JodaBeanUtils.equal(getAccrualYearFractions(), other.getAccrualYearFractions()) &&
           JodaBeanUtils.equal(getFixingStart(), other.getFixingStart()) &&
           JodaBeanUtils.equal(getFixingEnd(), other.getFixingEnd()) &&
@@ -611,11 +602,13 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           JodaBeanUtils.equal(getForwardRates(), other.getForwardRates()) &&
           JodaBeanUtils.equal(getFixedRates(), other.getFixedRates()) &&
           JodaBeanUtils.equal(getPaymentDates(), other.getPaymentDates()) &&
+          JodaBeanUtils.equal(getPaymentTimes(), other.getPaymentTimes()) &&
+          JodaBeanUtils.equal(getPaymentDiscountFactors(), other.getPaymentDiscountFactors()) &&
           JodaBeanUtils.equal(getPaymentAmounts(), other.getPaymentAmounts()) &&
+          JodaBeanUtils.equal(getProjectedAmounts(), other.getProjectedAmounts()) &&
+          JodaBeanUtils.equal(getNotionals(), other.getNotionals()) &&
           JodaBeanUtils.equal(getSpreads(), other.getSpreads()) &&
           JodaBeanUtils.equal(getGearings(), other.getGearings()) &&
-          JodaBeanUtils.equal(getPaymentDiscountFactors(), other.getPaymentDiscountFactors()) &&
-          JodaBeanUtils.equal(getProjectedAmounts(), other.getProjectedAmounts()) &&
           JodaBeanUtils.equal(getIndexTenors(), other.getIndexTenors()) &&
           (getNumberOfFixedCashFlows() == other.getNumberOfFixedCashFlows()) &&
           (getNumberOfFloatingCashFlows() == other.getNumberOfFloatingCashFlows()) &&
@@ -631,8 +624,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualStart());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualEnd());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTimes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualYearFractions());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingStart());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingEnd());
@@ -640,11 +631,13 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     hash += hash * 31 + JodaBeanUtils.hashCode(getForwardRates());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDates());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTimes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDiscountFactors());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentAmounts());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProjectedAmounts());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpreads());
     hash += hash * 31 + JodaBeanUtils.hashCode(getGearings());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDiscountFactors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProjectedAmounts());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndexTenors());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfFixedCashFlows());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfFloatingCashFlows());
@@ -670,8 +663,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
   protected void toString(StringBuilder buf) {
     buf.append("accrualStart").append('=').append(JodaBeanUtils.toString(getAccrualStart())).append(',').append(' ');
     buf.append("accrualEnd").append('=').append(JodaBeanUtils.toString(getAccrualEnd())).append(',').append(' ');
-    buf.append("notionals").append('=').append(JodaBeanUtils.toString(getNotionals())).append(',').append(' ');
-    buf.append("paymentTimes").append('=').append(JodaBeanUtils.toString(getPaymentTimes())).append(',').append(' ');
     buf.append("accrualYearFractions").append('=').append(JodaBeanUtils.toString(getAccrualYearFractions())).append(',').append(' ');
     buf.append("fixingStart").append('=').append(JodaBeanUtils.toString(getFixingStart())).append(',').append(' ');
     buf.append("fixingEnd").append('=').append(JodaBeanUtils.toString(getFixingEnd())).append(',').append(' ');
@@ -679,11 +670,13 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     buf.append("forwardRates").append('=').append(JodaBeanUtils.toString(getForwardRates())).append(',').append(' ');
     buf.append("fixedRates").append('=').append(JodaBeanUtils.toString(getFixedRates())).append(',').append(' ');
     buf.append("paymentDates").append('=').append(JodaBeanUtils.toString(getPaymentDates())).append(',').append(' ');
+    buf.append("paymentTimes").append('=').append(JodaBeanUtils.toString(getPaymentTimes())).append(',').append(' ');
+    buf.append("paymentDiscountFactors").append('=').append(JodaBeanUtils.toString(getPaymentDiscountFactors())).append(',').append(' ');
     buf.append("paymentAmounts").append('=').append(JodaBeanUtils.toString(getPaymentAmounts())).append(',').append(' ');
+    buf.append("projectedAmounts").append('=').append(JodaBeanUtils.toString(getProjectedAmounts())).append(',').append(' ');
+    buf.append("notionals").append('=').append(JodaBeanUtils.toString(getNotionals())).append(',').append(' ');
     buf.append("spreads").append('=').append(JodaBeanUtils.toString(getSpreads())).append(',').append(' ');
     buf.append("gearings").append('=').append(JodaBeanUtils.toString(getGearings())).append(',').append(' ');
-    buf.append("paymentDiscountFactors").append('=').append(JodaBeanUtils.toString(getPaymentDiscountFactors())).append(',').append(' ');
-    buf.append("projectedAmounts").append('=').append(JodaBeanUtils.toString(getProjectedAmounts())).append(',').append(' ');
     buf.append("indexTenors").append('=').append(JodaBeanUtils.toString(getIndexTenors())).append(',').append(' ');
     buf.append("numberOfFixedCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfFixedCashFlows())).append(',').append(' ');
     buf.append("numberOfFloatingCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfFloatingCashFlows())).append(',').append(' ');
@@ -714,18 +707,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<LocalDate>> _accrualEnd = DirectMetaProperty.ofImmutable(
         this, "accrualEnd", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code notionals} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurrencyAmount>> _notionals = DirectMetaProperty.ofImmutable(
-        this, "notionals", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code paymentTimes} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _paymentTimes = DirectMetaProperty.ofImmutable(
-        this, "paymentTimes", FloatingLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code accrualYearFractions} property.
      */
@@ -769,11 +750,35 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     private final MetaProperty<List<LocalDate>> _paymentDates = DirectMetaProperty.ofImmutable(
         this, "paymentDates", FloatingLegCashFlows.class, (Class) List.class);
     /**
+     * The meta-property for the {@code paymentTimes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Double>> _paymentTimes = DirectMetaProperty.ofImmutable(
+        this, "paymentTimes", FloatingLegCashFlows.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code paymentDiscountFactors} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Double>> _paymentDiscountFactors = DirectMetaProperty.ofImmutable(
+        this, "paymentDiscountFactors", FloatingLegCashFlows.class, (Class) List.class);
+    /**
      * The meta-property for the {@code paymentAmounts} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<CurrencyAmount>> _paymentAmounts = DirectMetaProperty.ofImmutable(
         this, "paymentAmounts", FloatingLegCashFlows.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code projectedAmounts} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<CurrencyAmount>> _projectedAmounts = DirectMetaProperty.ofImmutable(
+        this, "projectedAmounts", FloatingLegCashFlows.class, (Class) List.class);
+    /**
+     * The meta-property for the {@code notionals} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<CurrencyAmount>> _notionals = DirectMetaProperty.ofImmutable(
+        this, "notionals", FloatingLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code spreads} property.
      */
@@ -786,18 +791,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<List<Double>> _gearings = DirectMetaProperty.ofImmutable(
         this, "gearings", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code paymentDiscountFactors} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<Double>> _paymentDiscountFactors = DirectMetaProperty.ofImmutable(
-        this, "paymentDiscountFactors", FloatingLegCashFlows.class, (Class) List.class);
-    /**
-     * The meta-property for the {@code projectedAmounts} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<CurrencyAmount>> _projectedAmounts = DirectMetaProperty.ofImmutable(
-        this, "projectedAmounts", FloatingLegCashFlows.class, (Class) List.class);
     /**
      * The meta-property for the {@code indexTenors} property.
      */
@@ -838,8 +831,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
         this, null,
         "accrualStart",
         "accrualEnd",
-        "notionals",
-        "paymentTimes",
         "accrualYearFractions",
         "fixingStart",
         "fixingEnd",
@@ -847,11 +838,13 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
         "forwardRates",
         "fixedRates",
         "paymentDates",
+        "paymentTimes",
+        "paymentDiscountFactors",
         "paymentAmounts",
+        "projectedAmounts",
+        "notionals",
         "spreads",
         "gearings",
-        "paymentDiscountFactors",
-        "projectedAmounts",
         "indexTenors",
         "numberOfFixedCashFlows",
         "numberOfFloatingCashFlows",
@@ -872,10 +865,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           return _accrualStart;
         case 1846909100:  // accrualEnd
           return _accrualEnd;
-        case 1910080819:  // notionals
-          return _notionals;
-        case -507430688:  // paymentTimes
-          return _paymentTimes;
         case 1516259717:  // accrualYearFractions
           return _accrualYearFractions;
         case 270958773:  // fixingStart
@@ -890,16 +879,20 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           return _fixedRates;
         case -522438625:  // paymentDates
           return _paymentDates;
+        case -507430688:  // paymentTimes
+          return _paymentTimes;
+        case -650014307:  // paymentDiscountFactors
+          return _paymentDiscountFactors;
         case -1875448267:  // paymentAmounts
           return _paymentAmounts;
+        case -176306557:  // projectedAmounts
+          return _projectedAmounts;
+        case 1910080819:  // notionals
+          return _notionals;
         case -1996407456:  // spreads
           return _spreads;
         case 1449942752:  // gearings
           return _gearings;
-        case -650014307:  // paymentDiscountFactors
-          return _paymentDiscountFactors;
-        case -176306557:  // projectedAmounts
-          return _projectedAmounts;
         case 1358155045:  // indexTenors
           return _indexTenors;
         case -857546850:  // numberOfFixedCashFlows
@@ -946,22 +939,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
      */
     public final MetaProperty<List<LocalDate>> accrualEnd() {
       return _accrualEnd;
-    }
-
-    /**
-     * The meta-property for the {@code notionals} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<CurrencyAmount>> notionals() {
-      return _notionals;
-    }
-
-    /**
-     * The meta-property for the {@code paymentTimes} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> paymentTimes() {
-      return _paymentTimes;
     }
 
     /**
@@ -1021,11 +998,43 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     }
 
     /**
+     * The meta-property for the {@code paymentTimes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<Double>> paymentTimes() {
+      return _paymentTimes;
+    }
+
+    /**
+     * The meta-property for the {@code paymentDiscountFactors} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<Double>> paymentDiscountFactors() {
+      return _paymentDiscountFactors;
+    }
+
+    /**
      * The meta-property for the {@code paymentAmounts} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<List<CurrencyAmount>> paymentAmounts() {
       return _paymentAmounts;
+    }
+
+    /**
+     * The meta-property for the {@code projectedAmounts} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<CurrencyAmount>> projectedAmounts() {
+      return _projectedAmounts;
+    }
+
+    /**
+     * The meta-property for the {@code notionals} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<CurrencyAmount>> notionals() {
+      return _notionals;
     }
 
     /**
@@ -1042,22 +1051,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
      */
     public final MetaProperty<List<Double>> gearings() {
       return _gearings;
-    }
-
-    /**
-     * The meta-property for the {@code paymentDiscountFactors} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<Double>> paymentDiscountFactors() {
-      return _paymentDiscountFactors;
-    }
-
-    /**
-     * The meta-property for the {@code projectedAmounts} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<List<CurrencyAmount>> projectedAmounts() {
-      return _projectedAmounts;
     }
 
     /**
@@ -1116,10 +1109,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           return ((FloatingLegCashFlows) bean).getAccrualStart();
         case 1846909100:  // accrualEnd
           return ((FloatingLegCashFlows) bean).getAccrualEnd();
-        case 1910080819:  // notionals
-          return ((FloatingLegCashFlows) bean).getNotionals();
-        case -507430688:  // paymentTimes
-          return ((FloatingLegCashFlows) bean).getPaymentTimes();
         case 1516259717:  // accrualYearFractions
           return ((FloatingLegCashFlows) bean).getAccrualYearFractions();
         case 270958773:  // fixingStart
@@ -1134,16 +1123,20 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           return ((FloatingLegCashFlows) bean).getFixedRates();
         case -522438625:  // paymentDates
           return ((FloatingLegCashFlows) bean).getPaymentDates();
+        case -507430688:  // paymentTimes
+          return ((FloatingLegCashFlows) bean).getPaymentTimes();
+        case -650014307:  // paymentDiscountFactors
+          return ((FloatingLegCashFlows) bean).getPaymentDiscountFactors();
         case -1875448267:  // paymentAmounts
           return ((FloatingLegCashFlows) bean).getPaymentAmounts();
+        case -176306557:  // projectedAmounts
+          return ((FloatingLegCashFlows) bean).getProjectedAmounts();
+        case 1910080819:  // notionals
+          return ((FloatingLegCashFlows) bean).getNotionals();
         case -1996407456:  // spreads
           return ((FloatingLegCashFlows) bean).getSpreads();
         case 1449942752:  // gearings
           return ((FloatingLegCashFlows) bean).getGearings();
-        case -650014307:  // paymentDiscountFactors
-          return ((FloatingLegCashFlows) bean).getPaymentDiscountFactors();
-        case -176306557:  // projectedAmounts
-          return ((FloatingLegCashFlows) bean).getProjectedAmounts();
         case 1358155045:  // indexTenors
           return ((FloatingLegCashFlows) bean).getIndexTenors();
         case -857546850:  // numberOfFixedCashFlows
@@ -1179,8 +1172,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
     private List<LocalDate> _accrualStart = new ArrayList<LocalDate>();
     private List<LocalDate> _accrualEnd = new ArrayList<LocalDate>();
-    private List<CurrencyAmount> _notionals = new ArrayList<CurrencyAmount>();
-    private List<Double> _paymentTimes = new ArrayList<Double>();
     private List<Double> _accrualYearFractions = new ArrayList<Double>();
     private List<LocalDate> _fixingStart = new ArrayList<LocalDate>();
     private List<LocalDate> _fixingEnd = new ArrayList<LocalDate>();
@@ -1188,11 +1179,13 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     private List<Double> _forwardRates = new ArrayList<Double>();
     private List<Double> _fixedRates = new ArrayList<Double>();
     private List<LocalDate> _paymentDates = new ArrayList<LocalDate>();
+    private List<Double> _paymentTimes = new ArrayList<Double>();
+    private List<Double> _paymentDiscountFactors = new ArrayList<Double>();
     private List<CurrencyAmount> _paymentAmounts = new ArrayList<CurrencyAmount>();
+    private List<CurrencyAmount> _projectedAmounts = new ArrayList<CurrencyAmount>();
+    private List<CurrencyAmount> _notionals = new ArrayList<CurrencyAmount>();
     private List<Double> _spreads = new ArrayList<Double>();
     private List<Double> _gearings = new ArrayList<Double>();
-    private List<Double> _paymentDiscountFactors = new ArrayList<Double>();
-    private List<CurrencyAmount> _projectedAmounts = new ArrayList<CurrencyAmount>();
     private List<Tenor> _indexTenors = new ArrayList<Tenor>();
 
     /**
@@ -1208,8 +1201,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     protected Builder(FloatingLegCashFlows beanToCopy) {
       this._accrualStart = new ArrayList<LocalDate>(beanToCopy.getAccrualStart());
       this._accrualEnd = new ArrayList<LocalDate>(beanToCopy.getAccrualEnd());
-      this._notionals = new ArrayList<CurrencyAmount>(beanToCopy.getNotionals());
-      this._paymentTimes = new ArrayList<Double>(beanToCopy.getPaymentTimes());
       this._accrualYearFractions = new ArrayList<Double>(beanToCopy.getAccrualYearFractions());
       this._fixingStart = new ArrayList<LocalDate>(beanToCopy.getFixingStart());
       this._fixingEnd = new ArrayList<LocalDate>(beanToCopy.getFixingEnd());
@@ -1217,11 +1208,13 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       this._forwardRates = new ArrayList<Double>(beanToCopy.getForwardRates());
       this._fixedRates = new ArrayList<Double>(beanToCopy.getFixedRates());
       this._paymentDates = new ArrayList<LocalDate>(beanToCopy.getPaymentDates());
+      this._paymentTimes = new ArrayList<Double>(beanToCopy.getPaymentTimes());
+      this._paymentDiscountFactors = new ArrayList<Double>(beanToCopy.getPaymentDiscountFactors());
       this._paymentAmounts = new ArrayList<CurrencyAmount>(beanToCopy.getPaymentAmounts());
+      this._projectedAmounts = new ArrayList<CurrencyAmount>(beanToCopy.getProjectedAmounts());
+      this._notionals = new ArrayList<CurrencyAmount>(beanToCopy.getNotionals());
       this._spreads = new ArrayList<Double>(beanToCopy.getSpreads());
       this._gearings = new ArrayList<Double>(beanToCopy.getGearings());
-      this._paymentDiscountFactors = new ArrayList<Double>(beanToCopy.getPaymentDiscountFactors());
-      this._projectedAmounts = new ArrayList<CurrencyAmount>(beanToCopy.getProjectedAmounts());
       this._indexTenors = new ArrayList<Tenor>(beanToCopy.getIndexTenors());
     }
 
@@ -1233,10 +1226,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           return _accrualStart;
         case 1846909100:  // accrualEnd
           return _accrualEnd;
-        case 1910080819:  // notionals
-          return _notionals;
-        case -507430688:  // paymentTimes
-          return _paymentTimes;
         case 1516259717:  // accrualYearFractions
           return _accrualYearFractions;
         case 270958773:  // fixingStart
@@ -1251,16 +1240,20 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           return _fixedRates;
         case -522438625:  // paymentDates
           return _paymentDates;
+        case -507430688:  // paymentTimes
+          return _paymentTimes;
+        case -650014307:  // paymentDiscountFactors
+          return _paymentDiscountFactors;
         case -1875448267:  // paymentAmounts
           return _paymentAmounts;
+        case -176306557:  // projectedAmounts
+          return _projectedAmounts;
+        case 1910080819:  // notionals
+          return _notionals;
         case -1996407456:  // spreads
           return _spreads;
         case 1449942752:  // gearings
           return _gearings;
-        case -650014307:  // paymentDiscountFactors
-          return _paymentDiscountFactors;
-        case -176306557:  // projectedAmounts
-          return _projectedAmounts;
         case 1358155045:  // indexTenors
           return _indexTenors;
         default:
@@ -1277,12 +1270,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
           break;
         case 1846909100:  // accrualEnd
           this._accrualEnd = (List<LocalDate>) newValue;
-          break;
-        case 1910080819:  // notionals
-          this._notionals = (List<CurrencyAmount>) newValue;
-          break;
-        case -507430688:  // paymentTimes
-          this._paymentTimes = (List<Double>) newValue;
           break;
         case 1516259717:  // accrualYearFractions
           this._accrualYearFractions = (List<Double>) newValue;
@@ -1305,20 +1292,26 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
         case -522438625:  // paymentDates
           this._paymentDates = (List<LocalDate>) newValue;
           break;
+        case -507430688:  // paymentTimes
+          this._paymentTimes = (List<Double>) newValue;
+          break;
+        case -650014307:  // paymentDiscountFactors
+          this._paymentDiscountFactors = (List<Double>) newValue;
+          break;
         case -1875448267:  // paymentAmounts
           this._paymentAmounts = (List<CurrencyAmount>) newValue;
+          break;
+        case -176306557:  // projectedAmounts
+          this._projectedAmounts = (List<CurrencyAmount>) newValue;
+          break;
+        case 1910080819:  // notionals
+          this._notionals = (List<CurrencyAmount>) newValue;
           break;
         case -1996407456:  // spreads
           this._spreads = (List<Double>) newValue;
           break;
         case 1449942752:  // gearings
           this._gearings = (List<Double>) newValue;
-          break;
-        case -650014307:  // paymentDiscountFactors
-          this._paymentDiscountFactors = (List<Double>) newValue;
-          break;
-        case -176306557:  // projectedAmounts
-          this._projectedAmounts = (List<CurrencyAmount>) newValue;
           break;
         case 1358155045:  // indexTenors
           this._indexTenors = (List<Tenor>) newValue;
@@ -1355,7 +1348,24 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
 
     @Override
     public FloatingLegCashFlows build() {
-      return new FloatingLegCashFlows(this);
+      return new FloatingLegCashFlows(
+          _accrualStart,
+          _accrualEnd,
+          _accrualYearFractions,
+          _fixingStart,
+          _fixingEnd,
+          _fixingYearFractions,
+          _forwardRates,
+          _fixedRates,
+          _paymentDates,
+          _paymentTimes,
+          _paymentDiscountFactors,
+          _paymentAmounts,
+          _projectedAmounts,
+          _notionals,
+          _spreads,
+          _gearings,
+          _indexTenors);
     }
 
     //-----------------------------------------------------------------------
@@ -1378,28 +1388,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     public Builder accrualEnd(List<LocalDate> accrualEnd) {
       JodaBeanUtils.notNull(accrualEnd, "accrualEnd");
       this._accrualEnd = accrualEnd;
-      return this;
-    }
-
-    /**
-     * Sets the {@code notionals} property in the builder.
-     * @param notionals  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder notionals(List<CurrencyAmount> notionals) {
-      JodaBeanUtils.notNull(notionals, "notionals");
-      this._notionals = notionals;
-      return this;
-    }
-
-    /**
-     * Sets the {@code paymentTimes} property in the builder.
-     * @param paymentTimes  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder paymentTimes(List<Double> paymentTimes) {
-      JodaBeanUtils.notNull(paymentTimes, "paymentTimes");
-      this._paymentTimes = paymentTimes;
       return this;
     }
 
@@ -1481,6 +1469,28 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     }
 
     /**
+     * Sets the {@code paymentTimes} property in the builder.
+     * @param paymentTimes  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder paymentTimes(List<Double> paymentTimes) {
+      JodaBeanUtils.notNull(paymentTimes, "paymentTimes");
+      this._paymentTimes = paymentTimes;
+      return this;
+    }
+
+    /**
+     * Sets the {@code paymentDiscountFactors} property in the builder.
+     * @param paymentDiscountFactors  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder paymentDiscountFactors(List<Double> paymentDiscountFactors) {
+      JodaBeanUtils.notNull(paymentDiscountFactors, "paymentDiscountFactors");
+      this._paymentDiscountFactors = paymentDiscountFactors;
+      return this;
+    }
+
+    /**
      * Sets the {@code paymentAmounts} property in the builder.
      * @param paymentAmounts  the new value, not null
      * @return this, for chaining, not null
@@ -1488,6 +1498,28 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     public Builder paymentAmounts(List<CurrencyAmount> paymentAmounts) {
       JodaBeanUtils.notNull(paymentAmounts, "paymentAmounts");
       this._paymentAmounts = paymentAmounts;
+      return this;
+    }
+
+    /**
+     * Sets the {@code projectedAmounts} property in the builder.
+     * @param projectedAmounts  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder projectedAmounts(List<CurrencyAmount> projectedAmounts) {
+      JodaBeanUtils.notNull(projectedAmounts, "projectedAmounts");
+      this._projectedAmounts = projectedAmounts;
+      return this;
+    }
+
+    /**
+     * Sets the {@code notionals} property in the builder.
+     * @param notionals  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder notionals(List<CurrencyAmount> notionals) {
+      JodaBeanUtils.notNull(notionals, "notionals");
+      this._notionals = notionals;
       return this;
     }
 
@@ -1510,28 +1542,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     public Builder gearings(List<Double> gearings) {
       JodaBeanUtils.notNull(gearings, "gearings");
       this._gearings = gearings;
-      return this;
-    }
-
-    /**
-     * Sets the {@code paymentDiscountFactors} property in the builder.
-     * @param paymentDiscountFactors  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder paymentDiscountFactors(List<Double> paymentDiscountFactors) {
-      JodaBeanUtils.notNull(paymentDiscountFactors, "paymentDiscountFactors");
-      this._paymentDiscountFactors = paymentDiscountFactors;
-      return this;
-    }
-
-    /**
-     * Sets the {@code projectedAmounts} property in the builder.
-     * @param projectedAmounts  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder projectedAmounts(List<CurrencyAmount> projectedAmounts) {
-      JodaBeanUtils.notNull(projectedAmounts, "projectedAmounts");
-      this._projectedAmounts = projectedAmounts;
       return this;
     }
 
@@ -1563,8 +1573,6 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
     protected void toString(StringBuilder buf) {
       buf.append("accrualStart").append('=').append(JodaBeanUtils.toString(_accrualStart)).append(',').append(' ');
       buf.append("accrualEnd").append('=').append(JodaBeanUtils.toString(_accrualEnd)).append(',').append(' ');
-      buf.append("notionals").append('=').append(JodaBeanUtils.toString(_notionals)).append(',').append(' ');
-      buf.append("paymentTimes").append('=').append(JodaBeanUtils.toString(_paymentTimes)).append(',').append(' ');
       buf.append("accrualYearFractions").append('=').append(JodaBeanUtils.toString(_accrualYearFractions)).append(',').append(' ');
       buf.append("fixingStart").append('=').append(JodaBeanUtils.toString(_fixingStart)).append(',').append(' ');
       buf.append("fixingEnd").append('=').append(JodaBeanUtils.toString(_fixingEnd)).append(',').append(' ');
@@ -1572,11 +1580,13 @@ public class FloatingLegCashFlows implements ImmutableBean, SwapLegCashFlows {
       buf.append("forwardRates").append('=').append(JodaBeanUtils.toString(_forwardRates)).append(',').append(' ');
       buf.append("fixedRates").append('=').append(JodaBeanUtils.toString(_fixedRates)).append(',').append(' ');
       buf.append("paymentDates").append('=').append(JodaBeanUtils.toString(_paymentDates)).append(',').append(' ');
+      buf.append("paymentTimes").append('=').append(JodaBeanUtils.toString(_paymentTimes)).append(',').append(' ');
+      buf.append("paymentDiscountFactors").append('=').append(JodaBeanUtils.toString(_paymentDiscountFactors)).append(',').append(' ');
       buf.append("paymentAmounts").append('=').append(JodaBeanUtils.toString(_paymentAmounts)).append(',').append(' ');
+      buf.append("projectedAmounts").append('=').append(JodaBeanUtils.toString(_projectedAmounts)).append(',').append(' ');
+      buf.append("notionals").append('=').append(JodaBeanUtils.toString(_notionals)).append(',').append(' ');
       buf.append("spreads").append('=').append(JodaBeanUtils.toString(_spreads)).append(',').append(' ');
       buf.append("gearings").append('=').append(JodaBeanUtils.toString(_gearings)).append(',').append(' ');
-      buf.append("paymentDiscountFactors").append('=').append(JodaBeanUtils.toString(_paymentDiscountFactors)).append(',').append(' ');
-      buf.append("projectedAmounts").append('=').append(JodaBeanUtils.toString(_projectedAmounts)).append(',').append(' ');
       buf.append("indexTenors").append('=').append(JodaBeanUtils.toString(_indexTenors)).append(',').append(' ');
     }
 
