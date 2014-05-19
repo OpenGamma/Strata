@@ -68,8 +68,7 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
 
     if (Result.allSuccessful(bundleResult, fixings)) {
       InterestRateSwapCalculator calculator = new DiscountingInterestRateSwapCalculator(security, bundleResult.getValue().getFirst(),
-                                                                                        _swapConverter, env.getValuationTime(),
-                                                                                        _fixedIncomeConverterDataProvider, fixings.getValue());
+          bundleResult.getValue().getSecond(), _swapConverter, env.getValuationTime(), _fixedIncomeConverterDataProvider, fixings.getValue());
       return Result.success(calculator);
     } else {
       return Result.failure(bundleResult, fixings);

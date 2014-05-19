@@ -136,20 +136,22 @@ public class InterestRateMockSources {
   private static final String USD_DISC_OVERNIGHT_MAPPER = "Test USD Discounting Overnight Mapper";
   private static final String USD_LIBOR3M_MAPPER = "Test 3m Libor Mapper";
 
-  private static final String USD_LIBOR3M_CURVE_NAME ="USD-LIBOR3M-FRAIRS";
-  private static final String USD_OIS_CURVE_NAME ="USD-ON-OIS";
-  private static final String USD_FFF_CURVE_NAME ="USD-ON-FFF";
+  /** USD 3M Libor curve name */
+  public static final String USD_LIBOR3M_CURVE_NAME = "USD-LIBOR3M-FRAIRS";
+  /** USD OIS curve name */
+  public static final String USD_OIS_CURVE_NAME = "USD-ON-OIS";
+  private static final String USD_FFF_CURVE_NAME = "USD-ON-FFF";
 
-  private static final String DISC_LEG_CONVENTION =  "USD 1Y Pay Lag Fixed Leg";
+  private static final String DISC_LEG_CONVENTION = "USD 1Y Pay Lag Fixed Leg";
   private static final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
-  private static final String DISC_CONVENTION =  "USD DepositON";
-  private static final String LIBOR_PAY_LEG_CONVENTION_NAME =  "USD IRS Fixed Leg";
+  private static final String DISC_CONVENTION = "USD DepositON";
+  private static final String LIBOR_PAY_LEG_CONVENTION_NAME = "USD IRS Fixed Leg";
   private static final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
-  private static final String LIBOR_CONVENTION =  "USD Libor";
-  private static final String LIBOR_INDEX =  "USD 3M IRS Ibor Leg";
-  private static final String USD_OVERNIGHT_CONVENTION =  "USD Overnight";
-  private static final String USD_FEDFUND_INDEX =  "USD Fed Funds";
-  private static final String USD_FEDFUNDFUTURES_CONVENTION =  "Fed Funds Future";
+  private static final String LIBOR_CONVENTION = "USD Libor";
+  private static final String LIBOR_INDEX = "USD 3M IRS Ibor Leg";
+  private static final String USD_OVERNIGHT_CONVENTION = "USD Overnight";
+  private static final String USD_FEDFUND_INDEX = "USD Fed Funds";
+  private static final String USD_FEDFUNDFUTURES_CONVENTION = "Fed Funds Future";
 
   private static final ExternalId _discPayLegConventionId = ExternalId.of("CONVENTION", DISC_LEG_CONVENTION);
   private static final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);

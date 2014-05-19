@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame.irs;
 
+import static com.opengamma.sesame.OutputNames.BUCKETED_PV01;
+
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
@@ -70,5 +73,15 @@ public interface InterestRateSwapFn {
    */
   @Output(value = OutputNames.PAY_LEG_CASH_FLOWS)
   Result<SwapLegCashFlows> calculatePayLegCashFlows(Environment env, InterestRateSwapSecurity security);
+
+  /**
+   * Calculate the bucketed PV01 for a swap security.
+   *
+   * @param env the environment used for calculation
+   * @param security the swap to calculate the bucketed PV01 for
+   * @return result containing the bucketed PV01 if successful, a Failure otherwise
+   */
+  @Output(BUCKETED_PV01)
+  Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01(Environment env, InterestRateSwapSecurity security);
 
 }

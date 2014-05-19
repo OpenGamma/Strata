@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.irs;
 
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.sesame.cashflows.SwapLegCashFlows;
 import com.opengamma.util.money.Currency;
@@ -52,4 +53,11 @@ public interface InterestRateSwapCalculator {
    * @return result containing the cash flows if successful, a Failure otherwise
    */
   Result<SwapLegCashFlows> calculateReceiveLegCashFlows();
+
+  /**
+   * Calculates the bucketed PV01 for the security
+   *
+   * @return the bucketed PV01
+   */
+  Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01();
 }

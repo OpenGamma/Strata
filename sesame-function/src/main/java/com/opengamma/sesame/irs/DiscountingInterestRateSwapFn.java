@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.irs;
 
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
@@ -71,6 +72,16 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
       return Result.failure(pv01Result);
     }
     return Result.success(pv01Result.getValue());
+  }
+
+  @Override
+  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01(Environment env, InterestRateSwapSecurity security) {
+    Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
+
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateBucketedPV01();
   }
 
   @Override

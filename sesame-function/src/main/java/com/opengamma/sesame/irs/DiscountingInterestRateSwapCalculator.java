@@ -15,7 +15,12 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.PV01Cur
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
+import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
@@ -57,6 +62,21 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01C =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
 
+  /** The curve sensitivity calculator */
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+      PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  /** The parameter sensitivity calculator */
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC =
+      new ParameterSensitivityParameterCalculator<>(PVCSDC);
+  /** The market quote sensitivity calculator */
+  private static final MarketQuoteSensitivityBlockCalculator<MulticurveProviderInterface> BUCKETED_PV01_CALCULATOR =
+      new MarketQuoteSensitivityBlockCalculator<>(PSC);
+
+  /**
+   * Provides scaling to/from basis points.
+   */
+  private static final double BASIS_POINT_FACTOR = 1.0E-4;
+
   /**
    * Derivative form of the security.
    */
@@ -66,6 +86,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    * The multicurve bundle.
    */
   private final MulticurveProviderInterface _bundle;
+
+  /**
+   * The curve building block bundle.
+   */
+  private final CurveBuildingBlockBundle _curveBuildingBlockBundle;
 
   /**
    * The swap definition.
@@ -87,6 +112,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    *
    * @param security the swap to calculate values for, not null
    * @param bundle the multicurve bundle, including the curves, not null
+   * @param curveBuildingBlockBundle the curve block building bundle, not null
    * @param swapConverter the InterestRateSwapSecurityConverter, not null
    * @param valuationTime the ZonedDateTime, not null
    * @param definitionConverter the FixedIncomeConverterDataProvider, not null
@@ -94,6 +120,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapSecurity security,
                                                MulticurveProviderInterface bundle,
+                                               CurveBuildingBlockBundle curveBuildingBlockBundle,
                                                InterestRateSwapSecurityConverter swapConverter,
                                                ZonedDateTime valuationTime,
                                                FixedIncomeConverterDataProvider definitionConverter,
@@ -105,7 +132,8 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     ArgumentChecker.notNull(fixings, "fixings");
     _definition = (SwapDefinition) security.accept(swapConverter);
     _derivative = createInstrumentDerivative(security, valuationTime, definitionConverter, fixings);
-    _bundle = bundle;
+    _bundle = ArgumentChecker.notNull(bundle, "bundle");
+    _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
     _valuationTime = valuationTime;
     _security = security;
   }
@@ -123,6 +151,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
     return Result.success(calculateResult(PV01C));
+  }
+
+  @Override
+  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01() {
+    return Result.success(BUCKETED_PV01_CALCULATOR.fromInstrument(_derivative, _bundle, _curveBuildingBlockBundle).multipliedBy(BASIS_POINT_FACTOR));
   }
 
   @Override
