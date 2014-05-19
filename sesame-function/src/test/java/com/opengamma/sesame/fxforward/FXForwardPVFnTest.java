@@ -115,8 +115,10 @@ import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
+import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ResultItem;
@@ -319,13 +321,13 @@ public class FXForwardPVFnTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
+    CachingManager cachingManager = new DefaultCachingManager(componentMap, FunctionTestUtils.createCache());
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-                                              componentMap,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
                                               EnumSet.noneOf(FunctionService.class),
-                                              FunctionTestUtils.createCache());
+                                              cachingManager);
     View view = viewFactory.createView(viewConfig);
     Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
@@ -413,13 +415,13 @@ public class FXForwardPVFnTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
+    CachingManager cachingManager = new DefaultCachingManager(componentMap, FunctionTestUtils.createCache());
     ViewFactory viewFactory = new ViewFactory(executor,
-                                              componentMap,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
                                               EnumSet.of(FunctionService.CACHING, FunctionService.TRACING),
-                                              FunctionTestUtils.createCache());
+                                              cachingManager);
     s_logger.info("created engine in {}ms", System.currentTimeMillis() - startEngine);
     long graphStart = System.currentTimeMillis();
     View view = viewFactory.createView(viewConfig, FXForwardSecurity.class);

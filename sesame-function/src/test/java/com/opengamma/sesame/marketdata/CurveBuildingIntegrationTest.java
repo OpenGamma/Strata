@@ -64,12 +64,14 @@ import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
+import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.function.AvailableImplementations;
@@ -157,13 +159,13 @@ public class CurveBuildingIntegrationTest {
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
+    CachingManager cachingManager = new DefaultCachingManager(componentMap, FunctionTestUtils.createCache());
     ViewFactory viewFactory = new ViewFactory(new DirectExecutorService(),
-                                              componentMap,
                                               availableOutputs,
                                               availableImplementations,
                                               defaultConfig,
                                               EnumSet.noneOf(FunctionService.class),
-                                              FunctionTestUtils.createCache());
+                                              cachingManager);
     View view = viewFactory.createView(viewConfig);
 
     LiveDataManager liveDataManager = new DefaultLiveDataManager(buildLiveDataClient());

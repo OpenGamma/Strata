@@ -48,13 +48,13 @@ public class InputTypesTest {
     AvailableImplementationsImpl availableImplementations = new AvailableImplementationsImpl();
     availableImplementations.register(EquityTradeWithSecurityImpl.class, CashFlowTradeWithSecurityImpl.class);
 
+    CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     ViewFactory viewFactory = new ViewFactory(new EngineTestUtils.DirectExecutorService(),
-                                              ComponentMap.EMPTY,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
                                               EnumSet.noneOf(FunctionService.class),
-                                              EngineTestUtils.createCache());
+                                              cachingManager);
 
     View view = viewFactory.createView(viewConfig, EquityTradeWithSecurity.class, CashFlowTradeWithSecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mock(MarketDataSource.class));

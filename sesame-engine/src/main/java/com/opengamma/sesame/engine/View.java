@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
-import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.config.CompositeFunctionArguments;
@@ -68,8 +65,6 @@ public class View implements AutoCloseable {
   private final FunctionModelConfig _systemDefaultConfig;
   private final NodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
-  private final ViewFactory.SourceListener _sourceListener;
-  private final Collection<ChangeManager> _changeManagers;
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
 
@@ -79,11 +74,9 @@ public class View implements AutoCloseable {
                      ExecutorService executor,
                      FunctionModelConfig systemDefaultConfig,
                      NodeDecorator decorator,
+                     // TODO - passing in cacheInvalidator is not ideal - should be removed later
                      CacheInvalidator cacheInvalidator,
-                     GraphModel graphModel,
-                     ViewFactory.SourceListener sourceListener,
-                     Collection<ChangeManager> changeManagers) {
-    _sourceListener = ArgumentChecker.notNull(sourceListener, "sourceListener");
+                     GraphModel graphModel) {
     _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _graph = ArgumentChecker.notNull(graph, "graph");
@@ -91,7 +84,6 @@ public class View implements AutoCloseable {
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
     _decorator = ArgumentChecker.notNull(decorator, "decorator");
-    _changeManagers = ArgumentChecker.notNull(changeManagers, "changeManagers");
     _columnNames = columnNames(_viewConfig);
   }
 
@@ -118,7 +110,6 @@ public class View implements AutoCloseable {
                                             cycleArguments.getMarketDataSource(),
                                             cycleArguments.getScenarioArguments(),
                                             _cacheInvalidator);
-    invalidateCache(cycleArguments);
     List<Task> tasks = Lists.newArrayList();
     tasks.addAll(portfolioTasks(env, cycleArguments, inputs));
     tasks.addAll(nonPortfolioTasks(env, cycleArguments));
@@ -242,32 +233,9 @@ public class View implements AutoCloseable {
     return columnNames;
   }
 
-  /**
-   * Does the housekeeping tasks before running a calculation cycle.
-   * This includes removing items from the cache that need to be recalculated, setting valuation times, setting
-   * up market data etc.
-   * @param cycleArguments Arguments for running the cycle
-   */
-  private void invalidateCache(CycleArguments cycleArguments) {
-    // TODO need to query the market data factory to see what data has changed during the cycle
-    //   for live sources this will be individual values
-    //   for snapshots it will be the entire snapshot if it's been updated in the DB
-    //   if the data provider has completely changed then everything must go (which is currently done in the invalidator)
-    // TODO this needs to be integrated with ServiceContext
-    _cacheInvalidator.invalidate(cycleArguments.getMarketDataSource(),
-                                 cycleArguments.getValuationTime(),
-                                 cycleArguments.getConfigVersionCorrection(),
-                                 Collections.<ExternalId>emptyList(),
-                                 _sourceListener.getIds());
-    _sourceListener.clear();
-  }
-
   @Override
   public void close() {
     _decorator.close();
-    for (ChangeManager changeManager : _changeManagers) {
-      changeManager.removeChangeListener(_sourceListener);
-    }
   }
 
   // TODO run() variants that take:
