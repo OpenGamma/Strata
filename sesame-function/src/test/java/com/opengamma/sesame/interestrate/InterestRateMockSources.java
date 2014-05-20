@@ -146,7 +146,7 @@ public class InterestRateMockSources {
   private static final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
   private static final String DISC_CONVENTION = "USD DepositON";
   private static final String LIBOR_PAY_LEG_CONVENTION_NAME = "USD IRS Fixed Leg";
-  private static final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
+  private static final String LIBOR_RECEIVE_LEG_CONVENTION_NAME = "USD 3M IRS Ibor Leg";
   private static final String LIBOR_CONVENTION = "USD Libor";
   private static final String LIBOR_INDEX = "USD 3M IRS Ibor Leg";
   private static final String USD_OVERNIGHT_CONVENTION = "USD Overnight";
@@ -157,7 +157,7 @@ public class InterestRateMockSources {
   private static final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);
   private static final ExternalId _discConventionId = ExternalId.of("CONVENTION", DISC_CONVENTION);
   private static final ExternalId _liborPayLegConventionId = ExternalId.of("CONVENTION", LIBOR_PAY_LEG_CONVENTION_NAME);
-  private static final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION);
+  private static final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION_NAME);
   private static final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
   private static final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
   private static final ExternalId _fffConventionId = ExternalId.of("CONVENTION", USD_FEDFUNDFUTURES_CONVENTION);
@@ -513,7 +513,7 @@ public class InterestRateMockSources {
         .thenReturn(LIBOR_PAY_LEG_CONVENTION);
 
     VanillaIborLegConvention liborReceiveLegConvention =
-        new VanillaIborLegConvention(LIBOR_RECEIVE_LEG_CONVENTION, _liborReceiveLegConventionId.toBundle(),
+        new VanillaIborLegConvention(LIBOR_RECEIVE_LEG_CONVENTION_NAME, _liborReceiveLegConventionId.toBundle(),
                                      _liborIndexId, true, "Linear", Tenor.THREE_MONTHS, 2, true,
                                      StubType.SHORT_START, false, 0);
     when(mock.getSingle(any(ExternalId.class), eq(VanillaIborLegConvention.class)))
