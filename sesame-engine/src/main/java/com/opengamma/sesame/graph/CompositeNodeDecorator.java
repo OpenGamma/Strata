@@ -16,9 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Node decorator that composes other decorators.
  */
-public final class CompositeNodeDecorator
-    extends NodeDecorator
-    implements AutoCloseable {
+public final class CompositeNodeDecorator extends NodeDecorator {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CompositeNodeDecorator.class);
@@ -83,17 +81,6 @@ public final class CompositeNodeDecorator
       wrappedNode = decorator.decorateNode(wrappedNode);
     }
     return wrappedNode;
-  }
-
-  @Override
-  public void close() {
-    for (NodeDecorator decorator : _decorators) {
-      try {
-        decorator.close();
-      } catch (Exception ex) {
-        s_logger.warn("Exception closing decorator", ex);
-      }
-    }
   }
 
 }

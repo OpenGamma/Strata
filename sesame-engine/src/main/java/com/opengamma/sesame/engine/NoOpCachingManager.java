@@ -5,14 +5,8 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.util.concurrent.FutureTask;
-
-import com.google.common.cache.Cache;
 import com.opengamma.sesame.cache.CacheInvalidator;
-import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.cache.NoOpCacheInvalidator;
-import com.opengamma.sesame.graph.FunctionModelNode;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.util.ArgumentChecker;
 
@@ -42,11 +36,6 @@ public class NoOpCachingManager implements CachingManager {
   @Override
   public CacheInvalidator getCacheInvalidator() {
     return new NoOpCacheInvalidator();
-  }
-
-  @Override
-  public Cache<MethodInvocationKey, FutureTask<Object>> getCache() {
-    return null;
   }
 
   @Override

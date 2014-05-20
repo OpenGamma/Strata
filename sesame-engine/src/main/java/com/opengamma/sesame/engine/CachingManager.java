@@ -5,12 +5,7 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.util.concurrent.FutureTask;
-
-import com.google.common.cache.Cache;
 import com.opengamma.sesame.cache.CacheInvalidator;
-import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.graph.NodeDecorator;
 
 /**
@@ -35,13 +30,6 @@ public interface CachingManager {
    * @return the cache invalidator
    */
   CacheInvalidator getCacheInvalidator();
-
-  /**
-   * Return the cache which is to be used by Views.
-   *
-   * @return the cache
-   */
-  Cache<MethodInvocationKey, FutureTask<Object>> getCache();
 
   /**
    * Return the decorator for engine nodes which ensures that

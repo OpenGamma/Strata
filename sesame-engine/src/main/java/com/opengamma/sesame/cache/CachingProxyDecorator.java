@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  * Decorates a node in the graph with a proxy which performs memoization using a cache.
  * TODO thorough docs for the basis of caching, i.e. has to be the same function instance but instances are shared
  */
-public class CachingProxyDecorator extends NodeDecorator implements AutoCloseable {
+public class CachingProxyDecorator extends NodeDecorator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CachingProxyDecorator.class);
 

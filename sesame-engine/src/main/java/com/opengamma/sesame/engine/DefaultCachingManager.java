@@ -68,11 +68,6 @@ public class DefaultCachingManager implements CachingManager {
   }
 
   @Override
-  public Cache<MethodInvocationKey, FutureTask<Object>> getCache() {
-    return _cache;
-  }
-
-  @Override
   public CachingProxyDecorator getCachingDecorator() {
     return _cachingDecorator;
   }
@@ -81,14 +76,10 @@ public class DefaultCachingManager implements CachingManager {
    * Decorates the sources with cache aware versions that register when data is
    * queried so cache entries can be invalidated when it changes. The returned
    * component map contains the cache aware sources in place of the originals.
-   * The returns collection contains the change managers for all decorated
-   * sources. This allows listeners to be removed when the view closes and
-   * prevents a resource leak.
    *
-   * @param components Platform components used by functions
-   * @return A map of components containing the decorated sources instead of
-   * the originals, and a collection of change managers which had a listener
-   * added to them
+   * @param components  platform components used by functions
+   * @return a component map containing the decorated sources instead of
+   * the originals
    */
   private ComponentMap decorateSources(ComponentMap components) {
     // Copy the original set and overwrite the ones we're interested in

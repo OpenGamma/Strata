@@ -128,8 +128,7 @@ public class ViewFactory {
     Graph graph = graphModel.build(components, _functionBuilder);
     s_logger.debug("graph complete");
 
-    return new View(viewConfig, graph, _executor, _defaultConfig, decorator,
-                    _cachingManager.getCacheInvalidator(), graphModel);
+    return new View(viewConfig, graph, _executor, _defaultConfig, _cachingManager.getCacheInvalidator(), graphModel);
   }
 
   private NodeDecorator createNodeDecorator(EnumSet<FunctionService> services) {

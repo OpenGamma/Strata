@@ -35,7 +35,6 @@ import com.opengamma.sesame.function.PermissionDeniedFunction;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphModel;
-import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -55,7 +54,7 @@ import com.opengamma.util.result.Result;
  * TODO same question for method arguments for the top level functions
  * see [SSM-182] and [SSM-185]
  */
-public class View implements AutoCloseable {
+public class View {
 
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
 
@@ -63,7 +62,6 @@ public class View implements AutoCloseable {
   private final ViewConfig _viewConfig;
   private final ExecutorService _executor;
   private final FunctionModelConfig _systemDefaultConfig;
-  private final NodeDecorator _decorator;
   private final CacheInvalidator _cacheInvalidator;
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
@@ -73,7 +71,6 @@ public class View implements AutoCloseable {
                      Graph graph,
                      ExecutorService executor,
                      FunctionModelConfig systemDefaultConfig,
-                     NodeDecorator decorator,
                      // TODO - passing in cacheInvalidator is not ideal - should be removed later
                      CacheInvalidator cacheInvalidator,
                      GraphModel graphModel) {
@@ -83,7 +80,6 @@ public class View implements AutoCloseable {
     _executor = ArgumentChecker.notNull(executor, "executor");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
-    _decorator = ArgumentChecker.notNull(decorator, "decorator");
     _columnNames = columnNames(_viewConfig);
   }
 
@@ -231,11 +227,6 @@ public class View implements AutoCloseable {
       columnNames.add(columnName);
     }
     return columnNames;
-  }
-
-  @Override
-  public void close() {
-    _decorator.close();
   }
 
   // TODO run() variants that take:

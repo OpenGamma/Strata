@@ -110,11 +110,11 @@ public class ViewFactoryTest {
   private ViewFactory createViewFactory(AvailableOutputs availableOutputs) {
     CachingManager cachingManager = new NoOpCachingManager(ComponentMap.EMPTY);
     return new ViewFactory(new EngineTestUtils.DirectExecutorService(),
-                                              availableOutputs,
-                                              new AvailableImplementationsImpl(),
-                                              FunctionModelConfig.EMPTY,
-                                              FunctionService.DEFAULT_SERVICES,
-                                              cachingManager);
+                           availableOutputs,
+                           new AvailableImplementationsImpl(),
+                           FunctionModelConfig.EMPTY,
+                           FunctionService.DEFAULT_SERVICES,
+                           cachingManager);
   }
 
   @Test
