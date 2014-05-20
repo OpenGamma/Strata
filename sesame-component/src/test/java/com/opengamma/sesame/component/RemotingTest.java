@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.testng.Assert.fail;
 
 import java.io.IOException;
 import java.net.URI;
@@ -145,7 +146,9 @@ public class RemotingTest {
     assertThat(resultItem, is(not(nullValue())));
 
     Result<?> result = resultItem.getResult();
-    assertThat(result.isSuccess(), is(true));
+    if (!result.isSuccess()) {
+      fail("Expected success but got: " + result);
+    }
 
     @SuppressWarnings("unchecked") Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair =
         (Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>) result.getValue();

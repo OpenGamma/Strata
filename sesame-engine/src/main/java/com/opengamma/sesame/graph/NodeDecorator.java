@@ -53,10 +53,4 @@ public abstract class NodeDecorator {
     return new ProxyNode(node, interfaceType, implementationType, handlerFactory);
   }
 
-  /**
-   * Closes the decorator.
-   */
-  public void close() {
-  }
-
 }

@@ -78,13 +78,13 @@ public class ViewFactoryCacheTest {
     AvailableImplementations availableImplementations = new AvailableImplementationsImpl();
     availableOutputs.register(TestFn.class);
     availableImplementations.register(Impl.class);
+    CachingManager cachingManager = new DefaultCachingManager(ComponentMap.EMPTY, EngineTestUtils.createCache());
     return new ViewFactory(new EngineTestUtils.DirectExecutorService(),
-                           ComponentMap.EMPTY,
                            availableOutputs,
                            availableImplementations,
                            FunctionModelConfig.EMPTY,
                            EnumSet.of(FunctionService.CACHING),
-                           EngineTestUtils.createCache());
+                           cachingManager);
   }
 
   public interface TestFn {

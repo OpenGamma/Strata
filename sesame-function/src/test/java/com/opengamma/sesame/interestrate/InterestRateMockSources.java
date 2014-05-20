@@ -144,7 +144,7 @@ public class InterestRateMockSources {
   private static final String DISC_RECEIVE_LEG_CONVENTION = "USD OIS Overnight Leg";
   private static final String DISC_CONVENTION =  "USD DepositON";
   private static final String LIBOR_PAY_LEG_CONVENTION_NAME =  "USD IRS Fixed Leg";
-  private static final String LIBOR_RECEIVE_LEG_CONVENTION = "USD 3M IRS Ibor Leg";
+  private static final String LIBOR_RECEIVE_LEG_CONVENTION_NAME = "USD 3M IRS Ibor Leg";
   private static final String LIBOR_CONVENTION =  "USD Libor";
   private static final String LIBOR_INDEX =  "USD 3M IRS Ibor Leg";
   private static final String USD_OVERNIGHT_CONVENTION =  "USD Overnight";
@@ -155,7 +155,7 @@ public class InterestRateMockSources {
   private static final ExternalId _discReceiveLegConventionId = ExternalId.of("CONVENTION", DISC_RECEIVE_LEG_CONVENTION);
   private static final ExternalId _discConventionId = ExternalId.of("CONVENTION", DISC_CONVENTION);
   private static final ExternalId _liborPayLegConventionId = ExternalId.of("CONVENTION", LIBOR_PAY_LEG_CONVENTION_NAME);
-  private static final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION);
+  private static final ExternalId _liborReceiveLegConventionId = ExternalId.of("CONVENTION", LIBOR_RECEIVE_LEG_CONVENTION_NAME);
   private static final ExternalId _liborConventionId = ExternalId.of("CONVENTION", LIBOR_CONVENTION);
   private static final ExternalId _onConventionId = ExternalId.of("CONVENTION", USD_OVERNIGHT_CONVENTION);
   private static final ExternalId _fffConventionId = ExternalId.of("CONVENTION", USD_FEDFUNDFUTURES_CONVENTION);
@@ -170,9 +170,16 @@ public class InterestRateMockSources {
   private static final Currency s_USD = Currency.USD;
 
   private static final SwapFixedLegConvention LIBOR_PAY_LEG_CONVENTION =
-      new SwapFixedLegConvention(LIBOR_PAY_LEG_CONVENTION_NAME, _liborPayLegConventionId.toBundle(),
-                                 Tenor.SIX_MONTHS, DayCounts.THIRTY_U_360, BusinessDayConventions.MODIFIED_FOLLOWING,
-                                 s_USD, s_USGBID, 2, true, StubType.SHORT_START, false, 0);
+      createLiborFixedLegConvention();
+
+  private static SwapFixedLegConvention createLiborFixedLegConvention() {
+    SwapFixedLegConvention legConvention =
+        new SwapFixedLegConvention(LIBOR_PAY_LEG_CONVENTION_NAME, _liborPayLegConventionId.toBundle(),
+                                   Tenor.SIX_MONTHS, DayCounts.THIRTY_U_360, BusinessDayConventions.MODIFIED_FOLLOWING,
+                                   s_USD, s_USGBID, 2, true, StubType.SHORT_START, false, 0);
+    legConvention.setUniqueId(UniqueId.of("CONV", "11"));
+    return legConvention;
+  }
 
   public static ExternalId getLiborIndexId() {
     return _liborIndexId;
@@ -453,6 +460,7 @@ public class InterestRateMockSources {
     RegionSource mock = mock(RegionSource.class);
     SimpleRegion region = new SimpleRegion();
     region.addExternalId(s_USID);
+    region.setUniqueId(UniqueId.of("REGION", "1"));
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
     when(mock.getHighestLevelRegion(any(ExternalId.class)))
         .thenReturn(region);
@@ -472,11 +480,15 @@ public class InterestRateMockSources {
                                    act360,
                                    BusinessDayConventions.MODIFIED_FOLLOWING, s_USD, s_USID, 2, true,
                                    StubType.SHORT_START, false, 2);
+
+    descPayLegConvention.setUniqueId(UniqueId.of("CONV", "1"));
+
     when(mock.getSingle(_discPayLegConventionId, FinancialConvention.class))
         .thenReturn(descPayLegConvention);
 
     OvernightIndexConvention onConvention =
         new OvernightIndexConvention(USD_OVERNIGHT_CONVENTION, _onConventionId.toBundle(), act360, 1, s_USD, s_USID);
+    onConvention.setUniqueId(UniqueId.of("CONV", "2"));
     when(mock.getSingle(_onConventionId, FinancialConvention.class))
         .thenReturn(onConvention);
     when(mock.getSingle(_onConventionId, OvernightIndexConvention.class))
@@ -488,6 +500,7 @@ public class InterestRateMockSources {
         new FederalFundsFutureConvention(USD_FEDFUNDFUTURES_CONVENTION, _fffConventionId.toBundle(), 
             ExternalId.of("EXPIRY_CONVENTION", FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME), 
             s_USID, _onIndexId, 5000000);
+    fffConvention.setUniqueId(UniqueId.of("CONV", "3"));
     when(mock.getSingle(_fffConventionId, FinancialConvention.class))
         .thenReturn(fffConvention);
     when(mock.getSingle(eq(_fffConventionId.toBundle()), any(VersionCorrection.class)))
@@ -497,11 +510,13 @@ public class InterestRateMockSources {
         new OISLegConvention(DISC_RECEIVE_LEG_CONVENTION, _discReceiveLegConventionId.toBundle(),
                              _onIndexId, Tenor.ONE_YEAR,
                              BusinessDayConventions.MODIFIED_FOLLOWING, 2, true, noStub, false, 2);
+    descReceiveLegConvention.setUniqueId(UniqueId.of("CONV", "4"));
     when(mock.getSingle(_discReceiveLegConventionId, FinancialConvention.class))
         .thenReturn(descReceiveLegConvention);
 
     DepositConvention descConvention =
         new DepositConvention(DISC_CONVENTION, _discConventionId.toBundle(), act360, following, 0, false, s_USD, s_USID);
+    descConvention.setUniqueId(UniqueId.of("CONV", "5"));
     when(mock.getSingle(_discConventionId, FinancialConvention.class))
         .thenReturn(descConvention);
     when(mock.getSingle(_discConventionId))
@@ -511,9 +526,10 @@ public class InterestRateMockSources {
         .thenReturn(LIBOR_PAY_LEG_CONVENTION);
 
     VanillaIborLegConvention liborReceiveLegConvention =
-        new VanillaIborLegConvention(LIBOR_RECEIVE_LEG_CONVENTION, _liborReceiveLegConventionId.toBundle(),
+        new VanillaIborLegConvention(LIBOR_RECEIVE_LEG_CONVENTION_NAME, _liborReceiveLegConventionId.toBundle(),
                                      _liborIndexId, true, "Linear", Tenor.THREE_MONTHS, 2, true,
                                      StubType.SHORT_START, false, 0);
+    liborReceiveLegConvention.setUniqueId(UniqueId.of("CONV", "6"));
     when(mock.getSingle(any(ExternalId.class), eq(VanillaIborLegConvention.class)))
         .thenReturn(liborReceiveLegConvention);
     when(mock.getSingle(_liborReceiveLegConventionId, FinancialConvention.class))
@@ -525,6 +541,7 @@ public class InterestRateMockSources {
         new IborIndexConvention(LIBOR_CONVENTION, _liborConventionId.toBundle(), act360,
                                 BusinessDayConventions.MODIFIED_FOLLOWING, 2,
                                 false, s_USD, LocalTime.of(11, 0), "Europe/London", s_USGBID, s_USID, "");
+    liborConvention.setUniqueId(UniqueId.of("CONV", "7"));
     when(mock.getSingle(_liborConventionId, FinancialConvention.class))
         .thenReturn(liborConvention);
     when(mock.getSingle(any(ExternalId.class), eq(IborIndexConvention.class)))
@@ -540,6 +557,7 @@ public class InterestRateMockSources {
                                          s_USID,
                                          _onIndexId,
                                          5000000);
+    fedFundsFutureConvention.setUniqueId(UniqueId.of("CONV", "8"));
     when(mock.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE))).thenReturn(fedFundsFutureConvention);
     when(mock.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class))
         .thenReturn(fedFundsFutureConvention);
@@ -552,12 +570,14 @@ public class InterestRateMockSources {
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 
     OvernightIndex onIndex = new OvernightIndex(USD_FEDFUND_INDEX, _onConventionId);
+    onIndex.setUniqueId(UniqueId.of("SEC", "1"));
     when(mock.getSingle(_onIndexId.toBundle()))
         .thenReturn(onIndex);
     when(mock.getSingle(eq(_onIndexId.toBundle()), any(VersionCorrection.class)))
         .thenReturn(onIndex);
 
     IborIndex iIndex = new IborIndex(LIBOR_INDEX, Tenor.THREE_MONTHS, _liborConventionId);
+    iIndex.setUniqueId(UniqueId.of("SEC", "2"));
     when(mock.getSingle(_liborIndexId.toBundle()))
         .thenReturn(iIndex);
     when(mock.getSingle(eq(_liborIndexId.toBundle()), any(VersionCorrection.class)))
@@ -584,46 +604,88 @@ public class InterestRateMockSources {
     List<CurveGroupConfiguration> curveGroupConfigs = ImmutableList.of(curveGroupConfig);
 
     List<String> exogenousConfigurations = ImmutableList.of();
-    CurveConstructionConfiguration curveConfig = new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3, curveGroupConfigs, exogenousConfigurations);
+    CurveConstructionConfiguration curveConfig = new CurveConstructionConfiguration(
+        CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3, curveGroupConfigs, exogenousConfigurations);
+    ConfigItem<CurveConstructionConfiguration> curveConfigItem = ConfigItem.of(curveConfig);
+    curveConfigItem.setUniqueId(UniqueId.of("CONFIG", "1"));
     when(mock.get(eq(CurveConstructionConfiguration.class),
                   eq(CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3),
                   any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.of(ConfigItem.of(curveConfig)));
+        .thenReturn(ImmutableSet.of(curveConfigItem));
     
     Map<String, List<? extends CurveTypeConfiguration>> fffCurveNameTypeMap = 
         ImmutableMap.<String, List<? extends CurveTypeConfiguration>>of(USD_FFF_CURVE_NAME, Arrays.asList(onCurveTypeConfig, discCurveTypeConfig));
 
     CurveGroupConfiguration fffCurveGroupConfig = new CurveGroupConfiguration(0, fffCurveNameTypeMap);
     List<CurveGroupConfiguration> fffCurveGroupConfigs = ImmutableList.of(fffCurveGroupConfig);
-    CurveConstructionConfiguration fffCurveConfig = new CurveConstructionConfiguration(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF, fffCurveGroupConfigs, exogenousConfigurations);
+    CurveConstructionConfiguration fffCurveConfig = new CurveConstructionConfiguration(
+        CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF, fffCurveGroupConfigs, exogenousConfigurations);
+    ConfigItem<CurveConstructionConfiguration> fffCurveConfigItem = ConfigItem.of(fffCurveConfig);
+    fffCurveConfigItem.setUniqueId(UniqueId.of("CONFIG", "2"));
     when(mock.get(eq(CurveConstructionConfiguration.class),
                   eq(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF),
                   any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.of(ConfigItem.of(fffCurveConfig)));
+        .thenReturn(ImmutableSet.of(fffCurveConfigItem));
     
     //return curve definitions via mock
+    ConfigItem<Object> usdDiscountingCurveDefItem = ConfigItem.<Object>of(getUSDDiscountingCurveDefinition());
+    usdDiscountingCurveDefItem.setUniqueId(UniqueId.of("CONFIG", "3"));
     when(mock.get(eq(Object.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(getUSDDiscountingCurveDefinition())));
+        .thenReturn(ImmutableSet.of(usdDiscountingCurveDefItem));
+
+    ConfigItem<Object> libor3mCurveDefinitionItem = ConfigItem.<Object>of(get3MLiborCurveDefinition());
+    libor3mCurveDefinitionItem.setUniqueId(UniqueId.of("CONFIG", "4"));
     when(mock.get(eq(Object.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(get3MLiborCurveDefinition())));
+        .thenReturn(ImmutableSet.of(libor3mCurveDefinitionItem));
+
+    ConfigItem<Object> usdFedFundFuturesCurveDefItem = ConfigItem.<Object>of(getUSDFedFundFuturesCurveDefinition());
+    usdFedFundFuturesCurveDefItem.setUniqueId(UniqueId.of("CONFIG", "5"));
     when(mock.get(eq(Object.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
-    .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(getUSDFedFundFuturesCurveDefinition())));
+        .thenReturn(ImmutableSet.of(usdFedFundFuturesCurveDefItem));
 
     //return node mappers via mock
+
+    // Doubled up mocking to work around CacheAwareConfigSource / calls to getSingle
+    CurveNodeIdMapper usdDiscountingCurveMapper = getUSDDiscountingCurveMapper();
+    ConfigItem<CurveNodeIdMapper> usdDiscountingCurveMapperItem = ConfigItem.of(usdDiscountingCurveMapper);
+    usdDiscountingCurveMapperItem.setUniqueId(UniqueId.of("CONFIG", "6"));
     when(mock.getSingle(CurveNodeIdMapper.class, USD_DISC_MAPPER, VersionCorrection.LATEST))
-        .thenReturn(getUSDDiscountingCurveMapper());
+        .thenReturn(usdDiscountingCurveMapper);
+    when(mock.get(CurveNodeIdMapper.class, USD_DISC_MAPPER, VersionCorrection.LATEST))
+        .thenReturn(ImmutableSet.of(usdDiscountingCurveMapperItem));
+
+    CurveNodeIdMapper usdDiscountingOvernightCurveMapper = getUSDDiscountingOvernightCurveMapper();
+    ConfigItem<CurveNodeIdMapper> usdDiscountingOvernightCurveMapperItem = ConfigItem.of(
+        usdDiscountingOvernightCurveMapper);
+    usdDiscountingOvernightCurveMapperItem.setUniqueId(UniqueId.of("CONFIG", "7"));
     when(mock.getSingle(CurveNodeIdMapper.class, USD_DISC_OVERNIGHT_MAPPER, VersionCorrection.LATEST))
-        .thenReturn(getUSDDiscountingOvernightCurveMapper());
+        .thenReturn(usdDiscountingOvernightCurveMapper);
+    when(mock.get(CurveNodeIdMapper.class, USD_DISC_OVERNIGHT_MAPPER, VersionCorrection.LATEST))
+        .thenReturn(ImmutableSet.of(usdDiscountingOvernightCurveMapperItem));
+
+    CurveNodeIdMapper libor3mCurveMapper = get3MLiborCurveMapper();
+    ConfigItem<CurveNodeIdMapper> libor3mCurveMapperItem = ConfigItem.of(libor3mCurveMapper);
+    libor3mCurveMapperItem.setUniqueId(UniqueId.of("CONFIG", "7"));
     when(mock.getSingle(CurveNodeIdMapper.class, USD_LIBOR3M_MAPPER, VersionCorrection.LATEST))
-        .thenReturn(get3MLiborCurveMapper());
+        .thenReturn(libor3mCurveMapper);
+    when(mock.get(CurveNodeIdMapper.class, USD_LIBOR3M_MAPPER, VersionCorrection.LATEST))
+        .thenReturn(ImmutableSet.of(libor3mCurveMapperItem));
+
+    CurveNodeIdMapper usdffMapper = getUSDFFMapper();
+    ConfigItem<CurveNodeIdMapper> usdffMapperItem = ConfigItem.of(usdffMapper);
+    usdffMapperItem.setUniqueId(UniqueId.of("CONFIG", "9"));
     when(mock.getSingle(CurveNodeIdMapper.class, USD_FF_MAPPER, VersionCorrection.LATEST))
-        .thenReturn(getUSDFFMapper());
+        .thenReturn(usdffMapper);
+    when(mock.get(CurveNodeIdMapper.class, USD_FF_MAPPER, VersionCorrection.LATEST))
+        .thenReturn(ImmutableSet.of(usdffMapperItem));
 
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 
     SabrConfigSelector sabrConfigSelector = buildSabrConfigSelector();
+    ConfigItem<SabrConfigSelector> sabrConfigItem = ConfigItem.of(sabrConfigSelector);
+    sabrConfigItem.setUniqueId(UniqueId.of("CONFIG", "10"));
     when(mock.get(any(Class.class), eq("TEST_SABR"), any(VersionCorrection.class)))
-        .thenReturn(ImmutableList.of(ConfigItem.of(sabrConfigSelector)));
+        .thenReturn(ImmutableList.of(sabrConfigItem));
 
     return mock;
   }
