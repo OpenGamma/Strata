@@ -101,7 +101,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.holidays.UsdHolidaySource;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
-import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -120,7 +119,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * TODO private constructor, everything is static
  */
 public class InterestRateMockSources {
 
@@ -189,7 +188,7 @@ public class InterestRateMockSources {
     return _onIndexId;
   }
 
-  public ImmutableMap<Class<?>, Object> generateBaseComponents() {
+  public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
     return generateComponentMap(mockHolidaySource(),
                                 mockRegionSource(),
                                 mockConventionSource(),
@@ -201,22 +200,22 @@ public class InterestRateMockSources {
                                 mock(CurrencyMatrix.class));
   }
 
-  public MarketDataFactory createMarketDataFactory() {
+  public static MarketDataFactory createMarketDataFactory() {
     MarketDataFactory mock = mock(MarketDataFactory.class);
     when(mock.create(Matchers.<MarketDataSpecification>any())).thenReturn(new DefaultStrategyAwareMarketDataSource(
         LiveMarketDataSpecification.LIVE_SPEC, createMarketDataSource()));
     return mock;
   }
 
-  public MarketDataSource createMarketDataSource() {
+  public static MarketDataSource createMarketDataSource() {
     return createMarketDataSource(LocalDate.of(2014, 1, 22));
   }
   
-  public MarketDataSource createMarketDataSource(LocalDate date) {
+  public static MarketDataSource createMarketDataSource(LocalDate date) {
     return createMarketDataSource(date, true);
   }
 
-  public MarketDataSource createMarketDataSource(LocalDate date, boolean generateTicker) {
+  public static MarketDataSource createMarketDataSource(LocalDate date, boolean generateTicker) {
     String filename;
     if (date.equals(LocalDate.of(2014,1,22))) {
       filename = "/usdMarketQuotes-20140122.properties";
@@ -230,9 +229,9 @@ public class InterestRateMockSources {
 
     try {
       Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData(filename,
-                                                                                   generateTicker ? TICKER : null);
-      FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-
+                                                                                   generateTicker ?
+                                                                                       TICKER :
+                                                                                       null);
       MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
       for (Map.Entry<ExternalIdBundle, Double> entry : marketData.entrySet()) {
         builder.add(entry.getKey(), entry.getValue());
@@ -244,7 +243,7 @@ public class InterestRateMockSources {
   }
 
 
-  public ExposureFunctions mockExposureFunctions() {
+  public static ExposureFunctions mockExposureFunctions() {
     List<String> exposureFunctions =  ImmutableList.of("Currency");
     Map<ExternalId, String> idsToNames = new HashMap<>();
     idsToNames.put(ExternalId.of("CurrencyISO", "USD"), CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3);
@@ -252,7 +251,7 @@ public class InterestRateMockSources {
   }
 
 
-  public ExposureFunctions mockFFExposureFunctions() {
+  public static ExposureFunctions mockFFExposureFunctions() {
     List<String> exposureFunctions =  ImmutableList.of("Currency");
     Map<ExternalId, String> idsToNames = new HashMap<>();
     idsToNames.put(ExternalId.of("CurrencyISO", "USD"), CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF);
@@ -260,7 +259,7 @@ public class InterestRateMockSources {
   }
 
 
-  private CurveNodeIdMapper getUSDDiscountingCurveMapper() {
+  private static CurveNodeIdMapper getUSDDiscountingCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
     cashNodes.put(Tenor.ON, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D1")));
     cashNodes.put(Tenor.TWO_DAYS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
@@ -289,7 +288,7 @@ public class InterestRateMockSources {
         .build();
   }
 
-  private CurveNodeIdMapper getUSDDiscountingOvernightCurveMapper() {
+  private static CurveNodeIdMapper getUSDDiscountingOvernightCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
     cashNodes.put(Tenor.ON, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "D2")));
     return CurveNodeIdMapper.builder()
@@ -302,7 +301,7 @@ public class InterestRateMockSources {
    * The node Id mapper for (USD) Fed Fund futures.
    * @return The mapper.
    */
-  private CurveNodeIdMapper getUSDFFMapper() {
+  private static CurveNodeIdMapper getUSDFFMapper() {
     Map<Tenor, CurveInstrumentProvider> futuresNodes = Maps.newHashMap();
     futuresNodes.put(Tenor.ONE_DAY, new BloombergFutureCurveInstrumentProvider("FF", "Comdty", MarketDataRequirementNames.MARKET_VALUE, DataFieldType.OUTRIGHT));
     return CurveNodeIdMapper.builder()
@@ -311,7 +310,7 @@ public class InterestRateMockSources {
         .build();
   }
 
-  private InterpolatedCurveDefinition getUSDDiscountingCurveDefinition() {
+  private static InterpolatedCurveDefinition getUSDDiscountingCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
     nodes.add(new CashNode(Tenor.ofDays(0), Tenor.ON, _discConventionId, USD_DISC_MAPPER));
     nodes.add(new CashNode(Tenor.ON, Tenor.ON, _discConventionId, USD_DISC_OVERNIGHT_MAPPER));
@@ -338,7 +337,7 @@ public class InterestRateMockSources {
    * Returns the interpolated curve definition for a curve based on Fed Fund futures.
    * @return The definition.
    */
-  private InterpolatedCurveDefinition getUSDFedFundFuturesCurveDefinition() {
+  private static InterpolatedCurveDefinition getUSDFedFundFuturesCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
     nodes.add(new RateFutureNode(1, Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.ONE_DAY, _fffConventionId, USD_FF_MAPPER, "FFF-1"));
     nodes.add(new RateFutureNode(2, Tenor.ONE_DAY, Tenor.ONE_MONTH, Tenor.ONE_DAY, _fffConventionId, USD_FF_MAPPER, "FFF-2"));
@@ -347,7 +346,7 @@ public class InterestRateMockSources {
     return new InterpolatedCurveDefinition(USD_FFF_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 
-  private CurveNodeIdMapper get3MLiborCurveMapper() {
+  private static CurveNodeIdMapper get3MLiborCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
     cashNodes.put(Tenor.THREE_MONTHS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "L1")));
 
@@ -377,7 +376,7 @@ public class InterestRateMockSources {
         .build();
   }
 
-  private InterpolatedCurveDefinition get3MLiborCurveDefinition() {
+  private static InterpolatedCurveDefinition get3MLiborCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
     nodes.add(new CashNode(Tenor.ofDays(0), Tenor.THREE_MONTHS, _liborIndexId, USD_LIBOR3M_MAPPER));
     nodes.add(new FRANode(Tenor.THREE_MONTHS, Tenor.SIX_MONTHS, _liborIndexId, USD_LIBOR3M_MAPPER));
@@ -409,7 +408,7 @@ public class InterestRateMockSources {
     return new InterpolatedCurveDefinition(USD_LIBOR3M_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 
-  private ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {
+  private static ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     for (Object component : components) {
       builder.put(component.getClass().getInterfaces()[0], component);
@@ -418,7 +417,7 @@ public class InterestRateMockSources {
   }
 
 
-  private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
+  private static HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
     // return 5 years of flat data.
     final LocalDate now = LocalDate.now();
     final LocalDateDoubleTimeSeriesBuilder series = ImmutableLocalDateDoubleTimeSeries.builder();
@@ -452,11 +451,11 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  private HolidaySource mockHolidaySource() {
+  private static HolidaySource mockHolidaySource() {
     return new UsdHolidaySource();
   }
 
-  private RegionSource mockRegionSource() {
+  private static RegionSource mockRegionSource() {
     RegionSource mock = mock(RegionSource.class);
     SimpleRegion region = new SimpleRegion();
     region.addExternalId(s_USID);
@@ -467,7 +466,7 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  private ConventionSource mockConventionSource() {
+  private static ConventionSource mockConventionSource() {
     BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     DayCount act360 = DayCounts.ACT_360;
     StubType noStub = StubType.NONE;
@@ -565,7 +564,7 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  private SecuritySource mockSecuritySource() {
+  private static SecuritySource mockSecuritySource() {
     SecuritySource mock = mock(SecuritySource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 
@@ -586,7 +585,7 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  private ConfigSource mockConfigSource() {
+  private static ConfigSource mockConfigSource() {
 
     //Config source mock
     ConfigSource mock = mock(ConfigSource.class);
@@ -690,7 +689,7 @@ public class InterestRateMockSources {
     return mock;
   }
 
-  private SabrConfigSelector buildSabrConfigSelector() {
+  private static SabrConfigSelector buildSabrConfigSelector() {
 
     SabrExpiryTenorSurface alphaSurface = buildSabrExpiryTenorSurface(
         "USD_ALPHA",
@@ -752,7 +751,7 @@ public class InterestRateMockSources {
     return SabrConfigSelector.builder().configurations(configurations).build();
   }
 
-  private SabrExpiryTenorSurface buildSabrExpiryTenorSurface(String name, double[] xs, double[] ys, double[] zs) {
+  private static SabrExpiryTenorSurface buildSabrExpiryTenorSurface(String name, double[] xs, double[] ys, double[] zs) {
     List<SabrNode> nodes = new ArrayList<>();
     for (int i = 0; i < xs.length; i++) {
       nodes.add(SabrNode.builder().x(xs[i]).y(ys[i]).z(zs[i]).build());
