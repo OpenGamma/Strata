@@ -283,7 +283,8 @@ public class ViewFactoryTest {
                                                        FunctionArguments.EMPTY,
                                                        Collections.<Class<?>, Object>emptyMap(),
                                                        traceCells,
-                                                       Collections.<String>emptySet());
+                                                       Collections.<String>emptySet(),
+                                                       NoOpCaptureStrategy.INSTANCE);
     Results results = view.run(cycleArguments, trades);
     CallGraph trace = results.get(0, 0).getCallGraph();
     assertNotNull(trace);
@@ -374,7 +375,8 @@ public class ViewFactoryTest {
                                                        FunctionArguments.EMPTY,
                                                        Collections.<Class<?>, Object>emptyMap(),
                                                        Collections.<Pair<Integer,Integer>>emptySet(),
-                                                       ImmutableSet.of(name));
+                                                       ImmutableSet.of(name),
+                                                       NoOpCaptureStrategy.INSTANCE);
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);

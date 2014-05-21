@@ -22,7 +22,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.config.CompositeFunctionArguments;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
 import com.opengamma.sesame.config.FunctionArguments;
@@ -35,6 +34,7 @@ import com.opengamma.sesame.function.PermissionDeniedFunction;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphModel;
+import com.opengamma.sesame.marketdata.ProxiedMarketDataSource;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -62,23 +62,26 @@ public class View {
   private final ViewConfig _viewConfig;
   private final ExecutorService _executor;
   private final FunctionModelConfig _systemDefaultConfig;
-  private final CacheInvalidator _cacheInvalidator;
+  private final CachingManager _cachingManager;
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
+  private final ProxiedComponentMap _proxiedComponentMap;
 
   // TODO this has too many parameters. does that matter? it's only called by the view factory
-  /* package */ View(ViewConfig viewConfig,
-                     Graph graph,
-                     ExecutorService executor,
-                     FunctionModelConfig systemDefaultConfig,
-                     // TODO - passing in cacheInvalidator is not ideal - should be removed later
-                     CacheInvalidator cacheInvalidator,
-                     GraphModel graphModel) {
+  View(ViewConfig viewConfig,
+       Graph graph,
+       ExecutorService executor,
+       FunctionModelConfig systemDefaultConfig,
+       // TODO - passing in cachingManager is not ideal - should be removed later
+       CachingManager cachingManager,
+       GraphModel graphModel,
+       ProxiedComponentMap proxiedComponentMap) {
+    _proxiedComponentMap = proxiedComponentMap;
     _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _graph = ArgumentChecker.notNull(graph, "graph");
     _executor = ArgumentChecker.notNull(executor, "executor");
-    _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
+    _cachingManager = ArgumentChecker.notNull(cachingManager, "cachingManager");
     _systemDefaultConfig = ArgumentChecker.notNull(systemDefaultConfig, "systemDefaultConfig");
     _columnNames = columnNames(_viewConfig);
   }
@@ -102,10 +105,21 @@ public class View {
    * (and therefore sequential) or can be run in parallel.
    */
   public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
+
+    ProxiedMarketDataSource proxiedMarketDataSource =
+        new ProxiedMarketDataSource(cycleArguments.getMarketDataSource());
+
+    // TODO - it may be more appropriate for this to be in a RecorderFactory
+    CycleRecorder recorder = new DefaultCycleRecorder(_viewConfig,
+                                                      inputs,
+                                                      cycleArguments,
+                                                      proxiedMarketDataSource,
+                                                      _proxiedComponentMap);
+
     Environment env = new EngineEnvironment(cycleArguments.getValuationTime(),
-                                            cycleArguments.getMarketDataSource(),
+                                            proxiedMarketDataSource,
                                             cycleArguments.getScenarioArguments(),
-                                            _cacheInvalidator);
+                                            _cachingManager.getCacheInvalidator());
     List<Task> tasks = Lists.newArrayList();
     tasks.addAll(portfolioTasks(env, cycleArguments, inputs));
     tasks.addAll(nonPortfolioTasks(env, cycleArguments));
@@ -124,7 +138,10 @@ public class View {
         s_logger.warn("Failed to get result from task", e);
       }
     }
-    return resultsBuilder.build();
+    // TODO - we may want to send recorder data/status back in the results (e.g. file written) but there's a chicken/egg problem
+    Results results = resultsBuilder.build();
+    recorder.complete(results);
+    return results;
   }
 
   /**
