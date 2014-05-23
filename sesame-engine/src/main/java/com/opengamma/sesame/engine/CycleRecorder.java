@@ -14,9 +14,13 @@ public interface CycleRecorder {
 
   /**
    * Indicates that the cycle has completed with the supplied
-   * results and that all resources used should cleaned up.
+   * results and that all resources used should cleaned up. The
+   * supplied results will be supplemented with the inputs
+   * recorded,
    *
    * @param results the results of the cycle run
+   * @return the complete set of results
    */
-  void complete(Results results);
+  Results complete(Results results);
+
 }

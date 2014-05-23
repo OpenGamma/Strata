@@ -5,28 +5,14 @@
  */
 package com.opengamma.sesame.engine;
 
+import com.google.common.collect.Multimap;
+
 /**
  * Provides a hook to allow listeners to be added to all
  * calls made to components of a component map.
  */
 // TODO - name of this interface could be improved as there is no direct connection with ComponentMap
 public interface ProxiedComponentMap {
-
-  /**
-   * Add a listener to the proxy which will then be informed
-   * of all requests made to components and the results
-   * returned.
-   *
-   * @param listener the listener to be added
-   */
-  void addListener(ComponentListener listener);
-
-  /**
-   * Removes a listener from the proxy.
-   *
-   * @param listener the listener to be removed
-   */
-  void removeListener(ComponentListener listener);
 
   /**
    * Called when a component has a method called. Returns the
@@ -36,4 +22,12 @@ public interface ProxiedComponentMap {
    * @param result the result of the call
    */
   void receivedCall(Class<?> componentType, Object result);
+
+  /**
+   * Retrieve the set of components that were called and the data
+   * that each of them returned.
+   *
+   * @return multimap of component -> data items
+   */
+  Multimap<Class<?>, Object> retrieveResults();
 }

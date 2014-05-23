@@ -5,8 +5,10 @@
  */
 package com.opengamma.sesame.engine;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 
 /**
  * Proxies the components from a component map such that
@@ -14,22 +16,19 @@ import java.util.Set;
  */
 public class DefaultProxiedComponentMap implements ProxiedComponentMap {
 
-  private final Set<ComponentListener> _listeners = new HashSet<>();
+  private final Multimap<Class<?>, Object> _componentDataRequests =
+      Multimaps.synchronizedMultimap(HashMultimap.<Class<?>, Object>create());
 
   @Override
   public void receivedCall(Class<?> componentType, Object result) {
-    for (ComponentListener listener : _listeners) {
-      listener.receivedCall(componentType, result);
-    }
+    _componentDataRequests.put(componentType, result);
   }
 
   @Override
-  public void addListener(ComponentListener listener) {
-    _listeners.add(listener);
-  }
-
-  @Override
-  public void removeListener(ComponentListener listener) {
-    _listeners.remove(listener);
+  public Multimap<Class<?>, Object> retrieveResults() {
+    // Strictly we should synchronize access as per Guava
+    // documentation, but this method is called once all
+    // entries have been added to the map
+    return ImmutableMultimap.copyOf(_componentDataRequests);
   }
 }

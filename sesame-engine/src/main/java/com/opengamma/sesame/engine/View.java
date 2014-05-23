@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.engine;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,8 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.CompositeFunctionArguments;
 import com.opengamma.sesame.config.CompositeFunctionModelConfig;
@@ -34,7 +37,6 @@ import com.opengamma.sesame.function.PermissionDeniedFunction;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphModel;
-import com.opengamma.sesame.marketdata.ProxiedMarketDataSource;
 import com.opengamma.sesame.trace.CallGraph;
 import com.opengamma.sesame.trace.Tracer;
 import com.opengamma.sesame.trace.TracingProxy;
@@ -65,7 +67,6 @@ public class View {
   private final CachingManager _cachingManager;
   private final List<String> _columnNames;
   private final GraphModel _graphModel;
-  private final ProxiedComponentMap _proxiedComponentMap;
 
   // TODO this has too many parameters. does that matter? it's only called by the view factory
   View(ViewConfig viewConfig,
@@ -74,9 +75,7 @@ public class View {
        FunctionModelConfig systemDefaultConfig,
        // TODO - passing in cachingManager is not ideal - should be removed later
        CachingManager cachingManager,
-       GraphModel graphModel,
-       ProxiedComponentMap proxiedComponentMap) {
-    _proxiedComponentMap = proxiedComponentMap;
+       GraphModel graphModel) {
     _graphModel = ArgumentChecker.notNull(graphModel, "graphModel");
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _graph = ArgumentChecker.notNull(graph, "graph");
@@ -106,29 +105,37 @@ public class View {
    */
   public synchronized Results run(CycleArguments cycleArguments, List<?> inputs) {
 
-    ProxiedMarketDataSource proxiedMarketDataSource =
-        new ProxiedMarketDataSource(cycleArguments.getMarketDataSource());
-
-    // TODO - it may be more appropriate for this to be in a RecorderFactory
-    CycleRecorder recorder = new DefaultCycleRecorder(_viewConfig,
-                                                      inputs,
-                                                      cycleArguments,
-                                                      proxiedMarketDataSource,
-                                                      _proxiedComponentMap);
+    ServiceContext originalContext = ThreadLocalServiceContext.getInstance();
+    CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
+        new CapturingCycleInitializer(originalContext, _cachingManager, cycleArguments,
+                                      _graphModel, _viewConfig, inputs) :
+        new StandardCycleInitializer(originalContext, cycleArguments.getMarketDataSource(), _graph);
 
     Environment env = new EngineEnvironment(cycleArguments.getValuationTime(),
-                                            proxiedMarketDataSource,
+                                            cycleInitializer.getMarketDataSource(),
                                             cycleArguments.getScenarioArguments(),
                                             _cachingManager.getCacheInvalidator());
-    List<Task> tasks = Lists.newArrayList();
-    tasks.addAll(portfolioTasks(env, cycleArguments, inputs));
-    tasks.addAll(nonPortfolioTasks(env, cycleArguments));
+
+    List<Task> tasks = new ArrayList<>();
+    Graph graph = cycleInitializer.getGraph();
+    tasks.addAll(portfolioTasks(env, cycleArguments, inputs, graph));
+    tasks.addAll(nonPortfolioTasks(env, cycleArguments, graph));
     List<Future<TaskResult>> futures;
+
     try {
+      // Create a new version of the context with our wrapped components
+      // Using the with method means we don't need to provide other
+      // items e.g. VersionCorrectionProvider
+      // TODO - ultimately we will want to set VersionCorrection here
+      ThreadLocalServiceContext.init(cycleInitializer.getServiceContext());
       futures = _executor.invokeAll(tasks);
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
+    } finally {
+      // Switch the service context back now all the work is done
+      ThreadLocalServiceContext.init(originalContext);
     }
+
     ResultBuilder resultsBuilder = Results.builder(inputs, _columnNames);
     for (Future<TaskResult> future : futures) {
       try {
@@ -138,10 +145,8 @@ public class View {
         s_logger.warn("Failed to get result from task", e);
       }
     }
-    // TODO - we may want to send recorder data/status back in the results (e.g. file written) but there's a chicken/egg problem
-    Results results = resultsBuilder.build();
-    recorder.complete(results);
-    return results;
+
+    return cycleInitializer.complete(resultsBuilder.build());
   }
 
   /**
@@ -165,12 +170,12 @@ public class View {
     return _graphModel.getFunctionModel(outputName);
   }
 
-  private List<Task> portfolioTasks(Environment env, CycleArguments cycleArguments, List<?> inputs) {
+  private List<Task> portfolioTasks(Environment env, CycleArguments cycleArguments, List<?> inputs, Graph graph) {
     // create tasks for the portfolio outputs
     int colIndex = 0;
     List<Task> portfolioTasks = Lists.newArrayList();
     for (ViewColumn column : _viewConfig.getColumns()) {
-      Map<Class<?>, InvokableFunction> functions = _graph.getFunctionsForColumn(column.getName());
+      Map<Class<?>, InvokableFunction> functions = graph.getFunctionsForColumn(column.getName());
       int rowIndex = 0;
       for (Object input : inputs) {
         InvokableFunction function;
@@ -217,10 +222,10 @@ public class View {
   }
 
   // create tasks for the non-portfolio outputs
-  private List<Task> nonPortfolioTasks(Environment env, CycleArguments cycleArguments) {
+  private List<Task> nonPortfolioTasks(Environment env, CycleArguments cycleArguments, Graph graph) {
     List<Task> tasks = Lists.newArrayList();
     for (NonPortfolioOutput output : _viewConfig.getNonPortfolioOutputs()) {
-      InvokableFunction function = _graph.getNonPortfolioFunction(output.getName());
+      InvokableFunction function = graph.getNonPortfolioFunction(output.getName());
       Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(output.getName()));
 
       FunctionModelConfig functionModelConfig = CompositeFunctionModelConfig.compose(

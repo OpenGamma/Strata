@@ -71,6 +71,7 @@ import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.engine.ViewInputs;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.server.FunctionServer;
@@ -138,6 +139,52 @@ public class RemotingTest {
     assertThat(results, is(not(nullValue())));
 
     checkCurveBundleResult(curveBundleOutputName, results);
+  }
+
+  @Test
+  public void testExecutionWithCapture() {
+
+    String curveBundleOutputName = "Curve Bundle";
+    ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
+
+    // Send the config to the server, along with version
+    // correction, MD requirements, valuation date and
+    // cycle specifics (once/multiple/infinite)
+    // Proxy options?
+
+    FunctionServer functionServer = new RemoteFunctionServer(URI.create(_serverUrl));
+
+    ZonedDateTime now = ZonedDateTime.now();
+    IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
+        .valuationTime(now)
+        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
+        .captureInputs(true)
+        .build();
+
+    FunctionServerRequest<IndividualCycleOptions> request =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(viewConfig)
+                //.withVersionCorrection(...)
+                //.withSecurities(...)
+            .cycleOptions(cycleOptions)
+            .build();
+
+    Results results = functionServer.executeSingleCycle(request);
+    System.out.println(results);
+    assertThat(results, is(not(nullValue())));
+
+    checkCurveBundleResult(curveBundleOutputName, results);
+
+    ViewInputs viewInputs = results.getViewInputs();
+    assertThat(viewInputs, is(not(nullValue())));
+
+    assertThat(viewInputs.getValuationTime(), is(now));
+    assertThat(viewInputs.getConfigData().isEmpty(), is(false));
+    assertThat(viewInputs.getMarketData().isEmpty(), is(false));
+    assertThat(viewInputs.getTradeInputs().isEmpty(), is(true));
+    // Following line would work were it not for Fudge compressing
+    // values and converting (Int) 1000 to (Short) 1000
+    // BeanAssert.assertBeanEquals(viewInputs.getViewConfig(), viewConfig);
   }
 
   private void checkCurveBundleResult(String curveBundleOutputName, Results results) {
