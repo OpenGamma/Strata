@@ -19,8 +19,8 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.SimpleEnvironment;
+import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.EngineUtils;
-import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.ConfigurationErrorFunction;
 import com.opengamma.sesame.function.FunctionMetadata;
@@ -51,7 +51,7 @@ public class GraphModelTest {
     assertNotNull(invokableFunction);
     Result<Object> result = Result.failure(FailureStatus.ERROR, ConfigurationErrorFunction.CONFIG_ERROR);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class)));
-    assertEquals(result, invokableFunction.invoke(env, null, FunctionArguments.EMPTY));
+    assertEquals(result, invokableFunction.invoke(env, null, EmptyFunctionArguments.INSTANCE));
   }
 
   /** Tests that an invalid non-portfolio function build a placeholder with an error message. */
@@ -68,7 +68,7 @@ public class GraphModelTest {
     assertNotNull(invokableFunction);
     Result<Object> result = Result.failure(FailureStatus.ERROR, ConfigurationErrorFunction.CONFIG_ERROR);
     SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class)));
-    assertEquals(result, invokableFunction.invoke(env, null, FunctionArguments.EMPTY));
+    assertEquals(result, invokableFunction.invoke(env, null, EmptyFunctionArguments.INSTANCE));
   }
 
   public static interface PortfolioFn {

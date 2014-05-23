@@ -45,6 +45,12 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
   private final ZonedDateTime _valuationTime;
 
   /**
+   * The valuation time to use during the execution of the cycle.
+   */
+  @PropertyDefinition
+  private final boolean _captureInputs;
+
+  /**
    * Returns an iterator over elements of type {@code T}.
    *
    * @return an Iterator.
@@ -78,11 +84,13 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
 
   private IndividualCycleOptions(
       MarketDataSpecification marketDataSpec,
-      ZonedDateTime valuationTime) {
+      ZonedDateTime valuationTime,
+      boolean captureInputs) {
     JodaBeanUtils.notNull(marketDataSpec, "marketDataSpec");
     JodaBeanUtils.notNull(valuationTime, "valuationTime");
     this._marketDataSpec = marketDataSpec;
     this._valuationTime = valuationTime;
+    this._captureInputs = captureInputs;
   }
 
   @Override
@@ -120,6 +128,15 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the valuation time to use during the execution of the cycle.
+   * @return the value of the property
+   */
+  public boolean isCaptureInputs() {
+    return _captureInputs;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -140,7 +157,8 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
     if (obj != null && obj.getClass() == this.getClass()) {
       IndividualCycleOptions other = (IndividualCycleOptions) obj;
       return JodaBeanUtils.equal(getMarketDataSpec(), other.getMarketDataSpec()) &&
-          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime());
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
+          (isCaptureInputs() == other.isCaptureInputs());
     }
     return false;
   }
@@ -150,15 +168,17 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpec());
     hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCaptureInputs());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("IndividualCycleOptions{");
     buf.append("marketDataSpec").append('=').append(getMarketDataSpec()).append(',').append(' ');
-    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime()));
+    buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
+    buf.append("captureInputs").append('=').append(JodaBeanUtils.toString(isCaptureInputs()));
     buf.append('}');
     return buf.toString();
   }
@@ -184,12 +204,18 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
     private final MetaProperty<ZonedDateTime> _valuationTime = DirectMetaProperty.ofImmutable(
         this, "valuationTime", IndividualCycleOptions.class, ZonedDateTime.class);
     /**
+     * The meta-property for the {@code captureInputs} property.
+     */
+    private final MetaProperty<Boolean> _captureInputs = DirectMetaProperty.ofImmutable(
+        this, "captureInputs", IndividualCycleOptions.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "marketDataSpec",
-        "valuationTime");
+        "valuationTime",
+        "captureInputs");
 
     /**
      * Restricted constructor.
@@ -204,6 +230,8 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
           return _marketDataSpec;
         case 113591406:  // valuationTime
           return _valuationTime;
+        case 1669810383:  // captureInputs
+          return _captureInputs;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -240,6 +268,14 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
       return _valuationTime;
     }
 
+    /**
+     * The meta-property for the {@code captureInputs} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Boolean> captureInputs() {
+      return _captureInputs;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -248,6 +284,8 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
           return ((IndividualCycleOptions) bean).getMarketDataSpec();
         case 113591406:  // valuationTime
           return ((IndividualCycleOptions) bean).getValuationTime();
+        case 1669810383:  // captureInputs
+          return ((IndividualCycleOptions) bean).isCaptureInputs();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -271,6 +309,7 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
 
     private MarketDataSpecification _marketDataSpec;
     private ZonedDateTime _valuationTime;
+    private boolean _captureInputs;
 
     /**
      * Restricted constructor.
@@ -285,6 +324,7 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
     private Builder(IndividualCycleOptions beanToCopy) {
       this._marketDataSpec = beanToCopy.getMarketDataSpec();
       this._valuationTime = beanToCopy.getValuationTime();
+      this._captureInputs = beanToCopy.isCaptureInputs();
     }
 
     //-----------------------------------------------------------------------
@@ -295,6 +335,8 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
           return _marketDataSpec;
         case 113591406:  // valuationTime
           return _valuationTime;
+        case 1669810383:  // captureInputs
+          return _captureInputs;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -308,6 +350,9 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
           break;
         case 113591406:  // valuationTime
           this._valuationTime = (ZonedDateTime) newValue;
+          break;
+        case 1669810383:  // captureInputs
+          this._captureInputs = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -343,7 +388,8 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
     public IndividualCycleOptions build() {
       return new IndividualCycleOptions(
           _marketDataSpec,
-          _valuationTime);
+          _valuationTime,
+          _captureInputs);
     }
 
     //-----------------------------------------------------------------------
@@ -369,13 +415,24 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
       return this;
     }
 
+    /**
+     * Sets the {@code captureInputs} property in the builder.
+     * @param captureInputs  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder captureInputs(boolean captureInputs) {
+      this._captureInputs = captureInputs;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("IndividualCycleOptions.Builder{");
       buf.append("marketDataSpec").append('=').append(JodaBeanUtils.toString(_marketDataSpec)).append(',').append(' ');
-      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime));
+      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
+      buf.append("captureInputs").append('=').append(JodaBeanUtils.toString(_captureInputs));
       buf.append('}');
       return buf.toString();
     }

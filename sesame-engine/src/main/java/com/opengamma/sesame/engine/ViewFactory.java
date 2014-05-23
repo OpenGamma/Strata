@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -86,7 +86,7 @@ public class ViewFactory {
    * @return the view, not null
    */
   public View createView(ViewConfig viewConfig, Class<?>... inputTypes) {
-    return createView(viewConfig, _defaultServices, Sets.newHashSet(inputTypes));
+    return createView(viewConfig, _defaultServices, inputTypes);
   }
 
   /**
@@ -99,7 +99,7 @@ public class ViewFactory {
    * @return the view, not null
    */
   public View createView(ViewConfig viewConfig, EnumSet<FunctionService> services, Class<?>... inputTypes) {
-    return createView(viewConfig, services, Sets.newHashSet(inputTypes));
+    return createView(viewConfig, services, ImmutableSet.copyOf(inputTypes));
   }
 
   /**
@@ -114,21 +114,21 @@ public class ViewFactory {
   public View createView(ViewConfig viewConfig, EnumSet<FunctionService> services, Set<Class<?>> inputTypes) {
 
     NodeDecorator decorator = createNodeDecorator(services);
-    ComponentMap components = _cachingManager.getComponentMap();
+    ComponentMap componentMap = _cachingManager.getComponentMap();
 
     s_logger.debug("building graph model");
     GraphBuilder graphBuilder = new GraphBuilder(_availableOutputs,
                                                  _availableImplementations,
-                                                 components.getComponentTypes(),
+                                                 componentMap.getComponentTypes(),
                                                  _defaultConfig,
                                                  decorator);
     GraphModel graphModel = graphBuilder.build(viewConfig, inputTypes);
 
     s_logger.debug("graph model complete, building graph");
-    Graph graph = graphModel.build(components, _functionBuilder);
+    Graph graph = graphModel.build(componentMap, _functionBuilder);
     s_logger.debug("graph complete");
 
-    return new View(viewConfig, graph, _executor, _defaultConfig, _cachingManager.getCacheInvalidator(), graphModel);
+    return new View(viewConfig, graph, _executor, _defaultConfig, _cachingManager, graphModel);
   }
 
   private NodeDecorator createNodeDecorator(EnumSet<FunctionService> services) {

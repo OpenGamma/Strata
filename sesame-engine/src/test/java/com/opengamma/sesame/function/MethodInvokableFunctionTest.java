@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -52,7 +53,7 @@ public class MethodInvokableFunctionTest {
     FunctionModel model = FunctionModel.forFunction(metadata, config);
     InvokableFunction invokableFunction = model.build(new FunctionBuilder(), ComponentMap.EMPTY);
 
-    Result<?> result = (Result<?>) invokableFunction.invoke(mock(Environment.class), null, FunctionArguments.EMPTY);
+    Result<?> result = (Result<?>) invokableFunction.invoke(mock(Environment.class), null, EmptyFunctionArguments.INSTANCE);
     assertFalse(result.isSuccess());
     assertEquals(FailureStatus.MISSING_ARGUMENT, result.getStatus());
     String expectedMessage = "No arguments provided for non-nullable parameters of method Fn.foo(), " +

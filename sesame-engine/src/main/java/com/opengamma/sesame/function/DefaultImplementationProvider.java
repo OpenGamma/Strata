@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.function;
 
+import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.util.ArgumentChecker;
@@ -55,11 +56,11 @@ public class DefaultImplementationProvider implements FunctionModelConfig {
    * Gets the function arguments by type, which returns the empty arguments.
    * 
    * @param functionType  the function type to get arguments for, not null
-   * @return {@link FunctionArguments#EMPTY}
+   * @return {@link EmptyFunctionArguments#INSTANCE}
    */
   @Override
   public FunctionArguments getFunctionArguments(Class<?> functionType) {
-    return FunctionArguments.EMPTY;
+    return EmptyFunctionArguments.INSTANCE;
   }
 
 }

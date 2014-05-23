@@ -127,7 +127,7 @@ public class DecoratorConfig implements FunctionModelConfig {
     if (args != null) {
       return args;
     } else {
-      return FunctionArguments.EMPTY;
+      return EmptyFunctionArguments.INSTANCE;
     }
   }
 

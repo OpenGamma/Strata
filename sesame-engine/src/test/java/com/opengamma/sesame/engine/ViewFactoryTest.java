@@ -49,7 +49,7 @@ import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.LazyLinkedPositionOrTrade;
 import com.opengamma.sesame.OutputNames;
-import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.example.CashFlowDescriptionFn;
@@ -280,10 +280,11 @@ public class ViewFactoryTest {
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        VersionCorrection.LATEST,
                                                        mock(MarketDataSource.class),
-                                                       FunctionArguments.EMPTY,
+                                                       EmptyFunctionArguments.INSTANCE,
                                                        Collections.<Class<?>, Object>emptyMap(),
                                                        traceCells,
-                                                       Collections.<String>emptySet());
+                                                       Collections.<String>emptySet(),
+                                                       false);
     Results results = view.run(cycleArguments, trades);
     CallGraph trace = results.get(0, 0).getCallGraph();
     assertNotNull(trace);
@@ -371,10 +372,11 @@ public class ViewFactoryTest {
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        VersionCorrection.LATEST,
                                                        mock(MarketDataSource.class),
-                                                       FunctionArguments.EMPTY,
+                                                       EmptyFunctionArguments.INSTANCE,
                                                        Collections.<Class<?>, Object>emptyMap(),
                                                        Collections.<Pair<Integer,Integer>>emptySet(),
-                                                       ImmutableSet.of(name));
+                                                       ImmutableSet.of(name),
+                                                       false);
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);

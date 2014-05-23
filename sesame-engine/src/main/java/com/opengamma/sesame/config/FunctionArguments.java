@@ -12,17 +12,6 @@ public interface FunctionArguments {
   // TODO sentinel value for NULL? or return null for null have have a sentinel value for MISSING?
 
   /**
-   * Singleton instance of an empty argument list.
-   */
-  FunctionArguments EMPTY = new FunctionArguments() {
-    @Override
-    public Object getArgument(String parameterName) {
-      return null;
-    }
-  };
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the argument for the parameter name.
    * 
    * @param parameterName  the parameter name, not null

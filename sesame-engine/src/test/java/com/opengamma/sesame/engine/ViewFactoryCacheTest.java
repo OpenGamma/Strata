@@ -8,6 +8,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.mockito.Mockito.mock;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNotSame;
 import static org.testng.AssertJUnit.assertSame;
 
 import java.util.EnumSet;
@@ -16,7 +18,10 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -51,6 +56,30 @@ public class ViewFactoryCacheTest {
     Results results1 = view.run(cycleArguments, ImmutableList.of("bar"));
     Results results2 = view.run(cycleArguments, ImmutableList.of("bar"));
     assertSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());
+  }
+
+  /**
+   * Checks that whe we are capturing the cycle we do not use cached
+   * values. (If we did we would not be able to intercept calls to the
+   * sources as they would not be called.)
+   */
+  @Test
+  public void cacheIsNotSharedBetweenRunsWhenCapturingCycle() {
+    ThreadLocalServiceContext.init(ServiceContext.of(ImmutableMap.<Class<?>, Object>of()));
+    ViewConfig viewConfig =
+        configureView("view name",
+                      column("Foo",
+                             config(implementations(TestFn.class, Impl.class),
+                                    arguments(function(Impl.class, argument("s", "s"))))));
+    ViewFactory viewFactory = createViewFactory();
+    View view = viewFactory.createView(viewConfig, String.class);
+    ZonedDateTime now = ZonedDateTime.now();
+    CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST, mock(MarketDataSource.class), true);
+    Results results1 = view.run(cycleArguments, ImmutableList.of("bar"));
+    Results results2 = view.run(cycleArguments, ImmutableList.of("bar"));
+    assertNotSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());
+    assertNotNull(results1.getViewInputs());
+    assertNotNull(results2.getViewInputs());
   }
 
   /**
