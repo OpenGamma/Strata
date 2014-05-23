@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalIdBundle;
@@ -22,7 +22,7 @@ public class ProxiedMarketDataSource implements MarketDataSource {
 
   private final MarketDataSource _underlying;
 
-  private final Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _marketDataRequests = new HashMap<>();
+  private final Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _marketDataRequests = new ConcurrentHashMap<>();
 
   /**
    * Create the proxied market data source, wrapping the provided source.

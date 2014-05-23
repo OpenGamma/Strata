@@ -114,21 +114,20 @@ class CapturingCycleInitializer implements CycleInitializer {
       // This proxy mechanism works correctly but unfortunately the
       // sources and other components in proxies are not so well behaved
       // so we won't get consistent data recorded
-      Object proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(),
-                                            new Class<?>[]{key},
-                                            new InvocationHandler() {
-                                              @Override
-                                              public Object invoke(Object proxy,
-                                                                   Method method,
-                                                                   Object[] args) throws Throwable {
+      InvocationHandler handler = new InvocationHandler() {
+        @Override
+        public Object invoke(Object proxy,
+                             Method method,
+                             Object[] args) throws Throwable {
 
-                                                Object result = method.invoke(component, args);
-                                                if (result != null) {
-                                                  collector.receivedCall(key, result);
-                                                }
-                                                return result;
-                                              }
-                                            });
+          Object result = method.invoke(component, args);
+          if (result != null) {
+            collector.receivedCall(key, result);
+          }
+          return result;
+        }
+      };
+      Object proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class<?>[]{key}, handler);
       wrapped.put(key, proxy);
     }
 
