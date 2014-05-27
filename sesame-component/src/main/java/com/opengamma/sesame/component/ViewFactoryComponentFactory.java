@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import org.apache.shiro.concurrent.SubjectAwareExecutorService;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -52,9 +53,9 @@ import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
-import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.equity.DefaultEquityPresentValueFn;
 import com.opengamma.sesame.equity.EquityPresentValueFn;
@@ -77,6 +78,7 @@ import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Component factory for the engine.
@@ -109,8 +111,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
-    // TODO allow the thread pool to grow to allow for threads that block waiting for a cache value to be calculated?
-    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
     Map<Class<?>, Object> components = getComponents(repo, configuration);
     ComponentMap componentMap = ComponentMap.of(components);
 
@@ -124,6 +124,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     // we use within the engine itself
     initServiceContext(repo, cachingManager.getComponentMap().getComponents());
 
+    ExecutorService executor = createExecutorService(repo);
     AvailableOutputs availableOutputs = createAvailableOutputs(repo);
     AvailableImplementations availableImplementations = createAvailableImplementations(repo);
     ViewFactory viewFactory = new ViewFactory(executor,
@@ -163,6 +164,24 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     final ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
+  }
+
+  /**
+   * Create the executor service.
+   * <p>
+   * This implementation uses a fixed size thread pool based on the number of available processors.
+   * If authentication is in use, Apache Shiro is attached to the executor service.
+   * 
+   * @param repo  the component repository, typically not used, not null
+   * @return the executor service, not null
+   */
+  protected ExecutorService createExecutorService(ComponentRepository repo) {
+    // TODO allow the thread pool to grow to allow for threads that block waiting for a cache value to be calculated?
+    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
+    if (AuthUtils.isPermissive() == false) {
+      executor = new SubjectAwareExecutorService(executor);
+    }
+    return executor;
   }
 
   /**
