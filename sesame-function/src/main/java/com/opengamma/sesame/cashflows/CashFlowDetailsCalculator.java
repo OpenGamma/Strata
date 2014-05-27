@@ -15,20 +15,20 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.interestrate.AnnuityAccrualDatesVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityFixedRatesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityFixingDatesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityFixingYearFractionsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityGearingsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityIndexTenorsVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityNotionalsVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityPaymentAmountsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityPaymentDatesVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityPaymentFractionsVisitor;
+import com.opengamma.analytics.financial.interestrate.AnnuityPaymentTimesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuitySpreadsVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
-import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityAccrualDatesVisitor;
-import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityFixedRatesVisitor;
-import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityNotionalsVisitor;
-import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityPaymentAmountsVisitor;
-import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityPaymentFractionsVisitor;
-import com.opengamma.analytics.financial.interestrate.cashflow.AnnuityPaymentTimesVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
@@ -78,23 +78,23 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
     List<Double> paymentTimes = Doubles.asList(legDerivative.accept(AnnuityPaymentTimesVisitor.getInstance()));
     List<Double> paymentFractions = Doubles.asList(legDerivative.accept(AnnuityPaymentFractionsVisitor.getInstance()));
     List<Double> discountFactors = Doubles.asList(legDerivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), bundle));
-    List<CurrencyAmount> notionals = Lists.newArrayList(legDefinition.accept(AnnuityNotionalsVisitor.getInstance(), valuationTime.toLocalDate()));
+    List<CurrencyAmount> notionals = Lists.newArrayList(legDefinition.accept(AnnuityNotionalsVisitor.getInstance(), valuationTime));
     List<Double> fixedRates = Lists.newArrayList(legDerivative.accept(AnnuityFixedRatesVisitor.getInstance()));
     List<CurrencyAmount> paymentAmounts = Lists.newArrayList(legDerivative.accept(AnnuityPaymentAmountsVisitor.getInstance()));
 
-    Pair<LocalDate[], LocalDate[]> accrualDates = legDefinition.accept(AnnuityAccrualDatesVisitor.getInstance(), valuationTime.toLocalDate());
+    Pair<LocalDate[], LocalDate[]> accrualDates = legDefinition.accept(AnnuityAccrualDatesVisitor.getInstance(), valuationTime);
     List<LocalDate> accrualStartDates = Lists.newArrayList(accrualDates.getFirst());
     List<LocalDate> accrualEndDates = Lists.newArrayList(accrualDates.getSecond());
 
     if (provider.isFixed()) {
       return new FixedLegCashFlows(accrualStartDates,
-                                   accrualEndDates,
-                                   discountFactors,
-                                   paymentTimes,
-                                   paymentFractions,
-                                   paymentAmounts,
-                                   notionals,
-                                   fixedRates);
+          accrualEndDates,
+          discountFactors,
+          paymentTimes,
+          paymentFractions,
+          paymentAmounts,
+          notionals,
+          fixedRates);
     }
 
     //sanitize the derivative/definition arrays
@@ -111,22 +111,22 @@ public final class CashFlowDetailsCalculator extends InstrumentDerivativeVisitor
     List<LocalDate> fixingEndDates = Lists.newArrayList(fixingDates.getSecond());
 
     return new FloatingLegCashFlows(accrualStartDates,
-                                    accrualEndDates,
-                                    paymentFractions,
-                                    fixingStartDates,
-                                    fixingEndDates,
-                                    fixingYearFractions,
-                                    forwardRates,
-                                    fixedRates,
-                                    paymentDates,
-                                    paymentTimes,
-                                    discountFactors,
-                                    paymentAmounts,
-                                    projectedAmounts,
-                                    notionals,
-                                    spreads,
-                                    gearings,
-                                    indexTenors);
+        accrualEndDates,
+        paymentFractions,
+        fixingStartDates,
+        fixingEndDates,
+        fixingYearFractions,
+        forwardRates,
+        fixedRates,
+        paymentDates,
+        paymentTimes,
+        discountFactors,
+        paymentAmounts,
+        projectedAmounts,
+        notionals,
+        spreads,
+        gearings,
+        indexTenors);
   }
 
 }
