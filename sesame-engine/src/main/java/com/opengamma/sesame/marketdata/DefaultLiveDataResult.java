@@ -21,7 +21,9 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
- * LiveDataResult holding the market data values for a ticker.
+ * A live data result holding the market data values for a ticker.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class DefaultLiveDataResult implements LiveDataResult {
 
@@ -29,13 +31,10 @@ public class DefaultLiveDataResult implements LiveDataResult {
    * The ticker this result is for.
    */
   private final ExternalIdBundle _ticker;
-
   /**
-   * The permissions a user requires to permit them
-   * to view the market data values.
+   * The permissions a user requires to permit them to view the market data values.
    */
   private final ImmutableSet<Permission> _requiredPermissions;
-
   /**
    * The market data values.
    */
@@ -51,6 +50,7 @@ public class DefaultLiveDataResult implements LiveDataResult {
     this(ticker, update.getRequiredPermissions(), ArgumentChecker.notNull(update, "update").getFields());
   }
 
+  // constructor used internally
   private DefaultLiveDataResult(ExternalIdBundle ticker,
                                Set<Permission> requiredPermissions,
                                Map<FieldName, Object> updated) {
@@ -59,6 +59,7 @@ public class DefaultLiveDataResult implements LiveDataResult {
     _fields = ImmutableMap.copyOf(updated);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean isPending() {
     return false;

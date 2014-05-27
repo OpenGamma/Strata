@@ -6,10 +6,13 @@
 package com.opengamma.sesame.marketdata;
 
 /**
- * An immutable version of LiveDataResults.
+ * An immutable representation of the results of live market data.
  * <p>
- * Marker interface to ensure that a MutableLiveDataResults
+ * This is a marker interface used to ensure that a {@code MutableLiveDataResults}
  * cannot be returned where an immutable one is wanted.
+ * <p>
+ * All implementations of this interface must be immutable.
  */
 public interface ImmutableLiveDataResults extends LiveDataResults {
+
 }

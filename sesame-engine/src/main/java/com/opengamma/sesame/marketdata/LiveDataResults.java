@@ -8,9 +8,10 @@ package com.opengamma.sesame.marketdata;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * Holds the results that have come in from a live market data
- * source. The results may be actual values or maybe indications
- * that something is in error.
+ * The results that have come in from a live market data source.
+ * <p>
+ * Each result is an instance of {@link LiveDataResult} and may represent
+ * either an actual value or an indications of a problem.
  */
 public interface LiveDataResults {
 
@@ -25,28 +26,31 @@ public interface LiveDataResults {
   boolean containsTicker(ExternalIdBundle ticker);
 
   /**
-   * Retrieves the result held for the specified ticker.
-   *
-   * @param ticker  the ticker to get the result for, not null
-   * @return result for the ticker, null if no result held
-   */
-  // TODO - should this either throw an exception or return a PENDING result if ticker is not present?
-  LiveDataResult get(ExternalIdBundle ticker);
-
-  /**
    * Returns the number of results held.
+   * <p>
+   * Each result is for a different ticker.
    *
    * @return the number of results held
    */
   int size();
 
   /**
+   * Retrieves the result held for the specified ticker.
+   *
+   * @param ticker  the ticker to get the result for
+   * @return result for the ticker, null if no result held
+   */
+  // TODO - should this either throw an exception or return a PENDING result if ticker is not present?
+  LiveDataResult get(ExternalIdBundle ticker);
+
+  /**
    * Returns whether the result held for the specified ticker
    * indicates that the market data is still pending.
    *
-   * @param ticker  the ticker to check, not null
+   * @param ticker  the ticker to check
    * @return true if the data is still pending
    * @throws IllegalArgumentException if the ticker is not present
    */
   boolean isPending(ExternalIdBundle ticker);
+
 }

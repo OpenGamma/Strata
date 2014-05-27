@@ -11,14 +11,14 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * An immutable LiveDataResults implementation. No mutator methods
- * are available and the objects held are all immutable.
+ * An immutable representation of the results of live market data.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults {
 
   /**
-   * Convenience static field for returning an
-   * empty ImmutableLiveDataResults.
+   * An empty set of results.
    */
   public static final ImmutableLiveDataResults EMPTY =
       new DefaultImmutableLiveDataResults(ImmutableMap.<ExternalIdBundle, LiveDataResult>of());
@@ -29,8 +29,7 @@ public class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults
   private final ImmutableMap<ExternalIdBundle, LiveDataResult> _results;
 
   /**
-   * Create a new instance populating it with the supplied
-   * market data results.
+   * Create a new instance populating it with the supplied market data results.
    *
    * @param results  the results to populate the mapper with, not null
    */
@@ -40,9 +39,15 @@ public class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults
     _results = ImmutableMap.copyOf(results);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean containsTicker(ExternalIdBundle ticker) {
     return _results.containsKey(ticker);
+  }
+
+  @Override
+  public int size() {
+    return _results.size();
   }
 
   @Override
@@ -57,11 +62,6 @@ public class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults
     } else {
       throw new IllegalArgumentException("No result found for ticker: " + ticker);
     }
-  }
-
-  @Override
-  public int size() {
-    return _results.size();
   }
 
 }

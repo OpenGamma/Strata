@@ -15,7 +15,12 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A LiveDataResults implementation which maintains the set of results in place.
+ * A mutable representation of the results of live market data.
+ * <p>
+ * This uses a map to record the current {@link LiveDataResult} for each ticker. 
+ * <p>
+ * This class is mutable and intended for use from a single thread.
+ * If shared between threads it must be synchronized externally.
  */
 public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
 
@@ -24,11 +29,18 @@ public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
    */
   private final Map<ExternalIdBundle, LiveDataResult> _currentResults = new HashMap<>();
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean containsTicker(ExternalIdBundle ticker) {
     return _currentResults.containsKey(ticker);
   }
 
+  @Override
+  public int size() {
+    return _currentResults.size();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public LiveDataResult get(ExternalIdBundle ticker) {
     return _currentResults.get(ticker);
@@ -72,6 +84,7 @@ public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
     return new DefaultImmutableLiveDataResults(_currentResults);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public void markAsPending(ExternalIdBundle ticker) {
     _currentResults.put(ArgumentChecker.notNull(ticker, "ticker"), new PendingLiveDataResult(ticker));
@@ -93,6 +106,7 @@ public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
     return MessageFormatter.format(ArgumentChecker.notNull(userMessage, "userMessage"), args).getMessage();
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean isPending(ExternalIdBundle ticker) {
     if (containsTicker(ticker)) {
@@ -100,11 +114,6 @@ public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
     } else {
       throw new IllegalArgumentException("No result found for ticker: " + ticker);
     }
-  }
-
-  @Override
-  public int size() {
-    return _currentResults.size();
   }
 
 }

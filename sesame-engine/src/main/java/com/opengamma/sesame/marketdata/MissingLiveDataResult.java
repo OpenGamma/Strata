@@ -11,8 +11,9 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
- * LiveDataResult indicating that a requested piece of market
- * data is missing.
+ * A live data result indicating that a requested piece of market data is missing.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class MissingLiveDataResult implements LiveDataResult {
 
@@ -20,7 +21,6 @@ public class MissingLiveDataResult implements LiveDataResult {
    * The ticker this result is for.
    */
   private final ExternalIdBundle _ticker;
-
   /**
    * Failure result indicating the reason why the data is missing
    */
@@ -30,14 +30,14 @@ public class MissingLiveDataResult implements LiveDataResult {
    * Create the result.
    *
    * @param ticker  the ticker this result is for, not null
-   * @param message  message indicating why the market data
-   * is missing, not null
+   * @param message  message indicating why the market data is missing, not null
    */
   public MissingLiveDataResult(ExternalIdBundle ticker, String message) {
     _ticker = ArgumentChecker.notNull(ticker, "ticker");
     _result = Result.failure(FailureStatus.MISSING_DATA, ArgumentChecker.notNull(message, "message"));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean isPending() {
     return false;
@@ -53,6 +53,12 @@ public class MissingLiveDataResult implements LiveDataResult {
     return _result;
   }
 
+  /**
+   * Returns a new result based entirely on the {@code LiveDataUpdate}.
+   *
+   * @param update  the new values
+   * @return a new result based entirely on the update
+   */
   @Override
   public LiveDataResult update(LiveDataUpdate update) {
     return new DefaultLiveDataResult(_ticker, update);

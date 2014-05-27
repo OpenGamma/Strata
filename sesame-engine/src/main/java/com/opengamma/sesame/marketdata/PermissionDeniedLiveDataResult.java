@@ -15,8 +15,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
- * LiveDataResult indicating that a requested piece of market
- * data is not available as the user is not permissioned for it.
+ * A live data result indicating that a requested piece of market
+ * data is not available as the user does not have permission to see it.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public class PermissionDeniedLiveDataResult implements LiveDataResult {
 
@@ -65,6 +67,7 @@ public class PermissionDeniedLiveDataResult implements LiveDataResult {
     _result = Result.failure(PERMISSION_DENIED, ArgumentChecker.notNull(message, "message"));
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean isPending() {
     return false;
@@ -81,14 +84,15 @@ public class PermissionDeniedLiveDataResult implements LiveDataResult {
   }
 
   /**
-   * Returns the same instance. It is not possible to update a permission
-   * denied message with a new value.
+   * Returns the same instance.
+   * <p>
+   * It is not possible to update a permission denied message with a new value.
    *
-   * @param updatedValues  the new values, ignored
+   * @param update  the new values, ignored
    * @return the same PermissionDeniedLiveDataResult instance
    */
   @Override
-  public LiveDataResult update(LiveDataUpdate updatedValues) {
+  public LiveDataResult update(LiveDataUpdate update) {
     return this;
   }
 
