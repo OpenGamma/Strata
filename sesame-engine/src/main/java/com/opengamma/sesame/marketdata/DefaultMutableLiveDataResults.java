@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.slf4j.helpers.MessageFormatter;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * This class is mutable and intended for use from a single thread.
  * If shared between threads it must be synchronized externally.
  */
-public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
+class DefaultMutableLiveDataResults implements MutableLiveDataResults {
 
   /**
    * The set of results being maintained.
@@ -33,6 +34,11 @@ public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
   @Override
   public boolean containsTicker(ExternalIdBundle ticker) {
     return _currentResults.containsKey(ticker);
+  }
+
+  @Override
+  public ImmutableSet<ExternalIdBundle> tickerSet() {
+    return ImmutableSet.copyOf(_currentResults.keySet());
   }
 
   @Override
@@ -68,20 +74,21 @@ public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
 
   @Override
   public DefaultImmutableLiveDataResults createSnapshot(Set<ExternalIdBundle> tickers) {
+    ArgumentChecker.notNull(tickers, "tickers");
 
     Map<ExternalIdBundle, LiveDataResult> results = new HashMap<>();
-
-    for (ExternalIdBundle ticker : ArgumentChecker.notNull(tickers, "tickers")) {
+    for (ExternalIdBundle ticker : tickers) {
       LiveDataResult result = _currentResults.get(ticker);
-      results.put(ticker, result.permissionCheck());
+      if (result != null) {
+        results.put(ticker, result.permissionCheck());
+      }
     }
-
     return new DefaultImmutableLiveDataResults(results);
   }
 
   @Override
   public ImmutableLiveDataResults createSnapshot() {
-    return new DefaultImmutableLiveDataResults(_currentResults);
+    return createSnapshot(_currentResults.keySet());
   }
 
   //-------------------------------------------------------------------------
@@ -114,6 +121,12 @@ public class DefaultMutableLiveDataResults implements MutableLiveDataResults {
     } else {
       throw new IllegalArgumentException("No result found for ticker: " + ticker);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "DefaultMutableLiveDataResults[size=" + _currentResults.size() + "]";
   }
 
 }

@@ -8,6 +8,7 @@ package com.opengamma.sesame.marketdata;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -15,7 +16,7 @@ import com.opengamma.id.ExternalIdBundle;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults {
+final class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults {
 
   /**
    * An empty set of results.
@@ -46,6 +47,11 @@ public class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults
   }
 
   @Override
+  public ImmutableSet<ExternalIdBundle> tickerSet() {
+    return _results.keySet();
+  }
+
+  @Override
   public int size() {
     return _results.size();
   }
@@ -62,6 +68,12 @@ public class DefaultImmutableLiveDataResults implements ImmutableLiveDataResults
     } else {
       throw new IllegalArgumentException("No result found for ticker: " + ticker);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "DefaultImmutableLiveDataResults[size=" + _results.size() + "]";
   }
 
 }

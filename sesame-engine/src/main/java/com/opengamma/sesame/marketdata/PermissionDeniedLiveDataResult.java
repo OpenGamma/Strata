@@ -20,7 +20,7 @@ import com.opengamma.util.result.Result;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class PermissionDeniedLiveDataResult implements LiveDataResult {
+final class PermissionDeniedLiveDataResult implements LiveDataResult {
 
   /**
    * Failure result indicating the reason why permission is denied.
@@ -94,6 +94,12 @@ public class PermissionDeniedLiveDataResult implements LiveDataResult {
   @Override
   public LiveDataResult update(LiveDataUpdate update) {
     return this;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "PERMISSION_DENIED:" + _result.getFailureMessage();
   }
 
 }

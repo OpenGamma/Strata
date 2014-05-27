@@ -25,7 +25,7 @@ import com.opengamma.util.result.Result;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class DefaultLiveDataResult implements LiveDataResult {
+final class DefaultLiveDataResult implements LiveDataResult {
 
   /**
    * The ticker this result is for.
@@ -95,6 +95,12 @@ public class DefaultLiveDataResult implements LiveDataResult {
     Set<Permission> permissions = Sets.union(_requiredPermissions, updatedValues.getRequiredPermissions());
 
     return new DefaultLiveDataResult(_ticker, permissions, updated);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return _ticker + "=" + _fields;
   }
 
 }

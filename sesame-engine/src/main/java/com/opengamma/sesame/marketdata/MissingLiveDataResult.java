@@ -15,7 +15,7 @@ import com.opengamma.util.result.Result;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class MissingLiveDataResult implements LiveDataResult {
+final class MissingLiveDataResult implements LiveDataResult {
 
   /**
    * The ticker this result is for.
@@ -62,6 +62,12 @@ public class MissingLiveDataResult implements LiveDataResult {
   @Override
   public LiveDataResult update(LiveDataUpdate update) {
     return new DefaultLiveDataResult(_ticker, update);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "MISSING_DATA:" + _result.getFailureMessage();
   }
 
 }

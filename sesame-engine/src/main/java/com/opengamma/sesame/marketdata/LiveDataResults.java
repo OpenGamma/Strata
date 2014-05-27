@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame.marketdata;
 
+import javax.annotation.Nullable;
+
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -26,6 +29,16 @@ public interface LiveDataResults {
   boolean containsTicker(ExternalIdBundle ticker);
 
   /**
+   * Gets the set of tickers that are held.
+   * <p>
+   * The presence of a result for a ticker does not imply that market data is
+   * available as the result may indicate a failure situation.
+   *
+   * @return the set of tickers
+   */
+  ImmutableSet<ExternalIdBundle> tickerSet();
+
+  /**
    * Returns the number of results held.
    * <p>
    * Each result is for a different ticker.
@@ -41,6 +54,7 @@ public interface LiveDataResults {
    * @return result for the ticker, null if no result held
    */
   // TODO - should this either throw an exception or return a PENDING result if ticker is not present?
+  @Nullable
   LiveDataResult get(ExternalIdBundle ticker);
 
   /**

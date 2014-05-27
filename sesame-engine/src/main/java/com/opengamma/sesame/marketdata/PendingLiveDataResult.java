@@ -15,7 +15,7 @@ import com.opengamma.util.result.Result;
  * <p>
  * This class is immutable and thread-safe.
  */
-public class PendingLiveDataResult implements LiveDataResult {
+final class PendingLiveDataResult implements LiveDataResult {
 
   /**
    * The ticker this result is for.
@@ -62,4 +62,11 @@ public class PendingLiveDataResult implements LiveDataResult {
   public LiveDataResult update(LiveDataUpdate updatedValues) {
     return new DefaultLiveDataResult(_ticker, updatedValues);
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "PENDING_DATA:" + _result.getFailureMessage();
+  }
+
 }

@@ -511,6 +511,7 @@ public class DefaultLiveDataManagerTest {
   private void checkSnapshotContainsTickers(LDListener client, String... tickers) {
     for (String ticker : tickers) {
       assertThat(_manager.snapshot(client).containsTicker(createBundle(ticker)), is(true));
+      assertThat(_manager.snapshot(client).tickerSet().contains(createBundle(ticker)), is(true));
     }
   }
 

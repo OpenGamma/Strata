@@ -18,7 +18,7 @@ import com.opengamma.id.ExternalIdBundle;
  * <p>
  * Implementations of this interface should be mutable.
  */
-public interface MutableLiveDataResults extends LiveDataResults {
+interface MutableLiveDataResults extends LiveDataResults {
 
   /**
    * Update the value held for the specified ticker with new data.
