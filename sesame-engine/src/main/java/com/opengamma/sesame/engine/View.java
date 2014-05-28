@@ -193,13 +193,14 @@ public class View {
           try {
             Security security = ((PositionOrTrade) input).getSecurity();
             if (security == null) {
-              function = new InvalidInputFunction("PositionOrTrade.getSecurity() returned null");
+              function = new InvalidInputFunction(
+                  "Position or trade does not contain a security, column: " + column + " type: " + input.getClass().getName());
               functionInput = input;
             } else {
               function = functions.get(security.getClass());
               if (function == null) {
                 function = new InvalidInputFunction(
-                    "No function found for security, column: " + column + " type: " + input.getClass());
+                    "No function found for security, column: " + column + " type: " + input.getClass().getName());
               }
               functionInput = security;
             }
@@ -210,7 +211,7 @@ public class View {
         } else {
           // input is not known by the configuration
           function = new InvalidInputFunction(
-              "No function found for input, column: " + column + " type: " + input.getClass());
+              "No function found for input, column: " + column + " type: " + input.getClass().getName());
           functionInput = input;
         }
         Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(rowIndex, colIndex));

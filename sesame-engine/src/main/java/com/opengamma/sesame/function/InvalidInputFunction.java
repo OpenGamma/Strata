@@ -7,6 +7,7 @@ package com.opengamma.sesame.function;
 
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.FunctionArguments;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
@@ -32,7 +33,7 @@ public class InvalidInputFunction implements InvokableFunction {
    * @param message  the message to include in the result of the function
    */
   public InvalidInputFunction(String message) {
-    _message = message;
+    _message = ArgumentChecker.notBlank(message, "message");
   }
 
   //-------------------------------------------------------------------------
