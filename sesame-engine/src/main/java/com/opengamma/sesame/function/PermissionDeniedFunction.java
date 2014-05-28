@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.function;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.util.ArgumentChecker;
@@ -32,7 +34,7 @@ public class PermissionDeniedFunction implements InvokableFunction {
    * @param message  the message to include in the result of the function
    */
   public PermissionDeniedFunction(String message) {
-    _message = ArgumentChecker.notBlank(message, "message");
+    _message = StringUtils.defaultIfBlank(message, "Unknown reason");
   }
 
   //-------------------------------------------------------------------------
