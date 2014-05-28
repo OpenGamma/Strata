@@ -9,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.config.FunctionArguments;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
