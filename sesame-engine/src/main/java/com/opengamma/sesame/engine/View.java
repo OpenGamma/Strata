@@ -32,6 +32,7 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.NonPortfolioOutput;
 import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
+import com.opengamma.sesame.function.InvalidInputFunction;
 import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.PermissionDeniedFunction;
 import com.opengamma.sesame.graph.FunctionModel;
@@ -178,29 +179,39 @@ public class View {
       Map<Class<?>, InvokableFunction> functions = graph.getFunctionsForColumn(column.getName());
       int rowIndex = 0;
       for (Object input : inputs) {
+        // the function that is determined from the input
         InvokableFunction function;
-        InvokableFunction inputFunction = functions.get(input.getClass());
-        // the input to the function can be a security when the input is a position or trade
+        // the input to the function that is determined, which can be a security when the input is a position or trade
         Object functionInput;
+        // try the type of the input
+        InvokableFunction inputFunction = functions.get(input.getClass());
         if (inputFunction != null) {
           function = inputFunction;
           functionInput = input;
         } else if (input instanceof PositionOrTrade) {
+          // extract the security from the position or trade
           try {
             Security security = ((PositionOrTrade) input).getSecurity();
-            function = functions.get(security.getClass());
-            functionInput = security;
-          } catch (AuthorizationException e) {
-            function = new PermissionDeniedFunction(e.getMessage());
+            if (security == null) {
+              function = new InvalidInputFunction("PositionOrTrade.getSecurity() returned null");
+              functionInput = input;
+            } else {
+              function = functions.get(security.getClass());
+              if (function == null) {
+                function = new InvalidInputFunction(
+                    "No function found for security, column: " + column + " type: " + input.getClass());
+              }
+              functionInput = security;
+            }
+          } catch (AuthorizationException ex) {
+            function = new PermissionDeniedFunction(ex.getMessage());
             functionInput = input;
           }
         } else {
-          function = null;
-          functionInput = null;
-        }
-        if (function == null) {
-          // this shouldn't happen if the graph is built correctly
-          throw new OpenGammaRuntimeException("No function found for column " + column + " and " + input);
+          // input is not known by the configuration
+          function = new InvalidInputFunction(
+              "No function found for input, column: " + column + " type: " + input.getClass());
+          functionInput = input;
         }
         Tracer tracer = Tracer.create(cycleArguments.isTracingEnabled(rowIndex, colIndex));
 

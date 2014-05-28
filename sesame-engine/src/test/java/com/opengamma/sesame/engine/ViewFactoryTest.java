@@ -36,8 +36,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -105,6 +107,51 @@ public class ViewFactoryTest {
     Results results = view.run(cycleArguments, trades);
     assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
+  }
+
+  @Test
+  public void basicFunctionWithTradeAndNoSecurity() {
+    ViewConfig viewConfig =
+        configureView("Trivial Test View",
+                      column(DESCRIPTION_HEADER,
+                             output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                                    config(
+                                        implementations(EquityDescriptionFn.class,
+                                                        DefaultEquityDescriptionFn.class)))));
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityDescriptionFn.class);
+    ViewFactory viewFactory = createViewFactory(availableOutputs);
+    SimpleTrade trade = (SimpleTrade) EngineTestUtils.createEquityTrade();
+    trade.setSecurityLink(new SimpleSecurityLink(trade.getSecurityLink().getExternalId()));
+    List<Trade> trades = ImmutableList.<Trade>of(trade);
+    View view = viewFactory.createView(viewConfig, EquitySecurity.class);
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
+    Results results = view.run(cycleArguments, trades);
+    assertEquals(FailureStatus.INVALID_INPUT, results.get(0, 0).getResult().getStatus());
+    assertEquals(true, results.get(0, 0).getResult().getFailureMessage().contains("PositionOrTrade.getSecurity() returned null"));
+  }
+
+  @Test
+  public void basicFunctionWithTradeAndUnknownSecurityType() {
+    ViewConfig viewConfig =
+        configureView("Trivial Test View",
+                      column(DESCRIPTION_HEADER,
+                             output(OutputNames.DESCRIPTION, EquitySecurity.class,
+                                    config(
+                                        implementations(EquityDescriptionFn.class,
+                                                        DefaultEquityDescriptionFn.class)))));
+    AvailableOutputs availableOutputs = new AvailableOutputsImpl();
+    availableOutputs.register(EquityDescriptionFn.class);
+    ViewFactory viewFactory = createViewFactory(availableOutputs);
+    Trade trade = (SimpleTrade) EngineTestUtils.createCashFlowTrade();
+    List<Trade> trades = ImmutableList.of(trade);
+    View view = viewFactory.createView(viewConfig, EquitySecurity.class);
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(MarketDataSource.class));
+    Results results = view.run(cycleArguments, trades);
+    assertEquals(FailureStatus.INVALID_INPUT, results.get(0, 0).getResult().getStatus());
+    assertEquals(true, results.get(0, 0).getResult().getFailureMessage().contains("No function found for security"));
   }
 
   private ViewFactory createViewFactory(AvailableOutputs availableOutputs) {
