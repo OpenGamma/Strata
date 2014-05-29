@@ -20,7 +20,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
@@ -48,7 +47,7 @@ public class EngineTestUtils {
   private EngineTestUtils() {
   }
 
-  public static Trade createEquityTrade() {
+  public static SimpleTrade createEquityTrade() {
     EquitySecurity security = new EquitySecurity("exc", "exc", "compName", AUD);
     security.setUniqueId(UniqueId.of("secId", "123"));
     security.setName(EQUITY_NAME);
@@ -63,7 +62,7 @@ public class EngineTestUtils {
     return trade;
   }
 
-  public static Trade createCashFlowTrade() {
+  public static SimpleTrade createCashFlowTrade() {
     CashFlowSecurity security = new CashFlowSecurity(GBP, ZonedDateTime.now(), 12345d);
     security.setUniqueId(UniqueId.of("secId", "234"));
     security.setName(CASH_FLOW_NAME);

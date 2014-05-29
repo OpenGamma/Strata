@@ -13,14 +13,15 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 
 /**
- * Function to handle the situation where the user does not have permission to view an input.
+ * Function to handle the situation where the the input supplied is invalid.
  * <p>
- * This handles permission denied on trades, positions and securities.
- * It always returns a failure result with status {@link FailureStatus#PERMISSION_DENIED}.
+ * This handles invalid inputs when creating a view.
+ * An input is invalid if the type of the input cannot be matched to a configured function.
+ * It always returns a failure result with status {@link FailureStatus#INVALID_INPUT}.
  * <p>
  * This class is immutable and thread-safe.
  */
-public class PermissionDeniedFunction implements InvokableFunction {
+public class InvalidInputFunction implements InvokableFunction {
 
   /**
    * The message.
@@ -32,22 +33,22 @@ public class PermissionDeniedFunction implements InvokableFunction {
    * 
    * @param message  the message to include in the result of the function
    */
-  public PermissionDeniedFunction(String message) {
+  public InvalidInputFunction(String message) {
     _message = StringUtils.defaultIfBlank(message, "Unknown reason");
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Always returns a failure result with status {@link FailureStatus#PERMISSION_DENIED}.
+   * Always returns a failure result with status {@link FailureStatus#INVALID_INPUT}.
    *
    * @param env  ignored
    * @param input  ignored
    * @param args  ignored
-   * @return a failure result with status {@link FailureStatus#PERMISSION_DENIED}
+   * @return a failure result with status {@link FailureStatus#INVALID_INPUT}
    */
   @Override
   public Object invoke(Environment env, Object input, FunctionArguments args) {
-    return Result.failure(FailureStatus.PERMISSION_DENIED, "Permission Denied: {}", _message);
+    return Result.failure(FailureStatus.INVALID_INPUT, "Invalid input: {}", _message);
   }
 
   @Override
@@ -68,7 +69,7 @@ public class PermissionDeniedFunction implements InvokableFunction {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "PERMISSION_DENIED: " + _message;
+    return "INVALID_INPUT: " + _message;
   }
 
 }
