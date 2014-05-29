@@ -27,9 +27,9 @@ import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConv
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.sesame.cashflows.CashFlowDetailsCalculator;
-import com.opengamma.sesame.cashflows.CashFlowDetailsProvider;
-import com.opengamma.sesame.cashflows.SwapLegCashFlows;
+import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsCalculator;
+import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsProvider;
+import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;

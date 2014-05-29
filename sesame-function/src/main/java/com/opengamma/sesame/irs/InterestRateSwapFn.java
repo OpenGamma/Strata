@@ -11,7 +11,7 @@ import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.cashflows.SwapLegCashFlows;
+import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
