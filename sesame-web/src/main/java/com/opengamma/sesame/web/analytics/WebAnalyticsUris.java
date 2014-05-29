@@ -8,6 +8,7 @@ package com.opengamma.sesame.web.analytics;
 import java.net.URI;
 
 import com.opengamma.id.ObjectId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * URIs for web-based analytics.
@@ -24,7 +25,7 @@ public class WebAnalyticsUris {
    * @param data  the web data, not null
    */
   public WebAnalyticsUris(WebAnalyticsData data) {
-    _data = data;
+    _data = ArgumentChecker.notNull(data, "data");
   }
 
   //-------------------------------------------------------------------------

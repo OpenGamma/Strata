@@ -27,7 +27,7 @@ public abstract class AbstractWebAnalyticsResource
    * 
    * @param functionServer  the function server, not null
    */
-  protected AbstractWebAnalyticsResource(final FunctionServer functionServer) {
+  protected AbstractWebAnalyticsResource(FunctionServer functionServer) {
     super(new WebAnalyticsData());
     ArgumentChecker.notNull(functionServer, "functionServer");
     data().setFunctionServer(functionServer);
@@ -38,7 +38,7 @@ public abstract class AbstractWebAnalyticsResource
    * 
    * @param parent  the parent resource, not null
    */
-  protected AbstractWebAnalyticsResource(final AbstractWebAnalyticsResource parent) {
+  protected AbstractWebAnalyticsResource(AbstractWebAnalyticsResource parent) {
     super(parent);
   }
 

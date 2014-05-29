@@ -58,13 +58,17 @@ public class WebAnalyticsData extends WebPerRequestData {
    * Creates an instance.
    * @param uriInfo  the URI information
    */
-  public WebAnalyticsData(final UriInfo uriInfo) {
+  public WebAnalyticsData(UriInfo uriInfo) {
     setUriInfo(uriInfo);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the best available view id.
+   * <p>
+   * This returns the specified object identifier, or the identifier from the
+   * URI if the parameter is null.
+   * 
    * @param overrideId  the override id, null derives the result from the data
    * @return the id, may be null
    */

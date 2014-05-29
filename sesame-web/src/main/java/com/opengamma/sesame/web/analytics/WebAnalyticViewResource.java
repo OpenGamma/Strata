@@ -27,7 +27,7 @@ public class WebAnalyticViewResource extends AbstractWebAnalyticsResource {
    * Creates the resource.
    * @param parent  the parent resource, not null
    */
-  public WebAnalyticViewResource(final AbstractWebAnalyticsResource parent) {
+  public WebAnalyticViewResource(AbstractWebAnalyticsResource parent) {
     super(parent);
   }
 
@@ -57,7 +57,7 @@ public class WebAnalyticViewResource extends AbstractWebAnalyticsResource {
    * @param data  the data, not null
    * @return the URI, not null
    */
-  public static URI uri(final WebAnalyticsData data) {
+  public static URI uri(WebAnalyticsData data) {
     return uri(data, null);
   }
 
@@ -67,7 +67,7 @@ public class WebAnalyticViewResource extends AbstractWebAnalyticsResource {
    * @param overrideViewId  the override view id, null uses information from data
    * @return the URI, not null
    */
-  public static URI uri(final WebAnalyticsData data, final ObjectId overrideViewId) {
+  public static URI uri(WebAnalyticsData data, ObjectId overrideViewId) {
     String viewId = data.getBestViewUriId(overrideViewId);
     return data.getUriInfo().getBaseUriBuilder().path(WebAnalyticViewResource.class).build(viewId);
   }

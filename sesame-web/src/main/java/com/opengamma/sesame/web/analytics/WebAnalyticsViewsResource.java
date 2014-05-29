@@ -115,7 +115,7 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
    * Creates the resource.
    * @param functionServer  the function server, not null
    */
-  public WebAnalyticsViewsResource(final FunctionServer functionServer) {
+  public WebAnalyticsViewsResource(FunctionServer functionServer) {
     super(functionServer);
   }
 
@@ -133,12 +133,7 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
     data().setUriViewId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     if (oid.equalObjectId(OID_INLINE_1000)) {
-      try {
-        data().setCalculationRequest(createInline1000());
-      } catch (RuntimeException ex) {
-        ex.printStackTrace();
-        throw ex;
-      }
+      data().setCalculationRequest(createInline1000());
     } else {
       throw new DataNotFoundException("View not found: " + oid);
     }
@@ -246,8 +241,6 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
 
   private static EquitySecurity createEquitySecurity1() {
     ExternalId securityId = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "ACE US Equity");
-//    SecurityLink<EquitySecurity> link = SecurityLink.resolvable(securityId);
-//    return link.resolve();
     EquitySecurity sec = new EquitySecurity("NEW YORK STOCK EXCHANGE INC.", "XNYS", "ACE LTD", Currency.USD);
     sec.setExternalIdBundle(securityId.toBundle());
     sec.setShortName("ACE");

@@ -1,9 +1,9 @@
 <#escape x as x?html>
-<@page title="Analytic view">
+<@page title="Analytics view">
 
 
 <#-- SECTION Results -->
-<@section title="Analytic view" if=results??>
+<@section title="Analytics view" if=results??>
 <#if results.rows?size == 0>
   <p>No input trades</p>
 <#else>
