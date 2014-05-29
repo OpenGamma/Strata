@@ -20,7 +20,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -39,6 +38,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.auth.AuthUtils;
 
 /**
  * Responsible for the management of live market data subscriptions
@@ -164,7 +164,7 @@ public class DefaultLiveDataManager implements LiveDataListener, LiveDataManager
 
     // We need to ensure that we run the callable with the same user
     // details as the client was using
-    Subject subject = SecurityUtils.getSubject();
+    Subject subject = AuthUtils.getSubject();
     Future<ImmutableLiveDataResults> future = _commandQueue.submit(subject.associateWith(callable));
 
     try {
