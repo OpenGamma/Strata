@@ -10,10 +10,10 @@
     <version>2.2.0-SNAPSHOT</version>
     <relativePath></relativePath>
   </parent>
-  <artifactId>sesame-component</artifactId>
+  <artifactId>sesame-web</artifactId>
   <packaging>jar</packaging>
-  <name>Sesame-Component</name>
-  <description>Components based on the Sesame project</description>
+  <name>Sesame-Web</name>
+  <description>Web UI support for the calculation engine</description>
 
   <!-- ==================================================================== -->
   <inceptionYear>2014</inceptionYear>
@@ -43,23 +43,16 @@
     <!-- OpenGamma dependencies -->
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>sesame-web</artifactId>
+      <artifactId>sesame-function</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-component</artifactId>
+      <artifactId>og-web</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <!-- test dependencies -->
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>sesame-function</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>

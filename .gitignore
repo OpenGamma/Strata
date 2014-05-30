@@ -29,6 +29,8 @@ javadoc-data.json
 !/sesame-component/
 !/sesame-engine/
 !/sesame-function/
+!/sesame-war-main/
+!/sesame-web/
 
 # IntelliJ config files
 *.iws
