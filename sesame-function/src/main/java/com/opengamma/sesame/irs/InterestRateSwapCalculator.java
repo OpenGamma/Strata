@@ -33,7 +33,7 @@ public interface InterestRateSwapCalculator {
    * @param bundle the curve bundle to price with
    * @return result containing the PV if successfully created, a failure result otherwise
    */
-  Result<MultipleCurrencyAmount> calculatePV(MulticurveProviderInterface bundle);
+  Result<MultipleCurrencyAmount> calculatePv(MulticurveProviderInterface bundle);
 
   /**
    * Calculates the par rate for the security

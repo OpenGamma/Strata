@@ -144,7 +144,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   }
 
   @Override
-  public Result<MultipleCurrencyAmount> calculatePV(MulticurveProviderInterface bundle) {
+  public Result<MultipleCurrencyAmount> calculatePv(MulticurveProviderInterface bundle) {
     ArgumentChecker.notNull(bundle, "curve bundle");
     return Result.success(_derivative.accept(PVDC, bundle));
   }
