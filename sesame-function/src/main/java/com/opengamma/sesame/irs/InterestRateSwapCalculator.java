@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.irs;
 
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
@@ -25,6 +26,14 @@ public interface InterestRateSwapCalculator {
    * @return result containing the PV if successfully created, a failure result otherwise
    */
   Result<MultipleCurrencyAmount> calculatePV();
+
+  /**
+   * Calculates the PV for the security from the given curve
+   *
+   * @param bundle the curve bundle to price with
+   * @return result containing the PV if successfully created, a failure result otherwise
+   */
+  Result<MultipleCurrencyAmount> calculatePV(MulticurveProviderInterface bundle);
 
   /**
    * Calculates the par rate for the security
