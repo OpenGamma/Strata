@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.irs;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
@@ -131,6 +132,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    * @param valuationTime the ZonedDateTime
    * @param definitionConverter the FixedIncomeConverterDataProvider
    * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
+   * @param curveDefinitionFn the curve definition function
    */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapSecurity security,
                                                MulticurveProviderInterface bundle,
@@ -178,23 +180,23 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   @Override
   public Result<BucketedCurveSensitivities> calculateBucketedPV01() {
     MultipleCurrencyParameterSensitivity sensitivity = BUCKETED_PV01_CALCULATOR
-        .fromInstrument(_derivative, _bundle, _curveBuildingBlockBundle).multipliedBy(BASIS_POINT_FACTOR);
-    Map<Pair<String, Currency>, DoubleMatrix1D> sensitivities = sensitivity.getSensitivities();
-    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = Maps.newHashMapWithExpectedSize(sensitivities.size());
+        .fromInstrument(_derivative, _bundle, _curveBuildingBlockBundle)
+        .multipliedBy(BASIS_POINT_FACTOR);
+    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = new HashMap<>();
     Result<?> result = Result.success(true);
     for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
       Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(entry.getKey().getFirst());
-      if (!curveDefinition.isSuccess()) {
+      if (curveDefinition.isSuccess()) {
+        DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition.getValue());
+        labelledMatrix1DMap.put(entry.getKey(), matrix);
+      } else {
         result = Result.failure(result, curveDefinition);
-        continue;
       }
-      DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition.getValue());
-      labelledMatrix1DMap.put(entry.getKey(), matrix);
     }
     if (!result.isSuccess()) {
       return Result.failure(result);
     }
-    return Result.success(BucketedCurveSensitivities.builder().sensitivities(labelledMatrix1DMap).build());
+    return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
   }
 
   @Override

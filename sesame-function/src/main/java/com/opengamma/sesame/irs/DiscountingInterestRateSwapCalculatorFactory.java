@@ -57,6 +57,7 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
    * @param swapConverter converter for transforming a swap into its InstrumentDefinition form, not null
    * @param definitionConverter converter for transforming a definition into a derivative, not null.
    * @param htsFn hts function for providing fixing timeseries, not null.
+   * @param curveDefinitionFn the curve definition function, not null.
    */
   public DiscountingInterestRateSwapCalculatorFactory(InterestRateSwapSecurityConverter swapConverter, FixedIncomeConverterDataProvider definitionConverter,
       DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn, HistoricalTimeSeriesFn htsFn,
