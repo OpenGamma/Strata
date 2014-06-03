@@ -43,6 +43,7 @@ import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
@@ -118,9 +119,9 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   private final ZonedDateTime _valuationTime;
 
   /**
-   * The curve definition function
+   * The curve definitions
    */
-  private final CurveDefinitionFn _curveDefinitionFn;
+  private final Map<String, CurveDefinition> _curveDefinitions;
 
   /**
    * Creates a calculator for a InterestRateSwapSecurity.
@@ -132,7 +133,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
    * @param valuationTime the ZonedDateTime
    * @param definitionConverter the FixedIncomeConverterDataProvider
    * @param fixings the HistoricalTimeSeriesBundle, a collection of historical time-series objects
-   * @param curveDefinitionFn the curve definition function
+   * @param curveDefinitions the curve definitions
    */
   public DiscountingInterestRateSwapCalculator(InterestRateSwapSecurity security,
                                                MulticurveProviderInterface bundle,
@@ -141,7 +142,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
                                                ZonedDateTime valuationTime,
                                                FixedIncomeConverterDataProvider definitionConverter,
                                                HistoricalTimeSeriesBundle fixings,
-                                               CurveDefinitionFn curveDefinitionFn) {
+                                               Map<String, CurveDefinition> curveDefinitions) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(swapConverter, "swapConverter");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -153,7 +154,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
     _valuationTime = valuationTime;
     _security = security;
-    _curveDefinitionFn = curveDefinitionFn;
+    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
   }
 
   @Override
@@ -185,12 +186,13 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = new HashMap<>();
     Result<?> result = Result.success(true);
     for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
-      Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(entry.getKey().getFirst());
-      if (curveDefinition.isSuccess()) {
-        DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition.getValue());
+      CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey().getFirst());
+      if (curveDefinition != null) {
+        DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
         labelledMatrix1DMap.put(entry.getKey(), matrix);
       } else {
-        result = Result.failure(result, curveDefinition);
+        result = Result.failure(result, Result.failure(FailureStatus.MISSING_DATA,
+            "Curve definition: " + entry.getKey().getFirst()));
       }
     }
     if (!result.isSuccess()) {
