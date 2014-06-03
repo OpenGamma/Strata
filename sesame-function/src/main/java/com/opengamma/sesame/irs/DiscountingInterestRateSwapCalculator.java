@@ -155,6 +155,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     _valuationTime = valuationTime;
     _security = security;
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    ArgumentChecker.isTrue(curveDefinitions.size() == curveBuildingBlockBundle.getData().size(),
+                           "Require same number of curves & definitions");
+    for (String curveName : curveBuildingBlockBundle.getData().keySet()) {
+      ArgumentChecker.isTrue(curveDefinitions.containsKey(curveName), "curve definition not present {}", curveName);
+    }
   }
 
   @Override
@@ -187,13 +192,8 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     Result<?> result = Result.success(true);
     for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
       CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey().getFirst());
-      if (curveDefinition != null) {
-        DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
-        labelledMatrix1DMap.put(entry.getKey(), matrix);
-      } else {
-        result = Result.failure(result, Result.failure(FailureStatus.MISSING_DATA,
-            "Curve definition: " + entry.getKey().getFirst()));
-      }
+      DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
+      labelledMatrix1DMap.put(entry.getKey(), matrix);
     }
     if (!result.isSuccess()) {
       return Result.failure(result);
