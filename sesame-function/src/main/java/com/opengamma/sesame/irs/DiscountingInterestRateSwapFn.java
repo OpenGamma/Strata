@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.irs;
 
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
@@ -75,7 +75,7 @@ public class DiscountingInterestRateSwapFn implements InterestRateSwapFn {
   }
 
   @Override
-  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01(Environment env, InterestRateSwapSecurity security) {
+  public Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, InterestRateSwapSecurity security) {
     Result<InterestRateSwapCalculator> calculatorResult = _interestRateSwapCalculatorFactory.createCalculator(env, security);
 
     if (!calculatorResult.isSuccess()) {

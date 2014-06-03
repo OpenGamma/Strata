@@ -12,6 +12,8 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveSpecificationFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -44,6 +46,11 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
   private final HistoricalTimeSeriesFn _htsFn;
 
   /**
+   * Curve definition function
+   */
+  private final CurveDefinitionFn _curveDefinitionFn;
+
+  /**
    * Creates the factory.
    *
    * @param discountingMulticurveCombinerFn function for creating multicurve bundles, not null
@@ -52,11 +59,13 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
    * @param htsFn hts function for providing fixing timeseries, not null.
    */
   public DiscountingInterestRateSwapCalculatorFactory(InterestRateSwapSecurityConverter swapConverter, FixedIncomeConverterDataProvider definitionConverter,
-                                                      DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn, HistoricalTimeSeriesFn htsFn) {
+      DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn, HistoricalTimeSeriesFn htsFn,
+      CurveDefinitionFn curveDefinitionFn) {
     _swapConverter = ArgumentChecker.notNull(swapConverter, "swapConverter");
     _fixedIncomeConverterDataProvider = ArgumentChecker.notNull(definitionConverter, "definitionConverter");
     _discountingMulticurveCombinerFn = ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _curveDefinitionFn = curveDefinitionFn;
   }
 
   @Override
@@ -68,7 +77,7 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
 
     if (Result.allSuccessful(bundleResult, fixings)) {
       InterestRateSwapCalculator calculator = new DiscountingInterestRateSwapCalculator(security, bundleResult.getValue().getFirst(),
-          bundleResult.getValue().getSecond(), _swapConverter, env.getValuationTime(), _fixedIncomeConverterDataProvider, fixings.getValue());
+          bundleResult.getValue().getSecond(), _swapConverter, env.getValuationTime(), _fixedIncomeConverterDataProvider, fixings.getValue(), _curveDefinitionFn);
       return Result.success(calculator);
     } else {
       return Result.failure(bundleResult, fixings);

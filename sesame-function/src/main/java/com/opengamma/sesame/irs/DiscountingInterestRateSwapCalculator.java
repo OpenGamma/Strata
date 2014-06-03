@@ -5,8 +5,11 @@
  */
 package com.opengamma.sesame.irs;
 
+import java.util.Map;
+
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -21,15 +24,21 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsCalculator;
 import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsProvider;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
+import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -108,6 +117,11 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   private final ZonedDateTime _valuationTime;
 
   /**
+   * The curve definition function
+   */
+  private final CurveDefinitionFn _curveDefinitionFn;
+
+  /**
    * Creates a calculator for a InterestRateSwapSecurity.
    *
    * @param security the swap to calculate values for
@@ -124,7 +138,8 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
                                                InterestRateSwapSecurityConverter swapConverter,
                                                ZonedDateTime valuationTime,
                                                FixedIncomeConverterDataProvider definitionConverter,
-                                               HistoricalTimeSeriesBundle fixings) {
+                                               HistoricalTimeSeriesBundle fixings,
+                                               CurveDefinitionFn curveDefinitionFn) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(swapConverter, "swapConverter");
     ArgumentChecker.notNull(valuationTime, "valuationTime");
@@ -136,6 +151,7 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
     _curveBuildingBlockBundle = ArgumentChecker.notNull(curveBuildingBlockBundle, "curveBuildingBlockBundle");
     _valuationTime = valuationTime;
     _security = security;
+    _curveDefinitionFn = curveDefinitionFn;
   }
 
   @Override
@@ -160,8 +176,25 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
   }
 
   @Override
-  public Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01() {
-    return Result.success(BUCKETED_PV01_CALCULATOR.fromInstrument(_derivative, _bundle, _curveBuildingBlockBundle).multipliedBy(BASIS_POINT_FACTOR));
+  public Result<BucketedCurveSensitivities> calculateBucketedPV01() {
+    MultipleCurrencyParameterSensitivity sensitivity = BUCKETED_PV01_CALCULATOR
+        .fromInstrument(_derivative, _bundle, _curveBuildingBlockBundle).multipliedBy(BASIS_POINT_FACTOR);
+    Map<Pair<String, Currency>, DoubleMatrix1D> sensitivities = sensitivity.getSensitivities();
+    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = Maps.newHashMapWithExpectedSize(sensitivities.size());
+    Result<?> result = Result.success(true);
+    for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
+      Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(entry.getKey().getFirst());
+      if (!curveDefinition.isSuccess()) {
+        result = Result.failure(result, curveDefinition);
+        continue;
+      }
+      DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition.getValue());
+      labelledMatrix1DMap.put(entry.getKey(), matrix);
+    }
+    if (!result.isSuccess()) {
+      return Result.failure(result);
+    }
+    return Result.success(BucketedCurveSensitivities.builder().sensitivities(labelledMatrix1DMap).build());
   }
 
   @Override

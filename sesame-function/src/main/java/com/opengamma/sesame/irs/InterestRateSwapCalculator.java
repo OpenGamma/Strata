@@ -6,8 +6,8 @@
 package com.opengamma.sesame.irs;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -68,5 +68,5 @@ public interface InterestRateSwapCalculator {
    *
    * @return the bucketed PV01
    */
-  Result<MultipleCurrencyParameterSensitivity> calculateBucketedPV01();
+  Result<BucketedCurveSensitivities> calculateBucketedPV01();
 }
