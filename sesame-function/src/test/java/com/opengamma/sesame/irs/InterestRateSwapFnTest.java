@@ -40,10 +40,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.analytics.model.fixedincome.FixedLegCashFlows;
 import com.opengamma.financial.analytics.model.fixedincome.FloatingLegCashFlows;
 import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
@@ -579,18 +581,17 @@ public class InterestRateSwapFnTest {
 
   @Test
   public void interestRateSwapBucketedPv01() {
-    Result<MultipleCurrencyParameterSensitivity> resultPv01 = _swapFunction.calculateBucketedPV01(ENV,
-                                                                                                  _fixedVsLibor3mSwapSecurity);
+    Result<BucketedCurveSensitivities> resultPv01 = _swapFunction.calculateBucketedPV01(ENV, _fixedVsLibor3mSwapSecurity);
     assertThat(resultPv01.isSuccess(), is(true));
 
-    Map<Pair<String, Currency>, DoubleMatrix1D> pv01s = resultPv01.getValue().getSensitivities();
+    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> pv01s = resultPv01.getValue().getSensitivities();
     assertThat(pv01s.size(), is(EXPECTED_3M_BUCKETED_PV01.size()));
-    for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> sensitivity : pv01s.entrySet()) {
+    for (Map.Entry<Pair<String, Currency>, DoubleLabelledMatrix1D> sensitivity : pv01s.entrySet()) {
       DoubleMatrix1D expectedSensitivities = EXPECTED_3M_BUCKETED_PV01.get(sensitivity.getKey());
       assertThat(sensitivity.getKey() + " not an expected sensitivity", expectedSensitivities, is(notNullValue()));
-      assertThat(sensitivity.getValue().getNumberOfElements(), is(expectedSensitivities.getNumberOfElements()));
+      assertThat(sensitivity.getValue().size(), is(expectedSensitivities.getNumberOfElements()));
       for (int i = 0; i < expectedSensitivities.getNumberOfElements(); i++) {
-        assertThat(sensitivity.getValue().getEntry(i), is(closeTo(expectedSensitivities.getEntry(i), STD_TOLERANCE_PV01)));
+        assertThat(sensitivity.getValue().getValues()[i], is(closeTo(expectedSensitivities.getEntry(i), STD_TOLERANCE_PV01)));
       }
     }
   }

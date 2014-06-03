@@ -12,6 +12,7 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import static com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -631,18 +632,24 @@ public class InterestRateMockSources {
     //return curve definitions via mock
     ConfigItem<Object> usdDiscountingCurveDefItem = ConfigItem.<Object>of(getUSDDiscountingCurveDefinition());
     usdDiscountingCurveDefItem.setUniqueId(UniqueId.of("CONFIG", "3"));
-    when(mock.get(eq(Object.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.get(any(Class.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(usdDiscountingCurveDefItem));
+    when(mock.getSingle(any(Class.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
+        .thenReturn(usdDiscountingCurveDefItem.getValue());
 
     ConfigItem<Object> libor3mCurveDefinitionItem = ConfigItem.<Object>of(get3MLiborCurveDefinition());
     libor3mCurveDefinitionItem.setUniqueId(UniqueId.of("CONFIG", "4"));
     when(mock.get(eq(Object.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(libor3mCurveDefinitionItem));
+    when(mock.getSingle(any(Class.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
+        .thenReturn(libor3mCurveDefinitionItem.getValue());
 
     ConfigItem<Object> usdFedFundFuturesCurveDefItem = ConfigItem.<Object>of(getUSDFedFundFuturesCurveDefinition());
     usdFedFundFuturesCurveDefItem.setUniqueId(UniqueId.of("CONFIG", "5"));
     when(mock.get(eq(Object.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(usdFedFundFuturesCurveDefItem));
+    when(mock.getSingle(any(Class.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
+        .thenReturn(usdFedFundFuturesCurveDefItem.getValue());
 
     //return node mappers via mock
 
