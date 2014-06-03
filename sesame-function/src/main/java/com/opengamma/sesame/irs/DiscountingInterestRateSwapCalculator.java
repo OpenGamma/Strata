@@ -189,14 +189,10 @@ public class DiscountingInterestRateSwapCalculator implements InterestRateSwapCa
         .fromInstrument(_derivative, _bundle, _curveBuildingBlockBundle)
         .multipliedBy(BASIS_POINT_FACTOR);
     Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = new HashMap<>();
-    Result<?> result = Result.success(true);
     for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
       CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey().getFirst());
       DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
       labelledMatrix1DMap.put(entry.getKey(), matrix);
-    }
-    if (!result.isSuccess()) {
-      return Result.failure(result);
     }
     return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
   }
