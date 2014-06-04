@@ -7,6 +7,7 @@ package com.opengamma.sesame.function;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,26 +21,40 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Metadata for a method or constructor parameter.
- * TODO [SSM-108] use generic types for parameters, will allow for nicer error messages
  * TODO joda bean
  */
 public final class Parameter {
 
   private final Class<?> _declaringClass;
   private final String _name;
-  private final Class<?> _type;
+  private final ParameterType _type;
   private final int _ordinal;
   private final ImmutableMap<Class<?>, Annotation> _annotations;
 
-  public Parameter(Class<?> declaringClass, String name, Class<?> type, int ordinal, Map<Class<?>, Annotation> annotations) {
+  public Parameter(Class<?> declaringClass, String name, Type genericType, int ordinal, Map<Class<?>, Annotation> annotations) {
     _declaringClass = ArgumentChecker.notNull(declaringClass, "declaringClass");
     _name = ArgumentChecker.notEmpty(name, "name");
     _ordinal = ordinal;
-    _type = ArgumentChecker.notNull(type, "type");
+    _type = ParameterType.ofType(genericType);
     _annotations = ImmutableMap.copyOf(ArgumentChecker.notNull(annotations, "annotations"));
   }
 
-  // TODO factory method Parameter.named(name, constructor)
+  /**
+   * TODO some docs would be good
+   * @param name
+   * @param type
+   * @return
+   */
+  public static Parameter named(String name, Class<?> type) {
+    Constructor<?> constructor = EngineUtils.getConstructor(type);
+
+    for (Parameter parameter : EngineUtils.getParameters(constructor)) {
+      if (parameter.getName().equals(name)) {
+        return parameter;
+      }
+    }
+    throw new IllegalArgumentException("No parameters found name " + name + " in constructor " + constructor);
+  }
 
   /**
    * Returns a parameter on a constructor with a specified type.
@@ -78,6 +93,10 @@ public final class Parameter {
   }
 
   public Class<?> getType() {
+    return _type.getType();
+  }
+
+  public ParameterType getParameterType() {
     return _type;
   }
 
@@ -85,18 +104,23 @@ public final class Parameter {
     return _annotations;
   }
 
+  public Class<?> getDeclaringClass() {
+    return _declaringClass;
+  }
+
   public boolean isNullable() {
     return _annotations.get(Nullable.class) != null;
   }
 
   public String getFullName() {
-    return _declaringClass.getSimpleName() + "(" + _type.getSimpleName() + " " + _name + ")";
+    return _declaringClass.getSimpleName() + "(" + _type.getName() + " " + _name + ")";
   }
 
   @Override
   public String toString() {
     return "Parameter [" +
-        "_name='" + _name + "'" +
+        "_declaringClass=" + _declaringClass +
+        ", _name='" + _name + "'" +
         ", _type=" + _type +
         ", _ordinal=" + _ordinal +
         ", _annotations=" + _annotations +
@@ -116,7 +140,7 @@ public final class Parameter {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    final Parameter other = (Parameter) obj;
+    Parameter other = (Parameter) obj;
     return
         Objects.equals(this._declaringClass, other._declaringClass) &&
         Objects.equals(this._name, other._name) &&

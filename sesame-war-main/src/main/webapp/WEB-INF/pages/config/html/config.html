@@ -1,0 +1,49 @@
+<form id="config-form">
+  <div id="config" class="tbl">
+    <div class="tbl-row">
+      <div class="tbl-cell tbl-label">Column Name</div>
+      <div class="tbl-cell tbl-input" id="column-name"></div>
+    </div>
+    <div class="tbl-row">
+      <div class="tbl-cell tbl-label">Input Type</div>
+      <div class="tbl-cell tbl-input">
+        <select id="input-type-select" name="input-type"></select>
+        <div id="input-type-label"></div>
+      </div>
+    </div>
+    <div class="tbl-row" id="output-name-row">
+      <div class="tbl-cell tbl-label">Output Name</div>
+      <div class="tbl-cell tbl-input">
+        <select id="output-name-select" name="output-name"></select>
+      </div>
+    </div>
+  </div>
+  <input type="submit">
+</form>
+<button type="button" ng-click="saveConfig()">Save</button>
+<!--todo cancel link-->
+
+<div id="selector-row" class="template tbl-row">
+  <div id="selector-label" class="tbl-cell tbl-label"></div>
+  <div class="tbl-cell tbl-input">
+    <select></select>
+  </div>
+  <div class="tbl-cell"></div>
+  <div id="selector-error" class="tbl-cell error"></div>
+</div>
+
+<div id="argument-row" class="template tbl-row">
+  <div id="argument-label" class="tbl-cell tbl-label arg-label"></div>
+  <div class="tbl-cell tbl-input">
+    <input id="argument-input" type="text">
+    <select id="argument-select"></select>
+  </div>
+  <div id="argument-type" class="type-label"></div>
+  <div id="argument-error" class="error"></div>
+</div>
+
+<div id="known-type-row" class="template tbl-row">
+  <div id="known-type-label1" class="tbl-cell tbl-label"></div>
+  <div id="known-type-label2" class="tbl-cell tbl-input"></div>
+  <div id="known-type-error" class="tbl-cell error"></div>
+</div>

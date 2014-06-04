@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.function;
 
+import java.util.Map;
+
 import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -63,4 +65,12 @@ public class DefaultImplementationProvider implements FunctionModelConfig {
     return EmptyFunctionArguments.INSTANCE;
   }
 
+  /**
+   * Returns a map of implementations for interfaces that only have one known implementation.
+   *
+   * @return a map of implementations for interfaces that only have one known implementation.
+   */
+  public Map<Class<?>, Class<?>> getDefaultImplementations() {
+    return _availableImplementations.getDefaultImplementations();
+  }
 }

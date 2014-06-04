@@ -6,6 +6,7 @@
 package com.opengamma.sesame.graph;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.util.ArgumentChecker;
@@ -13,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Exception used when no implementation can be found for a an interface.
  */
-/* package */ class NoImplementationException extends InvalidGraphException {
+public class NoImplementationException extends InvalidGraphException {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -36,7 +37,27 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * @return the interface type for which no implementation could be found.
    */
-  /* package */ Class<?> getInterfaceType() {
+  public Class<?> getInterfaceType() {
     return _interfaceType;
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * super.hashCode() + Objects.hash(_interfaceType);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    NoImplementationException other = (NoImplementationException) obj;
+    return Objects.equals(this._interfaceType, other._interfaceType);
   }
 }

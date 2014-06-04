@@ -1,0 +1,76 @@
+body {
+    margin: 50px;
+}
+
+.tbl {
+    display: table;
+}
+
+.tbl-row {
+    display: table-row;
+}
+
+.tbl-cell {
+    display: table-cell;
+}
+
+select {
+    width: 100%;
+}
+
+input {
+    width: 100%;
+}
+
+table {
+    width: 100%;
+}
+
+.template {
+    display: none;
+}
+
+.tbl-label {
+    display: table-cell;
+    text-align: left;
+    width: 300px;
+}
+
+.tbl-input {
+    display: table-cell;
+    padding-left: 15px;
+    padding-top: 10px;
+    width: 400px;
+}
+
+.tbl-link {
+    display: block; text-align: center
+}
+
+.error {
+    color: red;
+    padding-left: 15px;
+    padding-top: 10px;
+}
+
+.arg-label {
+    padding-left: 15px;
+}
+
+.type-label {
+    padding-left: 15px;
+    display: table-cell;
+}
+
+input[type="submit"] {
+    width: auto;
+    visibility: hidden;
+}
+
+input[type="text"] {
+    box-sizing: border-box;
+}
+
+.buttons {
+    text-align: right;
+}

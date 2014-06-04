@@ -22,18 +22,21 @@ import java.util.Map;
 import javax.inject.Provider;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.opengamma.core.config.Config;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.sesame.config.DecoratorConfig;
 import com.opengamma.sesame.config.EngineUtils;
-import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.config.SimpleFunctionArguments;
 import com.opengamma.sesame.config.SimpleFunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.graph.convert.DefaultArgumentConverter;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -232,7 +235,8 @@ public class FunctionModelTest {
     FunctionMetadata metadata = EngineUtils.createMetadata(WithLink.class, "foo");
     FunctionModel model = FunctionModel.forFunction(metadata, config);
     assertFalse(model.isValid());
-    assertTrue(((ErrorNode) model.getRoot().getDependencies().get(0)).getException() instanceof IncompatibleTypeException);
+    FunctionModelNode node = model.getRoot().getDependencies().get(0);
+    assertTrue(node instanceof IncompatibleArgumentTypeNode);
   }
 
   @Test
@@ -241,17 +245,108 @@ public class FunctionModelTest {
     FunctionMetadata metadata = EngineUtils.createMetadata(WithLink.class, "foo");
     FunctionModel model = FunctionModel.forFunction(metadata, config);
     assertFalse(model.isValid());
-    assertTrue(((ErrorNode) model.getRoot().getDependencies().get(0)).getException() instanceof IncompatibleTypeException);
+    FunctionModelNode node = model.getRoot().getDependencies().get(0);
+    assertTrue(node instanceof IncompatibleArgumentTypeNode);
   }
 
+  @Config
   public static class WithLink {
 
     public WithLink(String arg) {
     }
 
     @Output("Foo")
-    public void foo() {
+    public Object foo() {
+      return null;
+    }
+  }
 
+  @Test
+  public void missingArgument() {
+    FunctionMetadata metadata = EngineUtils.createMetadata(WithLink.class, "foo");
+    FunctionModel model = FunctionModel.forFunction(metadata, FunctionModelConfig.EMPTY);
+    assertFalse(model.isValid());
+    FunctionModelNode node = model.getRoot().getDependencies().get(0);
+    assertTrue(node instanceof MissingArgumentNode);
+  }
+
+  @Test
+  public void missingConfigArgument() {
+    FunctionMetadata metadata = EngineUtils.createMetadata(UsesConfigArg.class, "foo");
+    FunctionModel model = FunctionModel.forFunction(metadata, FunctionModelConfig.EMPTY);
+    assertFalse(model.isValid());
+    FunctionModelNode node = model.getRoot().getDependencies().get(0);
+    assertTrue(node instanceof MissingConfigNode);
+  }
+
+  public static class UsesConfigArg {
+
+    public UsesConfigArg(ConfigArg configArg) {
+    }
+
+    @Output("Foo")
+    public Object foo() {
+      return null;
+    }
+  }
+
+  @Config
+  public static class ConfigArg {
+
+  }
+
+  @Test
+  public void convertArgumentsFromStrings() {
+    FunctionMetadata metadata = EngineUtils.createMetadata(ConvertArgsFromStrings.class, "foo");
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(
+                    ConvertArgsFromStrings.class,
+                    argument("integers", "1, 2, 3"),
+                    argument("date", "2011-03-08"))));
+    FunctionModel model = FunctionModel.forFunction(metadata, config, Collections.<Class<?>>emptySet(),
+                                                    NodeDecorator.IDENTITY, new DefaultArgumentConverter());
+    assertTrue(model.isValid());
+    ConvertArgsFromStrings fn = (ConvertArgsFromStrings) model.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    assertEquals(Lists.newArrayList(1, 2, 3), fn._integers);
+    assertEquals(LocalDate.of(2011, 3, 8), fn._date);
+  }
+
+  @Test
+  public void conversionErrors() {
+    FunctionMetadata metadata = EngineUtils.createMetadata(ConvertArgsFromStrings.class, "foo");
+    FunctionModelConfig config =
+        config(
+            arguments(
+                function(
+                    ConvertArgsFromStrings.class,
+                    argument("integers", "1, 2, A"),
+                    argument("date", "2011-03-08-foo"))));
+    FunctionModel model = FunctionModel.forFunction(metadata, config, Collections.<Class<?>>emptySet(),
+                                                    NodeDecorator.IDENTITY, new DefaultArgumentConverter());
+    assertFalse(model.isValid());
+    List<FunctionModelNode> dependencies = model.getRoot().getDependencies();
+    assertEquals(2, dependencies.size());
+    assertTrue(dependencies.get(0) instanceof ArgumentConversionErrorNode);
+    assertTrue(dependencies.get(1) instanceof ArgumentConversionErrorNode);
+    assertEquals("1, 2, A", ((ArgumentConversionErrorNode) dependencies.get(0)).getValue());
+    assertEquals("2011-03-08-foo", ((ArgumentConversionErrorNode) dependencies.get(1)).getValue());
+  }
+
+  public static class ConvertArgsFromStrings {
+
+    private final List<Integer> _integers;
+    private final LocalDate _date;
+
+    public ConvertArgsFromStrings(List<Integer> integers, LocalDate date) {
+      _integers = integers;
+      _date = date;
+    }
+
+    @Output("Foo")
+    public Object foo() {
+      return null;
     }
   }
 
@@ -266,7 +361,7 @@ public class FunctionModelTest {
   @Test
   public void invalidFunctionImplementation() {
     Map<Class<?>, Class<?>> impls =  ImmutableMap.<Class<?>, Class<?>>of(Fn.class, Object.class);
-    FunctionModelConfig config = new SimpleFunctionModelConfig(impls, Collections.<Class<?>, FunctionArguments>emptyMap());
+    FunctionModelConfig config = new SimpleFunctionModelConfig(impls, Collections.<Class<?>, SimpleFunctionArguments>emptyMap());
     FunctionMetadata metadata = EngineUtils.createMetadata(Fn.class, "foo");
     FunctionModel model = FunctionModel.forFunction(metadata, config);
     assertFalse(model.isValid());

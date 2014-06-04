@@ -1,0 +1,112 @@
+{
+  "colName": "Column Name",
+  "inputTypes": [
+    {
+      "name": "Interest Rate Swap Security",
+      "type": "com.opengamma.financial.security.irs.InterestRateSwapSecurity"
+    },
+    {
+      "name": "Equity Security",
+      "type": "com.opengamma.financial.security.equity.EquitySecurity"
+    }
+  ],
+  "inputType": {
+    "name": "Interest Rate Swap Security",
+    "type": "com.opengamma.financial.security.irs.InterestRateSwapSecurity"
+  },
+  "outputNames": ["Present Value", "PV01"],
+  "outputName": "PV01",
+  "config": [
+    {
+      "func": {
+        "name": "foo",
+        "type": "com.example.Foo"
+      },
+      "impl": {
+        "name": "fooImpl2",
+        "type": "com.example.FooImpl2"
+      },
+      "impls": [
+        {
+          "name": "fooImpl1",
+          "type": "com.example.FooImpl1"
+        },
+        {
+          "name": "fooImpl2",
+          "type": "com.example.FooImpl2"
+        },
+        {
+          "name": "fooImpl3",
+          "type": "com.example.FooImpl3"
+        }
+      ],
+      "args": [
+        {
+          "name": "arg1Name",
+          "value": "arg1Value",
+          "link": "false",
+          "type": "List<Integer>"
+        },
+        {
+          "name": "arg2Name",
+          "value": "arg2Value",
+          "error": "an error message",
+          "link": "true",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "func": {
+        "name": "bar",
+        "type": "com.example.Bar"
+      },
+      "impls": [
+        {
+          "name": "barImpl",
+          "type": "com.example.BarImpl"
+        }
+      ],
+      "args": [
+        {
+          "name": "arg1Name",
+          "value": "arg1Value",
+          "link": "false",
+          "type": "List<Integer>"
+        },
+        {
+          "name": "arg2Name",
+          "value": "arg2Value",
+          "link": "false",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "func": {
+        "name": "baz",
+        "type": "com.example.Baz"
+      }
+    },
+    {
+      "impl": {
+        "name": "boz",
+        "type": "com.example.Boz"
+      },
+      "args": [
+        {
+          "name": "arg1Name",
+          "value": "arg1Value",
+          "link": "false",
+          "type": "List<Integer>"
+        },
+        {
+          "name": "arg2Name",
+          "value": "arg2Value",
+          "link": "false",
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -37,22 +39,16 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class ViewColumn implements ImmutableBean {
 
-  /**
-   * The column name.
-   */
+  /** The column name. */
   @PropertyDefinition(validate = "notNull")
   private final String _name;
 
-  /**
-   * The default configuration for the entire column.
-   */
-  @PropertyDefinition(get = "private")
+  /** The default configuration for the entire column. */
+  @PropertyDefinition
   private final ViewOutput _defaultOutput;
 
-  /**
-   * The outputs keyed by target input type.
-   */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  /** The outputs keyed by target input type. */
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Class<?>, ViewOutput> _outputs;
 
   /**
@@ -63,7 +59,7 @@ public final class ViewColumn implements ImmutableBean {
    * @param outputs  the map of outputs by input type, no nulls, not null
    */
   @ImmutableConstructor
-  public ViewColumn(String columnName, ViewOutput defaultOutput, Map<Class<?>, ViewOutput> outputs) {
+  public ViewColumn(String columnName, @Nullable ViewOutput defaultOutput, Map<Class<?>, ViewOutput> outputs) {
     _name = ArgumentChecker.notEmpty(columnName, "columnName");
     _outputs = ImmutableMap.copyOf(ArgumentChecker.notNull(outputs, "outputs"));
     _defaultOutput = defaultOutput;
@@ -92,17 +88,16 @@ public final class ViewColumn implements ImmutableBean {
    * @param inputType  the input type, not null
    * @return the function configuration, null if not found
    */
-  public FunctionModelConfig getFunctionConfig(Class<?> inputType) {
+  public SimpleFunctionModelConfig getFunctionConfig(Class<?> inputType) {
     ViewOutput viewOutput = _outputs.get(inputType);
     if (viewOutput == null && _defaultOutput == null) {
-      return FunctionModelConfig.EMPTY;
+      return SimpleFunctionModelConfig.EMPTY;
     } else if (viewOutput == null) {
       return _defaultOutput.getFunctionModelConfig();
     } else if (_defaultOutput == null) {
       return viewOutput.getFunctionModelConfig();
     } else {
-      return new CompositeFunctionModelConfig(
-          viewOutput.getFunctionModelConfig(), _defaultOutput.getFunctionModelConfig());
+      return viewOutput.getFunctionModelConfig().mergeWith(_defaultOutput.getFunctionModelConfig());
     }
   }
 
@@ -157,7 +152,7 @@ public final class ViewColumn implements ImmutableBean {
    * Gets the default configuration for the entire column.
    * @return the value of the property
    */
-  private ViewOutput getDefaultOutput() {
+  public ViewOutput getDefaultOutput() {
     return _defaultOutput;
   }
 
@@ -166,7 +161,7 @@ public final class ViewColumn implements ImmutableBean {
    * Gets the outputs keyed by target input type.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Class<?>, ViewOutput> getOutputs() {
+  public ImmutableMap<Class<?>, ViewOutput> getOutputs() {
     return _outputs;
   }
 

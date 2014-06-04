@@ -12,6 +12,7 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.InvokableFunction;
+import com.opengamma.sesame.graph.convert.ArgumentConverter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,6 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * parameter passed to the constructor of the function.
  * Proxy nodes may be added to insert additional behaviour.
  * An error node can be added if there is a problem.
+ * TODO this class has static and instance methods called build(). that's not good
  */
 public final class FunctionModel {
 
@@ -101,12 +103,12 @@ public final class FunctionModel {
 
   /**
    * Builds a {@link FunctionModel} representing a function implementation and its dependencies.
+   *
    * @param function The function's metadata
-   * @param config Configuration specifying the implementations and arguments for building the function and its
-   * dependencies
+   * @param config Configuration specifying the implementations and arguments for building the function and its dependencies
    * @param availableComponents Component types available for injecting into function implementations
    * @param nodeDecorators For inserting nodes in the model between functions to add functionality, e.g. caching,
-   * logging, tracing
+   *   logging, tracing
    * @return A model of the function implementation and its dependencies
    */
   public static FunctionModel forFunction(FunctionMetadata function,
@@ -115,6 +117,26 @@ public final class FunctionModel {
                                           NodeDecorator... nodeDecorators) {
     NodeDecorator nodeDecorator = CompositeNodeDecorator.compose(nodeDecorators);
     FunctionModelNode node = FunctionModelNode.create(function.getDeclaringType(), config, availableComponents, nodeDecorator);
+    return new FunctionModel(node, function);
+  }
+
+  /**
+   * Builds a {@link FunctionModel} representing a function implementation and its dependencies.
+   *
+   * @param function The function's metadata
+   * @param config Configuration specifying the implementations and arguments for building the function and its dependencies
+   * @param availableComponents Component types available for injecting into function implementations
+   * @param nodeDecorator For inserting nodes in the model between functions to add functionality, e.g. caching,
+   *   logging, tracing
+   * @return A model of the function implementation and its dependencies
+   */
+  public static FunctionModel forFunction(FunctionMetadata function,
+                                          FunctionModelConfig config,
+                                          Set<Class<?>> availableComponents,
+                                          NodeDecorator nodeDecorator,
+                                          ArgumentConverter argumentConverter) {
+    FunctionModelNode node =
+        FunctionModelNode.create(function.getDeclaringType(), config, availableComponents, nodeDecorator, argumentConverter);
     return new FunctionModel(node, function);
   }
 

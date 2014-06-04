@@ -1,0 +1,69 @@
+<html>
+<head>
+  <title>Column Config</title>
+  <link href="../css/config.css" rel="stylesheet">
+  <script src="../lib/jquery-1.11.0.js"></script>
+  <script src="../js/config.js"></script>
+  <script>
+    function documentReady() {
+      var hash = window.location.hash.replace("#", ""),
+          split = hash.split("/"),
+          columnName = split[1],
+          inputType = split[2];
+      buildConfigPage(columnName, inputType);
+    }
+    $(document).ready(documentReady);
+  </script>
+</head>
+<body>
+
+<form id="config-form">
+  <div id="config" class="tbl">
+    <div class="tbl-row">
+      <div class="tbl-cell tbl-label">Column Name</div>
+      <div class="tbl-cell tbl-input" id="column-name"></div>
+    </div>
+    <div class="tbl-row">
+      <div class="tbl-cell tbl-label">Input Type</div>
+      <div class="tbl-cell tbl-input">
+        <select id="input-type-select" name="input-type"></select>
+        <div id="input-type-label"></div>
+      </div>
+    </div>
+    <div class="tbl-row" id="output-name-row">
+      <div class="tbl-cell tbl-label">Output Name</div>
+      <div class="tbl-cell tbl-input">
+        <select id="output-name-select" name="output-name"></select>
+      </div>
+    </div>
+  </div>
+  <input type="submit">
+</form>
+
+<div id="selector-row" class="template tbl-row">
+  <div id="selector-label" class="tbl-cell tbl-label"></div>
+  <div class="tbl-cell tbl-input">
+    <select></select>
+  </div>
+  <div class="tbl-cell"></div>
+  <div id="selector-error" class="tbl-cell error"></div>
+</div>
+
+<div id="argument-row" class="template tbl-row">
+  <div id="argument-label" class="tbl-cell tbl-label arg-label"></div>
+  <div class="tbl-cell tbl-input">
+    <input id="argument-input" type="text">
+    <select id="argument-select"></select>
+  </div>
+  <div id="argument-type" class="type-label"></div>
+  <div id="argument-error" class="error"></div>
+</div>
+
+<div id="known-type-row" class="template tbl-row">
+  <div id="known-type-label1" class="tbl-cell tbl-label"></div>
+  <div id="known-type-label2" class="tbl-cell tbl-input"></div>
+  <div id="known-type-error" class="tbl-cell error"></div>
+</div>
+
+</body>
+</html>

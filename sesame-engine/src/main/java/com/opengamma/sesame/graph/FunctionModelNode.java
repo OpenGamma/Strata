@@ -31,10 +31,12 @@ import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Parameter;
+import com.opengamma.sesame.graph.convert.ArgumentConverter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A node in the function model that can build a function and its dependencies.
+ * TODO this class has static and instance methods both called create(). that's nasty
  */
 public abstract class FunctionModelNode {
 
@@ -73,7 +75,26 @@ public abstract class FunctionModelNode {
                                          FunctionModelConfig config,
                                          Set<Class<?>> availableComponents,
                                          NodeDecorator nodeDecorator) {
-    return createNode(type, config, availableComponents, nodeDecorator, Lists.<Parameter>newArrayList(), null);
+    // TODO maybe use DefaultArgumentConverter here, that would allow more compact (but less type safe) config
+    return create(type, config, availableComponents, nodeDecorator, ArgumentConverter.NO_OP);
+  }
+
+  /**
+   * Creates a node for building an object of the specified type.
+   * The node and its dependencies are built using the provided config.
+   *
+   * @param type the type of the object built by the node
+   * @param config configuration used to build the node and any dependent nodes
+   * @param availableComponents the types of components that the engine can provide to satisfy node dependencies
+   * @param nodeDecorator inserts proxies between functions to provide engine services, e.g. caching, tracing
+   * @return a node that can build an object
+   */
+  public static FunctionModelNode create(Class<?> type,
+                                         FunctionModelConfig config,
+                                         Set<Class<?>> availableComponents,
+                                         NodeDecorator nodeDecorator,
+                                         ArgumentConverter argumentConverter) {
+    return createNode(type, config, availableComponents, nodeDecorator, Lists.<Parameter>newArrayList(), null, argumentConverter);
   }
 
   @Nullable
@@ -82,7 +103,8 @@ public abstract class FunctionModelNode {
                                               Set<Class<?>> availableComponents,
                                               NodeDecorator nodeDecorator,
                                               List<Parameter> path,
-                                              @Nullable Parameter parameter) {
+                                              @Nullable Parameter parameter,
+                                              ArgumentConverter argumentConverter) {
     if (!isEligibleForBuilding(type)) {
       return null;
     }
@@ -90,15 +112,17 @@ public abstract class FunctionModelNode {
     Class<?> implType;
     try {
       implType = getImplementationType(type, config, path, parameter);
-    } catch (InvalidGraphException e) {
-      return new ErrorNode(type, e, parameter);
+    } catch (NoImplementationException e) {
+      return new NoImplementationNode(type, e, parameter);
+    } catch (InvalidImplementationException e) {
+      return new CannotBuildNode(type, e, parameter);
     }
 
     Constructor<?> constructor;
     try {
       constructor = getConstructor(implType, path);
     } catch (NoSuitableConstructorException e) {
-      return new ErrorNode(type, e, parameter);
+      return new CannotBuildNode(type, e, parameter);
     }
 
     List<Parameter> constructorParameters = EngineUtils.getParameters(constructor);
@@ -108,7 +132,8 @@ public abstract class FunctionModelNode {
       // this isn't terribly efficient but unlikely to be a problem. could use a stack but that's nasty and mutable
       List<Parameter> newPath = Lists.newArrayList(path);
       newPath.add(constructorParameter);
-      FunctionModelNode argNode = createArgumentNode(type, config, availableComponents, nodeDecorator, implType, constructorParameter, newPath);
+      FunctionModelNode argNode =
+          createArgumentNode(type, config, availableComponents, nodeDecorator, implType, constructorParameter, newPath, argumentConverter);
       constructorArguments.add(argNode);
     }
     FunctionModelNode node;
@@ -134,6 +159,7 @@ public abstract class FunctionModelNode {
    * @param parameter the constructor parameter the implementation must satisfy
    * @return the implementation type that should be used, not null
    * @throws NoImplementationException if there is no implementation available
+   * @throws InvalidImplementationException if the implementation can't be built
    */
   private static Class<?> getImplementationType(Class<?> type,
                                                 FunctionModelConfig config,
@@ -177,6 +203,7 @@ public abstract class FunctionModelNode {
     try {
       return EngineUtils.getConstructor(type);
     } catch (IllegalArgumentException ex) {
+      // TODO better error message here. this can mean an object is missing from config
       throw new NoSuitableConstructorException(path, "No suitable constructor: " + type.getName());
     }
   }
@@ -193,7 +220,7 @@ public abstract class FunctionModelNode {
    *   <li>A value provided by the user in the configuration. This is specified in {@link FunctionArguments} by
    *   the implementation class of the function and the parameter name</li>
    *   <li>A function built by recursively calling
-   *   {@link #createNode(Class, FunctionModelConfig, Set, NodeDecorator, List, Parameter)}</li>
+   *   {@link #createNode(Class, FunctionModelConfig, Set, NodeDecorator, List, Parameter, ArgumentConverter)}</li>
    * </ol>
    * </p>
    * @param type The type of the parent object into which the argument will be injected
@@ -209,37 +236,56 @@ public abstract class FunctionModelNode {
                                                       NodeDecorator nodeDecorator,
                                                       Class<?> implType,
                                                       Parameter parameter,
-                                                      List<Parameter> path) {
+                                                      List<Parameter> path,
+                                                      ArgumentConverter argumentConverter) {
     try {
       if (availableComponents.contains(parameter.getType())) {
         // the parameter can be satisfied by an existing component, no need to build it or look up a user argument
         return nodeDecorator.decorateNode(new ComponentNode(parameter));
       }
       // has the user explicitly provided an argument?
-      Object argument = getConstructorArgument(config, implType, path, parameter);
+      Object argument = getConstructorArgument(config, implType, path, parameter, argumentConverter);
 
       // can we use this argument directly?
       if (canInjectArgument(argument, parameter.getType())) {
+        // TODO should this be decorated?
         return new ArgumentNode(parameter.getType(), argument, parameter);
       }
-      // if the user has specified function config as the argument we use it to build the subtree
-      // otherwise we use the existing config to build it
-      FunctionModelConfig subtreeConfig =
-          argument != null ?
-              CompositeFunctionModelConfig.compose(((FunctionModelConfig) argument), config) :
-              config;
-      FunctionModelNode createdNode = createNode(parameter.getType(), subtreeConfig, availableComponents, nodeDecorator, path, parameter);
+      // the parameter is a configuration object so the engine won't try to create it. it should be
+      // injected using a config link
+      boolean isConfig = EngineUtils.isConfig(parameter.getType());
 
-      if (createdNode != null) {
-        return createdNode;
+      if (!isConfig) {
+        // if the user has specified function config as the argument we use it to build the subtree
+        // otherwise we use the existing config to build it
+        FunctionModelConfig subtreeConfig =
+            argument != null ?
+                CompositeFunctionModelConfig.compose(((FunctionModelConfig) argument), config) :
+                config;
+
+        FunctionModelNode createdNode =
+            createNode(parameter.getType(), subtreeConfig, availableComponents, nodeDecorator, path, parameter, argumentConverter);
+
+        if (createdNode != null) {
+          return createdNode;
+        }
       }
       if (parameter.isNullable()) {
         return nodeDecorator.decorateNode(new ArgumentNode(parameter.getType(), null, parameter));
       }
-      throw new NoConstructorArgumentException(path, "No value available for non-nullable parameter " +
-                                                   parameter.getFullName());
-    } catch (InvalidGraphException e) {
-      return new ErrorNode(type, e, parameter);
+      if (isConfig) {
+        throw new MissingConfigException(path, "No configuration link available for non-nullable parameter " + parameter.getFullName());
+      } else {
+        throw new MissingArgumentException(path, "No value available for non-nullable parameter " + parameter.getFullName());
+      }
+    } catch (MissingArgumentException e) {
+      return new MissingArgumentNode(type, e, parameter);
+    } catch (MissingConfigException e) {
+      return new MissingConfigNode(type, e, parameter);
+    } catch (ArgumentConversionException e) {
+      return new ArgumentConversionErrorNode(type, e, parameter, e.getArgument(), e.getMessage());
+    } catch (IncompatibleTypeException e) {
+      return new IncompatibleArgumentTypeNode(type, e, parameter);
     }
   }
 
@@ -310,7 +356,8 @@ public abstract class FunctionModelNode {
   private static Object getConstructorArgument(FunctionModelConfig functionModelConfig,
                                                Class<?> objectType,
                                                List<Parameter> path,
-                                               Parameter parameter) {
+                                               Parameter parameter,
+                                               ArgumentConverter argumentConverter) {
     FunctionArguments args = functionModelConfig.getFunctionArguments(objectType);
     Object arg = args.getArgument(parameter.getName());
 
@@ -325,6 +372,13 @@ public abstract class FunctionModelNode {
       } else {
         throw new IncompatibleTypeException(path, "Link argument (" + arg + ") doesn't resolve to the " +
             "required type for " + parameter.getFullName());
+      }
+    } else if (arg instanceof String && argumentConverter.isConvertible(parameter.getParameterType())) {
+      try {
+        return argumentConverter.convertFromString(parameter.getParameterType(), (String) arg);
+      } catch (Exception e) {
+        throw new ArgumentConversionException((String) arg, path, "Unable to convert value '" + arg + "' to type " +
+            parameter.getParameterType().getName(), e);
       }
     } else {
       throw new IncompatibleTypeException(path, "Argument (" + arg + ": " + arg.getClass().getSimpleName() + ") isn't of the " +

@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import org.threeten.bp.LocalDate;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;

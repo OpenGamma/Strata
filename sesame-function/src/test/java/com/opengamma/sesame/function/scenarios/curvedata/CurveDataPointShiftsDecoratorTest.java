@@ -5,7 +5,10 @@
  */
 package com.opengamma.sesame.function.scenarios.curvedata;
 
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShifts.PointShift;
 import static com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShiftsDecorator.Shifts;
@@ -21,7 +24,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
-import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.CurveSpecificationMarketDataFn;
@@ -61,8 +63,8 @@ public class CurveDataPointShiftsDecoratorTest {
   private static final FunctionModelConfig CONFIG =
       config(implementations(Fn.class, Impl.class,
                              MarketDataFn.class, DefaultMarketDataFn.class,
-                             CurrencyMatrix.class, SimpleCurrencyMatrix.class,
-                             CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class));
+                             CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class),
+             arguments(function(DefaultMarketDataFn.class, argument("currencyMatrix", new SimpleCurrencyMatrix()))));
   private static final FunctionModelConfig DECORATED_CONFIG =
       DecoratorConfig.decorate(CONFIG, CurveDataPointShiftsDecorator.class);
   private static final Fn FN = FunctionModel.build(Fn.class, DECORATED_CONFIG);

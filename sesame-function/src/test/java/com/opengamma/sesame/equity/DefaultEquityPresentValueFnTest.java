@@ -20,8 +20,6 @@ import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.SimpleEnvironment;
-import com.opengamma.sesame.equity.DefaultEquityPresentValueFn;
-import com.opengamma.sesame.equity.EquityPresentValueFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataSource;

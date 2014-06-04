@@ -12,10 +12,6 @@
     <appender-ref ref="STDOUT" />
   </root>
 
-  <!--<logger name="com.opengamma.sesame.engine.Engine" level="debug"/>-->
-  <logger name="com.opengamma.sesame.fxforward.FXForwardPVFunctionTest" level="info"/>
-  <!--<logger name="com.opengamma.sesame.cache.CachingProxyDecorator" level="debug"/>-->
-  <!--<logger name="com.opengamma.sesame.cache.ProxyCacheLoader" level="debug"/>-->
-  <!--<logger name="com.opengamma.sesame.cache.CachingProxyDecorator$EntryFactory" level="debug"/>-->
+  <logger name="com.opengamma.sesame.DiscountingMulticurveBundleFnTest" level="info"/>
 
 </configuration>

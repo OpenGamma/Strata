@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame.function;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
@@ -44,6 +47,18 @@ public class AvailableImplementationsImpl implements AvailableImplementations {
       return impls.iterator().next();
     }
     return null;
+  }
+
+  @Override
+  public synchronized Map<Class<?>, Class<?>> getDefaultImplementations() {
+    Map<Class<?>, Class<?>> defaultImpls = new HashMap<>();
+
+    for (Map.Entry<Class<?>, Collection<Class<?>>> entry : _interfaceToImplementations.asMap().entrySet()) {
+      if (entry.getValue().size() == 1) {
+        defaultImpls.put(entry.getKey(), entry.getValue().iterator().next());
+      }
+    }
+    return defaultImpls;
   }
 
   @Override

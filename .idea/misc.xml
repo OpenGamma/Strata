@@ -6,13 +6,23 @@
       <item index="0" class="java.lang.String" itemvalue="com.opengamma.sesame.function.Output" />
     </list>
   </component>
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/sesame-war-main" />
+  </component>
   <component name="IdProvider" IDEtalkID="F994EDE1946224AD34FBB9ED1DF4967F" />
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/../Temple/pom.xml" />
+        <option value="$PROJECT_DIR$/../SesameExcel/pom.xml" />
+        <option value="$PROJECT_DIR$/../Linton/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/sesame-web-js/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" assert-keyword="true" jdk-15="true" project-jdk-name="1.7.0" project-jdk-type="JavaSDK">

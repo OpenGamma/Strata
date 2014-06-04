@@ -18,6 +18,9 @@ public interface AvailableOutputs {
   // for when the user is configuring a column with a default output name. this shows which types it can handle
   Set<Class<?>> getInputTypes(OutputName outputName);
 
+  // all types accepted as inputs by registered functions
+  Set<Class<?>> getInputTypes();
+
   // for when the user is configuring a column
   Set<OutputName> getAvailableOutputs(Class<?> inputType);
 

@@ -84,6 +84,11 @@ public class AvailableOutputsImpl implements AvailableOutputs {
     throw new UnsupportedOperationException("getInputTypes not implemented");
   }
 
+  @Override
+  public synchronized Set<Class<?>> getInputTypes() {
+    return _outputsByInputType.keySet();
+  }
+
   /**
    * Returns the names of all outputs available for a target type
    * @param inputType The type of the target
