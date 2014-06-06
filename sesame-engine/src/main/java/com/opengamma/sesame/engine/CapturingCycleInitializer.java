@@ -6,6 +6,7 @@
 package com.opengamma.sesame.engine;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
@@ -120,11 +121,15 @@ class CapturingCycleInitializer implements CycleInitializer {
                              Method method,
                              Object[] args) throws Throwable {
 
-          Object result = method.invoke(component, args);
-          if (result != null) {
-            collector.receivedCall(key, result);
+          try {
+            Object result = method.invoke(component, args);
+            if (result != null) {
+              collector.receivedCall(key, result);
+            }
+            return result;
+          } catch (InvocationTargetException e) {
+            throw e.getCause();
           }
-          return result;
         }
       };
       Object proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class<?>[]{key}, handler);
