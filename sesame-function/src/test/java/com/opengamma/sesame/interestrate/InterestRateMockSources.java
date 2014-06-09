@@ -47,8 +47,10 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.link.SnapshotLink;
+import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -74,7 +76,6 @@ import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
-import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -97,6 +98,10 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.convention.ConventionDocument;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.impl.InMemoryConventionMaster;
+import com.opengamma.master.convention.impl.MasterConventionSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.holidays.UsdHolidaySource;
@@ -465,6 +470,8 @@ public class InterestRateMockSources {
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
     when(mock.getHighestLevelRegion(any(ExternalId.class)))
         .thenReturn(region);
+    when(mock.get(any(ExternalIdBundle.class), any(VersionCorrection.class)))
+        .thenReturn(ImmutableSet.<Region>of(region));
     return mock;
   }
 
@@ -473,6 +480,7 @@ public class InterestRateMockSources {
     DayCount act360 = DayCounts.ACT_360;
     StubType noStub = StubType.NONE;
 
+    ConventionMaster master = new InMemoryConventionMaster();
     ConventionSource mock = mock(ConventionSource.class);
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
 
@@ -481,76 +489,54 @@ public class InterestRateMockSources {
                                    act360,
                                    BusinessDayConventions.MODIFIED_FOLLOWING, s_USD, s_USID, 2, true,
                                    StubType.SHORT_START, false, 2);
-
     descPayLegConvention.setUniqueId(UniqueId.of("CONV", "1"));
-
-    when(mock.getSingle(_discPayLegConventionId, FinancialConvention.class))
-        .thenReturn(descPayLegConvention);
+    master.add(new ConventionDocument(descPayLegConvention));
 
     OvernightIndexConvention onConvention =
         new OvernightIndexConvention(USD_OVERNIGHT_CONVENTION, _onConventionId.toBundle(), act360, 1, s_USD, s_USID);
     onConvention.setUniqueId(UniqueId.of("CONV", "2"));
-    when(mock.getSingle(_onConventionId, FinancialConvention.class))
-        .thenReturn(onConvention);
-    when(mock.getSingle(_onConventionId, OvernightIndexConvention.class))
-        .thenReturn(onConvention);
-    when(mock.getSingle(eq(_onConventionId.toBundle()), any(VersionCorrection.class)))
-        .thenReturn(onConvention);
-    
+    master.add(new ConventionDocument(onConvention));
+
     FederalFundsFutureConvention fffConvention =
         new FederalFundsFutureConvention(USD_FEDFUNDFUTURES_CONVENTION, _fffConventionId.toBundle(), 
             ExternalId.of("EXPIRY_CONVENTION", FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME), 
             s_USID, _onIndexId, 5000000);
     fffConvention.setUniqueId(UniqueId.of("CONV", "3"));
-    when(mock.getSingle(_fffConventionId, FinancialConvention.class))
-        .thenReturn(fffConvention);
-    when(mock.getSingle(eq(_fffConventionId.toBundle()), any(VersionCorrection.class)))
-        .thenReturn(fffConvention);
+    master.add(new ConventionDocument(fffConvention));
 
     OISLegConvention descReceiveLegConvention =
         new OISLegConvention(DISC_RECEIVE_LEG_CONVENTION, _discReceiveLegConventionId.toBundle(),
                              _onIndexId, Tenor.ONE_YEAR,
                              BusinessDayConventions.MODIFIED_FOLLOWING, 2, true, noStub, false, 2);
     descReceiveLegConvention.setUniqueId(UniqueId.of("CONV", "4"));
-    when(mock.getSingle(_discReceiveLegConventionId, FinancialConvention.class))
-        .thenReturn(descReceiveLegConvention);
+    master.add(new ConventionDocument(descReceiveLegConvention));
+
 
     DepositConvention descConvention =
         new DepositConvention(DISC_CONVENTION, _discConventionId.toBundle(), act360, following, 0, false, s_USD, s_USID);
     descConvention.setUniqueId(UniqueId.of("CONV", "5"));
-    when(mock.getSingle(_discConventionId, FinancialConvention.class))
-        .thenReturn(descConvention);
-    when(mock.getSingle(_discConventionId))
-        .thenReturn(descConvention);
-    
-    when(mock.getSingle(_liborPayLegConventionId, FinancialConvention.class))
-        .thenReturn(LIBOR_PAY_LEG_CONVENTION);
+    master.add(new ConventionDocument(descConvention));
+    master.add(new ConventionDocument(LIBOR_PAY_LEG_CONVENTION));
+
 
     VanillaIborLegConvention liborReceiveLegConvention =
         new VanillaIborLegConvention(LIBOR_RECEIVE_LEG_CONVENTION_NAME, _liborReceiveLegConventionId.toBundle(),
                                      _liborIndexId, true, "Linear", Tenor.THREE_MONTHS, 2, true,
                                      StubType.SHORT_START, false, 0);
     liborReceiveLegConvention.setUniqueId(UniqueId.of("CONV", "6"));
-    when(mock.getSingle(any(ExternalId.class), eq(VanillaIborLegConvention.class)))
-        .thenReturn(liborReceiveLegConvention);
-    when(mock.getSingle(_liborReceiveLegConventionId, FinancialConvention.class))
-        .thenReturn(liborReceiveLegConvention);
-    when(mock.getSingle(_liborReceiveLegConventionId))
-        .thenReturn(liborReceiveLegConvention);
+    master.add(new ConventionDocument(liborReceiveLegConvention));
+
 
     IborIndexConvention liborConvention =
         new IborIndexConvention(LIBOR_CONVENTION, _liborConventionId.toBundle(), act360,
                                 BusinessDayConventions.MODIFIED_FOLLOWING, 2,
                                 false, s_USD, LocalTime.of(11, 0), "Europe/London", s_USGBID, s_USID, "");
     liborConvention.setUniqueId(UniqueId.of("CONV", "7"));
-    when(mock.getSingle(_liborConventionId, FinancialConvention.class))
-        .thenReturn(liborConvention);
-    when(mock.getSingle(any(ExternalId.class), eq(IborIndexConvention.class)))
-        .thenReturn(liborConvention);
-    when(mock.getSingle(_liborConventionId)).thenReturn(liborConvention);
-    when(mock.getSingle(eq(_liborConventionId.toBundle()), any(VersionCorrection.class)))
-        .thenReturn(liborConvention);
-    
+    master.add(new ConventionDocument(liborConvention));
+
+
+    // TODO - We have 2 ids for the same convention - we should try to converge them
+
     FederalFundsFutureConvention fedFundsFutureConvention =
         new FederalFundsFutureConvention(PerCurrencyConventionHelper.FED_FUNDS_FUTURE,
                                          ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE)),
@@ -559,11 +545,9 @@ public class InterestRateMockSources {
                                          _onIndexId,
                                          5000000);
     fedFundsFutureConvention.setUniqueId(UniqueId.of("CONV", "8"));
-    when(mock.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE))).thenReturn(fedFundsFutureConvention);
-    when(mock.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class))
-        .thenReturn(fedFundsFutureConvention);
+    master.add(new ConventionDocument(fedFundsFutureConvention));
 
-    return mock;
+    return new MasterConventionSource(master);
   }
 
   private static SecuritySource mockSecuritySource() {
@@ -576,6 +560,8 @@ public class InterestRateMockSources {
         .thenReturn(onIndex);
     when(mock.getSingle(eq(_onIndexId.toBundle()), any(VersionCorrection.class)))
         .thenReturn(onIndex);
+    when(mock.get(eq(_onIndexId.toBundle()), any(VersionCorrection.class)))
+        .thenReturn(ImmutableSet.<Security>of(onIndex));
 
     IborIndex iIndex = new IborIndex(LIBOR_INDEX, Tenor.THREE_MONTHS, _liborConventionId);
     iIndex.setUniqueId(UniqueId.of("SEC", "2"));
@@ -583,6 +569,8 @@ public class InterestRateMockSources {
         .thenReturn(iIndex);
     when(mock.getSingle(eq(_liborIndexId.toBundle()), any(VersionCorrection.class)))
         .thenReturn(iIndex);
+    when(mock.get(eq(_liborIndexId.toBundle()), any(VersionCorrection.class)))
+        .thenReturn(ImmutableSet.<Security>of(iIndex));
 
     return mock;
   }
