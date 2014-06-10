@@ -6,6 +6,7 @@
 package com.opengamma.sesame.engine;
 
 import com.google.common.collect.Multimap;
+import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Provides a hook to allow listeners to be added to all
@@ -15,13 +16,14 @@ import com.google.common.collect.Multimap;
 public interface ProxiedComponentMap {
 
   /**
-   * Called when a component has a method called. Returns the
-   * result  object returned by the component.
+   * Called when a component has a method called. If a single method
+   * call returns multiple items, this method will be called for
+   * each individual item returned.
    *
    * @param componentType the type of component called
-   * @param result the result of the call
+   * @param item the item returned from the component
    */
-  void receivedCall(Class<?> componentType, Object result);
+  void receivedCall(Class<?> componentType, UniqueIdentifiable item);
 
   /**
    * Retrieve the set of components that were called and the data
@@ -29,5 +31,5 @@ public interface ProxiedComponentMap {
    *
    * @return multimap of component -> data items
    */
-  Multimap<Class<?>, Object> retrieveResults();
+  Multimap<Class<?>, UniqueIdentifiable> retrieveResults();
 }

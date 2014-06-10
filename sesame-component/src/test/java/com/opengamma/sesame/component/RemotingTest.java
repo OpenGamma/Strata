@@ -19,6 +19,8 @@ import static org.hamcrest.core.Is.is;
 import static org.testng.Assert.fail;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +33,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.lang.math.RandomUtils;
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.testng.annotations.AfterClass;
@@ -89,6 +95,7 @@ import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.xml.FormattingXmlStreamWriter;
 
 /**
  * Tests that remoting to the new engine works. Starts up an engine on a
@@ -185,6 +192,21 @@ public class RemotingTest {
     // Following line would work were it not for Fudge compressing
     // values and converting (Int) 1000 to (Short) 1000
     // BeanAssert.assertBeanEquals(viewInputs.getViewConfig(), viewConfig);
+
+    FudgeContext ctx = OpenGammaFudgeContext.getInstance();
+    final Writer writer = new OutputStreamWriter(System.out);
+    FormattingXmlStreamWriter xmlStreamWriter = FormattingXmlStreamWriter.builder(writer)
+        .indent(true)
+        .build();
+    final FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx, xmlStreamWriter);
+    FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
+    MutableFudgeMsg msg = (new FudgeSerializer(ctx)).objectToFudgeMsg(results);
+    FudgeSerializer.addClassHeader(msg, results.getClass());
+    fudgeMsgWriter.writeMessage(msg);
+    fudgeMsgWriter.flush();
+   // writer.append("\n");
+    streamWriter.close();
+
   }
 
   private void checkCurveBundleResult(String curveBundleOutputName, Results results) {
