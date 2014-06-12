@@ -9,10 +9,22 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.NarrowingConfigSource;
+import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.convention.impl.NarrowingConventionSource;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.NarrowingHolidaySource;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.region.impl.NarrowingRegionSource;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.NarrowingSecuritySource;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.graph.FunctionBuilder;
@@ -122,9 +134,26 @@ class CapturingCycleInitializer implements CycleInitializer {
                              Object[] args) throws Throwable {
 
           try {
+            if (!method.getName().equals("get")) {
+              throw new UnsupportedOperationException("Only calls to get are supported through this " + key.getSimpleName() + " proxy");
+            }
+
             Object result = method.invoke(component, args);
             if (result != null) {
-              collector.receivedCall(key, result);
+
+              if (Map.class.isAssignableFrom(method.getReturnType())) {
+
+                for (Object item : Map.class.cast(result).values()) {
+                  collector.receivedCall(key, (UniqueIdentifiable) item);
+                }
+              } else if (Collection.class.isAssignableFrom(method.getReturnType())) {
+
+                for (Object item : Collection.class.cast(result)) {
+                  collector.receivedCall(key, (UniqueIdentifiable) item);
+                }
+              } else {
+                collector.receivedCall(key, (UniqueIdentifiable) result);
+              }
             }
             return result;
           } catch (InvocationTargetException e) {
@@ -133,6 +162,17 @@ class CapturingCycleInitializer implements CycleInitializer {
         }
       };
       Object proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class<?>[]{key}, handler);
+      if (key == ConfigSource.class) {
+        proxy = new NarrowingConfigSource((ConfigSource) proxy);
+      } else if (key == SecuritySource.class) {
+        proxy = new NarrowingSecuritySource((SecuritySource) proxy);
+      } else if (key == ConventionSource.class) {
+        proxy = new NarrowingConventionSource((ConventionSource) proxy);
+      } else if (key == RegionSource.class) {
+        proxy = new NarrowingRegionSource((RegionSource) proxy);
+      } else if (key == HolidaySource.class) {
+        proxy = new NarrowingHolidaySource((HolidaySource) proxy);
+      }
       wrapped.put(key, proxy);
     }
 
