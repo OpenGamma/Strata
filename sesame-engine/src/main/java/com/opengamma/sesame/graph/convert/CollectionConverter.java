@@ -18,11 +18,11 @@ import com.opengamma.sesame.function.ParameterUtils;
 import com.opengamma.util.ArgumentChecker;
 
 @SuppressWarnings("unchecked")
-/* package */ abstract class CollectionConverter implements StringConverter<Object> {
+abstract class CollectionConverter implements StringConverter<Object> {
 
   private final StringConverter<Object> _elementConverter;
 
-  /* package */ CollectionConverter(StringConverter<Object> elementConverter) {
+  CollectionConverter(StringConverter<Object> elementConverter) {
     _elementConverter = ArgumentChecker.notNull(elementConverter, "elementConverter");
   }
 
@@ -46,7 +46,7 @@ import com.opengamma.util.ArgumentChecker;
     if (!(value instanceof Collection<?>)) {
       throw new IllegalArgumentException("value must be a collection. " + value);
     }
-    List<Object> list = (List<Object>) value;
+    Collection<Object> list = (Collection<Object>) value;
     List<String> convertedElements = new ArrayList<>(list.size());
 
     for (Object item : list) {

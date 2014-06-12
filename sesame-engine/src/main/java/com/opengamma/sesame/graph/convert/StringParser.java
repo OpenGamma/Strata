@@ -12,13 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- */ /* package */ class StringParser {
+ * Splits a string on spaces or commas taking into account quoting with double quotes and escaping with backslash.
+ */
+final class StringParser {
 
   private StringParser() {
   }
 
-  /* package */ static List<String> parse(String str) {
+  /**
+   * Splits a string on spaces or commas taking into account quoting and escaping.
+   *
+   * @param str  the string
+   * @return  the substrings created by splitting the string on commas and spaces.
+   */
+  static List<String> parse(String str) {
     List<String> strings = new ArrayList<>();
     StreamTokenizer tokenizer = new StreamTokenizer(new StringReader(str));
     tokenizer.resetSyntax();

@@ -4,18 +4,20 @@
  * <p>
  * initialize() should be called once when the page first loads.
  * <p>
- * updateConfig()
+ * updateConfig() should be called update the current configuration from the form components.
  */
 var configModule = (function () {
 
-      /** The current configuration, updated as the user edits the form */
+  /** The current configuration, updated as the user edits the form. */
   var config,
+      /** ID of the column being edited. */
       columnId,
       /**
        * Flags whether we are editing config for an existing output or adding a new one. If it's an existing output
        * the input type can't be changed.
        */
       editing,
+      /** URL of the REST endpoint for the column's model. */
       modelEndpointUrl;
 
   /**

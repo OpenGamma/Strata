@@ -16,11 +16,8 @@ import org.joda.convert.StringConverter;
 import com.opengamma.sesame.function.ParameterUtils;
 import com.opengamma.util.ArgumentChecker;
 
-/**
- *
- */
 @SuppressWarnings("unchecked")
-/* package */ class MapConverter implements StringConverter {
+class MapConverter implements StringConverter {
 
   private final StringConverter _keyConverter;
   private final StringConverter _valueConverter;

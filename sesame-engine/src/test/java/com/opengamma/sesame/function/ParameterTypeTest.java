@@ -135,7 +135,5 @@ public class ParameterTypeTest {
     assertTrue(nestedMapType instanceof MapType);
     assertEquals(List.class, ((MapType) nestedMapType).getKeyType());
     assertEquals(Set.class, ((MapType) nestedMapType).getValueType());
-
-
   }
 }

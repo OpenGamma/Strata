@@ -29,8 +29,8 @@ import com.opengamma.util.ArgumentChecker;
  *   <li>Maps - A delimited string is converted to a set key / value pairs</li>
  * </ul>
  *
- * <p>All elements of a collection must be of the same type. The collection type must be {@link Collection}, {@link List},
- * {@link Set} or an array. A simple converter is used for converting the elements.</p>
+ * <p>All elements of a collection must be of the same type. The collection type must be {@link Collection},
+ * {@link List}, {@link Set} or an array. A simple converter is used for converting the elements.</p>
  *
  * <p>All map keys must be of the same type and the values must be of the same type. Simple converters are used
  * for converting the keys and values.</p>

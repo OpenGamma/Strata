@@ -21,7 +21,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Metadata for a method or constructor parameter.
- * TODO joda bean
  */
 public final class Parameter {
 
@@ -40,10 +39,13 @@ public final class Parameter {
   }
 
   /**
-   * TODO some docs would be good
-   * @param name
-   * @param type
-   * @return
+   * Returns the parameter for the named constructor argument for a type.
+   * See {@link EngineUtils#getConstructor(Class)} for details of the constructor that will be searched.
+   *
+   * @param name  the name of the constructor parameter
+   * @param type  the type containing the constructor
+   * @return  the parameter
+   * @throws  IllegalArgumentException if there is no suitable constructor or no parameter with a matching name
    */
   public static Parameter named(String name, Class<?> type) {
     Constructor<?> constructor = EngineUtils.getConstructor(type);

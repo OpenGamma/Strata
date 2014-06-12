@@ -15,12 +15,12 @@ import org.joda.convert.StringConverter;
 import com.opengamma.util.ArgumentChecker;
 
 @SuppressWarnings("unchecked")
-/* package */ class ArrayConverter implements StringConverter {
+class ArrayConverter implements StringConverter {
 
   private final StringConverter _elementConverter;
   private final Class _elementType;
 
-  /* package */ ArrayConverter(Class elementType, StringConverter elementConverter) {
+  ArrayConverter(Class elementType, StringConverter elementConverter) {
     _elementType = ArgumentChecker.notNull(elementType, "elementType");
     _elementConverter = ArgumentChecker.notNull(elementConverter, "elementConverter");
   }
@@ -39,6 +39,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public String convertToString(Object value) {
+    // this uses reflection so the same code works with object arrays and primitive arrays
     int length = Array.getLength(value);
     List<String> stringValues = new ArrayList<>(length);
 

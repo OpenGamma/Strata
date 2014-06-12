@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -70,20 +72,20 @@ public final class SimpleFunctionModelConfig implements FunctionModelConfig, Imm
     Map<Class<?>, SimpleFunctionArguments> argMap = new HashMap<>(types.size());
 
     for (Class<?> type : types) {
-      SimpleFunctionArguments args;
-      SimpleFunctionArguments thisArgs = _arguments.get(type);
-      SimpleFunctionArguments otherArgs = other._arguments.get(type);
-
-      if (thisArgs == null) {
-        args = otherArgs;
-      } else if (otherArgs == null) {
-        args = thisArgs;
-      } else {
-        args = thisArgs.mergeWith(otherArgs);
-      }
-      argMap.put(type, args);
+      argMap.put(type, mergeArguments(_arguments.get(type), other._arguments.get(type)));
     }
     return new SimpleFunctionModelConfig(impls, argMap);
+  }
+
+  private static SimpleFunctionArguments mergeArguments(@Nullable SimpleFunctionArguments args1,
+                                                        @Nullable SimpleFunctionArguments args2) {
+    if (args1 == null) {
+      return args2;
+    } else if (args2 == null) {
+      return args1;
+    } else {
+      return args1.mergeWith(args2);
+    }
   }
 
   //-------------------------------------------------------------------------

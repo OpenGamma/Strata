@@ -102,17 +102,7 @@ public final class ParameterUtils {
    * @throws IllegalArgumentException if the type isn't a map or the key type can't be found
    */
   public static Class<?> getKeyType(Type type) {
-    if (!isMap(type)) {
-      throw new IllegalArgumentException("Type isn't a map, can't get the key type. ");
-    }
-    ParameterizedType parameterizedType = (ParameterizedType) type;
-    Type[] typeArguments = parameterizedType.getActualTypeArguments();
-
-    if (typeArguments.length != 2) {
-      throw new IllegalArgumentException("Expected 2 type arguments. ");
-    }
-    Type keyType = typeArguments[0];
-    return TypeToken.of(keyType).getRawType();
+    return getMapTypeParameter(type, true);
   }
 
   /**
@@ -123,8 +113,20 @@ public final class ParameterUtils {
    * @throws IllegalArgumentException if the type isn't a map or the value type can't be found
    */
   public static Class<?> getValueType(Type type) {
+    return getMapTypeParameter(type, false);
+  }
+
+  /**
+   * Returns a type parameter from a parameterized map type.
+   *
+   * @param type  the type, must be a parameterized {@code java.util.Map}.
+   * @param keyType  true if the key type is required, false if the value type is required
+   * @return  the key or value type parameter
+   * @throws  IllegalArgumentException if the type isn't a map with two type parameters
+   */
+  private static Class<?> getMapTypeParameter(Type type, boolean keyType) {
     if (!isMap(type)) {
-      throw new IllegalArgumentException("Type isn't a map, can't get the value type. ");
+      throw new IllegalArgumentException("Type isn't a map. ");
     }
     ParameterizedType parameterizedType = (ParameterizedType) type;
     Type[] typeArguments = parameterizedType.getActualTypeArguments();
@@ -132,8 +134,10 @@ public final class ParameterUtils {
     if (typeArguments.length != 2) {
       throw new IllegalArgumentException("Expected 2 type arguments. ");
     }
-    Type valueType = typeArguments[1];
+    int argIndex = keyType ? 0 : 1;
+    Type valueType = typeArguments[argIndex];
     return TypeToken.of(valueType).getRawType();
+
   }
 
   /**

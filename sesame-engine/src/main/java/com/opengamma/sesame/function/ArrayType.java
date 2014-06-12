@@ -39,7 +39,7 @@ public class ArrayType extends ParameterType implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Class<?> _elementType;
 
-  /* package */ ArrayType(Type type) {
+  ArrayType(Type type) {
     _type = TypeToken.of(ArgumentChecker.notNull(type, "type")).getRawType();
     _elementType = ParameterUtils.getElementType(type);
   }
