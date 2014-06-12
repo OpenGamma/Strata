@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -60,8 +61,8 @@ public final class SimpleFunctionArguments implements FunctionArguments, Immutab
    * @return the union of the configuration with settings from this instance taking priority
    */
   public SimpleFunctionArguments mergeWith(SimpleFunctionArguments other) {
-    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-    Map<String, Object> arguments = builder.putAll(other._arguments).putAll(_arguments).build();
+    Map<String, Object> arguments = Maps.newHashMap(other._arguments);
+    arguments.putAll(_arguments);
     return new SimpleFunctionArguments(arguments);
   }
 
