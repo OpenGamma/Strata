@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.marketdata.FieldName;
@@ -59,7 +60,7 @@ public class ViewInputs implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _marketData;
   @PropertyDefinition(validate = "notNull")
-  private final Multimap<Class<?>, Object> _configData;
+  private final Multimap<Class<?>, UniqueIdentifiable> _configData;
 
   /**
    * Create the view inputs associated with a cycle.
@@ -79,7 +80,7 @@ public class ViewInputs implements ImmutableBean {
                     ZonedDateTime valuationTime,
                     Map<Class<?>, Object> scenarioArguments,
                     Map<Pair<ExternalIdBundle, FieldName>, Result<?>> marketData,
-                    Multimap<Class<?>, Object> configData) {
+                    Multimap<Class<?>, UniqueIdentifiable> configData) {
 
     // We have to copy to keep the type checking happy - if the input
     // was already an immutable list then this will be a no op
@@ -188,7 +189,7 @@ public class ViewInputs implements ImmutableBean {
    * Gets the configData.
    * @return the value of the property, not null
    */
-  public Multimap<Class<?>, Object> getConfigData() {
+  public Multimap<Class<?>, UniqueIdentifiable> getConfigData() {
     return _configData;
   }
 
@@ -307,7 +308,7 @@ public class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code configData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Multimap<Class<?>, Object>> _configData = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Multimap<Class<?>, UniqueIdentifiable>> _configData = DirectMetaProperty.ofImmutable(
         this, "configData", ViewInputs.class, (Class) Multimap.class);
     /**
      * The meta-properties.
@@ -417,7 +418,7 @@ public class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code configData} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Multimap<Class<?>, Object>> configData() {
+    public final MetaProperty<Multimap<Class<?>, UniqueIdentifiable>> configData() {
       return _configData;
     }
 
@@ -466,7 +467,7 @@ public class ViewInputs implements ImmutableBean {
     private ZonedDateTime _valuationTime;
     private Map<Class<?>, Object> _scenarioArguments = new HashMap<Class<?>, Object>();
     private Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _marketData = new HashMap<Pair<ExternalIdBundle, FieldName>, Result<?>>();
-    private Multimap<Class<?>, Object> _configData = HashMultimap.create();
+    private Multimap<Class<?>, UniqueIdentifiable> _configData = HashMultimap.create();
 
     /**
      * Restricted constructor.
@@ -534,7 +535,7 @@ public class ViewInputs implements ImmutableBean {
           this._marketData = (Map<Pair<ExternalIdBundle, FieldName>, Result<?>>) newValue;
           break;
         case 831026700:  // configData
-          this._configData = (Multimap<Class<?>, Object>) newValue;
+          this._configData = (Multimap<Class<?>, UniqueIdentifiable>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -649,7 +650,7 @@ public class ViewInputs implements ImmutableBean {
      * @param configData  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder configData(Multimap<Class<?>, Object> configData) {
+    public Builder configData(Multimap<Class<?>, UniqueIdentifiable> configData) {
       JodaBeanUtils.notNull(configData, "configData");
       this._configData = configData;
       return this;

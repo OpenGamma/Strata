@@ -1,15 +1,18 @@
 package com.opengamma.sesame.holidays;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.AbstractSource;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.core.holiday.impl.SimpleHoliday;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -28,10 +31,10 @@ public class UsdHolidaySource extends AbstractSource<Holiday> implements Holiday
   public UsdHolidaySource() {
     int startYear = 2013;
     int endYear = 2063;
-    for (int loopy = startYear; loopy <= endYear; loopy++) {
-      addNonWorkingDay(LocalDate.of(loopy, 1, 1));
-      addNonWorkingDay(LocalDate.of(loopy, 7, 4));
-      addNonWorkingDay(LocalDate.of(loopy, 12, 25));
+    for (int year = startYear; year <= endYear; year++) {
+      addNonWorkingDay(LocalDate.of(year, 1, 1));
+      addNonWorkingDay(LocalDate.of(year, 7, 4));
+      addNonWorkingDay(LocalDate.of(year, 12, 25));
     }
     addNonWorkingDay(LocalDate.of(2015, 1, 19));
     addNonWorkingDay(LocalDate.of(2015, 2, 16));
@@ -92,5 +95,16 @@ public class UsdHolidaySource extends AbstractSource<Holiday> implements Holiday
   @Override
   public Holiday get(ObjectId objectId, VersionCorrection versionCorrection) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Collection<Holiday> get(HolidayType holidayType,
+                                 ExternalIdBundle regionOrExchangeIds) {
+    return get(Currency.USD);
+  }
+
+  @Override
+  public Collection<Holiday> get(Currency currency) {
+    return ImmutableSet.<Holiday>of(new SimpleHoliday(_nonWorkingDay.keySet()));
   }
 }
