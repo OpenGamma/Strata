@@ -5,7 +5,10 @@
  */
 package com.opengamma.sesame.function.scenarios.marketdata;
 
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,7 +22,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
@@ -46,8 +48,8 @@ public class MarketDataShockDecoratorTest {
   private static final ExternalIdBundle ID2 = ExternalIdBundle.of(SCHEME, VALUE2);
   private static final FunctionModelConfig CONFIG =
       config(implementations(Fn.class, Impl.class,
-                             MarketDataFn.class, DefaultMarketDataFn.class,
-                             CurrencyMatrix.class, SimpleCurrencyMatrix.class));
+                             MarketDataFn.class, DefaultMarketDataFn.class),
+             arguments(function(DefaultMarketDataFn.class, argument("currencyMatrix", new SimpleCurrencyMatrix()))));
   private static final MarketDataMatcher MATCHER1 = MarketDataMatcher.idEquals(SCHEME, VALUE1);
   private static final MarketDataMatcher MATCHER2 = MarketDataMatcher.idEquals(SCHEME, VALUE2);
   private static final FunctionModelConfig DECORATED_CONFIG = DecoratorConfig.decorate(CONFIG, MarketDataShockDecorator.class);

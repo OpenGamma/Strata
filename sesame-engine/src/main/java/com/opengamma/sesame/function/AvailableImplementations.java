@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.function;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -13,6 +14,8 @@ import java.util.Set;
 public interface AvailableImplementations {
 
   Class<?> getDefaultImplementation(Class<?> interfaceType);
+
+  Map<Class<?>, Class<?>> getDefaultImplementations();
 
   // gives the available implementing types for function interfaces
   // these can be presented to the user when they're setting up the view and choosing implementation overrides

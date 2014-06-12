@@ -12,7 +12,7 @@ import com.opengamma.sesame.function.Parameter;
 /**
  * Exception used when no constructor is found.
  */
-/* package */ class NoSuitableConstructorException extends InvalidGraphException {
+public class NoSuitableConstructorException extends InvalidGraphException {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

@@ -42,7 +42,7 @@ public class MethodInvokableFunctionTest {
     assertFalse(result.isSuccess());
     assertEquals(FailureStatus.MISSING_ARGUMENT, result.getStatus());
     String expectedMessage = "No argument provided for non-nullable parameter for method Fn.foo(), " +
-        "parameter 'baz', type java.lang.Object";
+        "parameter 'baz', type Object";
     assertEquals(expectedMessage, result.getFailureMessage());
   }
 

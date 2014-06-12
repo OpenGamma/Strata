@@ -1,0 +1,30 @@
+.datagrid table {
+    border-collapse: collapse;
+    text-align: left;
+    width: 100%;
+}
+
+.datagrid {
+    overflow: hidden;
+    border: 1px solid #AAAAAA;
+}
+
+.datagrid table td, .datagrid table th {
+    padding: 3px 10px;
+}
+
+.datagrid table tbody td {
+    border-left: 1px solid #AAAAAA;
+}
+
+.datagrid table tbody .alt td {
+    background: #EEEEEE;
+}
+
+.datagrid table tbody td:first-child {
+    border-left: none;
+}
+
+.datagrid table tbody tr:last-child td {
+    border-bottom: none;
+}

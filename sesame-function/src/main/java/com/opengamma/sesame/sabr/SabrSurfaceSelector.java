@@ -23,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.link.ConventionLink;

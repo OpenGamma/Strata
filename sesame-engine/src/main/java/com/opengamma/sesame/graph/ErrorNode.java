@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A node in the function model representing an error.
  */
-class ErrorNode extends FunctionModelNode {
+public abstract class ErrorNode extends FunctionModelNode {
 
   /**
    * The error that occurred.

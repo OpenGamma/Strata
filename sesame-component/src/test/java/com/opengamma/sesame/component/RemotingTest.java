@@ -104,8 +104,6 @@ public class RemotingTest {
 
   private ComponentRepository _componentRepository;
 
-  private InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
-
   private String _serverUrl;
 
   @Test
@@ -429,7 +427,7 @@ public class RemotingTest {
 
     _componentRepository = new ComponentRepository(new ComponentLogger.Console(1));
 
-    Map<Class<?>, Object> componentMap = _interestRateMockSources.generateBaseComponents();
+    Map<Class<?>, Object> componentMap = InterestRateMockSources.generateBaseComponents();
     LinkedHashMap<String, String> properties = addComponentsToRepo(componentMap);
 
     //  initialise engine
@@ -475,7 +473,7 @@ public class RemotingTest {
     FunctionServerComponentFactory serverComponentFactory = new FunctionServerComponentFactory();
     serverComponentFactory.setClassifier(CLASSIFIER);
     serverComponentFactory.setViewFactory(_componentRepository.getInstance(ViewFactory.class, CLASSIFIER));
-    serverComponentFactory.setMarketDataFactory(new InterestRateMockSources().createMarketDataFactory());
+    serverComponentFactory.setMarketDataFactory(InterestRateMockSources.createMarketDataFactory());
     serverComponentFactory.setLiveDataClient(createMockLiveDataClient());
     serverComponentFactory.setJmsConnector(createJmsConnector());
 

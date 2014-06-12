@@ -1,0 +1,315 @@
+{
+  "fnWithMultipleImplsNoImplSelected": {
+    "colName": "Column Name",
+    "inputTypes": [],
+    "functions": [
+      {
+        "func": {
+          "name": "Fn",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn"
+        },
+        "impls": [
+          {
+            "name": "ImplNoArgs",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplNoArgs"
+          },
+          {
+            "name": "ImplWithArgs",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs"
+          }
+        ]
+      }
+    ]
+  },
+  "fnWithMultipleImplsSelectedImplHasArgs": {
+    "colName": "Column Name",
+    "inputTypes": [],
+    "functions": [
+      {
+        "func": {
+          "name": "Fn",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn"
+        },
+        "impl": {
+          "name": "ImplWithArgs",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs"
+        },
+        "impls": [
+          {
+            "name": "ImplNoArgs",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplNoArgs"
+          },
+          {
+            "name": "ImplWithArgs",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs"
+          }
+        ],
+        "args": [
+          {
+            "name": "arg1",
+            "value": "value1",
+            "type": "String"
+          },
+          {
+            "name": "arg2",
+            "value": "1 2 3",
+            "type": "List<Integer>"
+          }
+        ]
+      }
+    ]
+  },
+  "fnWithMultipleImplsSelectedImplHasNoArgs": {
+    "colName": "Column Name",
+    "inputTypes": [],
+    "functions": [
+      {
+        "func": {
+          "name": "Fn",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn"
+        },
+        "impl": {
+          "name": "ImplNoArgs",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplNoArgs"
+        },
+        "impls": [
+          {
+            "name": "ImplNoArgs",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplNoArgs"
+          },
+          {
+            "name": "ImplWithArgs",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs"
+          }
+        ],
+        "args": []
+      }
+    ]
+  },
+  "concreteFunctionNoArgs": {
+    "colName": "Column Name",
+    "inputTypes": []
+  },
+  "concreteFunctionWithArgs": {
+    "colName": "Column Name",
+    "inputTypes": [],
+    "functions": [
+      {
+        "impl": {
+          "name": "ConcreteWithArgs",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ConcreteWithArgs"
+        },
+        "args": [
+          {
+            "name": "arg1",
+            "value": "value1",
+            "type": "String"
+          },
+          {
+            "name": "arg2",
+            "value": "1 2 3",
+            "type": "List<Integer>"
+          }
+        ]
+      }
+    ]
+  },
+  "missingArgument": {
+    "colName": "Column Name",
+    "inputTypes": [],
+    "functions": [
+      {
+        "func": {
+          "name": "Fn",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn"
+        },
+        "impl": {
+          "name": "ImplWithArgs",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs"
+        },
+        "impls": [
+          {
+            "name": "ImplNoArgs",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplNoArgs"
+          },
+          {
+            "name": "ImplWithArgs",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs"
+          }
+        ],
+        "args": [
+          {
+            "name": "arg1",
+            "type": "String",
+            "error": "Value required"
+          },
+          {
+            "name": "arg2",
+            "value": "1 2 3",
+            "type": "List<Integer>"
+          }
+        ]
+      }
+    ]
+  },
+  "createConfig": {
+    "impls": {
+      "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs"
+    },
+    "args": {
+      "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs": {
+        "arg1": "value1",
+        "arg2": "1 2 3"
+      }
+    }
+  },
+  "createConfigWithConfigArg": {
+    "impls": {
+      "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$UsesConfig"
+    },
+    "args": {
+      "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$UsesConfig": {
+        "configArg": "configName"
+      }
+    }
+  },
+  "columnJsonNoInputOrOutput": {
+    "colName": "Column Name",
+    "inputTypes": [
+      {
+        "name": "EquitySecurity",
+        "type": "com.opengamma.financial.security.equity.EquitySecurity"
+      },
+      {
+        "name": "InterestRateSwapSecurity",
+        "type": "com.opengamma.financial.security.irs.InterestRateSwapSecurity"
+      },
+      {
+        "name": "Trade",
+        "type": "com.opengamma.core.position.Trade"
+      }
+    ]
+  },
+  "columnJsonInputNoOutput": {
+    "colName": "Column Name",
+    "inputTypes": [
+      {
+        "name": "EquitySecurity",
+        "type": "com.opengamma.financial.security.equity.EquitySecurity"
+      },
+      {
+        "name": "InterestRateSwapSecurity",
+        "type": "com.opengamma.financial.security.irs.InterestRateSwapSecurity"
+      },
+      {
+        "name": "Trade",
+        "type": "com.opengamma.core.position.Trade"
+      }
+    ],
+    "inputType": {
+      "name": "Trade",
+      "type": "com.opengamma.core.position.Trade"
+    },
+    "outputNames": ["Foo", "Foo2"]
+  },
+  "columnJsonInputAndOutput": {
+    "colName": "Column Name",
+    "inputTypes": [
+      {
+        "name": "EquitySecurity",
+        "type": "com.opengamma.financial.security.equity.EquitySecurity"
+      },
+      {
+        "name": "InterestRateSwapSecurity",
+        "type": "com.opengamma.financial.security.irs.InterestRateSwapSecurity"
+      },
+      {
+        "name": "Trade",
+        "type": "com.opengamma.core.position.Trade"
+      }
+    ],
+    "inputType": {
+      "name": "Trade",
+      "type": "com.opengamma.core.position.Trade"
+    },
+    "outputNames": ["Foo", "Foo2"],
+    "outputName": "Foo2"
+  },
+  "configArgNoSelection": {
+    "colName": "Column Name",
+    "inputTypes": [],
+    "functions": [
+      {
+        "func": {
+          "name": "Fn",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn"
+        },
+        "impl": {
+          "name": "UsesConfig",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$UsesConfig"
+        },
+        "impls": [
+          {
+            "name": "UsesConfig",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$UsesConfig"
+          }
+        ],
+        "args": [
+          {
+            "name": "configArg",
+            "type": "ConfigObject",
+            "configs": ["foo", "bar", "baz"],
+            "error": "Configuration required"
+          }
+        ]
+      }
+    ]
+  },
+  "configArgValueSelected": {
+    "colName": "Column Name",
+    "inputTypes": [],
+    "functions": [
+      {
+        "func": {
+          "name": "Fn",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn"
+        },
+        "impl": {
+          "name": "UsesConfig",
+          "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$UsesConfig"
+        },
+        "impls": [
+          {
+            "name": "UsesConfig",
+            "type": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$UsesConfig"
+          }
+        ],
+        "args": [
+          {
+            "name": "configArg",
+            "type": "ConfigObject",
+            "configs": ["foo", "bar", "baz"],
+            "value": "baz",
+            "error": "Configuration required"
+          }
+        ]
+      }
+    ]
+  },
+  "convertBetweenJsonAndConfig": {
+    "impls": {
+      "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs",
+      "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Fn2": "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$Impl2"
+    },
+    "args": {
+      "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ImplWithArgs": {
+        "arg1": "argValue1",
+        "arg2": "1 2 3"
+      },
+      "com.opengamma.sesame.web.functionconfig.ConfigJsonBuilderTest$ConcreteWithArgs": {
+        "arg1": "argValue3",
+        "arg2": "1 2 3"
+      }
+    }
+  }
+}

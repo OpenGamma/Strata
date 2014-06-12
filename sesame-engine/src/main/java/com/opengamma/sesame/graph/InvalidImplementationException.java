@@ -14,7 +14,7 @@ import com.opengamma.sesame.function.Parameter;
  * <p>
  * For example, the type might be primitive, an array or an inner class.
  */
-/* package */ class InvalidImplementationException extends InvalidGraphException {
+public class InvalidImplementationException extends InvalidGraphException {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

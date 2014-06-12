@@ -134,13 +134,13 @@ import com.opengamma.util.result.Result;
     if (missingArgs.size() == 1) {
       Parameter parameter = missingArgs.get(0);
       message = "No argument provided for non-nullable parameter for method " + methodName + ", " +
-          "parameter '" + parameter.getName() + "', type " + parameter.getType().getName();
+          "parameter '" + parameter.getName() + "', type " + parameter.getParameterType().getName();
     } else {
       String messagePrefix = "No arguments provided for non-nullable parameters of method " + methodName + ", parameters ";
       List<String> paramDescriptions = new ArrayList<>(missingArgs.size());
 
       for (Parameter parameter : missingArgs) {
-        paramDescriptions.add(parameter.getType().getSimpleName() + " " + parameter.getName());
+        paramDescriptions.add(parameter.getParameterType().getName() + " " + parameter.getName());
       }
       message = messagePrefix + paramDescriptions;
     }

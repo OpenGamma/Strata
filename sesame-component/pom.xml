@@ -51,6 +51,11 @@
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- test dependencies -->
     <dependency>

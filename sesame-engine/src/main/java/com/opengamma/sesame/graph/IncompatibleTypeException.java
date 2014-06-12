@@ -12,7 +12,7 @@ import com.opengamma.sesame.function.Parameter;
 /**
  * Indicates the type of an object injected into a constructor doesn't conform to the required type.
  */
-/* package */ class IncompatibleTypeException extends InvalidGraphException {
+public class IncompatibleTypeException extends InvalidGraphException {
 
   /**
    * Creates an instance

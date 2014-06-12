@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -32,18 +31,16 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityConverter;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsCalculator;
+import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsProvider;
+import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsCalculator;
-import com.opengamma.financial.analytics.model.fixedincome.CashFlowDetailsProvider;
-import com.opengamma.financial.analytics.model.fixedincome.SwapLegCashFlows;
-import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 

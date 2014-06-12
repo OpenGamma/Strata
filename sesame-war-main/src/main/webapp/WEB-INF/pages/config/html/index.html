@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html ng-app="configApp">
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Column Config</title>
+  <link href="../css/config.css" rel="stylesheet">
+  <link href="../css/table.css" rel="stylesheet">
+  <script src="../lib/angular.js"></script>
+  <script src="../lib/angular-route.js"></script>
+  <script src="../js/controllers.js"></script>
+  <script src="../lib/jquery-1.11.0.js"></script>
+  <script src="../js/config.js"></script>
+  <script>
+    // this is the bridge between angular and the config page which is plain jQuery
+    // the angular controller triggers this event when it's created
+    $(document).on("buildConfigForm", function (event, columnName, inputType) {
+      configModule.initialize(columnName, inputType);
+    })
+  </script>
+</head>
+<body>
+
+<div ng-view></div>
+
+</body>
+</html>

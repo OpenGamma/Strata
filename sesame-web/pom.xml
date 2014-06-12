@@ -8,7 +8,7 @@
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform-public</artifactId>
     <version>2.2.0-SNAPSHOT</version>
-    <relativePath></relativePath>
+    <relativePath/>
   </parent>
   <artifactId>sesame-web</artifactId>
   <packaging>jar</packaging>
@@ -41,15 +41,43 @@
   <!-- ==================================================================== -->
   <dependencies>
     <!-- OpenGamma dependencies -->
+
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>sesame-function</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-web</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-component</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- 3rd party dependencies -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.2.2</version>
+    </dependency>
+
+    <!--TODO this should be removed once the web code is integrated with Jersey-->
+    <dependency>
+      <groupId>com.sparkjava</groupId>
+      <artifactId>spark-core</artifactId>
+      <version>1.1.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-server</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- test dependencies -->
@@ -58,10 +86,20 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-engine</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
+
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 </project>

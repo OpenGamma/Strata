@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import javax.inject.Inject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.core.config.Config;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Parameter;
@@ -116,8 +118,7 @@ public final class EngineUtils {
   public static List<Parameter> getParameters(Method method) {
     return getParameters(method,
                          method.getDeclaringClass(),
-                         // TODO [SSM-108] use generic types for parameters, will allow for nicer error messages
-                         method.getParameterTypes(),
+                         method.getGenericParameterTypes(),
                          method.getParameterAnnotations());
   }
 
@@ -130,25 +131,24 @@ public final class EngineUtils {
   public static List<Parameter> getParameters(Constructor<?> constructor) {
     return getParameters(constructor,
                          constructor.getDeclaringClass(),
-                         // TODO [SSM-108] use generic types for parameters, will allow for nicer error messages
-                         constructor.getParameterTypes(),
+                         constructor.getGenericParameterTypes(),
                          constructor.getParameterAnnotations());
   }
 
   private static List<Parameter> getParameters(AccessibleObject ctorOrMethod,
                                                Class<?> declaringClass,
-                                               Class<?>[] parameterTypes,
+                                               Type[] genericTypes,
                                                Annotation[][] allAnnotations) {
     String[] paramNames = s_paranamer.lookupParameterNames(ctorOrMethod);
     List<Parameter> parameters = Lists.newArrayList();
-    for (int i = 0; i < parameterTypes.length; i++) {
+    for (int i = 0; i < genericTypes.length; i++) {
       Map<Class<?>, Annotation> annotationMap = Maps.newHashMap();
-      Class<?> type = parameterTypes[i];
+      Type genericType = genericTypes[i];
       Annotation[] annotations = allAnnotations[i];
       for (Annotation annotation : annotations) {
         annotationMap.put(annotation.annotationType(), annotation);
       }
-      parameters.add(new Parameter(declaringClass, paramNames[i], type, i, annotationMap));
+      parameters.add(new Parameter(declaringClass, paramNames[i], genericType, i, annotationMap));
     }
     return parameters;
   }
@@ -328,5 +328,13 @@ public final class EngineUtils {
   private static boolean exceptionHasMoreMeaningfulCause(Exception ex) {
     return (ex instanceof InvocationTargetException || ex instanceof UndeclaredThrowableException) &&
         ex.getCause() != null && ex.getCause() instanceof Exception;
+  }
+
+  /**
+   * @param type a type
+   * @return true if the type is annotated with {@link Config}
+   */
+  public static boolean isConfig(Class<?> type) {
+    return type.getAnnotation(Config.class) != null;
   }
 }

@@ -45,10 +45,12 @@ public class ViewFactoryCacheTest {
   @Test
   public void cacheIsSharedBetweenRuns() {
     ViewConfig viewConfig =
-        configureView("view name",
-                      column("Foo",
-                             config(implementations(TestFn.class, Impl.class),
-                                    arguments(function(Impl.class, argument("s", "s"))))));
+        configureView(
+            "view name",
+            column(
+                "Foo",
+                config(implementations(TestFn.class, Impl.class),
+                       arguments(function(Impl.class, argument("s", "s"))))));
     ViewFactory viewFactory = createViewFactory();
     View view = viewFactory.createView(viewConfig, String.class);
     ZonedDateTime now = ZonedDateTime.now();

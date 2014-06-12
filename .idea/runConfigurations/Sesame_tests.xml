@@ -6,7 +6,7 @@
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
-    <module name="sesame" />
+    <module name="" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" value="" />
     <option name="SUITE_NAME" value="" />
@@ -17,7 +17,7 @@
     <option name="TEST_OBJECT" value="PACKAGE" />
     <option name="VM_PARAMETERS" value="-ea -Dlogback.configurationFile=logback-sesame.xml" />
     <option name="PARAMETERS" value="" />
-    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    <option name="WORKING_DIRECTORY" value="file://$MODULE_DIR$" />
     <option name="OUTPUT_DIRECTORY" value="" />
     <option name="ANNOTATION_TYPE" />
     <option name="ENV_VARIABLES" />
@@ -30,6 +30,7 @@
     <envs />
     <properties />
     <listeners />
+    <RunnerSettings RunnerId="Cover" />
     <RunnerSettings RunnerId="Debug">
       <option name="DEBUG_PORT" value="55047" />
       <option name="TRANSPORT" value="0" />
@@ -39,6 +40,7 @@
       <option name="myExternalizedOptions" value="&#10;additional-options2=onexit\=snapshot&#10;" />
     </RunnerSettings>
     <RunnerSettings RunnerId="Run" />
+    <ConfigurationWrapper RunnerId="Cover" />
     <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Run" />
     <method />

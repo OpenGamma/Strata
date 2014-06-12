@@ -1,0 +1,14 @@
+<div class="tbl">
+    <div class="tbl-row">
+        <div class="tbl-cell">Column Name:</div>
+        <div class="tbl-cell tbl-input"><input type="text" ng-model="columnName"></div>
+        <div class="error" ng-show="error">{{error}}</div>
+    </div>
+    <div class="tbl-row">
+        <div class="tbl-cell"></div>
+        <div class="tbl-cell tbl-input">
+            <a href="#/columns">Cancel</a>
+            <button ng-click="saveColumn()">Save</button>
+        </div>
+    </div>
+</div>

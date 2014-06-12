@@ -25,6 +25,8 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.DefaultImplementationProvider;
 import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.NoOutputFunction;
+import com.opengamma.sesame.graph.convert.ArgumentConverter;
+import com.opengamma.sesame.graph.convert.DefaultArgumentConverter;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -40,6 +42,7 @@ public final class GraphBuilder {
   private final NodeDecorator _nodeDecorator;
   private final DefaultImplementationProvider _defaultImplProvider;
   private final Set<Class<?>> _availableComponents;
+  private final ArgumentConverter _argumentConverter = new DefaultArgumentConverter(); // should this be an argument?
 
   public GraphBuilder(AvailableOutputs availableOutputs,
                       AvailableImplementations availableImplementations,
@@ -88,7 +91,8 @@ public final class GraphBuilder {
         if (existingFunction == null && function != null) {
           FunctionModelConfig columnConfig = column.getFunctionConfig(inputType);
           FunctionModelConfig config = CompositeFunctionModelConfig.compose(columnConfig, defaultConfig);
-          FunctionModel functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
+          FunctionModel functionModel =
+              FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator, _argumentConverter);
           functions.put(inputType, functionModel);
           s_logger.debug("created function for {}/{}\n{}",
                          column.getName(), inputType.getSimpleName(), functionModel.prettyPrint());
@@ -115,7 +119,8 @@ public final class GraphBuilder {
       if (function != null) {
         FunctionModelConfig functionModelConfig = output.getOutput().getFunctionModelConfig();
         FunctionModelConfig config = CompositeFunctionModelConfig.compose(functionModelConfig, defaultConfig);
-        FunctionModel functionModel = FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator);
+        FunctionModel functionModel =
+            FunctionModel.forFunction(function, config, _availableComponents, _nodeDecorator, _argumentConverter);
         nonPortfolioFunctionModels.put(output.getName(), functionModel);
         s_logger.debug("created function for {}/{}\n{}", output.getName(), functionModel.prettyPrint());
       } else {

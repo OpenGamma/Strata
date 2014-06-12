@@ -1,0 +1,24 @@
+<div class="tbl">
+    <div class="tbl-row">
+        <div class="tbl-cell">Search:</div>
+        <div class="tbl-cell tbl-input"><input type="text" ng-model="query"></div>
+    </div>
+    <div class="tbl-row" ng-show="columns.length > 0">
+        <div class="tbl-cell">Columns:</div>
+        <div class="tbl-cell tbl-input">
+            <div class="datagrid">
+                <table>
+                    <tr ng-repeat="column in columns | filter: query" ng-class-even="" ng-class-odd="'alt'">
+                        <td>{{column.name}}</td>
+                        <td><a href="#/columns/{{column.id}}" class="tbl-link">edit</a></td>
+                        <td><input type="button" value="delete" ng-click="deleteColumn(column.id)"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="tbl-row">
+        <div class="tbl-cell"></div>
+        <div class="tbl-cell tbl-input buttons"><a href="#/columns/add">Add Column</a></div>
+    </div>
+</div>
