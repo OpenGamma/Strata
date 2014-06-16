@@ -10,6 +10,8 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.L
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
+import static com.opengamma.util.money.Currency.GBP;
+import static com.opengamma.util.money.Currency.USD;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -180,7 +182,7 @@ public class InterestRateMockSources {
   private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
   private static final ExternalId s_GBID = ExternalSchemes.financialRegionId("GB");
   private static final ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
-  private static final Currency s_USD = Currency.USD;
+  private static final Currency s_USD = USD;
 
   private static final SwapFixedLegConvention LIBOR_PAY_LEG_CONVENTION =
       createLiborFixedLegConvention();
@@ -472,18 +474,14 @@ public class InterestRateMockSources {
   private static RegionSource mockRegionSource() {
     RegionMaster regionMaster = new InMemoryRegionMaster();
 
-    RegionSource mock = mock(RegionSource.class);
     SimpleRegion regionUs = new SimpleRegion();
     regionUs.addExternalId(s_USID);
+    regionUs.addExternalId(ExternalSchemes.currencyRegionId(USD));
     regionUs.setUniqueId(UniqueId.of("REGION", "1"));
     SimpleRegion regionGb = new SimpleRegion();
     regionGb.addExternalId(s_GBID);
+    regionUs.addExternalId(ExternalSchemes.currencyRegionId(GBP));
     regionGb.setUniqueId(UniqueId.of("REGION", "2"));
-    //when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
-    //when(mock.getHighestLevelRegion(any(ExternalId.class)))
-    //    .thenReturn(region);
-    //when(mock.get(any(ExternalIdBundle.class), any(VersionCorrection.class)))
-    //    .thenReturn(ImmutableSet.<Region>of(region));
     regionMaster.add(new RegionDocument(regionUs));
     regionMaster.add(new RegionDocument(regionGb));
     return new MasterRegionSource(regionMaster);
@@ -732,7 +730,7 @@ public class InterestRateMockSources {
             .build();
 
     SabrSwaptionDataConfig sabrSwaptionDataConfig = SabrSwaptionDataConfig.builder()
-        .currencyMap(ImmutableMap.of(Currency.USD, usdSurfaceSelector))
+        .currencyMap(ImmutableMap.of(USD, usdSurfaceSelector))
         .build();
 
     SabrSwaptionInterpolationConfig interpolationConfig = SabrSwaptionInterpolationConfig.builder()
