@@ -480,7 +480,7 @@ public class InterestRateMockSources {
     regionUs.setUniqueId(UniqueId.of("REGION", "1"));
     SimpleRegion regionGb = new SimpleRegion();
     regionGb.addExternalId(s_GBID);
-    regionUs.addExternalId(ExternalSchemes.currencyRegionId(GBP));
+    regionGb.addExternalId(ExternalSchemes.currencyRegionId(GBP));
     regionGb.setUniqueId(UniqueId.of("REGION", "2"));
     regionMaster.add(new RegionDocument(regionUs));
     regionMaster.add(new RegionDocument(regionGb));
