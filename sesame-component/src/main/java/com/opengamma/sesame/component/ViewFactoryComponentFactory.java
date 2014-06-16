@@ -161,8 +161,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    * @param components  the map of components, not null
    */
   protected void initServiceContext(ComponentRepository repo, Map<Class<?>, Object> components) {
-    VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
-    final ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
+    ServiceContext serviceContext = ServiceContext.of(components)
+        .with(VersionCorrectionProvider.class, new FixedInstantVersionCorrectionProvider(Instant.now()));
     ThreadLocalServiceContext.init(serviceContext);
   }
 
@@ -178,10 +178,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   protected ExecutorService createExecutorService(ComponentRepository repo) {
     // TODO allow the thread pool to grow to allow for threads that block waiting for a cache value to be calculated?
     ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
-    if (AuthUtils.isPermissive() == false) {
-      executor = new SubjectAwareExecutorService(executor);
-    }
-    return executor;
+    return AuthUtils.isPermissive() ? executor : new SubjectAwareExecutorService(executor);
   }
 
   /**

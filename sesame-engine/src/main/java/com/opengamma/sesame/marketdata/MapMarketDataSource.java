@@ -33,7 +33,7 @@ public final class MapMarketDataSource implements MarketDataSource {
   /**
    * The fixed set of values to be returned on request.
    */
-  private final ImmutableMap<Pair<ExternalIdBundle, FieldName>, Object> _values;
+  private final ImmutableMap<Pair<ExternalIdBundle, FieldName>, Result<?>> _values;
 
   //-------------------------------------------------------------------------
   /**
@@ -42,7 +42,7 @@ public final class MapMarketDataSource implements MarketDataSource {
    * @return the empty market data source
    */
   public static MarketDataSource of() {
-    return new MapMarketDataSource(ImmutableMap.<Pair<ExternalIdBundle, FieldName>, Object>of());
+    return new MapMarketDataSource(ImmutableMap.<Pair<ExternalIdBundle, FieldName>, Result<?>>of());
   }
 
   /**
@@ -67,6 +67,11 @@ public final class MapMarketDataSource implements MarketDataSource {
     return builder().add(id, value).build();
   }
 
+  //-------------------------------------------------------------------------
+  public static MarketDataSource of(Map<Pair<ExternalIdBundle, FieldName>, Result<?>> marketData) {
+    return new MapMarketDataSource(ImmutableMap.copyOf(marketData));
+  }
+
   /**
    * Creates a builder for populating the source.
    *
@@ -76,22 +81,21 @@ public final class MapMarketDataSource implements MarketDataSource {
     return new Builder();
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Private constructor to create the map - used only by the builder.
    *
    * @param values values to be held for this source
    */
-  private MapMarketDataSource(Map<Pair<ExternalIdBundle, FieldName>, Object> values) {
+  private MapMarketDataSource(Map<Pair<ExternalIdBundle, FieldName>, Result<?>> values) {
     _values = ImmutableMap.copyOf(values);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Result<?> get(ExternalIdBundle id, FieldName fieldName) {
-    Object value = _values.get(Pairs.of(id, fieldName));
+    Result<?> value = _values.get(Pairs.of(id, fieldName));
     return value != null ?
-           Result.success(value) :
+           value :
            Result.failure(FailureStatus.MISSING_DATA, "No value for {}/{}", id, fieldName);
   }
 
@@ -127,7 +131,7 @@ public final class MapMarketDataSource implements MarketDataSource {
     /**
      * The set of values being built up.
      */
-    private final Map<Pair<ExternalIdBundle, FieldName>, Object> _values = new HashMap<>();
+    private final Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _values = new HashMap<>();
 
     /**
      * Private constructor
@@ -148,7 +152,7 @@ public final class MapMarketDataSource implements MarketDataSource {
       ArgumentChecker.notNull(fieldName, "fieldName");
       ArgumentChecker.notNull(value, "value");
 
-      _values.put(Pairs.of(id, fieldName), value);
+      _values.put(Pairs.of(id, fieldName), Result.success(value));
       return this;
     }
 

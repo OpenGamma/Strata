@@ -100,11 +100,18 @@ public class UsdHolidaySource extends AbstractSource<Holiday> implements Holiday
   @Override
   public Collection<Holiday> get(HolidayType holidayType,
                                  ExternalIdBundle regionOrExchangeIds) {
-    return get(Currency.USD);
+
+    SimpleHoliday holiday = new SimpleHoliday(_nonWorkingDay.keySet());
+    holiday.setType(holidayType);
+    holiday.setRegionExternalId(regionOrExchangeIds.iterator().next());
+    return ImmutableSet.<Holiday>of(holiday);
   }
 
   @Override
   public Collection<Holiday> get(Currency currency) {
-    return ImmutableSet.<Holiday>of(new SimpleHoliday(_nonWorkingDay.keySet()));
+    SimpleHoliday holiday = new SimpleHoliday(_nonWorkingDay.keySet());
+    holiday.setType(HolidayType.CURRENCY);
+    holiday.setCurrency(Currency.USD);
+    return ImmutableSet.<Holiday>of(holiday);
   }
 }
