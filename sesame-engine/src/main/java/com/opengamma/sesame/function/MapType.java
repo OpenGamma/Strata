@@ -106,7 +106,7 @@ public class MapType extends ParameterType implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type.
+   * Gets the class of the map.
    * @return the value of the property, not null
    */
   public Class<?> getType() {
@@ -115,7 +115,7 @@ public class MapType extends ParameterType implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the keyType.
+   * Gets the class of the map's keys.
    * @return the value of the property, not null
    */
   public Class<?> getKeyType() {
@@ -124,7 +124,7 @@ public class MapType extends ParameterType implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the valueType.
+   * Gets the class of the map's values.
    * @return the value of the property, not null
    */
   public Class<?> getValueType() {

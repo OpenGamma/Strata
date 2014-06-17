@@ -99,7 +99,7 @@ public class ArrayType extends ParameterType implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type.
+   * Gets the array type.
    * @return the value of the property, not null
    */
   public Class<?> getType() {
@@ -108,7 +108,7 @@ public class ArrayType extends ParameterType implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the elementType.
+   * Gets the type of the array's elements.
    * @return the value of the property, not null
    */
   public Class<?> getElementType() {
