@@ -10,6 +10,8 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.L
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
+import static com.opengamma.util.money.Currency.GBP;
+import static com.opengamma.util.money.Currency.USD;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -47,10 +49,8 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.link.SnapshotLink;
-import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -103,6 +103,14 @@ import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.impl.InMemoryConventionMaster;
 import com.opengamma.master.convention.impl.MasterConventionSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.region.impl.InMemoryRegionMaster;
+import com.opengamma.master.region.impl.MasterRegionSource;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.InMemorySecurityMaster;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.holidays.UsdHolidaySource;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
@@ -172,8 +180,9 @@ public class InterestRateMockSources {
   private static final String TICKER = "Ticker";
 
   private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
+  private static final ExternalId s_GBID = ExternalSchemes.financialRegionId("GB");
   private static final ExternalId s_USGBID = ExternalSchemes.financialRegionId("US+GB");
-  private static final Currency s_USD = Currency.USD;
+  private static final Currency s_USD = USD;
 
   private static final SwapFixedLegConvention LIBOR_PAY_LEG_CONVENTION =
       createLiborFixedLegConvention();
@@ -463,16 +472,19 @@ public class InterestRateMockSources {
   }
 
   private static RegionSource mockRegionSource() {
-    RegionSource mock = mock(RegionSource.class);
-    SimpleRegion region = new SimpleRegion();
-    region.addExternalId(s_USID);
-    region.setUniqueId(UniqueId.of("REGION", "1"));
-    when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
-    when(mock.getHighestLevelRegion(any(ExternalId.class)))
-        .thenReturn(region);
-    when(mock.get(any(ExternalIdBundle.class), any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.<Region>of(region));
-    return mock;
+    RegionMaster regionMaster = new InMemoryRegionMaster();
+
+    SimpleRegion regionUs = new SimpleRegion();
+    regionUs.addExternalId(s_USID);
+    regionUs.addExternalId(ExternalSchemes.currencyRegionId(USD));
+    regionUs.setUniqueId(UniqueId.of("REGION", "1"));
+    SimpleRegion regionGb = new SimpleRegion();
+    regionGb.addExternalId(s_GBID);
+    regionGb.addExternalId(ExternalSchemes.currencyRegionId(GBP));
+    regionGb.setUniqueId(UniqueId.of("REGION", "2"));
+    regionMaster.add(new RegionDocument(regionUs));
+    regionMaster.add(new RegionDocument(regionGb));
+    return new MasterRegionSource(regionMaster);
   }
 
   private static ConventionSource mockConventionSource() {
@@ -551,28 +563,22 @@ public class InterestRateMockSources {
   }
 
   private static SecuritySource mockSecuritySource() {
-    SecuritySource mock = mock(SecuritySource.class);
-    when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
+
+    SecurityMaster securityMaster = new InMemorySecurityMaster();
 
     OvernightIndex onIndex = new OvernightIndex(USD_FEDFUND_INDEX, _onConventionId);
     onIndex.setUniqueId(UniqueId.of("SEC", "1"));
-    when(mock.getSingle(_onIndexId.toBundle()))
-        .thenReturn(onIndex);
-    when(mock.getSingle(eq(_onIndexId.toBundle()), any(VersionCorrection.class)))
-        .thenReturn(onIndex);
-    when(mock.get(eq(_onIndexId.toBundle()), any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.<Security>of(onIndex));
+    onIndex.setExternalIdBundle(_onIndexId.toBundle());
+
+    securityMaster.add(new SecurityDocument(onIndex));
 
     IborIndex iIndex = new IborIndex(LIBOR_INDEX, Tenor.THREE_MONTHS, _liborConventionId);
     iIndex.setUniqueId(UniqueId.of("SEC", "2"));
-    when(mock.getSingle(_liborIndexId.toBundle()))
-        .thenReturn(iIndex);
-    when(mock.getSingle(eq(_liborIndexId.toBundle()), any(VersionCorrection.class)))
-        .thenReturn(iIndex);
-    when(mock.get(eq(_liborIndexId.toBundle()), any(VersionCorrection.class)))
-        .thenReturn(ImmutableSet.<Security>of(iIndex));
+    iIndex.setExternalIdBundle(_liborIndexId.toBundle());
 
-    return mock;
+    securityMaster.add(new SecurityDocument(iIndex));
+
+    return new MasterSecuritySource(securityMaster);
   }
 
   private static ConfigSource mockConfigSource() {
@@ -724,7 +730,7 @@ public class InterestRateMockSources {
             .build();
 
     SabrSwaptionDataConfig sabrSwaptionDataConfig = SabrSwaptionDataConfig.builder()
-        .currencyMap(ImmutableMap.of(Currency.USD, usdSurfaceSelector))
+        .currencyMap(ImmutableMap.of(USD, usdSurfaceSelector))
         .build();
 
     SabrSwaptionInterpolationConfig interpolationConfig = SabrSwaptionInterpolationConfig.builder()

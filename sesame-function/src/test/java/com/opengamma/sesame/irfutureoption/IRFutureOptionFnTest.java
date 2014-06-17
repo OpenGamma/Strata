@@ -53,6 +53,9 @@ import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
@@ -169,17 +172,17 @@ public class IRFutureOptionFnTest {
   
   private ImmutableMap<Class<?>, Object> generateComponents() {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-    for (Map.Entry<Class<?>, Object> keys: _interestRateMockSources.generateBaseComponents().entrySet()) {
-      if (!keys.getKey().equals(HistoricalTimeSeriesSource.class) && !keys.getKey().equals(SecuritySource.class)) {
-        builder.put(keys.getKey(), keys.getValue());
+    for (Map.Entry<Class<?>, Object> entry: InterestRateMockSources.generateBaseComponents().entrySet()) {
+      Class<?> key = entry.getKey();
+      if (key.equals(SecuritySource.class)) {
+        appendSecuritySource((SecuritySource) entry.getValue());
       }
-      if (keys.getKey().equals(SecuritySource.class)) {
-        builder.put(keys.getKey(), appendSecuritySourceMock((SecuritySource) keys.getValue()));
+      if (!key.equals(HistoricalTimeSeriesSource.class)) {
+        builder.put(key, entry.getValue());
       }
     }
     builder.put(HistoricalTimeSeriesSource.class, mockHistoricalTimeSeriesSource());
-    ImmutableMap<Class<?>, Object> components = builder.build();
-    return components;
+    return builder.build();
   }
   
   private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
@@ -196,10 +199,12 @@ public class IRFutureOptionFnTest {
                                       eq(true))).thenReturn(irFuturePrices);
     return mock;
   }
-  
-  private SecuritySource appendSecuritySourceMock(SecuritySource mock) {
-    when(mock.getSingle(_irFuture.getExternalIdBundle())).thenReturn(_irFuture);
-    return mock;
+
+  // TODO - this assumes knowledge of the underlying source, should find a better way to do this
+  private void appendSecuritySource(SecuritySource source) {
+
+    SecurityMaster master = ((MasterSecuritySource) source).getMaster();
+    master.add(new SecurityDocument(_irFuture));
   }
   
   private InterestRateFutureSecurity createIRFuture() {

@@ -172,7 +172,6 @@ public class DiscountingMulticurveBundleFnTest {
     ThreadLocalServiceContext.init(serviceContext);
     
     _usdDiscountingCCC = createUSDCurveConstructionConfig();
-    
   }
   
   
@@ -214,8 +213,7 @@ public class DiscountingMulticurveBundleFnTest {
     Map<String, List<? extends CurveTypeConfiguration>> ct = Maps.newHashMap();
     ct.put("USD Discounting", ctc);
     List<CurveGroupConfiguration> cgc = Lists.newArrayList(new CurveGroupConfiguration(0, ct ));
-    CurveConstructionConfiguration ccc = new CurveConstructionConfiguration("Temple USD", cgc, Collections.<String>emptyList());
-    return ccc;
+    return new CurveConstructionConfiguration("Temple USD", cgc, Collections.<String>emptyList());
   }
   
   private void initConfigSource(ConfigSource cs) {

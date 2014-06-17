@@ -19,12 +19,14 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.StringUtils;
+import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.cache.Cache;
@@ -38,7 +40,19 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.service.ServiceContext;
+import com.opengamma.service.ThreadLocalServiceContext;
+import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.cache.MethodInvocationKey;
+import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.engine.CachingManager;
+import com.opengamma.sesame.engine.ComponentMap;
+import com.opengamma.sesame.engine.DefaultCachingManager;
+import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
+import com.opengamma.sesame.engine.FunctionService;
+import com.opengamma.sesame.engine.ViewFactory;
+import com.opengamma.sesame.function.AvailableImplementations;
+import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -89,6 +103,33 @@ public class EngineTestUtils {
     trade.setUniqueId(CASH_FLOW_TRADE_ID);
     return trade;
   }
+
+  public static ViewFactory createViewFactory(Map<Class<?>, Object> components,
+                                              AvailableOutputs availableOutputs,
+                                              AvailableImplementations availableImplementations) {
+
+    ComponentMap componentMap = ComponentMap.of(components);
+
+    Cache<MethodInvocationKey, FutureTask<Object>> cache =
+        CacheBuilder.newBuilder().maximumSize(10000).build();
+
+    CachingManager cachingManager = new DefaultCachingManager(componentMap, cache);
+
+    FixedInstantVersionCorrectionProvider versionCorrectionProvider =
+        new FixedInstantVersionCorrectionProvider(Instant.now());
+    ServiceContext serviceContext = ServiceContext.of(components)
+        .with(VersionCorrectionProvider.class, versionCorrectionProvider);
+    ThreadLocalServiceContext.init(serviceContext);
+
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    return new ViewFactory(executor,
+                           availableOutputs,
+                           availableImplementations,
+                           FunctionModelConfig.EMPTY,
+                           FunctionService.DEFAULT_SERVICES,
+                           cachingManager);
+  }
+
 
   /**
    * @return a cache configured for use with the engine
@@ -176,8 +217,8 @@ public class EngineTestUtils {
       }
       MapDifference other = (MapDifference) obj;
       return Objects.equals(this._path, other._path) &&
-             Objects.equals(this._left, other._left) &&
-             Objects.equals(this._right, other._right);
+          Objects.equals(this._left, other._left) &&
+          Objects.equals(this._right, other._right);
     }
   }
 
