@@ -99,7 +99,7 @@ public class CollectionType extends ParameterType implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type.
+   * Gets the class of the collection.
    * @return the value of the property, not null
    */
   public Class<?> getType() {
@@ -108,7 +108,7 @@ public class CollectionType extends ParameterType implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the elementType.
+   * Gets the class of the collection's elements.
    * @return the value of the property, not null
    */
   public Class<?> getElementType() {

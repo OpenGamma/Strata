@@ -92,7 +92,7 @@ public class SimpleType extends ParameterType implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type.
+   * Gets the type's class.
    * @return the value of the property, not null
    */
   public Class<?> getType() {
