@@ -12,7 +12,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
@@ -134,7 +133,7 @@ public class InterpolatedMulticurveBundleFnTest {
   public void init() throws IOException {
     //builds graph, initializing mocks
     
-    ClassToInstanceMap<Object> mocks = MockUtils.strictMocks(MOCK_CLASSES);
+    ClassToInstanceMap<Object> mocks = MockUtils.mocks(MOCK_CLASSES);
     
     initConfigSource(mocks.getInstance(ConfigSource.class));
     initConventionSource(mocks.getInstance(ConventionSource.class));
@@ -175,8 +174,6 @@ public class InterpolatedMulticurveBundleFnTest {
     
     ServiceContext serviceContext = ServiceContext.of(mocks).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
-    
-    MockUtils.enableStrict();
     
     _usdDiscountingCCC = createUSDCurveConstructionConfig();
   }
