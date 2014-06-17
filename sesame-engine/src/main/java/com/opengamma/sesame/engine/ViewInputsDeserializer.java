@@ -36,6 +36,8 @@ public class ViewInputsDeserializer {
 
   /**
    * Deserialize the view inputs from the input stream.
+   *
+   * @return the deserialized ViewInputs object
    */
   public ViewInputs deserialize() {
 
