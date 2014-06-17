@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>com.opengamma.commons</groupId>
+    <artifactId>og-commons-parent</artifactId>
+    <version>1.0.0</version>
+    <relativePath>..</relativePath>
+  </parent>  
+  <artifactId>og-identifier</artifactId>
+  <version>0.9.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>OG-Identifier</name>
+  <description>Entity identifiers and links</description>
+
+  <!-- ==================================================================== -->
+  <scm>
+    <url>https://github.com/OpenGamma/OG-Commons/tree/master/identifier</url>
+  </scm>
+
+  <!-- ==================================================================== -->
+  <dependencies>
+  </dependencies>
+
+  <!-- ==================================================================== -->
+  <properties>
+    <!-- Properties for maven-javadoc-plugin -->
+    <windowtitle>OG-Identifier</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Commons Identifier API</h1>]]></doctitle>
+  </properties>
+
+</project>
