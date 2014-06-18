@@ -142,18 +142,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- run checkstyle in the main build -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>com.opengamma.tools</groupId>
-            <artifactId>build-tools</artifactId>
-            <version>1.2.2</version>
-          </dependency>
-        </dependencies>
-      </plugin>
       <!-- attach site -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -278,26 +266,6 @@
                 </goals>
                 <configuration>
                   <stopOnError>true</stopOnError>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- validate no checkstyle violations -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${maven-checkstyle-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>enforce-checkstyle</id>
-                <phase>validate</phase>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-                <configuration>
-                  <logViolationsToConsole>true</logViolationsToConsole>
-                  <failOnViolation>true</failOnViolation>
-                  <violationSeverity>error</violationSeverity>
                 </configuration>
               </execution>
             </executions>
