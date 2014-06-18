@@ -167,6 +167,26 @@
     </dependency>
   </dependencies>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-convert</artifactId>
+        <version>${joda-convert.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-beans</artifactId>
+        <version>${joda-beans.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <!-- ==================================================================== -->
   <distributionManagement>
     <repository>
@@ -277,6 +297,9 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <guava.version>17.0</guava.version>
+    <joda-convert.version>1.6</joda-convert.version>
+    <joda-beans.version>0.9.8</joda-beans.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma</h1>]]></doctitle>
