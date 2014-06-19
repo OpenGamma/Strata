@@ -24,6 +24,12 @@
 
   <!-- ==================================================================== -->
   <dependencies>
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <!-- TODO - pick version up from parent-->
+          <version>17.0</version>
+      </dependency>
   </dependencies>
 
   <!-- ==================================================================== -->
