@@ -19,17 +19,28 @@ import java.util.Map.Entry;
  * <pre>
  *  // constructor
  *  public Person(String name, int age) {
- *    _name = ArgumentChecker.notBlank(name, "name");
- *    _age = ArgumentChecker.notNegative(age, "age");
+ *    _name = ArgChecker.notBlank(name, "name");
+ *    _age = ArgChecker.notNegative(age, "age");
  *  }
  * </pre>
+ * Many of the methods allow the production of a formatted message using
+ * a template with placeholders and a set of varargs. This is similar to
+ * the templating in both SLF4J MessageFormat and Guava's Preconditions
+ * as well as String.format().
+ * <p>
+ * Specifically it uses the SLF4J style placeholder "{}", but is lenient if
+ * either too few or many arguments are supplied. If too few, then a message
+ * will be produced where some placeholders are left unreplaced. If too
+ * many, then the additional arguments will be added to the end of the message.
+ * Using this formatter is lighter weight then JDK String.format as there
+ * is no attempt made to format the arguments.
  */
-public final class ArgumentChecker {
+public final class ArgChecker {
 
   /**
    * Restricted constructor.
    */
-  private ArgumentChecker() {
+  private ArgChecker() {
   }
 
   //-------------------------------------------------------------------------
@@ -40,7 +51,7 @@ public final class ArgumentChecker {
    * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
-   *  ArgumentChecker.isTrue(collection.contains("value"), "Collection must contain 'value'");
+   *  ArgChecker.isTrue(collection.contains("value"), "Collection must contain 'value'");
    * </pre>
    * 
    * @param validIfTrue  a boolean resulting from testing an argument, may be null
@@ -61,7 +72,7 @@ public final class ArgumentChecker {
    * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
-   *  ArgumentChecker.isTrue(collection.contains("value"), "Collection must contain 'value': {}", collection);
+   *  ArgChecker.isTrue(collection.contains("value"), "Collection must contain 'value': {}", collection);
    * </pre>
    * <p>
    * This returns {@code void}, and not the value being checked, as there is
@@ -89,7 +100,7 @@ public final class ArgumentChecker {
    * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
-   *  ArgumentChecker.isFalse(collection.contains("value"), "Collection must not contain 'value'");
+   *  ArgChecker.isFalse(collection.contains("value"), "Collection must not contain 'value'");
    * </pre>
    * <p>
    * This returns {@code void}, and not the value being checked, as there is
@@ -113,7 +124,7 @@ public final class ArgumentChecker {
    * This will typically be the result of a caller-specific check.
    * For example:
    * <pre>
-   *  ArgumentChecker.isFalse(collection.contains("value"), "Collection must not contain 'value': {}", collection);
+   *  ArgChecker.isFalse(collection.contains("value"), "Collection must not contain 'value': {}", collection);
    * </pre>
    * <p>
    * This returns {@code void}, and not the value being checked, as there is
@@ -141,7 +152,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is non-null.
    * For example, in a constructor:
    * <pre>
-   *  _name = ArgumentChecker.notNull(name, "name");
+   *  _name = ArgChecker.notNull(name, "name");
    * </pre>
    * 
    * @param <T>  the type of the input parameter reflected in the result
@@ -186,7 +197,7 @@ public final class ArgumentChecker {
    * non-null and contains at least one non whitespace character.
    * For example, in a constructor:
    * <pre>
-   *  _name = ArgumentChecker.notBlank(name, "name");
+   *  _name = ArgChecker.notBlank(name, "name");
    * </pre>
    * <p>
    * The parameter is trimmed using {@link CharMatcher#WHITESPACE} and its corresponding
@@ -216,7 +227,7 @@ public final class ArgumentChecker {
    * See also {@link #notBlank(String, String)}.
    * For example, in a constructor:
    * <pre>
-   *  _name = ArgumentChecker.notEmpty(name, "name");
+   *  _name = ArgChecker.notEmpty(name, "name");
    * </pre>
    * 
    * @param parameter  the parameter to check, may be null
@@ -239,7 +250,7 @@ public final class ArgumentChecker {
    * at least one element. The element is not validated and may be null.
    * For example, in a constructor:
    * <pre>
-   *  _names = ArgumentChecker.notEmpty(names, "names");
+   *  _names = ArgChecker.notEmpty(names, "names");
    * </pre>
    * 
    * @param <T>  the type of the input array reflected in the result
@@ -263,7 +274,7 @@ public final class ArgumentChecker {
    * at least one element.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgumentChecker.notEmpty(values, "values");
+   *  _values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
    * @param parameter  the parameter to check, may be null
@@ -286,7 +297,7 @@ public final class ArgumentChecker {
    * at least one element.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgumentChecker.notEmpty(values, "values");
+   *  _values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
    * @param parameter  the parameter to check, may be null
@@ -309,7 +320,7 @@ public final class ArgumentChecker {
    * at least one element.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgumentChecker.notEmpty(values, "values");
+   *  _values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
    * @param parameter  the parameter to check, may be null
@@ -332,7 +343,7 @@ public final class ArgumentChecker {
    * at least one element. The element is not validated and may be null.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgumentChecker.notEmpty(values, "values");
+   *  _values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
    * @param <T>  the element type of the input iterable reflected in the result
@@ -357,7 +368,7 @@ public final class ArgumentChecker {
    * The element is not validated and may contain nulls if the collection allows nulls.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgumentChecker.notEmpty(values, "values");
+   *  _values = ArgChecker.notEmpty(values, "values");
    * </pre>
    *
    * @param <T>  the element type of the input collection reflected in the result
@@ -382,7 +393,7 @@ public final class ArgumentChecker {
    * The element is not validated and may contain nulls if the collection allows nulls.
    * For example, in a constructor:
    * <pre>
-   *  _keyValues = ArgumentChecker.notEmpty(keyValues, "keyValues");
+   *  _keyValues = ArgChecker.notEmpty(keyValues, "keyValues");
    * </pre>
    * 
    * @param <K>  the key type of the input map key, reflected in the result
@@ -408,7 +419,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is non-null and contains no nulls.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgumentChecker.noNulls(values, "values");
+   *  _values = ArgChecker.noNulls(values, "values");
    * </pre>
    * 
    * @param <T>  the type of the input array reflected in the result
@@ -433,7 +444,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is non-null and contains no nulls.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgumentChecker.noNulls(values, "values");
+   *  _values = ArgChecker.noNulls(values, "values");
    * </pre>
    * 
    * @param <T>  the element type of the input iterable reflected in the result
@@ -459,7 +470,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is non-null and contains no nulls.
    * For example, in a constructor:
    * <pre>
-   *  _keyValues = ArgumentChecker.noNulls(keyValues, "keyValues");
+   *  _keyValues = ArgChecker.noNulls(keyValues, "keyValues");
    * </pre>
    * 
    * @param <K>  the key type of the input map key, reflected in the result
@@ -490,7 +501,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is zero or greater.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgumentChecker.notNegative(amount, "amount");
+   *  _amount = ArgChecker.notNegative(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -511,7 +522,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is zero or greater.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgumentChecker.notNegative(amount, "amount");
+   *  _amount = ArgChecker.notNegative(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -532,7 +543,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is zero or greater.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgumentChecker.notNegative(amount, "amount");
+   *  _amount = ArgChecker.notNegative(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -554,7 +565,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is greater than zero.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgumentChecker.notNegativeOrZero(amount, "amount");
+   *  _amount = ArgChecker.notNegativeOrZero(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -575,7 +586,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is greater than zero.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgumentChecker.notNegativeOrZero(amount, "amount");
+   *  _amount = ArgChecker.notNegativeOrZero(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -596,7 +607,7 @@ public final class ArgumentChecker {
    * Given the input parameter, this returns only if it is greater than zero.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgumentChecker.notNegativeOrZero(amount, "amount");
+   *  _amount = ArgChecker.notNegativeOrZero(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -618,7 +629,7 @@ public final class ArgumentChecker {
    * using the {@code eps} accuracy for zero.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgumentChecker.notNegativeOrZero(amount, 0.0001d, "amount");
+   *  _amount = ArgChecker.notNegativeOrZero(amount, 0.0001d, "amount");
    * </pre>
    * 
    * @param parameter  the value to check
@@ -646,7 +657,7 @@ public final class ArgumentChecker {
    * using the {@code eps} accuracy.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgumentChecker.notZero(amount, 0.0001d, "amount");
+   *  _amount = ArgChecker.notZero(amount, 0.0001d, "amount");
    * </pre>
    *
    * @param parameter  the value to check
@@ -786,20 +797,26 @@ public final class ArgumentChecker {
     }
   }
 
+  // Formats a templated message, inserting the supplied arguments
+  // into the placeholders in the template.
   private static String formatMessage(String baseMessage, Object... args) {
 
+    // Try and make the builder big enough for the message and the args
     StringBuilder builder = new StringBuilder(baseMessage.length() + args.length * 20);
 
     int posn = 0;
 
     for (int i = 0; i < args.length; i++) {
 
+      // Find the next occurrence of the placeholder
       int next = baseMessage.indexOf("{}", posn);
       if (next == -1) {
-        // No more tags to substitute, just dump the rest of
+        // No more placeholders to substitute, just dump the rest of
         // the text and add the left over args
         builder.append(baseMessage.substring(posn));
+
         if (i < args.length) {
+          // We have args left, so stick them at the end
           builder.append(" - [");
           for (int j = i; j < args.length; j++) {
             if (j > i) {
