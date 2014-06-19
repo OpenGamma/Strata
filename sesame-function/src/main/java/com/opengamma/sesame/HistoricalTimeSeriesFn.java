@@ -7,6 +7,8 @@ package com.opengamma.sesame;
 
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.sesame.cache.CacheLifetime;
+import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.result.Result;
 
 /**
@@ -20,5 +22,6 @@ public interface HistoricalTimeSeriesFn {
    * @param security the security to return the fixings for.
    * @return the bundle of fixing requirements.
    */
+  @Cacheable(CacheLifetime.DAY)
   Result<HistoricalTimeSeriesBundle> getFixingsForSecurity(Environment env, FinancialSecurity security);
 }
