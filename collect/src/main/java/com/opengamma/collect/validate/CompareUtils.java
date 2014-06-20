@@ -5,8 +5,6 @@
  */
 package com.opengamma.collect.validate;
 
-import java.util.List;
-
 /**
  * Utility methods to simplify comparisons.
  * <p>
@@ -158,13 +156,13 @@ public final class CompareUtils {
    */
   public static int compareWithTolerance(double a, double b, double maxDifference) {
     if (a == Double.POSITIVE_INFINITY) {
-      return (a == b ? 0 : 1);
+      return (b == Double.POSITIVE_INFINITY ? 0 : 1);
     } else if (a == Double.NEGATIVE_INFINITY) {
-      return (a == b ? 0 : -1);
+      return (b == Double.NEGATIVE_INFINITY ? 0 : -1);
     } else if (b == Double.POSITIVE_INFINITY) {
-      return (a == b ? 0 : -1);
+      return -1;
     } else if (b == Double.NEGATIVE_INFINITY) {
-      return (a == b ? 0 : 1);
+      return 1;
     }
     if (Math.abs(a - b) < maxDifference) {
       return 0;
@@ -172,35 +170,4 @@ public final class CompareUtils {
     return (a < b) ? -1 : 1;
   }
 
-  /**
-   * Compare two items, with the ordering determined by a list of those items.
-   * <p>
-   * Nulls are permitted and sort low, and if a or b are not in the list, then
-   * the result of comparing the toString() output is used instead.
-   * 
-   * @param <T> the list type
-   * @param list  the list, not null
-   * @param a  the first object, may be null
-   * @param b  the second object, may be null
-   * @return 0, if equal, -1 if a < b, +1 if a > b
-   */
-  public static <T> int compareByList(List<T> list, T a, T b) {
-    if (a == null) {
-      if (b == null) {
-        return 0;
-      } else {
-        return -1;
-      }
-    } else {
-      if (b == null) {
-        return 1;
-      } else {
-        if (list.contains(a) && list.contains(b)) {
-          return list.indexOf(a) - list.indexOf(b);
-        } else {
-          return compareWithNullLow(a.toString(), b.toString());
-        }
-      }
-    }
-  }
 }
