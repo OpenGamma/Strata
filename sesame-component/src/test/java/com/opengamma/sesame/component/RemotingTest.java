@@ -63,6 +63,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.OutputNames;
@@ -415,9 +416,11 @@ public class RemotingTest {
                                                                argument("resolutionKey", "DEFAULT_TSS"),
                                                                argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
                                                            function(
+                                                               DefaultDiscountingMulticurveBundleResolverFn.class,
+                                                               argument("curveConfig", curveConstructionConfiguration)),
+                                                           function(
                                                                DefaultDiscountingMulticurveBundleFn.class,
-                                                               argument("impliedCurveNames", StringSet.of()),
-                                                               argument("curveConfig", curveConstructionConfiguration)))))));
+                                                               argument("impliedCurveNames", StringSet.of())))))));
   }
 
   // test execution with streaming results

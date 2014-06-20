@@ -36,14 +36,13 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
   /**
    * Generates a discounting multicurve bundle.
    */
-  private final DiscountingMulticurveBundleFn _multicurveBundleProviderFunction;
+  private final DiscountingMulticurveBundleResolverFn _bundleResolver;
 
   public ExposureFunctionsDiscountingMulticurveCombinerFn(MarketExposureSelectorFn marketExposureSelectorFn,
-                                                          DiscountingMulticurveBundleFn multicurveBundleProviderFunction) {
+                                                          DiscountingMulticurveBundleResolverFn bundleResolver) {
     _marketExposureSelectorFn =
         ArgumentChecker.notNull(marketExposureSelectorFn, "marketExposureSelectorFn");
-    _multicurveBundleProviderFunction =
-        ArgumentChecker.notNull(multicurveBundleProviderFunction, "multicurveBundleProviderFunction");
+    _bundleResolver = ArgumentChecker.notNull(bundleResolver, "bundleResolver");
   }
 
   @Override
@@ -58,15 +57,18 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
       MarketExposureSelector selector = mesResult.getValue();
       Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurationsForSecurity(security);
+
       for (CurveConstructionConfiguration curveConfig : curveConfigs) {
-        Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
-            _multicurveBundleProviderFunction.generateBundle(env, curveConfig);
-        if (bundle.isSuccess()) {
-          Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundle.getValue();
+
+        Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
+            _bundleResolver.generateBundle(env, curveConfig);
+
+        if (bundleResult.isSuccess()) {
+          Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundleResult.getValue();
           bundles.add(result.getFirst());
           mergedJacobianBundle.addAll(result.getSecond());
         } else {
-          incompleteBundles.add(bundle);
+          incompleteBundles.add(bundleResult);
         }
       }
 
@@ -84,6 +86,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       return Result.failure(mesResult);
     }
   }
+
 
   private MulticurveProviderDiscount mergeBundlesAndMatrix(Collection<MulticurveProviderDiscount> providers,
                                                            FXMatrix fxMatrix) {

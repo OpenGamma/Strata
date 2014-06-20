@@ -96,10 +96,12 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
@@ -239,8 +241,8 @@ public class FXForwardPVFnTest {
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
 
-    DiscountingMulticurveBundleFn bundleProvider =
-        FunctionModel.build(DiscountingMulticurveBundleFn.class, createFunctionConfig(), componentMap);
+    DiscountingMulticurveBundleResolverFn bundleProvider =
+        FunctionModel.build(DiscountingMulticurveBundleResolverFn.class, createFunctionConfig(), componentMap);
     Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
 
     ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
@@ -517,6 +519,7 @@ public class FXForwardPVFnTest {
                             FXMatrixFn.class, DefaultFXMatrixFn.class,
                             CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                             DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                             DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                             CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,

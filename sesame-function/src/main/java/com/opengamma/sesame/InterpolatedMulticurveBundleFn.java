@@ -75,7 +75,9 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   }
 
   @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(Environment env, CurveConstructionConfiguration curveConfig) {
+  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
+      Environment env, CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves) {
 
     // Interim result object used to build up the complete set of
     // failures rather than exiting early
@@ -234,7 +236,9 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   }
 
   @Override
-  public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(Environment env, CurveConstructionConfiguration curveConfig) {
+  public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
+      Environment env, CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves) {
     throw new UnsupportedOperationException();
   }
 

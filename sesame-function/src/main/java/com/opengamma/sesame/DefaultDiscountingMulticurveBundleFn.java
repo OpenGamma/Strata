@@ -9,6 +9,7 @@ package com.opengamma.sesame;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.ERROR;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -157,7 +158,9 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   //-------------------------------------------------------------------------
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
-      Environment env, CurveConstructionConfiguration curveConfig) {
+      Environment env,
+      CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves) {
 
     // Each curve config may have one or more exogenous requirements which basically should
     // point to another curve config (which may point to one or more configs ...)
@@ -171,19 +174,21 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     // todo check for cycles in the config
 
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(env, curveConfig);
-    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(env, curveConfig, fxMatrixResult);
+    Result<MulticurveProviderDiscount> exogenousBundles =
+        buildExogenousBundles(env, curveConfig, builtCurves, fxMatrixResult);
     return getCurves(env, curveConfig, exogenousBundles, fxMatrixResult);
-
   }
 
   @Override
   public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
-      Environment env, CurveConstructionConfiguration curveConfig) {
+      Environment env,
+      CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves) {
 
     // todo - this implementation is nowhere near complete
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(env, curveConfig);
 
-    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(env, curveConfig, fxMatrixResult);
+    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(env, curveConfig, builtCurves, fxMatrixResult);
 
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
     Map.Entry<String, List<? extends CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
@@ -525,18 +530,24 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
   }
   
-  
-  private Result<MulticurveProviderDiscount> buildExogenousBundles(Environment env,
-                                                                   CurveConstructionConfiguration curveConfig,
-                                                                   Result<FXMatrix> fxMatrixResult) {
+private Result<MulticurveProviderDiscount> buildExogenousBundles(
+      Environment env, CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves,
+      Result<FXMatrix> fxMatrixResult) {
 
     Result<Boolean> exogenousResult = Result.success(true);
     Set<MulticurveProviderDiscount> exogenousBundles = new HashSet<>();
 
     for (CurveConstructionConfiguration exogenousConfig : curveConfig.resolveCurveConfigurations()) {
 
-      Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = generateBundle(env, exogenousConfig);
-      if (bundleResult.isSuccess()) {
+      Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = builtCurves.get(exogenousConfig);
+
+      // This really shouldn't happen if using provided functions to call this one
+      // but that may not alwayus be the case
+      if (bundleResult == null) {
+        exogenousResult = Result.failure(
+            exogenousResult, Result.failure(MISSING_DATA, "No curve built for exogenous config: {}", exogenousConfig));
+      } else if (bundleResult.isSuccess()) {
         exogenousBundles.add(bundleResult.getValue().getFirst());
       } else {
         exogenousResult = Result.failure(exogenousResult, bundleResult);

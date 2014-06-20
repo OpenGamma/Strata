@@ -44,7 +44,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveSpecificationFn;
-import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
@@ -62,12 +62,15 @@ import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Triple;
 
+/**
+ * Calculates yield curve node sensitivity P&L series for
+ * an FX forward security.
+ */
 public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeriesFn {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DiscountingFXForwardYCNSPnLSeriesFn.class);
   private static final ImmutableSet<DayOfWeek> s_weekendDays = ImmutableSet.of(SATURDAY, SUNDAY);
-  
-  
+
   private final FXForwardCalculatorFn _calculatorProvider;
 
   private final CurveDefinition _curveDefinition;
@@ -88,7 +91,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
   // todo - this is only a temporary solution to determine the implied deposit curves
   private final Set<String> _impliedCurveNames;
-  private final DiscountingMulticurveBundleFn _discountingMulticurveBundleFn;
+  private final DiscountingMulticurveBundleResolverFn _bundleResolver;
 
   private final FXMatrixFn _fxMatrixFn;
   private final Boolean _useHistoricalSpot;
@@ -106,7 +109,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              CurrencyPairsFn currencyPairsFn,
                                              MarketDataFactory marketDataFactory,
                                              StringSet impliedCurveNames,
-                                             DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
+                                             DiscountingMulticurveBundleResolverFn bundleResolver,
                                              FXMatrixFn fxMatrixFn,
                                              Boolean useHistoricalSpot,
                                              LocalDateRange dateRange) {
@@ -119,8 +122,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
     _marketDataFactory = marketDataFactory;
+    _bundleResolver = bundleResolver;
     _impliedCurveNames = impliedCurveNames.getStrings();
-    _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
     _fxMatrixFn = fxMatrixFn;
     _useHistoricalSpot = useHistoricalSpot;
     _dateRange = dateRange;
@@ -177,7 +180,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
         // build multicurve for the date
         Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =
-            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(envForDate, _curveConfig);
+            _bundleResolver.extractImpliedDepositCurveData(envForDate, _curveConfig);
 
         // TODO consider how to report failures. either log (as here),
         // fail entire calc in all or nothing approach, somewhere in between?

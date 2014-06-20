@@ -62,9 +62,11 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
@@ -97,13 +99,11 @@ import com.opengamma.util.time.Expiry;
  */
 public class FedFundsFutureFnTest {
 
-  private static final InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
-
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
   
   private static final Environment ENV =
       new SimpleEnvironment(VALUATION_TIME,
-                            _interestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
+                            InterestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
   
   private FedFundsFutureFn _fedFundsFutureFn;
   
@@ -116,7 +116,7 @@ public class FedFundsFutureFnTest {
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfig",
-                                  ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions()))),
+                                  ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-9),
                          argument("rootFinderRelativeTolerance", 1e-9),
@@ -137,6 +137,7 @@ public class FedFundsFutureFnTest {
                             DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                             CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                             DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
                             HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                             CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
@@ -155,7 +156,7 @@ public class FedFundsFutureFnTest {
   
   private ImmutableMap<Class<?>, Object> generateComponents() {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-    for (Map.Entry<Class<?>, Object> keys: _interestRateMockSources.generateBaseComponents().entrySet()) {
+    for (Map.Entry<Class<?>, Object> keys: InterestRateMockSources.generateBaseComponents().entrySet()) {
       if (!keys.getKey().equals(HistoricalTimeSeriesSource.class)) {
         builder.put(keys.getKey(), keys.getValue());
       }

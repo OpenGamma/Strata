@@ -9,9 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
@@ -25,7 +23,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
-import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.util.result.Result;
@@ -45,14 +42,11 @@ public class DefaultDiscountingMulticurveBundleFnTest {
   
   private FXMatrixFn _fxmProvider = mock(FXMatrixFn.class);
   
-  
   @BeforeMethod
   public void setup() {
     _fn = new DefaultDiscountingMulticurveBundleFn(null, null, null, _fxmProvider, null, null, null, null, null, null, StringSet.of(IMPLIED_DEPO));
   }
-  
-  
-  
+
   @SuppressWarnings("unchecked")
   @Test
   public void generateBundle() {
@@ -66,7 +60,8 @@ public class DefaultDiscountingMulticurveBundleFnTest {
     @SuppressWarnings("rawtypes")
     Map map = ImmutableMap.of(cd, Lists.newArrayList());
     when(cgc.resolveTypesForCurves()).thenReturn(map);
-    Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result = _fn.generateBundle(_env, _ccc);
+    Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result = _fn.generateBundle(_env, _ccc,
+        ImmutableMap.<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>>of());
     
     assertTrue("Expected failure", !result.isSuccess());
     
