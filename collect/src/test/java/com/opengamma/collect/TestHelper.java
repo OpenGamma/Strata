@@ -108,7 +108,7 @@ public class TestHelper {
 
   //-------------------------------------------------------------------------
   /**
-   * Test a enum for the primary purpose of increasing test coverage.
+   * Test an enum for the primary purpose of increasing test coverage.
    * 
    * @param clazz  the class to test, not null
    */
@@ -129,8 +129,8 @@ public class TestHelper {
    */
   public static void coverMutableBean(Bean bean) {
     assertNotNull(bean, "coverImmutableBean() called with null bean");
-    assertFalse(bean instanceof ImmutableBean == false);
-    coverBean0(bean);
+    assertFalse(bean instanceof ImmutableBean);
+    coverBean(bean);
   }
 
   /**
@@ -141,10 +141,10 @@ public class TestHelper {
   public static void coverImmutableBean(ImmutableBean bean) {
     assertNotNull(bean, "coverImmutableBean() called with null bean");
     assertTrue(bean instanceof ImmutableBean);
-    coverBean0(bean);
+    coverBean(bean);
   }
 
-  private static void coverBean0(Bean bean) {
+  private static void coverBean(Bean bean) {
     MetaBean metaBean = bean.metaBean();
     assertNotNull(metaBean);
 
