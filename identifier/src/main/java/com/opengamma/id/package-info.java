@@ -10,4 +10,4 @@
  * This includes various different ways to identify entities.
  * It also includes links that allow different entities to be connected.
  */
-package com.opengamma.identifier;
+package com.opengamma.id;
