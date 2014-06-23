@@ -7,6 +7,8 @@ package com.opengamma.collect.validate;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Sets;
+import com.opengamma.collect.TestHelper;
+
 import org.testng.annotations.Test;
 
 import java.time.LocalDate;
@@ -18,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test ArgChecker.
@@ -89,8 +91,8 @@ public class ArgCheckerTest {
   
   //-------------------------------------------------------------------------
   public void test_notNull_ok() {
-    assertEquals("Kirk", ArgChecker.notNull("Kirk", "name"));
-    assertEquals(Integer.valueOf(1), ArgChecker.notNull(1, "name"));
+    assertEquals(ArgChecker.notNull("Kirk", "name"), "Kirk");
+    assertEquals(ArgChecker.notNull(1, "name"), Integer.valueOf(1));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
@@ -100,7 +102,7 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notNullInjected_ok() {
-    assertEquals("Kirk", ArgChecker.notNullInjected("Kirk", "name"));
+    assertEquals(ArgChecker.notNullInjected("Kirk", "name"), "Kirk");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Injected.*'name'.*")
@@ -110,11 +112,11 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notBlank_String_ok() {
-    assertEquals("Kirk", ArgChecker.notBlank("Kirk", "name"));
+    assertEquals(ArgChecker.notBlank("Kirk", "name"), "Kirk");
   }
 
   public void test_notBlank_String_ok_trimmed() {
-    assertEquals("Kirk", ArgChecker.notBlank(" Kirk ", "name"));
+    assertEquals(ArgChecker.notBlank(" Kirk ", "name"), "Kirk");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
@@ -134,8 +136,8 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_String_ok() {
-    assertEquals("Kirk", ArgChecker.notEmpty("Kirk", "name"));
-    assertEquals(" ", ArgChecker.notEmpty(" ", "name"));
+    assertEquals(ArgChecker.notEmpty("Kirk", "name"), "Kirk");
+    assertEquals(ArgChecker.notEmpty(" ", "name"), " ");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -150,9 +152,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_Array_ok() {
-    Object[] array = new Object[] {"Element"};
-    Object[] result = ArgChecker.notEmpty(array, "name");
-    assertEquals(array, result);
+    Object[] expected = new Object[] {"Element"};
+    Object[] result = ArgChecker.notEmpty(expected, "name");
+    assertEquals(result, expected);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -179,9 +181,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_intArray_ok() {
-    int[] array = new int[] {6};
-    int[] result = ArgChecker.notEmpty(array, "name");
-    assertEquals(array, result);
+    int[] expected = new int[] {6};
+    int[] result = ArgChecker.notEmpty(expected, "name");
+    assertEquals(result, expected);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -197,9 +199,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_longArray_ok() {
-    long[] array = new long[] {6L};
-    long[] result = ArgChecker.notEmpty(array, "name");
-    assertEquals(array, result);
+    long[] expected = new long[] {6L};
+    long[] result = ArgChecker.notEmpty(expected, "name");
+    assertEquals(result, expected);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -215,9 +217,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_doubleArray_ok() {
-    double[] array = new double[] {6.0d};
-    double[] result = ArgChecker.notEmpty(array, "name");
-    assertEquals(array, result);
+    double[] expected = new double[] {6.0d};
+    double[] result = ArgChecker.notEmpty(expected, "name");
+    assertEquals(result, expected);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -233,9 +235,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_Iterable_ok() {
-    Iterable<String> coll = Arrays.asList("Element");
-    Iterable<String> result = ArgChecker.notEmpty(coll, "name");
-    assertEquals(coll, result);
+    Iterable<String> expected = Arrays.asList("Element");
+    Iterable<String> result = ArgChecker.notEmpty((Iterable<String>) expected, "name");
+    assertEquals(result, expected);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -244,16 +246,16 @@ public class ArgCheckerTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*collection.*'name'.*empty.*")
+      expectedExceptionsMessageRegExp = ".*iterable.*'name'.*empty.*")
   public void test_notEmpty_Iterable_empty() {
-    ArgChecker.notEmpty(Collections.emptyList(), "name");
+    ArgChecker.notEmpty((Iterable<?>) Collections.emptyList(), "name");
   }
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_Collection_ok() {
-    List<String> coll = Arrays.asList("Element");
-    List<String> result = ArgChecker.notEmpty(coll, "name");
-    assertEquals(coll, result);
+    List<String> expected = Arrays.asList("Element");
+    List<String> result = ArgChecker.notEmpty(expected, "name");
+    assertEquals(result, expected);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -269,9 +271,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_Map_ok() {
-    SortedMap<String, String> map = ImmutableSortedMap.of("Element", "Element");
-    SortedMap<String, String> result = ArgChecker.notEmpty(map, "name");
-    assertEquals(map, result);
+    SortedMap<String, String> expected = ImmutableSortedMap.of("Element", "Element");
+    SortedMap<String, String> result = ArgChecker.notEmpty(expected, "name");
+    assertEquals(result, expected);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -287,9 +289,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_noNulls_Array_ok() {
-    String[] array = new String[] {"Element"};
-    String[] result = ArgChecker.noNulls(array, "name");
-    assertEquals(array, result);
+    String[] expected = new String[] {"Element"};
+    String[] result = ArgChecker.noNulls(expected, "name");
+    assertEquals(result, expected);
   }
 
   public void test_noNulls_Array_ok_empty() {
@@ -310,9 +312,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_noNulls_Iterable_ok() {
-    List<String> coll = Arrays.asList("Element");
-    List<String> result = ArgChecker.noNulls(coll, "name");
-    assertEquals(coll, result);
+    List<String> expected = Arrays.asList("Element");
+    List<String> result = ArgChecker.noNulls(expected, "name");
+    assertEquals(result, expected);
   }
 
   public void test_noNulls_Iterable_ok_empty() {
@@ -333,9 +335,9 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_noNulls_Map_ok() {
-    ImmutableSortedMap<String, String> map = ImmutableSortedMap.of("A", "B");
-    ImmutableSortedMap<String, String> result = ArgChecker.noNulls(map, "name");
-    assertEquals(map, result);
+    ImmutableSortedMap<String, String> expected = ImmutableSortedMap.of("A", "B");
+    ImmutableSortedMap<String, String> result = ArgChecker.noNulls(expected, "name");
+    assertEquals(result, expected);
   }
 
   public void test_noNulls_Map_ok_empty() {
@@ -368,8 +370,8 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notNegative_int_ok() {
-    assertEquals(0, ArgChecker.notNegative(0, "name"));
-    assertEquals(1, ArgChecker.notNegative(1, "name"));
+    assertEquals(ArgChecker.notNegative(0, "name"), 0);
+    assertEquals(ArgChecker.notNegative(1, "name"), 1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -379,8 +381,8 @@ public class ArgCheckerTest {
   }
 
   public void test_notNegative_long_ok() {
-    assertEquals(0L, ArgChecker.notNegative(0L, "name"));
-    assertEquals(1L, ArgChecker.notNegative(1L, "name"));
+    assertEquals(ArgChecker.notNegative(0L, "name"), 0L);
+    assertEquals(ArgChecker.notNegative(1L, "name"), 1L);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -390,8 +392,8 @@ public class ArgCheckerTest {
   }
 
   public void test_notNegative_double_ok() {
-    assertEquals(0d, ArgChecker.notNegative(0d, "name"), 0.0001d);
-    assertEquals(1d, ArgChecker.notNegative(1d, "name"), 0.0001d);
+    assertEquals(ArgChecker.notNegative(0d, "name"), 0d, 0.0001d);
+    assertEquals(ArgChecker.notNegative(1d, "name"), 1d, 0.0001d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -402,7 +404,7 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notNegativeOrZero_int_ok() {
-    assertEquals(1, ArgChecker.notNegativeOrZero(1, "name"));
+    assertEquals(ArgChecker.notNegativeOrZero(1, "name"), 1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -418,7 +420,7 @@ public class ArgCheckerTest {
   }
 
   public void test_notNegativeOrZero_long_ok() {
-    assertEquals(1, ArgChecker.notNegativeOrZero(1L, "name"));
+    assertEquals(ArgChecker.notNegativeOrZero(1L, "name"), 1);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -434,7 +436,7 @@ public class ArgCheckerTest {
   }
 
   public void test_notNegativeOrZero_double_ok() {
-    assertEquals(1d, ArgChecker.notNegativeOrZero(1d, "name"), 0.0001d);
+    assertEquals(ArgChecker.notNegativeOrZero(1d, "name"), 1d, 0.0001d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -450,8 +452,8 @@ public class ArgCheckerTest {
   }
 
   public void test_notNegativeOrZero_double_eps_ok() {
-    assertEquals(1d, ArgChecker.notNegativeOrZero(1d, 0.0001d, "name"), 0.0001d);
-    assertEquals(0.1d, ArgChecker.notNegativeOrZero(0.1d, 0.0001d, "name"), 0.0001d);
+    assertEquals(ArgChecker.notNegativeOrZero(1d, 0.0001d, "name"), 1d, 0.0001d);
+    assertEquals(ArgChecker.notNegativeOrZero(0.1d, 0.0001d, "name"), 0.1d, 0.0001d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -468,7 +470,7 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notZero_double_ok() {
-    assertEquals(1d, ArgChecker.notZero(1d, 0.1d, "name"), 0.0001d);
+    assertEquals(ArgChecker.notZero(1d, 0.1d, "name"), 1d, 0.0001d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -570,6 +572,10 @@ public class ArgCheckerTest {
     LocalDate a = LocalDate.of(2011, 7, 3);
     LocalDate b = LocalDate.of(2011, 7, 2);
     ArgChecker.inOrderOrEqual(a, b, "a", "b");
+  }
+
+  public void coverage() {
+    TestHelper.coverPrivateConstructor(ArgChecker.class);
   }
 
 }
