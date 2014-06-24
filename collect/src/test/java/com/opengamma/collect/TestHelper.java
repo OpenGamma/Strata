@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -257,17 +258,16 @@ public class TestHelper {
 
   // different combinations of values to cover equals()
   private static void coverEquals(Bean bean) {
-    List<MetaProperty<?>> list = new ArrayList<>();
-    for (MetaProperty<?> mp : bean.metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        list.add(mp);
-      }
-    }
-    for (int i = 0; i < list.size(); i++) {
+    // create beans with different data and compare each to the input bean
+    // this will normally trigger each of the possible branches in equals
+    List<MetaProperty<?>> buildableProps = bean.metaBean().metaPropertyMap().values().stream()
+        .filter(mp -> mp.style().isBuildable())
+        .collect(Collectors.toList());
+    for (int i = 0; i < buildableProps.size(); i++) {
       try {
         BeanBuilder<? extends Bean> bld = bean.metaBean().builder();
-        for (int j = 0; j < list.size(); j++) {
-          MetaProperty<?> mp = list.get(j);
+        for (int j = 0; j < buildableProps.size(); j++) {
+          MetaProperty<?> mp = buildableProps.get(j);
           if (j < i) {
             bld.set(mp, mp.get(bean));
           } else {
@@ -285,6 +285,7 @@ public class TestHelper {
         // ignore
       }
     }
+    // cover the remaining equals edge cases
     assertFalse(bean.equals(null));
     assertFalse(bean.equals("NonBean"));
     assertTrue(bean.equals(bean));
