@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irfuture;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
@@ -67,4 +68,15 @@ public interface InterestRateFutureFn {
    */
   @Output(value = OutputNames.SECURITY_MODEL_PRICE)
   Result<Double> calculateSecurityModelPrice(Environment env, InterestRateFutureTrade irFutureTrade);
+  
+  /**
+   * Calculates the ir curve sensitivity w.r.t the zero rates - for the ir future trade.
+   * @param env the environment that the future contract bucketed delta will be calculated with.
+   * @param irFutureTrade the interest rate future trade to calculate the bucketed delta for.
+   * @return result containing the zero rate sensitivities sensitivities.
+   */
+  @Output(value = OutputNames.BUCKETED_ZERO_DELTA)
+  Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, InterestRateFutureTrade irFutureTrade);
+  
+  
 }

@@ -5,14 +5,18 @@
  */
 package com.opengamma.sesame.irfuture;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -31,21 +35,22 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
   
   private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
   
-  private final DiscountingMulticurveCombinerFn _discountingMulticurveCombinerFn;
+  private final DiscountingMulticurveCombinerFn _discountingMulticurveCombinerFn; 
   
   private final HistoricalTimeSeriesFn _htsFn;
+  
+  private final CurveDefinitionFn _curveDefinitionFn;  
   
   public InterestRateFutureDiscountingCalculatorFactory(InterestRateFutureTradeConverter converter,
                                                         FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                         DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
+                                                        CurveDefinitionFn curveDefinitionFn,
                                                         HistoricalTimeSeriesFn htsFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
-    _definitionToDerivativeConverter =
-        ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
-    _discountingMulticurveCombinerFn =
-        ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
-    _htsFn =
-        ArgumentChecker.notNull(htsFn, "htsFn");
+    _definitionToDerivativeConverter = ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
+    _discountingMulticurveCombinerFn = ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
+    _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
+    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
   }
   
   @Override
@@ -61,18 +66,41 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     
     if (Result.allSuccessful(bundleResult, fixingsResult)) {
     
-      MulticurveProviderDiscount bundle = bundleResult.getValue().getFirst();
+      MulticurveProviderDiscount multicurveBundle = bundleResult.getValue().getFirst();
     
-      HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();
-    
-      InterestRateFutureCalculator calculator = new InterestRateFutureDiscountingCalculator(trade, bundle, _converter, env.getValuationTime(), _definitionToDerivativeConverter, fixings);
+      HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();     
       
+      Result<?> curveDefinitionResult = Result.success(true);
+      Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
+      if (bundleResult.isSuccess()) {
+        
+        for (String curveName : bundleResult.getValue().getValue().getData().keySet()) {
+          Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+          
+          if (curveDefinition.isSuccess()) {
+            
+            curveDefinitions.put(curveName, curveDefinition.getValue());
+            
+          } else {
+            
+            curveDefinitionResult = Result.failure(curveDefinitionResult, Result.failure(curveDefinition));
+            
+          }
+        }
+      }
+      InterestRateFutureCalculator calculator = new InterestRateFutureDiscountingCalculator(trade, 
+                                                                                            multicurveBundle, 
+                                                                                            curveDefinitions, 
+                                                                                            _converter, 
+                                                                                            env.getValuationTime(), 
+                                                                                            _definitionToDerivativeConverter, 
+                                                                                            fixings);      
       return Result.success(calculator);
       
     } else {
       
       return Result.failure(bundleResult, fixingsResult);
+      
     }
   }
-  
 }

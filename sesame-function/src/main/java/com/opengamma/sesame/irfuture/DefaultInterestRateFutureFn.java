@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irfuture;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.ArgumentChecker;
@@ -74,5 +75,14 @@ public class DefaultInterestRateFutureFn implements InterestRateFutureFn {
       return Result.failure(calculatorResult);
     }
     return calculatorResult.getValue().calculateSecurityModelPrice();
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, InterestRateFutureTrade irFutureTrade) {
+    Result<InterestRateFutureCalculator> calculatorResult = _interestRateFutureCalculatorFactory.createCalculator(env, irFutureTrade);
+    if (!calculatorResult.isSuccess()) {
+      return Result.failure(calculatorResult);
+    }
+    return calculatorResult.getValue().calculateBucketedZeroIRDelta();
   }
 }

@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irfuture;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
@@ -25,4 +26,7 @@ public interface InterestRateFutureCalculator {
   Result<Double> getSecurityMarketPrice();
   
   Result<Double> calculateSecurityModelPrice();
+  
+  Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta();
+  
 }
