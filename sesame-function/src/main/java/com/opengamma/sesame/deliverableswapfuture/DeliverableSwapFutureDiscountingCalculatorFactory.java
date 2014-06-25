@@ -5,14 +5,18 @@
  */
 package com.opengamma.sesame.deliverableswapfuture;
 
+import java.util.HashMap;
+import java.util.Map;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -35,15 +39,19 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
   
   private final HistoricalTimeSeriesFn _htsFn;
   
+  private final CurveDefinitionFn _curveDefinitionFn; 
+  
   
   public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
                                                            FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                            DiscountingMulticurveCombinerFn discountingMultiCurveCombinerFn,
-                                                           HistoricalTimeSeriesFn htsFn) {
+                                                           HistoricalTimeSeriesFn htsFn,
+                                                           CurveDefinitionFn curveDefinitionFn) {
     _deliverableSwapFutureTradeConverter = ArgumentChecker.notNull(deliverableSwapFutureTradeConverter, "deliverableSwapFutureTradeConverter");
     _definitionToDerivativeConverter = ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
     _discountingMultiCurveCombinerFn = ArgumentChecker.notNull(discountingMultiCurveCombinerFn, "discountingMultiCurveCombinerFn");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
   }
   
   
@@ -64,14 +72,33 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
       
       MulticurveProviderDiscount bundle = bundleResult.getValue().getFirst();
       
-      HistoricalTimeSeriesBundle fixes = fixings.getValue();
+      HistoricalTimeSeriesBundle fixingBundle = fixings.getValue();
+      
+      Result<?> curveDefinitionResult = Result.success(true);
+      Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
+      if (bundleResult.isSuccess()) {
+        
+        for (String curveName : bundleResult.getValue().getValue().getData().keySet()) {
+          Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+          if (curveDefinition.isSuccess()) {
+            
+            curveDefinitions.put(curveName, curveDefinition.getValue());
+            
+          } else {
+            
+            curveDefinitionResult = Result.failure(curveDefinitionResult, Result.failure(curveDefinition));
+            
+          }
+        }
+      }
       
       DeliverableSwapFutureCalculator calculator = new DeliverableSwapFutureDiscountingCalculator(trade, 
                                                                                                   bundle, 
                                                                                                   _deliverableSwapFutureTradeConverter, 
                                                                                                   env.getValuationTime(), 
                                                                                                   _definitionToDerivativeConverter, 
-                                                                                                  fixes);              
+                                                                                                  fixingBundle,
+                                                                                                  curveDefinitions);              
       return Result.success(calculator);
     } else {
       return Result.failure(bundleResult, fixings);

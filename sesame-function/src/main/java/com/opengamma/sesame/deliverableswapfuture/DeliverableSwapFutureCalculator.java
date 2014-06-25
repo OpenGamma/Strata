@@ -6,6 +6,7 @@
 package com.opengamma.sesame.deliverableswapfuture;
 
 import com.opengamma.analytics.util.amount.ReferenceAmount;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -29,4 +30,10 @@ public interface DeliverableSwapFutureCalculator {
    */
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01();
 
+  /**
+   * Calculates the sensitivity w.r.t the zero rates for the DeliverableSwapFuture.
+   *
+   * @return result containing the bucketed zero rate sensitivities if successfully created, a failure result otherwise.
+   */
+  Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta();  
 }
