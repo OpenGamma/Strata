@@ -24,7 +24,6 @@ public class SnapshotYieldCurveDataProviderFnTest {
   private SnapshotYieldCurveDataProviderFn _fnWithBadLink;
   private SnapshotYieldCurveDataProviderFn _fnWithUSDCurve;
 
-
   @SuppressWarnings("unchecked")
   @BeforeClass
   public void beforeClass() {
@@ -68,8 +67,5 @@ public class SnapshotYieldCurveDataProviderFnTest {
     assertTrue("USD present in snapshot so should succeed.", result.isSuccess());
     
   }
-  
-  
-
 
 }
