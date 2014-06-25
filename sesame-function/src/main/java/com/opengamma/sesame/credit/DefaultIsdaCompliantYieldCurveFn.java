@@ -5,11 +5,13 @@
  */
 package com.opengamma.sesame.credit;
 
+import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 
 import org.threeten.bp.Period;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
@@ -44,7 +46,7 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
   @Override
   public Result<ISDACompliantYieldCurve> buildISDACompliantCurve(Environment env, Currency ccy) {
     
-    Result<YieldCurveData> yieldCurveData = _yieldCurveProvider.loadYieldCurveData(ccy);
+    Result<YieldCurveData> yieldCurveData = _yieldCurveProvider.retrieveYieldCurveData(ccy);
     
     if (!yieldCurveData.isSuccess()) {
       return Result.failure(yieldCurveData);
@@ -68,27 +70,17 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
     
     int i = 0;
     
-    for (Entry<Tenor, Double> entry : cashData.entrySet()) {
-      Tenor tenor = entry.getKey();
-      Double dataPoint = entry.getValue();
-      
-      periods[i] = tenor.getPeriod();
-      rates[i] = dataPoint;
-      instrumentTypes[i] = ISDAInstrumentTypes.MoneyMarket;
-      
-      i++;
-    }
+    Arrays.fill(instrumentTypes, 0, cashData.size(), ISDAInstrumentTypes.MoneyMarket);
+    Arrays.fill(instrumentTypes, cashData.size(), curveNodesLength, ISDAInstrumentTypes.Swap);
     
-    for (Entry<Tenor, Double> entry : swapData.entrySet()) {
+    for (Entry<Tenor, Double> entry : Iterables.concat(cashData.entrySet(), swapData.entrySet())) {
       Tenor tenor = entry.getKey();
       Double dataPoint = entry.getValue();
       
       periods[i] = tenor.getPeriod();
       rates[i] = dataPoint;
-      instrumentTypes[i] = ISDAInstrumentTypes.Swap;
       
       i++;
-      
     }
     
     ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(

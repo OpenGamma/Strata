@@ -16,9 +16,9 @@ public interface YieldCurveDataProviderFn {
 
   /**
    * Loads the {@link YieldCurveData} instance associated with the given currency.
-   * @param key a currency
+   * @param currency a currency
    * @return a valid {@link YieldCurveData} object or failure
    */
-  Result<YieldCurveData> loadYieldCurveData(Currency key);
+  Result<YieldCurveData> retrieveYieldCurveData(Currency currency);
 
 }

@@ -41,10 +41,10 @@ public class SnapshotYieldCurveDataProviderFnTest {
     _fnWithUSDCurve = new SnapshotYieldCurveDataProviderFn(goodLink);
   }
   
-  @Test
+  @Test(expectedExceptions = {DataNotFoundException.class})
   public void testFnWithBadLink() {
     
-    Result<YieldCurveData> result = _fnWithBadLink.loadYieldCurveData(Currency.USD);
+    Result<YieldCurveData> result = _fnWithBadLink.retrieveYieldCurveData(Currency.USD);
     
     assertFalse("Link threw exception so function should fail.", result.isSuccess());
     
@@ -53,7 +53,7 @@ public class SnapshotYieldCurveDataProviderFnTest {
   @Test
   public void testFnMissingData() {
     
-    Result<YieldCurveData> result = _fnWithUSDCurve.loadYieldCurveData(Currency.GBP);
+    Result<YieldCurveData> result = _fnWithUSDCurve.retrieveYieldCurveData(Currency.GBP);
     
     assertFalse("GBP is missing so result should be failure.", result.isSuccess());
     
@@ -62,7 +62,7 @@ public class SnapshotYieldCurveDataProviderFnTest {
   @Test
   public void testFn() {
     
-    Result<YieldCurveData> result = _fnWithUSDCurve.loadYieldCurveData(Currency.USD);
+    Result<YieldCurveData> result = _fnWithUSDCurve.retrieveYieldCurveData(Currency.USD);
     
     assertTrue("USD present in snapshot so should succeed.", result.isSuccess());
     

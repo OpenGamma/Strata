@@ -66,7 +66,7 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
     
     YieldCurveDataProviderFn providerFn = mock(YieldCurveDataProviderFn.class);
     
-    when(providerFn.loadYieldCurveData(Currency.GBP)).
+    when(providerFn.retrieveYieldCurveData(Currency.GBP)).
         thenReturn(Result.<YieldCurveData> failure(FailureStatus.ERROR, "test"));
     
     _fn = new DefaultIsdaCompliantYieldCurveFn(providerFn);
@@ -114,7 +114,7 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
                       .swapFixedLegInterval(Tenor.ONE_YEAR)
                       .build();
     
-    when(providerFn.loadYieldCurveData(Currency.USD)).thenReturn(Result.success(ycData));
+    when(providerFn.retrieveYieldCurveData(Currency.USD)).thenReturn(Result.success(ycData));
     
     _env = mock(Environment.class);
     

@@ -7,7 +7,6 @@ package com.opengamma.sesame.credit.snapshot;
 
 import java.util.Map;
 
-import com.opengamma.DataNotFoundException;
 import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
@@ -33,32 +32,17 @@ public class SnapshotYieldCurveDataProviderFn implements YieldCurveDataProviderF
   }
 
   @Override
-  public Result<YieldCurveData> loadYieldCurveData(Currency key) {
-    Result<YieldCurveDataSnapshot> snapshotResult = loadSnapshot();
+  public Result<YieldCurveData> retrieveYieldCurveData(Currency currency) {
+    YieldCurveDataSnapshot snapshotResult = _snapshotLink.resolve();
     
-    if (!snapshotResult.isSuccess()) {
-      return Result.failure(snapshotResult);
-    }
-    
-    Map<Currency, YieldCurveData> creditCurveDataMap = snapshotResult.getValue().getYieldCurves();
-    if (creditCurveDataMap.containsKey(key)) {
-      return Result.success(creditCurveDataMap.get(key));
+    Map<Currency, YieldCurveData> creditCurveDataMap = snapshotResult.getYieldCurves();
+    if (creditCurveDataMap.containsKey(currency)) {
+      return Result.success(creditCurveDataMap.get(currency));
     } else {
       return Result.failure(FailureStatus.MISSING_DATA, 
                             "Failed to load curve data for credit curve key {} in snapshot {}", 
-                            key, 
-                            snapshotResult.getValue().getName());
-    }
-  }
-
-  private Result<YieldCurveDataSnapshot> loadSnapshot() {
-    try {
-      //note - the snapshot record may be large but will be cached by the snapshot source.
-      return Result.success(_snapshotLink.resolve());
-    } catch (DataNotFoundException e) {
-      return Result.failure(FailureStatus.MISSING_DATA, 
-                            e, 
-                            "Failed to load credit curve data snapshot.");
+                            currency, 
+                            snapshotResult.getName());
     }
   }
 
