@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irfutureoption;
 
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -95,6 +96,16 @@ public class DefaultIRFutureOptionFn implements IRFutureOptionFn {
     Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
     if (calculatorResult.isSuccess()) {
       return calculatorResult.getValue().calculateTheta();
+    } else {
+      return Result.failure(calculatorResult);
+    }
+  }
+  
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, IRFutureOptionTrade trade) {
+    Result<IRFutureOptionCalculator> calculatorResult = _irFutureOptionCalculatorFactory.createCalculator(env, trade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateBucketedZeroIRDelta();
     } else {
       return Result.failure(calculatorResult);
     }

@@ -5,11 +5,18 @@
  */
 package com.opengamma.sesame.irfutureoption;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.trade.IRFutureOptionTrade;
@@ -42,21 +49,29 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
   private final HistoricalTimeSeriesFn _htsFn;
   
   /**
+   * Function used to retrieve the curve definitions from within a multicurve bundle.
+   */
+  private final CurveDefinitionFn _curveDefinitionFn;
+  
+  /**
    * Constructs a calculator factory for interest rate future options that will create a Black calculator.
    * @param converter converter used to create the definition of the interest rate future option, not null.
    * @param blackProviderFn function used to generate a Black volatility provider, not null.
    * @param definitionToDerivativeConverter converter used to create the derivative of the interest rate future option, not null.
    * @param htsFn function used to retrieve the historical prices of the underlying interest rate future.
+   * @param curveDefinitionFn function used to retrieve curve definitions for the multicurve
    */
   public IRFutureOptionBlackCalculatorFactory(InterestRateFutureOptionTradeConverter converter,
                                               BlackSTIRFuturesProviderFn blackProviderFn,
                                               FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-                                              HistoricalTimeSeriesFn htsFn) {
+                                              HistoricalTimeSeriesFn htsFn,
+                                              CurveDefinitionFn curveDefinitionFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _blackProviderFn = ArgumentChecker.notNull(blackProviderFn, "blackProviderFn");
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
+    _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
   }
 
   @Override
@@ -65,18 +80,43 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
     IRFutureOptionSecurity security = trade.getSecurity();
     
     Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, security);
-    
+        
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     
     if (Result.allSuccessful(blackResult, fixingsResult)) {
     
       BlackSTIRFuturesProviderInterface black = blackResult.getValue();
       
-      IRFutureOptionCalculator calculator = new IRFutureOptionBlackCalculator(trade, _converter, black, env.getValuationTime(), _definitionToDerivativeConverter, fixingsResult.getValue());
+      MulticurveProviderInterface multicurveProvider = black.getMulticurveProvider();
+      
+      Set<String> curveNames = multicurveProvider.getAllCurveNames();
+      
+      Result<?> curveDefinitionResult = Result.success(true);
+      Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
+      for (String curveName : curveNames) {
+        Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+        
+        if (curveDefinition.isSuccess()) {
+          
+          curveDefinitions.put(curveName, curveDefinition.getValue());
+          
+        } else {
+          
+          curveDefinitionResult = Result.failure(curveDefinitionResult, Result.failure(curveDefinition));
+          
+        }
+      }
+      
+      IRFutureOptionCalculator calculator = new IRFutureOptionBlackCalculator(trade, 
+                                                                              _converter, 
+                                                                              black, 
+                                                                              env.getValuationTime(), 
+                                                                              _definitionToDerivativeConverter, 
+                                                                              fixingsResult.getValue(), 
+                                                                              curveDefinitions);
       
       return Result.success(calculator);
     }
     return Result.failure(blackResult, fixingsResult);
   }
-
 }

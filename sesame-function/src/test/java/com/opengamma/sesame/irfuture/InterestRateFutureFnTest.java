@@ -45,6 +45,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -186,6 +187,12 @@ public class InterestRateFutureFnTest {
     Result<MultipleCurrencyAmount> pvComputed = _irFutureFn.calculatePV(ENV, _irFutureTrade);
     assertThat(pvComputed.isSuccess(), is(true));
     
+  }
+  
+  @Test
+  public void testBucketedZeroDelta() {
+    Result<BucketedCurveSensitivities> bucketedZeroDelta = _irFutureFn.calculateBucketedZeroIRDelta(ENV, _irFutureTrade);    
+    assertThat(bucketedZeroDelta.isSuccess(), is(true));    
   }
   
   private InterestRateFutureTrade createIRFutureTrade() {

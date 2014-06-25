@@ -10,6 +10,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -19,6 +21,7 @@ import static org.testng.AssertJUnit.fail;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import org.springframework.test.AssertThrows;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -45,6 +48,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
@@ -251,5 +255,15 @@ public class IRFutureOptionFnTest {
     if (!pvComputed.isSuccess()) {
       fail(pvComputed.getFailureMessage());
     }
+  }
+  
+  
+  @Test
+  public void testBucketedZeroDelta() {
+    Result<BucketedCurveSensitivities> bucketedZeroDelta = _irFutureOptionFn.calculateBucketedZeroIRDelta(ENV, _irFutureOptionTrade);        
+    if (!bucketedZeroDelta.isSuccess()) {
+      fail(bucketedZeroDelta.getFailureMessage());
+    }
+    assertThat(bucketedZeroDelta.isSuccess(), is(true));
   }
 }

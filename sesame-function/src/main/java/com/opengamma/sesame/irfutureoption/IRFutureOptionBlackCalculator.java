@@ -5,6 +5,9 @@
  */
 package com.opengamma.sesame.irfutureoption;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -18,13 +21,22 @@ import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.Pr
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Interest rate future option Black calculator.
@@ -61,6 +73,15 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
    * Calculate for the theta of the interest rate future option.
    */
   private static final PositionThetaSTIRFutureOptionCalculator THETA_CALC = PositionThetaSTIRFutureOptionCalculator.getInstance();
+  /**
+   * Calculator for the curve sensitivity of the interest rate future option.
+   */
+  private static final PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator PVCSBFOC =
+      PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator.getInstance();
+  /**
+   * Calculator for the parameter sensitivity of the interest rate future option.
+   */  
+  private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesProviderInterface> PSSFC = new ParameterSensitivityParameterCalculator<>(PVCSBFOC);
   
   /**
    * Derivative form on the security.
@@ -73,6 +94,11 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
   private final BlackSTIRFuturesProviderInterface _black;
   
   /**
+   * Map containing the curve definition for each curve in the multicurve.
+   */
+  private final Map<String, CurveDefinition> _curveDefinitions;  
+  
+  /**
    * Constructs a calculator for interest rate future options using the Black model.
    * @param trade the interest rate future option trade, not null.
    * @param converter the converter used to create the definition of the interest rate future option, not null.
@@ -80,19 +106,22 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
    * @param valTime the valuation date time, not null.
    * @param definitionToDerivativeConverter the converter used to create the derivative form of the interest rate future option, not null.
    * @param fixings the historical prices of the underlying interest rate future, not null.
+   * @param curveDefinitions map containing the per curve definition
    */
   public IRFutureOptionBlackCalculator(IRFutureOptionTrade trade,
                                        InterestRateFutureOptionTradeConverter converter,
                                        BlackSTIRFuturesProviderInterface black,
                                        ZonedDateTime valTime,
                                        FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-                                       HistoricalTimeSeriesBundle fixings) {
+                                       HistoricalTimeSeriesBundle fixings,
+                                       Map<String, CurveDefinition> curveDefinitions) {
     _derivative = createInstrumentDerivative(ArgumentChecker.notNull(trade, "trade"),
                                              ArgumentChecker.notNull(converter, "converter"),
                                              ArgumentChecker.notNull(valTime, "valTime"),
                                              ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter"),
                                              ArgumentChecker.notNull(fixings, "fixings"));
     _black = ArgumentChecker.notNull(black, "black");
+    _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
   }
   
   private InstrumentDerivative createInstrumentDerivative(IRFutureOptionTrade trade,
@@ -137,5 +166,18 @@ public class IRFutureOptionBlackCalculator implements IRFutureOptionCalculator {
   @Override
   public Result<Double> calculateTheta() {
     return Result.success(_derivative.accept(THETA_CALC, _black));
+  }
+
+  @Override
+  public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta() {
+    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> bucketedSensitivities = new HashMap<Pair<String, Currency>, DoubleLabelledMatrix1D>();
+            
+    MultipleCurrencyParameterSensitivity sensitivities = PSSFC.calculateSensitivity(_derivative, _black);
+    for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> sensitivity : sensitivities.getSensitivities().entrySet()) {
+      CurveDefinition curveDef = _curveDefinitions.get(sensitivity.getKey().getFirst());
+      DoubleLabelledMatrix1D labelledMatrix = MultiCurveUtils.getLabelledMatrix(sensitivity.getValue(), curveDef);
+      bucketedSensitivities.put(sensitivity.getKey(), labelledMatrix);
+    }
+    return Result.success(BucketedCurveSensitivities.of(bucketedSensitivities));
   }
 }
