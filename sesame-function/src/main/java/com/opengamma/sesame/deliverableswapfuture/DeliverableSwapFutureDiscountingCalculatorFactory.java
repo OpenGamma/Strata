@@ -65,49 +65,43 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
     Result<Boolean> result = Result.success(true);
     FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
     
+    MulticurveProviderDiscount bundle = null;
+    HistoricalTimeSeriesBundle fixingBundle = null;    
+    Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
+        
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = 
                       _discountingMultiCurveCombinerFn.createMergedMulticurveBundle(env, 
                                                                                     security, 
                                                                                     Result.success(new FXMatrix()));
     
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
+    DeliverableSwapFutureCalculator calculator = null;
     
-    if (Result.anyFailures(bundleResult, fixings)) {
+    if (Result.anyFailures(bundleResult, fixings)) {      
+      result = Result.failure(bundleResult, fixings);       
+    } else {
       
-      result = Result.failure(bundleResult, fixings); 
-      
-    }
-    
-    MulticurveProviderDiscount bundle = bundleResult.getValue().getFirst();
-    
-    HistoricalTimeSeriesBundle fixingBundle = fixings.getValue();
-      
-    Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
-    if (bundleResult.isSuccess()) {
-      
+      bundle = bundleResult.getValue().getFirst();      
+      fixingBundle = fixings.getValue();              
+
       for (String curveName : bundleResult.getValue().getValue().getData().keySet()) {
         Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
-        if (curveDefinition.isSuccess()) {
-          
-          curveDefinitions.put(curveName, curveDefinition.getValue());
-          
-        } else {
-          
-          result = Result.failure(result, Result.failure(curveDefinition));
-          
+        if (curveDefinition.isSuccess()) {          
+          curveDefinitions.put(curveName, curveDefinition.getValue());          
+        } else {          
+          result = Result.failure(result, Result.failure(curveDefinition));          
         }
-      }
+      }        
     }
-
-    DeliverableSwapFutureCalculator calculator = 
-        new DeliverableSwapFutureDiscountingCalculator(trade, 
-                                                       bundle, 
-                                                       _deliverableSwapFutureTradeConverter, 
-                                                       env.getValuationTime(), 
-                                                       _definitionToDerivativeConverter, 
-                                                       fixingBundle,
-                                                       curveDefinitions);              
-    if (result.isSuccess()) {
+    if (result.isSuccess()) {      
+      calculator = new DeliverableSwapFutureDiscountingCalculator(trade, 
+                                                                  bundle, 
+                                                                  _deliverableSwapFutureTradeConverter, 
+                                                                  env.getValuationTime(), 
+                                                                  _definitionToDerivativeConverter, 
+                                                                  fixingBundle,
+                                                                  curveDefinitions);     
+            
       return Result.success(calculator);
     } else {
       return Result.failure(result);    

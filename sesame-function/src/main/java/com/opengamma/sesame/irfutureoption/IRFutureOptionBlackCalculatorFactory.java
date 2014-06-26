@@ -27,32 +27,32 @@ import com.opengamma.util.result.Result;
  * Black calculator for interest rate future options.
  */
 public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalculatorFactory {
-  
+
   /**
    * Converter used to create definition of the interest rate future option.
    */
   private final InterestRateFutureOptionTradeConverter _converter;
-  
+
   /**
    * Function used to generate a Black volatility provider.
    */
   private final BlackSTIRFuturesProviderFn _blackProviderFn;
-  
+
   /**
    * Converter used to create a definition from an interest rate future option.
    */
   private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
-  
+
   /**
    * Function used to retrieve the historical prices of the underlying interest rate future.
    */
   private final HistoricalTimeSeriesFn _htsFn;
-  
+
   /**
    * Function used to retrieve the curve definitions from within a multicurve bundle.
    */
   private final CurveDefinitionFn _curveDefinitionFn;
-  
+
   /**
    * Constructs a calculator factory for interest rate future options that will create a Black calculator.
    * @param converter converter used to create the definition of the interest rate future option, not null.
@@ -62,10 +62,10 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
    * @param curveDefinitionFn function used to retrieve curve definitions for the multicurve
    */
   public IRFutureOptionBlackCalculatorFactory(InterestRateFutureOptionTradeConverter converter,
-                                              BlackSTIRFuturesProviderFn blackProviderFn,
-                                              FixedIncomeConverterDataProvider definitionToDerivativeConverter,
-                                              HistoricalTimeSeriesFn htsFn,
-                                              CurveDefinitionFn curveDefinitionFn) {
+      BlackSTIRFuturesProviderFn blackProviderFn,
+      FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+      HistoricalTimeSeriesFn htsFn,
+      CurveDefinitionFn curveDefinitionFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _blackProviderFn = ArgumentChecker.notNull(blackProviderFn, "blackProviderFn");
     _definitionToDerivativeConverter =
@@ -76,54 +76,44 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
 
   @Override
   public Result<IRFutureOptionCalculator> createCalculator(Environment env, IRFutureOptionTrade trade) {
-    
+
     Result<Boolean> result = Result.success(true);
     
-    IRFutureOptionSecurity security = trade.getSecurity();
-    
-    Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, security);
-        
-    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
-    
-    
-    if (Result.anyFailures(blackResult, fixingsResult)) {
-      
-      result = Result.failure(blackResult, fixingsResult);
-     
-    }
-              
-    IRFutureOptionCalculator calculator = null;
-            
-    BlackSTIRFuturesProviderInterface black = blackResult.getValue();
-    
-    MulticurveProviderInterface multicurveProvider = black.getMulticurveProvider();
-    
-    Set<String> curveNames = multicurveProvider.getAllCurveNames();
-       
+    IRFutureOptionCalculator calculator = null;    
+    MulticurveProviderInterface multicurveProvider  = null;    
+    BlackSTIRFuturesProviderInterface black = null;    
     Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
-    for (String curveName : curveNames) {
-      Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
-      
-      if (curveDefinition.isSuccess()) {
-        
-        curveDefinitions.put(curveName, curveDefinition.getValue());
-        
-      } else {
-        
-        result = Result.failure(result, curveDefinition);
-        
+
+    IRFutureOptionSecurity security = trade.getSecurity();
+
+    Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, security);
+
+    Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
+
+    if (Result.anyFailures(blackResult, fixingsResult)) {
+      result = Result.failure(blackResult, fixingsResult);
+    } else {
+      black = blackResult.getValue();
+      multicurveProvider = black.getMulticurveProvider();
+      Set<String> curveNames = multicurveProvider.getAllCurveNames();
+
+      for (String curveName : curveNames) {
+        Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+        if (curveDefinition.isSuccess()) {
+          curveDefinitions.put(curveName, curveDefinition.getValue());
+        } else {
+          result = Result.failure(result, curveDefinition);
+        }
       }
     }
-            
-    calculator = new IRFutureOptionBlackCalculator(trade, 
-                                                  _converter, 
-                                                  black, 
-                                                  env.getValuationTime(), 
-                                                  _definitionToDerivativeConverter, 
-                                                  fixingsResult.getValue(), 
-                                                  curveDefinitions);
-         
-    if (result.isSuccess()) {
+    if (result.isSuccess()) {      
+      calculator = new IRFutureOptionBlackCalculator(trade,
+                                                    _converter,
+                                                    black,
+                                                    env.getValuationTime(),
+                                                    _definitionToDerivativeConverter,
+                                                    fixingsResult.getValue(),
+                                                    curveDefinitions);      
       return Result.success(calculator);
     } else {
       return Result.failure(result);
