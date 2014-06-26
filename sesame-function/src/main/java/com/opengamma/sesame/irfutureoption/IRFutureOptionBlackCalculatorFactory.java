@@ -57,7 +57,7 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
    * Constructs a calculator factory for interest rate future options that will create a Black calculator.
    * @param converter converter used to create the definition of the interest rate future option, not null.
    * @param blackProviderFn function used to generate a Black volatility provider, not null.
-   * @param definitionToDerivativeConverter converter used to create the derivative of the interest rate future option, not null.
+   * @param definitionToDerivativeConverter converter used to create the derivative of the future option, not null.
    * @param htsFn function used to retrieve the historical prices of the underlying interest rate future.
    * @param curveDefinitionFn function used to retrieve curve definitions for the multicurve
    */
@@ -77,46 +77,61 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
   @Override
   public Result<IRFutureOptionCalculator> createCalculator(Environment env, IRFutureOptionTrade trade) {
     
+    Result<Boolean> result = Result.success(true);
+    
     IRFutureOptionSecurity security = trade.getSecurity();
     
     Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, security);
         
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     
+    Set<String> curveNames = null;
+    
+    BlackSTIRFuturesProviderInterface black = null;
+    
+    IRFutureOptionCalculator calculator = null;
+    
     if (Result.allSuccessful(blackResult, fixingsResult)) {
     
-      BlackSTIRFuturesProviderInterface black = blackResult.getValue();
+      black = blackResult.getValue();
       
       MulticurveProviderInterface multicurveProvider = black.getMulticurveProvider();
       
-      Set<String> curveNames = multicurveProvider.getAllCurveNames();
+      curveNames = multicurveProvider.getAllCurveNames();
       
-      Result<?> curveDefinitionResult = Result.success(true);
-      Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
-      for (String curveName : curveNames) {
-        Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
-        
-        if (curveDefinition.isSuccess()) {
-          
-          curveDefinitions.put(curveName, curveDefinition.getValue());
-          
-        } else {
-          
-          curveDefinitionResult = Result.failure(curveDefinitionResult, Result.failure(curveDefinition));
-          
-        }
-      }
+    } else {
       
-      IRFutureOptionCalculator calculator = new IRFutureOptionBlackCalculator(trade, 
-                                                                              _converter, 
-                                                                              black, 
-                                                                              env.getValuationTime(), 
-                                                                              _definitionToDerivativeConverter, 
-                                                                              fixingsResult.getValue(), 
-                                                                              curveDefinitions);
-      
-      return Result.success(calculator);
+      result = Result.failure(blackResult, fixingsResult);
+     
     }
-    return Result.failure(blackResult, fixingsResult);
+      
+    Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
+    for (String curveName : curveNames) {
+      Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+      
+      if (curveDefinition.isSuccess()) {
+        
+        curveDefinitions.put(curveName, curveDefinition.getValue());
+        
+      } else {
+        
+        result = Result.failure(result, curveDefinition);
+        
+      }
+            
+      calculator = new IRFutureOptionBlackCalculator(trade, 
+                                                    _converter, 
+                                                    black, 
+                                                    env.getValuationTime(), 
+                                                    _definitionToDerivativeConverter, 
+                                                    fixingsResult.getValue(), 
+                                                    curveDefinitions);
+      
+    }
+    if (result.isSuccess()) {
+      return Result.success(calculator);
+    } else {
+      return Result.failure(result);
+    }
   }
 }

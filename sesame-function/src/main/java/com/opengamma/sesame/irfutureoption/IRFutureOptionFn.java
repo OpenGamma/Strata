@@ -86,7 +86,7 @@ public interface IRFutureOptionFn {
    * Calculates the sensitivity w.r.t the zero rates for the interest rate future option.
    * @param env the environment, not null.
    * @param trade the interest rate future option trade, not null.
-   * @return result containing the bucketed zero rate sensitivities if successfully created, a failure result otherwise..
+   * @return result containing the bucketed zero rate sensitivities if successfully created, a failure result otherwise.
    */
   @Output(OutputNames.BUCKETED_ZERO_DELTA)
   Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, IRFutureOptionTrade trade);

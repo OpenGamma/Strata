@@ -13,8 +13,8 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
 /**
- * Default implementation of the {@link IRFutureOptionFn} that uses a specified calculator function to calculate requested
- * values.
+ * Default implementation of the {@link IRFutureOptionFn} that uses a specified calculator function to calculate 
+ * requested values.
  */
 public class DefaultIRFutureOptionFn implements IRFutureOptionFn {
   
@@ -24,7 +24,8 @@ public class DefaultIRFutureOptionFn implements IRFutureOptionFn {
   private final IRFutureOptionCalculatorFactory _irFutureOptionCalculatorFactory;
   
   /**
-   * Constructs an instance of {@link IRFutureOptionFn} using a calculator created from a specified factory to compute values.
+   * Constructs an instance of {@link IRFutureOptionFn} using a calculator created from a specified factory to compute 
+   * values.
    * @param irFutureOptionCalculatorFactory factory that creates a calculator.
    */
   public DefaultIRFutureOptionFn(IRFutureOptionCalculatorFactory irFutureOptionCalculatorFactory) {

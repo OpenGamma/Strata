@@ -193,7 +193,9 @@ public class IRFutureOptionFnTest {
     HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
     when(mock.changeManager()).thenReturn(mock(ChangeManager.class));
     
-    HistoricalTimeSeries irFuturePrices = new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"), ImmutableLocalDateDoubleTimeSeries.of(VALUATION_TIME.toLocalDate(), 0.975));
+    HistoricalTimeSeries irFuturePrices = 
+                                    new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"), 
+                                        ImmutableLocalDateDoubleTimeSeries.of(VALUATION_TIME.toLocalDate(), 0.975));
     when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE),
                                       any(ExternalIdBundle.class),
                                       eq("DEFAULT_TSS"),
@@ -219,7 +221,13 @@ public class IRFutureOptionFnTest {
     double unitAmount = 1000;
     ExternalId underlyingId = InterestRateMockSources.getLiborIndexId();
     String category = "";
-    InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, underlyingId, category);
+    InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, 
+                                                                         tradingExchange, 
+                                                                         settlementExchange, 
+                                                                         currency, 
+                                                                         unitAmount, 
+                                                                         underlyingId, 
+                                                                         category);
     // Need this for time series lookup
     ExternalId irFutureId = ExternalSchemes.syntheticSecurityId("Test future");
     irFuture.setExternalIdBundle(irFutureId.toBundle());
@@ -235,7 +243,15 @@ public class IRFutureOptionFnTest {
     double strike = 0.01;
     OptionType optionType = OptionType.PUT;
     ExternalId irFutureId = Iterables.getOnlyElement(_irFuture.getExternalIdBundle());
-    IRFutureOptionSecurity irFutureOption = new IRFutureOptionSecurity(exchange, _irFuture.getExpiry(), exerciseType, irFutureId, pointValue, margined, _irFuture.getCurrency(), strike, optionType);
+    IRFutureOptionSecurity irFutureOption = new IRFutureOptionSecurity(exchange, 
+                                                                      _irFuture.getExpiry(), 
+                                                                      exerciseType, 
+                                                                      irFutureId, 
+                                                                      pointValue, 
+                                                                      margined, 
+                                                                      _irFuture.getCurrency(), 
+                                                                      strike, 
+                                                                      optionType);
     // Need this for time series lookup
     irFutureOption.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test future option").toBundle());
     
@@ -260,7 +276,8 @@ public class IRFutureOptionFnTest {
   
   @Test
   public void testBucketedZeroDelta() {
-    Result<BucketedCurveSensitivities> bucketedZeroDelta = _irFutureOptionFn.calculateBucketedZeroIRDelta(ENV, _irFutureOptionTrade);        
+    Result<BucketedCurveSensitivities> bucketedZeroDelta = 
+        _irFutureOptionFn.calculateBucketedZeroIRDelta(ENV, _irFutureOptionTrade);        
     if (!bucketedZeroDelta.isSuccess()) {
       fail(bucketedZeroDelta.getFailureMessage());
     }
