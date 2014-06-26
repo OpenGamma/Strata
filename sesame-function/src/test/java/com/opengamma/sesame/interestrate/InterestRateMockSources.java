@@ -49,6 +49,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.link.ConventionLink;
 import com.opengamma.core.link.SnapshotLink;
+import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
@@ -63,7 +64,10 @@ import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.exposure.CounterpartyExposureFunction;
+import com.opengamma.financial.analytics.curve.exposure.CurrencyExposureFunction;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
+import com.opengamma.financial.analytics.curve.exposure.TradeAttributeExposureFunction;
 import com.opengamma.financial.analytics.ircurve.BloombergFutureCurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurveInstrumentProvider;
@@ -147,6 +151,17 @@ public class InterestRateMockSources {
   private static final String USD_FF_MAPPER = "USD FFS-FFF OG Mapper";
   private static final String USD_DISC_OVERNIGHT_MAPPER = "Test USD Discounting Overnight Mapper";
   private static final String USD_LIBOR3M_MAPPER = "Test 3m Libor Mapper";
+
+  private static final String CURVE_CONSTRUCTION_CONFIGURATION_COUNTERPARTY_A = "CCC_COUNTERPARTY_A";
+  private static final ExternalId COUNTERPARTY_A = ExternalId.of(Counterparty.DEFAULT_SCHEME, "PASS");
+  private static final String EXPOSURE_FUNCTION_COUNTERPARTY = "EF_COUNTERPARTY";
+
+  private static final String CURVE_CONSTRUCTION_CONFIGURATION_CURRENCY_USD = "CCC_CURRENCY_USD";
+  private static final ExternalId CURRENCY_USD = ExternalId.of(Currency.OBJECT_SCHEME, "USD");
+  private static final String EXPOSURE_FUNCTION_CURRENCY = "EF_CURRENCY";
+
+  private static final String CURVE_CONSTRUCTION_CONFIGURATION_TRADE_A = "CCC_TRADE_A";
+  private static final String EXPOSURE_FUNCTION_TRADE = "EF_TRADE";
 
   /** USD 3M Libor curve name */
   public static final String USD_LIBOR3M_CURVE_NAME = "USD-LIBOR3M-FRAIRS";
@@ -260,7 +275,7 @@ public class InterestRateMockSources {
 
 
   public static ExposureFunctions mockExposureFunctions() {
-    List<String> exposureFunctions =  ImmutableList.of("Currency");
+    List<String> exposureFunctions =  ImmutableList.of(CurrencyExposureFunction.NAME);
     Map<ExternalId, String> idsToNames = new HashMap<>();
     idsToNames.put(ExternalId.of("CurrencyISO", "USD"), CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3);
     return new ExposureFunctions("USD_ON-OIS_LIBOR3M-FRAIRS", exposureFunctions, idsToNames);
@@ -268,12 +283,33 @@ public class InterestRateMockSources {
 
 
   public static ExposureFunctions mockFFExposureFunctions() {
-    List<String> exposureFunctions =  ImmutableList.of("Currency");
+    List<String> exposureFunctions =  ImmutableList.of(CurrencyExposureFunction.NAME);
     Map<ExternalId, String> idsToNames = new HashMap<>();
     idsToNames.put(ExternalId.of("CurrencyISO", "USD"), CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF);
     return new ExposureFunctions("USD_FFF", exposureFunctions, idsToNames);
   }
 
+  public static ExposureFunctions mockCounterpartyExposureFunctions() {
+    List<String> exposureFunctions =  ImmutableList.of(CounterpartyExposureFunction.NAME);
+    Map<ExternalId, String> idsToNames = new HashMap<>();
+    idsToNames.put(COUNTERPARTY_A, CURVE_CONSTRUCTION_CONFIGURATION_COUNTERPARTY_A);
+    return new ExposureFunctions(EXPOSURE_FUNCTION_COUNTERPARTY, exposureFunctions, idsToNames);
+  }
+
+  public static ExposureFunctions mockCurrencyExposureFunctions() {
+    List<String> exposureFunctions =  ImmutableList.of(CurrencyExposureFunction.NAME);
+    Map<ExternalId, String> idsToNames = new HashMap<>();
+    idsToNames.put(CURRENCY_USD, CURVE_CONSTRUCTION_CONFIGURATION_CURRENCY_USD);
+    return new ExposureFunctions(EXPOSURE_FUNCTION_CURRENCY, exposureFunctions, idsToNames);
+  }
+
+  public static ExposureFunctions mockTradeAttributeExposureFunctions() {
+    List<String> exposureFunctions =  ImmutableList.of(TradeAttributeExposureFunction.NAME);
+    Map<ExternalId, String> idsToNames = new HashMap<>();
+    ExternalId id = ExternalId.of(TradeAttributeExposureFunction.TRADE_ATTRIBUTE_IDENTIFIER, "TEST=PASS");
+    idsToNames.put(id, CURVE_CONSTRUCTION_CONFIGURATION_CURRENCY_USD);
+    return new ExposureFunctions(EXPOSURE_FUNCTION_TRADE, exposureFunctions, idsToNames);
+  }
 
   private static CurveNodeIdMapper getUSDDiscountingCurveMapper() {
     Map<Tenor, CurveInstrumentProvider> cashNodes = Maps.newHashMap();
@@ -599,12 +635,34 @@ public class InterestRateMockSources {
     List<CurveGroupConfiguration> curveGroupConfigs = ImmutableList.of(curveGroupConfig);
 
     List<String> exogenousConfigurations = ImmutableList.of();
+
     CurveConstructionConfiguration curveConfig = new CurveConstructionConfiguration(
         CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3, curveGroupConfigs, exogenousConfigurations);
     ConfigItem<CurveConstructionConfiguration> curveConfigItem = ConfigItem.of(curveConfig);
     curveConfigItem.setUniqueId(UniqueId.of("CONFIG", "1"));
     when(mock.get(eq(CurveConstructionConfiguration.class),
                   eq(CURVE_CONSTRUCTION_CONFIGURATION_USD_OIS_LIB3),
+                  any(VersionCorrection.class)))
+        .thenReturn(ImmutableSet.of(curveConfigItem));
+
+    //For currency exposure function integration test
+    curveConfigItem.setUniqueId(UniqueId.of("CONFIG", CURVE_CONSTRUCTION_CONFIGURATION_CURRENCY_USD));
+    when(mock.get(eq(CurveConstructionConfiguration.class),
+                  eq(CURVE_CONSTRUCTION_CONFIGURATION_CURRENCY_USD),
+                  any(VersionCorrection.class)))
+        .thenReturn(ImmutableSet.of(curveConfigItem));
+
+    //For counterparty exposure function integration test
+    curveConfigItem.setUniqueId(UniqueId.of("CONFIG", CURVE_CONSTRUCTION_CONFIGURATION_COUNTERPARTY_A));
+    when(mock.get(eq(CurveConstructionConfiguration.class),
+                  eq(CURVE_CONSTRUCTION_CONFIGURATION_COUNTERPARTY_A),
+                  any(VersionCorrection.class)))
+        .thenReturn(ImmutableSet.of(curveConfigItem));
+
+    //For trade exposure function integration test
+    curveConfigItem.setUniqueId(UniqueId.of("CONFIG", CURVE_CONSTRUCTION_CONFIGURATION_TRADE_A));
+    when(mock.get(eq(CurveConstructionConfiguration.class),
+                  eq(CURVE_CONSTRUCTION_CONFIGURATION_TRADE_A),
                   any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(curveConfigItem));
     

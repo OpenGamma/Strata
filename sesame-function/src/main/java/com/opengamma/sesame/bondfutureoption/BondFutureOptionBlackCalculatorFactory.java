@@ -39,7 +39,7 @@ public class BondFutureOptionBlackCalculatorFactory implements BondFutureOptionC
     
     BondFutureOptionSecurity security = trade.getSecurity();
     
-    Result<BlackBondFuturesProviderInterface> blackResult = _blackBondFuturesProviderFn.getBlackBondFuturesProvider(env, security);
+    Result<BlackBondFuturesProviderInterface> blackResult = _blackBondFuturesProviderFn.getBlackBondFuturesProvider(env, trade);
     
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     

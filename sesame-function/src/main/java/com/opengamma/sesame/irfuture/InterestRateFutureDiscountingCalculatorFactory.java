@@ -9,7 +9,6 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -35,6 +34,13 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
   
   private final HistoricalTimeSeriesFn _htsFn;
   
+  /**
+   * Constructs a factory that creates discounting calculators for STIR futures.
+   * @param converter the converter used to convert the OG-Financial STIR future to the OG-Analytics definition.
+   * @param definitionToDerivativeConverter the converter used to convert the definition to derivative, not null.
+   * @param discountingMulticurveCombinerFn the multicurve function, not null.
+   * @param htsFn the historical time series function, not null.
+   */
   public InterestRateFutureDiscountingCalculatorFactory(InterestRateFutureTradeConverter converter,
                                                         FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                         DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
@@ -42,10 +48,9 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     _converter = ArgumentChecker.notNull(converter, "converter");
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
-    _discountingMulticurveCombinerFn =
+    _discountingMulticurveCombinerFn = 
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
-    _htsFn =
-        ArgumentChecker.notNull(htsFn, "htsFn");
+    _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
   }
   
   @Override
@@ -55,7 +60,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     FinancialSecurity security = trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, Result.success(new FXMatrix()));
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     

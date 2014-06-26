@@ -64,7 +64,7 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
     
     IRFutureOptionSecurity security = trade.getSecurity();
     
-    Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, security);
+    Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, trade);
     
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     

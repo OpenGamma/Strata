@@ -13,6 +13,7 @@ import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeCo
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
@@ -35,7 +36,14 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
   
   private final HistoricalTimeSeriesFn _htsFn;
   
-  
+  /**
+   * Constructs a discounting calculator factory for deliverable swap futures.
+   * @param deliverableSwapFutureTradeConverter the converter used to convert the OG-Financial deliverable swap future to
+   *    the OG-Analytic definition, not null.
+   * @param definitionToDerivativeConverter the converter used to convert the definition to a derivative, not null.
+   * @param discountingMultiCurveCombinerFn the multicurve function, not null.
+   * @param htsFn the historical time series function, not null.
+   */
   public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
                                                            FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                            DiscountingMulticurveCombinerFn discountingMultiCurveCombinerFn,
@@ -51,11 +59,11 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
   @Override
   public Result<DeliverableSwapFutureCalculator> createCalculator(Environment env, DeliverableSwapFutureTrade trade) {
     
-    FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
+    DeliverableSwapFutureSecurity security = trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = 
                       _discountingMultiCurveCombinerFn.createMergedMulticurveBundle(env, 
-                                                                                    security, 
+                                                                                    trade, 
                                                                                     Result.success(new FXMatrix()));
     
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
