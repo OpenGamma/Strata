@@ -176,11 +176,6 @@ public final class SimpleFunctionModelConfig implements FunctionModelConfig, Imm
   }
 
   @Override
-  public SimpleFunctionModelConfig clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

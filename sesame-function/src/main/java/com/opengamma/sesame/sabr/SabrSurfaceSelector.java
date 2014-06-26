@@ -184,11 +184,6 @@ public final class SabrSurfaceSelector<C extends Convention, S extends NamedSnap
   }
 
   @Override
-  public SabrSurfaceSelector<C, S> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -222,6 +217,8 @@ public final class SabrSurfaceSelector<C extends Convention, S extends NamedSnap
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SabrSurfaceSelector}.
+   * @param <C>  the type
+   * @param <S>  the type
    */
   public static final class Meta<C extends Convention, S extends NamedSnapshot> extends DirectMetaBean {
     /**
@@ -326,6 +323,8 @@ public final class SabrSurfaceSelector<C extends Convention, S extends NamedSnap
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code SabrSurfaceSelector}.
+   * @param <C>  the type
+   * @param <S>  the type
    */
   public static final class Builder<C extends Convention, S extends NamedSnapshot> extends DirectFieldsBeanBuilder<SabrSurfaceSelector<C, S>> {
 

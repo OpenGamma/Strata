@@ -161,11 +161,6 @@ public final class FunctionServerRequest<T extends CycleOptions>
   }
 
   @Override
-  public FunctionServerRequest<T> clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
@@ -202,6 +197,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FunctionServerRequest}.
+   * @param <T>  the type
    */
   public static final class Meta<T extends CycleOptions> extends DirectMetaBean {
     /**
@@ -324,6 +320,7 @@ public final class FunctionServerRequest<T extends CycleOptions>
   //-----------------------------------------------------------------------
   /**
    * The bean-builder for {@code FunctionServerRequest}.
+   * @param <T>  the type
    */
   public static final class Builder<T extends CycleOptions> extends DirectFieldsBeanBuilder<FunctionServerRequest<T>> {
 

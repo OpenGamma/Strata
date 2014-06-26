@@ -71,11 +71,6 @@ public final class ProcessCompletedMessage implements Function<StreamingClientRe
 
   //-----------------------------------------------------------------------
   @Override
-  public ProcessCompletedMessage clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

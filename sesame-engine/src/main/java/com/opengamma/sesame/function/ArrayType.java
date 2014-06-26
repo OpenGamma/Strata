@@ -125,11 +125,6 @@ public class ArrayType extends ParameterType implements ImmutableBean {
   }
 
   @Override
-  public ArrayType clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

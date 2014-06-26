@@ -118,11 +118,6 @@ public final class ResultItem implements ImmutableBean {
   }
 
   @Override
-  public ResultItem clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

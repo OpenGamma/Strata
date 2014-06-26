@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
@@ -200,11 +200,6 @@ public class ViewInputs implements ImmutableBean {
    */
   public Builder toBuilder() {
     return new Builder(this);
-  }
-
-  @Override
-  public ViewInputs clone() {
-    return this;
   }
 
   @Override
@@ -467,7 +462,7 @@ public class ViewInputs implements ImmutableBean {
     private ZonedDateTime _valuationTime;
     private Map<Class<?>, Object> _scenarioArguments = new HashMap<Class<?>, Object>();
     private Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _marketData = new HashMap<Pair<ExternalIdBundle, FieldName>, Result<?>>();
-    private Multimap<Class<?>, UniqueIdentifiable> _configData = HashMultimap.create();
+    private Multimap<Class<?>, UniqueIdentifiable> _configData = ArrayListMultimap.create();
 
     /**
      * Restricted constructor.
@@ -486,7 +481,7 @@ public class ViewInputs implements ImmutableBean {
       this._valuationTime = beanToCopy.getValuationTime();
       this._scenarioArguments = new HashMap<Class<?>, Object>(beanToCopy.getScenarioArguments());
       this._marketData = new HashMap<Pair<ExternalIdBundle, FieldName>, Result<?>>(beanToCopy.getMarketData());
-      this._configData = HashMultimap.create(beanToCopy.getConfigData());
+      this._configData = ArrayListMultimap.create(beanToCopy.getConfigData());
     }
 
     //-----------------------------------------------------------------------

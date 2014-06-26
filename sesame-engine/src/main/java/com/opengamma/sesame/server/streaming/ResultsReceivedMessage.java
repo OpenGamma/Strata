@@ -110,11 +110,6 @@ public final class ResultsReceivedMessage implements Function<StreamingClientRes
   }
 
   @Override
-  public ResultsReceivedMessage clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
