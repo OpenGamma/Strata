@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.deliverableswapfuture;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
@@ -20,15 +19,13 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
-import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
 import com.opengamma.sesame.trade.DeliverableSwapFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -54,8 +51,8 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
   /** 
    * The curve sensitivity calculator 
    */
-  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
-      PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> 
+  PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   
   /** 
    * The parameter sensitivity calculator 
@@ -114,14 +111,10 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
   public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta() {
     
     MultipleCurrencyParameterSensitivity sensitivities = PSC.calculateSensitivity(_derivative, _multicurveBundle);
+    BucketedCurveSensitivities bucketedCurveSensitivities = 
+        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveDefinitions);        
     
-    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> bucketedSensitivities = new HashMap<Pair<String, Currency>, DoubleLabelledMatrix1D>();    
-    for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivities.getSensitivities().entrySet()) {
-      CurveDefinition curveDef = _curveDefinitions.get(entry.getKey().getFirst());
-      DoubleLabelledMatrix1D labelledMatrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDef);
-      bucketedSensitivities.put(entry.getKey(), labelledMatrix);      
-    }
-    return Result.success(BucketedCurveSensitivities.of(bucketedSensitivities));
+    return Result.success(bucketedCurveSensitivities);
   }
   
   
@@ -137,11 +130,12 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
   private InstrumentDerivative createInstrumentDerivative(DeliverableSwapFutureTrade deliverableSwapFutureTrade,
                                                           DeliverableSwapFutureTradeConverter converter,
                                                           ZonedDateTime valuationTime,
-                                                          FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+                                                          FixedIncomeConverterDataProvider definitionToDerivConverter,
                                                           HistoricalTimeSeriesBundle tsBundle) {
     InstrumentDefinition<?> definition = converter.convert(deliverableSwapFutureTrade);
-    return definitionToDerivativeConverter.convert(deliverableSwapFutureTrade.getSecurity(), definition, valuationTime, tsBundle);
+    return definitionToDerivConverter.convert(deliverableSwapFutureTrade.getSecurity(), 
+                                                   definition, 
+                                                   valuationTime, 
+                                                   tsBundle);
   }
-
-
 }

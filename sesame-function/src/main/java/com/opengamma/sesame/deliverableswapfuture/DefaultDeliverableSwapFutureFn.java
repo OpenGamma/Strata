@@ -21,18 +21,20 @@ import com.opengamma.util.tuple.Pair;
 public class DefaultDeliverableSwapFutureFn implements DeliverableSwapFutureFn {
   
   /**
-   * The calculator used to provide the OG-Analytics representation of the security and the necessary market data requirements
-   * to calculate the requested values.
+   * The calculator used to provide the OG-Analytics representation of the security and the necessary market data 
+   * requirements to calculate the requested values.
    */
   private final DeliverableSwapFutureCalculatorFactory _deliverableSwapFutureCalculatorFactory;
   
   public DefaultDeliverableSwapFutureFn(DeliverableSwapFutureCalculatorFactory deliverableSwapFutureCalculatorFactory) {
-    _deliverableSwapFutureCalculatorFactory = ArgumentChecker.notNull(deliverableSwapFutureCalculatorFactory, "deliverableSwapFutureCalculatorFactory");
+    _deliverableSwapFutureCalculatorFactory = 
+        ArgumentChecker.notNull(deliverableSwapFutureCalculatorFactory, "deliverableSwapFutureCalculatorFactory");
   }
    
   @Override
   public Result<Double> calculateSecurityModelPrice(Environment env, DeliverableSwapFutureTrade trade) {
-    Result<DeliverableSwapFutureCalculator> calculatorResult = _deliverableSwapFutureCalculatorFactory.createCalculator(env, trade);
+    Result<DeliverableSwapFutureCalculator> calculatorResult = 
+        _deliverableSwapFutureCalculatorFactory.createCalculator(env, trade);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }
@@ -40,8 +42,10 @@ public class DefaultDeliverableSwapFutureFn implements DeliverableSwapFutureFn {
   }
 
   @Override
-  public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, DeliverableSwapFutureTrade trade) {
-    Result<DeliverableSwapFutureCalculator> calculatorResult = _deliverableSwapFutureCalculatorFactory.createCalculator(env, trade);
+  public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, 
+                                                                       DeliverableSwapFutureTrade trade) {
+    Result<DeliverableSwapFutureCalculator> calculatorResult = 
+        _deliverableSwapFutureCalculatorFactory.createCalculator(env, trade);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);
     }        
@@ -49,8 +53,10 @@ public class DefaultDeliverableSwapFutureFn implements DeliverableSwapFutureFn {
   }
 
   @Override
-  public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, DeliverableSwapFutureTrade trade) {
-    Result<DeliverableSwapFutureCalculator> calculatorResult = _deliverableSwapFutureCalculatorFactory.createCalculator(env, trade);
+  public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, 
+                                                                         DeliverableSwapFutureTrade trade) {
+    Result<DeliverableSwapFutureCalculator> calculatorResult = 
+        _deliverableSwapFutureCalculatorFactory.createCalculator(env, trade);
     if (!calculatorResult.isSuccess()) {
       return Result.failure(calculatorResult);          
     }

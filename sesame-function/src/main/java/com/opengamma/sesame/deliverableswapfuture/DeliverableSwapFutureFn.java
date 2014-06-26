@@ -35,15 +35,16 @@ public interface DeliverableSwapFutureFn {
    * @return result containing the PV01 for each curve.
    */
   @Output(OutputNames.PV01)
-  Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, DeliverableSwapFutureTrade delivSwapFutureTrade);
+  Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, 
+                                                                DeliverableSwapFutureTrade delivSwapFutureTrade);
 
   /**
    * Calculates the ir curve sensitivity w.r.t the zero rates - for the deliverable swap future trade.
    * @param env the environment that the future contract bucketed delta will be calculated with.
    * @param delivSwapFutureTrade the deliverable swap future trade to calculate the bucketed delta for.
-   * @return result containing the bucketed zero rate sensitivities if successfully created, a failure result otherwise..
+   * @return result containing the bucketed zero rate sensitivities if successfully created, a failure result otherwise.
    */
   @Output(OutputNames.BUCKETED_ZERO_DELTA)
-  Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, DeliverableSwapFutureTrade delivSwapFutureTrade);
-  
+  Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, 
+                                                                  DeliverableSwapFutureTrade delivSwapFutureTrade);
 }

@@ -47,9 +47,12 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
                                                            DiscountingMulticurveCombinerFn discountingMultiCurveCombinerFn,
                                                            HistoricalTimeSeriesFn htsFn,
                                                            CurveDefinitionFn curveDefinitionFn) {
-    _deliverableSwapFutureTradeConverter = ArgumentChecker.notNull(deliverableSwapFutureTradeConverter, "deliverableSwapFutureTradeConverter");
-    _definitionToDerivativeConverter = ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
-    _discountingMultiCurveCombinerFn = ArgumentChecker.notNull(discountingMultiCurveCombinerFn, "discountingMultiCurveCombinerFn");
+    _deliverableSwapFutureTradeConverter = 
+        ArgumentChecker.notNull(deliverableSwapFutureTradeConverter, "deliverableSwapFutureTradeConverter");
+    _definitionToDerivativeConverter =
+        ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
+    _discountingMultiCurveCombinerFn = 
+        ArgumentChecker.notNull(discountingMultiCurveCombinerFn, "discountingMultiCurveCombinerFn");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
     _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
   }
@@ -59,6 +62,7 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
   @Override
   public Result<DeliverableSwapFutureCalculator> createCalculator(Environment env, DeliverableSwapFutureTrade trade) {
     
+    Result<Boolean> result = Result.success(true);
     FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = 
@@ -68,40 +72,48 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
     
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
     
+    MulticurveProviderDiscount bundle = null;
+    HistoricalTimeSeriesBundle fixingBundle = null;
+    
     if (Result.allSuccessful(bundleResult, fixings)) {
       
-      MulticurveProviderDiscount bundle = bundleResult.getValue().getFirst();
+      bundle = bundleResult.getValue().getFirst();
       
-      HistoricalTimeSeriesBundle fixingBundle = fixings.getValue();
+      fixingBundle = fixings.getValue();
       
-      Result<?> curveDefinitionResult = Result.success(true);
-      Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
-      if (bundleResult.isSuccess()) {
-        
-        for (String curveName : bundleResult.getValue().getValue().getData().keySet()) {
-          Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
-          if (curveDefinition.isSuccess()) {
-            
-            curveDefinitions.put(curveName, curveDefinition.getValue());
-            
-          } else {
-            
-            curveDefinitionResult = Result.failure(curveDefinitionResult, Result.failure(curveDefinition));
-            
-          }
+    } else {
+      result = Result.failure(bundleResult, fixings); 
+    }
+      
+    Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
+    if (bundleResult.isSuccess()) {
+      
+      for (String curveName : bundleResult.getValue().getValue().getData().keySet()) {
+        Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+        if (curveDefinition.isSuccess()) {
+          
+          curveDefinitions.put(curveName, curveDefinition.getValue());
+          
+        } else {
+          
+          result = Result.failure(result, Result.failure(curveDefinition));
+          
         }
       }
+    }
       
-      DeliverableSwapFutureCalculator calculator = new DeliverableSwapFutureDiscountingCalculator(trade, 
-                                                                                                  bundle, 
-                                                                                                  _deliverableSwapFutureTradeConverter, 
-                                                                                                  env.getValuationTime(), 
-                                                                                                  _definitionToDerivativeConverter, 
-                                                                                                  fixingBundle,
-                                                                                                  curveDefinitions);              
+    DeliverableSwapFutureCalculator calculator = 
+        new DeliverableSwapFutureDiscountingCalculator(trade, 
+                                                       bundle, 
+                                                       _deliverableSwapFutureTradeConverter, 
+                                                       env.getValuationTime(), 
+                                                       _definitionToDerivativeConverter, 
+                                                       fixingBundle,
+                                                       curveDefinitions);              
+    if (result.isSuccess()) {
       return Result.success(calculator);
     } else {
-      return Result.failure(bundleResult, fixings);
-    }
+      return Result.failure(result);    
+    } 
   }
 }
