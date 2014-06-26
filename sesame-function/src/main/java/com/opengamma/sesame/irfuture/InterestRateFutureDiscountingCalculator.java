@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.irfuture;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.threeten.bp.ZonedDateTime;
@@ -24,15 +23,13 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
-import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.sesame.ZeroIRDeltaBucketingUtils;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -66,7 +63,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   private static final MarketQuoteDiscountingCalculator MQDC = MarketQuoteDiscountingCalculator.getInstance();
   
   /** 
-   * The curve sensitivity calculator 
+   * The present value curve sensitivity discounting calculator 
    */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -100,7 +97,11 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
                                                  ZonedDateTime valuationTime,
                                                  FixedIncomeConverterDataProvider definitionToDerivativeConverter,
                                                  HistoricalTimeSeriesBundle fixings) {
-    _derivative = createInstrumentDerivative(irFutureTrade, tradeConverter, valuationTime, definitionToDerivativeConverter, fixings);
+    _derivative = createInstrumentDerivative(irFutureTrade, 
+                                              tradeConverter, 
+                                              valuationTime, 
+                                              definitionToDerivativeConverter, 
+                                              fixings);
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitionFn");
   }
@@ -134,14 +135,9 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta() {
     
     MultipleCurrencyParameterSensitivity sensitivity = PSC.calculateSensitivity(_derivative, _bundle);
-    Map<Pair<String, Currency>, DoubleLabelledMatrix1D> labelledMatrix1DMap = new HashMap<>();
-    
-    for (Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : sensitivity.getSensitivities().entrySet()) {
-      CurveDefinition curveDefinition = _curveDefinitions.get(entry.getKey().getFirst());
-      DoubleLabelledMatrix1D matrix = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
-      labelledMatrix1DMap.put(entry.getKey(), matrix);
-    }
-    return Result.success(BucketedCurveSensitivities.of(labelledMatrix1DMap));
+    BucketedCurveSensitivities bucketedSensitivities = 
+        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivity, _curveDefinitions);    
+    return Result.success(bucketedSensitivities);
   }
   
 
@@ -149,7 +145,9 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
     return _derivative.accept(calculator, _bundle);
   }
 
-  private ReferenceAmount<Pair<String, Currency>> calculateResult(InstrumentDerivativeVisitor<MulticurveProviderInterface, ReferenceAmount<Pair<String, Currency>>> calculator) {
+  private ReferenceAmount<Pair<String, Currency>> 
+  calculateResult(InstrumentDerivativeVisitor<MulticurveProviderInterface, 
+                  ReferenceAmount<Pair<String, Currency>>> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
   

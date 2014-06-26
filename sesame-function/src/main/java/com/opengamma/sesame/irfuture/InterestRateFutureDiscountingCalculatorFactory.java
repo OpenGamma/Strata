@@ -47,8 +47,10 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
                                                         CurveDefinitionFn curveDefinitionFn,
                                                         HistoricalTimeSeriesFn htsFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
-    _definitionToDerivativeConverter = ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
-    _discountingMulticurveCombinerFn = ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
+    _definitionToDerivativeConverter = 
+        ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
+    _discountingMulticurveCombinerFn = 
+        ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
     _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
   }
@@ -57,6 +59,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
   public Result<InterestRateFutureCalculator> createCalculator(Environment env,
                                                                InterestRateFutureTrade trade) {
 
+    Result<Boolean> result = Result.success(true);
     FinancialSecurity security = trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
@@ -64,43 +67,48 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     
+    MulticurveProviderDiscount multicurveBundle = null;
+    HistoricalTimeSeriesBundle fixings = null;    
+    
     if (Result.allSuccessful(bundleResult, fixingsResult)) {
     
-      MulticurveProviderDiscount multicurveBundle = bundleResult.getValue().getFirst();
+      multicurveBundle = bundleResult.getValue().getFirst();
     
-      HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();     
-      
-      Result<?> curveDefinitionResult = Result.success(true);
-      Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
-      if (bundleResult.isSuccess()) {
-        
-        for (String curveName : bundleResult.getValue().getValue().getData().keySet()) {
-          Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
-          
-          if (curveDefinition.isSuccess()) {
-            
-            curveDefinitions.put(curveName, curveDefinition.getValue());
-            
-          } else {
-            
-            curveDefinitionResult = Result.failure(curveDefinitionResult, Result.failure(curveDefinition));
-            
-          }
-        }
-      }
-      InterestRateFutureCalculator calculator = new InterestRateFutureDiscountingCalculator(trade, 
-                                                                                            multicurveBundle, 
-                                                                                            curveDefinitions, 
-                                                                                            _converter, 
-                                                                                            env.getValuationTime(), 
-                                                                                            _definitionToDerivativeConverter, 
-                                                                                            fixings);      
-      return Result.success(calculator);
+      fixings = fixingsResult.getValue(); 
       
     } else {
-      
-      return Result.failure(bundleResult, fixingsResult);
-      
+      result = Result.failure(bundleResult, fixingsResult);
     }
+      
+    Map<String, CurveDefinition> curveDefinitions = new HashMap<>();      
+    CurveBuildingBlockBundle buildingBlockBundle = bundleResult.getValue().getSecond();
+    for (String curveName : buildingBlockBundle.getData().keySet()) {
+      Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+      
+      if (curveDefinition.isSuccess()) {
+        
+        curveDefinitions.put(curveName, curveDefinition.getValue());
+        
+      } else {
+        
+        result = Result.failure(result, Result.failure(curveDefinition));
+        
+      }
+    }
+
+    InterestRateFutureCalculator calculator = 
+        new InterestRateFutureDiscountingCalculator(trade, 
+                                                    multicurveBundle, 
+                                                    curveDefinitions, 
+                                                    _converter, 
+                                                    env.getValuationTime(), 
+                                                    _definitionToDerivativeConverter, 
+                                                    fixings);
+    
+    if (result.isSuccess()) {
+      return Result.success(calculator); 
+    } else {
+      return Result.failure(result);
+    }      
   }
 }

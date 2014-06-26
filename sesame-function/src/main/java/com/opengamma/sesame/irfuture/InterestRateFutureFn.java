@@ -77,6 +77,4 @@ public interface InterestRateFutureFn {
    */
   @Output(value = OutputNames.BUCKETED_ZERO_DELTA)
   Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, InterestRateFutureTrade irFutureTrade);
-  
-  
 }
