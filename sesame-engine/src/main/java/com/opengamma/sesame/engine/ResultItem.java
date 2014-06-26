@@ -35,15 +35,21 @@ public final class ResultItem implements ImmutableBean {
   // TODO include OutputName, in the current engine it's used for number formatting
 
   // TODO can this be non-nullable now? if we can't calculate a result do we return a failure?
+  /**
+   * The calculated result, which may be a failure.
+   */
   @PropertyDefinition
-  private final Result<?> _result;
+  private final Result<Object> _result;
+  // since ResultItem does not have generics, it is best to remove them and use Object
+  // this avoids more complex code in callers of getResult()
 
   @PropertyDefinition
   private final CallGraph _callGraph;
 
+  @SuppressWarnings("unchecked")
   @ImmutableConstructor
   /* package */ ResultItem(Result<?> result, CallGraph callGraph) {
-    _result = ArgumentChecker.notNull(result, "result");
+    _result = (Result<Object>) ArgumentChecker.notNull(result, "result");
     _callGraph = callGraph;
   }
 
@@ -86,10 +92,10 @@ public final class ResultItem implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the result.
+   * Gets the calculated result, which may be a failure.
    * @return the value of the property
    */
-  public Result<?> getResult() {
+  public Result<Object> getResult() {
     return _result;
   }
 
@@ -161,7 +167,7 @@ public final class ResultItem implements ImmutableBean {
      * The meta-property for the {@code result} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Result<?>> _result = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Result<Object>> _result = DirectMetaProperty.ofImmutable(
         this, "result", ResultItem.class, (Class) Result.class);
     /**
      * The meta-property for the {@code callGraph} property.
@@ -213,7 +219,7 @@ public final class ResultItem implements ImmutableBean {
      * The meta-property for the {@code result} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Result<?>> result() {
+    public MetaProperty<Result<Object>> result() {
       return _result;
     }
 
@@ -254,7 +260,7 @@ public final class ResultItem implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResultItem> {
 
-    private Result<?> _result;
+    private Result<Object> _result;
     private CallGraph _callGraph;
 
     /**
@@ -285,11 +291,12 @@ public final class ResultItem implements ImmutableBean {
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -934426595:  // result
-          this._result = (Result<?>) newValue;
+          this._result = (Result<Object>) newValue;
           break;
         case -1068293744:  // callGraph
           this._callGraph = (CallGraph) newValue;
@@ -337,7 +344,7 @@ public final class ResultItem implements ImmutableBean {
      * @param result  the new value
      * @return this, for chaining, not null
      */
-    public Builder result(Result<?> result) {
+    public Builder result(Result<Object> result) {
       this._result = result;
       return this;
     }
