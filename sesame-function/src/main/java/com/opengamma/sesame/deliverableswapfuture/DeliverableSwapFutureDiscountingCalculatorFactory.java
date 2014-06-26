@@ -72,18 +72,15 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
     
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
     
-    MulticurveProviderDiscount bundle = null;
-    HistoricalTimeSeriesBundle fixingBundle = null;
-    
-    if (Result.allSuccessful(bundleResult, fixings)) {
+    if (Result.anyFailures(bundleResult, fixings)) {
       
-      bundle = bundleResult.getValue().getFirst();
-      
-      fixingBundle = fixings.getValue();
-      
-    } else {
       result = Result.failure(bundleResult, fixings); 
+      
     }
+    
+    MulticurveProviderDiscount bundle = bundleResult.getValue().getFirst();
+    
+    HistoricalTimeSeriesBundle fixingBundle = fixings.getValue();
       
     Map<String, CurveDefinition> curveDefinitions = new HashMap<String, CurveDefinition>();
     if (bundleResult.isSuccess()) {
@@ -101,7 +98,7 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
         }
       }
     }
-      
+
     DeliverableSwapFutureCalculator calculator = 
         new DeliverableSwapFutureDiscountingCalculator(trade, 
                                                        bundle, 

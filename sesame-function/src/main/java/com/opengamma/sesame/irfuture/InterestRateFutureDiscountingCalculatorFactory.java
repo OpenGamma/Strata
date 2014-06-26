@@ -60,6 +60,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
                                                                InterestRateFutureTrade trade) {
 
     Result<Boolean> result = Result.success(true);
+    
     FinancialSecurity security = trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
@@ -67,43 +68,39 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     
-    MulticurveProviderDiscount multicurveBundle = null;
-    HistoricalTimeSeriesBundle fixings = null;    
+    if (Result.anyFailures(bundleResult, fixingsResult)) {
     
-    if (Result.allSuccessful(bundleResult, fixingsResult)) {
-    
-      multicurveBundle = bundleResult.getValue().getFirst();
-    
-      fixings = fixingsResult.getValue(); 
-      
-    } else {
       result = Result.failure(bundleResult, fixingsResult);
     }
+      
+    MulticurveProviderDiscount multicurveBundle = bundleResult.getValue().getFirst();
+    
+    HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();            
       
     Map<String, CurveDefinition> curveDefinitions = new HashMap<>();      
     CurveBuildingBlockBundle buildingBlockBundle = bundleResult.getValue().getSecond();
     for (String curveName : buildingBlockBundle.getData().keySet()) {
       Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
       
-      if (curveDefinition.isSuccess()) {
-        
-        curveDefinitions.put(curveName, curveDefinition.getValue());
-        
-      } else {
-        
-        result = Result.failure(result, Result.failure(curveDefinition));
-        
-      }
+    if (curveDefinition.isSuccess()) {
+      
+      curveDefinitions.put(curveName, curveDefinition.getValue());
+      
+    } else {
+      
+      result = Result.failure(result, Result.failure(curveDefinition));
+      
     }
-
-    InterestRateFutureCalculator calculator = 
-        new InterestRateFutureDiscountingCalculator(trade, 
-                                                    multicurveBundle, 
-                                                    curveDefinitions, 
-                                                    _converter, 
-                                                    env.getValuationTime(), 
-                                                    _definitionToDerivativeConverter, 
-                                                    fixings);
+  }
+  
+  InterestRateFutureCalculator calculator = 
+      new InterestRateFutureDiscountingCalculator(trade, 
+                                                  multicurveBundle, 
+                                                  curveDefinitions, 
+                                                  _converter, 
+                                                  env.getValuationTime(), 
+                                                  _definitionToDerivativeConverter, 
+                                                  fixings);
     
     if (result.isSuccess()) {
       return Result.success(calculator); 

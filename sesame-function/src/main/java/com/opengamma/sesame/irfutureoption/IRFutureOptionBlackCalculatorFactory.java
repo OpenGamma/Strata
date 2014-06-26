@@ -85,26 +85,21 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
         
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     
-    Set<String> curveNames = null;
     
-    BlackSTIRFuturesProviderInterface black = null;
-    
-    IRFutureOptionCalculator calculator = null;
-    
-    if (Result.allSuccessful(blackResult, fixingsResult)) {
-    
-      black = blackResult.getValue();
-      
-      MulticurveProviderInterface multicurveProvider = black.getMulticurveProvider();
-      
-      curveNames = multicurveProvider.getAllCurveNames();
-      
-    } else {
+    if (Result.anyFailures(blackResult, fixingsResult)) {
       
       result = Result.failure(blackResult, fixingsResult);
      
     }
-      
+              
+    IRFutureOptionCalculator calculator = null;
+            
+    BlackSTIRFuturesProviderInterface black = blackResult.getValue();
+    
+    MulticurveProviderInterface multicurveProvider = black.getMulticurveProvider();
+    
+    Set<String> curveNames = multicurveProvider.getAllCurveNames();
+       
     Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
     for (String curveName : curveNames) {
       Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
@@ -118,16 +113,16 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
         result = Result.failure(result, curveDefinition);
         
       }
-            
-      calculator = new IRFutureOptionBlackCalculator(trade, 
-                                                    _converter, 
-                                                    black, 
-                                                    env.getValuationTime(), 
-                                                    _definitionToDerivativeConverter, 
-                                                    fixingsResult.getValue(), 
-                                                    curveDefinitions);
-      
     }
+            
+    calculator = new IRFutureOptionBlackCalculator(trade, 
+                                                  _converter, 
+                                                  black, 
+                                                  env.getValuationTime(), 
+                                                  _definitionToDerivativeConverter, 
+                                                  fixingsResult.getValue(), 
+                                                  curveDefinitions);
+         
     if (result.isSuccess()) {
       return Result.success(calculator);
     } else {
