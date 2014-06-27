@@ -42,15 +42,13 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
   @Override
   public Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> createBundle(Environment env,
                                                                                                FinancialSecurity security,
-                                                                                               Result<FXMatrix> fxMatrix) {
-
+                                                                                               FXMatrix fxMatrix) {
     Trade tradeWrapper = new SimpleTrade(security,
                                          BigDecimal.ONE,
                                          new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
                                          LocalDate.now(),
                                          OffsetTime.now());
-    
-    return createBundle(env, tradeWrapper, fxMatrix.getValue());
+    return createBundle(env, tradeWrapper, fxMatrix);
   }
 
   

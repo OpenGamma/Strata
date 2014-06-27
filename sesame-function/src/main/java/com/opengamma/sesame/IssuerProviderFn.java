@@ -22,17 +22,18 @@ public interface IssuerProviderFn {
    * Returns the multicurve bundle for curves by issuer for a specified environment, security and FX matrix. This has been
    * deprecated because ExposureFunctions can be selected by trade details such as counterparty or trade attributes.
    *
+   *
    * @param env the environment to return the multicurve bundle for.
    * @param security the security to return the multicurve bundle for.
    * @param fxMatrix the FX matrix to include inside the multicurve bundle.
    * @return the multicurve bundle for curves by issuer.
    * 
-   * @deprecated use {@link #createBundle(Environment, Trade, Result)} with the original trade.
+   * @deprecated use {@link #createBundle(Environment, Trade, FXMatrix)} with the original trade.
    */
   @Deprecated
   Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> createBundle(Environment env,
                                                                                         FinancialSecurity security,
-                                                                                        Result<FXMatrix> fxMatrix);
+                                                                                        FXMatrix fxMatrix);
 
   /**
    * Returns the multicurve bundle for curves by issuer for a specified environment, trade and FX matrix.

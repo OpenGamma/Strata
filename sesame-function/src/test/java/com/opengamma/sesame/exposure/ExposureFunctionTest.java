@@ -267,7 +267,7 @@ public class ExposureFunctionTest {
     FRASecurity security = createSingleFra(Currency.USD);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, security, Result.success(_emptyFxMatrix));
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, security, _emptyFxMatrix);
 
     assertThat(result.isSuccess(), is((true)));
 

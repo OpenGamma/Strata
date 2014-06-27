@@ -63,18 +63,14 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix) {
+      Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
 
     Trade trade = new SimpleTrade(security,
-                                         BigDecimal.ONE,
-                                         new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
-                                         LocalDate.now(),
-                                         OffsetTime.now());
-    if (Result.allSuccessful(fxMatrix)) {
-      return createMergedMulticurveBundle(env, trade, fxMatrix.getValue());
-    } else {
-      return Result.failure(fxMatrix);
-    }
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    return createMergedMulticurveBundle(env, trade, fxMatrix);
   }
   
   @Override

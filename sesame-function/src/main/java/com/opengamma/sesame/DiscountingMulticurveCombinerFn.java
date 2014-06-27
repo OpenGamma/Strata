@@ -22,23 +22,24 @@ public interface DiscountingMulticurveCombinerFn {
    * Returns the merged multicurve bundle for a specified environment, security and FX matrix. This has been deprecated
    * because ExposureFunctions can be selected by trade details such as counterparty or trade attributes.
    *
-   * @param env the environment to merge the multicurve bundle for, not null.
-   * @param security the security to merge the multicurve bundle for, not null.
-   * @param fxMatrix the FX matrix to include inside the multicurve bundle, not null.
+   *
+   * @param env the environment to merge the multicurve bundle for.
+   * @param security the security to merge the multicurve bundle for.
+   * @param fxMatrix the FX matrix to include inside the multicurve bundle.
    * @return the merged multicurve bundle.
    * 
-   * @deprecated use {@link #createMergedMulticurveBundle(Environment, Trade, Result)} using the original trade.
+   * @deprecated use {@link #createMergedMulticurveBundle(Environment, Trade, FXMatrix)} using the original trade.
    */
   @Deprecated
   Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix);
+      Environment env, FinancialSecurity security, FXMatrix fxMatrix);
   
   /**
    * Returns the merged multicurve bundle for a specified environment, trade and FX matrix.
    *
-   * @param env the environment to merge the multicurve bundle for, not null.
-   * @param trade the trade to merge the multicurve bundle for, not null.
-   * @param fxMatrix the FX matrix to include inside the multicurve bundle, not null.
+   * @param env the environment to merge the multicurve bundle for.
+   * @param trade the trade to merge the multicurve bundle for.
+   * @param fxMatrix the FX matrix to include inside the multicurve bundle.
    * @return the merged multicurve bundle.
    */
   Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(

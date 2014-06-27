@@ -75,7 +75,7 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
   @Override
   public Result<InterestRateSwapCalculator> createCalculator(Environment env, InterestRateSwapSecurity security) {
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
 
     final Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
 
