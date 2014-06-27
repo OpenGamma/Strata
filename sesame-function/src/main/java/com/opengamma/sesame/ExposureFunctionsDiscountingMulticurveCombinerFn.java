@@ -78,7 +78,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       Environment env, Trade trade, FXMatrix fxMatrix) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
-    if (Result.allSuccessful(mesResult)) {
+    if (mesResult.isSuccess()) {
       Set<Result<?>> incompleteBundles = new HashSet<>();
       Set<MulticurveProviderDiscount> bundles = new HashSet<>();
       CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();

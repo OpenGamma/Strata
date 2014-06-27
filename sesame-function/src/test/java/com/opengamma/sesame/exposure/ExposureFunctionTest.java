@@ -81,7 +81,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -171,7 +170,7 @@ public class ExposureFunctionTest {
 
     assertThat(result.isSuccess(), is((true)));
 
-    ObjectsPair pair = (ObjectsPair) result.getValue();
+    Pair pair = (Pair) result.getValue();
     MulticurveProviderDiscount multicurveProviderDiscount = (MulticurveProviderDiscount) pair.getFirst();
 
     assertThat(multicurveProviderDiscount.getAllCurveNames(),
@@ -222,7 +221,7 @@ public class ExposureFunctionTest {
 
     assertThat(result.isSuccess(), is((true)));
 
-    ObjectsPair pair = (ObjectsPair) result.getValue();
+    Pair pair = (Pair) result.getValue();
     MulticurveProviderDiscount multicurveProviderDiscount = (MulticurveProviderDiscount) pair.getFirst();
 
     assertThat(multicurveProviderDiscount.getAllCurveNames(),
@@ -271,7 +270,7 @@ public class ExposureFunctionTest {
 
     assertThat(result.isSuccess(), is((true)));
 
-    Pair pair = (ObjectsPair) result.getValue();
+    Pair pair = (Pair) result.getValue();
     MulticurveProviderDiscount multicurveProviderDiscount = (MulticurveProviderDiscount) pair.getFirst();
 
     assertThat(multicurveProviderDiscount.getAllCurveNames(),
@@ -298,7 +297,7 @@ public class ExposureFunctionTest {
         multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
     assertThat(result.isSuccess(), is((true)));
 
-    Pair pair = (ObjectsPair) result.getValue();
+    Pair pair = (Pair) result.getValue();
     MulticurveProviderDiscount multicurveProviderDiscount = (MulticurveProviderDiscount) pair.getFirst();
 
     assertThat(multicurveProviderDiscount.getAllCurveNames(),
