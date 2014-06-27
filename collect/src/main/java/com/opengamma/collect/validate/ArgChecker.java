@@ -814,6 +814,8 @@ public final class ArgChecker {
    * @return the formatted message
    */
   public static String formatMessage(String messageTemplate, Object... args) {
+    // this could be located in its own class, such as MessageUtils
+
     // try to make builder big enough for the message and the args
     StringBuilder builder = new StringBuilder(messageTemplate.length() + args.length * 20);
     // insert placeholders
@@ -821,7 +823,8 @@ public final class ArgChecker {
     int curPos = 0;
     int nextPlaceholderPos = messageTemplate.indexOf("{}", curPos);
     while (nextPlaceholderPos >= 0 && argIndex < args.length) {
-      builder.append(messageTemplate.substring(curPos, nextPlaceholderPos)).append(args[argIndex++]);
+      builder.append(messageTemplate.substring(curPos, nextPlaceholderPos)).append(args[argIndex]);
+      argIndex++;
       curPos = nextPlaceholderPos + 2;
       nextPlaceholderPos = messageTemplate.indexOf("{}", curPos);
     }
@@ -830,11 +833,11 @@ public final class ArgChecker {
     // append remaining args
     if (argIndex < args.length) {
       builder.append(" - [");
-      for (int j = argIndex; j < args.length; j++) {
-        if (j > argIndex) {
+      for (int i = argIndex; i < args.length; i++) {
+        if (i > argIndex) {
           builder.append(", ");
         }
-        builder.append(args[j]);
+        builder.append(args[i]);
       }
       builder.append(']');
     }

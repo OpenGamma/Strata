@@ -28,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * When a {@link Failure} occurs, details are captured and stored in an instance of this class.
  * Details include the reason, message and stack trace.
  * <p>
- * Instances of {@code FailureItem} are created via {@link Result}.
+ * Instances of {@code FailureItem} are public classes created via {@link Result}.
  */
 @BeanDefinition(builderScope = "private", style = "minimal")
 public final class FailureItem

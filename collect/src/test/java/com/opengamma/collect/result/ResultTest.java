@@ -334,6 +334,20 @@ public class ResultTest {
     assertEquals(composite.getFailure().getMessage(), "message 1, message 2, message 3");
   }
 
+  //------------------------------------------------------------------------
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void createByBuilder_neitherValueNorFailure() {
+    Result.meta().builder().build();    
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void createByBuilder_bothValueAndFailure() {
+    Result.meta().builder()
+        .set("value", "A")
+        .set("failure", Failure.of(FailureReason.CALCULATION_FAILED, "Fail"))
+        .build();    
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     Result<Object> failure = Result.failure(FailureReason.MISSING_DATA, "message 1");

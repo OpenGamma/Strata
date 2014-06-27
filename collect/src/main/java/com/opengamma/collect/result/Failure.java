@@ -36,7 +36,7 @@ import com.opengamma.collect.validate.ArgChecker;
  * There is a single reason and message and a set of detailed failure items.
  * Each {@link FailureItem} has details of the actual cause.
  * <p>
- * Instances of {@code Failure} are created via {@link Result}.
+ * Instances of {@code Failure} are public classes created via {@link Result}.
  */
 @BeanDefinition(builderScope = "private", style = "minimal")
 public final class Failure
@@ -56,7 +56,7 @@ public final class Failure
    * The set of failure items.
    * There will be at least one failure item.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notEmpty")
   private final ImmutableSet<FailureItem> items;
 
   //-------------------------------------------------------------------------
@@ -150,7 +150,7 @@ public final class Failure
       Set<FailureItem> items) {
     JodaBeanUtils.notNull(reason, "reason");
     JodaBeanUtils.notEmpty(message, "message");
-    JodaBeanUtils.notNull(items, "items");
+    JodaBeanUtils.notEmpty(items, "items");
     this.reason = reason;
     this.message = message;
     this.items = ImmutableSet.copyOf(items);
@@ -193,7 +193,7 @@ public final class Failure
   /**
    * Gets the set of failure items.
    * There will be at least one failure item.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public ImmutableSet<FailureItem> getItems() {
     return items;
