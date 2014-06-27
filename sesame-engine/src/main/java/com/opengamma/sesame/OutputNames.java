@@ -64,6 +64,10 @@ public final class OutputNames {
    */
   public static final String BUCKETED_PV01 = "Bucketed PV01";
   /**
+   * The bucketed sensitivitity with respect to zero rates.
+   */
+  public static final String BUCKETED_ZERO_DELTA = "Bucketed Zero Delta";
+  /**
    * Bucketed SABR risk
    */
   public static final String BUCKETED_SABR_RISK = "Bucketed SABR Risk";
