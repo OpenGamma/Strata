@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -288,7 +289,7 @@ public final class Failure
     }
 
     @Override
-    public Failure.Builder builder() {
+    public BeanBuilder<? extends Failure> builder() {
       return new Failure.Builder();
     }
 
@@ -391,7 +392,7 @@ public final class Failure
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 
