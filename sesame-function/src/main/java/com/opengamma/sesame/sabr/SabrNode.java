@@ -148,11 +148,6 @@ public final class SabrNode implements ImmutableBean, Comparable<SabrNode> {
   }
 
   @Override
-  public SabrNode clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

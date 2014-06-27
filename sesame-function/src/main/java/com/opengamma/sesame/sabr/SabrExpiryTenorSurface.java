@@ -201,11 +201,6 @@ public final class SabrExpiryTenorSurface implements ImmutableBean, NamedSnapsho
   }
 
   @Override
-  public SabrExpiryTenorSurface clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -231,11 +231,6 @@ public class SabrSwaptionConfig implements ImmutableBean {
   }
 
   @Override
-  public SabrSwaptionConfig clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

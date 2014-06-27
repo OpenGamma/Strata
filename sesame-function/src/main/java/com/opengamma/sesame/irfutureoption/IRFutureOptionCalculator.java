@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irfutureoption;
 
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
@@ -55,4 +56,10 @@ public interface IRFutureOptionCalculator {
    * @return the theta.
    */
   Result<Double> calculateTheta();
+  
+  /**
+   * Calculate the bucketed ir delta of the interest rate future option w.r.t zero rates.
+   * @return the BucketedCurveSensitivities view of the sensitivities.
+   */
+  Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta();
 }

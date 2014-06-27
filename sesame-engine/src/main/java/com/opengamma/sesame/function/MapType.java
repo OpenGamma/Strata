@@ -141,11 +141,6 @@ public class MapType extends ParameterType implements ImmutableBean {
   }
 
   @Override
-  public MapType clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

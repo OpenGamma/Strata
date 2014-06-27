@@ -6,6 +6,7 @@
 package com.opengamma.sesame.irfutureoption;
 
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.function.Output;
@@ -80,4 +81,14 @@ public interface IRFutureOptionFn {
    */
   @Output(OutputNames.THETA)
   Result<Double> calculateTheta(Environment env, IRFutureOptionTrade trade);
+  
+  /**
+   * Calculates the sensitivity w.r.t the zero rates for the interest rate future option.
+   * @param env the environment, not null.
+   * @param trade the interest rate future option trade, not null.
+   * @return result containing the bucketed zero rate sensitivities if successfully created, a failure result otherwise.
+   */
+  @Output(OutputNames.BUCKETED_ZERO_DELTA)
+  Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta(Environment env, IRFutureOptionTrade trade);
+  
 }

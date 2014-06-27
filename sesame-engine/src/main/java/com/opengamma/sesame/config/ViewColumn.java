@@ -175,11 +175,6 @@ public final class ViewColumn implements ImmutableBean {
   }
 
   @Override
-  public ViewColumn clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

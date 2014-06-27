@@ -140,11 +140,6 @@ public final class ViewOutput implements ImmutableBean {
   }
 
   @Override
-  public ViewOutput clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -91,11 +91,6 @@ public final class EmptyFunctionModelConfig implements FunctionModelConfig, Immu
 
   //-----------------------------------------------------------------------
   @Override
-  public EmptyFunctionModelConfig clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

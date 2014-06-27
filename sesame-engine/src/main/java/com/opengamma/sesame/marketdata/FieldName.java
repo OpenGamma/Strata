@@ -115,11 +115,6 @@ public final class FieldName implements Comparable<FieldName>, ImmutableBean {
 
   //-----------------------------------------------------------------------
   @Override
-  public FieldName clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -115,11 +115,6 @@ public final class OutputName implements Comparable<OutputName>, ImmutableBean {
 
   //-----------------------------------------------------------------------
   @Override
-  public OutputName clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
