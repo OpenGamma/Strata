@@ -113,6 +113,7 @@ public final class Triple<A, B, C>
    * 
    * @param other  the other pair
    * @return negative if this is less, zero if equal, positive if greater
+   * @throws ClassCastException if either object is not comparable
    */
   @Override
   public int compareTo(Triple<A, B, C> other) {

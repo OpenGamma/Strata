@@ -74,8 +74,6 @@ public final class ObjectDoublePair<A>
    */
   public static <A> ObjectDoublePair<A> ofPair(Pair<A, Double> pair) {
     ArgChecker.notNull(pair, "pair");
-    ArgChecker.notNull(pair.getFirst(), "pair.first");
-    ArgChecker.notNull(pair.getSecond(), "pair.second");
     return new ObjectDoublePair<A>(pair.getFirst(), pair.getSecond());
   }
 
@@ -119,6 +117,7 @@ public final class ObjectDoublePair<A>
    * 
    * @param other  the other pair
    * @return negative if this is less, zero if equal, positive if greater
+   * @throws ClassCastException if the object is not comparable
    */
   @Override
   public int compareTo(ObjectDoublePair<A> other) {

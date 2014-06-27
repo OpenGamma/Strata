@@ -105,6 +105,7 @@ public final class Pair<A, B>
    * 
    * @param other  the other pair
    * @return negative if this is less, zero if equal, positive if greater
+   * @throws ClassCastException if either object is not comparable
    */
   @Override
   public int compareTo(Pair<A, B> other) {
