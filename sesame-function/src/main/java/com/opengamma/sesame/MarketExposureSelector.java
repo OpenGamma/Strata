@@ -68,7 +68,8 @@ public class MarketExposureSelector {
   
   /**
    * Returns the set of curve configurations that are required for a given trade.
-   * @param trade the trade to find curve configurations for, not null.
+   *
+   * @param trade the trade to find curve configurations for.
    * @return the set of curve configurations that are required for a given trade.
    */
   public Set<CurveConstructionConfiguration> determineCurveConfigurations(Trade trade) {
@@ -105,17 +106,21 @@ public class MarketExposureSelector {
    * security attributes. This means that this implementation <b>will not work</b> for exposure functions that resolve
    * against trade attributes because of the lack of access to the trade object itself.
    *
-   * @param security the security to find curves for, not null
-   * @return the set of names of the required curves, not null
+   * @param security the security to find curves for.
+   * @return the set of names of the required curves.
    * 
    * @deprecated use {@link #determineCurveConfigurations(Trade)} which handles trade exposure functions correctly.
    */
   @Deprecated
-  public Set<CurveConstructionConfiguration> determineCurveConfigurationsForSecurity(FinancialSecurity security) {
+  public Set<CurveConstructionConfiguration> findCurveConfigurationsForSecurity(FinancialSecurity security) {
     
-    Trade tradeWrapper = new SimpleTrade(security, BigDecimal.ONE, new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")), LocalDate.now(), OffsetTime.now());
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
 
-    return determineCurveConfigurations(tradeWrapper);
+    return determineCurveConfigurations(trade);
   }
 
   private CurveConstructionConfiguration resolve(String name) {

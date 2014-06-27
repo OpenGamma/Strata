@@ -42,7 +42,7 @@ public final class TestBlackBondFuturesProviderFn implements BlackBondFuturesPro
   public Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env, BondFutureOptionTrade trade) {
     
     Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createBundle(env, trade, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createBundle(env, trade, new FXMatrix());
     
     if (bundleResult.isSuccess()) {
 

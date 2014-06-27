@@ -44,7 +44,7 @@ public class BondFutureDiscountingCalculatorFactory implements BondFutureCalcula
     FinancialSecurity security = (FinancialSecurity) bondFutureTrade.getSecurity();
     
     Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
-        _issuerProviderFn.createBundle(env, bondFutureTrade, Result.success(new FXMatrix()));
+        _issuerProviderFn.createBundle(env, bondFutureTrade, new FXMatrix());
     
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     

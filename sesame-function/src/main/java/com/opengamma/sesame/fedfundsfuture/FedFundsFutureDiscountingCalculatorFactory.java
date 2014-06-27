@@ -35,10 +35,10 @@ public class FedFundsFutureDiscountingCalculatorFactory implements FedFundsFutur
   
   /**
    * Constructs a factory that creates discounting calculators for federal funds futures.
-   * @param converter the converter used to convert the OG-Financial federal funds future to the OG-Analytics definition,
-   *    not null.
-   * @param definitionToDerivativeConverter the converter used to convert the definition to derivative, not null.
-   * @param discountingMulticurveCombinerFn the multicurve function, not null.
+   *
+   * @param converter the converter used to convert the OG-Financial federal funds future to the OG-Analytics definition.
+   * @param definitionToDerivativeConverter the converter used to convert the definition to derivative.
+   * @param discountingMulticurveCombinerFn the multicurve function.
    * @param htsFn the historical time series function, not null.
    */
   public FedFundsFutureDiscountingCalculatorFactory(FederalFundsFutureTradeConverter converter,
@@ -60,7 +60,7 @@ public class FedFundsFutureDiscountingCalculatorFactory implements FedFundsFutur
     FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     

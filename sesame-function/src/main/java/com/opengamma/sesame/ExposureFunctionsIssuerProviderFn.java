@@ -32,7 +32,6 @@ import com.opengamma.util.tuple.Pair;
 public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
   
   private final MarketExposureSelectorFn _marketExposureSelectorFn;
-  
   private final IssuerProviderBundleFn _issuerProviderBundleFn;
   
   public ExposureFunctionsIssuerProviderFn(MarketExposureSelectorFn marketExposureSelectorFn,
@@ -45,18 +44,20 @@ public class ExposureFunctionsIssuerProviderFn implements IssuerProviderFn {
                                                                                                FinancialSecurity security,
                                                                                                Result<FXMatrix> fxMatrix) {
 
-    Trade tradeWrapper = new SimpleTrade(security, BigDecimal.ONE, new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")), LocalDate.now(), OffsetTime.now());
+    Trade tradeWrapper = new SimpleTrade(security,
+                                         BigDecimal.ONE,
+                                         new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                         LocalDate.now(),
+                                         OffsetTime.now());
     
-    return createBundle(env, tradeWrapper, fxMatrix);
+    return createBundle(env, tradeWrapper, fxMatrix.getValue());
   }
 
   
   @Override
-  public com.opengamma.util.result.Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> createBundle(Environment env,
-                                                                                                                         Trade trade,
-                                                                                                                         Result<FXMatrix> fxMatrix) {
-    
-                                                                                                                         
+  public com.opengamma.util.result.Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>>
+  createBundle(Environment env, Trade trade, FXMatrix fxMatrix) {
+
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
     if (mesResult.isSuccess()) {

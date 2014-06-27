@@ -21,9 +21,10 @@ public interface IssuerProviderFn {
   /**
    * Returns the multicurve bundle for curves by issuer for a specified environment, security and FX matrix. This has been
    * deprecated because ExposureFunctions can be selected by trade details such as counterparty or trade attributes.
-   * @param env the environment to return the multicurve bundle for, not null.
-   * @param security the security to return the multicurve bundle for, not null.
-   * @param fxMatrix the FX matrix to include inside the multicurve bundle, not null.
+   *
+   * @param env the environment to return the multicurve bundle for.
+   * @param security the security to return the multicurve bundle for.
+   * @param fxMatrix the FX matrix to include inside the multicurve bundle.
    * @return the multicurve bundle for curves by issuer.
    * 
    * @deprecated use {@link #createBundle(Environment, Trade, Result)} with the original trade.
@@ -35,12 +36,13 @@ public interface IssuerProviderFn {
 
   /**
    * Returns the multicurve bundle for curves by issuer for a specified environment, trade and FX matrix.
-   * @param env the environment to return the multicurve bundle for, not null.
-   * @param trade the trade to return the multicurve bundle for, not null.
-   * @param fxMatrix the FX matrix to include inside the multicurve bundle, not null.
+   *
+   * @param env the environment to return the multicurve bundle for.
+   * @param trade the trade to return the multicurve bundle for.
+   * @param fxMatrix the FX matrix to include inside the multicurve bundle.
    * @return the multicurve bundle for curves by issuer.
    */
   Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> createBundle(Environment env,
                                                                                         Trade trade,
-                                                                                        Result<FXMatrix> fxMatrix);
+                                                                                        FXMatrix fxMatrix);
 }

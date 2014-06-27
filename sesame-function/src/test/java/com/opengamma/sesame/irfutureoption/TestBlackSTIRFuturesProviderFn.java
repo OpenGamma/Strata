@@ -41,7 +41,7 @@ public final class TestBlackSTIRFuturesProviderFn implements BlackSTIRFuturesPro
   public Result<BlackSTIRFuturesProviderInterface> getBlackSTIRFuturesProvider(Environment env, IRFutureOptionTrade trade) {
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
     
     if (bundleResult.isSuccess()) {
 

@@ -12,7 +12,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
@@ -38,11 +37,12 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
   
   /**
    * Constructs a discounting calculator factory for deliverable swap futures.
+   *
    * @param deliverableSwapFutureTradeConverter the converter used to convert the OG-Financial deliverable swap future to
-   *    the OG-Analytic definition, not null.
-   * @param definitionToDerivativeConverter the converter used to convert the definition to a derivative, not null.
-   * @param discountingMultiCurveCombinerFn the multicurve function, not null.
-   * @param htsFn the historical time series function, not null.
+   *    the OG-Analytic definition.
+   * @param definitionToDerivativeConverter the converter used to convert the definition to a derivative.
+   * @param discountingMultiCurveCombinerFn the multicurve function.
+   * @param htsFn the historical time series function.
    */
   public DeliverableSwapFutureDiscountingCalculatorFactory(DeliverableSwapFutureTradeConverter deliverableSwapFutureTradeConverter,
                                                            FixedIncomeConverterDataProvider definitionToDerivativeConverter,
@@ -64,7 +64,7 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = 
                       _discountingMultiCurveCombinerFn.createMergedMulticurveBundle(env, 
                                                                                     trade, 
-                                                                                    Result.success(new FXMatrix()));
+                                                                                    new FXMatrix());
     
     Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
     
@@ -74,12 +74,13 @@ public class DeliverableSwapFutureDiscountingCalculatorFactory implements Delive
       
       HistoricalTimeSeriesBundle fixes = fixings.getValue();
       
-      DeliverableSwapFutureCalculator calculator = new DeliverableSwapFutureDiscountingCalculator(trade, 
-                                                                                                  bundle, 
-                                                                                                  _deliverableSwapFutureTradeConverter, 
-                                                                                                  env.getValuationTime(), 
-                                                                                                  _definitionToDerivativeConverter, 
-                                                                                                  fixes);              
+      DeliverableSwapFutureCalculator calculator =
+          new DeliverableSwapFutureDiscountingCalculator(trade,
+                                                         bundle,
+                                                         _deliverableSwapFutureTradeConverter,
+                                                         env.getValuationTime(),
+                                                         _definitionToDerivativeConverter,
+                                                         fixes);
       return Result.success(calculator);
     } else {
       return Result.failure(bundleResult, fixings);

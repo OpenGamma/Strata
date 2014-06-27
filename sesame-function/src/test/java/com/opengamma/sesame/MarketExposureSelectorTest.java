@@ -76,12 +76,16 @@ public class MarketExposureSelectorTest {
     MarketExposureSelector selector = new MarketExposureSelector(exposures, securitySource, configSource);
 
     FRASecurity security = getFRASecurity();
-    Trade trade = new SimpleTrade(security, BigDecimal.ONE, new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "TEST")), LocalDate.now(), OffsetTime.now());
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "TEST")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
     
     Set<CurveConstructionConfiguration> configs = selector.determineCurveConfigurations(trade);
     assertTrue("Expected curve configs to be empty", configs.isEmpty());
     
-    configs = selector.determineCurveConfigurationsForSecurity(security);
+    configs = selector.findCurveConfigurationsForSecurity(security);
     assertTrue("Expected curve configs to be empty", configs.isEmpty());
   }
   
@@ -103,22 +107,34 @@ public class MarketExposureSelectorTest {
     ExposureFunctions exposures = new ExposureFunctions(name, exposureFunctions, idsToNames);
     ConfigMasterUtils.storeByName(configMaster, ConfigItem.of(exposures));
     
-    CurveConstructionConfiguration securityTypeCurveConfig = new CurveConstructionConfiguration(securityTypeCurveConfigName, new ArrayList<CurveGroupConfiguration>(), new ArrayList<String>());
+    CurveConstructionConfiguration securityTypeCurveConfig =
+        new CurveConstructionConfiguration(securityTypeCurveConfigName,
+                                           new ArrayList<CurveGroupConfiguration>(),
+                                           new ArrayList<String>());
     ConfigMasterUtils.storeByName(configMaster, ConfigItem.of(securityTypeCurveConfig));
     
-    CurveConstructionConfiguration currencyCurveConfig = new CurveConstructionConfiguration(currencyCurveConfigName, new ArrayList<CurveGroupConfiguration>(), new ArrayList<String>());
+    CurveConstructionConfiguration currencyCurveConfig =
+        new CurveConstructionConfiguration(currencyCurveConfigName,
+                                           new ArrayList<CurveGroupConfiguration>(),
+                                           new ArrayList<String>());
     ConfigMasterUtils.storeByName(configMaster, ConfigItem.of(currencyCurveConfig));
 
     /* This must be called after saving config instances, otherwise the version correction provider won't find them */
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     builder.put(ConfigSource.class, configSource);
     builder.put(SecuritySource.class, securitySource);
-    ServiceContext serviceContext = ServiceContext.of(builder.build()).with(VersionCorrectionProvider.class, new FixedInstantVersionCorrectionProvider());
+    ServiceContext serviceContext = ServiceContext
+        .of(builder.build())
+        .with(VersionCorrectionProvider.class, new FixedInstantVersionCorrectionProvider());
     ThreadLocalServiceContext.init(serviceContext);
 
     MarketExposureSelector selector = new MarketExposureSelector(exposures, securitySource, configSource);
     
-    Trade trade = new SimpleTrade(security, BigDecimal.ONE, new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "TEST")), LocalDate.now(), OffsetTime.now());
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "TEST")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
     Set<CurveConstructionConfiguration> configs = selector.determineCurveConfigurations(trade);
     assertEquals("Expected single curve config", 1, configs.size());
     assertTrue("Expected configs to contain security type config", configs.contains(securityTypeCurveConfig));
@@ -126,8 +142,14 @@ public class MarketExposureSelectorTest {
   }
 
   private static FRASecurity getFRASecurity() {
-    final FRASecurity security = new FRASecurity(Currency.USD, ExternalId.of("Test", "US"), DateUtils.getUTCDate(2013, 3, 1), DateUtils.getUTCDate(2013, 6, 1), 0.02, 1000,
-        ExternalSchemes.bloombergTickerSecurityId("US0003 Index"), DateUtils.getUTCDate(2013, 6, 1));
+    FRASecurity security = new FRASecurity(Currency.USD,
+                                                 ExternalId.of("Test", "US"),
+                                                 DateUtils.getUTCDate(2013, 3, 1),
+                                                 DateUtils.getUTCDate(2013, 6, 1),
+                                                 0.02,
+                                                 1000,
+                                                 ExternalSchemes.bloombergTickerSecurityId("US0003 Index"),
+                                                 DateUtils.getUTCDate(2013, 6, 1));
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1234"));
     return security;
   }

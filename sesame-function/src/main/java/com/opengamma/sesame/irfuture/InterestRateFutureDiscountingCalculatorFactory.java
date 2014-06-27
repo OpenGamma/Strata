@@ -36,10 +36,11 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
   
   /**
    * Constructs a factory that creates discounting calculators for STIR futures.
+   *
    * @param converter the converter used to convert the OG-Financial STIR future to the OG-Analytics definition.
-   * @param definitionToDerivativeConverter the converter used to convert the definition to derivative, not null.
-   * @param discountingMulticurveCombinerFn the multicurve function, not null.
-   * @param htsFn the historical time series function, not null.
+   * @param definitionToDerivativeConverter the converter used to convert the definition to derivative.
+   * @param discountingMulticurveCombinerFn the multicurve function.
+   * @param htsFn the historical time series function.
    */
   public InterestRateFutureDiscountingCalculatorFactory(InterestRateFutureTradeConverter converter,
                                                         FixedIncomeConverterDataProvider definitionToDerivativeConverter,
@@ -60,7 +61,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     FinancialSecurity security = trade.getSecurity();
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     
@@ -70,7 +71,13 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     
       HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();
     
-      InterestRateFutureCalculator calculator = new InterestRateFutureDiscountingCalculator(trade, bundle, _converter, env.getValuationTime(), _definitionToDerivativeConverter, fixings);
+      InterestRateFutureCalculator calculator =
+          new InterestRateFutureDiscountingCalculator(trade,
+                                                      bundle,
+                                                      _converter,
+                                                      env.getValuationTime(),
+                                                      _definitionToDerivativeConverter,
+                                                      fixings);
       
       return Result.success(calculator);
       

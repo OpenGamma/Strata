@@ -17,8 +17,9 @@ public interface BlackSTIRFuturesProviderFn {
 
   /**
    * Returns the black volatility provider for a STIR future option.
-   * @param env the environment to return the black volatility provider for, not null.
-   * @param trade the trade to return the black volatility provider for, not null.
+   *
+   * @param env the environment to return the black volatility provider for.
+   * @param trade the trade to return the black volatility provider for.
    * @return the black volatility provider for a STIR future option trade.
    */
   Result<BlackSTIRFuturesProviderInterface> getBlackSTIRFuturesProvider(Environment env, IRFutureOptionTrade trade);

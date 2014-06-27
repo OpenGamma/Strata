@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame;
+package com.opengamma.sesame.exposure;
 
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
@@ -44,6 +44,25 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
+import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveNodeConverterFn;
+import com.opengamma.sesame.CurveSpecificationFn;
+import com.opengamma.sesame.CurveSpecificationMarketDataFn;
+import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveNodeConverterFn;
+import com.opengamma.sesame.DefaultCurveSpecificationFn;
+import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultFXMatrixFn;
+import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -71,7 +90,7 @@ import com.opengamma.util.tuple.Pair;
 @Test(groups = TestGroup.INTEGRATION)
 public class ExposureFunctionTest {
 
-  private static Result _emptyFxMatrix = Result.success(new FXMatrix());
+  private static FXMatrix _emptyFxMatrix = new FXMatrix();
   private static SimpleEnvironment _environment;
   private static ImmutableMap<Class<?>, Object> _components = InterestRateMockSources.generateBaseComponents();
 
@@ -79,7 +98,7 @@ public class ExposureFunctionTest {
   private void setUpClass() {
 
     ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
-    StrategyAwareMarketDataSource marketDataSource =InterestRateMockSources.createMarketDataFactory().create(
+    StrategyAwareMarketDataSource marketDataSource = InterestRateMockSources.createMarketDataFactory().create(
             new FixedHistoricalMarketDataSpecification(valTime.toLocalDate()));
 
      _environment = new SimpleEnvironment(valTime, marketDataSource);
@@ -87,7 +106,6 @@ public class ExposureFunctionTest {
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(_components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
-
   }
 
   private FunctionModelConfig createFunctionModelConfig(ExposureFunctions exposureFunctions) {
@@ -130,10 +148,8 @@ public class ExposureFunctionTest {
                 FXMatrixFn.class, DefaultFXMatrixFn.class,
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class
             )
-
         );
     return config;
-
   }
 
   @Test
@@ -141,7 +157,7 @@ public class ExposureFunctionTest {
 
     FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockTradeAttributeExposureFunctions());
 
-    ExposureFunctionsDiscountingMulticurveCombinerFn functionModel =
+    ExposureFunctionsDiscountingMulticurveCombinerFn multicurveCombinerFunction =
         FunctionModel.build(
             ExposureFunctionsDiscountingMulticurveCombinerFn.class,
             config,
@@ -151,7 +167,7 @@ public class ExposureFunctionTest {
     trade.addAttribute("TEST", "PASS");
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        functionModel.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
 
     assertThat(result.isSuccess(), is((true)));
 
@@ -169,7 +185,7 @@ public class ExposureFunctionTest {
 
     FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockTradeAttributeExposureFunctions());
 
-    ExposureFunctionsDiscountingMulticurveCombinerFn functionModel =
+    ExposureFunctionsDiscountingMulticurveCombinerFn multicurveCombinerFunction =
         FunctionModel.build(
             ExposureFunctionsDiscountingMulticurveCombinerFn.class,
             config,
@@ -179,7 +195,7 @@ public class ExposureFunctionTest {
     trade.addAttribute("TEST", "FAIL");
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        functionModel.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
 
     //There are no curves for this trade defined in the exposure function, so the result should fail
     assertThat(result.isSuccess(), is((false)));
@@ -191,7 +207,7 @@ public class ExposureFunctionTest {
 
     FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockCounterpartyExposureFunctions());
 
-    ExposureFunctionsDiscountingMulticurveCombinerFn functionModel =
+    ExposureFunctionsDiscountingMulticurveCombinerFn multicurveCombinerFunction =
         FunctionModel.build(
             ExposureFunctionsDiscountingMulticurveCombinerFn.class,
             config,
@@ -202,7 +218,7 @@ public class ExposureFunctionTest {
     InterestRateFutureTrade trade = createInterestRateFutureTrade(security, counterparty);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        functionModel.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
 
     assertThat(result.isSuccess(), is((true)));
 
@@ -220,7 +236,7 @@ public class ExposureFunctionTest {
 
     FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockCounterpartyExposureFunctions());
 
-    ExposureFunctionsDiscountingMulticurveCombinerFn functionModel =
+    ExposureFunctionsDiscountingMulticurveCombinerFn multicurveCombinerFunction =
         FunctionModel.build(
             ExposureFunctionsDiscountingMulticurveCombinerFn.class,
             config,
@@ -231,7 +247,7 @@ public class ExposureFunctionTest {
     InterestRateFutureTrade trade = createInterestRateFutureTrade(security, counterparty);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        functionModel.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
 
     //There are no curves for this counterparty defined in the exposure function, so the result should fail
     assertThat(result.isSuccess(), is((false)));
@@ -242,7 +258,7 @@ public class ExposureFunctionTest {
 
     FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockCurrencyExposureFunctions());
 
-    ExposureFunctionsDiscountingMulticurveCombinerFn functionModel =
+    ExposureFunctionsDiscountingMulticurveCombinerFn multicurveCombinerFunction =
         FunctionModel.build(
             ExposureFunctionsDiscountingMulticurveCombinerFn.class,
             config,
@@ -251,11 +267,11 @@ public class ExposureFunctionTest {
     FRASecurity security = createSingleFra(Currency.USD);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        functionModel.createMergedMulticurveBundle(_environment, security, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, security, Result.success(_emptyFxMatrix));
 
     assertThat(result.isSuccess(), is((true)));
 
-    ObjectsPair pair = (ObjectsPair) result.getValue();
+    Pair pair = (ObjectsPair) result.getValue();
     MulticurveProviderDiscount multicurveProviderDiscount = (MulticurveProviderDiscount) pair.getFirst();
 
     assertThat(multicurveProviderDiscount.getAllCurveNames(),
@@ -269,7 +285,7 @@ public class ExposureFunctionTest {
 
     FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockCurrencyExposureFunctions());
 
-    ExposureFunctionsDiscountingMulticurveCombinerFn functionModel =
+    ExposureFunctionsDiscountingMulticurveCombinerFn multicurveCombinerFunction =
         FunctionModel.build(
             ExposureFunctionsDiscountingMulticurveCombinerFn.class,
             config,
@@ -279,10 +295,10 @@ public class ExposureFunctionTest {
     InterestRateFutureTrade trade = createInterestRateFutureTrade(security);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        functionModel.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
     assertThat(result.isSuccess(), is((true)));
 
-    ObjectsPair pair = (ObjectsPair) result.getValue();
+    Pair pair = (ObjectsPair) result.getValue();
     MulticurveProviderDiscount multicurveProviderDiscount = (MulticurveProviderDiscount) pair.getFirst();
 
     assertThat(multicurveProviderDiscount.getAllCurveNames(),
@@ -296,7 +312,7 @@ public class ExposureFunctionTest {
 
     FunctionModelConfig config = createFunctionModelConfig(InterestRateMockSources.mockCurrencyExposureFunctions());
 
-    ExposureFunctionsDiscountingMulticurveCombinerFn functionModel =
+    ExposureFunctionsDiscountingMulticurveCombinerFn multicurveCombinerFunction =
         FunctionModel.build(
             ExposureFunctionsDiscountingMulticurveCombinerFn.class,
             config,
@@ -306,7 +322,7 @@ public class ExposureFunctionTest {
     InterestRateFutureTrade trade = createInterestRateFutureTrade(security);
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> result =
-        functionModel.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
+        multicurveCombinerFunction.createMergedMulticurveBundle(_environment, trade, _emptyFxMatrix);
 
     //There are no GBP curves in the defined exposure function, so the result should fail
     assertThat(result.isSuccess(), is((false)));

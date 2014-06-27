@@ -17,8 +17,9 @@ public interface BlackBondFuturesProviderFn {
 
   /**
    * Returns the black volatility provider for a bond future trade.
-   * @param env the environment to create the black provider for, not null.
-   * @param trade the trade to create the black provider for, not null.
+   *
+   * @param env the environment to create the black provider for.
+   * @param trade the trade to create the black provider for.
    * @return the black volatility provider for a bond future trade.
    */
   Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env, BondFutureOptionTrade trade);

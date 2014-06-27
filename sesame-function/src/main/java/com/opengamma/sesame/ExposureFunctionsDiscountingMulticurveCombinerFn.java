@@ -49,8 +49,9 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
   /**
    * Constructor for a multicurve function that selects the multicurves by either trade or security.
-   * @param marketExposureSelectorFn the exposure function selector, not null.
-   * @param multicurveBundleProviderFunction the function used to generate the multicurves, not null.
+   *
+   * @param marketExposureSelectorFn the exposure function selector.
+   * @param multicurveBundleProviderFunction the function used to generate the multicurves.
    */
   public ExposureFunctionsDiscountingMulticurveCombinerFn(MarketExposureSelectorFn marketExposureSelectorFn,
                                                           DiscountingMulticurveBundleFn multicurveBundleProviderFunction) {
@@ -64,16 +65,24 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
       Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix) {
 
-    Trade tradeWrapper = new SimpleTrade(security, BigDecimal.ONE, new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")), LocalDate.now(), OffsetTime.now());
-    
-    return createMergedMulticurveBundle(env, tradeWrapper, fxMatrix);
+    Trade trade = new SimpleTrade(security,
+                                         BigDecimal.ONE,
+                                         new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                         LocalDate.now(),
+                                         OffsetTime.now());
+    if (Result.allSuccessful(fxMatrix)) {
+      return createMergedMulticurveBundle(env, trade, fxMatrix.getValue());
+    } else {
+      return Result.failure(fxMatrix);
+    }
   }
   
   @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(Environment env, Trade trade, Result<FXMatrix> fxMatrix) {
+  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
+      Environment env, Trade trade, FXMatrix fxMatrix) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
-    if (Result.allSuccessful(mesResult, fxMatrix)) {
+    if (Result.allSuccessful(mesResult)) {
       Set<Result<?>> incompleteBundles = new HashSet<>();
       Set<MulticurveProviderDiscount> bundles = new HashSet<>();
       CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
@@ -94,14 +103,14 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
       // TODO this can be cleaned up
       if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty()) {
-        return Result.success(Pairs.of(mergeBundlesAndMatrix(bundles, fxMatrix.getValue()), mergedJacobianBundle));
+        return Result.success(Pairs.of(mergeBundlesAndMatrix(bundles, fxMatrix), mergedJacobianBundle));
       } else if (curveConfigs.isEmpty()) {
         return Result.failure(FailureStatus.MISSING_DATA, "No matching curves found for trade: {}", trade);
       } else {
         return Result.failure(incompleteBundles);
       }
     } else {
-      return Result.failure(mesResult, fxMatrix);
+      return Result.failure(mesResult);
     }
   }
 
