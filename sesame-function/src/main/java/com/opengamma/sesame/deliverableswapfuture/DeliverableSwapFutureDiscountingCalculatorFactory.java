@@ -31,14 +31,30 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DeliverableSwapFutureDiscountingCalculatorFactory implements DeliverableSwapFutureCalculatorFactory {
 
+  /**
+   * Converter for a deliverable swap future trade
+   */
   private final DeliverableSwapFutureTradeConverter _deliverableSwapFutureTradeConverter;
   
+  /**
+   * Definition to derivative converter
+   */
   private final FixedIncomeConverterDataProvider _definitionToDerivativeConverter;
   
+  /**
+   * Function used to generate a combined multicurve bundle suitable
+   * for use with a particular security.
+   */
   private final DiscountingMulticurveCombinerFn _discountingMultiCurveCombinerFn;
   
+  /**
+   * HTS function for fixings
+   */
   private final HistoricalTimeSeriesFn _htsFn;
   
+  /**
+   * Curve definition function
+   */
   private final CurveDefinitionFn _curveDefinitionFn; 
   
   
