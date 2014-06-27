@@ -72,6 +72,9 @@ public final class Result<T>
    * Creates a successful result wrapping a value.
    * <p>
    * This returns a successful result object for the non-null value.
+   * <p>
+   * Note that passing an instance of {@code Failure} to this method would
+   * be a programming error.
    *
    * @param <R> the type of the value
    * @param value  the result value
