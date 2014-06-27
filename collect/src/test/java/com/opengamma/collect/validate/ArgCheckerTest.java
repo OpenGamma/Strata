@@ -5,11 +5,9 @@
  */
 package com.opengamma.collect.validate;
 
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Sets;
-import com.opengamma.collect.TestHelper;
-
-import org.testng.annotations.Test;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -20,9 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Sets;
+import com.opengamma.collect.TestHelper;
 
 /**
  * Test ArgChecker.
@@ -43,34 +44,11 @@ public class ArgCheckerTest {
     ArgChecker.isTrue(true, "Message {} {} {}", "A", 2, 3.);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "A")
-  public void test_isTrue_false_only_arg() {
-    ArgChecker.isTrue(false, "{}", "A");
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message A 2 3.0")
+  public void test_isTrue_ok_args_false() {
+    ArgChecker.isTrue(false, "Message {} {} {}", "A", 2, 3.);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message A, 2, 3.0")
-  public void test_isTrue_false_args() {
-    ArgChecker.isTrue(false, "Message {}, {}, {}", "A", 2, 3.);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Message A, 2 blah - \\[3.0\\]")
-  public void test_isTrue_false_one_too_many_args() {
-    ArgChecker.isTrue(false, "Message {}, {} blah", "A", 2, 3.);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Message A, 2 - \\[3.0, true\\]")
-  public void test_isTrue_false_too_many_args() {
-    ArgChecker.isTrue(false, "Message {}, {}", "A", 2, 3., true);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Message A, 2, 3.0, \\{\\} blah")
-  public void test_isTrue_false_too_many_placeholders() {
-    ArgChecker.isTrue(false, "Message {}, {}, {}, {} blah", "A", 2, 3.);
-  }
-  
   public void test_isFalse_ok() {
     ArgChecker.isFalse(false, "Message");
   }
@@ -84,11 +62,11 @@ public class ArgCheckerTest {
     ArgChecker.isFalse(false, "Message {} {} {}", "A", 2., 3, true);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message A, 2.0, 3, true")
-  public void test_isFalse_true_args() {
-    ArgChecker.isFalse(true, "Message {}, {}, {}, {}", "A", 2., 3, true);
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message A 2 3.0")
+  public void test_isFalse_ok_args_true() {
+    ArgChecker.isFalse(true, "Message {} {} {}", "A", 2, 3.);
   }
-  
+
   //-------------------------------------------------------------------------
   public void test_notNull_ok() {
     assertEquals(ArgChecker.notNull("Kirk", "name"), "Kirk");
@@ -574,6 +552,60 @@ public class ArgCheckerTest {
     ArgChecker.inOrderOrEqual(a, b, "a", "b");
   }
 
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "formatMessage")
+  Object[][] data_formatMessage() {
+    return new Object[][] {
+        {"", new Object[] {}, "", ""},
+        {"{}", new Object[] {}, "{}", ""},
+        {"{}", new Object[] {67}, "67", ""},
+        {"{}", new Object[] {67, 78}, "67", " - [78]"},
+        {"{}", new Object[] {67, 78, 89}, "67", " - [78, 89]"},
+        {"{}", new Object[] {67, 78, 89, 90}, "67", " - [78, 89, 90]"},
+        {"{}{}", new Object[] {}, "{}{}", ""},
+        {"{}{}", new Object[] {67}, "67{}", ""},
+        {"{}{}", new Object[] {67, 78}, "6778", ""},
+        {"{}{}", new Object[] {67, 78, 89}, "6778", " - [89]"},
+        {"{}{}", new Object[] {67, 78, 89, 90}, "6778", " - [89, 90]"},
+        {"{} and {}", new Object[] {}, "{} and {}", ""},
+        {"{} and {}", new Object[] {67}, "67 and {}", ""},
+        {"{} and {}", new Object[] {67, 78}, "67 and 78", ""},
+        {"{} and {}", new Object[] {67, 78, 89}, "67 and 78", " - [89]"},
+        {"{} and {}", new Object[] {67, 78, 89, 90}, "67 and 78", " - [89, 90]"},
+        {"{}, {} and {}", new Object[] {}, "{}, {} and {}", ""},
+        {"{}, {} and {}", new Object[] {67}, "67, {} and {}", ""},
+        {"{}, {} and {}", new Object[] {67, 78}, "67, 78 and {}", ""},
+        {"{}, {} and {}", new Object[] {67, 78, 89}, "67, 78 and 89", ""},
+        {"{}, {} and {}", new Object[] {67, 78, 89, 90}, "67, 78 and 89", " - [90]"},
+        {"ABC", new Object[] {}, "ABC", ""},
+        {"Message {}, {}, {}", new Object[] {"A", 2, 3.}, "Message A, 2, 3.0", ""},
+        {"Message {}, {} blah", new Object[] {"A", 2, 3.}, "Message A, 2 blah", " - [3.0]"},
+        {"Message {}, {}", new Object[] {"A", 2, 3., true}, "Message A, 2", " - [3.0, true]"},
+        {"Message {}, {}, {}, {} blah", new Object[] {"A", 2, 3.}, "Message A, 2, 3.0, {} blah", ""},
+    };
+  }
+
+  @Test(dataProvider = "formatMessage")
+  public void test_formatMessage(String template, Object[] args, String expMain, String expExcess) {
+    assertEquals(ArgChecker.formatMessage(template, args), expMain + expExcess);
+  }
+
+  @Test(dataProvider = "formatMessage")
+  public void test_formatMessage_prefix(String template, Object[] args, String expMain, String expExcess) {
+    assertEquals(ArgChecker.formatMessage("::" + template, args), "::" + expMain + expExcess);
+  }
+
+  @Test(dataProvider = "formatMessage")
+  public void test_formatMessage_suffix(String template, Object[] args, String expMain, String expExcess) {
+    assertEquals(ArgChecker.formatMessage(template + "@@", args), expMain + "@@" + expExcess);
+  }
+
+  @Test(dataProvider = "formatMessage")
+  public void test_formatMessage_prefixSuffix(String template, Object[] args, String expMain, String expExcess) {
+    assertEquals(ArgChecker.formatMessage("::" + template + "@@", args), "::" + expMain + "@@" + expExcess);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     TestHelper.coverPrivateConstructor(ArgChecker.class);
   }

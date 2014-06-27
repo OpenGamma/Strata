@@ -5,11 +5,11 @@
  */
 package com.opengamma.collect.validate;
 
-import com.google.common.base.CharMatcher;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.google.common.base.CharMatcher;
 
 /**
  * Contains utility methods for checking inputs to methods.
@@ -23,17 +23,6 @@ import java.util.Map.Entry;
  *    _age = ArgChecker.notNegative(age, "age");
  *  }
  * </pre>
- * Many of the methods allow the production of a formatted message using
- * a template with placeholders and a set of varargs. This is similar to
- * the templating in both SLF4J MessageFormat and Guava's Preconditions
- * as well as String.format().
- * <p>
- * Specifically it uses the SLF4J style placeholder "{}", but is lenient if
- * either too few or many arguments are supplied. If too few, then a message
- * will be produced where some placeholders are left unreplaced. If too
- * many, then the additional arguments will be added to the end of the message.
- * Using this formatter is lighter weight then JDK String.format as there
- * is no attempt made to format the arguments.
  */
 public final class ArgChecker {
 
@@ -78,8 +67,12 @@ public final class ArgChecker {
    * This returns {@code void}, and not the value being checked, as there is
    * never a good reason to validate a boolean parameter value.
    * <p>
-   * Formatting of the error message uses placeholders as per SLF4J.
-   * Each {} in the message is replaced by the next message argument.
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
    * 
    * @param validIfTrue  a boolean resulting from testing an argument, may be null
    * @param message  the error message with {} placeholders, not null
@@ -130,8 +123,12 @@ public final class ArgChecker {
    * This returns {@code void}, and not the value being checked, as there is
    * never a good reason to validate a boolean parameter value.
    * <p>
-   * Formatting of the error message uses placeholders as per SLF4J.
-   * Each {} in the message is replaced by the next message argument.
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
    * 
    * @param validIfFalse  a boolean resulting from testing an argument, may be null
    * @param message  the error message with {} placeholders, not null
@@ -797,51 +794,53 @@ public final class ArgChecker {
     }
   }
 
-  // Formats a templated message, inserting the supplied arguments
-  // into the placeholders in the template.
-  private static String formatMessage(String baseMessage, Object... args) {
+  //-------------------------------------------------------------------------
+  /**
+   * Formats a templated message inserting arguments.
+   * <p>
+   * This method combines a template message with a list of specific arguments.
+   * It can be useful to delay string concatenation, which is sometimes a performance issue.
+   * The approach is similar to SLF4J MessageFormat, Guava Preconditions and String format().
+   * <p>
+   * The message template contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message.
+   * No attempt is made to format the arguments.
+   * 
+   * @param messageTemplate  the message template with "{}" placeholders
+   * @param arg  the message arguments
+   * @return the formatted message
+   */
+  public static String formatMessage(String messageTemplate, Object... args) {
+    // this could be located in its own class, such as MessageUtils
 
-    // Try and make the builder big enough for the message and the args
-    StringBuilder builder = new StringBuilder(baseMessage.length() + args.length * 20);
-
-    int posn = 0;
-
-    for (int i = 0; i < args.length; i++) {
-
-      // Find the next occurrence of the placeholder
-      int next = baseMessage.indexOf("{}", posn);
-      if (next == -1) {
-        // No more placeholders to substitute, just dump the rest of
-        // the text and add the left over args
-        builder.append(baseMessage.substring(posn));
-
-        if (i < args.length) {
-          // We have args left, so stick them at the end
-          builder.append(" - [");
-          for (int j = i; j < args.length; j++) {
-            if (j > i) {
-              builder.append(", ");
-            }
-            builder.append(args[j]);
-          }
-          builder.append("]");
+    // try to make builder big enough for the message and the args
+    StringBuilder builder = new StringBuilder(messageTemplate.length() + args.length * 20);
+    // insert placeholders
+    int argIndex = 0;
+    int curPos = 0;
+    int nextPlaceholderPos = messageTemplate.indexOf("{}", curPos);
+    while (nextPlaceholderPos >= 0 && argIndex < args.length) {
+      builder.append(messageTemplate.substring(curPos, nextPlaceholderPos)).append(args[argIndex]);
+      argIndex++;
+      curPos = nextPlaceholderPos + 2;
+      nextPlaceholderPos = messageTemplate.indexOf("{}", curPos);
+    }
+    // append remainder of message template
+    builder.append(messageTemplate.substring(curPos));
+    // append remaining args
+    if (argIndex < args.length) {
+      builder.append(" - [");
+      for (int i = argIndex; i < args.length; i++) {
+        if (i > argIndex) {
+          builder.append(", ");
         }
-        // Indicate we've consumed all the text
-        posn = baseMessage.length();
-        break;
-      } else {
-        builder
-            .append(baseMessage.substring(posn, next))
-            .append(args[i]);
-        posn = next + 2;
+        builder.append(args[i]);
       }
+      builder.append(']');
     }
-
-    if (posn < baseMessage.length()) {
-      // All args used up, dump the rest of the string
-      builder.append(baseMessage.substring(posn));
-    }
-
     return builder.toString();
   }
 

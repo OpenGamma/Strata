@@ -151,7 +151,7 @@ public class TestHelper {
   public static void coverMutableBean(Bean bean) {
     assertNotNull(bean, "coverImmutableBean() called with null bean");
     assertFalse(bean instanceof ImmutableBean);
-    assertNotSame(bean.clone(), bean);
+    assertNotSame(JodaBeanUtils.clone(bean), bean);
     coverBean(bean);
   }
 
@@ -163,7 +163,7 @@ public class TestHelper {
   public static void coverImmutableBean(ImmutableBean bean) {
     assertNotNull(bean, "coverImmutableBean() called with null bean");
     assertTrue(bean instanceof ImmutableBean);
-    assertSame(bean.clone(), bean);
+    assertSame(JodaBeanUtils.clone(bean), bean);
     coverBean(bean);
   }
 
