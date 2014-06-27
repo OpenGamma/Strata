@@ -19,8 +19,8 @@ import com.google.common.base.CharMatcher;
  * <pre>
  *  // constructor
  *  public Person(String name, int age) {
- *    _name = ArgChecker.notBlank(name, "name");
- *    _age = ArgChecker.notNegative(age, "age");
+ *    this.name = ArgChecker.notBlank(name, "name");
+ *    this.age = ArgChecker.notNegative(age, "age");
  *  }
  * </pre>
  */
@@ -149,7 +149,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is non-null.
    * For example, in a constructor:
    * <pre>
-   *  _name = ArgChecker.notNull(name, "name");
+   *  this.name = ArgChecker.notNull(name, "name");
    * </pre>
    * 
    * @param <T>  the type of the input parameter reflected in the result
@@ -194,7 +194,7 @@ public final class ArgChecker {
    * non-null and contains at least one non whitespace character.
    * For example, in a constructor:
    * <pre>
-   *  _name = ArgChecker.notBlank(name, "name");
+   *  this.name = ArgChecker.notBlank(name, "name");
    * </pre>
    * <p>
    * The parameter is trimmed using {@link CharMatcher#WHITESPACE} and its corresponding
@@ -224,7 +224,7 @@ public final class ArgChecker {
    * See also {@link #notBlank(String, String)}.
    * For example, in a constructor:
    * <pre>
-   *  _name = ArgChecker.notEmpty(name, "name");
+   *  this.name = ArgChecker.notEmpty(name, "name");
    * </pre>
    * 
    * @param parameter  the parameter to check, may be null
@@ -247,7 +247,7 @@ public final class ArgChecker {
    * at least one element. The element is not validated and may be null.
    * For example, in a constructor:
    * <pre>
-   *  _names = ArgChecker.notEmpty(names, "names");
+   *  this.names = ArgChecker.notEmpty(names, "names");
    * </pre>
    * 
    * @param <T>  the type of the input array reflected in the result
@@ -271,7 +271,7 @@ public final class ArgChecker {
    * at least one element.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgChecker.notEmpty(values, "values");
+   *  this.values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
    * @param parameter  the parameter to check, may be null
@@ -294,7 +294,7 @@ public final class ArgChecker {
    * at least one element.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgChecker.notEmpty(values, "values");
+   *  this.values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
    * @param parameter  the parameter to check, may be null
@@ -317,7 +317,7 @@ public final class ArgChecker {
    * at least one element.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgChecker.notEmpty(values, "values");
+   *  this.values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
    * @param parameter  the parameter to check, may be null
@@ -340,7 +340,7 @@ public final class ArgChecker {
    * at least one element. The element is not validated and may be null.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgChecker.notEmpty(values, "values");
+   *  this.values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
    * @param <T>  the element type of the input iterable reflected in the result
@@ -365,7 +365,7 @@ public final class ArgChecker {
    * The element is not validated and may contain nulls if the collection allows nulls.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgChecker.notEmpty(values, "values");
+   *  this.values = ArgChecker.notEmpty(values, "values");
    * </pre>
    *
    * @param <T>  the element type of the input collection reflected in the result
@@ -390,7 +390,7 @@ public final class ArgChecker {
    * The element is not validated and may contain nulls if the collection allows nulls.
    * For example, in a constructor:
    * <pre>
-   *  _keyValues = ArgChecker.notEmpty(keyValues, "keyValues");
+   *  this.keyValues = ArgChecker.notEmpty(keyValues, "keyValues");
    * </pre>
    * 
    * @param <K>  the key type of the input map key, reflected in the result
@@ -416,7 +416,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is non-null and contains no nulls.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgChecker.noNulls(values, "values");
+   *  this.values = ArgChecker.noNulls(values, "values");
    * </pre>
    * 
    * @param <T>  the type of the input array reflected in the result
@@ -441,7 +441,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is non-null and contains no nulls.
    * For example, in a constructor:
    * <pre>
-   *  _values = ArgChecker.noNulls(values, "values");
+   *  this.values = ArgChecker.noNulls(values, "values");
    * </pre>
    * 
    * @param <T>  the element type of the input iterable reflected in the result
@@ -467,7 +467,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is non-null and contains no nulls.
    * For example, in a constructor:
    * <pre>
-   *  _keyValues = ArgChecker.noNulls(keyValues, "keyValues");
+   *  this.keyValues = ArgChecker.noNulls(keyValues, "keyValues");
    * </pre>
    * 
    * @param <K>  the key type of the input map key, reflected in the result
@@ -498,7 +498,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is zero or greater.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgChecker.notNegative(amount, "amount");
+   *  this.amount = ArgChecker.notNegative(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -519,7 +519,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is zero or greater.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgChecker.notNegative(amount, "amount");
+   *  this.amount = ArgChecker.notNegative(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -540,7 +540,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is zero or greater.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgChecker.notNegative(amount, "amount");
+   *  this.amount = ArgChecker.notNegative(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -562,7 +562,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is greater than zero.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgChecker.notNegativeOrZero(amount, "amount");
+   *  this.amount = ArgChecker.notNegativeOrZero(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -583,7 +583,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is greater than zero.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgChecker.notNegativeOrZero(amount, "amount");
+   *  this.amount = ArgChecker.notNegativeOrZero(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -604,7 +604,7 @@ public final class ArgChecker {
    * Given the input parameter, this returns only if it is greater than zero.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgChecker.notNegativeOrZero(amount, "amount");
+   *  this.amount = ArgChecker.notNegativeOrZero(amount, "amount");
    * </pre>
    * 
    * @param parameter  the parameter to check
@@ -626,7 +626,7 @@ public final class ArgChecker {
    * using the {@code eps} accuracy for zero.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgChecker.notNegativeOrZero(amount, 0.0001d, "amount");
+   *  this.amount = ArgChecker.notNegativeOrZero(amount, 0.0001d, "amount");
    * </pre>
    * 
    * @param parameter  the value to check
@@ -654,7 +654,7 @@ public final class ArgChecker {
    * using the {@code eps} accuracy.
    * For example, in a constructor:
    * <pre>
-   *  _amount = ArgChecker.notZero(amount, 0.0001d, "amount");
+   *  this.amount = ArgChecker.notZero(amount, 0.0001d, "amount");
    * </pre>
    *
    * @param parameter  the value to check
