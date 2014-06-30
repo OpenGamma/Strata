@@ -41,6 +41,17 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
 
   private final CurveDefinitionFn _curveDefinitionFn;
 
+  /**
+   * Constructs a factory that creates discounting calculators for STIR futures.
+   *
+   * @param converter the converter used to convert the OG-Financial STIR future to the OG-Analytics definition.
+   * @param definitionToDerivativeConverter the converter used to convert the definition to derivative.
+   * @param discountingMulticurveCombinerFn the multicurve function.
+   * @param curveDefinitionFn the curve definitionFn function.
+   * @param htsFn the historical time series function.
+   */
+
+
   public InterestRateFutureDiscountingCalculatorFactory(InterestRateFutureTradeConverter converter,
       FixedIncomeConverterDataProvider definitionToDerivativeConverter,
       DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
@@ -49,7 +60,7 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
     _converter = ArgumentChecker.notNull(converter, "converter");
     _definitionToDerivativeConverter =
         ArgumentChecker.notNull(definitionToDerivativeConverter, "definitionToDerivativeConverter");
-    _discountingMulticurveCombinerFn =
+    _discountingMulticurveCombinerFn = 
         ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
     _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
@@ -60,50 +71,56 @@ public class InterestRateFutureDiscountingCalculatorFactory implements InterestR
 
     Result<Boolean> result = Result.success(true);
 
-    InterestRateFutureCalculator calculator = null;    
-    HistoricalTimeSeriesBundle fixings = null;    
-    MulticurveProviderDiscount multicurveBundle = null;    
+    MulticurveProviderDiscount multicurveBundle = null;
     Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
-    
     FinancialSecurity security = trade.getSecurity();
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 
-    if (Result.anyFailures(bundleResult, fixingsResult)) {
+    if (Result.allSuccessful(bundleResult, fixingsResult)) {
 
-      result = Result.failure(bundleResult, fixingsResult);
+      HistoricalTimeSeriesBundle fixings = fixingsResult.getValue();
+    
+      if (Result.anyFailures(bundleResult, fixingsResult)) {
 
-    } else {
+        result = Result.failure(bundleResult, fixingsResult);
 
-      multicurveBundle = bundleResult.getValue().getFirst();
-      fixings = fixingsResult.getValue();
-      
-      CurveBuildingBlockBundle buildingBlockBundle = bundleResult.getValue().getSecond();
-      for (String curveName : buildingBlockBundle.getData().keySet()) {
-        Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+      } else {
 
-        if (curveDefinition.isSuccess()) {
-          curveDefinitions.put(curveName, curveDefinition.getValue());
-        } else {
-          result = Result.failure(result, Result.failure(curveDefinition));
+        multicurveBundle = bundleResult.getValue().getFirst();
+        fixings = fixingsResult.getValue();
+
+        CurveBuildingBlockBundle buildingBlockBundle = bundleResult.getValue().getSecond();
+        for (String curveName : buildingBlockBundle.getData().keySet()) {
+          Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
+
+          if (curveDefinition.isSuccess()) {
+            curveDefinitions.put(curveName, curveDefinition.getValue());
+          } else {
+            result = Result.failure(result, Result.failure(curveDefinition));
+          }
         }
       }
-    }
-    if (result.isSuccess()) {
-      calculator = new InterestRateFutureDiscountingCalculator(trade,
-          multicurveBundle,
-          curveDefinitions,
-          _converter,
-          env.getValuationTime(),
-          _definitionToDerivativeConverter,
-          fixings);
+      if (result.isSuccess()) {
+        InterestRateFutureCalculator calculator =
+            new InterestRateFutureDiscountingCalculator(trade,
+                                                        multicurveBundle,
+                                                        curveDefinitions,
+                                                        _converter,
+                                                        env.getValuationTime(),
+                                                        _definitionToDerivativeConverter,
+                                                        fixings);
 
-      return Result.success(calculator);
+        return Result.success(calculator);
+      } else {
+        return Result.failure(result);
+      }
     } else {
-      return Result.failure(result);
+        return Result.failure(bundleResult, fixingsResult);
     }
+
   }
 }

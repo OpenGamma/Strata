@@ -67,6 +67,10 @@ public class FXForwardDiscountingCalculatorFn implements FXForwardCalculatorFn {
     // Even if we can't get a matrix we want to get as far as we can to
     // ensure market data population, so ignore the result for now
     Result<FXMatrix> fxmResult = _fxMatrixProvider.getFXMatrix(env, currencies);
-    return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, fxmResult);
+    if (fxmResult.isSuccess()) {
+      return _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, fxmResult.getValue());
+    } else {
+      return Result.failure(fxmResult);
+    }
   }
 }

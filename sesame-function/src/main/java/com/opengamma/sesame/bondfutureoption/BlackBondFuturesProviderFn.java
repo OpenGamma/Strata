@@ -6,8 +6,8 @@
 package com.opengamma.sesame.bondfutureoption;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesProviderInterface;
-import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.util.result.Result;
 
 /**
@@ -15,5 +15,12 @@ import com.opengamma.util.result.Result;
  */
 public interface BlackBondFuturesProviderFn {
 
-  Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env, BondFutureOptionSecurity bondFutureOption);
+  /**
+   * Returns the black volatility provider for a bond future trade.
+   *
+   * @param env the environment to create the black provider for.
+   * @param trade the trade to create the black provider for.
+   * @return the black volatility provider for a bond future trade.
+   */
+  Result<BlackBondFuturesProviderInterface> getBlackBondFuturesProvider(Environment env, BondFutureOptionTrade trade);
 }

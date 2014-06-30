@@ -6,8 +6,8 @@
 package com.opengamma.sesame.irfutureoption;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesProviderInterface;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.result.Result;
 
 /**
@@ -15,5 +15,12 @@ import com.opengamma.util.result.Result;
  */
 public interface BlackSTIRFuturesProviderFn {
 
-  Result<BlackSTIRFuturesProviderInterface> getBlackSTIRFuturesProvider(Environment env, IRFutureOptionSecurity irFutureOption);
+  /**
+   * Returns the black volatility provider for a STIR future option.
+   *
+   * @param env the environment to return the black volatility provider for.
+   * @param trade the trade to return the black volatility provider for.
+   * @return the black volatility provider for a STIR future option trade.
+   */
+  Result<BlackSTIRFuturesProviderInterface> getBlackSTIRFuturesProvider(Environment env, IRFutureOptionTrade trade);
 }

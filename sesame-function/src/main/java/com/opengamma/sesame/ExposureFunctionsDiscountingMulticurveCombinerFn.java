@@ -5,16 +5,25 @@
  */
 package com.opengamma.sesame;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimpleCounterparty;
+import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -38,6 +47,12 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
    */
   private final DiscountingMulticurveBundleFn _multicurveBundleProviderFunction;
 
+  /**
+   * Constructor for a multicurve function that selects the multicurves by either trade or security.
+   *
+   * @param marketExposureSelectorFn the exposure function selector.
+   * @param multicurveBundleProviderFunction the function used to generate the multicurves.
+   */
   public ExposureFunctionsDiscountingMulticurveCombinerFn(MarketExposureSelectorFn marketExposureSelectorFn,
                                                           DiscountingMulticurveBundleFn multicurveBundleProviderFunction) {
     _marketExposureSelectorFn =
@@ -48,7 +63,19 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
 
   @Override
   public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
-      Environment env, FinancialSecurity security, Result<FXMatrix> fxMatrix) {
+      Environment env, FinancialSecurity security, FXMatrix fxMatrix) {
+
+    Trade trade = new SimpleTrade(security,
+                                  BigDecimal.ONE,
+                                  new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "CPARTY")),
+                                  LocalDate.now(),
+                                  OffsetTime.now());
+    return createMergedMulticurveBundle(env, trade, fxMatrix);
+  }
+  
+  @Override
+  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> createMergedMulticurveBundle(
+      Environment env, Trade trade, FXMatrix fxMatrix) {
     Result<MarketExposureSelector> mesResult = _marketExposureSelectorFn.getMarketExposureSelector();
 
     if (mesResult.isSuccess()) {
@@ -57,7 +84,7 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       CurveBuildingBlockBundle mergedJacobianBundle = new CurveBuildingBlockBundle();
 
       MarketExposureSelector selector = mesResult.getValue();
-      Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurationsForSecurity(security);
+      Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurations(trade);
       for (CurveConstructionConfiguration curveConfig : curveConfigs) {
         Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
             _multicurveBundleProviderFunction.generateBundle(env, curveConfig);
@@ -71,14 +98,12 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       }
 
       // TODO this can be cleaned up
-      if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty() && fxMatrix.isSuccess()) {
-        return Result.success(Pairs.of(mergeBundlesAndMatrix(bundles, fxMatrix.getValue()), mergedJacobianBundle));
+      if (!curveConfigs.isEmpty() && incompleteBundles.isEmpty()) {
+        return Result.success(Pairs.of(mergeBundlesAndMatrix(bundles, fxMatrix), mergedJacobianBundle));
       } else if (curveConfigs.isEmpty()) {
-        return Result.failure(FailureStatus.MISSING_DATA, "No matching curves found for security: {}", security);
-      } else if (!incompleteBundles.isEmpty()) {
-        return Result.failure(incompleteBundles);
+        return Result.failure(FailureStatus.MISSING_DATA, "No matching curves found for trade: {}", trade);
       } else {
-        return Result.failure(fxMatrix);
+        return Result.failure(incompleteBundles);
       }
     } else {
       return Result.failure(mesResult);

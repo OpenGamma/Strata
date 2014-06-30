@@ -78,23 +78,20 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
   public Result<IRFutureOptionCalculator> createCalculator(Environment env, IRFutureOptionTrade trade) {
 
     Result<Boolean> result = Result.success(true);
-    
-    IRFutureOptionCalculator calculator = null;    
-    MulticurveProviderInterface multicurveProvider  = null;    
-    BlackSTIRFuturesProviderInterface black = null;    
+
+    BlackSTIRFuturesProviderInterface black = null;
     Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
 
     IRFutureOptionSecurity security = trade.getSecurity();
 
-    Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, security);
-
+    Result<BlackSTIRFuturesProviderInterface> blackResult = _blackProviderFn.getBlackSTIRFuturesProvider(env, trade);
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 
     if (Result.anyFailures(blackResult, fixingsResult)) {
       result = Result.failure(blackResult, fixingsResult);
     } else {
       black = blackResult.getValue();
-      multicurveProvider = black.getMulticurveProvider();
+      MulticurveProviderInterface multicurveProvider = black.getMulticurveProvider();
       Set<String> curveNames = multicurveProvider.getAllCurveNames();
 
       for (String curveName : curveNames) {
@@ -106,8 +103,8 @@ public class IRFutureOptionBlackCalculatorFactory implements IRFutureOptionCalcu
         }
       }
     }
-    if (result.isSuccess()) {      
-      calculator = new IRFutureOptionBlackCalculator(trade,
+    if (result.isSuccess()) {
+      IRFutureOptionCalculator calculator = new IRFutureOptionBlackCalculator(trade,
                                                     _converter,
                                                     black,
                                                     env.getValuationTime(),

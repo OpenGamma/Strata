@@ -84,7 +84,6 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
     _htsFn = ArgumentChecker.notNull(htsFn, "htsFn");
     _sabrParametersProviderFn =
         ArgumentChecker.notNull(sabrParametersProviderFn, "sabrParametersProviderFn");
-
   }
 
   @Override
@@ -92,7 +91,7 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
                                                      SwaptionSecurity security) {
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
 
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
 
@@ -115,13 +114,11 @@ public class SabrSwaptionCalculatorFactory implements SwaptionCalculatorFactory 
     }
   }
 
-
   private SABRSwaptionProviderDiscount buildSabrBundle(MulticurveProviderDiscount multicurveBundle,
                                                        SabrParametersConfiguration sabrConfig) {
 
     return new SABRSwaptionProviderDiscount(multicurveBundle, sabrConfig.getSabrParameters(), sabrConfig.getSwapConvention());
   }
-
 
   private SwaptionPhysicalFixedIbor createInstrumentDerivative(SwaptionSecurity security,
                                                           ZonedDateTime valuationTime,
