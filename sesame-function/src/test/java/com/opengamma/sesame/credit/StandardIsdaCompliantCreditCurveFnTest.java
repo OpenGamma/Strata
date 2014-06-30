@@ -38,6 +38,7 @@ import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -46,6 +47,7 @@ import com.opengamma.util.time.Tenor;
  * Test data from /sesame-function/src/test/resources/credit/YC Test Data.xls
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class StandardIsdaCompliantCreditCurveFnTest {
 
   private static final double DELTA = 10e-6; //TODO this should be much tighter

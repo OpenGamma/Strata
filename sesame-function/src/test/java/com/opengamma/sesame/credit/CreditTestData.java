@@ -12,13 +12,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.util.array.ArrayUtils;
 
 /**
  * Helper class to produce standard objects for credit testing.
@@ -95,7 +95,7 @@ public final class CreditTestData {
         new MondayToFridayCalendar("test")
     );
     
-    return builder.build(ArrayUtils.toDoubleArray(RATES));
+    return builder.build(Doubles.toArray(RATES));
     
   }
   

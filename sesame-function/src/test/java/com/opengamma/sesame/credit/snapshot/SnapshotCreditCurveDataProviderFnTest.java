@@ -16,17 +16,19 @@ import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link SnapshotYieldCurveDataProviderFn}.
  */
+@Test(groups = TestGroup.UNIT)
 public class SnapshotCreditCurveDataProviderFnTest {
   
   private SnapshotCreditCurveDataProviderFn _fnWithBadLink;
   private SnapshotCreditCurveDataProviderFn _fnWithUSDCurve;
   
-  private final CreditCurveDataKey _goodKey = CreditCurveDataKey.builder().currency(Currency.USD).build();
-  private final CreditCurveDataKey _badKey = CreditCurveDataKey.builder().currency(Currency.GBP).build();
+  private final CreditCurveDataKey _goodKey = CreditCurveDataKey.builder().curveName("USD").currency(Currency.USD).build();
+  private final CreditCurveDataKey _badKey = CreditCurveDataKey.builder().curveName("GBP").currency(Currency.GBP).build();
 
   @SuppressWarnings("unchecked")
   @BeforeClass

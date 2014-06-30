@@ -26,6 +26,7 @@ import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -33,6 +34,7 @@ import com.opengamma.util.time.Tenor;
  * 
  * Tests construction of a simple yield curve and a failure case where the yc data is missing.
  */
+@Test(groups = TestGroup.UNIT)
 public class DefaultIsdaCompliantYieldCurveFnTest {
   
   private static final double DELTA = 10e-15;
