@@ -6,6 +6,7 @@
 package com.opengamma.sesame.credit.snapshot;
 
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
+import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
@@ -19,6 +20,7 @@ public interface YieldCurveDataProviderFn {
    * @param currency a currency
    * @return a valid {@link YieldCurveData} object or failure
    */
+  @Cacheable
   Result<YieldCurveData> retrieveYieldCurveData(Currency currency);
 
 }
