@@ -130,7 +130,6 @@ public class StandardIsdaCompliantCreditCurveFnTest {
     ISDACompliantCreditCurve curve = result.getValue();
     
     for (Map.Entry<LocalDate, Double> entry : EXPECTED.entrySet()) {
-      //double t = TimeCalculator.getTimeBetween(VALUATION_DATE, entry.getKey());
       double t = TimeCalculator.getTimeBetween(VALUATION_DATE, entry.getKey());
       double discountFactor = curve.getDiscountFactor(t);
       System.out.println(entry.getKey() + " " + discountFactor + " " + (discountFactor - entry.getValue()));

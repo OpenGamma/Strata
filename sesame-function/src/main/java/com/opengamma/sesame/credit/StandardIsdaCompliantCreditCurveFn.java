@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.credit;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -78,10 +78,10 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
     
     IsdaCreditCurveConvention convention = creditCurveData.getCurveConventionLink().resolve();
     
-    List<CDSAnalytic> calibrationCdsList = new LinkedList<>();
-    List<CDSQuoteConvention> quoteList = new LinkedList<>();
-    
     SortedMap<Tenor, CdsQuote> spreadData = creditCurveData.getCdsQuotes();
+    
+    List<CDSAnalytic> calibrationCdsList = new ArrayList<>(spreadData.size());
+    List<CDSQuoteConvention> quoteList = new ArrayList<>(spreadData.size());
     
     CDSAnalyticFactory cdsFactory = new CDSAnalyticFactory()
                                           .with(convention.getBusinessDayConvention())
