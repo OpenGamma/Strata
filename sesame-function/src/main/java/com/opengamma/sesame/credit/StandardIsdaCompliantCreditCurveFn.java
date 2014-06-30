@@ -100,7 +100,7 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
     
     for (Map.Entry<Tenor, CdsQuote> spreadEntry : spreadData.entrySet()) {
       
-      CDSAnalytic cdsAnalytic = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod(), false);
+      CDSAnalytic cdsAnalytic = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod());
       CDSQuoteConvention quoteConvention = spreadEntry.getValue().toQuoteConvention();
       
       calibrationCdsList.add(cdsAnalytic);

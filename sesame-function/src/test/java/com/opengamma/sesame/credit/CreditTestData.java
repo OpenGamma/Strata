@@ -28,6 +28,7 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 public final class CreditTestData {
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 3, 27);
+  private static final LocalDate SPOT_DATE = LocalDate.of(2014, 4, 1);
 
   private static int MONEY_MARKET_INSTS = 6;
   private static List<Period> TENORS = ImmutableList.of(Period.ofMonths(1), 
@@ -84,7 +85,7 @@ public final class CreditTestData {
     
     ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(
         VALUATION_DATE,
-        VALUATION_DATE,
+        SPOT_DATE,
         instrumentTypes, 
         TENORS.toArray(new Period[TENORS.size()]),
         DayCounts.ACT_360,
