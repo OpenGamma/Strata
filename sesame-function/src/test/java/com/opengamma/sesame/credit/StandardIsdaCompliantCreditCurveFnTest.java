@@ -50,7 +50,7 @@ import com.opengamma.util.time.Tenor;
 @Test(groups = TestGroup.UNIT)
 public class StandardIsdaCompliantCreditCurveFnTest {
 
-  private static final double DELTA = 10e-6; //TODO this should be much tighter
+  private static final double DELTA = 10e-15; 
   
   private static final ISDACompliantYieldCurve YIELD_CURVE = CreditTestData.createYieldCurve();
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 3, 27);
@@ -135,8 +135,7 @@ public class StandardIsdaCompliantCreditCurveFnTest {
       double t = TimeCalculator.getTimeBetween(VALUATION_DATE, entry.getKey());
       double discountFactor = curve.getDiscountFactor(t);
       System.out.println(entry.getKey() + " " + discountFactor + " " + (discountFactor - entry.getValue()));
-      double diff = Math.abs(discountFactor - entry.getValue());
-      assertEquals(0, diff, DELTA);
+      assertEquals(entry.getValue(), discountFactor, DELTA);
     }
 
   }

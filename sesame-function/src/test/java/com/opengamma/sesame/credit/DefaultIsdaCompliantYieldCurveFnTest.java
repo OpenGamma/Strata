@@ -40,6 +40,7 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
   private static final double DELTA = 10e-15;
 
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014,  3, 27);
+  private static final LocalDate SPOT_DATE = LocalDate.of(2014, 4, 1); //T+3
 
   private IsdaCompliantYieldCurveFn _fn;
 
@@ -48,18 +49,25 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
   private static final SortedMap<LocalDate, Double> EXPECTED;
   
   static {
+    //important note - discount factors are shifted back to trade date
+    //by dividing by P(spot date, trade date). i.e. DF of spot date to
+    //trade date. (This is >1 since trade date is before spot date.)
+    //this step is necessary because ISDA model requires that future 
+    //values are discounted back to spot date, not the trade date.
+    //'valuation date' in OpenGamma refers to the trade date of the 
+    //ISDA model so it is important to make the distinction.
     EXPECTED = ImmutableSortedMap.<LocalDate, Double> naturalOrder()
-                  .put(LocalDate.of(2014, 6, 1), 0.998146703581420)
-                  .put(LocalDate.of(2014, 7, 1), 0.996603172154409)
-                  .put(LocalDate.of(2014, 8, 1), 0.994637268984417)
-                  .put(LocalDate.of(2014, 9, 1), 0.992675243762419)
-                  .put(LocalDate.of(2014, 10, 1), 0.990783514347689)
-                  .put(LocalDate.of(2014, 11, 1), 0.988880444056390)
-                  .put(LocalDate.of(2014, 12, 1), 0.987042243596708)
-                  .put(LocalDate.of(2015, 1, 1), 0.985123839033025)
-                  .put(LocalDate.of(2015, 2, 1), 0.982999405917283)
-                  .put(LocalDate.of(2015, 3, 1), 0.981084501161757)
-                  .put(LocalDate.of(2015, 4, 1), 0.979151846830480)
+                  .put(LocalDate.of(2014, 6, 1), 0.998346299747064)
+                  .put(LocalDate.of(2014, 7, 1), 0.996829575396936)
+                  .put(LocalDate.of(2014, 8, 1), 0.994858240378622)
+                  .put(LocalDate.of(2014, 9, 1), 0.992890803882032)
+                  .put(LocalDate.of(2014, 10, 1), 0.990990537728945)
+                  .put(LocalDate.of(2014, 11, 1), 0.989094157713670)
+                  .put(LocalDate.of(2014, 12, 1), 0.987262406564133)
+                  .put(LocalDate.of(2015, 1, 1), 0.985373160777861)
+                  .put(LocalDate.of(2015, 2, 1), 0.983259485394869)
+                  .put(LocalDate.of(2015, 3, 1), 0.981354256531180)
+                  .put(LocalDate.of(2015, 4, 1), 0.979249201901534)
                   .build();
   }
   
@@ -109,9 +117,7 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
                       .currency(Currency.USD)
                       .curveBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
                       .curveDayCount(DayCounts.ACT_365)
-                      //note - spot would normally be T+3 but
-                      //use valuation date to be consistent with sheet
-                      .spotDate(VALUATION_DATE)
+                      .spotDate(SPOT_DATE)
                       .swapDayCount(DayCounts.THIRTY_360)
                       .swapFixedLegInterval(Tenor.ONE_YEAR)
                       .build();
@@ -142,8 +148,7 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
       double t = TimeCalculator.getTimeBetween(VALUATION_DATE, entry.getKey());
       double discountFactor = curve.getDiscountFactor(t);
       System.out.println(entry.getKey() + " " + discountFactor + " " + (discountFactor - entry.getValue()));
-      double diff = Math.abs(discountFactor - entry.getValue());
-      assertEquals(0, diff, DELTA);
+      assertEquals(entry.getValue(), discountFactor, DELTA);
     }
   }
 }
