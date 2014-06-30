@@ -197,16 +197,16 @@ public class TestHelper {
         assertThrows(() -> mp.set(bean, ""), UnsupportedOperationException.class);
       }
       if (mp.style().isBuildable()) {
-        metaBean.builder().get(mp);
-        metaBean.builder().get(mp.name());
+        ignoreThrows(() -> metaBean.builder().get(mp));
+        ignoreThrows(() -> metaBean.builder().get(mp.name()));
         for (Object setValue : sampleValues(mp)) {
           ignoreThrows(() -> metaBean.builder().set(mp, setValue));
         }
         for (Object setValue : sampleValues(mp)) {
           ignoreThrows(() -> metaBean.builder().set(mp.name(), setValue));
         }
-        ignoreThrows(() -> metaBean.builder().setString(mp, ""));
-        ignoreThrows(() -> metaBean.builder().setString(mp.name(), ""));
+        ignoreThrows(() -> metaBean.builder().setString(mp, "6"));
+        ignoreThrows(() -> metaBean.builder().setString(mp.name(), "6"));
       }
       ignoreThrows(() -> {
         Method m = metaBean.getClass().getDeclaredMethod(mp.name());
@@ -245,10 +245,21 @@ public class TestHelper {
     }
     assertThrows(() -> bean.property(""), NoSuchElementException.class);
 
+    Class<? extends Bean> beanClass = bean.getClass();
     ignoreThrows(() -> {
-      Method m = bean.getClass().getDeclaredMethod("meta" + bean.getClass().getSimpleName(), Class.class);
+      Method m = beanClass.getDeclaredMethod("meta" + beanClass.getSimpleName(), Class.class);
       m.setAccessible(true);
       m.invoke(null, String.class);
+    });
+    ignoreThrows(() -> {
+      Method m = beanClass.getDeclaredMethod("meta" + beanClass.getSimpleName(), Class.class, Class.class);
+      m.setAccessible(true);
+      m.invoke(null, String.class, String.class);
+    });
+    ignoreThrows(() -> {
+      Method m = beanClass.getDeclaredMethod("meta" + beanClass.getSimpleName(), Class.class, Class.class, Class.class);
+      m.setAccessible(true);
+      m.invoke(null, String.class, String.class, String.class);
     });
     
     assertNotNull(bean.toString());
