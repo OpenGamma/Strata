@@ -90,6 +90,15 @@ public class TripleTest {
     assertTrue(bad.compareTo(bad) == 0);
   }
 
+  @Test(expectedExceptions = ClassCastException.class)
+  public void test_compareTo_notComparable() {
+    Runnable notComparable = () -> {};
+    Triple<Integer, Runnable, String> test1 = Triple.of(1, notComparable, "A");
+    Triple<Integer, Runnable, String> test2 = Triple.of(2, notComparable, "B");
+    test1.compareTo(test2);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equals() {
     Triple<Integer, String, String> a = Triple.of(1, "Hello", "Triple");
     Triple<Integer, String, String> a2 = Triple.of(1, "Hello", "Triple");

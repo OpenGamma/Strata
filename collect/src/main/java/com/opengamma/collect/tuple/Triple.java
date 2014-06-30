@@ -88,6 +88,7 @@ public final class Triple<A, B, C>
    * 
    * @return size 3
    */
+  @Override
   public int size() {
     return 3;
   }

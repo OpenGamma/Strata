@@ -83,6 +83,15 @@ public class PairTest {
     assertTrue(ba.compareTo(ba) == 0);
   }
 
+  @Test(expectedExceptions = ClassCastException.class)
+  public void test_compareTo_notComparable() {
+    Runnable notComparable = () -> {};
+    Pair<Runnable, String> test1 = Pair.of(notComparable, "A");
+    Pair<Runnable, String> test2 = Pair.of(notComparable, "B");
+    test1.compareTo(test2);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equals() {
     Pair<Integer, String> a = Pair.of(1, "Hello");
     Pair<Integer, String> a2 = Pair.of(1, "Hello");

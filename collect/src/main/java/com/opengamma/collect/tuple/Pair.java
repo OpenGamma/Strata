@@ -81,6 +81,7 @@ public final class Pair<A, B>
    * 
    * @return size 2
    */
+  @Override
   public int size() {
     return 2;
   }

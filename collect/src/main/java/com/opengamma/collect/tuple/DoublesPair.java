@@ -115,6 +115,7 @@ public final class DoublesPair
    * 
    * @return size 2
    */
+  @Override
   public int size() {
     return 2;
   }

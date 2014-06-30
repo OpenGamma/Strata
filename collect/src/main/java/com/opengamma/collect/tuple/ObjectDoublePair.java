@@ -83,6 +83,7 @@ public final class ObjectDoublePair<A>
    * 
    * @return size 2
    */
+  @Override
   public int size() {
     return 2;
   }

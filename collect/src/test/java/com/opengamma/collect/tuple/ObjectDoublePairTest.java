@@ -87,6 +87,14 @@ public class ObjectDoublePairTest {
     assertTrue(p21.compareTo(p21) == 0);
   }
 
+  @Test(expectedExceptions = ClassCastException.class)
+  public void test_compareTo_notComparable() {
+    Runnable notComparable = () -> {};
+    ObjectDoublePair<Runnable> test1 = ObjectDoublePair.of(notComparable, 2d);
+    ObjectDoublePair<Runnable> test2 = ObjectDoublePair.of(notComparable, 2d);
+    test1.compareTo(test2);
+  }
+
   //-------------------------------------------------------------------------
   public void test_equals() {
     ObjectDoublePair<String> a = ObjectDoublePair.of("1", 2.0d);
