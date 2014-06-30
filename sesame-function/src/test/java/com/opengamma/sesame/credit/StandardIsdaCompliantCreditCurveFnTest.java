@@ -56,8 +56,8 @@ public class StandardIsdaCompliantCreditCurveFnTest {
   private StandardIsdaCompliantCreditCurveFn _fn;
   private Environment _env;
   
-  private final CreditCurveDataKey _goodKey = CreditCurveDataKey.builder().currency(Currency.USD).build();
-  private final CreditCurveDataKey _badKey = CreditCurveDataKey.builder().currency(Currency.GBP).build();
+  private final CreditCurveDataKey _goodKey = CreditCurveDataKey.builder().curveName("USD").currency(Currency.USD).build();
+  private final CreditCurveDataKey _badKey = CreditCurveDataKey.builder().curveName("GBP").currency(Currency.GBP).build();
   private IsdaCompliantYieldCurveFn _yieldCurveFn;
   private CreditCurveDataProviderFn _curveDataProviderFn;
   
@@ -65,17 +65,17 @@ public class StandardIsdaCompliantCreditCurveFnTest {
 
   static {
     EXPECTED = ImmutableSortedMap.<LocalDate, Double> naturalOrder()
-                  .put(LocalDate.of(2014, 6, 1), 0.997588127691401)
-                  .put(LocalDate.of(2014, 7, 1), 0.996493745958187)
-                  .put(LocalDate.of(2014, 8, 1), 0.995364146080812)
-                  .put(LocalDate.of(2014, 9, 1), 0.994235826689028)
-                  .put(LocalDate.of(2014, 10, 1), 0.993145122522617)
-                  .put(LocalDate.of(2014, 11, 1), 0.992019318559303)
-                  .put(LocalDate.of(2014, 12, 1), 0.990931045963539)
-                  .put(LocalDate.of(2015, 1, 1), 0.989807751820904)
-                  .put(LocalDate.of(2015, 2, 1), 0.988685731015839)
-                  .put(LocalDate.of(2015, 3, 1), 0.987673386129469)
-                  .put(LocalDate.of(2015, 4, 1), 0.986553784786878)
+                  .put(LocalDate.of(2014, 6, 1), 0.997588273438233)
+                  .put(LocalDate.of(2014, 7, 1), 0.996493957721021)
+                  .put(LocalDate.of(2014, 8, 1), 0.995364425907840)
+                  .put(LocalDate.of(2014, 9, 1), 0.994236174425670)
+                  .put(LocalDate.of(2014, 10, 1), 0.993145535831308)
+                  .put(LocalDate.of(2014, 11, 1), 0.992019799474205)
+                  .put(LocalDate.of(2014, 12, 1), 0.990931592157365)
+                  .put(LocalDate.of(2015, 1, 1), 0.989808365318550)
+                  .put(LocalDate.of(2015, 2, 1), 0.988686411664022)
+                  .put(LocalDate.of(2015, 3, 1), 0.987674127298215)
+                  .put(LocalDate.of(2015, 4, 1), 0.986554592815145)
                   .build();
   }
 
@@ -86,9 +86,9 @@ public class StandardIsdaCompliantCreditCurveFnTest {
     when(_env.getValuationDate()).thenReturn(VALUATION_DATE);
     
     _yieldCurveFn = mock(IsdaCompliantYieldCurveFn.class);
-    when(_yieldCurveFn.buildISDACompliantCurve(_env, Currency.USD)).thenReturn(Result.success(YIELD_CURVE));
+    when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.USD)).thenReturn(Result.success(YIELD_CURVE));
 
-    when(_yieldCurveFn.buildISDACompliantCurve(_env, Currency.USD)).thenReturn(Result.success(YIELD_CURVE));
+    when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.USD)).thenReturn(Result.success(YIELD_CURVE));
 
     _curveDataProviderFn = mock(CreditCurveDataProviderFn.class);
     
@@ -123,13 +123,14 @@ public class StandardIsdaCompliantCreditCurveFnTest {
   @Test
   public void testCurveBuild() {
     //curve successfully bootstrapped
-    Result<ISDACompliantCreditCurve> result = _fn.buildISDACompliantCreditCurve(_env, _goodKey);
+    Result<ISDACompliantCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _goodKey);
     
     assertTrue("Expected success result", result.isSuccess());
     
     ISDACompliantCreditCurve curve = result.getValue();
     
     for (Map.Entry<LocalDate, Double> entry : EXPECTED.entrySet()) {
+      //double t = TimeCalculator.getTimeBetween(VALUATION_DATE, entry.getKey());
       double t = TimeCalculator.getTimeBetween(VALUATION_DATE, entry.getKey());
       double discountFactor = curve.getDiscountFactor(t);
       System.out.println(entry.getKey() + " " + discountFactor + " " + (discountFactor - entry.getValue()));
@@ -142,10 +143,10 @@ public class StandardIsdaCompliantCreditCurveFnTest {
   @Test
   public void testMissingCreditCurveData() {
     //credit curve data missing but yc present
-    when(_yieldCurveFn.buildISDACompliantCurve(_env, Currency.GBP)).thenReturn(Result.success(mock(ISDACompliantYieldCurve.class)));
+    when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.GBP)).thenReturn(Result.success(mock(ISDACompliantYieldCurve.class)));
     when(_curveDataProviderFn.retrieveCreditCurveData(_badKey)).thenReturn(Result.<CreditCurveData> failure(FailureStatus.ERROR, "Error"));
     
-    Result<ISDACompliantCreditCurve> result = _fn.buildISDACompliantCreditCurve(_env, _badKey);
+    Result<ISDACompliantCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _badKey);
     
     assertFalse("Expected failure result", result.isSuccess());
   }
@@ -153,10 +154,10 @@ public class StandardIsdaCompliantCreditCurveFnTest {
   @Test
   public void testMissingYieldCurveData() {
     //yc missing but credit curve data present
-    when(_yieldCurveFn.buildISDACompliantCurve(_env, Currency.GBP)).thenReturn(Result.<ISDACompliantYieldCurve> failure(FailureStatus.ERROR, "Error"));
+    when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.GBP)).thenReturn(Result.<ISDACompliantYieldCurve> failure(FailureStatus.ERROR, "Error"));
     when(_curveDataProviderFn.retrieveCreditCurveData(_badKey)).thenReturn(Result.success(mock(CreditCurveData.class)));
     
-    Result<ISDACompliantCreditCurve> result = _fn.buildISDACompliantCreditCurve(_env, _badKey);
+    Result<ISDACompliantCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _badKey);
     
     assertFalse("Expected failure result", result.isSuccess());
   }

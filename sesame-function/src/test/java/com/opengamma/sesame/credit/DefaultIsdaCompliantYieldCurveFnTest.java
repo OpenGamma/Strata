@@ -124,13 +124,13 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
 
   @Test
   public void testProviderFailure() {
-    Result<ISDACompliantYieldCurve> result = _fn.buildISDACompliantCurve(_env, Currency.GBP);
+    Result<ISDACompliantYieldCurve> result = _fn.buildIsdaCompliantCurve(_env, Currency.GBP);
     assertFalse("GBP curve data lookup failed so this call should too.", result.isSuccess());
   }
   
   @Test
   public void testBuildUSD() {
-    Result<ISDACompliantYieldCurve> usdCurve = _fn.buildISDACompliantCurve(_env, Currency.USD);
+    Result<ISDACompliantYieldCurve> usdCurve = _fn.buildIsdaCompliantCurve(_env, Currency.USD);
     
     ISDACompliantYieldCurve curve = usdCurve.getValue();
     

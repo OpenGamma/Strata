@@ -7,6 +7,7 @@ package com.opengamma.sesame.credit.snapshot;
 
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
+import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.result.Result;
 
 /**
@@ -20,6 +21,7 @@ public interface CreditCurveDataProviderFn {
    * @param key a credit curve data key
    * @return a {@link CreditCurveData} result
    */
+  @Cacheable
   Result<CreditCurveData> retrieveCreditCurveData(CreditCurveDataKey key);
   
   

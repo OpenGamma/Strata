@@ -44,7 +44,7 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
   }
 
   @Override
-  public Result<ISDACompliantYieldCurve> buildISDACompliantCurve(Environment env, Currency ccy) {
+  public Result<ISDACompliantYieldCurve> buildIsdaCompliantCurve(Environment env, Currency ccy) {
     
     Result<YieldCurveData> yieldCurveData = _yieldCurveProvider.retrieveYieldCurveData(ccy);
     

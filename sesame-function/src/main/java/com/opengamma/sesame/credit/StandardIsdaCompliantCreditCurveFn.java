@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.credit;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -15,6 +17,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFac
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.financial.analytics.isda.credit.CdsQuote;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
@@ -31,7 +34,7 @@ import com.opengamma.util.time.Tenor;
  */
 public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCurveFn {
   
-  private static final FastCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
+  private static final ISDACompliantCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
   
   private final IsdaCompliantYieldCurveFn _yieldCurveFn;
   
@@ -42,34 +45,41 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
    * @param yieldCurveFn function for sourcing yield curves
    * @param curveDataProviderFn function for sourcing credit curve data
    */
-  public StandardIsdaCompliantCreditCurveFn(IsdaCompliantYieldCurveFn yieldCurveFn, CreditCurveDataProviderFn curveDataProviderFn) {
+  public StandardIsdaCompliantCreditCurveFn(IsdaCompliantYieldCurveFn yieldCurveFn, 
+                                            CreditCurveDataProviderFn curveDataProviderFn) {
     _yieldCurveFn = ArgumentChecker.notNull(yieldCurveFn, "yieldCurveFn");
     _curveDataProviderFn = ArgumentChecker.notNull(curveDataProviderFn, "curveDataProviderFn");
   }
 
   @Override
-  public Result<ISDACompliantCreditCurve> buildISDACompliantCreditCurve(Environment env, CreditCurveDataKey creditCurveKey) {
+  public Result<ISDACompliantCreditCurve> buildIsdaCompliantCreditCurve(Environment env, 
+                                                                        CreditCurveDataKey creditCurveKey) {
     
-    Result<ISDACompliantYieldCurve> yieldCurveResult = _yieldCurveFn.buildISDACompliantCurve(env, creditCurveKey.getCurrency());
+    Result<ISDACompliantYieldCurve> yieldCurveResult = 
+        _yieldCurveFn.buildIsdaCompliantCurve(env, creditCurveKey.getCurrency());
     
-    Result<CreditCurveData> creditCurveDataResult = _curveDataProviderFn.retrieveCreditCurveData(creditCurveKey);
+    Result<CreditCurveData> creditCurveDataResult = 
+        _curveDataProviderFn.retrieveCreditCurveData(creditCurveKey);
     
     if (Result.anyFailures(creditCurveDataResult, yieldCurveResult)) {
       return Result.failure(creditCurveDataResult, yieldCurveResult);
     }
     
-    ISDACompliantCreditCurve curve = buildWithResolvedData(env, yieldCurveResult.getValue(), creditCurveDataResult.getValue());
+    ISDACompliantCreditCurve curve = buildWithResolvedData(env, 
+                                                           yieldCurveResult.getValue(), 
+                                                           creditCurveDataResult.getValue());
     
     return Result.success(curve);
   }
 
-  private ISDACompliantCreditCurve buildWithResolvedData(Environment env, ISDACompliantYieldCurve yieldCurve, CreditCurveData creditCurveData) {
+  private ISDACompliantCreditCurve buildWithResolvedData(Environment env, 
+                                                         ISDACompliantYieldCurve yieldCurve, 
+                                                         CreditCurveData creditCurveData) {
     
     IsdaCreditCurveConvention convention = creditCurveData.getCurveConventionLink().resolve();
     
-    int curveLength = creditCurveData.getCdsQuotes().size();
-    CDSAnalytic[] calibrationCDSs = new CDSAnalytic[curveLength];
-    CDSQuoteConvention[] quotes = new CDSQuoteConvention[curveLength];
+    List<CDSAnalytic> calibrationCdsList = new LinkedList<>();
+    List<CDSQuoteConvention> quoteList = new LinkedList<>();
     
     SortedMap<Tenor, CdsQuote> spreadData = creditCurveData.getCdsQuotes();
     
@@ -85,19 +95,22 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
                                           .withProtectionStart(convention.isProtectFromStartOfDay())
                                           .withRecoveryRate(creditCurveData.getRecoveryRate())
                                           .withStepIn(convention.getStepIn());
-    int i = 0;
     
     LocalDate valuationDate = env.getValuationDate();
     
     for (Map.Entry<Tenor, CdsQuote> spreadEntry : spreadData.entrySet()) {
       
-      calibrationCDSs[i] = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod(), false);
+      CDSAnalytic cdsAnalytic = cdsFactory.makeIMMCDS(valuationDate, spreadEntry.getKey().getPeriod(), false);
+      CDSQuoteConvention quoteConvention = spreadEntry.getValue().toQuoteConvention();
       
-      quotes[i] = spreadEntry.getValue().toQuoteConvention();
-      i++;
+      calibrationCdsList.add(cdsAnalytic);
+      quoteList.add(quoteConvention);
     }
     
-    return CREDIT_CURVE_BUILDER.calibrateCreditCurve(calibrationCDSs, quotes, yieldCurve);
+    return CREDIT_CURVE_BUILDER.calibrateCreditCurve(
+                                          calibrationCdsList.toArray(new CDSAnalytic[calibrationCdsList.size()]), 
+                                          quoteList.toArray(new CDSQuoteConvention[quoteList.size()]), 
+                                          yieldCurve);
     
   }
 
