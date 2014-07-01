@@ -1,0 +1,58 @@
+package com.opengamma.sesame.credit.market;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.Map;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.core.link.ConfigLink;
+import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
+import com.opengamma.financial.analytics.isda.credit.config.CreditCurveDataKeyMap;
+import com.opengamma.util.result.Result;
+
+/**
+ * Tests use cases of {@link ConfigDbCreditKeyMapperFn}.
+ */
+public class ConfigDbCreditKeyMapperFnTest {
+  
+  private CreditCurveDataKey _source;
+  private CreditCurveDataKey _target;
+  private CreditCurveDataKey _missing;
+  private ConfigDbCreditKeyMapperFn _fn;
+
+
+  @BeforeMethod
+  public void beforeMethod() {
+    
+    _source = CreditCurveDataKey.builder().curveName("source").build();
+    _target = CreditCurveDataKey.builder().curveName("target").build();
+    _missing = CreditCurveDataKey.builder().curveName("missing").build();
+    
+    Map<CreditCurveDataKey, CreditCurveDataKey> keyMap = ImmutableMap.of(_source, _target);
+    
+    CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder().keyMap(keyMap).build();
+    
+    _fn = new ConfigDbCreditKeyMapperFn(ConfigLink.resolved(configKeyMap));
+  }
+  
+  @Test
+  public void successfulMap() {
+    Result<CreditCurveDataKey> result = _fn.map(_source);
+    
+    assertTrue("Expected success", result.isSuccess());
+    assertEquals("Expected target key", _target, result.getValue());
+  }
+
+  @Test
+  public void noMapping() {
+    Result<CreditCurveDataKey> result = _fn.map(_missing);
+    
+    assertTrue("Expected success", result.isSuccess());
+    assertEquals("Expected same key (i.e. missing)", _missing, result.getValue());
+  }
+
+}
