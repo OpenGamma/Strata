@@ -278,7 +278,7 @@ public final class LocalDateDoubleTimeSeries
    * @return true if the time-series contains no entries
    */
   public boolean isEmpty() {
-    return size() == 0;
+    return dates.length == 0;
   }
 
   /**
@@ -303,10 +303,7 @@ public final class LocalDateDoubleTimeSeries
    */
   public OptionalDouble get(LocalDate date) {
     int position = findDatePosition(date);
-    if (position < 0) {
-      return OptionalDouble.empty();
-    }
-    return OptionalDouble.of(values[position]);
+    return (position >= 0 ? OptionalDouble.of(values[position]) : OptionalDouble.empty());
   }
 
   private int findDatePosition(LocalDate date) {
@@ -339,11 +336,10 @@ public final class LocalDateDoubleTimeSeries
    * @throws NoSuchElementException if the time-series is empty
    */
   public LocalDate getEarliestDate() {
-    try {
-      return dates[0];
-    } catch (IndexOutOfBoundsException ex) {
+    if (isEmpty()) {
       throw new NoSuchElementException("Unable to return earliest, time-series is empty");
     }
+    return dates[0];
   }
 
   /**
@@ -355,11 +351,10 @@ public final class LocalDateDoubleTimeSeries
    * @throws NoSuchElementException if the time-series is empty
    */
   public double getEarliestValue() {
-    try {
-      return values[0];
-    } catch (IndexOutOfBoundsException ex) {
+    if (isEmpty()) {
       throw new NoSuchElementException("Unable to return earliest, time-series is empty");
     }
+    return values[0];
   }
 
   /**
@@ -371,11 +366,10 @@ public final class LocalDateDoubleTimeSeries
    * @throws NoSuchElementException if the time-series is empty
    */
   public LocalDate getLatestDate() {
-    try {
-      return dates[dates.length - 1];
-    } catch (IndexOutOfBoundsException ex) {
+    if (isEmpty()) {
       throw new NoSuchElementException("Unable to return latest, time-series is empty");
     }
+    return dates[dates.length - 1];
   }
 
   /**
@@ -387,11 +381,10 @@ public final class LocalDateDoubleTimeSeries
    * @throws NoSuchElementException if the time-series is empty
    */
   public double getLatestValue() {
-    try {
-      return values[values.length - 1];
-    } catch (IndexOutOfBoundsException ex) {
+    if (isEmpty()) {
       throw new NoSuchElementException("Unable to return latest, time-series is empty");
     }
+    return values[values.length - 1];
   }
 
   //-------------------------------------------------------------------------
@@ -436,44 +429,44 @@ public final class LocalDateDoubleTimeSeries
   /**
    * Gets part of this series as a sub-series, choosing the earliest entries.
    * <p>
-   * The sub-series contains the specified number of entries taken from the
-   * earliest date-time in this series.
+   * The sub-series contains the earliest part of the series up to the specified number of points.
+   * If the series contains less points than the number requested, the whole time-series is returned.
    *
-   * @param numItems  the number of items to select, zero or greater
+   * @param numPoints  the number of items to select, zero or greater
    * @return the sub-series of the requested size starting with the earliest entry
    * @throws IllegalArgumentException if the number of items is less than zero
    */
-  public LocalDateDoubleTimeSeries headSeries(int numItems) {
-    ArgChecker.notNegative(numItems, "numItems");
-    if (numItems == 0) {
+  public LocalDateDoubleTimeSeries headSeries(int numPoints) {
+    ArgChecker.notNegative(numPoints, "numPoints");
+    if (numPoints == 0) {
       return EMPTY_SERIES;
-    } else if (numItems >= size()) {
+    } else if (numPoints >= size()) {
       return this;
     }
-    LocalDate[] datesArray = Arrays.copyOfRange(dates, 0, numItems);
-    double[] valuesArray = Arrays.copyOfRange(values, 0, numItems);
+    LocalDate[] datesArray = Arrays.copyOfRange(dates, 0, numPoints);
+    double[] valuesArray = Arrays.copyOfRange(values, 0, numPoints);
     return createUnsafe(datesArray, valuesArray);
   }
 
   /**
    * Gets part of this series as a sub-series, choosing the latest entries.
    * <p>
-   * The sub-series contains the specified number of entries taken from the
-   * latest date-time in this series.
+   * The sub-series contains the latest part of the series up to the specified number of points.
+   * If the series contains less points than the number requested, the whole time-series is returned.
    *
-   * @param numItems  the number of items to select, zero or greater
+   * @param numPoints  the number of items to select, zero or greater
    * @return the sub-series of the requested size ending with the latest entry
    * @throws IllegalArgumentException if the number of items is less than zero
    */
-  public LocalDateDoubleTimeSeries tailSeries(int numItems) {
-    ArgChecker.notNegative(numItems, "numItems");
-    if (numItems == 0) {
+  public LocalDateDoubleTimeSeries tailSeries(int numPoints) {
+    ArgChecker.notNegative(numPoints, "numPoints");
+    if (numPoints == 0) {
       return EMPTY_SERIES;
-    } else if (numItems >= size()) {
+    } else if (numPoints >= size()) {
       return this;
     }
-    LocalDate[] datesArray = Arrays.copyOfRange(dates, size() - numItems, size());
-    double[] valuesArray = Arrays.copyOfRange(values, size() - numItems, size());
+    LocalDate[] datesArray = Arrays.copyOfRange(dates, size() - numPoints, size());
+    double[] valuesArray = Arrays.copyOfRange(values, size() - numPoints, size());
     return createUnsafe(datesArray, valuesArray);
   }
 
