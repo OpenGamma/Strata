@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 
@@ -102,6 +103,33 @@ public class GuavateTest {
   public void test_toImmutableMap_keyValue_duplicateKeys() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     list.stream().collect(Guavate.toImmutableMap(s -> s.length(), s -> "!" + s));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toImmutableSortedMap_key() {
+    List<String> list = Arrays.asList("bob", "a", "ab");
+    ImmutableSortedMap<Integer, String> test = list.stream()
+        .collect(Guavate.toImmutableSortedMap(s -> s.length()));
+    assertEquals(test, ImmutableSortedMap.naturalOrder().put(1, "a").put(2, "ab").put(3, "bob").build());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_toImmutableSortedMap_key_duplicateKeys() {
+    List<String> list = Arrays.asList("a", "ab", "c", "bb", "b", "a");
+    list.stream().collect(Guavate.toImmutableSortedMap(s -> s.length()));
+  }
+
+  public void test_toImmutableSortedMap_keyValue() {
+    List<String> list = Arrays.asList("bob", "a", "ab");
+    ImmutableSortedMap<Integer, String> test = list.stream()
+        .collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s));
+    assertEquals(test, ImmutableSortedMap.naturalOrder().put(1, "!a").put(2, "!ab").put(3, "!bob").build());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_toImmutableSortedMap_keyValue_duplicateKeys() {
+    List<String> list = Arrays.asList("a", "ab", "c", "bb", "b", "a");
+    list.stream().collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s));
   }
 
   //-------------------------------------------------------------------------

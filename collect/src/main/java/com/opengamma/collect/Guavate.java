@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 
 /**
@@ -202,6 +203,60 @@ public final class Guavate {
         (builder, val) -> builder.put(keyExtractor.apply(val), valueExtractor.apply(val)),
         (l, r) -> l.putAll(r.build()),
         ImmutableMap.Builder<K, V>::build,
+        Collector.Characteristics.UNORDERED);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Collector used at the end of a stream to build an immutable sorted map.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableSortedMap}.
+   * <p>
+   * This returns a map by extracting a key from each element.
+   * The input stream must resolve to unique keys.
+   * The value associated with each key is the stream element.
+   * See {@link Collectors#toMap(Function, Function)} for more details.
+   *
+   * @param <T> the type of the stream elements
+   * @param <K> the type of the keys in the result map
+   * @param keyExtractor  function to produce keys from stream elements
+   * @return the immutable sorted map collector
+   */
+  public static <T, K extends Comparable<?>> Collector<T, ?, ImmutableSortedMap<K, T>> toImmutableSortedMap(
+      Function<? super T, ? extends K> keyExtractor) {
+    
+    return toImmutableSortedMap(keyExtractor, Function.identity());
+  }
+
+  /**
+   * Collector used at the end of a stream to build an immutable sorted map.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableSortedMap}.
+   * <p>
+   * This returns a map by converting each stream element to a key and value.
+   * The input stream must resolve to unique keys.
+   * See {@link Collectors#toMap(Function, Function)} for more details.
+   *
+   * @param <T> the type of the stream elements
+   * @param <K> the type of the keys in the result map
+   * @param <V> the type of the values in the result map
+   * @param keyExtractor  function to produce keys from stream elements
+   * @param valueExtractor  function to produce values from stream elements
+   * @return the immutable sorted map collector
+   */
+  public static <T, K extends Comparable<?>, V> Collector<T, ?, ImmutableSortedMap<K,V>> toImmutableSortedMap(
+      Function<? super T, ? extends K> keyExtractor,
+      Function<? super T, ? extends V> valueExtractor) {
+
+    return Collector.of(
+        (Supplier<ImmutableSortedMap.Builder<K, V>>) ImmutableSortedMap::naturalOrder,
+        (builder, val) -> builder.put(keyExtractor.apply(val), valueExtractor.apply(val)),
+        (l, r) -> l.putAll(r.build()),
+        ImmutableSortedMap.Builder<K, V>::build,
         Collector.Characteristics.UNORDERED);
   }
 
