@@ -16,7 +16,7 @@ import com.opengamma.util.result.Result;
 /**
  * Tests use cases of {@link DefaultCreditKeyMapperFn}.
  */
-public class ConfigDbCreditKeyMapperFnTest {
+public class DefaultCreditKeyMapperFnTest {
   
   private CreditCurveDataKey _source;
   private CreditCurveDataKey _target;
