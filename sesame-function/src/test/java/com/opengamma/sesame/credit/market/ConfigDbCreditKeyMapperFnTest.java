@@ -9,20 +9,19 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.config.CreditCurveDataKeyMap;
 import com.opengamma.util.result.Result;
 
 /**
- * Tests use cases of {@link ConfigDbCreditKeyMapperFn}.
+ * Tests use cases of {@link DefaultCreditKeyMapperFn}.
  */
 public class ConfigDbCreditKeyMapperFnTest {
   
   private CreditCurveDataKey _source;
   private CreditCurveDataKey _target;
   private CreditCurveDataKey _missing;
-  private ConfigDbCreditKeyMapperFn _fn;
+  private DefaultCreditKeyMapperFn _fn;
 
 
   @BeforeMethod
@@ -36,12 +35,12 @@ public class ConfigDbCreditKeyMapperFnTest {
     
     CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder().keyMap(keyMap).build();
     
-    _fn = new ConfigDbCreditKeyMapperFn(ConfigLink.resolved(configKeyMap));
+    _fn = new DefaultCreditKeyMapperFn(configKeyMap);
   }
   
   @Test
   public void successfulMap() {
-    Result<CreditCurveDataKey> result = _fn.map(_source);
+    Result<CreditCurveDataKey> result = _fn.getMapping(_source);
     
     assertTrue("Expected success", result.isSuccess());
     assertEquals("Expected target key", _target, result.getValue());
@@ -49,7 +48,7 @@ public class ConfigDbCreditKeyMapperFnTest {
 
   @Test
   public void noMapping() {
-    Result<CreditCurveDataKey> result = _fn.map(_missing);
+    Result<CreditCurveDataKey> result = _fn.getMapping(_missing);
     
     assertTrue("Expected success", result.isSuccess());
     assertEquals("Expected same key (i.e. missing)", _missing, result.getValue());

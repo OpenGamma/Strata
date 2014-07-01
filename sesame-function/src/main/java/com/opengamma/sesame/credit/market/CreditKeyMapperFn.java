@@ -26,6 +26,6 @@ public interface CreditKeyMapperFn {
    * @param key a credit key
    * @return a credit key result
    */
-  Result<CreditCurveDataKey> map(CreditCurveDataKey key);
+  Result<CreditCurveDataKey> getMapping(CreditCurveDataKey key);
   
 }

@@ -7,33 +7,33 @@ package com.opengamma.sesame.credit.market;
 
 import java.util.Map;
 
-import com.opengamma.core.link.ConfigLink;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.config.CreditCurveDataKeyMap;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
- * Implementation of {@link CreditKeyMapperFn} which sources a key map
- * from the config db. See {@link CreditKeyMapperFn} for further details.
+ * Default implementation of {@link CreditKeyMapperFn}. It is driven by
+ * an instance of {@link CreditCurveDataKeyMap}, a type which can be 
+ * stored and/or sourced from the config db.
  */
-public class ConfigDbCreditKeyMapperFn implements CreditKeyMapperFn {
+public class DefaultCreditKeyMapperFn implements CreditKeyMapperFn {
 
-  private final ConfigLink<CreditCurveDataKeyMap> _keyMapLink;
+  private final CreditCurveDataKeyMap _keyMap;
   
   /**
    * Constructs an instance of this function.
    * 
-   * @param keyMapLink a link to the key map to use.
+   * @param keyMap the key map to use.
    */
-  public ConfigDbCreditKeyMapperFn(ConfigLink<CreditCurveDataKeyMap> keyMapLink) {
-    _keyMapLink = ArgumentChecker.notNull(keyMapLink, "keyMapLink");
+  public DefaultCreditKeyMapperFn(CreditCurveDataKeyMap keyMap) {
+    _keyMap = ArgumentChecker.notNull(keyMap, "keyMap");
   }
 
   @Override
-  public Result<CreditCurveDataKey> map(CreditCurveDataKey key) {
+  public Result<CreditCurveDataKey> getMapping(CreditCurveDataKey key) {
     
-    Map<CreditCurveDataKey, CreditCurveDataKey> keyMap = _keyMapLink.resolve().getKeyMap();
+    Map<CreditCurveDataKey, CreditCurveDataKey> keyMap = _keyMap.getKeyMap();
     
     //if a mapping exists, use the target key, else use the passed key
     CreditCurveDataKey resultKey = keyMap.containsKey(key) ? keyMap.get(key) : key;
