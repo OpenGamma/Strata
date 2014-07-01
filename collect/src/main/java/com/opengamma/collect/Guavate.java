@@ -169,6 +169,7 @@ public final class Guavate {
    * @param <K> the type of the keys in the result map
    * @param keyExtractor  function to produce keys from stream elements
    * @return the immutable map collector
+   * @throws IllegalArgumentException if the same key is generated twice
    */
   public static <T, K> Collector<T, ?, ImmutableMap<K, T>> toImmutableMap(
       Function<? super T, ? extends K> keyExtractor) {
@@ -193,6 +194,7 @@ public final class Guavate {
    * @param keyExtractor  function to produce keys from stream elements
    * @param valueExtractor  function to produce values from stream elements
    * @return the immutable map collector
+   * @throws IllegalArgumentException if the same key is generated twice
    */
   public static <T, K, V> Collector<T, ?, ImmutableMap<K,V>> toImmutableMap(
       Function<? super T, ? extends K> keyExtractor,
@@ -223,6 +225,7 @@ public final class Guavate {
    * @param <K> the type of the keys in the result map
    * @param keyExtractor  function to produce keys from stream elements
    * @return the immutable sorted map collector
+   * @throws IllegalArgumentException if the same key is generated twice
    */
   public static <T, K extends Comparable<?>> Collector<T, ?, ImmutableSortedMap<K, T>> toImmutableSortedMap(
       Function<? super T, ? extends K> keyExtractor) {
@@ -247,6 +250,7 @@ public final class Guavate {
    * @param keyExtractor  function to produce keys from stream elements
    * @param valueExtractor  function to produce values from stream elements
    * @return the immutable sorted map collector
+   * @throws IllegalArgumentException if the same key is generated twice
    */
   public static <T, K extends Comparable<?>, V> Collector<T, ?, ImmutableSortedMap<K,V>> toImmutableSortedMap(
       Function<? super T, ? extends K> keyExtractor,
