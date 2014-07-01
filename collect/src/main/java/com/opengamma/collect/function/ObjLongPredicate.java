@@ -22,11 +22,11 @@ public interface ObjLongPredicate<T> {
   /**
    * Evaluates the predicate.
    *
-   * @param t  the first argument
-   * @param u  the second argument
+   * @param obj  the first argument
+   * @param value  the second argument
    * @return true if the arguments match the predicate
    */
-  boolean test(T t, long u);
+  boolean test(T obj, long value);
 
   /**
    * Returns a new predicate that returns true if both predicates return true.
@@ -39,7 +39,7 @@ public interface ObjLongPredicate<T> {
    */
   default ObjLongPredicate<T> and(ObjLongPredicate<? super T> other) {
       Objects.requireNonNull(other);
-      return (T t, long u) -> test(t, u) && other.test(t, u);
+      return (obj, value) -> test(obj, value) && other.test(obj, value);
   }
 
   /**
@@ -53,7 +53,7 @@ public interface ObjLongPredicate<T> {
    */
   default ObjLongPredicate<T> or(ObjLongPredicate<? super T> other) {
       Objects.requireNonNull(other);
-      return (T t, long u) -> test(t, u) || other.test(t, u);
+      return (obj, value) -> test(obj, value) || other.test(obj, value);
   }
 
   /**
@@ -62,7 +62,7 @@ public interface ObjLongPredicate<T> {
    * @return the predicate, "NOT this"
    */
   default ObjLongPredicate<T> negate() {
-      return (T t, long u) -> !test(t, u);
+      return (obj, value) -> !test(obj, value);
   }
 
 }

@@ -10,7 +10,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * Test.
+ * Test ObjIntPredicate.
  */
 @Test
 public class ObjIntPredicateTest {

@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
 
 /**
- * Test.
+ * Test Guavate.
  */
 @Test
 public class GuavateTest {

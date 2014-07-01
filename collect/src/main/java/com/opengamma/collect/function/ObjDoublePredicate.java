@@ -22,11 +22,11 @@ public interface ObjDoublePredicate<T> {
   /**
    * Evaluates the predicate.
    *
-   * @param t  the first argument
-   * @param u  the second argument
+   * @param obj  the first argument
+   * @param value  the second argument
    * @return true if the arguments match the predicate
    */
-  boolean test(T t, double u);
+  boolean test(T obj, double value);
 
   /**
    * Returns a new predicate that returns true if both predicates return true.
@@ -39,7 +39,7 @@ public interface ObjDoublePredicate<T> {
    */
   default ObjDoublePredicate<T> and(ObjDoublePredicate<? super T> other) {
       Objects.requireNonNull(other);
-      return (T t, double u) -> test(t, u) && other.test(t, u);
+      return (obj, value) -> test(obj, value) && other.test(obj, value);
   }
 
   /**
@@ -53,7 +53,7 @@ public interface ObjDoublePredicate<T> {
    */
   default ObjDoublePredicate<T> or(ObjDoublePredicate<? super T> other) {
       Objects.requireNonNull(other);
-      return (T t, double u) -> test(t, u) || other.test(t, u);
+      return (obj, value) -> test(obj, value) || other.test(obj, value);
   }
 
   /**
@@ -62,7 +62,7 @@ public interface ObjDoublePredicate<T> {
    * @return the predicate, "NOT this"
    */
   default ObjDoublePredicate<T> negate() {
-      return (T t, double u) -> !test(t, u);
+      return (obj, value) -> !test(obj, value);
   }
 
 }

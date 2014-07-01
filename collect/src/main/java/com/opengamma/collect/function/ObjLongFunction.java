@@ -24,16 +24,17 @@ public interface ObjLongFunction<T, R> {
   /**
    * Evaluates the predicate.
    *
-   * @param t  the first argument
-   * @param u  the second argument
+   * @param obj  the first argument
+   * @param value  the second argument
    * @return true if the arguments match the predicate
    */
-  R apply(T t, long u);
+  R apply(T obj, long value);
 
   /**
-   * Returns a new function that combines this function and the specified function.
+   * Returns a new function that composes this function and the specified function.
    * <p>
-   * The result of this function is passed into the specified function.
+   * This returns a composed function that applies the input to this function
+   * and then converts the result using the specified function.
    *
    * @param <V> the result type of second function
    * @param other  the second function
@@ -42,7 +43,7 @@ public interface ObjLongFunction<T, R> {
    */
   default <V> ObjLongFunction<T, V> andThen(Function<? super R, ? extends V> other) {
     Objects.requireNonNull(other);
-    return (T t, long u) -> other.apply(apply(t, u));
+    return (obj, value) -> other.apply(apply(obj, value));
   }
 
 }
