@@ -8,8 +8,7 @@ package com.opengamma.collect.validate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import com.google.common.base.CharMatcher;
+import java.util.regex.Pattern;
 
 /**
  * Contains utility methods for checking inputs to methods.
@@ -188,28 +187,53 @@ public final class ArgChecker {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks that the specified parameter is non-null and not blank.
+   * Checks that the specified parameter is non-null and matches the specified pattern.
    * <p>
-   * Given the input parameter, this returns the trimmed input only if it is
-   * non-null and contains at least one non whitespace character.
+   * Given the input parameter, this returns only if it is non-null and matches
+   * the regular expression pattern specified.
    * For example, in a constructor:
    * <pre>
-   *  this.name = ArgChecker.notBlank(name, "name");
+   *  this.name = ArgChecker.matches(REGEX_NAME, name, "name");
+   * </pre>
+   * 
+   * @param pattern  the pattern to check against, may be null
+   * @param parameter  the parameter to check, may be null
+   * @param name  the name of the parameter to use in the error message, not null
+   * @return the input {@code parameter}, not null
+   * @throws IllegalArgumentException if the input is null or empty
+   */
+  public static String matches(Pattern pattern, String parameter, String name) {
+    notNull(pattern, "pattern");
+    notNull(parameter, name);
+    if (pattern.matcher(parameter).matches() == false) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must match pattern: " + pattern);
+    }
+    return parameter;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the specified parameter is non-null and not blank.
+   * <p>
+   * Given the input parameter, this returns the input only if it is non-null
+   * and contains at least one non whitespace character.
+   * This is often linked with a call to {@code trim()}.
+   * For example, in a constructor:
+   * <pre>
+   *  this.name = ArgChecker.notBlank(name, "name").trim();
    * </pre>
    * <p>
-   * The parameter is trimmed using {@link CharMatcher#WHITESPACE} and its corresponding
-   * {@link CharMatcher#trimFrom(CharSequence)} before testing for length zero.
-   * The trimmed parameter is returned.
+   * The parameter is trimmed using {@link String#trim()} to determine if it is empty.
+   * The result is the original parameter, not the trimmed one.
    * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
-   * @return the trimmed input {@code parameter}, not null
+   * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or blank
    */
   public static String notBlank(String parameter, String name) {
     notNull(parameter, name);
-    parameter = CharMatcher.WHITESPACE.trimFrom(parameter);
-    if (parameter.length() == 0) {
+    if (parameter.trim().length() == 0) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be empty");
     }
     return parameter;
