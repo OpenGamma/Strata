@@ -26,7 +26,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.sesame.engine.ViewFactory;
-import com.opengamma.sesame.marketdata.DefaultMarketDataSourceManager;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.server.CycleRunnerFactory;
 import com.opengamma.sesame.server.DataFunctionServerResource;
@@ -90,8 +89,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
-    CycleRunnerFactory cycleRunnerFactory =
-        new CycleRunnerFactory(getViewFactory(), new DefaultMarketDataSourceManager(getMarketDataFactory()));
+    CycleRunnerFactory cycleRunnerFactory = new CycleRunnerFactory(getViewFactory(), getMarketDataFactory());
     DefaultFunctionServer server = initFunctionServer(repo, cycleRunnerFactory);
     if (isEnableStreamedResults()) {
       initStreamingServer(repo, server, cycleRunnerFactory);

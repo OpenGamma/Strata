@@ -32,8 +32,6 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
 import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
@@ -51,7 +49,6 @@ import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
-import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -169,11 +166,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
       // todo - how do we adjust for holidays?
       for (LocalDate date = priceSeriesStart; !date.isAfter(priceSeriesEnd); date = date.plusDays(1)) {
-        
-        MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(date);
-        MarketDataSource marketDataSource = _marketDataFactory.create(marketDataSpec);
 
-        Environment envForDate = env.with(date.atStartOfDay(ZoneOffset.UTC), marketDataSource);
+        Environment envForDate = env.withValuationTime(date.atStartOfDay(ZoneOffset.UTC));
 
         // build multicurve for the date
         Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =

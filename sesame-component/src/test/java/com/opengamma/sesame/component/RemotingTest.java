@@ -364,7 +364,7 @@ public class RemotingTest {
     String curveBundleOutputName = "Curve Bundle";
     ViewConfig viewConfig = createCurveBundleConfig(curveBundleOutputName);
 
-    // Send the config to the server, along with version
+    // Send the config to the server, along with version#
     // correction, MD requirements, valuation date and
     // cycle specifics (once/multiple/infinite)
     // Proxy options?

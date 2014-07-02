@@ -16,8 +16,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.sesame.config.EmptyFunctionArguments;
 import com.opengamma.sesame.config.FunctionArguments;
-import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -31,7 +30,7 @@ public final class CycleArguments {
   // TODO portfolio version correction
 
   private final ZonedDateTime _valuationTime;
-  private final MarketDataSource _marketDataSource;
+  private final CycleMarketDataFactory _cycleMarketDataFactory;
   private final VersionCorrection _configVersionCorrection;
   private final Set<Pair<Integer, Integer>> _traceCells;
   private final Set<String> _traceOutputs;
@@ -42,21 +41,21 @@ public final class CycleArguments {
   // TODO use a Cell class instead of Pair<Integer, Integer>
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
-                        MarketDataSource marketDataSource) {
+                        CycleMarketDataFactory cycleMarketDataFactory) {
     this(valuationTime,
          configVersionCorrection,
-         marketDataSource,
+         cycleMarketDataFactory,
          EmptyFunctionArguments.INSTANCE,
          Collections.<Class<?>, Object>emptyMap());
   }
 
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
-                        MarketDataSource marketDataSource,
+                        CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
                         Map<Class<?>, Object> scenarioArguments) {
     this(valuationTime,
-         configVersionCorrection, marketDataSource,
+         configVersionCorrection, cycleMarketDataFactory,
          functionArguments,
          scenarioArguments,
          Collections.<Pair<Integer, Integer>>emptySet(),
@@ -65,37 +64,37 @@ public final class CycleArguments {
 
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
-                        MarketDataSource marketDataSource,
+                        CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
                         Map<Class<?>, Object> scenarioArguments,
                         Set<Pair<Integer, Integer>> traceCells,
                         Set<String> traceOutputs) {
-    this(valuationTime, configVersionCorrection,  marketDataSource, functionArguments,
+    this(valuationTime, configVersionCorrection, cycleMarketDataFactory, functionArguments,
          scenarioArguments, traceCells, traceOutputs, false);
   }
 
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
-                        MarketDataSource marketDataSource,
+                        CycleMarketDataFactory cycleMarketDataFactory,
                         boolean captureInputs) {
-    this(valuationTime, configVersionCorrection,  marketDataSource, EmptyFunctionArguments.INSTANCE,
+    this(valuationTime, configVersionCorrection, cycleMarketDataFactory, EmptyFunctionArguments.INSTANCE,
          ImmutableMap.<Class<?>, Object>of(), ImmutableSet.<Pair<Integer, Integer>>of(),
          ImmutableSet.<String>of(), captureInputs);
   }
 
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
-                        StrategyAwareMarketDataSource marketDataSource,
+                        CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
                         Map<Class<?>, Object> scenarioArguments, boolean captureInputs) {
-    this(valuationTime, configVersionCorrection,  marketDataSource, functionArguments,
+    this(valuationTime, configVersionCorrection, cycleMarketDataFactory, functionArguments,
          scenarioArguments, ImmutableSet.<Pair<Integer, Integer>>of(),
          ImmutableSet.<String>of(), captureInputs);
   }
 
   public CycleArguments(ZonedDateTime valuationTime,
                         VersionCorrection configVersionCorrection,
-                        MarketDataSource marketDataSource,
+                        CycleMarketDataFactory cycleMarketDataFactory,
                         FunctionArguments functionArguments,
                         Map<Class<?>, Object> scenarioArguments,
                         Set<Pair<Integer, Integer>> traceCells,
@@ -105,7 +104,7 @@ public final class CycleArguments {
     _scenarioArguments = ImmutableMap.copyOf(ArgumentChecker.notNull(scenarioArguments, "scenarioArguments"));
     _configVersionCorrection = ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection");
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
-    _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
+    _cycleMarketDataFactory = ArgumentChecker.notNull(cycleMarketDataFactory, "cycleMarketDataFactory");
     _traceCells = ImmutableSet.copyOf(ArgumentChecker.notNull(traceCells, "traceCells"));
     _traceOutputs = ImmutableSet.copyOf(ArgumentChecker.notNull(traceOutputs, "traceOutputs"));
     _captureInputs = captureInputs;
@@ -115,8 +114,8 @@ public final class CycleArguments {
     return _valuationTime;
   }
 
-  MarketDataSource getMarketDataSource() {
-    return _marketDataSource;
+  CycleMarketDataFactory getCycleMarketDataFactory() {
+    return _cycleMarketDataFactory;
   }
 
   boolean isTracingEnabled(String output) {

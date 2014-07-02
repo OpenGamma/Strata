@@ -21,7 +21,6 @@ import static org.testng.AssertJUnit.fail;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import org.springframework.test.AssertThrows;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;

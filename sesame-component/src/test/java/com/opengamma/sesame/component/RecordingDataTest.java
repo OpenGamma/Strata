@@ -15,6 +15,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -75,6 +77,7 @@ import com.opengamma.sesame.fxforward.FXForwardYCNSPnLSeriesFn;
 import com.opengamma.sesame.fxforward.FXForwardYieldCurveNodeSensitivitiesFn;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.irs.InterestRateSwapFn;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
@@ -109,9 +112,12 @@ public class RecordingDataTest {
         InterestRateMockSources.createMarketDataFactory().create(
             new FixedHistoricalMarketDataSpecification(valTime.toLocalDate()));
 
+    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(marketDataSource);
+
     VersionCorrection versionCorrection =
         ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class).getConfigVersionCorrection();
-    CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, marketDataSource, true);
+    CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, cycleMarketDataFactory, true);
 
     Results run = view.run(cycleArguments);
     Result<Object> result = run.getNonPortfolioResults().get("TEST").getResult();

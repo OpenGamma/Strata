@@ -30,8 +30,8 @@ import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.Graph;
 import com.opengamma.sesame.graph.GraphModel;
-import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.sesame.marketdata.ProxiedMarketDataSource;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
+import com.opengamma.sesame.marketdata.ProxiedCycleMarketData;
 
 /**
  * A cycle initializer to be used  for capturing the
@@ -46,7 +46,7 @@ class CapturingCycleInitializer implements CycleInitializer {
   private final ServiceContext _serviceContext;
   private final DefaultCycleRecorder _recorder;
   private final Graph _graph;
-  private final MarketDataSource _marketDataSource;
+  private final CycleMarketDataFactory _cycleMarketDataFactory;
 
   /**
    * Creates cycle initializer for a capturing cycle.
@@ -64,8 +64,8 @@ class CapturingCycleInitializer implements CycleInitializer {
                                    GraphModel graphModel,
                                    ViewConfig viewConfig, List<?> inputs) {
 
-    ProxiedMarketDataSource proxiedMarketDataSource =
-        new ProxiedMarketDataSource(cycleArguments.getMarketDataSource());
+    ProxiedCycleMarketData proxiedCycleMarketData =
+        new ProxiedCycleMarketData(cycleArguments.getCycleMarketDataFactory());
 
     ProxiedComponentMap collector = new DefaultProxiedComponentMap();
 
@@ -82,18 +82,18 @@ class CapturingCycleInitializer implements CycleInitializer {
     // prevent us hitting the sources
     _graph = graphModel.build(componentMap, new FunctionBuilder());
 
-    _marketDataSource = proxiedMarketDataSource;
+    _cycleMarketDataFactory = proxiedCycleMarketData;
     _serviceContext = serviceContext.with(componentMap.getComponents());
     _recorder = new DefaultCycleRecorder(viewConfig,
                                         inputs,
                                         cycleArguments,
-                                        proxiedMarketDataSource,
+                                        proxiedCycleMarketData,
                                         collector);
   }
 
   @Override
-  public MarketDataSource getMarketDataSource() {
-    return _marketDataSource;
+  public CycleMarketDataFactory getCycleMarketDataFactory() {
+    return _cycleMarketDataFactory;
   }
 
   @Override
@@ -125,8 +125,9 @@ class CapturingCycleInitializer implements CycleInitializer {
       final Object component = entry.getValue();
 
       // This proxy mechanism works correctly but unfortunately the
-      // sources and other components in proxies are not so well behaved
-      // so we won't get consistent data recorded
+      // sources and other components in proxies are not so well behaved.
+      // In order to get consistent data recorded we need to use
+      // source implementations that are well behaved as well.
       InvocationHandler handler = new InvocationHandler() {
         @Override
         public Object invoke(Object proxy,
@@ -172,6 +173,9 @@ class CapturingCycleInitializer implements CycleInitializer {
         proxy = new NarrowingRegionSource((RegionSource) proxy);
       } else if (key == HolidaySource.class) {
         proxy = new NarrowingHolidaySource((HolidaySource) proxy);
+      } else {
+        // Don't proxy any other components
+        proxy = component;
       }
       wrapped.put(key, proxy);
     }
