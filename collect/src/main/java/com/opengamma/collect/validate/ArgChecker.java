@@ -42,7 +42,7 @@ public final class ArgChecker {
    *  ArgChecker.isTrue(collection.contains("value"), "Collection must contain 'value'");
    * </pre>
    * 
-   * @param validIfTrue  a boolean resulting from testing an argument, may be null
+   * @param validIfTrue  a boolean resulting from testing an argument
    * @param message  the error message, not null
    * @throws IllegalArgumentException if the test value is false
    */
@@ -73,7 +73,7 @@ public final class ArgChecker {
    * end of the message. No attempt is made to format the arguments.
    * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
    * 
-   * @param validIfTrue  a boolean resulting from testing an argument, may be null
+   * @param validIfTrue  a boolean resulting from testing an argument
    * @param message  the error message with {} placeholders, not null
    * @param arg  the message arguments
    * @throws IllegalArgumentException if the test value is false
@@ -98,7 +98,7 @@ public final class ArgChecker {
    * This returns {@code void}, and not the value being checked, as there is
    * never a good reason to validate a boolean parameter value.
    * 
-   * @param validIfFalse  a boolean resulting from testing an argument, may be null
+   * @param validIfFalse  a boolean resulting from testing an argument
    * @param message  the error message, not null
    * @throws IllegalArgumentException if the test value is true
    */
@@ -129,9 +129,9 @@ public final class ArgChecker {
    * end of the message. No attempt is made to format the arguments.
    * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
    * 
-   * @param validIfFalse  a boolean resulting from testing an argument, may be null
+   * @param validIfFalse  a boolean resulting from testing an argument
    * @param message  the error message with {} placeholders, not null
-   * @param arg  the message arguments
+   * @param arg  the message arguments, not null
    * @throws IllegalArgumentException if the test value is true
    */
   public static void isFalse(boolean validIfFalse, String message, Object... arg) {
@@ -152,7 +152,7 @@ public final class ArgChecker {
    * </pre>
    * 
    * @param <T>  the type of the input parameter reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null
@@ -173,7 +173,7 @@ public final class ArgChecker {
    * you would provide in the configuration file.
    * 
    * @param <T>  the type of the input parameter reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null
@@ -196,8 +196,8 @@ public final class ArgChecker {
    *  this.name = ArgChecker.matches(REGEX_NAME, name, "name");
    * </pre>
    * 
-   * @param pattern  the pattern to check against, may be null
-   * @param parameter  the parameter to check, may be null
+   * @param pattern  the pattern to check against, not null
+   * @param parameter  the parameter to check, null throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
@@ -226,14 +226,14 @@ public final class ArgChecker {
    * The parameter is trimmed using {@link String#trim()} to determine if it is empty.
    * The result is the original parameter, not the trimmed one.
    * 
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or blank throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or blank
    */
   public static String notBlank(String parameter, String name) {
     notNull(parameter, name);
-    if (parameter.trim().length() == 0) {
+    if (parameter.trim().isEmpty()) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be empty");
     }
     return parameter;
@@ -251,14 +251,14 @@ public final class ArgChecker {
    *  this.name = ArgChecker.notEmpty(name, "name");
    * </pre>
    * 
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or empty throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
    */
   public static String notEmpty(String parameter, String name) {
     notNull(parameter, name);
-    if (parameter.length() == 0) {
+    if (parameter.isEmpty()) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be empty");
     }
     return parameter;
@@ -275,7 +275,7 @@ public final class ArgChecker {
    * </pre>
    * 
    * @param <T>  the type of the input array reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or empty throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
@@ -298,7 +298,7 @@ public final class ArgChecker {
    *  this.values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or empty throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
@@ -321,7 +321,7 @@ public final class ArgChecker {
    *  this.values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or empty throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
@@ -344,7 +344,7 @@ public final class ArgChecker {
    *  this.values = ArgChecker.notEmpty(values, "values");
    * </pre>
    * 
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or empty throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
@@ -369,7 +369,7 @@ public final class ArgChecker {
    * 
    * @param <T>  the element type of the input iterable reflected in the result
    * @param <I>  the type of the input iterable, reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or empty throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
@@ -394,7 +394,7 @@ public final class ArgChecker {
    *
    * @param <T>  the element type of the input collection reflected in the result
    * @param <C>  the type of the input collection, reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or empty throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
@@ -420,7 +420,7 @@ public final class ArgChecker {
    * @param <K>  the key type of the input map key, reflected in the result
    * @param <V>  the value type of the input map value, reflected in the result
    * @param <M>  the type of the input map, reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or empty throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or empty
@@ -444,7 +444,7 @@ public final class ArgChecker {
    * </pre>
    * 
    * @param <T>  the type of the input array reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or contains null throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or contains nulls
@@ -470,7 +470,7 @@ public final class ArgChecker {
    * 
    * @param <T>  the element type of the input iterable reflected in the result
    * @param <I>  the type of the input iterable, reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or contains null throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or contains nulls
@@ -497,7 +497,7 @@ public final class ArgChecker {
    * @param <K>  the key type of the input map key, reflected in the result
    * @param <V>  the value type of the input map value, reflected in the result
    * @param <M>  the type of the input map, reflected in the result
-   * @param parameter  the parameter to check, may be null
+   * @param parameter  the parameter to check, null or contains null throws an exception
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}, not null
    * @throws IllegalArgumentException if the input is null or contains nulls
@@ -654,13 +654,13 @@ public final class ArgChecker {
    * </pre>
    * 
    * @param parameter  the value to check
-   * @param eps  the accuracy to use for zero
+   * @param tolerance  the tolerance to use for zero
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}
    * @throws IllegalArgumentException if the absolute value of the argument is less than eps
    */
-  public static double notNegativeOrZero(double parameter, double eps, String name) {
-    if (CompareUtils.closeEquals(parameter, 0, eps)) {
+  public static double notNegativeOrZero(double parameter, double tolerance, String name) {
+    if (CompareUtils.closeEquals(parameter, 0, tolerance)) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
     }
     if (parameter < 0) {
@@ -682,13 +682,13 @@ public final class ArgChecker {
    * </pre>
    *
    * @param parameter  the value to check
-   * @param eps  the accuracy to use for zero
+   * @param tolerance  the tolerance to use for zero
    * @param name  the name of the parameter to use in the error message, not null
    * @return the input {@code parameter}
    * @throws IllegalArgumentException if the absolute value of the argument is less than eps
    */
-  public static double notZero(double parameter, double eps, String name) {
-    if (CompareUtils.closeEquals(parameter, 0d, eps)) {
+  public static double notZero(double parameter, double tolerance, String name) {
+    if (CompareUtils.closeEquals(parameter, 0d, tolerance)) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
     }
     return parameter;
@@ -700,7 +700,7 @@ public final class ArgChecker {
    * <p>
    * Given a collection, this returns true if any element is null.
    *
-   * @param iterable  the collection to test, not null
+   * @param iterable  the collection to test, null throws an exception
    * @return true if the collection contains a null element
    * @throws IllegalArgumentException if the collection is null
    */
@@ -718,7 +718,7 @@ public final class ArgChecker {
    * <p>
    * Given a collection, this returns true if any element is negative.
    *
-   * @param iterable  the collection to test, not null
+   * @param iterable  the collection to test, null or contains null throws an exception
    * @return true if the collection contains a negative element
    * @throws IllegalArgumentException if the collection is null or any element is null
    */
@@ -804,8 +804,8 @@ public final class ArgChecker {
    * or "equal to" the second.
    *
    * @param <T>  the type
-   * @param obj1  the first object, will be checked for not null
-   * @param obj2  the second object, will be checked for not null
+   * @param obj1  the first object, null throws an exception
+   * @param obj2  the second object, null throws an exception
    * @param param1  the first parameter name, not null
    * @param param2  the second parameter name, not null
    * @throws IllegalArgumentException if either input is null or they are not in order
@@ -833,8 +833,8 @@ public final class ArgChecker {
    * end of the message.
    * No attempt is made to format the arguments.
    * 
-   * @param messageTemplate  the message template with "{}" placeholders
-   * @param arg  the message arguments
+   * @param messageTemplate  the message template with "{}" placeholders, not null
+   * @param arg  the message arguments, not null
    * @return the formatted message
    */
   public static String formatMessage(String messageTemplate, Object... args) {
