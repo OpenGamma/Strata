@@ -45,6 +45,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -102,15 +103,15 @@ import com.opengamma.util.time.Expiry;
 public class InterestRateFutureFnTest {
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
-  
+
   private static final Environment ENV =
       new SimpleEnvironment(VALUATION_TIME,
                             InterestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
 
   private InterestRateFutureFn _irFutureFn;
-  
+
   private InterestRateFutureTrade _irFutureTrade = createIRFutureTrade();
-  
+
   @BeforeClass
   public void setUpClass() throws IOException {
     FunctionModelConfig config =
@@ -119,18 +120,18 @@ public class InterestRateFutureFnTest {
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfig", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
                 function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1e-9),
-                         argument("rootFinderRelativeTolerance", 1e-9),
-                         argument("rootFinderMaxIterations", 1000)),
+                    argument("rootFinderAbsoluteTolerance", 1e-9),
+                    argument("rootFinderRelativeTolerance", 1e-9),
+                    argument("rootFinderMaxIterations", 1000)),
                 function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", StringSet.of())),
+                    argument("impliedCurveNames", StringSet.of())),
                 function(DefaultHistoricalMarketDataFn.class,
-                         argument("dataSource", "BLOOMBERG")),
+                    argument("dataSource", "BLOOMBERG")),
                 function(DefaultCurveNodeConverterFn.class,
-                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                    argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
                 function(DefaultHistoricalTimeSeriesFn.class,
-                         argument("resolutionKey", "DEFAULT_TSS"),
-                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1))))),
+                    argument("resolutionKey", "DEFAULT_TSS"),
+                    argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1))))),
             implementations(InterestRateFutureFn.class, DefaultInterestRateFutureFn.class,
                             InterestRateFutureCalculatorFactory.class, InterestRateFutureDiscountingCalculatorFactory.class,
                             CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
@@ -154,7 +155,7 @@ public class InterestRateFutureFnTest {
 
     _irFutureFn = FunctionModel.build(InterestRateFutureFn.class, config, ComponentMap.of(components));
   }
-  
+
   private ImmutableMap<Class<?>, Object> generateComponents() {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     for (Map.Entry<Class<?>, Object> keys: InterestRateMockSources.generateBaseComponents().entrySet()) {
@@ -165,31 +166,39 @@ public class InterestRateFutureFnTest {
     builder.put(HistoricalTimeSeriesSource.class, mockHistoricalTimeSeriesSource());
     return builder.build();
   }
-  
+
   private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
     HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
     when(mock.changeManager()).thenReturn(mock(ChangeManager.class));
-    
-    HistoricalTimeSeries irFuturePrices = new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"), ImmutableLocalDateDoubleTimeSeries.of(VALUATION_TIME.toLocalDate(), 0.975));
+
+    HistoricalTimeSeries irFuturePrices = new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"),
+        ImmutableLocalDateDoubleTimeSeries.of(VALUATION_TIME.toLocalDate(), 0.975));
     when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE),
-                                      any(ExternalIdBundle.class),
-                                      eq("DEFAULT_TSS"),
-                                      any(LocalDate.class),
-                                      eq(true),
-                                      any(LocalDate.class),
-                                      eq(true))).thenReturn(irFuturePrices);
+        any(ExternalIdBundle.class),
+        eq("DEFAULT_TSS"),
+        any(LocalDate.class),
+        eq(true),
+        any(LocalDate.class),
+        eq(true))).thenReturn(irFuturePrices);
     return mock;
   }
-  
+
   @Test
   public void testPresentValue() {
     Result<MultipleCurrencyAmount> pvComputed = _irFutureFn.calculatePV(ENV, _irFutureTrade);
     assertThat(pvComputed.isSuccess(), is(true));
-    
+
   }
-  
+
+  @Test
+  public void testBucketedZeroDelta() {
+    Result<BucketedCurveSensitivities> bucketedZeroDelta = _irFutureFn
+        .calculateBucketedZeroIRDelta(ENV, _irFutureTrade);
+    assertThat(bucketedZeroDelta.isSuccess(), is(true));
+  }
+
   private InterestRateFutureTrade createIRFutureTrade() {
-    
+
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDate.of(2014, 6, 18), LocalTime.of(0, 0), ZoneId.systemDefault()));
     String tradingExchange = "";
     String settlementExchange = "";
@@ -197,10 +206,11 @@ public class InterestRateFutureFnTest {
     double unitAmount = 1000;
     ExternalId underlyingId = InterestRateMockSources.getLiborIndexId();
     String category = "";
-    InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, underlyingId, category);
+    InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, tradingExchange, settlementExchange,
+        currency, unitAmount, underlyingId, category);
     // Need this for time series lookup
     irFuture.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test future").toBundle());
-    
+
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
     BigDecimal tradeQuantity = BigDecimal.valueOf(10);
     LocalDate tradeDate = LocalDate.of(2000, 1, 1);

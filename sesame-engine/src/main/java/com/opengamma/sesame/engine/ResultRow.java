@@ -122,11 +122,6 @@ public final class ResultRow implements ImmutableBean {
   }
 
   @Override
-  public ResultRow clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

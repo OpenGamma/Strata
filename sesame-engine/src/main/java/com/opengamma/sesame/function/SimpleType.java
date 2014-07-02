@@ -109,11 +109,6 @@ public class SimpleType extends ParameterType implements ImmutableBean {
   }
 
   @Override
-  public SimpleType clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

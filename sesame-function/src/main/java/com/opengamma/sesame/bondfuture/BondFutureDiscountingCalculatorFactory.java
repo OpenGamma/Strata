@@ -20,7 +20,7 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Implementation of the BondFutureCalculatorFactory that uses the discounting calculator to return values.
  */
 public class BondFutureDiscountingCalculatorFactory implements BondFutureCalculatorFactory {
 
@@ -44,7 +44,7 @@ public class BondFutureDiscountingCalculatorFactory implements BondFutureCalcula
     FinancialSecurity security = (FinancialSecurity) bondFutureTrade.getSecurity();
     
     Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
-        _issuerProviderFn.createBundle(env, security, Result.success(new FXMatrix()));
+        _issuerProviderFn.createBundle(env, bondFutureTrade, new FXMatrix());
     
     Result<HistoricalTimeSeriesBundle> fixingsResult = _htsFn.getFixingsForSecurity(env, security);
     

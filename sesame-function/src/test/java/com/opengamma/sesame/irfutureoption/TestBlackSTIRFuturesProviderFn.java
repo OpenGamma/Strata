@@ -16,9 +16,9 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.trade.IRFutureOptionTrade;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -38,10 +38,10 @@ public final class TestBlackSTIRFuturesProviderFn implements BlackSTIRFuturesPro
   }
 
   @Override
-  public Result<BlackSTIRFuturesProviderInterface> getBlackSTIRFuturesProvider(Environment env, IRFutureOptionSecurity irFutureOption) {
+  public Result<BlackSTIRFuturesProviderInterface> getBlackSTIRFuturesProvider(Environment env, IRFutureOptionTrade trade) {
     
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, irFutureOption, Result.success(new FXMatrix()));
+        _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, trade, new FXMatrix());
     
     if (bundleResult.isSuccess()) {
 

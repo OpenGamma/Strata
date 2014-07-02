@@ -48,7 +48,7 @@ public class DiscountingFRACalculatorFactory implements FRACalculatorFactory {
   public Result<FRACalculator> createCalculator(Environment env, FRASecurity security) {
 
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, Result.success(new FXMatrix()));
+               _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
 
     if (bundleResult.isSuccess()) {
       FRACalculator calculator = new DiscountingFRACalculator(security,

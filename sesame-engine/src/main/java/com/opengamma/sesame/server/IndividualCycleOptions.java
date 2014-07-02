@@ -145,11 +145,6 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
   }
 
   @Override
-  public IndividualCycleOptions clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

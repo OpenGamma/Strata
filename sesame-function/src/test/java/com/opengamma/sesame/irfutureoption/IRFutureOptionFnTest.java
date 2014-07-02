@@ -10,6 +10,8 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -19,6 +21,7 @@ import static org.testng.AssertJUnit.fail;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import org.springframework.test.AssertThrows;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -45,6 +48,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
@@ -190,7 +194,9 @@ public class IRFutureOptionFnTest {
     HistoricalTimeSeriesSource mock = mock(HistoricalTimeSeriesSource.class);
     when(mock.changeManager()).thenReturn(mock(ChangeManager.class));
     
-    HistoricalTimeSeries irFuturePrices = new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"), ImmutableLocalDateDoubleTimeSeries.of(VALUATION_TIME.toLocalDate(), 0.975));
+    HistoricalTimeSeries irFuturePrices = 
+                                    new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"), 
+                                        ImmutableLocalDateDoubleTimeSeries.of(VALUATION_TIME.toLocalDate(), 0.975));
     when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE),
                                       any(ExternalIdBundle.class),
                                       eq("DEFAULT_TSS"),
@@ -216,7 +222,13 @@ public class IRFutureOptionFnTest {
     double unitAmount = 1000;
     ExternalId underlyingId = InterestRateMockSources.getLiborIndexId();
     String category = "";
-    InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, underlyingId, category);
+    InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, 
+                                                                         tradingExchange, 
+                                                                         settlementExchange, 
+                                                                         currency, 
+                                                                         unitAmount, 
+                                                                         underlyingId, 
+                                                                         category);
     // Need this for time series lookup
     ExternalId irFutureId = ExternalSchemes.syntheticSecurityId("Test future");
     irFuture.setExternalIdBundle(irFutureId.toBundle());
@@ -232,7 +244,15 @@ public class IRFutureOptionFnTest {
     double strike = 0.01;
     OptionType optionType = OptionType.PUT;
     ExternalId irFutureId = Iterables.getOnlyElement(_irFuture.getExternalIdBundle());
-    IRFutureOptionSecurity irFutureOption = new IRFutureOptionSecurity(exchange, _irFuture.getExpiry(), exerciseType, irFutureId, pointValue, margined, _irFuture.getCurrency(), strike, optionType);
+    IRFutureOptionSecurity irFutureOption = new IRFutureOptionSecurity(exchange, 
+                                                                      _irFuture.getExpiry(), 
+                                                                      exerciseType, 
+                                                                      irFutureId, 
+                                                                      pointValue, 
+                                                                      margined, 
+                                                                      _irFuture.getCurrency(), 
+                                                                      strike, 
+                                                                      optionType);
     // Need this for time series lookup
     irFutureOption.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test future option").toBundle());
     
@@ -252,5 +272,16 @@ public class IRFutureOptionFnTest {
     if (!pvComputed.isSuccess()) {
       fail(pvComputed.getFailureMessage());
     }
+  }
+  
+  
+  @Test
+  public void testBucketedZeroDelta() {
+    Result<BucketedCurveSensitivities> bucketedZeroDelta = 
+        _irFutureOptionFn.calculateBucketedZeroIRDelta(ENV, _irFutureOptionTrade);        
+    if (!bucketedZeroDelta.isSuccess()) {
+      fail(bucketedZeroDelta.getFailureMessage());
+    }
+    assertThat(bucketedZeroDelta.isSuccess(), is(true));
   }
 }

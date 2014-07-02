@@ -125,11 +125,6 @@ public class CollectionType extends ParameterType implements ImmutableBean {
   }
 
   @Override
-  public CollectionType clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

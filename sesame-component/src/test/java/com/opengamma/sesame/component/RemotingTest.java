@@ -191,7 +191,7 @@ public class RemotingTest {
     ResultItem resultItem = results.get(curveBundleOutputName);
     assertThat(resultItem, is(not(nullValue())));
 
-    Result<?> result = resultItem.getResult();
+    Result<Object> result = resultItem.getResult();
     if (!result.isSuccess()) {
       fail("Expected success but got: " + result);
     }

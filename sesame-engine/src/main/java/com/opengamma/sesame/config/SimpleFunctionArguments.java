@@ -122,11 +122,6 @@ public final class SimpleFunctionArguments implements FunctionArguments, Immutab
   }
 
   @Override
-  public SimpleFunctionArguments clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

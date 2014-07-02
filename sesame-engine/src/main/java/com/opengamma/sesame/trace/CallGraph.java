@@ -301,11 +301,6 @@ public final class CallGraph implements ImmutableBean {
     return new Builder(this);
   }
 
-  @Override
-  public CallGraph clone() {
-    return this;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CallGraph}.

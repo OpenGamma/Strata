@@ -90,11 +90,6 @@ public final class RetrievalPeriod implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   @Override
-  public RetrievalPeriod clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

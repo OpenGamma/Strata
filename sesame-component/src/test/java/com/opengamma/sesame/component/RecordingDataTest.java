@@ -116,7 +116,7 @@ public class RecordingDataTest {
     CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, marketDataSource, true);
 
     Results run = view.run(cycleArguments);
-    Result<?> result = run.getNonPortfolioResults().get("TEST").getResult();
+    Result<Object> result = run.getNonPortfolioResults().get("TEST").getResult();
     if (!result.isSuccess()) {
       fail(result.getFailureMessage());
     }
@@ -136,7 +136,7 @@ public class RecordingDataTest {
     CapturedResultsLoader loader = new CapturedResultsLoader(viewInputs2, availableOutputs, availableImplementations);
     Results run22 = loader.runViewFromInputs();
 
-    Result<?> result2 = run22.getNonPortfolioResults().get("TEST").getResult();
+    Result<Object> result2 = run22.getNonPortfolioResults().get("TEST").getResult();
     assertThat(result2.isSuccess(), is(true));
 
     // Check results are same as original ones

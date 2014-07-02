@@ -7,9 +7,9 @@ package com.opengamma.sesame.credit;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
-import com.opengamma.financial.analytics.curve.IsdaYieldCurveDefinition;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.cache.Cacheable;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
 /**
@@ -19,11 +19,12 @@ import com.opengamma.util.result.Result;
 public interface IsdaCompliantYieldCurveFn {
   
   /**
-   * Builds an {@link ISDACompliantYieldCurve} from the passed {@link CurveConstructionConfiguration}.
+   * Builds an {@link ISDACompliantYieldCurve} for the given currency.
    * @param env the pricing environment
-   * @param definition the curve config to use
+   * @param ccy the currency of the curve to bootstrap
    * @return a result containing an {@link ISDACompliantCurve} if successful, or failure
    */
-  Result<ISDACompliantYieldCurve> buildISDACompliantCurve(Environment env, IsdaYieldCurveDefinition definition);
+  @Cacheable
+  Result<ISDACompliantYieldCurve> buildIsdaCompliantCurve(Environment env, Currency ccy);
   
 }

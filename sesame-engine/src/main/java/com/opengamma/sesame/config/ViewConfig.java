@@ -190,11 +190,6 @@ public final class ViewConfig implements ImmutableBean {
   }
 
   @Override
-  public ViewConfig clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -116,11 +116,6 @@ public class NonPortfolioOutput implements ImmutableBean {
   }
 
   @Override
-  public NonPortfolioOutput clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

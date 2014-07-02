@@ -1,239 +1,154 @@
 package com.opengamma.sesame.credit;
 
-import static com.opengamma.sesame.config.ConfigBuilder.argument;
-import static com.opengamma.sesame.config.ConfigBuilder.arguments;
-import static com.opengamma.sesame.config.ConfigBuilder.config;
-import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.assertNotNull;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
+import java.util.SortedMap;
 
-import org.springframework.core.io.ClassPathResource;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.ClassToInstanceMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.holiday.impl.WeekendHolidaySource;
-import com.opengamma.core.region.Region;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
-import com.opengamma.financial.analytics.curve.CurveSpecification;
-import com.opengamma.financial.analytics.curve.IsdaYieldCurveDefinition;
-import com.opengamma.financial.convention.IsdaYieldCurveConvention;
-import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.service.ServiceContext;
-import com.opengamma.service.ThreadLocalServiceContext;
-import com.opengamma.service.VersionCorrectionProvider;
-import com.opengamma.sesame.CurveDefinitionFn;
-import com.opengamma.sesame.CurveSpecificationMarketDataFn;
-import com.opengamma.sesame.DefaultCurveDefinitionFn;
-import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
-import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.sesame.Environment;
-import com.opengamma.sesame.MarketDataResourcesLoader;
-import com.opengamma.sesame.MockUtils;
-import com.opengamma.sesame.RootFinderConfiguration;
-import com.opengamma.sesame.SimpleEnvironment;
-import com.opengamma.sesame.component.RetrievalPeriod;
-import com.opengamma.sesame.config.FunctionModelConfig;
-import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
-import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MapMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataSource;
-import com.opengamma.util.JodaBeanSerialization;
+import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.Tenor;
 
 /**
- * Tests the building of ISDA compliant yield curves.
+ * YC build test. Test data from /sesame-function/src/test/resources/credit/YC Test Data.xls
+ * 
+ * Tests construction of a simple yield curve and a failure case where the yc data is missing.
  */
 @Test(groups = TestGroup.UNIT)
 public class DefaultIsdaCompliantYieldCurveFnTest {
   
-  private final VersionCorrection _testVersionCorrection = VersionCorrection.of(Instant.now(), Instant.now());
+  private static final double DELTA = 10e-15;
+
+  private static final LocalDate VALUATION_DATE = LocalDate.of(2014,  3, 27);
+  private static final LocalDate SPOT_DATE = LocalDate.of(2014, 4, 1); //T+3
+
+  private IsdaCompliantYieldCurveFn _fn;
+
+  private Environment _env;
+
+  private static final SortedMap<LocalDate, Double> EXPECTED;
   
-  private final class TestVersionCorrectionProvider implements VersionCorrectionProvider {
-    @Override
-    public VersionCorrection getPortfolioVersionCorrection() {
-      return _testVersionCorrection;
-    }
-
-    @Override
-    public VersionCorrection getConfigVersionCorrection() {
-      return _testVersionCorrection;
-    }
-  }
-
-  private static final Class<?>[] MOCK_CLASSES = {
-    ConfigSource.class,
-    HistoricalTimeSeriesSource.class,
-    ConventionSource.class,
-    HistoricalMarketDataFn.class,
-    SecuritySource.class,
-    HolidayMaster.class,
-    RegionSource.class,
-    CurrencyMatrix.class
-  };
-  
-  private static final RootFinderConfiguration ROOT_FINDER_CONFIG = new RootFinderConfiguration(1e-9, 1e-9, 1000);
-
-  private IsdaCompliantYieldCurveFn _ycBuilder;
-
-  private Environment _environment;
-
-  private IsdaYieldCurveDefinition _usdISDAYC;
-  
-  @BeforeClass
-  public void init() throws IOException {
-    //builds graph, initializing mocks
-    
-    ClassToInstanceMap<Object> mocks = MockUtils.mocks(MOCK_CLASSES);
-    
-    initConfigSource(mocks.getInstance(ConfigSource.class));
-    initConventionSource(mocks.getInstance(ConventionSource.class));
-    initRegionSource(mocks.getInstance(RegionSource.class));
-    
-    mocks.putInstance(RootFinderConfiguration.class, ROOT_FINDER_CONFIG);
-    mocks.putInstance(HolidaySource.class, new WeekendHolidaySource());
-    
-    ComponentMap components = ComponentMap.of(mocks);
-    
-    FunctionModelConfig config = config(
-        arguments(
-            function(DefaultHistoricalTimeSeriesFn.class,
-                     argument("resolutionKey", "DEFAULT_TSS_CONFIG"),
-                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofDays(1))))),
-         implementations(CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-             CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-             MarketDataFn.class, DefaultMarketDataFn.class)
-           );
-
-    _ycBuilder = FunctionModel.build(DefaultIsdaCompliantYieldCurveFn.class, config, components);
-    
-    ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
-    Map<ExternalIdBundle, Double> marketData = 
-          MarketDataResourcesLoader.getData("/regression/isda_curve_testing/usdMarketQuotes.properties", "Ticker");
-    
-    MarketDataSource marketDataSource = MapMarketDataSource.builder()
-                                                           .addAll(marketData)
-                                                           .build();
-    
-    _environment = new SimpleEnvironment(valuationDate, marketDataSource);
-    
-    VersionCorrectionProvider vcProvider = new TestVersionCorrectionProvider();
-    
-    ServiceContext serviceContext = ServiceContext.of(mocks).with(VersionCorrectionProvider.class, vcProvider);
-    ThreadLocalServiceContext.init(serviceContext);
-    
-    _usdISDAYC = createISDAYieldCurveConstructionConfig();
-    
+  static {
+    //important note - discount factors are shifted back to trade date
+    //by dividing by P(spot date, trade date). i.e. DF of spot date to
+    //trade date. (This is >1 since trade date is before spot date.)
+    //this step is necessary because ISDA model requires that future 
+    //values are discounted back to spot date, not the trade date.
+    //'valuation date' in OpenGamma refers to the trade date of the 
+    //ISDA model so it is important to make the distinction.
+    EXPECTED = ImmutableSortedMap.<LocalDate, Double> naturalOrder()
+                  .put(LocalDate.of(2014, 6, 1), 0.998346299747064)
+                  .put(LocalDate.of(2014, 7, 1), 0.996829575396936)
+                  .put(LocalDate.of(2014, 8, 1), 0.994858240378622)
+                  .put(LocalDate.of(2014, 9, 1), 0.992890803882032)
+                  .put(LocalDate.of(2014, 10, 1), 0.990990537728945)
+                  .put(LocalDate.of(2014, 11, 1), 0.989094157713670)
+                  .put(LocalDate.of(2014, 12, 1), 0.987262406564133)
+                  .put(LocalDate.of(2015, 1, 1), 0.985373160777861)
+                  .put(LocalDate.of(2015, 2, 1), 0.983259485394869)
+                  .put(LocalDate.of(2015, 3, 1), 0.981354256531180)
+                  .put(LocalDate.of(2015, 4, 1), 0.979249201901534)
+                  .build();
   }
   
-  private void initRegionSource(RegionSource mock) {
-    Region usRegion = mock(Region.class);
-    when(usRegion.getCurrency()).thenReturn(Currency.USD);
-    when(mock.getHighestLevelRegion(ExternalId.of("FINANCIAL_REGION", "US"))).thenReturn(usRegion);
+  @BeforeMethod
+  public void beforeMethod() {
+    
+    YieldCurveDataProviderFn providerFn = mock(YieldCurveDataProviderFn.class);
+    
+    when(providerFn.retrieveYieldCurveData(Currency.GBP)).
+        thenReturn(Result.<YieldCurveData> failure(FailureStatus.ERROR, "test"));
+    
+    _fn = new DefaultIsdaCompliantYieldCurveFn(providerFn);
+    
+    SortedMap<Tenor, Double> cashData = ImmutableSortedMap.<Tenor, Double> naturalOrder()
+                                          .put(Tenor.ONE_MONTH, 0.00445)
+                                          .put(Tenor.TWO_MONTHS, 0.009488)
+                                          .put(Tenor.THREE_MONTHS, 0.012337)
+                                          .put(Tenor.SIX_MONTHS, 0.017762)
+                                          .put(Tenor.NINE_MONTHS, 0.01935)
+                                          .put(Tenor.ONE_YEAR, 0.020838)
+                                          .build();
+    
+    @SuppressWarnings("deprecation")
+    SortedMap<Tenor, Double> swapData = ImmutableSortedMap.<Tenor, Double> naturalOrder()
+                                          .put(Tenor.TWO_YEARS, 0.01652)
+                                          .put(Tenor.THREE_YEARS, 0.02018)
+                                          .put(Tenor.FOUR_YEARS, 0.023033)
+                                          .put(Tenor.FIVE_YEARS, 0.02525)
+                                          .put(Tenor.SIX_YEARS, 0.02696)
+                                          .put(Tenor.SEVEN_YEARS, 0.02825)
+                                          .put(Tenor.EIGHT_YEARS, 0.02931)
+                                          .put(Tenor.NINE_YEARS, 0.03017)
+                                          .put(Tenor.TEN_YEARS, 0.03092)
+                                          .put(new Tenor(Period.ofYears(11)), 0.0316)
+                                          .put(new Tenor(Period.ofYears(12)), 0.03231)
+                                          .put(new Tenor(Period.ofYears(15)), 0.03367)
+                                          .put(new Tenor(Period.ofYears(20)), 0.03419)
+                                          .put(new Tenor(Period.ofYears(25)), 0.03411)
+                                          .put(new Tenor(Period.ofYears(30)), 0.03412)
+                                          .build();
+    
+    YieldCurveData ycData = YieldCurveData.builder()
+                      .cashData(cashData)
+                      .swapData(swapData)
+                      .calendar(new MondayToFridayCalendar("test"))
+                      .cashDayCount(DayCounts.ACT_360)
+                      .currency(Currency.USD)
+                      .curveBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
+                      .curveDayCount(DayCounts.ACT_365)
+                      .spotDate(SPOT_DATE)
+                      .swapDayCount(DayCounts.THIRTY_360)
+                      .swapFixedLegInterval(Tenor.ONE_YEAR)
+                      .build();
+    
+    when(providerFn.retrieveYieldCurveData(Currency.USD)).thenReturn(Result.success(ycData));
+    
+    _env = mock(Environment.class);
+    
+    when(_env.getValuationDate()).thenReturn(VALUATION_DATE);
+    
   }
 
   @Test
-  public void testBuildISDACompliantCurve() {
-    //TODO - add a numbers check here
-    Result<ISDACompliantYieldCurve> isdaCompliantCurve = _ycBuilder.buildISDACompliantCurve(_environment, _usdISDAYC);
-    
-    if (!isdaCompliantCurve.isSuccess()) {
-      fail("Curve bundle result failed with " + isdaCompliantCurve.getFailureMessage());
-    }
-    
-    ISDACompliantYieldCurve value = isdaCompliantCurve.getValue();
-    
-    System.out.println(value);
+  public void testProviderFailure() {
+    Result<ISDACompliantYieldCurve> result = _fn.buildIsdaCompliantCurve(_env, Currency.GBP);
+    assertFalse("GBP curve data lookup failed so this call should too.", result.isSuccess());
   }
   
   @Test
-  public void testMarketDataLookupFailure() {
-    CurveSpecificationMarketDataFn specMDFn = mock(CurveSpecificationMarketDataFn.class);
-    Environment anyEnv = any();
-    CurveSpecification anySpec = any();
-    when(specMDFn.requestData(anyEnv, anySpec))
-      .thenReturn(Result.<Map<ExternalIdBundle,Double>> failure(FailureStatus.ERROR, "Failed miserably!"));
+  public void testBuildUSD() {
+    Result<ISDACompliantYieldCurve> usdCurve = _fn.buildIsdaCompliantCurve(_env, Currency.USD);
     
-    IsdaCompliantYieldCurveFn fn = new DefaultIsdaCompliantYieldCurveFn(specMDFn, 
-                                                                        mock(RegionSource.class), 
-                                                                        mock(HolidaySource.class));
+    ISDACompliantYieldCurve curve = usdCurve.getValue();
     
-    Result<ISDACompliantYieldCurve> result = fn.buildISDACompliantCurve(this._environment, _usdISDAYC);
+    assertNotNull(curve);
     
-    assertFalse("Expected failure", result.isSuccess());
-    
-  }
-
-  private IsdaYieldCurveDefinition createISDAYieldCurveConstructionConfig() {
-    String curveConfigPath = "isda_ycdef_usd.xml";
-    return loadConfig(IsdaYieldCurveDefinition.class, curveConfigPath);
-  }
-  
-  private void initConfigSource(ConfigSource cs) {
-    IsdaYieldCurveDefinition def = createISDAYieldCurveConstructionConfig();
-    when(cs.get(Object.class, "ISDA USD YC", _testVersionCorrection))
-        .thenReturn(Collections.singleton(ConfigItem.<Object>of(def)));
-    when(cs.get(AbstractCurveDefinition.class, "ISDA USD YC", _testVersionCorrection))
-        .thenReturn(Collections.singleton(ConfigItem.<AbstractCurveDefinition>of(def)));
-    
-  }
-  
-  private void initConventionSource(ConventionSource cs) {
-    IsdaYieldCurveConvention ycConvention = loadConvention(IsdaYieldCurveConvention.class, "isda_ycconv_usd.xml");
-    when(cs.getSingle(ExternalIdBundle.of("CONVENTION", "ISDA YC USD"), _testVersionCorrection))
-        .thenReturn(ycConvention);
-    
-  }
-  
-  private <T> T loadConfig(Class<T> clazz, String path) {
-    return loadBean(clazz, "config/" + path);
-  }
-  
-  private <T> T loadConvention(Class<T> clazz, String path) {
-    return loadBean(clazz, "convention/" + path);
-  }
-  
-  private <T> T loadBean(Class<T> clazz, String path) {
-    try {
-      File file = new ClassPathResource("regression/isda_curve_testing/" + path).getFile();
-        return JodaBeanSerialization.deserializer().xmlReader().read(new FileInputStream(file), clazz);
-    } catch (IOException ex) {
-      throw Throwables.propagate(ex);
+    for (Map.Entry<LocalDate, Double> entry : EXPECTED.entrySet()) {
+      double t = TimeCalculator.getTimeBetween(VALUATION_DATE, entry.getKey());
+      double discountFactor = curve.getDiscountFactor(t);
+      System.out.println(entry.getKey() + " " + discountFactor + " " + (discountFactor - entry.getValue()));
+      assertEquals(entry.getValue(), discountFactor, DELTA);
     }
-
   }
-
 }

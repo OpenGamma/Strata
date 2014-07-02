@@ -196,11 +196,6 @@ public final class GlobalCycleOptions implements ImmutableBean, CycleOptions {
   }
 
   @Override
-  public GlobalCycleOptions clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;

@@ -92,11 +92,6 @@ public final class StringSet implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   @Override
-  public StringSet clone() {
-    return this;
-  }
-
-  @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
