@@ -197,6 +197,12 @@
         <artifactId>joda-beans</artifactId>
         <version>${joda-beans.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>1.3.9</version>
+        <optional>true</optional><!-- needed only for annotations -->
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
