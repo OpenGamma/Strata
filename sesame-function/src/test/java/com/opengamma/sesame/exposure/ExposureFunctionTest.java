@@ -54,9 +54,11 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
@@ -109,8 +111,7 @@ public class ExposureFunctionTest {
 
   private FunctionModelConfig createFunctionModelConfig(ExposureFunctions exposureFunctions) {
 
-    FunctionModelConfig config =
-        config(
+    return config(
             arguments(
                 function(
                     ConfigDbMarketExposureSelectorFn.class,
@@ -138,6 +139,7 @@ public class ExposureFunctionTest {
                 DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                 MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                 DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                 CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                 CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                 CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
@@ -148,7 +150,6 @@ public class ExposureFunctionTest {
                 HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class
             )
         );
-    return config;
   }
 
   @Test
