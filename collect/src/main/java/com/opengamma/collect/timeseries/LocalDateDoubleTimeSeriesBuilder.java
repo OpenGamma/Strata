@@ -6,6 +6,8 @@
 package com.opengamma.collect.timeseries;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.OptionalDouble;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -37,6 +39,20 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    * Use {@link LocalDateDoubleTimeSeries#builder()}.
    */
   LocalDateDoubleTimeSeriesBuilder() {
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * Use {@link LocalDateDoubleTimeSeries#toBuilder()}.
+   * 
+   * @param dates  the dates to initialize with
+   * @param values  the values to initialize with
+   */
+  LocalDateDoubleTimeSeriesBuilder(LocalDate[] dates, double[] values) {
+    for (int i = 0; i < dates.length; i++) {
+      entries.put(dates[i], values[i]);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -82,7 +98,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   /**
    * Puts all the specified dates and values into this builder.
    * <p>
-   * The dates and values arrays must be the same size.
+   * The date and value collections must be the same size.
    * <p>
    * The date-value pairs are added one by one.
    * If a date is duplicated it will overwrite an earlier entry.
@@ -91,11 +107,13 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    * @param values  the values to be added
    * @return this builder
    */
-  public LocalDateDoubleTimeSeriesBuilder putAll(LocalDate[] dates, double[] values) {
-    ArgChecker.isTrue(dates.length == values.length,
-        "Arrays are of different sizes - dates: {}, values: {}", dates.length, values.length);
-    for (int i = 0; i < dates.length; i++) {
-      entries.put(dates[i], values[i]);
+  public LocalDateDoubleTimeSeriesBuilder putAll(Collection<LocalDate> dates, Collection<Double> values) {
+    ArgChecker.isTrue(dates.size() == values.size(),
+        "Arrays are of different sizes - dates: {}, values: {}", dates.size(), values.size());
+    Iterator<LocalDate> itDate = dates.iterator();
+    Iterator<Double> itValue = values.iterator();
+    for (int i = 0; i < dates.size(); i++) {
+      entries.put(itDate.next(), itValue.next());
     }
     return this;
   }

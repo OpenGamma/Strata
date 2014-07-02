@@ -37,6 +37,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.collect.Guavate;
@@ -106,19 +107,6 @@ public final class LocalDateDoubleTimeSeries
    */
   public static LocalDateDoubleTimeSeries of(LocalDate date, double value) {
     return new LocalDateDoubleTimeSeries(date, value);  // validated in constructor
-  }
-
-  /**
-   * Obtains a time-series from matching arrays of dates and values.
-   * <p>
-   * The two arrays must be the same size and must be sorted from earliest to latest.
-   *
-   * @param dates  the date array
-   * @param values  the value array
-   * @return the time-series
-   */
-  public static LocalDateDoubleTimeSeries of(LocalDate[] dates, double[] values) {
-    return new LocalDateDoubleTimeSeries(dates, values);  // validated in constructor
   }
 
   /**
@@ -261,6 +249,30 @@ public final class LocalDateDoubleTimeSeries
     return values.clone();
   }
 
+  /**
+   * Returns the list of dates in this time-series.
+   * <p>
+   * This provides low-level access to the internal data.
+   * The stream and lambda methods should be used in preference to this method.
+   *
+   * @return the list of dates in this time-series
+   */
+  public ImmutableList<LocalDate> dates() {
+    return ImmutableList.copyOf(dates);
+  }
+
+  /**
+   * Returns the list of values in this time-series.
+   * <p>
+   * This provides low-level access to the internal data.
+   * The stream and lambda methods should be used in preference to this method.
+   *
+   * @return the list of values in this time-series
+   */
+  public ImmutableList<Double> values() {
+    return ImmutableList.copyOf(Doubles.asList(values));
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Return the size of this time-series.
@@ -308,22 +320,6 @@ public final class LocalDateDoubleTimeSeries
 
   private int findDatePosition(LocalDate date) {
     return Arrays.binarySearch(dates, date);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the point at the index within the time-series.
-   * <p>
-   * If the index is negative or greater than or equal to the size of the
-   * time-series then {@link IndexOutOfBoundsException} will be thrown.
-   *
-   * @param index  the index of the date to get from the time-series
-   * @return the date held at the index
-   * @throws IndexOutOfBoundsException if index is negative or
-   *  greater than or equal to the size of the time-series
-   */
-  public LocalDateDoublePoint getAtIndex(int index) {
-    return LocalDateDoublePoint.of(dates[index], values[index]);
   }
 
   //-------------------------------------------------------------------------
@@ -616,7 +612,7 @@ public final class LocalDateDoubleTimeSeries
    * @return a time-series builder
    */
   public LocalDateDoubleTimeSeriesBuilder toBuilder() {
-    return new LocalDateDoubleTimeSeriesBuilder().putAll(dates, values);
+    return new LocalDateDoubleTimeSeriesBuilder(dates, values);
   }
 
   /**

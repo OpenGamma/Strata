@@ -9,9 +9,13 @@ import static com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries.EMPTY_S
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.OptionalDouble;
 
 import org.testng.annotations.Test;
+
+import com.google.common.primitives.Doubles;
 
 /**
  * Test LocalDateDoubleTimeSeriesBuilder.
@@ -39,17 +43,15 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
 
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_putAll_arraysMismatch() {
+  public void test_putAll_collectionsMismatch() {
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
-    LocalDate[] dates = {date(2014, 1, 1)};
-    double[] values = {2d, 3d};
-    test.putAll(dates, values);
+    test.putAll(Arrays.asList(date(2014, 1, 1)), Doubles.asList(2d, 3d));
   }
 
   //-------------------------------------------------------------------------
   public void test_putAll_stream() {
-    LocalDate[] dates = {date(2013, 1, 1), date(2014, 1, 1)};
-    double[] values = {2d, 3d};
+    Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
+    Collection<Double> values = Doubles.asList(2d, 3d);
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.of(dates, values);
     
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
@@ -63,8 +65,8 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
   }
 
   public void test_putAll_toBuilder() {
-    LocalDate[] dates = {date(2013, 1, 1), date(2014, 1, 1)};
-    double[] values = {2d, 3d};
+    Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
+    Collection<Double> values = Doubles.asList(2d, 3d);
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.of(dates, values);
     
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
