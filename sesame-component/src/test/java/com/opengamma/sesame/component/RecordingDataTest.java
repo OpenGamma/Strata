@@ -15,6 +15,7 @@ import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.testng.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,10 +42,11 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.EngineTestUtils;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.OutputNames;
@@ -115,7 +117,9 @@ public class RecordingDataTest {
 
     Results run = view.run(cycleArguments);
     Result<Object> result = run.getNonPortfolioResults().get("TEST").getResult();
-    assertThat(result.isSuccess(), is(true));
+    if (!result.isSuccess()) {
+      fail(result.getFailureMessage());
+    }
 
     // Capture results
     ViewInputs viewInputs = run.getViewInputs();
@@ -164,9 +168,11 @@ public class RecordingDataTest {
                                                                argument("resolutionKey", "DEFAULT_TSS"),
                                                                argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
                                                            function(
+                                                               DefaultDiscountingMulticurveBundleResolverFn.class,
+                                                               argument("curveConfig", curveConstructionConfiguration)),
+                                                           function(
                                                                DefaultDiscountingMulticurveBundleFn.class,
-                                                               argument("impliedCurveNames", StringSet.of()),
-                                                               argument("curveConfig", curveConstructionConfiguration)))))));
+                                                               argument("impliedCurveNames", StringSet.of())))))));
   }
 
 
@@ -177,7 +183,7 @@ public class RecordingDataTest {
    */
   protected AvailableOutputs createAvailableOutputs() {
     AvailableOutputs available = new AvailableOutputsImpl();
-    available.register(DiscountingMulticurveBundleFn.class,
+    available.register(DiscountingMulticurveBundleResolverFn.class,
                        EquityPresentValueFn.class,
                        FRAFn.class,
                        InterestRateSwapFn.class,
@@ -209,6 +215,7 @@ public class RecordingDataTest {
         DefaultFXMatrixFn.class,
         DefaultCurveDefinitionFn.class,
         DefaultDiscountingMulticurveBundleFn.class,
+        DefaultDiscountingMulticurveBundleResolverFn.class,
         DefaultCurveSpecificationFn.class,
         ConfigDBCurveConstructionConfigurationSource.class,
         DefaultHistoricalTimeSeriesFn.class,

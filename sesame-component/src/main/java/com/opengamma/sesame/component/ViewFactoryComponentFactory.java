@@ -44,10 +44,11 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
-import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.cache.MethodInvocationKey;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -189,10 +190,10 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   protected AvailableOutputs createAvailableOutputs(ComponentRepository repo) {
     AvailableOutputs available = new AvailableOutputsImpl();
-    available.register(DiscountingMulticurveBundleFn.class,
-        EquityPresentValueFn.class,
+    available.register(EquityPresentValueFn.class,
         FRAFn.class,
         InterestRateSwapFn.class,
+        DiscountingMulticurveBundleResolverFn.class,
         FXForwardPnLSeriesFn.class,
         FXForwardPVFn.class,
         FXForwardYCNSPnLSeriesFn.class,
@@ -222,6 +223,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         DefaultFXMatrixFn.class,
         DefaultCurveDefinitionFn.class,
         DefaultDiscountingMulticurveBundleFn.class,
+        DefaultDiscountingMulticurveBundleResolverFn.class,
         DefaultCurveSpecificationFn.class,
         ConfigDBCurveConstructionConfigurationSource.class,
         DefaultHistoricalTimeSeriesFn.class,

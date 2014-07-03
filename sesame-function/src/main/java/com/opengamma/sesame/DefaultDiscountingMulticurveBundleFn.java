@@ -9,6 +9,7 @@ package com.opengamma.sesame;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.ERROR;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,7 +95,6 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Triple;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -156,8 +156,9 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
   //-------------------------------------------------------------------------
   @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
-      Environment env, CurveConstructionConfiguration curveConfig) {
+  public Result<MulticurveBundle> generateBundle(
+      Environment env, CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> requiredCurves) {
 
     // Each curve config may have one or more exogenous requirements which basically should
     // point to another curve config (which may point to one or more configs ...)
@@ -171,19 +172,21 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     // todo check for cycles in the config
 
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(env, curveConfig);
-    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(env, curveConfig, fxMatrixResult);
+    Result<MulticurveProviderDiscount> exogenousBundles =
+        buildExogenousBundles(env, curveConfig, requiredCurves, fxMatrixResult);
     return getCurves(env, curveConfig, exogenousBundles, fxMatrixResult);
-
   }
 
   @Override
-  public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
-      Environment env, CurveConstructionConfiguration curveConfig) {
+  public Result<ImpliedDepositCurveData> extractImpliedDepositCurveData(
+      Environment env,
+      CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves) {
 
     // todo - this implementation is nowhere near complete
     Result<FXMatrix> fxMatrixResult = _fxMatrixProvider.getFXMatrix(env, curveConfig);
 
-    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(env, curveConfig, fxMatrixResult);
+    Result<MulticurveProviderDiscount> exogenousBundles = buildExogenousBundles(env, curveConfig, builtCurves, fxMatrixResult);
 
     CurveGroupConfiguration group = curveConfig.getCurveGroups().get(0);
     Map.Entry<String, List<? extends CurveTypeConfiguration>> type = group.getTypesForCurves().entrySet().iterator().next();
@@ -206,8 +209,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   }
 
   // REVIEW Chris 2014-03-05 - the return type needs to be a class
-  private Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>
-  extractImpliedDepositCurveData(Currency currency,
+  private ImpliedDepositCurveData extractImpliedDepositCurveData(Currency currency,
                                  CurveDefinition impliedCurveDefinition,
                                  MulticurveProviderDiscount multicurves,
                                  ZonedDateTime valuationTime) {
@@ -242,7 +244,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
       parRates.add(parRate);
     }
   
-    return Triple.of(tenors, parRates, cashNodes);
+    return new ImpliedDepositCurveData(tenors, parRates, cashNodes);
   }
 
   private MulticurveDiscountBuildingRepository createBuilder() {
@@ -253,10 +255,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
   }
 
   // TODO sort this out [SSM-164]
-  private Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> getCurves(
-      Environment env,
-      CurveConstructionConfiguration config,
-      Result<MulticurveProviderDiscount> exogenousBundle,
+  private Result<MulticurveBundle> getCurves(
+      Environment env, CurveConstructionConfiguration config, Result<MulticurveProviderDiscount> exogenousBundle,
       Result<FXMatrix> fxMatrixResult) {
 
     final int nGroups = config.getCurveGroups().size();
@@ -395,14 +395,12 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     if (Result.allSuccessful(exogenousBundle, curveBundleResult)) {
 
       MulticurveProviderDiscount exogenousCurves = adjustMulticurveBundle(curvesToRemove, exogenousBundle.getValue());
-      return Result.success(
-          createBuilder().makeCurvesFromDerivatives(curveBundles,
-                                                    exogenousCurves,
-                                                    discountingMap,
-                                                    forwardIborMap,
-                                                    forwardONMap,
-                                                    DISCOUNTING_CALCULATOR,
-                                                    CURVE_SENSITIVITY_CALCULATOR));
+      Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> calibratedCurves =
+          createBuilder().makeCurvesFromDerivatives(
+              curveBundles, exogenousCurves, discountingMap, forwardIborMap,
+              forwardONMap, DISCOUNTING_CALCULATOR, CURVE_SENSITIVITY_CALCULATOR);
+
+      return Result.success(new MulticurveBundle(calibratedCurves.getFirst(), calibratedCurves.getSecond()));
     } else {
       return Result.failure(exogenousBundle, curveBundleResult);
     }
@@ -454,13 +452,13 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                                                                        MulticurveProviderDiscount multicurves,
                                                                        ZonedDateTime valuationTime) {
 
-    Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> data =
+    ImpliedDepositCurveData impliedCurveData =
         extractImpliedDepositCurveData(currency, impliedCurveDefinition, multicurves, valuationTime);
     GeneratorYDCurve generator = getGenerator(impliedCurveDefinition, valuationTime.toLocalDate());
-    List<InstrumentDerivative> instrumentDerivatives = data.getThird();
+    List<InstrumentDerivative> instrumentDerivatives = impliedCurveData.getCashNodes();
     return new SingleCurveBundle<>(impliedCurveDefinition.getName(),
                                    instrumentDerivatives.toArray(new InstrumentDerivative[instrumentDerivatives.size()]),
-                                   convertToArray(data.getSecond()), generator);
+                                   convertToArray(impliedCurveData.getParRates()), generator);
   }
 
   private double[] convertToArray(List<Double> first) {
@@ -525,19 +523,25 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
   }
   
-  
-  private Result<MulticurveProviderDiscount> buildExogenousBundles(Environment env,
-                                                                   CurveConstructionConfiguration curveConfig,
-                                                                   Result<FXMatrix> fxMatrixResult) {
+  private Result<MulticurveProviderDiscount> buildExogenousBundles(
+      Environment env, CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves,
+      Result<FXMatrix> fxMatrixResult) {
 
     Result<Boolean> exogenousResult = Result.success(true);
     Set<MulticurveProviderDiscount> exogenousBundles = new HashSet<>();
 
     for (CurveConstructionConfiguration exogenousConfig : curveConfig.resolveCurveConfigurations()) {
 
-      Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult = generateBundle(env, exogenousConfig);
-      if (bundleResult.isSuccess()) {
-        exogenousBundles.add(bundleResult.getValue().getFirst());
+      Result<MulticurveBundle> bundleResult = builtCurves.get(exogenousConfig);
+
+      // This really shouldn't happen if using provided functions to call this one
+      // but that may not alwayus be the case
+      if (bundleResult == null) {
+        exogenousResult = Result.failure(
+            exogenousResult, Result.failure(MISSING_DATA, "No curve built for exogenous config: {}", exogenousConfig));
+      } else if (bundleResult.isSuccess()) {
+        exogenousBundles.add(bundleResult.getValue().getMulticurveProvider());
       } else {
         exogenousResult = Result.failure(exogenousResult, bundleResult);
       }

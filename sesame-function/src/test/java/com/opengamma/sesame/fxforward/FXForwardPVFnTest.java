@@ -48,8 +48,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -96,15 +94,18 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -145,7 +146,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFnTest {
@@ -239,9 +239,9 @@ public class FXForwardPVFnTest {
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
 
-    DiscountingMulticurveBundleFn bundleProvider =
-        FunctionModel.build(DiscountingMulticurveBundleFn.class, createFunctionConfig(), componentMap);
-    Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
+    DiscountingMulticurveBundleResolverFn bundleProvider =
+        FunctionModel.build(DiscountingMulticurveBundleResolverFn.class, createFunctionConfig(), componentMap);
+
 
     ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
     CurveConstructionConfiguration curveConfig = configSource.get(CurveConstructionConfiguration.class, "Z-Marc JPY Dsc - FX USD", VersionCorrection.LATEST)
@@ -250,7 +250,7 @@ public class FXForwardPVFnTest {
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
     MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
     SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
-    result = bundleProvider.generateBundle(env, curveConfig);
+    Result<MulticurveBundle> result = bundleProvider.generateBundle(env, curveConfig);
 
     assertNotNull(result);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));
@@ -517,6 +517,7 @@ public class FXForwardPVFnTest {
                             FXMatrixFn.class, DefaultFXMatrixFn.class,
                             CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                             DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                             DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                             CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,

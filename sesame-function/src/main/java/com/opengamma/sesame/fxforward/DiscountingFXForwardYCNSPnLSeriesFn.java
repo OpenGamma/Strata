@@ -29,7 +29,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
@@ -44,10 +43,11 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.CurrencyPairsFn;
 import com.opengamma.sesame.CurveSpecificationFn;
-import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.FXReturnSeriesFn;
+import com.opengamma.sesame.ImpliedDepositCurveData;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
@@ -60,14 +60,16 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Triple;
 
+/**
+ * Calculates yield curve node sensitivity P&L series for
+ * an FX forward security.
+ */
 public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeriesFn {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DiscountingFXForwardYCNSPnLSeriesFn.class);
   private static final ImmutableSet<DayOfWeek> s_weekendDays = ImmutableSet.of(SATURDAY, SUNDAY);
-  
-  
+
   private final FXForwardCalculatorFn _calculatorProvider;
 
   private final CurveDefinition _curveDefinition;
@@ -88,7 +90,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
 
   // todo - this is only a temporary solution to determine the implied deposit curves
   private final Set<String> _impliedCurveNames;
-  private final DiscountingMulticurveBundleFn _discountingMulticurveBundleFn;
+  private final DiscountingMulticurveBundleResolverFn _bundleResolver;
 
   private final FXMatrixFn _fxMatrixFn;
   private final Boolean _useHistoricalSpot;
@@ -106,7 +108,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              CurrencyPairsFn currencyPairsFn,
                                              MarketDataFactory marketDataFactory,
                                              StringSet impliedCurveNames,
-                                             DiscountingMulticurveBundleFn discountingMulticurveBundleFn,
+                                             DiscountingMulticurveBundleResolverFn bundleResolver,
                                              FXMatrixFn fxMatrixFn,
                                              Boolean useHistoricalSpot,
                                              LocalDateRange dateRange) {
@@ -119,8 +121,8 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
     _marketDataFactory = marketDataFactory;
+    _bundleResolver = bundleResolver;
     _impliedCurveNames = impliedCurveNames.getStrings();
-    _discountingMulticurveBundleFn = discountingMulticurveBundleFn;
     _fxMatrixFn = fxMatrixFn;
     _useHistoricalSpot = useHistoricalSpot;
     _dateRange = dateRange;
@@ -176,19 +178,19 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
         Environment envForDate = env.with(date.atStartOfDay(ZoneOffset.UTC), marketDataSource);
 
         // build multicurve for the date
-        Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> result =
-            _discountingMulticurveBundleFn.extractImpliedDepositCurveData(envForDate, _curveConfig);
+        Result<ImpliedDepositCurveData> result =
+            _bundleResolver.extractImpliedDepositCurveData(envForDate, _curveConfig);
 
         // TODO consider how to report failures. either log (as here),
         // fail entire calc in all or nothing approach, somewhere in between?
         // [SSM-234]
         if (result.isSuccess()) {
-          Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>> resultValue = result.getValue();
-          List<Tenor> tenors = resultValue.getFirst();
-          List<Double> nodalValues = resultValue.getSecond();
+          ImpliedDepositCurveData impliedCurveData = result.getValue();
+          List<Tenor> tenors = impliedCurveData.getTenors();
+          List<Double> parRates = impliedCurveData.getParRates();
 
           for (int i = 0; i < tenors.size(); i++) {
-            builder.add(date, tenors.get(i), nodalValues.get(i));
+            builder.add(date, tenors.get(i), parRates.get(i));
           }
         } else {
           //TODO use actual calendars here. [SSM-233]

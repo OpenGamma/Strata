@@ -16,7 +16,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -57,7 +56,6 @@ import com.opengamma.util.result.SuccessStatus;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
-import com.opengamma.util.tuple.Triple;
 
 /**
  * Multicurve bundle function using interpolated (pre-fitted) curves.
@@ -75,7 +73,9 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   }
 
   @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(Environment env, CurveConstructionConfiguration curveConfig) {
+  public Result<MulticurveBundle> generateBundle(
+      Environment env, CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> requiredCurves) {
 
     // Interim result object used to build up the complete set of
     // failures rather than exiting early
@@ -206,7 +206,7 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
     }
     
     if (result.isSuccess()) {
-      return Result.success(Pairs.of(curveBundle, new CurveBuildingBlockBundle(unitBundles)));
+      return Result.success(new MulticurveBundle(curveBundle, new CurveBuildingBlockBundle(unitBundles)));
     } else {
       return Result.failure(result);
     }
@@ -234,7 +234,9 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   }
 
   @Override
-  public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(Environment env, CurveConstructionConfiguration curveConfig) {
+  public Result<ImpliedDepositCurveData> extractImpliedDepositCurveData(
+      Environment env, CurveConstructionConfiguration curveConfig,
+      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves) {
     throw new UnsupportedOperationException();
   }
 

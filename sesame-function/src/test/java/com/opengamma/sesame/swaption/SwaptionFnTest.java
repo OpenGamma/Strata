@@ -67,9 +67,11 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
@@ -112,11 +114,9 @@ public class SwaptionFnTest {
 
   private static final double TOLERANCE_PV = 1.0E-3;
 
-  private static final InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
-
   private static final Environment ENV =
       new SimpleEnvironment(DateUtils.getUTCDate(2014, 1, 22),
-                            _interestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
+                            InterestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
 
   private SwaptionFn _swaptionFn;
 
@@ -127,7 +127,7 @@ public class SwaptionFnTest {
     FunctionModelConfig config = config(
         arguments(
             function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions())) ),
+                     argument("exposureConfig", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions())) ),
             function(RootFinderConfiguration.class,
                      argument("rootFinderAbsoluteTolerance", 1e-12),
                      argument("rootFinderRelativeTolerance", 1e-12),
@@ -153,6 +153,7 @@ public class SwaptionFnTest {
                         DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                         CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                         DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                        DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                         CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                         CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                         CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
@@ -161,7 +162,7 @@ public class SwaptionFnTest {
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                         MarketDataFn.class, DefaultMarketDataFn.class));
 
-    ImmutableMap<Class<?>, Object> components = _interestRateMockSources.generateBaseComponents();
+    ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);

@@ -45,8 +45,10 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
@@ -86,17 +88,15 @@ public class FRAFnTest {
   private static final double EXPECTED_PV = 23182.5437;
   private static final double EXPECTED_PAR_RATE = 0.003315;
 
-
   private FRAFn _fraFunction;
   private FRASecurity _fraSecurity = createSingleFra();
-  private InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
 
   @BeforeClass
   public void setUpClass() throws IOException {
     FunctionModelConfig config = config(
         arguments(
             function(ConfigDbMarketExposureSelectorFn.class,
-                     argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions()))),
+                     argument("exposureConfig", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
             function(RootFinderConfiguration.class,
                      argument("rootFinderAbsoluteTolerance", 1e-9),
                      argument("rootFinderRelativeTolerance", 1e-9),
@@ -118,13 +118,14 @@ public class FRAFnTest {
                         CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                         CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                         DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                        DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                         CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                         HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                         CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                         MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                         MarketDataFn.class, DefaultMarketDataFn.class));
 
-    Map<Class<?>, Object> components = _interestRateMockSources.generateBaseComponents();
+    Map<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
@@ -134,7 +135,7 @@ public class FRAFnTest {
 
   @Test
   public void discountingFRAPV() {
-    MarketDataSource dataSource = _interestRateMockSources.createMarketDataSource();
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
     Result<MultipleCurrencyAmount> resultPV = _fraFunction.calculatePV(env, _fraSecurity);
     assertThat(resultPV.isSuccess(), is((true)));
@@ -145,7 +146,7 @@ public class FRAFnTest {
 
   @Test
   public void parRateFRA() {
-    MarketDataSource dataSource = _interestRateMockSources.createMarketDataSource();
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource();
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
     Result<Double> resultParRate = _fraFunction.calculateParRate(env, _fraSecurity);
     assertThat(resultParRate.isSuccess(), is((true)));

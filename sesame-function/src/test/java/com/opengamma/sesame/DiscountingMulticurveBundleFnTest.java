@@ -34,7 +34,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -122,7 +121,7 @@ public class DiscountingMulticurveBundleFnTest {
   
   private static final RootFinderConfiguration ROOT_FINDER_CONFIG = new RootFinderConfiguration(1e-9, 1e-9, 1000);
 
-  private DiscountingMulticurveBundleFn _multicurveBundleFn;
+  private DiscountingMulticurveBundleResolverFn _multicurveBundleFn;
 
   private Environment _environment;
 
@@ -156,9 +155,10 @@ public class DiscountingMulticurveBundleFnTest {
                         CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
                         FXMatrixFn.class, DefaultFXMatrixFn.class,
                         DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                        DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                         MarketDataFn.class, DefaultMarketDataFn.class));
 
-    _multicurveBundleFn = FunctionModel.build(DiscountingMulticurveBundleFn.class, config, components);
+    _multicurveBundleFn = FunctionModel.build(DiscountingMulticurveBundleResolverFn.class, config, components);
     
     ZonedDateTime valuationDate = ZonedDateTime.of(2014, 1, 10, 11, 0, 0, 0, ZoneId.of("America/Chicago"));
     MarketDataSource marketDataSource =
@@ -190,13 +190,13 @@ public class DiscountingMulticurveBundleFnTest {
   @Test
   public void testUSD() {
     
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle = _multicurveBundleFn.generateBundle(_environment, _usdDiscountingCCC);
+    Result<MulticurveBundle> bundle = _multicurveBundleFn.generateBundle(_environment, _usdDiscountingCCC);
     
     assertTrue("Curve bundle result failed", bundle.isSuccess());
+
+    MulticurveBundle value = bundle.getValue();
     
-    Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle> value = bundle.getValue();
-    
-    MulticurveProviderDiscount multicurve = value.getFirst();
+    MulticurveProviderDiscount multicurve = value.getMulticurveProvider();
     for (Map.Entry<Tenor, Pair<Double, Double>> entry : s_usdExpected.entrySet()) {
       Tenor tenor = entry.getKey();
       Pair<Double, Double> pair = entry.getValue();
@@ -204,7 +204,6 @@ public class DiscountingMulticurveBundleFnTest {
       double df = multicurve.getDiscountFactor(Currency.USD, pair.getKey());
       assertEquals("USD DF for tenor " + tenor + " (" + time + ")  mismatch", df, pair.getValue(), 10E-6);
     }
-    
   }
 
 

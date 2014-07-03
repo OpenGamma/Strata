@@ -63,9 +63,11 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
@@ -100,13 +102,11 @@ import com.opengamma.util.time.Expiry;
 @Test(groups = TestGroup.UNIT)
 public class InterestRateFutureFnTest {
 
-  private static final InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
-
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
 
   private static final Environment ENV =
       new SimpleEnvironment(VALUATION_TIME,
-          _interestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
+                            InterestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
 
   private InterestRateFutureFn _irFutureFn;
 
@@ -118,7 +118,7 @@ public class InterestRateFutureFnTest {
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
-                    argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions()))),
+                         argument("exposureConfig", ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
                 function(RootFinderConfiguration.class,
                     argument("rootFinderAbsoluteTolerance", 1e-9),
                     argument("rootFinderRelativeTolerance", 1e-9),
@@ -133,19 +133,20 @@ public class InterestRateFutureFnTest {
                     argument("resolutionKey", "DEFAULT_TSS"),
                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1))))),
             implementations(InterestRateFutureFn.class, DefaultInterestRateFutureFn.class,
-                InterestRateFutureCalculatorFactory.class, InterestRateFutureDiscountingCalculatorFactory.class,
-                CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
-                FXMatrixFn.class, DefaultFXMatrixFn.class,
-                DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
-                HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                MarketDataFn.class, DefaultMarketDataFn.class));
+                            InterestRateFutureCalculatorFactory.class, InterestRateFutureDiscountingCalculatorFactory.class,
+                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class,
+                            FXMatrixFn.class, DefaultFXMatrixFn.class,
+                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
+                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                            HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
+                            HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                            MarketDataFn.class, DefaultMarketDataFn.class));
 
     ImmutableMap<Class<?>, Object> components = generateComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
@@ -157,14 +158,13 @@ public class InterestRateFutureFnTest {
 
   private ImmutableMap<Class<?>, Object> generateComponents() {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-    for (Map.Entry<Class<?>, Object> keys : _interestRateMockSources.generateBaseComponents().entrySet()) {
+    for (Map.Entry<Class<?>, Object> keys: InterestRateMockSources.generateBaseComponents().entrySet()) {
       if (!keys.getKey().equals(HistoricalTimeSeriesSource.class)) {
         builder.put(keys.getKey(), keys.getValue());
       }
     }
     builder.put(HistoricalTimeSeriesSource.class, mockHistoricalTimeSeriesSource());
-    ImmutableMap<Class<?>, Object> components = builder.build();
-    return components;
+    return builder.build();
   }
 
   private HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
@@ -204,7 +204,7 @@ public class InterestRateFutureFnTest {
     String settlementExchange = "";
     Currency currency = Currency.USD;
     double unitAmount = 1000;
-    ExternalId underlyingId = _interestRateMockSources.getLiborIndexId();
+    ExternalId underlyingId = InterestRateMockSources.getLiborIndexId();
     String category = "";
     InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, tradingExchange, settlementExchange,
         currency, unitAmount, underlyingId, category);

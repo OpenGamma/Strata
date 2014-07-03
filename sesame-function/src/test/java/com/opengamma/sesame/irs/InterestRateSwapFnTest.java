@@ -77,9 +77,11 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
@@ -112,8 +114,6 @@ import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT)
 public class InterestRateSwapFnTest {
-
-  private static final InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
 
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final double STD_TOLERANCE_RATE = 1.0E-8;
@@ -151,7 +151,7 @@ public class InterestRateSwapFnTest {
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
 
   private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
-                                                               _interestRateMockSources.createMarketDataSource(
+                                                               InterestRateMockSources.createMarketDataSource(
                                                                    LocalDate.of(2014, 2, 18)));
   private InterestRateSwapFn _swapFunction;
   private InterestRateSwapSecurity _fixedVsOnCompoundedSwapSecurity = createFixedVsOnCompoundedSwap();
@@ -165,7 +165,7 @@ public class InterestRateSwapFnTest {
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
                          argument("exposureConfig",
-                                  ConfigLink.resolved(_interestRateMockSources.mockExposureFunctions()))),
+                                  ConfigLink.resolved(InterestRateMockSources.mockExposureFunctions()))),
                 function(RootFinderConfiguration.class,
                          argument("rootFinderAbsoluteTolerance", 1e-10),
                          argument("rootFinderRelativeTolerance", 1e-10),
@@ -192,6 +192,7 @@ public class InterestRateSwapFnTest {
                             DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                             CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                             DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                             CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                             CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
                             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
@@ -199,7 +200,7 @@ public class InterestRateSwapFnTest {
                             MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                             MarketDataFn.class, DefaultMarketDataFn.class));
 
-    ImmutableMap<Class<?>, Object> components = _interestRateMockSources.generateBaseComponents();
+    ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);

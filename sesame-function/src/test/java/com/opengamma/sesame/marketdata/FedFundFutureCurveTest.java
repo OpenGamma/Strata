@@ -29,8 +29,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
@@ -59,15 +57,18 @@ import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -89,7 +90,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
 
 @Test(groups = TestGroup.UNIT)
 public class FedFundFutureCurveTest {
@@ -124,9 +124,7 @@ public class FedFundFutureCurveTest {
   private static final LocalDate TRADE_DATE = VALUATION_TIME.toLocalDate();
   private static final OffsetTime TRADE_TIME = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
   
-  private InterestRateMockSources _interestRateMockSources = new InterestRateMockSources();
-
-  private DefaultDiscountingMulticurveBundleFn _curveBundle;
+  private DiscountingMulticurveBundleResolverFn _curveBundle;
   
   private FedFundsFutureFn _fedFundsFutureFn;
   
@@ -136,7 +134,7 @@ public class FedFundFutureCurveTest {
         config(
             arguments(
                 function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfig", ConfigLink.resolved(_interestRateMockSources.mockFFExposureFunctions()))),
+                         argument("exposureConfig", ConfigLink.resolved(InterestRateMockSources.mockFFExposureFunctions()))),
                 function(DefaultDiscountingMulticurveBundleFn.class,
                          argument("impliedCurveNames", StringSet.of())),
                 function(DefaultHistoricalTimeSeriesFn.class,
@@ -159,6 +157,7 @@ public class FedFundFutureCurveTest {
                             DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
                             CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
                             DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
                             HistoricalMarketDataFn.class, DefaultHistoricalMarketDataFn.class,
                             CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
                             HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
@@ -170,7 +169,7 @@ public class FedFundFutureCurveTest {
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
 
-    _curveBundle = FunctionModel.build(DefaultDiscountingMulticurveBundleFn.class, config, ComponentMap.of(components));
+    _curveBundle = FunctionModel.build(DiscountingMulticurveBundleResolverFn.class, config, ComponentMap.of(components));
 
     _fedFundsFutureFn = FunctionModel.build(FedFundsFutureFn.class, config, ComponentMap.of(components));
   }
@@ -181,10 +180,10 @@ public class FedFundFutureCurveTest {
    */
   @Test
   public void buildCurve() {
-    MarketDataSource dataSource = _interestRateMockSources.createMarketDataSource(VALUATION_TIME.toLocalDate(), false);
+    MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource(VALUATION_TIME.toLocalDate(), false);
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> pairProviderBlock = 
-        _curveBundle.generateBundle(env, ConfigLink.resolvable(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF , 
+    Result<MulticurveBundle> pairProviderBlock =
+        _curveBundle.generateBundle(env, ConfigLink.resolvable(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF,
             CurveConstructionConfiguration.class).resolve());
     if (!pairProviderBlock.isSuccess()) {
       fail(pairProviderBlock.getFailureMessage());
@@ -218,7 +217,7 @@ public class FedFundFutureCurveTest {
   
   private ImmutableMap<Class<?>, Object> generateComponents() {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-    for (Map.Entry<Class<?>, Object> keys: _interestRateMockSources.generateBaseComponents().entrySet()) {
+    for (Map.Entry<Class<?>, Object> keys: InterestRateMockSources.generateBaseComponents().entrySet()) {
       if (keys.getKey().equals(HistoricalTimeSeriesSource.class)) {
         appendHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) keys.getValue());
       }
