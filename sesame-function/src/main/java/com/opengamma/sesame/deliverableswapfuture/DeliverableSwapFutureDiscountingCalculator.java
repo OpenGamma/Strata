@@ -76,6 +76,22 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
   private final Map<String, CurveDefinition> _curveDefinitions;
   
   /**
+   * Contract-specific scaling for the futures lot size.
+   */
+  
+  private final double _unitAmount;
+  
+  /**
+   * Provides scaling to/from basis points.
+   */
+  private static final double BP_FACTOR = 1.0E-4;
+  
+  /**
+   * Provides scaling to Futures equivalence - Analytics representations use 1 as opposed to 100.
+   */
+  private static final double FUTURES_EQUIV_FACTOR = 100;
+  
+  /**
    * Constructs a calculator using the discounting method.
    * @param trade the trade to calculate results on.
    * @param multicurveBundle the multicurve bundle used to calculate results from.
@@ -95,6 +111,7 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
     _derivative = createInstrumentDerivative(trade, converter, valDateTime, definitionToDerivativeConverter, tsBundle);
     _multicurveBundle = ArgumentChecker.notNull(multicurveBundle, "multicurveBundle");
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
+    _unitAmount = trade.getSecurity().getUnitAmount();
   } 
   
   @Override
@@ -104,19 +121,25 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
 
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
-    return Result.success(_derivative.accept(PV01C, _multicurveBundle));        
+    return Result.success(_derivative.accept(PV01C, _multicurveBundle)
+                            .multiplyBy(FUTURES_EQUIV_FACTOR)
+                              .multiplyBy(_unitAmount));
   }
   
   @Override
   public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta() {
     
-    MultipleCurrencyParameterSensitivity sensitivities = PSC.calculateSensitivity(_derivative, _multicurveBundle);
+    MultipleCurrencyParameterSensitivity sensitivities = 
+        PSC.calculateSensitivity(_derivative, _multicurveBundle)
+            .multipliedBy(BP_FACTOR)
+              .multipliedBy(FUTURES_EQUIV_FACTOR)
+                .multipliedBy(_unitAmount);
+    
     BucketedCurveSensitivities bucketedCurveSensitivities = 
-        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveDefinitions);        
+        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveDefinitions);
     
     return Result.success(bucketedCurveSensitivities);
   }
-  
   
   /**
    * Create the OG-Analytics derivative representation of a deliverable swap future from the given trade.

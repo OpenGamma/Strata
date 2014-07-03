@@ -51,7 +51,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
    * Calculator for par rate.
    */
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
-  
+
   /**
    * Calculator for PV01
    */
@@ -83,15 +83,24 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
    * The multicurve bundle.
    */
   private final MulticurveProviderInterface _bundle;
-  
+
   /**
    * Map containing the per curve setup - building blocks.
    */
   private final Map<String, CurveDefinition> _curveDefinitions;
-      
-  
+
+  /**
+   * Provides scaling to/from basis points.
+   */
+  private static final double BP_FACTOR = 1.0E-4;
+
+  /**
+   * Provides scaling to Futures equivalence - Analytics representations use 1 as opposed to 100.
+   */
+  private static final double FUTURES_EQUIV_FACTOR = 100;
+
   public InterestRateFutureDiscountingCalculator(InterestRateFutureTrade irFutureTrade,
-                                                 MulticurveProviderInterface bundle,                                               
+                                                 MulticurveProviderInterface bundle,
                                                  Map<String, CurveDefinition> curveDefinitions,
                                                  InterestRateFutureTradeConverter tradeConverter,
                                                  ZonedDateTime valuationTime,
@@ -105,7 +114,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
     _bundle = ArgumentChecker.notNull(bundle, "bundle");
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitionFn");
   }
-  
+
   @Override
   public Result<MultipleCurrencyAmount> calculatePV() {
     return Result.success(calculateResult(PVDC));
@@ -118,28 +127,31 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
 
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
-    return Result.success(calculateResult(PV01C));
+    return Result.success(calculateResult(PV01C).multiplyBy(FUTURES_EQUIV_FACTOR));
   }
-  
+
   @Override
   public Result<Double> getSecurityMarketPrice() {
     return Result.success(_derivative.accept(MPV));
   }
-  
+
   @Override
   public Result<Double> calculateSecurityModelPrice() {
     return Result.success(calculateResult(MQDC));
   }
-  
+
   @Override
   public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta() {
-    
-    MultipleCurrencyParameterSensitivity sensitivity = PSC.calculateSensitivity(_derivative, _bundle);
+
+    MultipleCurrencyParameterSensitivity sensitivity = 
+        PSC.calculateSensitivity(_derivative, _bundle)
+            .multipliedBy(BP_FACTOR)
+              .multipliedBy(FUTURES_EQUIV_FACTOR);
+
     BucketedCurveSensitivities bucketedSensitivities = 
-        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivity, _curveDefinitions);    
+        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivity, _curveDefinitions);
     return Result.success(bucketedSensitivities);
   }
-  
 
   private <T> T calculateResult(InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, T> calculator) {
     return _derivative.accept(calculator, _bundle);
@@ -150,7 +162,7 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
                   ReferenceAmount<Pair<String, Currency>>> calculator) {
     return _derivative.accept(calculator, _bundle);
   }
-  
+
   private InstrumentDerivative createInstrumentDerivative(InterestRateFutureTrade irFutureTrade,
                                                           InterestRateFutureTradeConverter converter,
                                                           ZonedDateTime valuationTime,
