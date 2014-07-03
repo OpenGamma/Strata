@@ -17,7 +17,7 @@
   <description>OpenGamma Sesame Deployment Server</description>
 
   <scm>
-    <url>https://github.com/OpenGamma/OG-Platform/tree/master/og-server</url>
+    <url>https://github.com/OpenGamma/Sesame/tree/master/sesame-server</url>
   </scm>
 
   <!-- ==================================================================== -->

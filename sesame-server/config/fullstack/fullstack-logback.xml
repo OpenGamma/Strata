@@ -19,8 +19,6 @@
     </encoder>
   </appender>
 
-  <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
-
   <root level="warn">
     <appender-ref ref="FILE" />
     <appender-ref ref="BRIDGE" />
