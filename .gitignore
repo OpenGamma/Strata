@@ -29,6 +29,7 @@ javadoc-data.json
 !/sesame-component/
 !/sesame-engine/
 !/sesame-function/
+!/sesame-server/
 !/sesame-war-main/
 !/sesame-web/
 
