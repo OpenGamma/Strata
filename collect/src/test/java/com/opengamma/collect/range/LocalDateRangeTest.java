@@ -10,6 +10,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -191,8 +192,8 @@ public class LocalDateRangeTest {
   }
 
   @Test(dataProvider = "parseGood")
-  public void test_parseGood(String str, LocalDate start, LocalDate end) {
-    LocalDateRange test = LocalDateRange.parse(str);
+  public void test_parseGood(String textToParse, LocalDate start, LocalDate end) {
+    LocalDateRange test = LocalDateRange.parse(textToParse);
     assertEquals(test, LocalDateRange.closed(start, end));
   }
 
@@ -209,8 +210,8 @@ public class LocalDateRangeTest {
   }
 
   @Test(dataProvider = "parseBad", expectedExceptions = {IllegalArgumentException.class, DateTimeParseException.class})
-  public void test_parseBad(String str) {
-    LocalDateRange.parse(str);
+  public void test_parseBad(String textToParse) {
+    LocalDateRange.parse(textToParse);
   }
 
   public void test_parse_null() {
@@ -222,6 +223,14 @@ public class LocalDateRangeTest {
     LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
     LocalDateRange test = base.withStart(DATE_2012_07_27);
     assertEquals(test.getStart(), DATE_2012_07_27);
+    assertEquals(test.getEndInclusive(), DATE_2012_07_30);
+    assertEquals(test.getEndExclusive(), DATE_2012_07_31);
+  }
+
+  public void test_withStart_adjuster() {
+    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = base.withStart(date -> date.minus(1, ChronoUnit.WEEKS));
+    assertEquals(test.getStart(), DATE_2012_07_28.minusWeeks(1));
     assertEquals(test.getEndInclusive(), DATE_2012_07_30);
     assertEquals(test.getEndExclusive(), DATE_2012_07_31);
   }
@@ -253,6 +262,14 @@ public class LocalDateRangeTest {
     assertEquals(test.getStart(), DATE_2012_07_28);
     assertEquals(test.getEndInclusive(), DATE_2012_07_30);
     assertEquals(test.getEndExclusive(), DATE_2012_07_31);
+  }
+
+  public void test_withEndInclusive_adjuster() {
+    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = base.withEndInclusive(date -> date.plus(1, ChronoUnit.WEEKS));
+    assertEquals(test.getStart(), DATE_2012_07_28);
+    assertEquals(test.getEndInclusive(), DATE_2012_07_30.plusWeeks(1));
+    assertEquals(test.getEndExclusive(), DATE_2012_07_31.plusWeeks(1));
   }
 
   public void test_withEndInclusive_max() {
@@ -335,9 +352,9 @@ public class LocalDateRangeTest {
   }
 
   @Test(dataProvider = "encloses")
-  public void test_encloses(LocalDate start, LocalDate end, boolean enclosedBy) {
+  public void test_encloses(LocalDate start, LocalDate end, boolean isEnclosedBy) {
     LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    assertEquals(test.encloses(LocalDateRange.halfOpen(start, end)), enclosedBy);
+    assertEquals(test.encloses(LocalDateRange.halfOpen(start, end)), isEnclosedBy);
   }
 
   public void test_encloses_null() {

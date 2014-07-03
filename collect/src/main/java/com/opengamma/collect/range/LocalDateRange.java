@@ -111,7 +111,7 @@ public final class LocalDateRange
    * <p>
    * The date must represent a valid date parsed by {@link LocalDate#parse(CharSequence)}.
    *
-   * @param text  the text to parse such as "[2009-12-03,2014-06-30]"
+   * @param rangeStr  the text to parse such as "[2009-12-03,2014-06-30]"
    * @return the parsed range
    * @throws IllegalArgumentException if the text cannot be parsed
    * @throws DateTimeParseException if the text cannot be parsed because the date was invalid
@@ -217,6 +217,11 @@ public final class LocalDateRange
    * This returns a new instance with the start date altered.
    * Since {@code LocalDate} implements {@code TemporalAdjuster} any
    * local date can simply be passed in.
+   * <p>
+   * For example, to adjust the start to one week earlier:
+   * <pre>
+   *  range = range.withStart(date -> date.minus(1, ChronoUnit.WEEKS));
+   * </pre>
    * 
    * @param adjuster  the adjuster to use
    * @return a copy of this range with the start date adjusted
@@ -232,6 +237,11 @@ public final class LocalDateRange
    * This returns a new instance with the end date altered.
    * Since {@code LocalDate} implements {@code TemporalAdjuster} any
    * local date can simply be passed in.
+   * <p>
+   * For example, to adjust the end to one week later:
+   * <pre>
+   *  range = range.withEndInclusive(date -> date.plus(1, ChronoUnit.WEEKS));
+   * </pre>
    * 
    * @param adjuster  the adjuster to use
    * @return a copy of this range with the end date adjusted
@@ -258,7 +268,7 @@ public final class LocalDateRange
   }
 
   /**
-   * Checks if this range contains all date in the specified range.
+   * Checks if this range contains all dates in the specified range.
    * <p>
    * This checks that the start date of this range is before or equal the specified
    * start date and the end date of this range is before or equal the specified end date.
@@ -282,7 +292,7 @@ public final class LocalDateRange
   public boolean isBefore(LocalDateRange other) {
     ArgChecker.notNull(other, "other");
     // end < other.start
-    return endInclusive.compareTo(other.start) < 0;
+    return endInclusive.isBefore(other.start);
   }
 
   /**
@@ -294,7 +304,7 @@ public final class LocalDateRange
   public boolean isAfter(LocalDateRange other) {
     ArgChecker.notNull(other, "other");
     // start > other.end
-    return start.compareTo(other.endInclusive) > 0;
+    return start.isAfter(other.endInclusive);
   }
 
   //-------------------------------------------------------------------------
