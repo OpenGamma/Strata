@@ -7,6 +7,7 @@ package com.opengamma.sesame.marketdata;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
@@ -27,7 +28,7 @@ public class ProxiedCycleMarketData implements CycleMarketDataFactory {
 
   private final CycleMarketDataFactory _underlying;
 
-  private final Map<ZonedDateTime, ProxiedMarketDataSource> _marketDataProxies = new ConcurrentHashMap<>();
+  private final ConcurrentMap<ZonedDateTime, ProxiedMarketDataSource> _marketDataProxies = new ConcurrentHashMap<>();
 
   /**
    * Create the proxied market data source, wrapping the provided source.
