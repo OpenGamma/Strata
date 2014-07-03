@@ -75,11 +75,17 @@ public class ProxiedCycleMarketData implements CycleMarketDataFactory {
 
   @Override
   public CycleMarketDataFactory withMarketDataSpecification(MarketDataSpecification marketDataSpec) {
+    // This method is only called when setting up a cycle, but the proxy
+    // is only ever used within a cycle. Therefore we don't need to
+    // actually do anything.
     throw new UnsupportedOperationException();
   }
 
   @Override
   public CycleMarketDataFactory withPrimedMarketDataSource() {
+    // This method is only called when setting up a cycle, but the proxy
+    // is only ever used within a cycle. Therefore we don't need to
+    // actually do anything.
     throw new UnsupportedOperationException();
   }
 }

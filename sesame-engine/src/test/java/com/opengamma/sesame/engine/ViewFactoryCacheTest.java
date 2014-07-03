@@ -36,6 +36,7 @@ import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 
 /**
  * Tests the behaviour of {@link ViewFactory} WRT cache behaviour.
@@ -58,7 +59,9 @@ public class ViewFactoryCacheTest {
     ViewFactory viewFactory = createViewFactory();
     View view = viewFactory.createView(viewConfig, String.class);
     ZonedDateTime now = ZonedDateTime.now();
-    CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST, mock(CycleMarketDataFactory.class));
+    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(StrategyAwareMarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST, cycleMarketDataFactory);
     Results results1 = view.run(cycleArguments, ImmutableList.of("bar"));
     Results results2 = view.run(cycleArguments, ImmutableList.of("bar"));
     assertSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());
@@ -105,7 +108,9 @@ public class ViewFactoryCacheTest {
     View view1 = viewFactory.createView(viewConfig, String.class);
     View view2 = viewFactory.createView(viewConfig, String.class);
     ZonedDateTime now = ZonedDateTime.now();
-    CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST, mock(CycleMarketDataFactory.class));
+    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(StrategyAwareMarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST, cycleMarketDataFactory);
     Results results1 = view1.run(cycleArguments, ImmutableList.of("bar"));
     Results results2 = view2.run(cycleArguments, ImmutableList.of("bar"));
     assertSame(results1.get(0, 0).getResult().getValue(), results2.get(0, 0).getResult().getValue());

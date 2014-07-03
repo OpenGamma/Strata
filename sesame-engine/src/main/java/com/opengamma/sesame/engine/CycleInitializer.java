@@ -37,11 +37,11 @@ interface CycleInitializer {
    */
   Results complete(Results results);
 
-
   /**
    * Get the market data factory to be used for this cycle.
    *
-   * @return the market data source
+   * @return the cycle market data factory
    */
   CycleMarketDataFactory getCycleMarketDataFactory();
+
 }

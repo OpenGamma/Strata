@@ -160,6 +160,8 @@ public class CycleRunner {
       return previousFactory.withPrimedMarketDataSource();
     } else {
       previousSource.dispose();
+      // This is a new source, so it doesn't need to be primed (that
+      // will happen automatically on the next cycle of appropriate)
       return previousFactory.withMarketDataSpecification(marketDataSpecification);
     }
   }

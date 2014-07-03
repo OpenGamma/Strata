@@ -86,7 +86,7 @@ public interface Environment {
   /**
    * Returns a new environment copied from this environment but with altered
    * market data. Note that the general intention is that this is used to
-   * later existing input data and it should not be used to attempt to retrieve
+   * alter existing input data and it should not be used to attempt to retrieve
    * new external data.
    *
    * @param marketData  the market data for the new environment, not null

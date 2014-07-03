@@ -61,7 +61,7 @@ final class EngineEnvironment implements Environment {
     _valuationTime = ArgumentChecker.notNull(valuationTime, "valuationTime");
     _cycleMarketDataFactory = ArgumentChecker.notNull(cycleMarketDataFactory, "cycleMarketDataFactory");
     _scenarioArguments = ImmutableMap.copyOf(ArgumentChecker.notNull(scenarioArguments, "scenarioArguments"));
-    _marketDataSource = marketDataSource;
+    _marketDataSource = ArgumentChecker.notNull(marketDataSource, "marketDataSource");
     _cacheInvalidator = ArgumentChecker.notNull(cacheInvalidator, "cacheInvalidator");
   }
 

@@ -12,7 +12,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 /**
  * Provides the market data for the cycle of a view. This allows for
  * the need of some views to access multiple market data sources
- * during their run (e.g. calculating covers over a set of historic
+ * during their run (e.g. calculating curves over a set of historic
  * dates).
  */
 public interface CycleMarketDataFactory {
@@ -26,7 +26,7 @@ public interface CycleMarketDataFactory {
 
   /**
    * Gets an appropriate market data source for the specified date. The
-   * source to be returned will be decided in part of the configured
+   * source to be returned will be decided in part by the configured
    * primary source.
    *
    * @param valuationDate the date to get a source for
