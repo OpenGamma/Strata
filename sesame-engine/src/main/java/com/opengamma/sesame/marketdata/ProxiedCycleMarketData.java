@@ -38,6 +38,12 @@ public class ProxiedCycleMarketData implements CycleMarketDataFactory {
     _underlying = cycleMarketDataFactory;
   }
 
+  /**
+   * Retrieves the results collected from the market data calls.
+   *
+   * @return the results collected from the market data calls,
+   * keyed by the date the data was requested for
+   */
   public Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> retrieveMarketDataResults() {
     return Maps.transformValues(_marketDataProxies,
         new Function<ProxiedMarketDataSource, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>() {
@@ -51,6 +57,9 @@ public class ProxiedCycleMarketData implements CycleMarketDataFactory {
   @Override
   public MarketDataSource getPrimaryMarketDataSource() {
     MarketDataSource marketDataSource = _underlying.getPrimaryMarketDataSource();
+    // This allows us to store requests for the primary
+    // source in the same map as historic sources but
+    // it's not a great solution
     ZonedDateTime time = LocalDate.MAX.atStartOfDay(ZoneOffset.UTC);
     _marketDataProxies.putIfAbsent(time, new ProxiedMarketDataSource(marketDataSource));
     return _marketDataProxies.get(time);

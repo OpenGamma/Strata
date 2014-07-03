@@ -125,6 +125,8 @@ public class CapturedResultsLoader {
     final Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData =
         _viewInputs.getMarketData();
 
+    // Create a cycle market data factory that returns the market data from
+    // the previously captured data
     CycleMarketDataFactory cycleMarketDataFactory = new CycleMarketDataFactory() {
       @Override
       public MarketDataSource getPrimaryMarketDataSource() {

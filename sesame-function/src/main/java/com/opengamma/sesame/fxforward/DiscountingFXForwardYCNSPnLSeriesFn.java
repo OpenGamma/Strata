@@ -48,7 +48,6 @@ import com.opengamma.sesame.FXReturnSeriesFn;
 import com.opengamma.sesame.ImpliedDepositCurveData;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
-import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -83,7 +82,6 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
   private final HistoricalMarketDataFn _historicalMarketDataFn;
   private final CurveSpecificationFn _curveSpecificationFunction;
   private final CurrencyPairsFn _currencyPairsFn;
-  private final MarketDataFactory _marketDataFactory;
 
   // todo - this is only a temporary solution to determine the implied deposit curves
   private final Set<String> _impliedCurveNames;
@@ -103,7 +101,6 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
                                              HistoricalMarketDataFn historicalMarketDataFn,
                                              CurveSpecificationFn curveSpecificationFunction,
                                              CurrencyPairsFn currencyPairsFn,
-                                             MarketDataFactory marketDataFactory,
                                              StringSet impliedCurveNames,
                                              DiscountingMulticurveBundleResolverFn bundleResolver,
                                              FXMatrixFn fxMatrixFn,
@@ -117,7 +114,6 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
     _historicalMarketDataFn = historicalMarketDataFn;
     _curveSpecificationFunction = curveSpecificationFunction;
     _currencyPairsFn = currencyPairsFn;
-    _marketDataFactory = marketDataFactory;
     _bundleResolver = bundleResolver;
     _impliedCurveNames = impliedCurveNames.getStrings();
     _fxMatrixFn = fxMatrixFn;
@@ -169,6 +165,7 @@ public class DiscountingFXForwardYCNSPnLSeriesFn implements FXForwardYCNSPnLSeri
       // todo - how do we adjust for holidays?
       for (LocalDate date = priceSeriesStart; !date.isAfter(priceSeriesEnd); date = date.plusDays(1)) {
 
+        // Shifting the date will automatically shift the market data as well
         Environment envForDate = env.withValuationTime(date.atStartOfDay(ZoneOffset.UTC));
 
         // build multicurve for the date

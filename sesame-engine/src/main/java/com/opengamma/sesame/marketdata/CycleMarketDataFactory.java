@@ -43,5 +43,12 @@ public interface CycleMarketDataFactory {
    */
   CycleMarketDataFactory withMarketDataSpecification(MarketDataSpecification marketDataSpec);
 
+  /**
+   * Create a copy of this CycleMarketDataFactory but where the
+   * primary source has been primed.
+   *
+   * @return the new CycleMarketDataFactory
+   */
   CycleMarketDataFactory withPrimedMarketDataSource();
+
 }

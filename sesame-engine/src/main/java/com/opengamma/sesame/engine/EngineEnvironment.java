@@ -143,4 +143,5 @@ final class EngineEnvironment implements Environment {
   public int hashCode() {
     return Objects.hash(_valuationTime, _marketDataSource, _scenarioArguments);
   }
+
 }

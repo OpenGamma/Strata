@@ -21,8 +21,10 @@ class StandardCycleInitializer implements CycleInitializer {
 
   /**
    * Create the cycle initializer.
-   *  @param originalContext the current service context
-   * @param cycleMarketDataFactory the current market data source
+   *
+   * @param originalContext the current service context
+   * @param cycleMarketDataFactory the current market data
+   * source for the cycle
    * @param graph the current graph
    */
   StandardCycleInitializer(ServiceContext originalContext,

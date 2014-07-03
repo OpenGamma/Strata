@@ -55,7 +55,8 @@ public final class CycleArguments {
                         FunctionArguments functionArguments,
                         Map<Class<?>, Object> scenarioArguments) {
     this(valuationTime,
-         configVersionCorrection, cycleMarketDataFactory,
+         configVersionCorrection,
+         cycleMarketDataFactory,
          functionArguments,
          scenarioArguments,
          Collections.<Pair<Integer, Integer>>emptySet(),

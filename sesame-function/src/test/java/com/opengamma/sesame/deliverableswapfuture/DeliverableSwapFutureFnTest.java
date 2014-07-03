@@ -119,9 +119,8 @@ public class DeliverableSwapFutureFnTest {
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
   
-  private static final Environment ENV = new SimpleEnvironment(VALUATION_TIME,
-                                                              InterestRateMockSources.createMarketDataSource(
-                                                                  LocalDate.of(2014, 2, 18)));
+  private static final Environment ENV =
+      new SimpleEnvironment(VALUATION_TIME, InterestRateMockSources.createMarketDataSource(LocalDate.of(2014, 2, 18)));
 
   private DeliverableSwapFutureFn _deliverableSwapFutureFn;
   
