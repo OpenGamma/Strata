@@ -80,16 +80,6 @@ public class ArgCheckerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_notNullInjected_ok() {
-    assertEquals(ArgChecker.notNullInjected("OG", "name"), "OG");
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Injected.*'name'.*")
-  public void test_notNullInjected_null() {
-    ArgChecker.notNullInjected(null, "name");
-  }
-
-  //-------------------------------------------------------------------------
   public void test_matches_String_ok() {
     assertEquals(ArgChecker.matches(Pattern.compile("[A-Z]+"), "OG", "name"), "OG");
   }

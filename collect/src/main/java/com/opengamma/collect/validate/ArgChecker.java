@@ -164,27 +164,6 @@ public final class ArgChecker {
     return parameter;
   }
 
-  /**
-   * Checks that the specified injected parameter is non-null.
-   * <p>
-   * Given the input parameter, this returns only if it is non-null.
-   * This is intended for parameters injected from configuration or similar.
-   * As a convention, the name of the parameter should be the exact name that
-   * you would provide in the configuration file.
-   * 
-   * @param <T>  the type of the input parameter reflected in the result
-   * @param parameter  the parameter to check, null throws an exception
-   * @param name  the name of the parameter to use in the error message, not null
-   * @return the input {@code parameter}, not null
-   * @throws IllegalArgumentException if the input is null
-   */
-  public static <T> T notNullInjected(T parameter, String name) {
-    if (parameter == null) {
-      throw new IllegalArgumentException("Injected input parameter '" + name + "' must not be null");
-    }
-    return parameter;
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Checks that the specified parameter is non-null and matches the specified pattern.
