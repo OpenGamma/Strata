@@ -16,10 +16,6 @@
   <name>sesame-server</name>
   <description>OpenGamma Sesame Deployment Server</description>
 
-  <scm>
-    <url>https://github.com/OpenGamma/Sesame/tree/master/sesame-server</url>
-  </scm>
-
   <!-- ==================================================================== -->
   <licenses>
     <license>

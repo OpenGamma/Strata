@@ -21,7 +21,6 @@
 
   <root level="warn">
     <appender-ref ref="FILE" />
-    <appender-ref ref="BRIDGE" />
   </root>
 
 </configuration>
