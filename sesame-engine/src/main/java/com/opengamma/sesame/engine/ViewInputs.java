@@ -58,7 +58,7 @@ public class ViewInputs implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final Map<Class<?>, Object> _scenarioArguments;
   @PropertyDefinition(validate = "notNull")
-  private final Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _marketData;
+  private final Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData;
   @PropertyDefinition(validate = "notNull")
   private final Multimap<Class<?>, UniqueIdentifiable> _configData;
 
@@ -79,7 +79,7 @@ public class ViewInputs implements ImmutableBean {
                     ViewConfig viewConfig, FunctionArguments functionArguments,
                     ZonedDateTime valuationTime,
                     Map<Class<?>, Object> scenarioArguments,
-                    Map<Pair<ExternalIdBundle, FieldName>, Result<?>> marketData,
+                    Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData,
                     Multimap<Class<?>, UniqueIdentifiable> configData) {
 
     // We have to copy to keep the type checking happy - if the input
@@ -180,7 +180,7 @@ public class ViewInputs implements ImmutableBean {
    * Gets the marketData.
    * @return the value of the property, not null
    */
-  public Map<Pair<ExternalIdBundle, FieldName>, Result<?>> getMarketData() {
+  public Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> getMarketData() {
     return _marketData;
   }
 
@@ -297,7 +297,7 @@ public class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code marketData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> _marketData = DirectMetaProperty.ofImmutable(
         this, "marketData", ViewInputs.class, (Class) Map.class);
     /**
      * The meta-property for the {@code configData} property.
@@ -405,7 +405,7 @@ public class ViewInputs implements ImmutableBean {
      * The meta-property for the {@code marketData} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData() {
+    public final MetaProperty<Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>> marketData() {
       return _marketData;
     }
 
@@ -461,7 +461,7 @@ public class ViewInputs implements ImmutableBean {
     private FunctionArguments _functionArguments;
     private ZonedDateTime _valuationTime;
     private Map<Class<?>, Object> _scenarioArguments = new HashMap<Class<?>, Object>();
-    private Map<Pair<ExternalIdBundle, FieldName>, Result<?>> _marketData = new HashMap<Pair<ExternalIdBundle, FieldName>, Result<?>>();
+    private Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> _marketData = new HashMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>();
     private Multimap<Class<?>, UniqueIdentifiable> _configData = ArrayListMultimap.create();
 
     /**
@@ -480,7 +480,7 @@ public class ViewInputs implements ImmutableBean {
       this._functionArguments = beanToCopy.getFunctionArguments();
       this._valuationTime = beanToCopy.getValuationTime();
       this._scenarioArguments = new HashMap<Class<?>, Object>(beanToCopy.getScenarioArguments());
-      this._marketData = new HashMap<Pair<ExternalIdBundle, FieldName>, Result<?>>(beanToCopy.getMarketData());
+      this._marketData = new HashMap<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>(beanToCopy.getMarketData());
       this._configData = ArrayListMultimap.create(beanToCopy.getConfigData());
     }
 
@@ -527,7 +527,7 @@ public class ViewInputs implements ImmutableBean {
           this._scenarioArguments = (Map<Class<?>, Object>) newValue;
           break;
         case 1116764678:  // marketData
-          this._marketData = (Map<Pair<ExternalIdBundle, FieldName>, Result<?>>) newValue;
+          this._marketData = (Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>>) newValue;
           break;
         case 831026700:  // configData
           this._configData = (Multimap<Class<?>, UniqueIdentifiable>) newValue;
@@ -634,7 +634,7 @@ public class ViewInputs implements ImmutableBean {
      * @param marketData  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder marketData(Map<Pair<ExternalIdBundle, FieldName>, Result<?>> marketData) {
+    public Builder marketData(Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData) {
       JodaBeanUtils.notNull(marketData, "marketData");
       this._marketData = marketData;
       return this;

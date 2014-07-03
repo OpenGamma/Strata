@@ -40,6 +40,7 @@ import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -69,7 +70,9 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
@@ -97,7 +100,7 @@ public class ViewFactoryTest {
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments, trades);
     assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -114,7 +117,7 @@ public class ViewFactoryTest {
     List<SimpleTrade> trades = ImmutableList.of(trade);
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments, trades);
     assertEquals(FailureStatus.INVALID_INPUT, results.get(0, 0).getResult().getStatus());
     assertEquals(true, results.get(0, 0).getResult().getFailureMessage().contains(
@@ -131,7 +134,7 @@ public class ViewFactoryTest {
     List<Trade> trades = ImmutableList.of(trade);
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments, trades);
     assertEquals(FailureStatus.INVALID_INPUT, results.get(0, 0).getResult().getStatus());
     assertEquals(true, results.get(0, 0).getResult().getFailureMessage().contains("No function found for security"));
@@ -146,7 +149,7 @@ public class ViewFactoryTest {
     List<Security> securities = ImmutableList.of(EngineTestUtils.createEquityTrade().getSecurity());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments, securities);
     assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -208,9 +211,12 @@ public class ViewFactoryTest {
 
     ExternalIdBundle securityId = trade.getSecurity().getExternalIdBundle();
     MarketDataSource dataSource = MapMarketDataSource.of(securityId, 123.45);
+    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(new DefaultStrategyAwareMarketDataSource(mock(
+        MarketDataSpecification.class), dataSource));
 
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, dataSource);
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, cycleMarketDataFactory);
     Results results = view.run(cycleArguments, trades);
     assertEquals(123.45, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -234,7 +240,7 @@ public class ViewFactoryTest {
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments, trades);
     assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
     System.out.println(results);
@@ -300,7 +306,7 @@ public class ViewFactoryTest {
     List<SimpleTrade> trades = ImmutableList.of(EngineTestUtils.createEquityTrade(), EngineTestUtils.createCashFlowTrade());
     View view = viewFactory.createView(viewConfig, EquitySecurity.class, CashFlowSecurity.class);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments, trades);
 
     assertEquals(EngineTestUtils.EQUITY_NAME, results.get(0, 0).getResult().getValue());
@@ -332,7 +338,7 @@ public class ViewFactoryTest {
     Set<Pair<Integer,Integer>> traceCells = Sets.newHashSet(Pairs.of(0, 0));
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class),
+                                                       mock(CycleMarketDataFactory.class),
                                                        EmptyFunctionArguments.INSTANCE,
                                                        Collections.<Class<?>, Object>emptyMap(),
                                                        traceCells,
@@ -364,7 +370,7 @@ public class ViewFactoryTest {
                                               cachingManager);
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -402,7 +408,7 @@ public class ViewFactoryTest {
                                               cachingManager);
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -432,7 +438,7 @@ public class ViewFactoryTest {
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(),
                                                        VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class),
+                                                       mock(CycleMarketDataFactory.class),
                                                        EmptyFunctionArguments.INSTANCE,
                                                        Collections.<Class<?>, Object>emptyMap(),
                                                        Collections.<Pair<Integer,Integer>>emptySet(),
@@ -474,7 +480,7 @@ public class ViewFactoryTest {
                                               cachingManager);
     View view = viewFactory.createView(viewConfig);
     CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
-                                                       mock(MarketDataSource.class));
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -513,7 +519,8 @@ public class ViewFactoryTest {
                                               EnumSet.noneOf(FunctionService.class),
                                               cachingManager);
     View view = viewFactory.createView(viewConfig);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mock(MarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments);
     ResultItem item = results.get(name);
     assertNotNull(item);
@@ -590,7 +597,8 @@ public class ViewFactoryTest {
     ThreadLocalServiceContext.init(serviceContext);
 
     View view = viewFactory.createView(viewConfig, EquitySecurity.class, CashFlowSecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST, mock(MarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(now, VersionCorrection.LATEST,
+                                                       mock(CycleMarketDataFactory.class));
     Results results = view.run(cycleArguments, trades);
 
     // equity results should be ok as the user has permission to see the security

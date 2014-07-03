@@ -7,19 +7,13 @@ package com.opengamma.sesame.engine;
 
 import com.opengamma.service.ServiceContext;
 import com.opengamma.sesame.graph.Graph;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 
 /**
  * Initializes a set of classes to be used when running a cycle.
  */
 interface CycleInitializer {
-
-  /**
-   * Get the market data source to be used for this cycle.
-   *
-   * @return the market data source
-   */
-  MarketDataSource getMarketDataSource();
 
   /**
    * Get the service context to be used for this cycle.
@@ -43,4 +37,12 @@ interface CycleInitializer {
    * @return the complete set of results
    */
   Results complete(Results results);
+
+
+  /**
+   * Get the market data source to be used for this cycle.
+   *
+   * @return the market data source
+   */
+  CycleMarketDataFactory getCycleMarketDataFactory();
 }

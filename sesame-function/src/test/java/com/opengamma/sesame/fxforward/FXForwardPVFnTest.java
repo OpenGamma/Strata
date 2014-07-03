@@ -23,6 +23,7 @@ import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -60,6 +61,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
@@ -134,8 +136,10 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
@@ -332,7 +336,7 @@ public class FXForwardPVFnTest {
     Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("/marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
+    CycleMarketDataFactory dataSource = createCycleMarketDataFactory(marketData, fieldName);
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
     Results results = view.run(cycleArguments);
     System.out.println(results);
@@ -433,8 +437,8 @@ public class FXForwardPVFnTest {
     Map<ExternalIdBundle, Double> marketData = MarketDataResourcesLoader.getData("marketdata.properties",
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
-    MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, dataSource);
+    CycleMarketDataFactory cycleMarketDataFactory = createCycleMarketDataFactory(marketData, fieldName);
+    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory);
     //int nRuns = 1;
     int nRuns = 20;
     for (int i = 0; i < nRuns; i++) {
@@ -449,7 +453,19 @@ public class FXForwardPVFnTest {
     }
   }
 
-  private MarketDataSource createMarketDataSource(Map<ExternalIdBundle, Double> marketData, FieldName fieldName) {
+  private CycleMarketDataFactory createCycleMarketDataFactory(Map<ExternalIdBundle, Double> marketData,
+                                                              FieldName fieldName) {
+    MarketDataSource source = createMarketDataSource(marketData, fieldName);
+
+    CycleMarketDataFactory mock = mock(CycleMarketDataFactory.class);
+    when(mock.getPrimaryMarketDataSource()).thenReturn(
+        new DefaultStrategyAwareMarketDataSource(mock(MarketDataSpecification.class), source));
+
+    return mock;
+  }
+
+  private MarketDataSource createMarketDataSource(Map<ExternalIdBundle, Double> marketData,
+                                                  FieldName fieldName) {
     MapMarketDataSource.Builder builder = MapMarketDataSource.builder();
     for (Map.Entry<ExternalIdBundle, Double> entry : marketData.entrySet()) {
       builder.add(entry.getKey(), fieldName, entry.getValue());

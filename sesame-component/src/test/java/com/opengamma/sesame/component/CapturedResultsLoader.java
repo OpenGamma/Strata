@@ -5,6 +5,10 @@
  */
 package com.opengamma.sesame.component;
 
+import java.util.Map;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
@@ -18,8 +22,11 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
@@ -58,9 +65,14 @@ import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.engine.ViewInputs;
 import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableOutputs;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
+import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.result.Result;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Enables the running of a view using the data captured from a
@@ -102,19 +114,46 @@ public class CapturedResultsLoader {
 
     ImmutableMap<Class<?>, Object> components = createComponents(configData);
 
-    ViewFactory viewFactory = EngineTestUtils.createViewFactory(components, _availableOutputs, _availableImplementations);
+    ViewFactory viewFactory =
+        EngineTestUtils.createViewFactory(components, _availableOutputs, _availableImplementations);
 
     // Run view
     View view = viewFactory.createView(_viewInputs.getViewConfig());
 
     ZonedDateTime valTime = _viewInputs.getValuationTime();
 
-    MarketDataSource marketDataSource = MapMarketDataSource.of(_viewInputs.getMarketData());
+    final Map<ZonedDateTime, Map<Pair<ExternalIdBundle, FieldName>, Result<?>>> marketData =
+        _viewInputs.getMarketData();
+
+    CycleMarketDataFactory cycleMarketDataFactory = new CycleMarketDataFactory() {
+      @Override
+      public MarketDataSource getPrimaryMarketDataSource() {
+        MarketDataSource marketDataSource = MapMarketDataSource.of(marketData.get(LocalDate.MAX.atStartOfDay(
+            ZoneOffset.UTC)));
+        // LiveSpec as good as any - won't actually be used for anything
+        return new DefaultStrategyAwareMarketDataSource(LiveMarketDataSpecification.LIVE_SPEC, marketDataSource);
+      }
+
+      @Override
+      public MarketDataSource getMarketDataSourceForDate(ZonedDateTime valuationDate) {
+        return MapMarketDataSource.of(marketData.get(valuationDate));
+      }
+
+      @Override
+      public CycleMarketDataFactory withMarketDataSpecification(MarketDataSpecification marketDataSpec) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public CycleMarketDataFactory withPrimedMarketDataSource() {
+        throw new UnsupportedOperationException();
+      }
+    };
+
     VersionCorrection versionCorrection =
         ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class).getConfigVersionCorrection();
 
-    CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, marketDataSource);
-
+    CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, cycleMarketDataFactory);
     return view.run(cycleArguments);
   }
 

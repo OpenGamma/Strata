@@ -7,7 +7,7 @@ package com.opengamma.sesame.engine;
 
 import com.opengamma.service.ServiceContext;
 import com.opengamma.sesame.graph.Graph;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 
 /**
  * A cycle initializer to be used in standard (non-capturing)
@@ -16,27 +16,26 @@ import com.opengamma.sesame.marketdata.MarketDataSource;
 class StandardCycleInitializer implements CycleInitializer {
 
   private final ServiceContext _originalContext;
-  private final MarketDataSource _marketDataSource;
+  private final CycleMarketDataFactory _cycleMarketDataFactory;
   private final Graph _graph;
 
   /**
    * Create the cycle initializer.
-   *
-   * @param originalContext the current service context
-   * @param marketDataSource the current market data source
+   *  @param originalContext the current service context
+   * @param cycleMarketDataFactory the current market data source
    * @param graph the current graph
    */
   StandardCycleInitializer(ServiceContext originalContext,
-                           MarketDataSource marketDataSource,
+                           CycleMarketDataFactory cycleMarketDataFactory,
                            Graph graph) {
     _originalContext = originalContext;
-    _marketDataSource = marketDataSource;
+    _cycleMarketDataFactory = cycleMarketDataFactory;
     _graph = graph;
   }
 
   @Override
-  public MarketDataSource getMarketDataSource() {
-    return _marketDataSource;
+  public CycleMarketDataFactory getCycleMarketDataFactory() {
+    return _cycleMarketDataFactory;
   }
 
   @Override
