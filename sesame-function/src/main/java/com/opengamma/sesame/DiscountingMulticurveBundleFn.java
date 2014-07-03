@@ -47,8 +47,6 @@ public interface DiscountingMulticurveBundleFn {
    * the curves required, a failure will be returned
    * @return result containing the implied deposit curve data, if successful
    */
-  // REVIEW Chris 2014-03-14 this is crying out for a real class for the return type
-  // TODO ideally the curve config would be a type indicting that it actually is an implied deposit curve
   @Cacheable(CacheLifetime.FOREVER)
   Result<ImpliedDepositCurveData> extractImpliedDepositCurveData(
       Environment env,
