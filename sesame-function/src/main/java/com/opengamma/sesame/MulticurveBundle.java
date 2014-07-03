@@ -33,9 +33,15 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public final class MulticurveBundle implements ImmutableBean {
 
+  /**
+   * The calibrated multicurves.
+   */
   @PropertyDefinition(validate = "notNull")
   private final MulticurveProviderDiscount _multicurveProvider;
 
+  /**
+   * The curve building blocks used to calibrate the curves.
+   */
   @PropertyDefinition(validate = "notNull")
   private final CurveBuildingBlockBundle _curveBuildingBlockBundle;
 
@@ -85,7 +91,7 @@ public final class MulticurveBundle implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the multicurveProvider.
+   * Gets the calibrated multicurves.
    * @return the value of the property, not null
    */
   public MulticurveProviderDiscount getMulticurveProvider() {
@@ -94,7 +100,7 @@ public final class MulticurveBundle implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the curveBuildingBlockBundle.
+   * Gets the curve building blocks used to calibrate the curves.
    * @return the value of the property, not null
    */
   public CurveBuildingBlockBundle getCurveBuildingBlockBundle() {

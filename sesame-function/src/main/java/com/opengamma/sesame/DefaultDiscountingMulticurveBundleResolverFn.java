@@ -10,12 +10,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Triple;
 
 /**
  * Function implementation that for a particular curve config, determines which
@@ -42,7 +39,7 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
   }
 
   @Override
-  public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
+  public Result<ImpliedDepositCurveData> extractImpliedDepositCurveData(
       Environment env, CurveConstructionConfiguration curveConfig) {
 
     Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves = buildRequiredCurves(env, curveConfig);
@@ -53,14 +50,14 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
   // As each curve is built, it is added to a collection and the collection
   // is passed in as each subsequent curve is built so the data can be
   // used in constructing the multicurve.
-  // Note that this does not build the supplied itself - callers need to do that
-  // if desired.
+  // Note that this does not build the supplied curve config itself - callers need
+  // to do that if desired.
   private Map<CurveConstructionConfiguration, Result<MulticurveBundle>> buildRequiredCurves(
       Environment env, CurveConstructionConfiguration curveConfig) {
 
     // Get the order to build any exogenous curves in
-    LinkedHashSet<CurveConstructionConfiguration> orderedCurves = determineCurveConfigOrdering(
-        new LinkedHashSet<CurveConstructionConfiguration>(), curveConfig.resolveCurveConfigurations());
+    LinkedHashSet<CurveConstructionConfiguration> orderedCurves =
+        determineCurveConfigOrdering(curveConfig.resolveCurveConfigurations());
 
     Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves = new HashMap<>();
 
@@ -70,6 +67,11 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
     }
 
     return builtCurves;
+  }
+
+  private LinkedHashSet<CurveConstructionConfiguration> determineCurveConfigOrdering(
+      List<CurveConstructionConfiguration> curveConfigs) {
+    return determineCurveConfigOrdering(new LinkedHashSet<CurveConstructionConfiguration>(), curveConfigs);
   }
 
   // Recursively determines the ordered set of curves that need to be built (due to

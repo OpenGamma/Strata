@@ -26,7 +26,7 @@ public interface DiscountingMulticurveBundleFn {
    *
    * @param env the environment
    * @param curveConfig the curve to build the multicurve bundle for
-   * @param builtCurves map of curves that are required to build the
+   * @param requiredCurves map of curves that are required to build the
    * bundle (i.e. exogenous curves). If the map does not contain all
    * the curves required, a failure will be returned
    * @return result containing the multicurve data, if successful
@@ -35,7 +35,7 @@ public interface DiscountingMulticurveBundleFn {
   Result<MulticurveBundle> generateBundle(
       Environment env,
       CurveConstructionConfiguration curveConfig,
-      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves);
+      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> requiredCurves);
 
   /**
    * Extracts the implied deposit curve data for the supplied curve config.
@@ -50,7 +50,7 @@ public interface DiscountingMulticurveBundleFn {
   // REVIEW Chris 2014-03-14 this is crying out for a real class for the return type
   // TODO ideally the curve config would be a type indicting that it actually is an implied deposit curve
   @Cacheable(CacheLifetime.FOREVER)
-  Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
+  Result<ImpliedDepositCurveData> extractImpliedDepositCurveData(
       Environment env,
       CurveConstructionConfiguration curveConfig,
       Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves);
