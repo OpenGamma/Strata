@@ -8,6 +8,9 @@ package com.opengamma.sesame.config;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
+@Test(groups= TestGroup.UNIT)
 public class ConfigBuilderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

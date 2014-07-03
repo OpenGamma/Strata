@@ -5,7 +5,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups= TestGroup.UNIT)
 public class SimpleFunctionArgumentsTest {
 
   @Test

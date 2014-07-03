@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests {@link EngineTestUtils#compareMaps(Map, Map)}.
  */
+@Test(groups= TestGroup.UNIT)
 public class MapCompareTest {
 
   @Test
