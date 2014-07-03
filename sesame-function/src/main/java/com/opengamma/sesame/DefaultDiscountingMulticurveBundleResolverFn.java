@@ -62,7 +62,6 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
     Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves = new HashMap<>();
 
     for (CurveConstructionConfiguration config : orderedCurves) {
-      System.out.println("Generating: [" + config + "] for env: [" + env + "]");
       builtCurves.put(config, _multicurveBundleProviderFunction.generateBundle(env, config, builtCurves));
     }
 
