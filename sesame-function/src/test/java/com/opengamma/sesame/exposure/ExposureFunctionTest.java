@@ -88,7 +88,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Tests of ExposureFunctions at the view level
  */
-@Test(groups = TestGroup.INTEGRATION)
+@Test(groups = TestGroup.UNIT)
 public class ExposureFunctionTest {
 
   private static FXMatrix _emptyFxMatrix = new FXMatrix();

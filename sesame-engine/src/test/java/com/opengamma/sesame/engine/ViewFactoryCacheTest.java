@@ -32,10 +32,12 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the behaviour of {@link ViewFactory} WRT cache behaviour.
  */
+@Test(groups= TestGroup.UNIT)
 public class ViewFactoryCacheTest {
 
   /**

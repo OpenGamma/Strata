@@ -23,10 +23,12 @@ import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests to check that the ExceptionWrappingProxy behaves as expected.
  */
+@Test(groups= TestGroup.UNIT)
 public class ExceptionWrappingProxyTest {
 
   @Test
