@@ -45,7 +45,6 @@ import com.google.common.collect.ImmutableList;
 @BeanDefinition(builderScope = "private", style = "minimal")
 public final class Triple<A, B, C>
     implements ImmutableBean, Tuple, Comparable<Triple<A, B, C>>, Serializable {
-  // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

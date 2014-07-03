@@ -104,11 +104,11 @@ public final class CompareUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Compare two doubles to see if they're 'closely' equal.
+   * Compare two doubles to see if they are 'closely' equal.
    * <p>
    * This handles rounding errors which can mean the results of double precision computations
    * lead to small differences in results.
-   * The definition 'close' is that the difference is less than 10^-15 (1E-15).
+   * The definition of 'close' is that the difference is less than 10^-15 (1E-15).
    * If a different maximum allowed difference is required, use the other version of this method.
    * 
    * @param a  the first value
@@ -123,11 +123,11 @@ public final class CompareUtils {
   }
 
   /**
-   * Compare two doubles to see if they're 'closely' equal.
+   * Compare two doubles to see if they are 'closely' equal.
    * <p>
    * This handles rounding errors which can mean the results of double precision computations
    * lead to small differences in results.
-   * The definition 'close' is that the absolute difference is less than the specified difference.
+   * The definition of 'close' is that the absolute difference is less than the specified difference.
    * 
    * @param a  the first value
    * @param b  the second value
@@ -142,7 +142,7 @@ public final class CompareUtils {
   }
 
   /**
-   * Compare two doubles to see if they're 'closely' equal.
+   * Compare two doubles to see if they are 'closely' equal.
    * <p>
    * This handles rounding errors which can mean the results of double precision computations
    * lead to small differences in results.
