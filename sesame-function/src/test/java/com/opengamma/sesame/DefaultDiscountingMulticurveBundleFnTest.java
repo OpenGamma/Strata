@@ -18,8 +18,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
@@ -27,7 +25,6 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 
 @Test(groups = TestGroup.UNIT)
 public class DefaultDiscountingMulticurveBundleFnTest {
@@ -60,8 +57,8 @@ public class DefaultDiscountingMulticurveBundleFnTest {
     @SuppressWarnings("rawtypes")
     Map map = ImmutableMap.of(cd, Lists.newArrayList());
     when(cgc.resolveTypesForCurves()).thenReturn(map);
-    Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result = _fn.generateBundle(_env, _ccc,
-        ImmutableMap.<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>>of());
+    Result<MulticurveBundle> result = _fn.generateBundle(_env, _ccc,
+        ImmutableMap.<CurveConstructionConfiguration, Result<MulticurveBundle>>of());
     
     assertTrue("Expected failure", !result.isSuccess());
     

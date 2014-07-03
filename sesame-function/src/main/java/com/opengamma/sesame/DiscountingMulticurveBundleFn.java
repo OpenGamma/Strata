@@ -9,14 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.cache.CacheLifetime;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -35,10 +32,10 @@ public interface DiscountingMulticurveBundleFn {
    * @return result containing the multicurve data, if successful
    */
   @Cacheable(CacheLifetime.NEXT_FUTURE_ROLL)
-  Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
+  Result<MulticurveBundle> generateBundle(
       Environment env,
       CurveConstructionConfiguration curveConfig,
-      Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves);
+      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves);
 
   /**
    * Extracts the implied deposit curve data for the supplied curve config.
@@ -56,7 +53,7 @@ public interface DiscountingMulticurveBundleFn {
   Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
       Environment env,
       CurveConstructionConfiguration curveConfig,
-      Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves);
+      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves);
 
 }
 

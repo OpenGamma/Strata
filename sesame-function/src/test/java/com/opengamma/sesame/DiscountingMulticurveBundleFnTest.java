@@ -34,7 +34,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -191,14 +190,13 @@ public class DiscountingMulticurveBundleFnTest {
   @Test
   public void testUSD() {
     
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle =
-        _multicurveBundleFn.generateBundle(_environment, _usdDiscountingCCC);
+    Result<MulticurveBundle> bundle = _multicurveBundleFn.generateBundle(_environment, _usdDiscountingCCC);
     
     assertTrue("Curve bundle result failed", bundle.isSuccess());
+
+    MulticurveBundle value = bundle.getValue();
     
-    Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle> value = bundle.getValue();
-    
-    MulticurveProviderDiscount multicurve = value.getFirst();
+    MulticurveProviderDiscount multicurve = value.getMulticurveProvider();
     for (Map.Entry<Tenor, Pair<Double, Double>> entry : s_usdExpected.entrySet()) {
       Tenor tenor = entry.getKey();
       Pair<Double, Double> pair = entry.getValue();
@@ -206,7 +204,6 @@ public class DiscountingMulticurveBundleFnTest {
       double df = multicurve.getDiscountFactor(Currency.USD, pair.getKey());
       assertEquals("USD DF for tenor " + tenor + " (" + time + ")  mismatch", df, pair.getValue(), 10E-6);
     }
-    
   }
 
 

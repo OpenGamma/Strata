@@ -41,8 +41,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentLogger;
 import com.opengamma.component.ComponentRepository;
@@ -66,6 +64,7 @@ import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.config.ViewConfig;
@@ -89,7 +88,6 @@ import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests that remoting to the new engine works. Starts up an engine on a
@@ -196,10 +194,9 @@ public class RemotingTest {
       fail("Expected success but got: " + result);
     }
 
-    @SuppressWarnings("unchecked") Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> pair =
-        (Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>) result.getValue();
-    assertThat(pair.getFirst(), is(not(nullValue())));
-    assertThat(pair.getSecond(), is(not(nullValue())));
+    @SuppressWarnings("unchecked") MulticurveBundle pair = (MulticurveBundle) result.getValue();
+    assertThat(pair.getMulticurveProvider(), is(not(nullValue())));
+    assertThat(pair.getCurveBuildingBlockBundle(), is(not(nullValue())));
   }
 
   @Test

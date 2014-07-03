@@ -41,7 +41,6 @@ import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
@@ -86,7 +85,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test for {@code InterpolatedMulticurveBundleFn}.
@@ -184,12 +182,12 @@ public class InterpolatedMulticurveBundleFnTest {
    */
   @Test
   public void testUSD() {
-    Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundle = _multicurveBundleFn.generateBundle(
+    Result<MulticurveBundle> bundle = _multicurveBundleFn.generateBundle(
         _environment, _usdDiscountingCCC,
-        ImmutableMap.<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>>of());
+        ImmutableMap.<CurveConstructionConfiguration, Result<MulticurveBundle>>of());
     assertTrue("Curve bundle result failed", bundle.isSuccess());
-    Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> value = bundle.getValue();
-    MulticurveProviderDiscount multicurve = value.getFirst();
+    MulticurveBundle value = bundle.getValue();
+    MulticurveProviderDiscount multicurve = value.getMulticurveProvider();
     double expectedDF = 1.0;
     for (Tenor tenor : s_tenors) {
       double time = TimeCalculator.getTimeBetween(_environment.getValuationTime(), _environment.getValuationTime().plus(tenor.getPeriod()));
@@ -208,8 +206,7 @@ public class InterpolatedMulticurveBundleFnTest {
     Map<String, List<? extends CurveTypeConfiguration>> ct = Maps.newHashMap();
     ct.put("USD DiscountingDiscountFactorNodes", ctc);
     List<CurveGroupConfiguration> cgc = Lists.newArrayList(new CurveGroupConfiguration(0, ct ));
-    CurveConstructionConfiguration ccc = new CurveConstructionConfiguration("USD", cgc, Collections.<String>emptyList());
-    return ccc;
+    return new CurveConstructionConfiguration("USD", cgc, Collections.<String>emptyList());
   }
   
   private void initConfigSource(ConfigSource cs) {

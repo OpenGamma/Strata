@@ -29,8 +29,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
@@ -70,6 +68,7 @@ import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.HistoricalTimeSeriesFn;
 import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.component.RetrievalPeriod;
@@ -91,7 +90,6 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
 
 @Test(groups = TestGroup.UNIT)
 public class FedFundFutureCurveTest {
@@ -184,7 +182,7 @@ public class FedFundFutureCurveTest {
   public void buildCurve() {
     MarketDataSource dataSource = InterestRateMockSources.createMarketDataSource(VALUATION_TIME.toLocalDate(), false);
     Environment env = new SimpleEnvironment(VALUATION_TIME, dataSource);
-    Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> pairProviderBlock = 
+    Result<MulticurveBundle> pairProviderBlock =
         _curveBundle.generateBundle(env, ConfigLink.resolvable(CURVE_CONSTRUCTION_CONFIGURATION_USD_FFF,
             CurveConstructionConfiguration.class).resolve());
     if (!pairProviderBlock.isSuccess()) {

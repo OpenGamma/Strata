@@ -48,8 +48,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -107,6 +105,7 @@ import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
 import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
@@ -147,7 +146,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.Pair;
 
 @Test(groups = TestGroup.UNIT)
 public class FXForwardPVFnTest {
@@ -243,7 +241,7 @@ public class FXForwardPVFnTest {
 
     DiscountingMulticurveBundleResolverFn bundleProvider =
         FunctionModel.build(DiscountingMulticurveBundleResolverFn.class, createFunctionConfig(), componentMap);
-    Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> result;
+
 
     ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
     CurveConstructionConfiguration curveConfig = configSource.get(CurveConstructionConfiguration.class, "Z-Marc JPY Dsc - FX USD", VersionCorrection.LATEST)
@@ -252,7 +250,7 @@ public class FXForwardPVFnTest {
     FieldName fieldName = FieldName.of(MarketDataRequirementNames.MARKET_VALUE);
     MarketDataSource dataSource = createMarketDataSource(marketData, fieldName);
     SimpleEnvironment env = new SimpleEnvironment(valuationTime, dataSource);
-    result = bundleProvider.generateBundle(env, curveConfig);
+    Result<MulticurveBundle> result = bundleProvider.generateBundle(env, curveConfig);
 
     assertNotNull(result);
     assertThat(result.getStatus(), is((ResultStatus) SUCCESS));

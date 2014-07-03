@@ -11,13 +11,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -40,8 +37,7 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
   }
 
   @Override
-  public Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> generateBundle(
-      Environment env, CurveConstructionConfiguration curveConfig) {
+  public Result<MulticurveBundle> generateBundle(Environment env, CurveConstructionConfiguration curveConfig) {
     return _multicurveBundleProviderFunction.generateBundle(env, curveConfig, buildRequiredCurves(env, curveConfig));
   }
 
@@ -49,8 +45,7 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
   public Result<Triple<List<Tenor>, List<Double>, List<InstrumentDerivative>>> extractImpliedDepositCurveData(
       Environment env, CurveConstructionConfiguration curveConfig) {
 
-    Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves =
-        buildRequiredCurves(env, curveConfig);
+    Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves = buildRequiredCurves(env, curveConfig);
     return _multicurveBundleProviderFunction.extractImpliedDepositCurveData(env, curveConfig, builtCurves);
   }
 
@@ -60,17 +55,17 @@ public class DefaultDiscountingMulticurveBundleResolverFn implements Discounting
   // used in constructing the multicurve.
   // Note that this does not build the supplied itself - callers need to do that
   // if desired.
-  private Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> buildRequiredCurves(
+  private Map<CurveConstructionConfiguration, Result<MulticurveBundle>> buildRequiredCurves(
       Environment env, CurveConstructionConfiguration curveConfig) {
 
     // Get the order to build any exogenous curves in
     LinkedHashSet<CurveConstructionConfiguration> orderedCurves = determineCurveConfigOrdering(
         new LinkedHashSet<CurveConstructionConfiguration>(), curveConfig.resolveCurveConfigurations());
 
-    Map<CurveConstructionConfiguration, Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>>> builtCurves =
-        new HashMap<>();
+    Map<CurveConstructionConfiguration, Result<MulticurveBundle>> builtCurves = new HashMap<>();
 
     for (CurveConstructionConfiguration config : orderedCurves) {
+      System.out.println("Generating: [" + config + "] for env: [" + env + "]");
       builtCurves.put(config, _multicurveBundleProviderFunction.generateBundle(env, config, builtCurves));
     }
 

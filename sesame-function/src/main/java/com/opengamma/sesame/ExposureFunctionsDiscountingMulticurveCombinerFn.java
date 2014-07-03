@@ -50,8 +50,8 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
   /**
    * Constructor for a multicurve function that selects the multicurves by either trade or security.
    *
-   * @param marketExposureSelectorFn the exposure function selector.
-   * @param multicurveBundleProviderFunction the function used to generate the multicurves.
+   * @param marketExposureSelectorFn  the exposure function selector.
+   * @param bundleResolver  the function used to resolve the multicurves.
    */
   public ExposureFunctionsDiscountingMulticurveCombinerFn(MarketExposureSelectorFn marketExposureSelectorFn,
                                                           DiscountingMulticurveBundleResolverFn bundleResolver) {
@@ -86,13 +86,12 @@ public class ExposureFunctionsDiscountingMulticurveCombinerFn implements Discoun
       Set<CurveConstructionConfiguration> curveConfigs = selector.determineCurveConfigurations(trade);
       for (CurveConstructionConfiguration curveConfig : curveConfigs) {
 
-        Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
-            _bundleResolver.generateBundle(env, curveConfig);
+        Result<MulticurveBundle> bundleResult = _bundleResolver.generateBundle(env, curveConfig);
 
         if (bundleResult.isSuccess()) {
-          Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> result = bundleResult.getValue();
-          bundles.add(result.getFirst());
-          mergedJacobianBundle.addAll(result.getSecond());
+          MulticurveBundle result = bundleResult.getValue();
+          bundles.add(result.getMulticurveProvider());
+          mergedJacobianBundle.addAll(result.getCurveBuildingBlockBundle());
         } else {
           incompleteBundles.add(bundleResult);
         }

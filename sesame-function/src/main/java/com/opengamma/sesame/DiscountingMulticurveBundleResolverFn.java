@@ -8,14 +8,11 @@ package com.opengamma.sesame;
 import java.util.List;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 
@@ -35,8 +32,7 @@ public interface DiscountingMulticurveBundleResolverFn {
    */
   @Cacheable
   @Output(OutputNames.DISCOUNTING_MULTICURVE_BUNDLE)
-  Result<Pair<MulticurveProviderDiscount,CurveBuildingBlockBundle>> generateBundle(
-      Environment env, CurveConstructionConfiguration curveConfig);
+  Result<MulticurveBundle> generateBundle(Environment env, CurveConstructionConfiguration curveConfig);
 
   /**
    * Extracts the implied deposit curve data for the supplied curve config.
