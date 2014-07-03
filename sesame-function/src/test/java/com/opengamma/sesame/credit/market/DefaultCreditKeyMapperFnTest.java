@@ -11,11 +11,14 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.config.CreditCurveDataKeyMap;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests use cases of {@link DefaultCreditKeyMapperFn}.
  */
+@Test(groups = TestGroup.UNIT)
 public class DefaultCreditKeyMapperFnTest {
   
   private CreditCurveDataKey _source;
@@ -27,9 +30,9 @@ public class DefaultCreditKeyMapperFnTest {
   @BeforeMethod
   public void beforeMethod() {
     
-    _source = CreditCurveDataKey.builder().curveName("source").build();
-    _target = CreditCurveDataKey.builder().curveName("target").build();
-    _missing = CreditCurveDataKey.builder().curveName("missing").build();
+    _source = CreditCurveDataKey.builder().curveName("source").currency(Currency.USD).build();
+    _target = CreditCurveDataKey.builder().curveName("target").currency(Currency.USD).build();
+    _missing = CreditCurveDataKey.builder().curveName("missing").currency(Currency.USD).build();
     
     Map<CreditCurveDataKey, CreditCurveDataKey> keyMap = ImmutableMap.of(_source, _target);
     
