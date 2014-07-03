@@ -1,0 +1,141 @@
+<assembly
+  xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
+  <id>server</id>
+  <formats>
+    <format>tar.bz2</format>
+  </formats>
+
+  <!-- website resources -->
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/platform/lib</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>644</fileMode>
+      <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}${dashClassifier?}.${artifact.extension}</outputFileNameMapping>
+      <useStrictFiltering>true</useStrictFiltering>
+      <excludes>
+        <exclude>com.opengamma.platform:og-server:pom</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+  <fileSets>
+    <!-- external libs -->
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/lib</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+    <!-- properties config -->
+    <fileSet>
+      <directory>config</directory>
+      <outputDirectory>/config</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>644</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*/*.properties</include>
+      </includes>
+    </fileSet>
+    <!-- ini and xml config -->
+    <fileSet>
+      <directory>config</directory>
+      <outputDirectory>/platform/config</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>644</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*/*.ini</include>
+        <include>*/*.xml</include>
+        <include>*.xml</include>
+      </includes>
+    </fileSet>
+    <!-- scripts -->
+    <fileSet>
+      <directory>${project.build.directory}/scripts</directory>
+      <outputDirectory>/platform/scripts</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>755</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*.sh</include>
+      </includes>
+      <excludes>
+        <exclude>run-tool.sh</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>scripts</directory>
+      <outputDirectory>/platform/scripts</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>755</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*.sh</include>
+        <include>README*.txt</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory></outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>755</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>*.txt</include>
+      </includes>
+    </fileSet>
+    <!-- web directory -->
+    <fileSet>
+      <directory>${project.build.directory}/assembly/web-engine/</directory>
+      <outputDirectory>/platform/web-engine</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>644</fileMode>
+      <excludes>
+        <exclude>analytics/</exclude>
+        <exclude>prototype/</exclude>
+        <exclude>calcNode/</exclude>
+        <exclude>js/</exclude>
+        <exclude>css/</exclude>
+        <exclude>WEB-INF/pages/prototype/</exclude>
+        <exclude>index.html</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>web</directory>
+      <outputDirectory>/platform/web-engine</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>644</fileMode>
+    </fileSet>
+    <!-- marketdata web directory -->
+    <fileSet>
+      <directory>${project.build.directory}/assembly/web-marketdata</directory>
+      <outputDirectory>/platform/web-marketdata</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>644</fileMode>
+    </fileSet>
+    <!-- directory for data and logs -->
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/platform/data</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/platform/logs</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+
+</assembly>

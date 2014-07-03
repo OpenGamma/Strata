@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.opengamma.platform</groupId>
+    <artifactId>og-platform</artifactId>
+    <version>2.2.0-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+  <artifactId>sesame-server</artifactId>
+  <packaging>jar</packaging>
+  <name>sesame-server</name>
+  <description>OpenGamma Sesame Deployment Server</description>
+
+  <scm>
+    <url>https://github.com/OpenGamma/OG-Platform/tree/master/og-server</url>
+  </scm>
+
+  <!-- ==================================================================== -->
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <!-- ==================================================================== -->
+  <distributionManagement>
+    <site>
+      <id>og-public-site</id>
+      <name>OpenGamma public site</name>
+      <url>http://developers.opengamma.com</url>
+    </site>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
+  <properties>
+    <!-- Properties for maven-javadoc-plugin -->
+    <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
+  </properties>
+
+  <!-- ==================================================================== -->
+  <build>
+    <resources>
+      <resource>
+        <directory>config</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <!-- include classpath and exclude config in jar files -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/default-ehcache.xml</exclude>
+            <exclude>**/fullstack/</exclude>
+            <exclude>**/marketdata/</exclude>
+            <exclude>**/toolcontext/</exclude>
+            <exclude>**/dbtoolcontext/</exclude>
+          </excludes>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <useUniqueVersions>false</useUniqueVersions>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- generate scripts -->
+      <plugin>
+        <groupId>com.opengamma.tools</groupId>
+        <artifactId>opengamma-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unix-shell-scripts</id>
+            <goals>
+              <goal>generate-scripts</goal>
+            </goals>
+            <configuration>
+              <type>tool</type>
+              <windows>false</windows>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- unpack web zips -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.opengamma.platform</groupId>
+                  <artifactId>og-web</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <classifier>web-engine</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/assembly/web-engine</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-marketdata</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.opengamma.platform</groupId>
+                  <artifactId>og-web</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <classifier>web-marketdata</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/assembly/web-marketdata</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- ==================================================================== -->
+  <dependencies>
+    <!-- Platform -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>og-server</artifactId>
+      <type>pom</type>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- New engine -->
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-function</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-component</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.opengamma.platform</groupId>
+      <artifactId>sesame-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-spring</artifactId>
+    </dependency>
+  </dependencies>
+
+  <!-- ==================================================================== -->
+  <profiles>
+    <!-- src zip file, activated with -Ddist -->
+    <profile>
+      <id>dist</id>
+      <activation>
+        <property>
+          <name>dist</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>${maven-assembly-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>packages</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/assembly-server-unix.xml</descriptor>
+                  </descriptors>
+                  <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

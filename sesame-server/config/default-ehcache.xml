@@ -1,0 +1,99 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="ehcache.xsd"
+    updateCheck="false">
+
+  <diskStore path="${java.io.tmpdir}/${user.name}-ehcache-${og.server.name}"/>
+
+  <defaultCache
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="86400"
+    timeToLiveSeconds="86400"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
+    diskPersistent="false"
+    diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU"
+    />
+
+  <!-- Market data -->
+  <cache
+    name="referenceData"
+    maxElementsInMemory="10000"
+    eternal="false"
+    timeToIdleSeconds="604800"
+    timeToLiveSeconds="604800"
+    overflowToDisk="true"
+    maxElementsOnDisk="0"
+    diskPersistent="true"
+    diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU"
+    />
+
+  <!-- Engine -->
+  <cache
+    name="executionPlans"
+    maxElementsInMemory="100"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="1800"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
+    diskPersistent="false"
+    diskExpiryThreadIntervalSeconds="0"
+    memoryStoreEvictionPolicy="LRU"
+    />
+
+  <!-- Config -->
+  <cache
+    name="config"
+    maxElementsInMemory="1000"
+    eternal="false"
+    timeToIdleSeconds="300"
+    timeToLiveSeconds="300"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
+    diskPersistent="false"
+    diskExpiryThreadIntervalSeconds="0"
+    memoryStoreEvictionPolicy="LRU"
+    />
+
+  <!-- Historical Time-Series -->
+  <cache
+    name="HistoricalTimeSeriesIdBundleCache"
+    maxElementsInMemory="5000"
+    eternal="false"
+    timeToIdleSeconds="14400"
+    timeToLiveSeconds="14400"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
+    diskPersistent="false"
+    diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU"
+    />
+  <cache
+    name="HistoricalTimeSeriesDataCache"
+    maxElementsInMemory="5000"
+    eternal="false"
+    timeToIdleSeconds="14400"
+    timeToLiveSeconds="14400"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
+    diskPersistent="false"
+    diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU"
+    />
+  <cache
+    name="htsResolution.DEFAULT"
+    maxElementsInMemory="5000"
+    eternal="false"
+    timeToIdleSeconds="600"
+    timeToLiveSeconds="7200"
+    overflowToDisk="false"
+    maxElementsOnDisk="1"
+    diskPersistent="false"
+    diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU"
+    />
+
+</ehcache>
