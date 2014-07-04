@@ -19,8 +19,9 @@ import com.opengamma.sesame.config.FunctionArguments;
 import com.opengamma.sesame.engine.CycleArguments;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.View;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.MarketDataSourceManager;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -50,7 +51,7 @@ public class CycleRunner {
   /**
    * The manager of the market data sources, not null.
    */
-  private final MarketDataSourceManager _marketDataSourceManager;
+  private final MarketDataFactory _marketDataFactory;
   /**
    * The cycle options determining how the cycles of the view
    * should be executed, not null.
@@ -77,21 +78,21 @@ public class CycleRunner {
    * Creates the new cycle runner.
    *
    * @param view  the view to be executed
-   * @param marketDataSourceManager  the manager of the market data sources
+   * @param marketDataFactory  the factory for market data sources
    * @param cycleOptions  the cycle options determining how the cycles of the view should be executed
    * @param inputs  the trades/securities to execute the cycles with, may be empty
    * @param handler  handler for the results produced by each cycle of the engine
    * @param cycleTerminator  determines whether the execution of the cycles should be terminated
    */
   public CycleRunner(View view,
-                     MarketDataSourceManager marketDataSourceManager,
+                     MarketDataFactory marketDataFactory,
                      CycleOptions cycleOptions,
                      List<ManageableSecurity> inputs,
                      CycleResultsHandler handler,
                      CycleTerminator cycleTerminator) {
 
     _view = view;
-    _marketDataSourceManager = marketDataSourceManager;
+    _marketDataFactory = marketDataFactory;
     _cycleOptions = cycleOptions;
     _inputs = inputs;
     _handler = handler;
@@ -108,30 +109,33 @@ public class CycleRunner {
 
     // We keep track of the market data being used so that when required we can
     // track the changes in market data between cycles
-    StrategyAwareMarketDataSource strategyAwareSource = INITIAL_MARKET_DATA_SOURCE;
+    CycleMarketDataFactory cycleMarketDataFactory =
+        new DefaultCycleMarketDataFactory(_marketDataFactory, INITIAL_MARKET_DATA_SOURCE);
 
     // Iterate over the cycle options. As they may be infinite (e.g. streaming),
     // we check the terminator to see if external events mean we should stop.
     for (Iterator<IndividualCycleOptions> it = _cycleOptions.iterator();
          _cycleTerminator.shouldContinue() && it.hasNext();) {
 
-      Pair<Results, StrategyAwareMarketDataSource> result =
-          cycleUntilResultsAvailable(it.next(), strategyAwareSource);
+      Pair<Results, CycleMarketDataFactory> result =
+          cycleUntilResultsAvailable(it.next(), cycleMarketDataFactory);
       _handler.handleResults(result.getFirst());
-      strategyAwareSource = result.getSecond();
+      cycleMarketDataFactory = result.getSecond();
     }
   }
 
-  private Pair<Results, StrategyAwareMarketDataSource> cycleUntilResultsAvailable(IndividualCycleOptions cycleOptions,
-                                                                                  StrategyAwareMarketDataSource previousSource) {
+  private Pair<Results, CycleMarketDataFactory> cycleUntilResultsAvailable(IndividualCycleOptions cycleOptions,
+                                                                           CycleMarketDataFactory previousFactory) {
 
     // We first run a cycle, then check it to see if any market data is
     // pending. Where we are using a non-lazy data source (i.e. not
     // live data), then we will not need to do anything more and can just
     // return the results we have
-    StrategyAwareMarketDataSource strategyAwareSource = _marketDataSourceManager.createStrategyAwareSource(
-              previousSource, cycleOptions.getMarketDataSpec());
-    Results result = executeCycle(cycleOptions, strategyAwareSource);
+
+    CycleMarketDataFactory factory =
+        createPrimedCycleMarketDataFactory(previousFactory, cycleOptions.getMarketDataSpec());
+
+    Results result = executeCycle(cycleOptions, factory);
 
     while (result.isPendingMarketData()) {
 
@@ -139,21 +143,37 @@ public class CycleRunner {
       // source primed with the missing results and retry. It is possible
       // that the subsequent run then wants additional market market data
       // so we keep repeating until no data is pending.
-      strategyAwareSource = strategyAwareSource.createPrimedSource();
-      result = executeCycle(cycleOptions, strategyAwareSource);
+      factory = factory.withPrimedMarketDataSource();
+      result = executeCycle(cycleOptions, factory);
     }
 
-    return Pairs.of(result, strategyAwareSource);
+    return Pairs.of(result, factory);
+  }
+
+  private CycleMarketDataFactory createPrimedCycleMarketDataFactory(CycleMarketDataFactory previousFactory,
+                                                                    MarketDataSpecification marketDataSpecification) {
+
+    // TODO - this cast suggests a design problem - get rid of it
+    StrategyAwareMarketDataSource previousSource =
+        (StrategyAwareMarketDataSource) previousFactory.getPrimaryMarketDataSource();
+    if (previousSource.isCompatible(marketDataSpecification)) {
+      return previousFactory.withPrimedMarketDataSource();
+    } else {
+      previousSource.dispose();
+      // This is a new source, so it doesn't need to be primed (that
+      // will happen automatically on the next cycle of appropriate)
+      return previousFactory.withMarketDataSpecification(marketDataSpecification);
+    }
   }
 
   private Results executeCycle(IndividualCycleOptions cycleOptions,
-                               StrategyAwareMarketDataSource strategyAwareSource) {
-    CycleArguments cycleArguments = createCycleArguments(cycleOptions, strategyAwareSource);
+                               CycleMarketDataFactory cycleMarketDataFactory) {
+    CycleArguments cycleArguments = createCycleArguments(cycleOptions, cycleMarketDataFactory);
     return _view.run(cycleArguments, _inputs);
   }
 
   private CycleArguments createCycleArguments(IndividualCycleOptions cycleOptions,
-                                              StrategyAwareMarketDataSource marketDataSource) {
+                                              CycleMarketDataFactory cycleMarketDataFactory) {
 
     // todo - we may want a method whereby we can get the delta of data that has changed since the previous cycle
     // todo - pass the delta in through the cycle arguments
@@ -166,7 +186,7 @@ public class CycleRunner {
 
     return new CycleArguments(cycleOptions.getValuationTime(),
                               configVersionCorrection,
-                              marketDataSource,
+                              cycleMarketDataFactory,
                               functionArguments,
                               scenarioArguments,
                               cycleOptions.isCaptureInputs());
@@ -200,4 +220,5 @@ public class CycleRunner {
     public void dispose() {
     }
   }
+
 }

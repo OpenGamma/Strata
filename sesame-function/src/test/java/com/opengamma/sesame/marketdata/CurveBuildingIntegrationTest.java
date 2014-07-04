@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.mockito.Mockito.mock;
 
 import java.net.URI;
 import java.util.EnumSet;
@@ -67,11 +68,11 @@ import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CachingManager;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.engine.CycleArguments;
+import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.FixedInstantVersionCorrectionProvider;
 import com.opengamma.sesame.engine.FunctionService;
 import com.opengamma.sesame.engine.ResultItem;
 import com.opengamma.sesame.engine.Results;
-import com.opengamma.sesame.engine.DefaultCachingManager;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.function.AvailableImplementations;
@@ -79,6 +80,7 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
+import com.opengamma.sesame.server.DefaultCycleMarketDataFactory;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayRequestSender;
@@ -172,7 +174,9 @@ public class CurveBuildingIntegrationTest {
     // TODO provide appropriate mock values
     LDClient liveDataClient = new LDClient(liveDataManager);
     StrategyAwareMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(MarketData.live(), liveDataClient);
-    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource);
+    CycleMarketDataFactory cycleMarketDataFactory = new DefaultCycleMarketDataFactory(mock(MarketDataFactory.class), liveDataSource);
+
+    CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory);
     Results initialResults = view.run(cycleArguments);
     System.out.println(initialResults);
 
@@ -184,8 +188,7 @@ public class CurveBuildingIntegrationTest {
 
     // Now try again, resetting the market data first (which should pick up bloomberg data)
     System.out.println("Waiting for market data to catch up");
-    liveDataSource = liveDataSource.createPrimedSource();
-    cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, liveDataSource);
+    cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory.withPrimedMarketDataSource());
 
     Results results = view.run(cycleArguments);
     System.out.println(results);

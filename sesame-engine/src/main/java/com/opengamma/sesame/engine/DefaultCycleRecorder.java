@@ -8,7 +8,7 @@ package com.opengamma.sesame.engine;
 import java.util.List;
 
 import com.opengamma.sesame.config.ViewConfig;
-import com.opengamma.sesame.marketdata.ProxiedMarketDataSource;
+import com.opengamma.sesame.marketdata.ProxiedCycleMarketData;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,7 +20,7 @@ public class DefaultCycleRecorder implements CycleRecorder {
   private final ViewConfig _viewConfig;
   private final List<?> _tradeInputs;
   private final CycleArguments _cycleArguments;
-  private final ProxiedMarketDataSource _proxiedMarketDataSource;
+  private final ProxiedCycleMarketData _proxiedCycleMarketData;
   private final ProxiedComponentMap _proxiedComponentMap;
 
   /**
@@ -29,7 +29,7 @@ public class DefaultCycleRecorder implements CycleRecorder {
    * @param viewConfig the view config used for the cycle
    * @param tradeInputs the trades/securities used for the cycle
    * @param cycleArguments the cycle arguments used to run the cycle
-   * @param proxiedMarketDataSource the market data source that will
+   * @param proxiedCycleMarketData the market data source that will
    * be used whilst the cycle is running
    * @param proxiedComponentMap the components that will be used
    * whilst the cycle is running
@@ -37,13 +37,13 @@ public class DefaultCycleRecorder implements CycleRecorder {
   public DefaultCycleRecorder(ViewConfig viewConfig,
                               List<?> tradeInputs,
                               CycleArguments cycleArguments,
-                              ProxiedMarketDataSource proxiedMarketDataSource,
+                              ProxiedCycleMarketData proxiedCycleMarketData,
                               ProxiedComponentMap proxiedComponentMap) {
 
     _viewConfig = ArgumentChecker.notNull(viewConfig, "viewConfig");
     _tradeInputs = ArgumentChecker.notNull(tradeInputs, "tradeInputs");
     _cycleArguments = ArgumentChecker.notNull(cycleArguments, "cycleArguments");
-    _proxiedMarketDataSource = ArgumentChecker.notNull(proxiedMarketDataSource, "proxiedMarketDataSource");
+    _proxiedCycleMarketData = ArgumentChecker.notNull(proxiedCycleMarketData, "proxiedCycleMarketData");
     _proxiedComponentMap = ArgumentChecker.notNull(proxiedComponentMap, "proxiedComponentMap");
   }
 
@@ -51,7 +51,7 @@ public class DefaultCycleRecorder implements CycleRecorder {
   public Results complete(Results results) {
     ViewInputs viewInputs = new ViewInputs(
         _tradeInputs, _viewConfig, _cycleArguments.getFunctionArguments(), _cycleArguments.getValuationTime(),
-        _cycleArguments.getScenarioArguments(), _proxiedMarketDataSource.retrieveResults(),
+        _cycleArguments.getScenarioArguments(), _proxiedCycleMarketData.retrieveMarketDataResults(),
         _proxiedComponentMap.retrieveResults());
     return results.withViewInputs(viewInputs);
   }

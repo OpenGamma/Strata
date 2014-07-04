@@ -8,6 +8,7 @@ package com.opengamma.sesame.engine;
 import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -30,7 +31,8 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
+import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.util.test.TestGroup;
 /**
  * Test that demonstrates functions that take something other than a trade, position or security as their input.
@@ -57,7 +59,8 @@ public class InputTypesTest {
                                               cachingManager);
 
     View view = viewFactory.createView(viewConfig, EquityTradeWithSecurity.class, CashFlowTradeWithSecurity.class);
-    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST, mock(MarketDataSource.class));
+    CycleArguments cycleArguments = new CycleArguments(ZonedDateTime.now(), VersionCorrection.LATEST,
+                                                       mockCycleMarketDataFactory());
     Trade equityTrade = EngineTestUtils.createEquityTrade();
     Trade cashFlowTrade = EngineTestUtils.createCashFlowTrade();
     EquityTradeWithSecurity equityTradeWithSecurity =
@@ -76,6 +79,12 @@ public class InputTypesTest {
     assertNotNull(cashFlowItem);
     assertTrue(cashFlowItem.getResult().isSuccess());
     assertEquals("1 x " + EngineTestUtils.CASH_FLOW_NAME, cashFlowItem.getResult().getValue());
+  }
+
+  private CycleMarketDataFactory mockCycleMarketDataFactory() {
+    CycleMarketDataFactory cycleMarketDataFactory = mock(CycleMarketDataFactory.class);
+    when(cycleMarketDataFactory.getPrimaryMarketDataSource()).thenReturn(mock(StrategyAwareMarketDataSource.class));
+    return cycleMarketDataFactory;
   }
 
   /**

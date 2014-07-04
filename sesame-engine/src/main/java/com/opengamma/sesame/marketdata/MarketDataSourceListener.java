@@ -10,7 +10,7 @@ import com.opengamma.util.result.Result;
 
 /**
  * A listener for market data sources. When registered with a
- * {@link ProxiedMarketDataSource} it will get called whenever
+ * {@link ProxiedCycleMarketData} it will get called whenever
  * the market data source has requests made of it.
  */
 public interface MarketDataSourceListener {

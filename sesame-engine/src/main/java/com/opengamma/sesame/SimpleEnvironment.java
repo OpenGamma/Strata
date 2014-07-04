@@ -77,17 +77,19 @@ public final class SimpleEnvironment implements Environment {
 
   @Override
   public Environment withValuationTime(ZonedDateTime valuationTime) {
-    return new SimpleEnvironment(ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioArguments);
+    return new SimpleEnvironment(
+        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioArguments);
+  }
+
+  @Override
+  public Environment withValuationTimeAndFixedMarketData(ZonedDateTime valuationTime) {
+    return new SimpleEnvironment(
+        ArgumentChecker.notNull(valuationTime, "valuationTime"), _marketDataSource, _scenarioArguments);
   }
 
   @Override
   public Environment withMarketData(MarketDataSource marketData) {
     return new SimpleEnvironment(_valuationTime, ArgumentChecker.notNull(marketData, "marketData"), _scenarioArguments);
-  }
-
-  @Override
-  public Environment with(ZonedDateTime valuationTime, MarketDataSource marketData) {
-    return new SimpleEnvironment(valuationTime, marketData, _scenarioArguments);
   }
 
   @Override

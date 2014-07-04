@@ -110,10 +110,10 @@ public class View {
     CycleInitializer cycleInitializer = cycleArguments.isCaptureInputs() ?
         new CapturingCycleInitializer(originalContext, _cachingManager, cycleArguments,
                                       _graphModel, _viewConfig, inputs) :
-        new StandardCycleInitializer(originalContext, cycleArguments.getMarketDataSource(), _graph);
+        new StandardCycleInitializer(originalContext, cycleArguments.getCycleMarketDataFactory(), _graph);
 
     Environment env = new EngineEnvironment(cycleArguments.getValuationTime(),
-                                            cycleInitializer.getMarketDataSource(),
+                                            cycleInitializer.getCycleMarketDataFactory(),
                                             cycleArguments.getScenarioArguments(),
                                             _cachingManager.getCacheInvalidator());
 

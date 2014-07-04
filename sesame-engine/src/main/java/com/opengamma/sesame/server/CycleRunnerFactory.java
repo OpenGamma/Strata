@@ -8,7 +8,7 @@ package com.opengamma.sesame.server;
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
-import com.opengamma.sesame.marketdata.MarketDataSourceManager;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,18 +38,17 @@ public class CycleRunnerFactory {
    * The manager of market data. This is aware of whether data retrieval will
    * be eager or not and ensures that we eventually get the data we need.
    */
-  private final MarketDataSourceManager _marketDataSourceManager;
+  private final MarketDataFactory _marketDataFactory;
 
   /**
    * Creates the factory.
    *
    * @param viewFactory factory used to create the views which will be executed, not null
-   * @param marketDataSourceManager  used to handle the market data requirements
-   * ensuring that all data is retrieved whether item by item or in bulk, not null
+   * @param marketDataFactory  used to handle the market data requirements
    */
-  public CycleRunnerFactory(ViewFactory viewFactory, MarketDataSourceManager marketDataSourceManager) {
+  public CycleRunnerFactory(ViewFactory viewFactory, MarketDataFactory marketDataFactory) {
     _viewFactory = ArgumentChecker.notNull(viewFactory, "viewFactory");
-    _marketDataSourceManager = ArgumentChecker.notNull(marketDataSourceManager, "marketDataSourceManager");
+    _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
   }
 
   /**
@@ -87,7 +86,7 @@ public class CycleRunnerFactory {
 
     return new CycleRunner(
         view,
-        _marketDataSourceManager,
+        _marketDataFactory,
         request.getCycleOptions(),
         request.getInputs(),
         ArgumentChecker.notNull(handler, "handler"),
