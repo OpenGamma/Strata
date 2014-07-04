@@ -26,7 +26,9 @@ import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups= TestGroup.UNIT)
 public class DefaultEquityPresentValueFnTest {
 
   private EquityPresentValueFn _equityPresentValueFn;

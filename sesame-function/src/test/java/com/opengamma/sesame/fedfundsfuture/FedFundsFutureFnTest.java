@@ -91,12 +91,14 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
  * Tests the fed funds future analytics functions using the discounting calculator.
  */
+@Test(groups= TestGroup.UNIT)
 public class FedFundsFutureFnTest {
 
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);

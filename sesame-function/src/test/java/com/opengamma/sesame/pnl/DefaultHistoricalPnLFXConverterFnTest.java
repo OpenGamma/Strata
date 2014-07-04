@@ -22,16 +22,15 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.LocalDateRange;
 
 /**
  * Tests calculation of conversion from historical rates to today's rates.
  */
+@Test(groups= TestGroup.UNIT)
 public class DefaultHistoricalPnLFXConverterFnTest {
 
-  /**
-   * 
-   */
   private static final double DELTA = 0.000001;
   private static double[] FX_RATES = {1.499, 1.5, 1.501, 1.502, 1.502, 1.503};
   private static double[] PNL = {100, 101, 99, 5, 55};
