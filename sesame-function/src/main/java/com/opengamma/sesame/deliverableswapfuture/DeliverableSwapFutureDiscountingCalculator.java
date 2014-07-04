@@ -122,8 +122,8 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01() {
     return Result.success(_derivative.accept(PV01C, _multicurveBundle)
-                            .multiplyBy(FUTURES_EQUIV_FACTOR)
-                              .multiplyBy(_unitAmount));
+                          .multiplyBy(FUTURES_EQUIV_FACTOR)
+                          .multiplyBy(_unitAmount));
   }
   
   @Override
@@ -131,9 +131,9 @@ public class DeliverableSwapFutureDiscountingCalculator implements DeliverableSw
     
     MultipleCurrencyParameterSensitivity sensitivities = 
         PSC.calculateSensitivity(_derivative, _multicurveBundle)
-            .multipliedBy(BP_FACTOR)
-              .multipliedBy(FUTURES_EQUIV_FACTOR)
-                .multipliedBy(_unitAmount);
+                                .multipliedBy(BP_FACTOR)
+                                .multipliedBy(FUTURES_EQUIV_FACTOR)
+                                .multipliedBy(_unitAmount);
     
     BucketedCurveSensitivities bucketedCurveSensitivities = 
         ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivities, _curveDefinitions);

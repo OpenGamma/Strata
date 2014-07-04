@@ -144,12 +144,12 @@ public class InterestRateFutureDiscountingCalculator implements InterestRateFutu
   public Result<BucketedCurveSensitivities> calculateBucketedZeroIRDelta() {
 
     MultipleCurrencyParameterSensitivity sensitivity = 
-        PSC.calculateSensitivity(_derivative, _bundle)
-            .multipliedBy(BP_FACTOR)
-              .multipliedBy(FUTURES_EQUIV_FACTOR);
+          PSC.calculateSensitivity(_derivative, _bundle)
+                                  .multipliedBy(BP_FACTOR)
+                                  .multipliedBy(FUTURES_EQUIV_FACTOR);
 
     BucketedCurveSensitivities bucketedSensitivities = 
-        ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivity, _curveDefinitions);
+          ZeroIRDeltaBucketingUtils.getBucketedCurveSensitivities(sensitivity, _curveDefinitions);
     return Result.success(bucketedSensitivities);
   }
 
