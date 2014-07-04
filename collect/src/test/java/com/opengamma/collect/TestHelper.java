@@ -205,8 +205,12 @@ public class TestHelper {
         for (Object setValue : sampleValues(mp)) {
           ignoreThrows(() -> metaBean.builder().set(mp.name(), setValue));
         }
-        ignoreThrows(() -> metaBean.builder().setString(mp, "6"));
-        ignoreThrows(() -> metaBean.builder().setString(mp.name(), "6"));
+        for (String setStr : sampleStrings(mp)) {
+          ignoreThrows(() -> metaBean.builder().setString(mp, setStr));
+        }
+        for (String setStr : sampleStrings(mp)) {
+          ignoreThrows(() -> metaBean.builder().setString(mp.name(), setStr));
+        }
       }
       ignoreThrows(() -> {
         Method m = metaBean.getClass().getDeclaredMethod(mp.name());
@@ -235,6 +239,7 @@ public class TestHelper {
     DirectMetaProperty<String> dummy = DirectMetaProperty.ofReadWrite(metaBean, "foo_bar", metaBean.beanType(), String.class);
     assertThrows(() -> dummy.get(bean), NoSuchElementException.class);
     assertThrows(() -> dummy.set(bean, ""), NoSuchElementException.class);
+    assertThrows(() -> dummy.setString(bean, ""), NoSuchElementException.class);
     assertThrows(() -> metaBean.builder().get(dummy), NoSuchElementException.class);
     assertThrows(() -> metaBean.builder().set(dummy, ""), NoSuchElementException.class);
 
@@ -311,6 +316,14 @@ public class TestHelper {
       return Arrays.asList(type.getEnumConstants());
     }
     return SAMPLES.getOrDefault(type, ImmutableList.of());
+  }
+
+  // sample strings for setters
+  private static List<String> sampleStrings(MetaProperty<?> mp) {
+    List<?> values = sampleValues(mp);
+    List<String> strings = values.stream().map(Object::toString).collect(Collectors.toList());
+    strings.add("");
+    return strings;
   }
 
   private static final Map<Class<?>, List<?>> SAMPLES =
