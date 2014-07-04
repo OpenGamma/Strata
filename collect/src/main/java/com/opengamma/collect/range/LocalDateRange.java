@@ -7,11 +7,24 @@ package com.opengamma.collect.range;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjuster;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
-import org.joda.convert.FromString;
-import org.joda.convert.ToString;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableValidator;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.collect.validate.ArgChecker;
 
@@ -30,8 +43,9 @@ import com.opengamma.collect.validate.ArgChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
+@BeanDefinition(builderScope = "private")
 public final class LocalDateRange
-    implements Serializable {
+    implements ImmutableBean, Serializable {
 
   /**
    * A range over the whole time-line.
@@ -44,10 +58,12 @@ public final class LocalDateRange
   /**
    * The start date, inclusive.
    */
+  @PropertyDefinition(validate = "notNull", get = "manual")
   private final LocalDate start;
   /**
    * The end date, inclusive.
    */
+  @PropertyDefinition(validate = "notNull", get = "manual")
   private final LocalDate endInclusive;
 
   //-------------------------------------------------------------------------
@@ -100,67 +116,21 @@ public final class LocalDateRange
 
   //-------------------------------------------------------------------------
   /**
-   * Parses an instance of {@code LocalDateRange} from a standard text
-   * representation, such as {@code [2009-12-03,2014-06-30]}.
-   * <p>
-   * The string must be one of these formats:<br />
-   *  {@code [2009-12-03,2014-06-30]}<br />
-   *  {@code [2009-12-03,+INFINITY]}<br />
-   *  {@code [-INFINITY,2014-06-30]}<br />
-   *  {@code [-INFINITY,+INFINITY]}<br />
-   * <p>
-   * The date must represent a valid date parsed by {@link LocalDate#parse(CharSequence)}.
-   *
-   * @param rangeStr  the text to parse such as "[2009-12-03,2014-06-30]"
-   * @return the parsed range
-   * @throws IllegalArgumentException if the text cannot be parsed
-   * @throws DateTimeParseException if the text cannot be parsed because the date was invalid
+   * Validates that the end is not before the start.
    */
-  @FromString
-  public static LocalDateRange parse(String rangeStr) {
-    ArgChecker.notNull(rangeStr, "rangeStr");
-    if (rangeStr.length() < 21) {
-      throw new IllegalArgumentException("Invalid range format, too short: " + rangeStr);
-    }
-    if (rangeStr.startsWith("[") == false) {
-      throw new IllegalArgumentException("Invalid range format, must start with [: " + rangeStr);
-    }
-    if (rangeStr.endsWith("]") == false) {
-      throw new IllegalArgumentException("Invalid range format, must end with ]: " + rangeStr);
-    }
-    String content = rangeStr.substring(1, rangeStr.length() - 1);
-    int comma = content.indexOf(',');
-    if (comma < 0) {
-      throw new IllegalArgumentException("Invalid range format, missing comma: " + rangeStr);
-    }
-    String startStr = content.substring(0, comma);
-    LocalDate start = (startStr.equals("-INFINITY") ? LocalDate.MIN : LocalDate.parse(startStr));
-    String endStr = content.substring(comma + 1);
-    LocalDate endInclusive = (endStr.equals("+INFINITY") ? LocalDate.MAX : LocalDate.parse(endStr));
-    return new LocalDateRange(start, endInclusive);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates an instance.
-   * 
-   * @param startDate  the start date
-   * @param endDateInclusive  the end date
-   */
-  private LocalDateRange(LocalDate startInclusive, LocalDate endInclusive) {
-    if (endInclusive.isBefore(startInclusive)) {
+  @ImmutableValidator
+  private void validate() {
+    if (endInclusive.isBefore(start)) {
       throw new IllegalArgumentException("Start date must be on or after end date");
     }
-    this.start = startInclusive;
-    this.endInclusive = endInclusive;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the start date, inclusive.
    * <p>
-   * This will return {@link LocalDate#MIN} if the range includes all dates
-   * up to the
+   * This will return {@link LocalDate#MIN} if the range is unbounded at the
+   * start, including all dates into the far-past.
    * 
    * @return the start date
    */
@@ -170,6 +140,9 @@ public final class LocalDateRange
 
   /**
    * Gets the end date, inclusive.
+   * <p>
+   * This will return {@link LocalDate#MAX} if the range is unbounded at the
+   * end, including all dates into the far-future.
    * 
    * @return the end date
    */
@@ -180,7 +153,8 @@ public final class LocalDateRange
   /**
    * Gets the end date, exclusive.
    * <p>
-   * If the end date (inclusive) is {@code MAX_DATE}, then {@code MAX_DATE} is returned.
+   * This will return {@link LocalDate#MAX} if the range is unbounded at the
+   * end, including all dates into the far-future.
    * 
    * @return the end date
    */
@@ -337,7 +311,7 @@ public final class LocalDateRange
   }
 
   /**
-   * Returns this range as a standard parsable string, such as {@code [2009-12-03,2014-06-30]}.
+   * Returns this range as a string, such as {@code [2009-12-03,2014-06-30]}.
    * <p>
    * The string will be one of these formats:<br />
    *  {@code [2009-12-03,2014-06-30]}<br />
@@ -348,7 +322,6 @@ public final class LocalDateRange
    * @return the standard string
    */
   @Override
-  @ToString
   public String toString() {
     StringBuilder buf = new StringBuilder(23);
     if (isUnboundedStart()) {
@@ -364,4 +337,232 @@ public final class LocalDateRange
     return buf.toString();
   }
 
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code LocalDateRange}.
+   * @return the meta-bean, not null
+   */
+  public static LocalDateRange.Meta meta() {
+    return LocalDateRange.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(LocalDateRange.Meta.INSTANCE);
+  }
+
+  private LocalDateRange(
+      LocalDate start,
+      LocalDate endInclusive) {
+    JodaBeanUtils.notNull(start, "start");
+    JodaBeanUtils.notNull(endInclusive, "endInclusive");
+    this.start = start;
+    this.endInclusive = endInclusive;
+    validate();
+  }
+
+  @Override
+  public LocalDateRange.Meta metaBean() {
+    return LocalDateRange.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code LocalDateRange}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code start} property.
+     */
+    private final MetaProperty<LocalDate> start = DirectMetaProperty.ofImmutable(
+        this, "start", LocalDateRange.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code endInclusive} property.
+     */
+    private final MetaProperty<LocalDate> endInclusive = DirectMetaProperty.ofImmutable(
+        this, "endInclusive", LocalDateRange.class, LocalDate.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "start",
+        "endInclusive");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 109757538:  // start
+          return start;
+        case -1907681455:  // endInclusive
+          return endInclusive;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends LocalDateRange> builder() {
+      return new LocalDateRange.Builder();
+    }
+
+    @Override
+    public Class<? extends LocalDateRange> beanType() {
+      return LocalDateRange.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code start} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> start() {
+      return start;
+    }
+
+    /**
+     * The meta-property for the {@code endInclusive} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> endInclusive() {
+      return endInclusive;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 109757538:  // start
+          return ((LocalDateRange) bean).getStart();
+        case -1907681455:  // endInclusive
+          return ((LocalDateRange) bean).getEndInclusive();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code LocalDateRange}.
+   */
+  private static final class Builder extends DirectFieldsBeanBuilder<LocalDateRange> {
+
+    private LocalDate start;
+    private LocalDate endInclusive;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Object get(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 109757538:  // start
+          return start;
+        case -1907681455:  // endInclusive
+          return endInclusive;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+    }
+
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName.hashCode()) {
+        case 109757538:  // start
+          this.start = (LocalDate) newValue;
+          break;
+        case -1907681455:  // endInclusive
+          this.endInclusive = (LocalDate) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.setString(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
+    public LocalDateRange build() {
+      return new LocalDateRange(
+          start,
+          endInclusive);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(96);
+      buf.append("LocalDateRange.Builder{");
+      buf.append("start").append('=').append(JodaBeanUtils.toString(start)).append(',').append(' ');
+      buf.append("endInclusive").append('=').append(JodaBeanUtils.toString(endInclusive));
+      buf.append('}');
+      return buf.toString();
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }

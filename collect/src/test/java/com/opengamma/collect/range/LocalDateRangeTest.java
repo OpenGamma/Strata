@@ -6,10 +6,10 @@
 package com.opengamma.collect.range;
 
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 
 import org.testng.annotations.DataProvider;
@@ -177,45 +177,6 @@ public class LocalDateRangeTest {
 
   public void test_single_nulls() {
     assertThrows(() -> LocalDateRange.single(null), IllegalArgumentException.class);
-  }
-
-  //-------------------------------------------------------------------------
-  @DataProvider(name = "parseGood")
-  Object[][] data_parseGood() {
-    return new Object[][] {
-        {"[2012-07-28,2012-07-28]", DATE_2012_07_28, DATE_2012_07_28},
-        {"[2012-07-28,2012-07-30]", DATE_2012_07_28, DATE_2012_07_30},
-        {"[-INFINITY,2012-07-30]", LocalDate.MIN, DATE_2012_07_30},
-        {"[2012-07-28,+INFINITY]", DATE_2012_07_28, LocalDate.MAX},
-        {"[-INFINITY,+INFINITY]", LocalDate.MIN, LocalDate.MAX},
-    };
-  }
-
-  @Test(dataProvider = "parseGood")
-  public void test_parseGood(String textToParse, LocalDate start, LocalDate end) {
-    LocalDateRange test = LocalDateRange.parse(textToParse);
-    assertEquals(test, LocalDateRange.closed(start, end));
-  }
-
-  @DataProvider(name = "parseBad")
-  Object[][] data_parseBad() {
-    return new Object[][] {
-        {"(2012-07-28,2012-07-28]"},
-        {"[2012-07-28,2012-07-28)"},
-        {"(2012-07-28,2012-07-28)"},
-        {"[2012-07-28--2012-07-28]"},
-        {"[2012-07-28,2012-07-28,]"},
-        {"[]"},
-    };
-  }
-
-  @Test(dataProvider = "parseBad", expectedExceptions = {IllegalArgumentException.class, DateTimeParseException.class})
-  public void test_parseBad(String textToParse) {
-    LocalDateRange.parse(textToParse);
-  }
-
-  public void test_parse_null() {
-    assertThrows(() -> LocalDateRange.parse(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -490,6 +451,11 @@ public class LocalDateRangeTest {
     assertEquals(a1.equals(null), false);
     
     assertEquals(a2.hashCode(), a1.hashCode());
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    coverImmutableBean(LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31));
   }
 
 }
