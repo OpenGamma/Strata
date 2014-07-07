@@ -5,9 +5,14 @@
  */
 
 /**
- * Root package for entity identifiers and links.
+ * Identifiers for entities.
  * <p>
- * This includes various different ways to identify entities.
- * It also includes links that allow different entities to be connected.
+ * This includes various different ways to identify entities:
+ * <ul>
+ * <li>{@code ObjectId}: An internal identifier for an entity</li>
+ * <li>{@code UniqueId}: Builds on {@code ObjectId} to add a version number</li>
+ * <li>{@code ExternalId}: An external identifier defined by another organization, such as "CUSIP~912828LS7"</li>
+ * <li>{@code ExternalIdBundle}: A set of external identifiers for the same entity</li>
+ * </ul>
  */
 package com.opengamma.id;
