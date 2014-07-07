@@ -6,7 +6,6 @@
 package com.opengamma.id;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertSame;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -20,10 +19,6 @@ public class ExternalSchemeTest {
   public void test_of() {
     ExternalScheme test = ExternalScheme.of("IATA");
     assertEquals("IATA", test.getName());
-  }
-
-  public void test_of_cached() {
-    assertSame(ExternalScheme.of("ISO"), ExternalScheme.of("ISO"));
   }
 
   @DataProvider(name = "invalidFormat")
