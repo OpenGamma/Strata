@@ -11,12 +11,6 @@ import java.util.regex.Pattern;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
-
 /**
  * A classification scheme for external identifiers.
  * <p>
@@ -34,15 +28,9 @@ public final class ExternalScheme
   private static final long serialVersionUID = 1L;
   /**
    * The valid regex for schemes.
+   * One letter, followed by zero-to-many letters, numbers or selected special characters.
    */
   private static final Pattern REGEX_SCHEME = Pattern.compile("[A-Za-z][A-Za-z0-9+.=_-]*");
-
-  /**
-   * Computing cache for the schemes.
-   */
-  private static final LoadingCache<String, ExternalScheme> s_cache = CacheBuilder.newBuilder()
-      .initialCapacity(256)
-      .build(CacheLoader.from(key -> new ExternalScheme(key)));
 
   /**
    * The scheme name.
@@ -61,12 +49,7 @@ public final class ExternalScheme
    */
   @FromString
   public static ExternalScheme of(String name) {
-    ArgChecker.notNull(name, "name");
-    try {
-      return s_cache.getUnchecked(name);
-    } catch (UncheckedExecutionException ex) {
-      throw Throwables.propagate(ex.getCause());
-    }
+    return new ExternalScheme(name);
   }
 
   /**

@@ -43,6 +43,7 @@ public final class ExternalId
   private static final long serialVersionUID = 1L;
   /**
    * The valid regex for values.
+   * One-to-many ASCII characters excluding square brackets, pipe and tilde.
    */
   static final Pattern REGEX_VALUE = Pattern.compile("[!-z][ -z]*");
 

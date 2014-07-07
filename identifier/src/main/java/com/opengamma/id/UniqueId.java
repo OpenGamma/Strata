@@ -45,14 +45,17 @@ public final class UniqueId
   private static final long serialVersionUID = 1L;
   /**
    * The valid regex for schemes.
+   * One letter, followed by zero-to-many letters, numbers or selected special characters.
    */
   static final Pattern REGEX_SCHEME = Pattern.compile("[A-Za-z][A-Za-z0-9+.=_-]*");
   /**
    * The valid regex for values.
+   * One-to-many letters, numbers or selected special characters.
    */
   static final Pattern REGEX_VALUE = Pattern.compile("[A-Za-z0-9+.=_-]+");
   /**
    * The valid regex for versions.
+   * One-to-many letters, numbers or selected special characters.
    */
   static final Pattern REGEX_VERSION = Pattern.compile("[A-Za-z0-9+.=_-]*");
 

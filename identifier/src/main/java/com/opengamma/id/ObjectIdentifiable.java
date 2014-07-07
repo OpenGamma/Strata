@@ -15,6 +15,8 @@ public interface ObjectIdentifiable {
 
   /**
    * Gets the object identifier for this item.
+   * <p>
+   * This method may return null if the object does not yet have an identifier assigned.
    * 
    * @return the object identifier, may be null
    */

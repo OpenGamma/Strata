@@ -27,14 +27,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 
 /**
  * A search request to match external identifiers.
  * <p>
  * The search combines a set of external identifiers and a matching rule.
  * <p>
- * This class is mutable and not thread-safe.
+ * This class is immutable and thread-safe.
  */
 @BeanDefinition(builderScope = "private")
 public final class ExternalIdSearch
@@ -192,7 +191,7 @@ public final class ExternalIdSearch
     if (externalId == null || contains(externalId) == false) {
       return this;
     }
-    Set<ExternalId> ids = Sets.newHashSet(this.externalIds);
+    Set<ExternalId> ids = new HashSet<>(this.externalIds);
     ids.remove(externalId);
     return new ExternalIdSearch(searchType, ImmutableSet.copyOf(ids));
   }
@@ -243,8 +242,9 @@ public final class ExternalIdSearch
         return contains(otherId);
       case NONE:
         return contains(otherId) == false;
+      default:
+        return false;
     }
-    return false;
   }
 
   /**
@@ -269,8 +269,9 @@ public final class ExternalIdSearch
         return containsAny(otherIds);
       case NONE:
         return containsAny(otherIds) == false;
+      default:
+        return false;
     }
-    return false;
   }
 
   //-------------------------------------------------------------------------
