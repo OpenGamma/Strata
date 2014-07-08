@@ -5,9 +5,9 @@
  */
 
 /**
- * Additional functional interfaces not supplied by Java SE 8.
+ * Range data structures.
  * <p>
- * These functional interfaces follow the naming conventions of Java SE 8.
+ * This package contains a class representing a range of dates.
  */
 @javax.annotation.ParametersAreNonnullByDefault
-package com.opengamma.collect.function;
+package com.opengamma.collect.range;

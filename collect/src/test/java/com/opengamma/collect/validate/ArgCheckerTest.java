@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.regex.Pattern;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -69,7 +70,7 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notNull_ok() {
-    assertEquals(ArgChecker.notNull("Kirk", "name"), "Kirk");
+    assertEquals(ArgChecker.notNull("OG", "name"), "OG");
     assertEquals(ArgChecker.notNull(1, "name"), Integer.valueOf(1));
   }
 
@@ -79,22 +80,37 @@ public class ArgCheckerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_notNullInjected_ok() {
-    assertEquals(ArgChecker.notNullInjected("Kirk", "name"), "Kirk");
+  public void test_matches_String_ok() {
+    assertEquals(ArgChecker.matches(Pattern.compile("[A-Z]+"), "OG", "name"), "OG");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Injected.*'name'.*")
-  public void test_notNullInjected_null() {
-    ArgChecker.notNullInjected(null, "name");
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'pattern'.*")
+  public void test_matches_String_nullPattern() {
+    ArgChecker.matches(null, "", "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_String_nullString() {
+    ArgChecker.matches(Pattern.compile("[A-Z]+"), null, "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_String_empty() {
+    ArgChecker.matches(Pattern.compile("[A-Z]+"), "", "name");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  public void test_matches_String_noMatch() {
+    ArgChecker.matches(Pattern.compile("[A-Z]+"), "123", "name");
   }
 
   //-------------------------------------------------------------------------
   public void test_notBlank_String_ok() {
-    assertEquals(ArgChecker.notBlank("Kirk", "name"), "Kirk");
+    assertEquals(ArgChecker.notBlank("OG", "name"), "OG");
   }
 
-  public void test_notBlank_String_ok_trimmed() {
-    assertEquals(ArgChecker.notBlank(" Kirk ", "name"), "Kirk");
+  public void test_notBlank_String_ok_notTrimmed() {
+    assertEquals(ArgChecker.notBlank(" OG ", "name"), " OG ");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
@@ -114,7 +130,7 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notEmpty_String_ok() {
-    assertEquals(ArgChecker.notEmpty("Kirk", "name"), "Kirk");
+    assertEquals(ArgChecker.notEmpty("OG", "name"), "OG");
     assertEquals(ArgChecker.notEmpty(" ", "name"), " ");
   }
 

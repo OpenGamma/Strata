@@ -5,6 +5,10 @@
  */
 
 /**
- * Tuple data structures, primarily based on the common "pair" type.
+ * Tuple data structures.
+ * <p>
+ * Implementation of the common tuple concept, primarily based on a "pair" of two values.
+ * Variations are provided for some combinations of primitive types.
  */
+@javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.tuple;

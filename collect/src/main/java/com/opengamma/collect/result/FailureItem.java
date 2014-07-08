@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -55,6 +57,7 @@ public final class FailureItem
    * The type of the exception that caused the failure, null if it wasn't caused by an exception.
    */
   @PropertyDefinition
+  @Nullable
   private final Class<? extends Exception> causeType;
 
   /**
@@ -66,7 +69,8 @@ public final class FailureItem
    * @param causeType  the cause type, may be null
    * @return the failure item
    */
-  static FailureItem of(FailureReason reason, String message, String stackTrace, Class<? extends Exception> causeType) {
+  static FailureItem of(
+      FailureReason reason, String message, String stackTrace, @Nullable Class<? extends Exception> causeType) {
     return new FailureItem(reason, message, stackTrace, causeType);
   }
 

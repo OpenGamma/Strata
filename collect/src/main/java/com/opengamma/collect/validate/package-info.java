@@ -5,9 +5,7 @@
  */
 
 /**
- * Additional functional interfaces not supplied by Java SE 8.
- * <p>
- * These functional interfaces follow the naming conventions of Java SE 8.
+ * Utility classes that support other code.
  */
 @javax.annotation.ParametersAreNonnullByDefault
-package com.opengamma.collect.function;
+package com.opengamma.collect.validate;

@@ -30,3 +30,5 @@ Simply run this command to compile and install the source code locally:
 
 For more information about developing code on the OpenGamma Platform
 see the [developer website](http://developers.opengamma.com).
+
+[![Coverage Status](https://coveralls.io/repos/OpenGamma/OG-Commons/badge.png?branch=master)](https://coveralls.io/r/OpenGamma/OG-Commons?branch=master)
