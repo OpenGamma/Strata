@@ -171,20 +171,22 @@ public final class ExternalIdBundle
    * This returns the first identifier in the internal set that matches.
    * The set is not sorted, so this method is not consistent.
    * 
-   * @param scheme  the scheme to query, null returns null
+   * @param scheme  the scheme to query
    * @return the identifier, null if not found
    */
   public ExternalId getExternalId(ExternalScheme scheme) {
+    ArgChecker.notNull(scheme, "scheme");
     return getExternalIds(scheme).stream().findFirst().orElse(null);
   }
 
   /**
    * Gets all the identifiers for a scheme.
    * 
-   * @param scheme  the scheme, null returns an empty set
+   * @param scheme  the scheme
    * @return all identifiers for the scheme
    */
   public Set<ExternalId> getExternalIds(ExternalScheme scheme) {
+    ArgChecker.notNull(scheme, "scheme");
     return externalIds.stream()
         .filter(eid -> eid.isScheme(scheme))
         .collect(Collectors.toSet());
@@ -196,20 +198,22 @@ public final class ExternalIdBundle
    * This returns the first identifier in the internal set that matches.
    * The set is not sorted, so this method is not consistent.
    * 
-   * @param scheme  the scheme to query, null returns null
+   * @param scheme  the scheme to query
    * @return the identifier value, null if not found
    */
   public String getValue(ExternalScheme scheme) {
+    ArgChecker.notNull(scheme, "scheme");
     return getValues(scheme).stream().findFirst().orElse(null);
   }
 
   /**
    * Gets all identifier values for a scheme.
    * 
-   * @param scheme  the scheme, null returns an empty set
+   * @param scheme  the scheme
    * @return all values for the scheme
    */
   public Set<String> getValues(ExternalScheme scheme) {
+    ArgChecker.notNull(scheme, "scheme");
     return externalIds.stream()
         .filter(eid -> eid.isScheme(scheme))
         .map(ExternalId::getValue)
@@ -266,10 +270,11 @@ public final class ExternalIdBundle
    * Returns a new bundle with all references to the specified scheme removed.
    * This instance is immutable and unaffected by this method call.
    * 
-   * @param scheme  the scheme to remove from the returned bundle, null ignored
+   * @param scheme  the scheme to remove from the returned bundle
    * @return the new bundle
    */
   public ExternalIdBundle withoutScheme(ExternalScheme scheme) {
+    ArgChecker.notNull(scheme, "scheme");
     Set<ExternalId> ids = externalIds.stream()
         .filter(id -> id.isNotScheme(scheme))
         .collect(Collectors.toSet());

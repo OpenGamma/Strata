@@ -5,6 +5,7 @@
  */
 package com.opengamma.id;
 
+import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -149,10 +150,9 @@ public class ExternalIdSearchTest {
     assertTrue(test.getExternalIds().contains(ExternalId.of("A", "C")));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_withExternalIdAdded_null() {
     ExternalIdSearch test = ExternalIdSearch.of(ExternalId.of("A", "B"));
-    test.withExternalIdAdded(null);
+    assertThrows(() -> test.withExternalIdAdded(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -167,10 +167,9 @@ public class ExternalIdSearchTest {
     assertTrue(test.getExternalIds().contains(ExternalId.of("D", "E")));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_withExternalIdsAdded_array_null() {
     ExternalIdSearch test = ExternalIdSearch.of(ExternalId.of("A", "B"));
-    test.withExternalIdAdded(null);
+    assertThrows(() -> test.withExternalIdsAdded((ExternalId[]) null), IllegalArgumentException.class);
   }
 
   public void test_withExternalIdsAdded_iterable() {
@@ -184,10 +183,9 @@ public class ExternalIdSearchTest {
     assertTrue(test.getExternalIds().contains(ExternalId.of("D", "E")));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_withExternalIdsAdded_iterable_null() {
     ExternalIdSearch test = ExternalIdSearch.of(ExternalId.of("A", "B"));
-    test.withExternalIdsAdded((Iterable<ExternalId>) null);
+    assertThrows(() -> test.withExternalIdsAdded((Iterable<ExternalId>) null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -210,11 +208,7 @@ public class ExternalIdSearchTest {
 
   public void test_withExternalIdRemoved_null() {
     ExternalIdSearch base = ExternalIdSearch.of(ExternalId.of("A", "B"));
-    assertEquals(1, base.size());
-    ExternalIdSearch test = base.withExternalIdRemoved(null);
-    assertEquals(1, base.size());
-    assertEquals(1, test.size());
-    assertTrue(test.getExternalIds().contains(ExternalId.of("A", "B")));
+    assertThrows(() -> base.withExternalIdRemoved(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -230,10 +224,9 @@ public class ExternalIdSearchTest {
     assertSame(base, base.withSearchType(ExternalIdSearchType.ALL));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_withSearchType_null() {
     ExternalIdSearch test = ExternalIdSearch.of(ExternalId.of("A", "B"));
-    test.withSearchType(null);
+    assertThrows(() -> test.withSearchType(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------

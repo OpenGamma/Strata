@@ -184,11 +184,12 @@ public final class ExternalIdSearch
    * <p>
    * This instance is immutable and unaffected by this method call.
    * 
-   * @param externalId  the identifier to remove, null ignored
+   * @param externalId  the identifier to remove
    * @return the external identifier search with the specified identifier removed
    */
   public ExternalIdSearch withExternalIdRemoved(ExternalId externalId) {
-    if (externalId == null || contains(externalId) == false) {
+    ArgChecker.notNull(externalId, "externalId");
+    if (contains(externalId) == false) {
       return this;
     }
     Set<ExternalId> ids = new HashSet<>(this.externalIds);
@@ -203,6 +204,7 @@ public final class ExternalIdSearch
    * @return a copy of this search with the new search type
    */
   public ExternalIdSearch withSearchType(ExternalIdSearchType searchType) {
+    ArgChecker.notNull(searchType, "searchType");
     if (searchType == this.searchType) {
       return this;
     }

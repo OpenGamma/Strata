@@ -5,6 +5,7 @@
  */
 package com.opengamma.id;
 
+import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -191,7 +192,7 @@ public class ExternalIdBundleTest {
     assertEquals(ExternalId.of("D1", "V1"), input.getExternalId(ExternalScheme.of("D1")));
     assertEquals(ExternalId.of("D2", "V2"), input.getExternalId(ExternalScheme.of("D2")));
     assertNull(input.getExternalId(ExternalScheme.of("KirkWylie")));
-    assertNull(input.getExternalId(null));
+    assertThrows(() -> input.getExternalId(null), IllegalArgumentException.class);
   }
 
   public void getValue() {
@@ -200,7 +201,7 @@ public class ExternalIdBundleTest {
     assertEquals("V1", input.getValue(ExternalScheme.of("D1")));
     assertEquals("V2", input.getValue(ExternalScheme.of("D2")));
     assertNull(input.getValue(ExternalScheme.of("KirkWylie")));
-    assertNull(input.getValue(null));
+    assertThrows(() -> input.getValue(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -219,10 +220,9 @@ public class ExternalIdBundleTest {
     assertSame(base, test);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void withExternalId_null() {
     ExternalIdBundle base = ExternalIdBundle.of(ExternalId.of("A", "B"));
-    base.withExternalId((ExternalId) null);
+    assertThrows(() -> base.withExternalId((ExternalId) null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -242,10 +242,9 @@ public class ExternalIdBundleTest {
     assertSame(base, test);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void withExternalIds_null() {
     ExternalIdBundle base = ExternalIdBundle.of(ExternalId.of("A", "B"));
-    base.withExternalIds((Iterable<ExternalId>) null);
+    assertThrows(() -> base.withExternalIds((Iterable<ExternalId>) null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -264,10 +263,9 @@ public class ExternalIdBundleTest {
     assertTrue(test.getExternalIds().contains(ExternalId.of("A", "B")));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void withoutExternalId_null() {
     ExternalIdBundle base = ExternalIdBundle.of(ExternalId.of("A", "B"));
-    base.withoutExternalId(null);
+    assertThrows(() -> base.withoutExternalId(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -288,10 +286,7 @@ public class ExternalIdBundleTest {
 
   public void withoutScheme_ExternalScheme_null() {
     ExternalIdBundle base = ExternalIdBundle.of(ExternalId.of("A", "B"));
-    ExternalIdBundle test = base.withoutScheme(null);
-    assertEquals(1, base.size());
-    assertEquals(1, test.size());
-    assertTrue(test.getExternalIds().contains(ExternalId.of("A", "B")));
+    assertThrows(() -> base.withoutScheme(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -340,10 +335,9 @@ public class ExternalIdBundleTest {
     assertEquals(true, test.containsAll(ExternalIdBundle.EMPTY));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_containsAll_null() {
     ExternalIdBundle test = ExternalIdBundle.of(_id11, _id12);
-    test.containsAll(null);
+    assertThrows(() -> test.containsAll(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -356,10 +350,9 @@ public class ExternalIdBundleTest {
     assertEquals(false, test.containsAny(ExternalIdBundle.EMPTY));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_containsAny_null() {
     ExternalIdBundle test = ExternalIdBundle.of(_id11, _id12);
-    test.containsAny(null);
+    assertThrows(() -> test.containsAny(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
