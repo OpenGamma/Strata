@@ -38,6 +38,7 @@
     <module>sesame-web</module>
     <module>sesame-war-main</module>
     <module>sesame-component</module>
+    <module>sesame-server</module>
   </modules>
 
   <!-- ==================================================================== -->
