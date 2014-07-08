@@ -12,7 +12,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.result.Result;
 
 /**
- * Default implementation of the {@link BondFutureOptionFnTest} that uses a specified calculator to calculate requested values.
+ * Default implementation of the {@link BondFutureOptionFn} that uses a specified calculator to calculate requested values.
  */
 public class DefaultBondFutureOptionFn implements BondFutureOptionFn {
   

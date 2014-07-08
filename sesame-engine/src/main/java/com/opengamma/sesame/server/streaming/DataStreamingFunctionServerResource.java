@@ -81,8 +81,9 @@ public class DataStreamingFunctionServerResource extends AbstractDataResource {
 
   /**
    *
-   * @param request
-   * @return
+   * @param uriInfo  the URI info
+   * @param request  the request
+   * @return the response
    */
   @POST
   @Path("clients")
