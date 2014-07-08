@@ -8,6 +8,8 @@ package com.opengamma.id;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -255,7 +257,7 @@ public final class UniqueId
    * @param other  the other identifier, null returns false
    * @return true if the object identifier are equal, ignoring the version
    */
-  public boolean equalObjectId(ObjectIdentifiable other) {
+  public boolean equalObjectId(@Nullable ObjectIdentifiable other) {
     if (other == null) {
       return false;
     }

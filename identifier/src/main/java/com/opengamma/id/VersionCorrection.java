@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -67,11 +69,13 @@ public final class VersionCorrection
    * This locates the version that was active at this instant.
    */
   @PropertyDefinition
+  @Nullable
   private final Instant versionAsOf;
   /**
    * The correction instant, null means latest.
    * This locates the correction that was active at this instant.
    */
+  @Nullable
   @PropertyDefinition
   private final Instant correctedTo;
 
@@ -83,7 +87,7 @@ public final class VersionCorrection
    * @param correctedTo  the corrected to instant, null for latest
    * @return the version-correction combination
    */
-  public static VersionCorrection of(Instant versionAsOf, Instant correctedTo) {
+  public static VersionCorrection of(@Nullable Instant versionAsOf, @Nullable Instant correctedTo) {
     if (versionAsOf == null && correctedTo == null) {
       return LATEST;
     }
@@ -96,7 +100,7 @@ public final class VersionCorrection
    * @param versionAsOf  the version as of instant, null for latest
    * @return the version-correction combination
    */
-  public static VersionCorrection ofVersionAsOf(Instant versionAsOf) {
+  public static VersionCorrection ofVersionAsOf(@Nullable Instant versionAsOf) {
     return of(versionAsOf, null);
   }
 
@@ -106,7 +110,7 @@ public final class VersionCorrection
    * @param correctedTo  the corrected to instant, null for latest
    * @return the version-correction combination
    */
-  public static VersionCorrection ofCorrectedTo(Instant correctedTo) {
+  public static VersionCorrection ofCorrectedTo(@Nullable Instant correctedTo) {
     return of(null, correctedTo);
   }
 
@@ -149,7 +153,7 @@ public final class VersionCorrection
    * @return the version-correction combination
    * @throws IllegalArgumentException if the version-correction cannot be parsed
    */
-  public static VersionCorrection parse(String versionAsOfString, String correctedToString) {
+  public static VersionCorrection parse(@Nullable String versionAsOfString, @Nullable String correctedToString) {
     Instant versionAsOf = parseInstantString(versionAsOfString);
     Instant correctedTo = parseInstantString(correctedToString);
     return of(versionAsOf, correctedTo);
@@ -164,7 +168,7 @@ public final class VersionCorrection
    * @param instantStr  the instant string, null treated as latest
    * @return the instant
    */
-  private static Instant parseInstantString(String instantStr) {
+  private static Instant parseInstantString(@Nullable String instantStr) {
     if (instantStr == null || instantStr.equals("LATEST")) {
       return null;
     } else {
@@ -185,7 +189,7 @@ public final class VersionCorrection
    * @param versionAsOf  the version instant, null for latest
    * @return a version-correction based on this one with the version as of instant altered
    */
-  public VersionCorrection withVersionAsOf(Instant versionAsOf) {
+  public VersionCorrection withVersionAsOf(@Nullable Instant versionAsOf) {
     if (Objects.equal(this.versionAsOf, versionAsOf)) {
       return this;
     }
@@ -200,7 +204,7 @@ public final class VersionCorrection
    * @param correctedTo  the corrected to instant, null for latest
    * @return a version-correction based on this one with the corrected to instant altered
    */
-  public VersionCorrection withCorrectedTo(Instant correctedTo) {
+  public VersionCorrection withCorrectedTo(@Nullable Instant correctedTo) {
     if (Objects.equal(this.correctedTo, correctedTo)) {
       return this;
     }
