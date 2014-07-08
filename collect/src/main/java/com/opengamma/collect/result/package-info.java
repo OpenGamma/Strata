@@ -5,7 +5,7 @@
  */
 
 /**
- * Result model data structures.
+ * Result data structures.
  * <p>
  * The result model is typically used in a subsystem following functional programming style.
  * Functions will be written to have {@code Result<T>} as the return type.

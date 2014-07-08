@@ -15,6 +15,8 @@ public interface ExternalIdentifiable {
 
   /**
    * Gets the external identifier for the instance.
+   * <p>
+   * This method may return null if the object does not yet have an identifier assigned.
    * 
    * @return the external identifier, may be null
    */

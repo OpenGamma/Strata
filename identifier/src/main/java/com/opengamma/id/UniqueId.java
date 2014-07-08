@@ -282,6 +282,12 @@ public final class UniqueId
         .result();
   }
 
+  /**
+   * Checks if this identifier equals another.
+   * 
+   * @param obj  the other object
+   * @return true if equal
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -296,6 +302,11 @@ public final class UniqueId
     return false;
   }
 
+  /**
+   * Returns a suitable hash code.
+   * 
+   * @return the hash code
+   */
   @Override
   public int hashCode() {
     return scheme.hashCode() ^ value.hashCode() ^ version.hashCode();

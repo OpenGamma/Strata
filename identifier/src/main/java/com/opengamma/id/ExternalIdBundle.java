@@ -350,6 +350,12 @@ public final class ExternalIdBundle
   }
 
   //-------------------------------------------------------------------
+  /**
+   * Checks if this bundle equals another.
+   * 
+   * @param obj  the other object
+   * @return true if equal
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -362,6 +368,11 @@ public final class ExternalIdBundle
     return false;
   }
 
+  /**
+   * Returns a suitable hash code.
+   * 
+   * @return the hash code
+   */
   @Override
   public int hashCode() {
     // racy single check idiom allows non-volatile variable

@@ -7,6 +7,13 @@
 /**
  * Root package for common data structures used by OpenGamma.
  * <p>
- * This includes tuples, time-series and ranges.
+ * Each package focuses on a different data structure:
+ * <ul>
+ * <li>Functions - additional Java SE 8 functional interfaces</li>
+ * <li>Ranges - ranges of values</li>
+ * <li>Result - functional result model</li>
+ * <li>Tuple - pair and triple</li>
+ * <li>Validate - general utility classes</li>
+ * </ul>
  */
 package com.opengamma.collect;

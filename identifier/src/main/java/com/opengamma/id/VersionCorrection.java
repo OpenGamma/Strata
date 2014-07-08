@@ -240,7 +240,7 @@ public final class VersionCorrection
    * Gets a string representation of the version as of instant.
    * <p>
    * This is either the ISO-8601 representation of the version as of instant,
-   * such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST}.
    * 
    * @return the string version as of
    */
@@ -252,7 +252,7 @@ public final class VersionCorrection
    * Gets a string representation of the corrected to instant.
    * <p>
    * This is either the ISO-8601 representation of the corrected to instant,
-   * such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST}.
    * 
    * @return the string corrected to
    */
