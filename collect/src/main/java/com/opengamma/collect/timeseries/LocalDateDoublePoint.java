@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import org.joda.beans.JodaBeanUtils;
 
+import com.google.common.collect.ComparisonChain;
 import com.opengamma.collect.validate.ArgChecker;
 
 /**
@@ -102,11 +103,10 @@ public final class LocalDateDoublePoint
    */
   @Override
   public int compareTo(LocalDateDoublePoint other) {
-    int cmp = date.compareTo(other.date);
-    if (cmp == 0) {
-      cmp = Double.compare(value, other.value);
-    }
-    return cmp;
+    return ComparisonChain.start()
+        .compare(date, other.date)
+        .compare(value, other.value)
+        .result();
   }
 
   //-------------------------------------------------------------------------

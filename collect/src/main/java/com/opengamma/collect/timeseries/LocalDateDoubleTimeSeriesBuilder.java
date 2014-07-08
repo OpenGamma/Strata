@@ -28,7 +28,6 @@ public final class LocalDateDoubleTimeSeriesBuilder {
 
   /**
    * The entries for the time-series.
-   * They will be sorted when the time-series is created.
    */
   private final SortedMap<LocalDate, Double> entries = new TreeMap<>();
 
@@ -57,11 +56,14 @@ public final class LocalDateDoubleTimeSeriesBuilder {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the specified date from the builder.
+   * Gets the value associated with the specified date.
+   * <p>
+   * The result is an {@link OptionalDouble} which avoids the need to handle null
+   * or exceptions. Use {@code isPresent()} to check whether the value is present.
+   * Use {@code orElse(double)} to default a missing value.
    *
-   * @param date  the date to be added
-   * @param value  the value for the time
-   * @return the value, null if 
+   * @param date  the date to get the value for
+   * @return the value associated with the date, optional empty if the date is not present
    */
   public OptionalDouble get(LocalDate date) {
     Double value = entries.get(date);

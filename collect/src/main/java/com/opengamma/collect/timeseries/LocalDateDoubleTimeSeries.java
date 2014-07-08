@@ -311,7 +311,7 @@ public final class LocalDateDoubleTimeSeries
    * Use {@code orElse(double)} to default a missing value.
    *
    * @param date  the date to get the value for
-   * @return the value associated with the date, empty if the date is not present
+   * @return the value associated with the date, optional empty if the date is not present
    */
   public OptionalDouble get(LocalDate date) {
     int position = findDatePosition(date);
