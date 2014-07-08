@@ -41,7 +41,48 @@
   </modules>
 
   <!-- ==================================================================== -->
+  <profiles>
+    <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
+    <profile>
+      <id>javadoc-jar</id>
+      <activation>
+        <property>
+          <name>javadoc-jar</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>aggregate-jar</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <links>
+                <link>http://docs-static.opengamma.com/${project.version}/java/javadocs/</link>
+              </links>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
   <properties>
+    <!-- Properties for maven-javadoc-plugin -->
+    <windowtitle>OpenGamma Sesame project Engine API</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Sesame project Engine API</h1>]]></doctitle>
+    <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
+    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i>]]></bottom>
     <!-- Properties for maven-install-plugin -->
     <maven.install.skip>true</maven.install.skip>
     <!-- Properties for maven-deploy-plugin -->
