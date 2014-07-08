@@ -12,6 +12,7 @@
  * <li>Functions - additional Java SE 8 functional interfaces</li>
  * <li>Ranges - ranges of values</li>
  * <li>Result - functional result model</li>
+ * <li>Time-Series - a series of values over time</li>
  * <li>Tuple - pair and triple</li>
  * <li>Validate - general utility classes</li>
  * </ul>
