@@ -87,7 +87,7 @@ public final class LocalDateDoubleTimeSeries
   /**
    * Returns a collector that can be used to create a time-series from a stream of points.
    *
-   * @return the time-series builder
+   * @return the time-series collector
    */
   public static Collector<LocalDateDoublePoint, LocalDateDoubleTimeSeriesBuilder, LocalDateDoubleTimeSeries> collector() {
     return Collector.of(
