@@ -7,18 +7,23 @@ package com.opengamma.sesame.credit;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.SortedMap;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
+import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Helper class to produce standard objects for credit testing.
@@ -99,5 +104,49 @@ public final class CreditTestData {
     return builder.build(Doubles.toArray(RATES));
     
   }
-  
+
+  public static YieldCurveData createYieldCurveData() {
+    SortedMap<Tenor, Double> cashData = ImmutableSortedMap.<Tenor, Double>naturalOrder()
+        .put(Tenor.ONE_MONTH, 0.00445)
+        .put(Tenor.TWO_MONTHS, 0.009488)
+        .put(Tenor.THREE_MONTHS, 0.012337)
+        .put(Tenor.SIX_MONTHS, 0.017762)
+        .put(Tenor.NINE_MONTHS, 0.01935)
+        .put(Tenor.ONE_YEAR, 0.020838)
+        .build();
+
+    @SuppressWarnings("deprecation")
+    SortedMap<Tenor, Double> swapData = ImmutableSortedMap.<Tenor, Double>naturalOrder()
+        .put(Tenor.TWO_YEARS, 0.01652)
+        .put(Tenor.THREE_YEARS, 0.02018)
+        .put(Tenor.FOUR_YEARS, 0.023033)
+        .put(Tenor.FIVE_YEARS, 0.02525)
+        .put(Tenor.SIX_YEARS, 0.02696)
+        .put(Tenor.SEVEN_YEARS, 0.02825)
+        .put(Tenor.EIGHT_YEARS, 0.02931)
+        .put(Tenor.NINE_YEARS, 0.03017)
+        .put(Tenor.TEN_YEARS, 0.03092)
+        .put(new Tenor(Period.ofYears(11)), 0.0316)
+        .put(new Tenor(Period.ofYears(12)), 0.03231)
+        .put(new Tenor(Period.ofYears(15)), 0.03367)
+        .put(new Tenor(Period.ofYears(20)), 0.03419)
+        .put(new Tenor(Period.ofYears(25)), 0.03411)
+        .put(new Tenor(Period.ofYears(30)), 0.03412)
+        .build();
+
+    YieldCurveData ycData = YieldCurveData.builder()
+        .cashData(cashData)
+        .swapData(swapData)
+        .calendar(new MondayToFridayCalendar("test"))
+        .cashDayCount(DayCounts.ACT_360)
+        .currency(Currency.USD)
+        .curveBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
+        .curveDayCount(DayCounts.ACT_365)
+        .spotDate(SPOT_DATE)
+        .swapDayCount(DayCounts.THIRTY_360)
+        .swapFixedLegInterval(Tenor.ONE_YEAR)
+        .build();
+    return ycData;
+  }
+
 }

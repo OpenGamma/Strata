@@ -25,6 +25,6 @@ public interface IsdaCompliantYieldCurveFn {
    * @return a result containing an {@link ISDACompliantCurve} if successful, or failure
    */
   @Cacheable
-  Result<ISDACompliantYieldCurve> buildIsdaCompliantCurve(Environment env, Currency ccy);
+  Result<IsdaYieldCurve> buildIsdaCompliantCurve(Environment env, Currency ccy);
   
 }

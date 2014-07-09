@@ -21,7 +21,6 @@ import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.link.ConventionLink;
@@ -52,7 +51,10 @@ public class StandardIsdaCompliantCreditCurveFnTest {
 
   private static final double DELTA = 10e-15; 
   
-  private static final ISDACompliantYieldCurve YIELD_CURVE = CreditTestData.createYieldCurve();
+  private static final IsdaYieldCurve YIELD_CURVE = IsdaYieldCurve.builder()
+                                                                          .calibratedCurve(CreditTestData.createYieldCurve())
+                                                                          .curveData(CreditTestData.createYieldCurveData())
+                                                                          .build();
   private static final LocalDate VALUATION_DATE = LocalDate.of(2014, 3, 27);
   
   private StandardIsdaCompliantCreditCurveFn _fn;
@@ -125,11 +127,11 @@ public class StandardIsdaCompliantCreditCurveFnTest {
   @Test
   public void testCurveBuild() {
     //curve successfully bootstrapped
-    Result<ISDACompliantCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _goodKey);
+    Result<IsdaCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _goodKey);
     
     assertTrue("Expected success result", result.isSuccess());
     
-    ISDACompliantCreditCurve curve = result.getValue();
+    ISDACompliantCreditCurve curve = result.getValue().getCalibratedCurve();
     
     for (Map.Entry<LocalDate, Double> entry : EXPECTED.entrySet()) {
       double t = TimeCalculator.getTimeBetween(VALUATION_DATE, entry.getKey());
@@ -143,10 +145,11 @@ public class StandardIsdaCompliantCreditCurveFnTest {
   @Test
   public void testMissingCreditCurveData() {
     //credit curve data missing but yc present
-    when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.GBP)).thenReturn(Result.success(mock(ISDACompliantYieldCurve.class)));
-    when(_curveDataProviderFn.retrieveCreditCurveData(_badKey)).thenReturn(Result.<CreditCurveData> failure(FailureStatus.ERROR, "Error"));
+    when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.GBP)).thenReturn(Result.success(YIELD_CURVE));
+    when(_curveDataProviderFn.retrieveCreditCurveData(_badKey))
+        .thenReturn(Result.<CreditCurveData> failure(FailureStatus.ERROR, "Error"));
     
-    Result<ISDACompliantCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _badKey);
+    Result<IsdaCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _badKey);
     
     assertFalse("Expected failure result", result.isSuccess());
   }
@@ -154,10 +157,12 @@ public class StandardIsdaCompliantCreditCurveFnTest {
   @Test
   public void testMissingYieldCurveData() {
     //yc missing but credit curve data present
-    when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.GBP)).thenReturn(Result.<ISDACompliantYieldCurve> failure(FailureStatus.ERROR, "Error"));
-    when(_curveDataProviderFn.retrieveCreditCurveData(_badKey)).thenReturn(Result.success(mock(CreditCurveData.class)));
+    when(_yieldCurveFn.buildIsdaCompliantCurve(_env, Currency.GBP))
+        .thenReturn(Result.<IsdaYieldCurve> failure(FailureStatus.ERROR, "Error"));
+    when(_curveDataProviderFn.retrieveCreditCurveData(_badKey))
+        .thenReturn(Result.success(mock(CreditCurveData.class)));
     
-    Result<ISDACompliantCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _badKey);
+    Result<IsdaCreditCurve> result = _fn.buildIsdaCompliantCreditCurve(_env, _badKey);
     
     assertFalse("Expected failure result", result.isSuccess());
   }

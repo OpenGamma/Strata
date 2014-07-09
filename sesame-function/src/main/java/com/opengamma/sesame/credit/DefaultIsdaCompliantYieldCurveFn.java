@@ -44,7 +44,7 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
   }
 
   @Override
-  public Result<ISDACompliantYieldCurve> buildIsdaCompliantCurve(Environment env, Currency ccy) {
+  public Result<IsdaYieldCurve> buildIsdaCompliantCurve(Environment env, Currency ccy) {
     
     Result<YieldCurveData> yieldCurveData = _yieldCurveProvider.retrieveYieldCurveData(ccy);
     
@@ -52,7 +52,15 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
       return Result.failure(yieldCurveData);
     }
     
-    return Result.success(buildCurve(env, yieldCurveData.getValue()));
+    ISDACompliantYieldCurve curve = buildCurve(env, yieldCurveData.getValue());
+    
+    IsdaYieldCurve yieldCurve = IsdaYieldCurve.builder()
+                                                    .calibratedCurve(curve)
+                                                    .curveData(yieldCurveData.getValue())
+                                                    .build();
+    
+    return Result.success(yieldCurve);
+    
   }
 
   /**

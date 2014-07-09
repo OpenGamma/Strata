@@ -52,10 +52,10 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
   }
 
   @Override
-  public Result<ISDACompliantCreditCurve> buildIsdaCompliantCreditCurve(Environment env, 
+  public Result<IsdaCreditCurve> buildIsdaCompliantCreditCurve(Environment env, 
                                                                         CreditCurveDataKey creditCurveKey) {
     
-    Result<ISDACompliantYieldCurve> yieldCurveResult = 
+    Result<IsdaYieldCurve> yieldCurveResult = 
         _yieldCurveFn.buildIsdaCompliantCurve(env, creditCurveKey.getCurrency());
     
     Result<CreditCurveData> creditCurveDataResult = 
@@ -65,11 +65,16 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
       return Result.failure(creditCurveDataResult, yieldCurveResult);
     }
     
+    IsdaYieldCurve yieldCurve = yieldCurveResult.getValue();
     ISDACompliantCreditCurve curve = buildWithResolvedData(env, 
-                                                           yieldCurveResult.getValue(), 
+                                                           yieldCurve.getCalibratedCurve(), 
                                                            creditCurveDataResult.getValue());
     
-    return Result.success(curve);
+    return Result.success(IsdaCreditCurve.builder()
+                                            .calibratedCurve(curve)
+                                            .curveData(creditCurveDataResult.getValue())
+                                            .yieldCurve(yieldCurve)
+                                            .build());
   }
 
   private ISDACompliantCreditCurve buildWithResolvedData(Environment env, 

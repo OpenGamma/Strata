@@ -25,7 +25,7 @@ public interface IsdaCompliantCreditCurveFn {
    * @return an {@link ISDACompliantCreditCurve} result
    */
   @Cacheable
-  Result<ISDACompliantCreditCurve> buildIsdaCompliantCreditCurve(Environment env, CreditCurveDataKey creditCurveKey);
+  Result<IsdaCreditCurve> buildIsdaCompliantCreditCurve(Environment env, CreditCurveDataKey creditCurveKey);
   
   
   
