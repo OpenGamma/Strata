@@ -542,7 +542,7 @@ public final class ExternalIdBundle
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ExternalIdBundle> {
 
-    private SortedSet<ExternalId> externalIds = new TreeSet<>();
+    private SortedSet<ExternalId> externalIds = new TreeSet<ExternalId>();
 
     /**
      * Restricted constructor.
