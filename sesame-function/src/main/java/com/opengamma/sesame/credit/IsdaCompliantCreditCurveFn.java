@@ -16,7 +16,6 @@ import com.opengamma.util.result.Result;
  * for representing credit curves.
  */
 public interface IsdaCompliantCreditCurveFn {
-
   
   /**
    * Builds the credit curve for the specified {@link CreditCurveDataKey}.
@@ -25,10 +24,6 @@ public interface IsdaCompliantCreditCurveFn {
    * @return an {@link ISDACompliantCreditCurve} result
    */
   @Cacheable
-  Result<ISDACompliantCreditCurve> buildIsdaCompliantCreditCurve(Environment env, CreditCurveDataKey creditCurveKey);
-  
-  
-  
-  
+  Result<IsdaCreditCurve> buildIsdaCompliantCreditCurve(Environment env, CreditCurveDataKey creditCurveKey);
   
 }
