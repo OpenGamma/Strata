@@ -18,12 +18,15 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.NarrowingConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.convention.impl.NarrowingConventionSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.NarrowingHolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.NarrowingRegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.NarrowingSecuritySource;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.service.ServiceContext;
 import com.opengamma.sesame.config.ViewConfig;
@@ -173,6 +176,45 @@ class CapturingCycleInitializer implements CycleInitializer {
         proxy = new NarrowingRegionSource((RegionSource) proxy);
       } else if (key == HolidaySource.class) {
         proxy = new NarrowingHolidaySource((HolidaySource) proxy);
+      } else if (key == HistoricalTimeSeriesSource.class) {
+        InvocationHandler htsHandler = new InvocationHandler() {
+          @Override
+          public Object invoke(Object proxy,
+                               Method method,
+                               Object[] args) throws Throwable {
+
+            try {
+              if (!method.getName().equals("getHistoricalTimeSeries")) {
+                throw new UnsupportedOperationException(
+                    "Only calls to getHistoricalTimeSeries are supported through this HTS proxy");
+              }
+
+              Object result = method.invoke(component, args);
+              if (result != null) {
+                switch (args.length) {
+                  case 4:
+                    collector.receivedHtsCall(
+                        (ExternalIdBundle) args[0], (String) args[1], (String) args[2], (String) args[3],
+                        ((HistoricalTimeSeries) result).getTimeSeries());
+                    break;
+                  case 7:
+                    collector.receivedHtsCall(
+                        (ExternalIdBundle) args[1], null, null, (String) args[0],
+                        ((HistoricalTimeSeries) result).getTimeSeries());
+                    break;
+                  default:
+                    throw new UnsupportedOperationException(
+                        "Unable to handle calls to " + args.length + " arg version");
+                }
+              }
+              return result;
+            } catch (InvocationTargetException e) {
+              throw e.getCause();
+            }
+          }
+        };
+        proxy = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class<?>[]{key}, htsHandler);
+
       } else {
         // Don't proxy any other components
         proxy = component;

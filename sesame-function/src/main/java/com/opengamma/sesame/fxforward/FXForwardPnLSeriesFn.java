@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame.fxforward;
 
-import org.threeten.bp.LocalDate;
-
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.OutputNames;
@@ -19,5 +17,5 @@ import com.opengamma.util.result.Result;
 public interface FXForwardPnLSeriesFn {
 
   @Output(OutputNames.PNL_SERIES)
-  Result<LocalDateDoubleTimeSeries> calculatePnlSeries(Environment env, FXForwardSecurity security, LocalDate endDate);
+  Result<LocalDateDoubleTimeSeries> calculatePnlSeries(Environment env, FXForwardSecurity security);
 }

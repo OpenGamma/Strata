@@ -94,6 +94,7 @@ import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExp
 import com.opengamma.financial.convention.expirycalc.FedFundFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper;
 import com.opengamma.financial.currency.CurrencyMatrix;
+import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.index.IborIndex;
 import com.opengamma.financial.security.index.OvernightIndex;
@@ -228,6 +229,7 @@ public class InterestRateMockSources {
                                 mockSecuritySource(),
                                 mockHistoricalTimeSeriesSource(),
                                 mock(HistoricalTimeSeriesResolver.class),
+                                // TODO currency matrix should not be in here
                                 mock(CurrencyMatrix.class));
   }
 
@@ -690,14 +692,14 @@ public class InterestRateMockSources {
 
     ConfigItem<Object> libor3mCurveDefinitionItem = ConfigItem.<Object>of(get3MLiborCurveDefinition());
     libor3mCurveDefinitionItem.setUniqueId(UniqueId.of("CONFIG", "4"));
-    when(mock.get(eq(Object.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.get(any(Class.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(libor3mCurveDefinitionItem));
     when(mock.getSingle(any(Class.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(libor3mCurveDefinitionItem.getValue());
 
     ConfigItem<Object> usdFedFundFuturesCurveDefItem = ConfigItem.<Object>of(getUSDFedFundFuturesCurveDefinition());
     usdFedFundFuturesCurveDefItem.setUniqueId(UniqueId.of("CONFIG", "5"));
-    when(mock.get(eq(Object.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.get(any(Class.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(usdFedFundFuturesCurveDefItem));
     when(mock.getSingle(any(Class.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(usdFedFundFuturesCurveDefItem.getValue());
@@ -745,6 +747,10 @@ public class InterestRateMockSources {
     sabrConfigItem.setUniqueId(UniqueId.of("CONFIG", "10"));
     when(mock.get(any(Class.class), eq("TEST_SABR"), any(VersionCorrection.class)))
         .thenReturn(ImmutableList.of(sabrConfigItem));
+
+
+    when(mock.getSingle(eq(CurrencyMatrix.class), anyString(), any(VersionCorrection.class)))
+        .thenReturn(new SimpleCurrencyMatrix());
 
     return mock;
   }

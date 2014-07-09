@@ -80,8 +80,7 @@ public class DiscountingFXForwardSpotPnLSeriesFn implements FXForwardPnLSeriesFn
 
   @Override
   public Result<LocalDateDoubleTimeSeries> calculatePnlSeries(Environment env,
-                                                              FXForwardSecurity security,
-                                                              LocalDate endDate) {
+                                                              FXForwardSecurity security) {
 
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
