@@ -3,12 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.component;
+package com.opengamma.sesame.integration_tests;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import org.testng.annotations.Test;
@@ -39,6 +38,7 @@ import com.opengamma.sesame.DefaultFXReturnSeriesFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.component.CapturedResultsLoader;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewInputs;
 import com.opengamma.sesame.engine.ViewOutputs;
@@ -77,8 +77,8 @@ public class TempleIntegrationTest {
   @Test
   public void testViewRunsAsExpected() throws FileNotFoundException {
 
-    ViewInputs viewInputs = deserializeComponent(ViewInputs.class, "/home/julian/templeViewInputs.xml");
-    ViewOutputs viewOutputs = deserializeComponent(ViewOutputs.class, "/home/julian/templeViewOutputs.xml");
+    ViewInputs viewInputs = deserializeComponent(ViewInputs.class, "/integration_tests/templeViewInputs.xml");
+    ViewOutputs viewOutputs = deserializeComponent(ViewOutputs.class, "/integration_tests/templeViewOutputs.xml");
 
     CapturedResultsLoader loader =
         new CapturedResultsLoader(viewInputs, createAvailableOutputs(), createAvailableImplementations());
@@ -103,9 +103,9 @@ public class TempleIntegrationTest {
   }
 
   private <T> T deserializeComponent(Class<T> clss, String fileName) throws FileNotFoundException {
-    FileInputStream viewOutputsInputStream = new FileInputStream(fileName);
-    ViewResultsDeserializer outputsDeserializer = new ViewResultsDeserializer(viewOutputsInputStream);
-    return outputsDeserializer.deserialize(clss);
+    ViewResultsDeserializer resultsDeserializer =
+        new ViewResultsDeserializer(getClass().getResourceAsStream(fileName));
+    return resultsDeserializer.deserialize(clss);
   }
 
   private void compareResults(Results results, ViewOutputs originalOutputs) {
