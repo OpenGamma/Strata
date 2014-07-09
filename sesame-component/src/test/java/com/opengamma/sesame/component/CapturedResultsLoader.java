@@ -7,6 +7,7 @@ package com.opengamma.sesame.component;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -247,7 +248,7 @@ public class CapturedResultsLoader {
       } else {
 
         List<LocalDateDoubleTimeSeries> sorted = new ArrayList<>(series);
-        sorted.sort(new Comparator<LocalDateDoubleTimeSeries>() {
+        Collections.sort(sorted, new Comparator<LocalDateDoubleTimeSeries>() {
           @Override
           public int compare(LocalDateDoubleTimeSeries o1, LocalDateDoubleTimeSeries o2) {
             return o1.getEarliestTimeFast() - o2.getEarliestTimeFast();
