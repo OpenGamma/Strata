@@ -7,8 +7,11 @@ package com.opengamma.sesame.integration_tests;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.testng.Assert.fail;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -39,6 +42,7 @@ import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.component.CapturedResultsLoader;
+import com.opengamma.sesame.engine.ResultRow;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.engine.ViewInputs;
 import com.opengamma.sesame.engine.ViewOutputs;
@@ -65,6 +69,7 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.FixedHistoricalMarketDataFactory;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -111,8 +116,31 @@ public class TempleIntegrationTest {
   private void compareResults(Results results, ViewOutputs originalOutputs) {
 
     assertThat(results.getColumnNames(), is(originalOutputs.getColumnNames()));
-    assertThat(results.getRows(), is(originalOutputs.getRows()));
     assertThat(results.getNonPortfolioResults(), is(originalOutputs.getNonPortfolioResults()));
+
+    List<ResultRow> originalOutputsRows = originalOutputs.getRows();
+    List<String> errors = new ArrayList<>();
+
+    for (int row = 0; row < originalOutputsRows.size(); row++) {
+
+      ResultRow originalResultRow = originalOutputsRows.get(row);
+      ResultRow calculatedRow = results.getRows().get(row);
+
+      for (int col = 0; col < originalOutputs.getColumnNames().size(); col++) {
+
+        Result<Object> originalResult = originalResultRow.get(col).getResult();
+        Result<Object> calculatedResult = calculatedRow.get(col).getResult();
+
+        if (!originalResult.equals(calculatedResult)) {
+          errors.add("Row: " + originalResultRow.getInput() + ", Col: " + originalOutputs.getColumnNames().get(col) +
+          "\nExpected: " + originalResult.toString() + "\nbut got: " + calculatedResult.toString());
+        }
+      }
+    }
+
+    if (!errors.isEmpty()) {
+      fail(errors.toString());
+    }
   }
 
   private AvailableOutputs createAvailableOutputs() {
