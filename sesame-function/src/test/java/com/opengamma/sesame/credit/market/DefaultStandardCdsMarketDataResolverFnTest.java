@@ -51,7 +51,16 @@ public class DefaultStandardCdsMarketDataResolverFnTest {
     
     Map<Currency, RestructuringClause> mappings = ImmutableMap.of(_ccy, _clause);
     RestructuringSettings settings = RestructuringSettings.builder().restructuringMappings(mappings).build();
-    _fn = new DefaultStandardCdsMarketDataResolverFn(settings);
+    
+    CreditKeyMapperFn keyMapper = new CreditKeyMapperFn() {
+
+      @Override
+      public Result<CreditCurveDataKey> getMapping(CreditCurveDataKey key) {
+        return Result.success(key);
+      }
+      
+    };
+    _fn = new DefaultStandardCdsMarketDataResolverFn(settings, keyMapper);
     
     _env = mock(Environment.class);
   }

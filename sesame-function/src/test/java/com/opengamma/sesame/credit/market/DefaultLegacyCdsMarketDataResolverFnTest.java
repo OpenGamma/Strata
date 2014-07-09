@@ -50,7 +50,15 @@ public class DefaultLegacyCdsMarketDataResolverFnTest {
     
     _env = mock(Environment.class);
     
-    _fn = new DefaultLegacyCdsMarketDataResolverFn();
+    CreditKeyMapperFn sameKeyMapper = new CreditKeyMapperFn() {
+      
+      @Override
+      public Result<CreditCurveDataKey> getMapping(CreditCurveDataKey key) {
+        return Result.success(key);
+      }
+    };
+    
+    _fn = new DefaultLegacyCdsMarketDataResolverFn(sameKeyMapper);
   }
   
   @Test
