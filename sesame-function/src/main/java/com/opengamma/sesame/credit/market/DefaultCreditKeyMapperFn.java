@@ -8,7 +8,7 @@ package com.opengamma.sesame.credit.market;
 import java.util.Map;
 
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
-import com.opengamma.financial.analytics.isda.credit.config.CreditCurveDataKeyMap;
+import com.opengamma.sesame.credit.config.CreditCurveDataKeyMap;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 

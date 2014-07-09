@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
-import com.opengamma.financial.analytics.isda.credit.config.CreditCurveDataKeyMap;
+import com.opengamma.sesame.credit.config.CreditCurveDataKeyMap;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
