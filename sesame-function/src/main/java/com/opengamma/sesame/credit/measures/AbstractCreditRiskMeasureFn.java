@@ -88,7 +88,17 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMesasu
     
   }
   
-  private <S> Result<IsdaCreditCurve> resolveMarketData(Environment env, CreditMarketDataResolverFn<S> resolverFn, S security) {
+  /**
+   * Resolve market data for the security using the passed function.
+   * 
+   * @param env pricing environment
+   * @param resolverFn resolver function
+   * @param security security
+   * @return a resolved credit curve
+   */
+  private <S> Result<IsdaCreditCurve> resolveMarketData(Environment env, 
+                                                        CreditMarketDataResolverFn<S> resolverFn, 
+                                                        S security) {
     Result<CreditCurveDataKey> mdKeyResult = resolverFn.resolve(env, security);
     
     if (!mdKeyResult.isSuccess()) {
@@ -121,7 +131,6 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMesasu
     }
   }
 
-
   //TODO index cds
   
   /**
@@ -138,6 +147,12 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMesasu
                                       IsdaCreditCurve curve);
   
   
+  /**
+   * Extracts relevant fields from standard cds security to CdsData.
+   * 
+   * @param cds the standard cds
+   * @return a CdsData instance
+   */
   private CdsData extractForStandardCds(StandardCDSSecurity cds) {
     
     return CdsData.builder()
@@ -147,12 +162,17 @@ public abstract class AbstractCreditRiskMeasureFn<T> implements CreditRiskMesasu
     
   }
   
+  /**
+   * Extracts relevant fields from legacy cds security to CdsData.
+   * 
+   * @param cds the legacy cds
+   * @return a CdsData instance
+   */
   private CdsData extractForLegacyCds(LegacyCDSSecurity cds) {
     return CdsData.builder()
-                  .coupon(cds.getCoupon())
-                  .interestRateNotional(cds.getNotional())
-                  .build();
+                    .coupon(cds.getCoupon())
+                    .interestRateNotional(cds.getNotional())
+                    .build();
   }
-
   
 }

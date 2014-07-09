@@ -31,6 +31,11 @@ public class DefaultLegacyCdsConverterFn implements LegacyCdsConverterFn {
 
   private final HolidaySource _holidaySource;
   
+  /**
+   * Creates an instance.
+   * 
+   * @param holidaySource the holiday source to use for calendar resolution
+   */
   public DefaultLegacyCdsConverterFn(HolidaySource holidaySource) {
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
   }
@@ -44,6 +49,8 @@ public class DefaultLegacyCdsConverterFn implements LegacyCdsConverterFn {
                                                          calendarIds.toArray(new ExternalId[calendarIds.size()]));
     Period couponFreq = PeriodFrequency.convertToPeriodFrequency(legacyCds.getCouponFrequency()).getPeriod();
     double recoveryRate;
+    //recovery rate is taken from the cds contract if one is specified,
+    //otherwise as observed on market data.
     if (legacyCds.getFixedRecovery() != null) {
       recoveryRate = legacyCds.getFixedRecovery();
     } else {
