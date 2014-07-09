@@ -7,14 +7,20 @@ package com.opengamma.collect;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URI;
@@ -52,6 +58,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.test.BeanAssert;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -65,6 +72,60 @@ import com.google.common.collect.ImmutableSortedSet;
  */
 public class TestHelper {
 
+  //-------------------------------------------------------------------------
+  /**
+   * Asserts that two beans are equal.
+   * Provides better error messages than a normal {@code assertEquals} comparison.
+   * 
+   * @param actual  the actual bean under test
+   * @param expected  the expected bean
+   */
+  public static void assertEqualsBean(Bean actual, Bean expected) {
+    BeanAssert.assertBeanEquals(expected, actual);
+  }
+
+  /**
+   * Asserts that two beans are equal.
+   * Provides better error messages than a normal {@code assertEquals} comparison.
+   * <p>
+   * This provides extra detail used when debugging an issue.
+   * Normal use should be to call {@link #assertEqualsBean(Bean, Bean)}.
+   * 
+   * @param actual  the actual bean under test
+   * @param expected  the expected bean
+   */
+  public static void assertEqualsBeanDetailed(Bean actual, Bean expected) {
+    BeanAssert.assertBeanEqualsFullDetail(expected, actual);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Asserts that the object can be serialized and deserialized to an equal form.
+   * 
+   * @param base  the object to be tested
+   */
+  public static void assertSerialization(Serializable base) {
+    assertNotNull(base);
+    try {
+      try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+          oos.writeObject(base);
+          oos.close();
+          try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
+            try (ObjectInputStream ois = new ObjectInputStream(bais)) {
+              assertEquals(ois.readObject(), base);
+            }
+          }
+        }
+      }
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    } catch (ClassNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Asserts that the lambda-based code throws the specified exception.
    * <p>
@@ -73,8 +134,8 @@ public class TestHelper {
    *  assertThrows(() -> bean.property(""), NoSuchElementException.class);
    * </pre>
    * 
-   * @param runner  the lambda containing the code to test, not null
-   * @param expected  the expected exception, not null
+   * @param runner  the lambda containing the code to test
+   * @param expected  the expected exception
    */
   public static void assertThrows(AssertRunnable runner, Class<? extends Throwable> expected) {
     assertNotNull(runner, "assertThrows() called with null AssertRunnable");
@@ -98,7 +159,7 @@ public class TestHelper {
    *  ignoreThrows(() -> bean.property(""));
    * </pre>
    * 
-   * @param runner  the lambda containing the code to test, not null
+   * @param runner  the lambda containing the code to test
    */
   public static void ignoreThrows(AssertRunnable runner) {
     assertNotNull(runner, "assertThrows() called with null AssertRunnable");
@@ -113,7 +174,7 @@ public class TestHelper {
   /**
    * Test a private no-arg constructor the primary purpose of increasing test coverage.
    * 
-   * @param clazz  the class to test, not null
+   * @param clazz  the class to test
    */
   public static void coverPrivateConstructor(Class<?> clazz) {
     assertNotNull(clazz, "coverPrivateConstructor() called with null class");
@@ -131,7 +192,7 @@ public class TestHelper {
   /**
    * Test an enum for the primary purpose of increasing test coverage.
    * 
-   * @param clazz  the class to test, not null
+   * @param clazz  the class to test
    */
   public static <E extends Enum<E>>void coverEnum(Class<E> clazz) {
     assertNotNull(clazz, "coverEnum() called with null class");
@@ -146,7 +207,7 @@ public class TestHelper {
   /**
    * Test a mutable bean for the primary purpose of increasing test coverage.
    * 
-   * @param bean  the bean to test, not null
+   * @param bean  the bean to test
    */
   public static void coverMutableBean(Bean bean) {
     assertNotNull(bean, "coverImmutableBean() called with null bean");
@@ -158,7 +219,7 @@ public class TestHelper {
   /**
    * Test an immutable bean for the primary purpose of increasing test coverage.
    * 
-   * @param bean  the bean to test, not null
+   * @param bean  the bean to test
    */
   public static void coverImmutableBean(ImmutableBean bean) {
     assertNotNull(bean, "coverImmutableBean() called with null bean");
@@ -293,7 +354,6 @@ public class TestHelper {
         }
         Bean built = bld.build();
         assertEquals(built, built);
-        assertNotEquals(bean, built);
         assertEquals(built.hashCode(), built.hashCode());
       } catch (AssertionError ex) {
         throw ex;
@@ -312,10 +372,28 @@ public class TestHelper {
   // sample values for setters
   private static List<?> sampleValues(MetaProperty<?> mp) {
     Class<?> type = mp.propertyType();
+    // enum constants
     if (Enum.class.isAssignableFrom(type)) {
       return Arrays.asList(type.getEnumConstants());
     }
-    return SAMPLES.getOrDefault(type, ImmutableList.of());
+    // lookup pre-canned samples
+    List<?> sample = SAMPLES.get(type);
+    if (sample != null) {
+      return sample;
+    }
+    // find any potential declared constants
+    ImmutableList.Builder<Object> builder = ImmutableList.builder();
+    for (Field field : type.getFields()) {
+      if (field.getType() == type &&
+          Modifier.isPublic(field.getModifiers()) &&
+          Modifier.isStatic(field.getModifiers()) &&
+          Modifier.isFinal(field.getModifiers()) &&
+          field.isSynthetic() == false) {
+        ignoreThrows(() -> builder.add(field.get(null)));
+      }
+    }
+    // none
+    return builder.build();
   }
 
   // sample strings for setters
