@@ -32,7 +32,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * <p>
  * Instances of {@code FailureItem} are public classes created via {@link Result}.
  */
-@BeanDefinition(builderScope = "private", style = "minimal")
+@BeanDefinition(builderScope = "private")
 public final class FailureItem
     implements ImmutableBean {
 
@@ -268,6 +268,39 @@ public final class FailureItem
     @Override
     public Map<String, MetaProperty<?>> metaPropertyMap() {
       return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code reason} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FailureReason> reason() {
+      return reason;
+    }
+
+    /**
+     * The meta-property for the {@code message} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> message() {
+      return message;
+    }
+
+    /**
+     * The meta-property for the {@code stackTrace} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> stackTrace() {
+      return stackTrace;
+    }
+
+    /**
+     * The meta-property for the {@code causeType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Class<? extends Exception>> causeType() {
+      return causeType;
     }
 
     //-----------------------------------------------------------------------

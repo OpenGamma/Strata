@@ -49,7 +49,7 @@ import com.opengamma.collect.validate.ArgChecker;
  *
  * @param <T> the type of the underlying result for a successful invocation
  */
-@BeanDefinition(builderScope = "private", style = "minimal")
+@BeanDefinition(builderScope = "private")
 public final class Result<T>
     implements ImmutableBean {
   // two properties are used where one might do to reduce serialized data size
@@ -649,6 +649,23 @@ public final class Result<T>
     @Override
     public Map<String, MetaProperty<?>> metaPropertyMap() {
       return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code value} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<T> value() {
+      return value;
+    }
+
+    /**
+     * The meta-property for the {@code failure} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Failure> failure() {
+      return failure;
     }
 
     //-----------------------------------------------------------------------

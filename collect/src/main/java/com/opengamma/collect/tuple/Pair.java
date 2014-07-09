@@ -43,7 +43,7 @@ import com.google.common.collect.ImmutableList;
  * @param <A> the first element type
  * @param <B> the second element type
  */
-@BeanDefinition(builderScope = "private", style = "minimal")
+@BeanDefinition(builderScope = "private")
 public final class Pair<A, B>
     implements ImmutableBean, Tuple, Comparable<Pair<A, B>>, Serializable {
 
@@ -291,6 +291,23 @@ public final class Pair<A, B>
     @Override
     public Map<String, MetaProperty<?>> metaPropertyMap() {
       return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code first} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<A> first() {
+      return first;
+    }
+
+    /**
+     * The meta-property for the {@code second} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<B> second() {
+      return second;
     }
 
     //-----------------------------------------------------------------------

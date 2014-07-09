@@ -42,7 +42,7 @@ import com.google.common.collect.ImmutableList;
  * @param <B> the second element type
  * @param <C> the third element type
  */
-@BeanDefinition(builderScope = "private", style = "minimal")
+@BeanDefinition(builderScope = "private")
 public final class Triple<A, B, C>
     implements ImmutableBean, Tuple, Comparable<Triple<A, B, C>>, Serializable {
 
@@ -327,6 +327,31 @@ public final class Triple<A, B, C>
     @Override
     public Map<String, MetaProperty<?>> metaPropertyMap() {
       return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code first} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<A> first() {
+      return first;
+    }
+
+    /**
+     * The meta-property for the {@code second} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<B> second() {
+      return second;
+    }
+
+    /**
+     * The meta-property for the {@code third} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<C> third() {
+      return third;
     }
 
     //-----------------------------------------------------------------------

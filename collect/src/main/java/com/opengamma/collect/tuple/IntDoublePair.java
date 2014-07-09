@@ -37,7 +37,7 @@ import com.opengamma.collect.validate.ArgChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition(builderScope = "private", style = "minimal")
+@BeanDefinition(builderScope = "private")
 public final class IntDoublePair
     implements ImmutableBean, Tuple, Comparable<IntDoublePair>, Serializable {
 
@@ -311,6 +311,23 @@ public final class IntDoublePair
     @Override
     public Map<String, MetaProperty<?>> metaPropertyMap() {
       return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code first} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Integer> first() {
+      return first;
+    }
+
+    /**
+     * The meta-property for the {@code second} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> second() {
+      return second;
     }
 
     //-----------------------------------------------------------------------

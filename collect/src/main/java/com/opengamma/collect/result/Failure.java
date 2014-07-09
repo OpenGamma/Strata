@@ -38,7 +38,7 @@ import com.opengamma.collect.validate.ArgChecker;
  * <p>
  * Instances of {@code Failure} are public classes created via {@link Result}.
  */
-@BeanDefinition(builderScope = "private", style = "minimal")
+@BeanDefinition(builderScope = "private")
 public final class Failure
     implements ImmutableBean {
 
@@ -301,6 +301,31 @@ public final class Failure
     @Override
     public Map<String, MetaProperty<?>> metaPropertyMap() {
       return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code reason} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FailureReason> reason() {
+      return reason;
+    }
+
+    /**
+     * The meta-property for the {@code message} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> message() {
+      return message;
+    }
+
+    /**
+     * The meta-property for the {@code items} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableSet<FailureItem>> items() {
+      return items;
     }
 
     //-----------------------------------------------------------------------
