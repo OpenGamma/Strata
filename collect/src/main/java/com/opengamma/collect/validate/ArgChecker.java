@@ -140,7 +140,7 @@ public final class ArgChecker {
       throw new IllegalArgumentException(formatMessage(message, arg));
     }
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Checks that the specified parameter is non-null.
@@ -160,6 +160,30 @@ public final class ArgChecker {
   public static <T> T notNull(T parameter, String name) {
     if (parameter == null) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be null");
+    }
+    return parameter;
+  }
+
+  /**
+   * Checks that the specified item is non-null.
+   * <p>
+   * Given the input parameter, this returns only if it is non-null.
+   * One use for this method is in a stream:
+   * <pre>
+   *  ArgChecker.notNull(coll, "coll")
+   *  coll.stream()
+   *    .map(ArgChecker::notNullItem)
+   *    ...
+   * </pre>
+   * 
+   * @param <T>  the type of the input parameter reflected in the result
+   * @param parameter  the parameter to check, null throws an exception
+   * @return the input {@code parameter}, not null
+   * @throws IllegalArgumentException if the input is null
+   */
+  public static <T> T notNullItem(T parameter) {
+    if (parameter == null) {
+      throw new IllegalArgumentException("Input parameter array/collection/map must not contain null");
     }
     return parameter;
   }

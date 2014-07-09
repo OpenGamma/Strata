@@ -80,6 +80,17 @@ public class ArgCheckerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_notNullItem_noText_ok() {
+    assertEquals(ArgChecker.notNullItem("OG"), "OG");
+    assertEquals(ArgChecker.notNullItem(1), Integer.valueOf(1));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_notNullItem_noText_null() {
+    ArgChecker.notNullItem(null);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_matches_String_ok() {
     assertEquals(ArgChecker.matches(Pattern.compile("[A-Z]+"), "OG", "name"), "OG");
   }
