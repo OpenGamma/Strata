@@ -52,8 +52,8 @@ then be passed to the ``CreditCurveDataProviderFn`` to resolve the correct
 curve.
 
 For situations where quotes cannot be obtained for a specific CDS, a generic
-curve (e.g. a AAA curve) can be used instead. This is achieved by storing a
-list of ``CreditCurveDataKey`` to ``CreditCurveDataKey`` mappings.
+curve (e.g. AAA curve) can be used instead. This is achieved by storing a list
+of ``CreditCurveDataKey`` to ``CreditCurveDataKey`` mappings.
 
 For example, the following key for IBM might map to the triple A key below:
 
@@ -93,7 +93,7 @@ The top level interface for the building and resolution of credit curves is
 taking a pricing environment and credit curve key. When called, it will take
 the following sequence of actions: 
 
-1. Resolve a yield curve via``YieldCurveDataProviderFn`` using the currency on
+1. Resolve a yield curve via ``YieldCurveDataProviderFn`` using the currency on
 the key. A ``YieldCurveData`` object is returned containing the market data and
 term structure.
 
@@ -108,6 +108,6 @@ structure.
 
 4. The ``IsdaCompliantCreditCurveFn`` will then bootstrap the credit curve using
 the credit curve data returned in 3 and the yield curve returned in 1. An
-``IsdaCreditCurve`` is returned which contains the ``IsdaYieldCurve``
-and``CreditCurveData`` instances used as inputs to the calibration and the
+``IsdaCreditCurve`` is returned which contains the ``IsdaYieldCurve`` and
+``CreditCurveData`` instances used as inputs to the calibration and the
 calibrated ``IsdaCompliantCreditCurve`` instance.
