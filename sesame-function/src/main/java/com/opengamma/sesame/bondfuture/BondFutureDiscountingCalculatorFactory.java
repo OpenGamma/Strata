@@ -8,7 +8,7 @@ package com.opengamma.sesame.bondfuture;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
-import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeWithEntityConverter;
+import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.Environment;
@@ -24,13 +24,13 @@ import com.opengamma.util.tuple.Pair;
  */
 public class BondFutureDiscountingCalculatorFactory implements BondFutureCalculatorFactory {
 
-  private final BondAndBondFutureTradeWithEntityConverter _converter;
+  private final BondAndBondFutureTradeConverter _converter;
   
   private final IssuerProviderFn _issuerProviderFn;
   
   private final HistoricalTimeSeriesFn _htsFn;
   
-  public BondFutureDiscountingCalculatorFactory(BondAndBondFutureTradeWithEntityConverter converter,
+  public BondFutureDiscountingCalculatorFactory(BondAndBondFutureTradeConverter converter,
                                                 IssuerProviderFn issuerProviderFn,
                                                 HistoricalTimeSeriesFn htsFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");

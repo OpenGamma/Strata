@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Param
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeWithEntityConverter;
+import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.sesame.trade.BondFutureTrade;
@@ -44,7 +44,7 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
   
   public BondFutureDiscountingCalculator(BondFutureTrade bondFutureTrade,
                                          ParameterIssuerProviderInterface curves,
-                                         BondAndBondFutureTradeWithEntityConverter bondFutureTradeConverter,
+                                         BondAndBondFutureTradeConverter bondFutureTradeConverter,
                                          ZonedDateTime valuationTime,
                                          HistoricalTimeSeriesBundle fixings) {
     _derivative = createInstrumentDerivative(bondFutureTrade, bondFutureTradeConverter, valuationTime, fixings);
@@ -70,10 +70,10 @@ public class BondFutureDiscountingCalculator implements BondFutureCalculator {
   }
   
   private InstrumentDerivative createInstrumentDerivative(BondFutureTrade bondFutureTrade,
-                                                          BondAndBondFutureTradeWithEntityConverter converter,
+                                                          BondAndBondFutureTradeConverter converter,
                                                           ZonedDateTime valuationTime,
                                                           HistoricalTimeSeriesBundle fixings) {
-    final FinancialSecurity security = (FinancialSecurity) bondFutureTrade.getSecurity();
+    final FinancialSecurity security = bondFutureTrade.getSecurity();
     HistoricalTimeSeries fixingsTS = fixings.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
     double lastMarginPrice = fixingsTS.getTimeSeries().getLatestValue();
     InstrumentDefinition<?> definition = converter.convert(bondFutureTrade);
