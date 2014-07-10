@@ -78,7 +78,7 @@ If no mapping is defined for a key, the key will be passed directly into the
 Bonds
 -----
 
- Bonds can be configured to price on CDS data using an ID mapping
+Bonds can be configured to price on CDS data using an ID mapping
 mechanism similar to the one described above for single name CDS. The class
 which holds the map is the ``BondCreditCurveDataKeyMap``. Encapsulated within
 is a map of ``ExternalIdBundle`` to ``CreditCurveDataKey``. The external id
