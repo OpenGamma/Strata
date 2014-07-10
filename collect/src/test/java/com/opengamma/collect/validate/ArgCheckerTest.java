@@ -5,6 +5,7 @@
  */
 package com.opengamma.collect.validate;
 
+import static com.opengamma.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -24,7 +25,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Sets;
-import com.opengamma.collect.TestHelper;
 
 /**
  * Test ArgChecker.
@@ -633,8 +633,8 @@ public class ArgCheckerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void coverage() {
-    TestHelper.coverPrivateConstructor(ArgChecker.class);
+  public void test_validUtilityClass() {
+    assertUtilityClass(ArgChecker.class);
   }
 
 }

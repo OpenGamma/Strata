@@ -172,6 +172,34 @@ public class TestHelper {
 
   //-------------------------------------------------------------------------
   /**
+   * Asserts that a class is a well-defined utility class.
+   * <p>
+   * Must be final and with one zero-arg private constructor.
+   * All public methods must be static.
+   * 
+   * @param clazz  the class to test
+   */
+  public static void assertUtilityClass(Class<?> clazz) {
+    assertNotNull(clazz, "assertUtilityClass() called with null class");
+    assertTrue(Modifier.isFinal(clazz.getModifiers()), "Utility class must be final");
+    assertEquals(clazz.getDeclaredConstructors().length, 1, "Utility class must have one constructor");
+    Constructor<?> con = clazz.getDeclaredConstructors()[0];
+    assertEquals(con.getParameterTypes().length, 0, "Utility class must have zero-arg constructor");
+    assertTrue(Modifier.isPrivate(con.getModifiers()), "Utility class must have private constructor");
+    for (Method method : clazz.getDeclaredMethods()) {
+      if (Modifier.isPublic(method.getModifiers())) {
+        assertTrue(Modifier.isStatic(method.getModifiers()), "Utility class public methods must be static");
+      }
+    }
+    // coverage
+    ignoreThrows(() -> {
+      con.setAccessible(true);
+      con.newInstance();
+    });
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Test a private no-arg constructor the primary purpose of increasing test coverage.
    * 
    * @param clazz  the class to test

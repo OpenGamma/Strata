@@ -5,6 +5,7 @@
  */
 package com.opengamma.collect.validate;
 
+import static com.opengamma.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -13,8 +14,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
 import org.testng.annotations.Test;
-
-import com.opengamma.collect.TestHelper;
 
 /**
  * Test.
@@ -124,8 +123,9 @@ public class CompareUtilsTest {
     assertEquals(CompareUtils.compareWithTolerance(Double.NaN, Double.NaN, 0.0001d), 1);  // weird case
   }
 
-  public void coverage() {
-    TestHelper.coverPrivateConstructor(CompareUtils.class);
+  //-------------------------------------------------------------------------
+  public void test_validUtilityClass() {
+    assertUtilityClass(CompareUtils.class);
   }
 
 }

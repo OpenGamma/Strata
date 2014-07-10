@@ -5,7 +5,7 @@
  */
 package com.opengamma.id;
 
-import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -130,8 +130,8 @@ public class ArgCheckerTest {
   }
 
   //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(ArgChecker.class);
+  public void test_validUtilityClass() {
+    assertUtilityClass(ArgChecker.class);
   }
 
 }

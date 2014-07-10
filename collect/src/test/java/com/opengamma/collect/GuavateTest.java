@@ -5,6 +5,7 @@
  */
 package com.opengamma.collect;
 
+import static com.opengamma.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -171,8 +172,8 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
-  public void coverage() {
-    TestHelper.coverPrivateConstructor(Guavate.class);
+  public void test_validUtilityClass() {
+    assertUtilityClass(Guavate.class);
   }
 
 }
