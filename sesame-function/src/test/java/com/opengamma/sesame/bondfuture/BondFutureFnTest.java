@@ -239,7 +239,7 @@ public class BondFutureFnTest {
                                                              redemptionValue);
 
     // Need this for time series lookup
-    ExternalId bondId = ExternalSchemes.syntheticSecurityId("Test bond");
+    ExternalId bondId = ExternalSchemes.isinSecurityId("Test bond");
     bond.setExternalIdBundle(bondId.toBundle());
     return bond;
   }
@@ -262,7 +262,7 @@ public class BondFutureFnTest {
     String category = "test";
     
     BondFutureSecurity bondFuture = new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket, firstDeliveryDate, lastDeliveryDate, category);
-    bondFuture.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test bond future").toBundle());
+    bondFuture.setExternalIdBundle(ExternalSchemes.isinSecurityId("Test bond future").toBundle());
 
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));;
     BigDecimal tradeQuantity = BigDecimal.valueOf(1);

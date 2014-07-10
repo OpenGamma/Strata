@@ -131,35 +131,35 @@ public class BondFutureOptionFnTest {
   @BeforeClass
   public void setUp() {
     FunctionModelConfig config = config(
-                                        arguments(
-                                                  function(ConfigDbMarketExposureSelectorFn.class,
-                                                           argument("exposureConfig", ConfigLink.resolvable(BondMockSources.BOND_EXPOSURE_FUNCTIONS, ExposureFunctions.class))),
-                                                  function(RootFinderConfiguration.class,
-                                                           argument("rootFinderAbsoluteTolerance", 1e-9),
-                                                           argument("rootFinderRelativeTolerance", 1e-9),
-                                                           argument("rootFinderMaxIterations", 1000)),
-                                                  function(DefaultDiscountingMulticurveBundleFn.class,
-                                                           argument("impliedCurveNames", StringSet.of())),
-                                                  function(DefaultHistoricalTimeSeriesFn.class,
-                                                           argument("resolutionKey", "DEFAULT_TSS"),
-                                                           argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))
-                                                  )
-                                        ),
-                                        implementations(BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
-                                                        BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
-                                                        CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                                                        FXMatrixFn.class, DefaultFXMatrixFn.class,
-                                                        BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
-                                                        DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                                                        IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
-                                                        IssuerProviderBundleFn.class, InterpolatedIssuerBundleFn.class,
-                                                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                                                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                                                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                                                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                                                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
-                                                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                                                        MarketDataFn.class, DefaultMarketDataFn.class)
+      arguments(
+                function(ConfigDbMarketExposureSelectorFn.class,
+                         argument("exposureConfig", ConfigLink.resolvable(BondMockSources.BOND_EXPOSURE_FUNCTIONS, ExposureFunctions.class))),
+                function(RootFinderConfiguration.class,
+                         argument("rootFinderAbsoluteTolerance", 1e-9),
+                         argument("rootFinderRelativeTolerance", 1e-9),
+                         argument("rootFinderMaxIterations", 1000)),
+                function(DefaultDiscountingMulticurveBundleFn.class,
+                         argument("impliedCurveNames", StringSet.of())),
+                function(DefaultHistoricalTimeSeriesFn.class,
+                         argument("resolutionKey", "DEFAULT_TSS"),
+                         argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))
+                )
+      ),
+      implementations(BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
+                      BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
+                      CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                      FXMatrixFn.class, DefaultFXMatrixFn.class,
+                      BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
+                      DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                      IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
+                      IssuerProviderBundleFn.class, InterpolatedIssuerBundleFn.class,
+                      CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                      DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                      CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                      CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                      HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                      MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                      MarketDataFn.class, DefaultMarketDataFn.class)
     );
 
     ImmutableMap<Class<?>, Object> components = generateComponents();
@@ -248,7 +248,7 @@ public class BondFutureOptionFnTest {
                                                              redemptionValue);
 
     // Need this for time series lookup
-    ExternalId bondId = ExternalSchemes.syntheticSecurityId("Test bond");
+    ExternalId bondId = ExternalSchemes.isinSecurityId("Test bond");
     bond.setExternalIdBundle(bondId.toBundle());
     return bond;
   }
@@ -271,7 +271,7 @@ public class BondFutureOptionFnTest {
     String category = "test";
     
     BondFutureSecurity bondFuture = new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket, firstDeliveryDate, lastDeliveryDate, category);
-    bondFuture.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test bond future").toBundle());
+    bondFuture.setExternalIdBundle(ExternalSchemes.isinSecurityId("Test bond future").toBundle());
     return bondFuture;
   }
   
@@ -287,7 +287,7 @@ public class BondFutureOptionFnTest {
     OptionType optionType = OptionType.PUT;
     boolean margined = true;
     BondFutureOptionSecurity option = new BondFutureOptionSecurity(tradingExchange, settlementExchange, expiry, exerciseType, underlyingId, pointValue, margined, currency, strike, optionType);
-    option.setExternalIdBundle(ExternalSchemes.syntheticSecurityId("Test bond future option").toBundle());
+    option.setExternalIdBundle(ExternalSchemes.isinSecurityId("Test bond future option").toBundle());
     
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
     BigDecimal tradeQuantity = BigDecimal.valueOf(10);
