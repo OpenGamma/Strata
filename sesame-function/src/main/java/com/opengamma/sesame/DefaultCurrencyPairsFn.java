@@ -8,10 +8,10 @@ package com.opengamma.sesame;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.sesame.component.CurrencyPairSet;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -27,10 +27,18 @@ public class DefaultCurrencyPairsFn implements CurrencyPairsFn {
    */
   private final Map<UnorderedCurrencyPair, CurrencyPair> _currencyPairs;
 
-  public DefaultCurrencyPairsFn(Set<CurrencyPair> currencyPairs) {
+  /**
+   * Constructor using a currency pair set. Note that naturally this
+   * would accept a set of currency pairs. However, due to a serialization
+   * bug in Fudge (http://jira.fudgemsg.org/browse/FRJ-128), this does not
+   * work correctly over remote connections.
+   *
+   * @param currencyPairs the currency pairs to be used
+   */
+  public DefaultCurrencyPairsFn(CurrencyPairSet currencyPairs) {
     ArgumentChecker.notNull(currencyPairs, "currencyPairs");
     ImmutableMap.Builder<UnorderedCurrencyPair, CurrencyPair> builder = ImmutableMap.builder();
-    for (CurrencyPair pair : currencyPairs) {
+    for (CurrencyPair pair : currencyPairs.getCurrencyPairs()) {
       builder.put(UnorderedCurrencyPair.of(pair.getBase(), pair.getCounter()), pair);
     }
     _currencyPairs = builder.build();
