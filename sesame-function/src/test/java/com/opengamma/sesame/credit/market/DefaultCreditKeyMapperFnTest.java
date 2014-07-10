@@ -36,7 +36,9 @@ public class DefaultCreditKeyMapperFnTest {
     
     Map<CreditCurveDataKey, CreditCurveDataKey> keyMap = ImmutableMap.of(_source, _target);
     
-    CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder().keyMap(keyMap).build();
+    CreditCurveDataKeyMap configKeyMap = CreditCurveDataKeyMap.builder()
+                                                              .securityCurveMappings(keyMap)
+                                                              .build();
     
     _fn = new DefaultCreditKeyMapperFn(configKeyMap);
   }
