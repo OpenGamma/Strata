@@ -267,9 +267,11 @@ public class CapturedResultsLoader {
 
             // This timeseries overlaps with the previous, we
             // need to extract the dates from this one that weren't
-            // in the previous
+            // in the previous.
+            // We need to skip the first date (as that is already included
+            // in the data) but ensure we include the end date.
             LocalDateDoubleTimeSeries subSeries =
-                timeSeries.subSeriesFast(previousEnd, timeSeries.getLatestTimeFast());
+                timeSeries.subSeriesFast(previousEnd, false, timeSeries.getLatestTimeFast(), true);
             htsMaster.updateTimeSeriesDataPoints(objectId, subSeries);
             previousEnd = timeSeries.getLatestTimeFast();
           }
