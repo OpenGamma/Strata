@@ -348,6 +348,40 @@ public class ResultTest {
         .build();    
   }
 
+  //------------------------------------------------------------------------
+  public void equalsHashCode() {
+    Exception ex = new Exception("Problem");
+    Result<Object> a1 = Result.failure(FailureReason.MISSING_DATA, ex);
+    Result<Object> a2 = Result.failure(FailureReason.MISSING_DATA, ex);
+    Result<Object> b = Result.failure(FailureReason.ERROR, "message 2");
+    Result<Object> c = Result.success("Foo");
+    Result<Object> d = Result.success("Bar");
+    
+    assertEquals(a1.equals(a1), true);
+    assertEquals(a1.equals(a2), true);
+    assertEquals(a1.equals(b), false);
+    assertEquals(a1.equals(c), false);
+    assertEquals(a1.equals(d), false);
+    
+    assertEquals(b.equals(a1), false);
+    assertEquals(b.equals(a2), false);
+    assertEquals(b.equals(b), true);
+    assertEquals(b.equals(c), false);
+    assertEquals(b.equals(d), false);
+    
+    assertEquals(c.equals(a1), false);
+    assertEquals(c.equals(a2), false);
+    assertEquals(c.equals(b), false);
+    assertEquals(c.equals(c), true);
+    assertEquals(c.equals(d), false);
+    
+    assertEquals(d.equals(a1), false);
+    assertEquals(d.equals(a2), false);
+    assertEquals(d.equals(b), false);
+    assertEquals(d.equals(c), false);
+    assertEquals(d.equals(d), true);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     Result<Object> failure = Result.failure(FailureReason.MISSING_DATA, "message 1");
