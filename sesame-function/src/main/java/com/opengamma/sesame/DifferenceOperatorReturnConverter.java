@@ -35,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class DifferenceOperatorReturnConverter implements TimeSeriesReturnConverter, ImmutableBean {
 
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final TimeSeriesReturnConverterFactory.ConversionType _conversionType;
 
   /**
@@ -46,7 +46,7 @@ public class DifferenceOperatorReturnConverter implements TimeSeriesReturnConver
   /**
    * Constructor with the desired difference operator.
    *
-   * @param conversionType the operator to be used, not null
+   * @param conversionType  the type of conversion to be done, not null
    */
   @ImmutableConstructor
   public DifferenceOperatorReturnConverter(TimeSeriesReturnConverterFactory.ConversionType conversionType) {
@@ -101,7 +101,7 @@ public class DifferenceOperatorReturnConverter implements TimeSeriesReturnConver
   //-----------------------------------------------------------------------
   /**
    * Gets the conversionType.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public TimeSeriesReturnConverterFactory.ConversionType getConversionType() {
     return _conversionType;
@@ -312,10 +312,11 @@ public class DifferenceOperatorReturnConverter implements TimeSeriesReturnConver
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code conversionType} property in the builder.
-     * @param conversionType  the new value
+     * @param conversionType  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder conversionType(TimeSeriesReturnConverterFactory.ConversionType conversionType) {
+      JodaBeanUtils.notNull(conversionType, "conversionType");
       this._conversionType = conversionType;
       return this;
     }

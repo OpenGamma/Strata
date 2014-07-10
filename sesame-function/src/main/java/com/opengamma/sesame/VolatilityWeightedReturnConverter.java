@@ -39,13 +39,20 @@ public final class VolatilityWeightedReturnConverter implements TimeSeriesReturn
   private static final TimeSeriesRelativeWeightedDifferenceOperator RELATIVE_WEIGHTED_DIFFERENCE =
       new TimeSeriesRelativeWeightedDifferenceOperator();
 
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final ConversionType _conversionType;
+
   @PropertyDefinition
   private final double _lambda;
 
   private final TimeSeriesWeightedVolatilityOperator _weightedVolatilityOperator;
 
+  /**
+   * Constructor with the desired difference operator.
+   *
+   * @param conversionType  the type of conversion to be done, not null
+   * @param lambda  the lambda value to be used for the weighting, not null
+   */
   @ImmutableConstructor
   public VolatilityWeightedReturnConverter(ConversionType conversionType, double lambda) {
     _conversionType = ArgumentChecker.notNull(conversionType, "conversionType");
@@ -103,7 +110,7 @@ public final class VolatilityWeightedReturnConverter implements TimeSeriesReturn
   //-----------------------------------------------------------------------
   /**
    * Gets the conversionType.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ConversionType getConversionType() {
     return _conversionType;
@@ -344,10 +351,11 @@ public final class VolatilityWeightedReturnConverter implements TimeSeriesReturn
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code conversionType} property in the builder.
-     * @param conversionType  the new value
+     * @param conversionType  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder conversionType(ConversionType conversionType) {
+      JodaBeanUtils.notNull(conversionType, "conversionType");
       this._conversionType = conversionType;
       return this;
     }

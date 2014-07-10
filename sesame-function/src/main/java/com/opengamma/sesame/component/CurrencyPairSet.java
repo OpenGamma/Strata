@@ -86,7 +86,7 @@ public final class CurrencyPairSet implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the required set of strings.
+   * Gets the required set of currency pairs.
    * @return the value of the property, not null
    */
   public Set<CurrencyPair> getCurrencyPairs() {

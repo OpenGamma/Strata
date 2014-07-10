@@ -258,8 +258,19 @@ public class CapturedResultsLoader {
         int previousEnd = Integer.MIN_VALUE;
         for (LocalDateDoubleTimeSeries timeSeries : sorted) {
 
-          if (timeSeries.getEarliestTimeFast() > previousEnd ) {
-            htsMaster.updateTimeSeriesDataPoints(objectId, series.iterator().next());
+          if (timeSeries.getEarliestTimeFast() > previousEnd) {
+
+            htsMaster.updateTimeSeriesDataPoints(objectId, timeSeries);
+            previousEnd = timeSeries.getLatestTimeFast();
+
+          } else if (timeSeries.getLatestTimeFast() > previousEnd) {
+
+            // This timeseries overlaps with the previous, we
+            // need to extract the dates from this one that weren't
+            // in the previous
+            LocalDateDoubleTimeSeries subSeries =
+                timeSeries.subSeriesFast(previousEnd, timeSeries.getLatestTimeFast());
+            htsMaster.updateTimeSeriesDataPoints(objectId, subSeries);
             previousEnd = timeSeries.getLatestTimeFast();
           }
         }
@@ -272,8 +283,6 @@ public class CapturedResultsLoader {
         .put(SecuritySource.class, securitySource)
         .put(HolidaySource.class, holidaySource)
         .put(RegionSource.class, regionSource)
-        // TODO - We should be using currency links in views, not this - see SSM-339
-        //.put(CurrencyMatrix.class, new SimpleCurrencyMatrix())
         .put(HistoricalTimeSeriesSource.class, historicalTimeSeriesSource)
         .put(HistoricalTimeSeriesResolver.class, resolver)
         .put(ConventionBundleSource.class, conventionBundleSource)
@@ -299,6 +308,6 @@ public class CapturedResultsLoader {
    * @param data  config data to be added
    */
   public void addExtraConfigData(String name, ConfigItem<?> data) {
-    additionalConfigData.put(name, data);
+    additionalConfigData.put(ArgumentChecker.notEmpty(name, "name"), ArgumentChecker.notNull(data, "data"));
   }
 }

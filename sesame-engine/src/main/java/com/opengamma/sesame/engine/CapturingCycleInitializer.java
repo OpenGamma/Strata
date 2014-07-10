@@ -6,7 +6,6 @@
 package com.opengamma.sesame.engine;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
@@ -29,6 +28,7 @@ import com.opengamma.core.security.impl.NarrowingSecuritySource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.service.ServiceContext;
+import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.Graph;
@@ -160,8 +160,8 @@ class CapturingCycleInitializer implements CycleInitializer {
               }
             }
             return result;
-          } catch (InvocationTargetException e) {
-            throw e.getCause();
+          } catch (Exception e) {
+            throw EngineUtils.getCause(e);
           }
         }
       };
@@ -208,8 +208,8 @@ class CapturingCycleInitializer implements CycleInitializer {
                 }
               }
               return result;
-            } catch (InvocationTargetException e) {
-              throw e.getCause();
+            } catch (Exception e) {
+              throw EngineUtils.getCause(e);
             }
           }
         };

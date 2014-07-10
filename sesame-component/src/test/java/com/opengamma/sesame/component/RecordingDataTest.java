@@ -135,17 +135,12 @@ public class RecordingDataTest {
     AvailableImplementations availableImplementations = createAvailableImplementations();
 
     ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
-    //MasterConfigSource configSource = (ConfigSource) components.get(ConfigSource.class);
-
-
 
     ViewFactory viewFactory = EngineTestUtils.createViewFactory(components,
                                                                 availableOutputs,
                                                                 availableImplementations);
 
 
-
-    // Run view
     View view = viewFactory.createView(createCurveBundleConfig("TEST"));
 
     ZonedDateTime valTime = LocalDate.of(2014, 6, 1).atStartOfDay(ZoneOffset.UTC);
