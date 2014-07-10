@@ -14,12 +14,12 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
-import com.opengamma.financial.analytics.isda.credit.config.RestructuringSettings;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.credit.config.RestructuringSettings;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
@@ -51,7 +51,16 @@ public class DefaultStandardCdsMarketDataResolverFnTest {
     
     Map<Currency, RestructuringClause> mappings = ImmutableMap.of(_ccy, _clause);
     RestructuringSettings settings = RestructuringSettings.builder().restructuringMappings(mappings).build();
-    _fn = new DefaultStandardCdsMarketDataResolverFn(settings);
+    
+    CreditKeyMapperFn keyMapper = new CreditKeyMapperFn() {
+
+      @Override
+      public Result<CreditCurveDataKey> getMapping(CreditCurveDataKey key) {
+        return Result.success(key);
+      }
+      
+    };
+    _fn = new DefaultStandardCdsMarketDataResolverFn(settings, keyMapper);
     
     _env = mock(Environment.class);
   }
