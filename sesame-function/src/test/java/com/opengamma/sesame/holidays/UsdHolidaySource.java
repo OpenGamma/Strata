@@ -103,7 +103,20 @@ public class UsdHolidaySource extends AbstractSource<Holiday> implements Holiday
 
     SimpleHoliday holiday = new SimpleHoliday(_nonWorkingDay.keySet());
     holiday.setType(holidayType);
-    holiday.setRegionExternalId(regionOrExchangeIds.iterator().next());
+    switch (holidayType) {
+      case BANK:
+        holiday.setRegionExternalId(regionOrExchangeIds.iterator().next());
+        break;
+      case SETTLEMENT:
+      case TRADING:
+        holiday.setExchangeExternalId(regionOrExchangeIds.iterator().next());
+        break;
+      case CUSTOM:
+        holiday.setCustomExternalId(regionOrExchangeIds.iterator().next());
+        break;
+      default:
+        // Do nothing
+    }
     return ImmutableSet.<Holiday>of(holiday);
   }
 

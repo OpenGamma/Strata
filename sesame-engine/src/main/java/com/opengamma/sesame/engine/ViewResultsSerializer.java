@@ -26,17 +26,31 @@ import com.opengamma.util.xml.FormattingXmlStreamWriter;
  * can be restored at a later time. Primarily a wrapper to
  * hide underlying fudge serialization constructs.
  */
-public class ViewInputsSerializer {
+public class ViewResultsSerializer {
 
+  /**
+   * The inputs used for the view.
+   */
   private final ViewInputs _viewInputs;
+
+  /**
+   * The outputs produced by the view.
+   */
+  private final ViewOutputs _viewOutputs;
 
   /**
    * Create a serializer for the specified view inputs instance.
    *
-   * @param viewInputs the view inputs to create a serializer for
+   * @param results the view inputs to create a serializer for
    */
-  public ViewInputsSerializer(ViewInputs viewInputs) {
-    _viewInputs = ArgumentChecker.notNull(viewInputs, "viewInputs");
+  public ViewResultsSerializer(Results results) {
+    ArgumentChecker.notNull(results, "results");
+    _viewInputs = results.getViewInputs();
+    _viewOutputs = ViewOutputs.builder()
+        .columnNames(results.getColumnNames())
+        .nonPortfolioResults(results.getNonPortfolioResults())
+        .rows(results.getRows())
+        .build();
   }
 
   /**
@@ -44,8 +58,20 @@ public class ViewInputsSerializer {
    *
    * @param outputStream the output stream to serialize to
    */
-  public void serialize(OutputStream outputStream) {
+  public void serializeViewInputs(OutputStream outputStream) {
+    serialize(outputStream, _viewInputs);
+  }
 
+  /**
+   * Serialize the view outputs to the specified output stream.
+   *
+   * @param outputStream the output stream to serialize to
+   */
+  public void serializeViewOutputs(OutputStream outputStream) {
+    serialize(outputStream, _viewOutputs);
+  }
+
+  private void serialize(OutputStream outputStream, Object object) {
     try (Writer writer = new OutputStreamWriter(outputStream)) {
       FudgeContext ctx = OpenGammaFudgeContext.getInstance();
 
@@ -54,13 +80,13 @@ public class ViewInputsSerializer {
           .build();
       FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx, xmlStreamWriter);
       FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
-      MutableFudgeMsg msg = (new FudgeSerializer(ctx)).objectToFudgeMsg(_viewInputs);
-      FudgeSerializer.addClassHeader(msg, _viewInputs.getClass());
+      MutableFudgeMsg msg = (new FudgeSerializer(ctx)).objectToFudgeMsg(object);
+      FudgeSerializer.addClassHeader(msg, object.getClass());
       fudgeMsgWriter.writeMessage(msg);
       fudgeMsgWriter.flush();
       writer.close();
     } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Error whilst serializing view inputs", e);
+      throw new OpenGammaRuntimeException("Error whilst serializing", e);
     }
   }
 }

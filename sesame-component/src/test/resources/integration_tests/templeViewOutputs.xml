@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fudgeEnvelope>
+   <columnNames type="message">
+      <fudgeField type="string">Present Value</fudgeField>
+      <fudgeField type="string">Spot PnL Series</fudgeField>
+      <fudgeField type="string">Yield Curve Node Sensitivities (Implied Deposit KRW)</fudgeField>
+      <fudgeField type="string">Yield Curve Node Sensitivities (USD Discounting)</fudgeField>
+      <fudgeField type="string">YCNS P&amp;L Series (KRW Implied Curve)</fudgeField>
+      <fudgeField type="string">YCNS P&amp;L Series (USD Curve)</fudgeField>
+   </columnNames>
+   <rows type="message">
+      <fudgeField type="message">
+         <input type="message">
+            <name type="string"></name>
+            <securityType type="string">FX_FORWARD</securityType>
+            <identifiers type="message"/>
+            <attributes type="message">
+               <fudgeField-1 ordinal="-1" type="indicator"/>
+               <fudgeField-2 ordinal="-2" type="indicator"/>
+            </attributes>
+            <version type="byte">2</version>
+            <payCurrency type="string">KRW</payCurrency>
+            <payAmount type="double">1.0234E7</payAmount>
+            <receiveCurrency type="string">USD</receiveCurrency>
+            <receiveAmount type="double">1000000.0</receiveAmount>
+            <forwardDate type="message">
+               <datetime type="datetime">2014-02-06T12:00Z</datetime>
+               <zone type="string">Z</zone>
+            </forwardDate>
+            <region type="message">
+               <Scheme type="string">ISO_COUNTRY_ALPHA2</Scheme>
+               <Value type="string">US</Value>
+            </region>
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.fx.FXForwardSecurity</fudgeField0>
+            <fudgeField0 ordinal="0" type="string">com.opengamma.financial.security.FinancialSecurity</fudgeField0>
+            <fudgeField0 ordinal="0" type="string">com.opengamma.master.security.ManageableSecurity</fudgeField0>
+            <fudgeField0 ordinal="0" type="string">org.joda.beans.impl.direct.DirectBean</fudgeField0>
+         </input>
+         <items type="message">
+            <fudgeField type="message">
+               <result type="message">
+                  <result type="message">
+                     <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.CurrencyLabelledMatrix1D</fudgeField0>
+                     <matrix type="message">
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">KRW</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">KRW</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-1.0249200422898337E7</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">USD</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">USD</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">999939.2354126008</fudgeField3>
+                     </matrix>
+                  </result>
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.util.result.SuccessResult</fudgeField0>
+               </result>
+            </fudgeField>
+            <fudgeField type="message">
+               <result type="message">
+                  <result type="message">
+                     <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                     <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                     <values type="double[]">-34.97455369473183,-59.99869530349838,-42.81833905936279,-115.1817010904025,-84.21688711872594,-38.57685442910295,20.691729168172905,90.27329688224869,-27.307412358015466,-12.235661273042812,-10.943897427981756,70.91171209241722,-48.554105756249974,-39.6259422033208,3.8705631555709523,33.707381519729715,7.696367884925251,-34.50423175315188,-32.124794190339344,-64.03192493223507,-21.4747172394777,26.968115074109654,0.2735149583802505,30.985000423050863,-18.826549636344954,-26.51744211018603,15.377579583476807,76.14852106335208,63.65735220624422,-25.655670211662805,-24.78254934678516,13.67936238042683,-20.91350380855701,-51.08481388322273,10.475613391448192,-65.64655516210753,64.56299156476847,-46.14524624265233,42.09873042226761,83.28402303059578,22.854336603522317,-2.3243087956990838,-43.54851015252037,-7.7220602424304134</values>
+                  </result>
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.util.result.SuccessResult</fudgeField0>
+               </result>
+            </fudgeField>
+            <fudgeField type="message">
+               <result type="message">
+                  <result type="message">
+                     <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.DoubleLabelledMatrix1D</fudgeField0>
+                     <matrix type="message">
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">0.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">CashNode P7D</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">315148.9365612085</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">1.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">CashNode P1M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">453644.8463151901</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">2.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">CashNode P3M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">2.595324062832449E-10</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">3.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">CashNode P6M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-3.577338573093376E-10</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">4.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">CashNode P12M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-9.258993953888737E-10</fudgeField3>
+                     </matrix>
+                  </result>
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.util.result.SuccessResult</fudgeField0>
+               </result>
+            </fudgeField>
+            <fudgeField type="message">
+               <result type="message">
+                  <result type="message">
+                     <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.DoubleLabelledMatrix1D</fudgeField0>
+                     <matrix type="message">
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">0.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P7D</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-30711.926702896177</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">1.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P1M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-44279.97288442599</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">2.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P3M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">1.668082396144579E-10</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">3.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P6M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-2.904279171600212E-10</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">4.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P1Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-2.2061348360938486E-10</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">5.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P2Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-1.5980486843172987E-12</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">6.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P3Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-3.333625812030194E-11</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">7.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P4Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">8.677415737881685E-12</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">8.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P5Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-2.5138892919972845E-11</fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">java.lang.String</fudgeField0>
+                        <fudgeField1 ordinal="1" type="double">9.0</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">SwapNode P10Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="double">-2.0079837746530845E-11</fudgeField3>
+                     </matrix>
+                  </result>
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.util.result.SuccessResult</fudgeField0>
+               </result>
+            </fudgeField>
+            <fudgeField type="message">
+               <result type="message">
+                  <result type="message">
+                     <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D</fudgeField0>
+                     <matrix type="message">
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P7D</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P7D</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-16.32004508780487,-52.225195140047035,3.187041405488126,-19.607257229418998,47.05059502110033,7.928142395318079,-37.5715640597881,-22.37330537089482,23.060825073326885,1.1516028364515032,22.967847020422965,9.275448999474493,-35.81725346692957,11.474160506623472,19.40120651334401,-13.346592981278341,-18.057094397623835,0.6165089598439446,-20.24545824855143,-1.8700330578561608,20.458255472331164,18.003649881233546,25.780125057680475,-23.791855722350256,-16.700444043631574,-6.489255513199285,36.404771298811454,-21.130264690401095,-5.924333019064343,10.291137108882792,-1.960809012808148,-17.676586234335993,15.87628911614376,-7.561895634509332,-8.507141612162075,-29.59222131666199,35.4229826505652,13.348861125328419,-16.70013032612899,4.575190796080352,8.596366461895784,-0.14873310289617064,26.39363463576737,-43.64346867015645</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P1M</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P1M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-4.43422441390206,-2.337264187235458,4.163700732912616,0.6479167023652646,-3.508361139023546,0.6787121840455254,-1.0244036949756063,4.0113824073383375,-3.8986314384353298,0.48572237047753913,1.2493199465545821,0.5993578980182042,0.46320902789041163,-2.961978463086618,2.1828158614386246,-3.7202088190672513,-3.5272753805343187,4.2898095577031246,-6.569365638280918,1.7313364192182927,-4.902783203693823,7.092552475833114,0.9352086155717283,1.7011229489540227,-1.337507585431796,2.931901779606832,4.27677113485504,-4.345826781715066,-4.9494414207038915,3.9211686001661636,2.9185539305136174,-0.058042014316104985,-2.1666174886758425,-3.5499762408653273,1.5950895016674773,10.334949710244587,-7.668757974409205,-0.5990163448462372,-0.9191840251125603,-0.6678627736144505,1.5521138172726823,0.5135553576444086,-3.671363099345029,-2.756094284534965</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P3M</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P3M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">1.5083315285880134E-15,-1.9691864534128953E-15,3.605270623888709E-15,-7.917482749825372E-16,-1.3761982629967061E-15,3.693359185903536E-16,-1.3652003613953185E-15,3.64977977674523E-15,-2.2755725638906785E-15,-6.927011292496208E-16,1.0105810498205426E-15,3.0215981520867106E-16,1.4164160459080578E-15,-2.868398716894175E-15,2.1588315643973593E-15,-3.100316736336381E-15,-2.7879226013266176E-15,3.1469320026947777E-15,-3.45174872059596E-15,1.6748019234203103E-15,-2.8877899326797293E-15,3.2685441011038307E-15,-7.210096395899495E-16,7.696942983164104E-16,-3.9577575004226635E-16,1.076521444746132E-15,6.013673462353768E-16,-1.1019466343992719E-15,-1.4916180193657741E-15,1.1422089572685893E-15,1.3797525284926658E-15,-1.0334128768030698E-15,1.1203530180637212E-15,-9.744517980586973E-16,1.989089880765931E-16,5.378971668797609E-15,-4.224354442939851E-15,1.2568749400885345E-16,4.601951952268072E-16,-6.513127834419741E-16,1.1955535772265053E-16,-1.4405572165039456E-16,-4.310583788994396E-16,-2.7135481391145284E-16</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P6M</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P6M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-6.645780713305614E-16,-1.76393482517296E-16,-2.4818513026156684E-16,1.3181011572310034E-15,-1.14365586279444E-15,4.1214449058919425E-16,-2.692619446383495E-16,-5.083161694986571E-16,7.173646661707099E-16,-4.4257813515224466E-16,2.8413542325565973E-16,-1.3918855594796694E-16,-3.8301310013291667E-16,8.410122515186789E-16,-6.45489367537136E-17,3.81532413422812E-16,1.5700191716649075E-15,-6.440708155465885E-16,9.1055989258832E-16,-3.755944640592135E-18,6.220814799684158E-16,-1.6839745315030577E-15,7.929933681230552E-16,-9.602367726162138E-16,6.294605859089606E-16,-5.779612598174557E-16,-1.311692824863068E-16,5.873239753226408E-16,2.0951366878106737E-16,-1.089547056912273E-15,-1.278671507435828E-16,9.501375949963185E-16,-6.052008165920233E-16,-2.5038664893720578E-17,5.943572596383793E-16,-1.921217493862142E-15,1.4444154923028263E-15,2.2267651595520646E-16,-2.21793621727033E-16,9.742371632654786E-18,-3.089479300673457E-17,4.905867681837059E-17,5.157553105274554E-16,2.504452622254552E-16</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P12M</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P12M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">1.6615438030301513E-15,2.125614469093746E-16,-1.3642026909939528E-16,2.7027926107574593E-15,-2.629490924930021E-15,8.135255115830245E-16,-9.308752447134594E-16,-1.744853517990402E-15,1.7720098405864469E-15,-9.139689049223104E-16,1.2125826976760128E-15,-1.1210008060971623E-15,-6.653239472623055E-16,1.5368686583056935E-15,-1.475899149764771E-15,3.0354668290578226E-15,3.611091004519846E-15,-2.665253867092E-15,2.032974717172619E-15,3.0375094965884703E-16,9.781730867321105E-16,-1.7038340652983026E-15,-9.152897767593061E-16,-1.8850277160298045E-15,1.9411778241890657E-15,-8.107087608106246E-16,-7.639330105916117E-16,2.19748597074337E-15,8.959057463989677E-16,-1.626678602040099E-15,-1.6530591757553172E-15,6.629588185214364E-16,-3.91289172699384E-16,2.6067231031586513E-17,1.1031007421271685E-15,-4.5732093353777004E-15,6.1448975487826336E-15,-3.858293594382314E-15,-4.787955893419714E-17,1.2229080082709223E-16,2.3468815578952814E-16,1.0269041866292717E-15,-2.8649332549690584E-16,6.960273384201153E-16</values>
+                        </fudgeField3>
+                     </matrix>
+                  </result>
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.util.result.SuccessResult</fudgeField0>
+               </result>
+            </fudgeField>
+            <fudgeField type="message">
+               <result type="message">
+                  <result type="message">
+                     <fudgeField0 ordinal="0" type="string">com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D</fudgeField0>
+                     <matrix type="message">
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P7D</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P7D</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-2.1617317287310875,-0.0,-0.0,1.1754209388017989,-0.0,-2.40614897649732,0.3100276679725772,-0.0,2.813469173866573,-0.6431457504516666,-4.547911440868685,-0.2930141426918333,-0.0,2.1182351063594416,-2.120771211002843,2.9456639366982103,-0.906643504912245,-2.399723976105359,0.3092008365897988,2.164245128549196,-2.450796696292137,-0.3157731427589362,2.207397957218835,2.204575970672093,-0.6479172081226091,0.33389855042701566,-1.3610785931897915,-2.675550499410467,-0.0,4.096739031393041,5.555894019587793,-0.0,1.0667612910025834,2.3836227452245544,1.3497744266107228,-7.364522135508724,1.8564889331671126,-1.5702245993232404,-0.0,0.33385120539731217,2.011657190892334,-0.0,3.3069010448424643,-3.838990837862019</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P1M</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P1M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">2.1672703969029334,-3.9902682350225303,-0.0,-0.0,0.43729974060182336,0.8974282571926432,0.23132753862059224,-1.1822822005225728,1.4437056740168206,-2.822535487085509,0.9646232534924276,-0.988701578186803,4.580502485059968,-3.510603042011882,-0.4254966024666002,3.606728860349441,-4.044022934019687,-0.37884235584259895,-0.9709651582195201,2.4979105951463616,-0.789575013666817,-1.4070366102186784,2.5782114664492783,1.6091528523412904,-0.826231023742652,0.2129863219796853,-3.4406100911741606,1.6410107054283274,-1.66242845176663,1.2726258856419197,0.2187020536615994,1.1188161914844226,-0.0,-2.2987173770167977,0.4735096473605607,-0.0,2.6439448727873964,-0.2478137340150363,-4.426325839474411,2.6167088055109673,2.3826266552414164,-1.539988276164541,2.798412907435633,-0.6641995932663916</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P3M</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P3M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-8.901040035894892E-15,5.758752852230316E-15,6.598578541293001E-16,-5.670904406800514E-16,1.1692125581942911E-15,-3.600053739074011E-15,-2.4697240328104817E-15,6.367336882400917E-16,-7.94648129384296E-15,9.80181379224619E-15,0.0,-8.55498727255066E-15,1.3269494299646079E-14,-3.887964131396396E-15,3.985931339726413E-15,5.480942131425725E-16,2.2568985602025455E-15,-2.3230515579796715E-15,-5.989298148143015E-16,-3.0776467950114697E-15,-1.5871600070470806E-16,1.6370139411856471E-16,-1.0506216540732117E-14,1.1823141197721268E-14,-3.879976521914058E-15,3.97784068885598E-15,-8.54519758479249E-16,9.367402715230796E-15,7.724397160631352E-15,-1.5263711060110207E-14,1.1050905088013179E-14,-4.841367910673403E-15,8.877347070338045E-15,-2.4912929186679517E-15,-8.336783034480448E-15,1.7945026931674918E-14,-1.537334224680255E-14,-1.4403573409475202E-15,3.1083571689462242E-15,-1.5266653956571803E-16,-1.5731588459290633E-15,-1.6225732818758604E-16,1.8385544282180246E-15,-9.17445317879519E-15</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P6M</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P6M</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-1.0590202755082013E-14,-3.6281436812833205E-15,-0.0,1.762268027210177E-14,-7.169887493105225E-15,-0.0,1.6558048906651718E-14,6.4670485819773164E-15,-5.513164076632827E-15,-5.63783963893475E-15,5.763093835232672E-15,-2.0833972278183057E-14,1.0427140367552545E-14,-0.0,1.3994062358425716E-14,-1.6650534282028135E-14,-1.309374245268063E-14,1.1094960187538266E-14,-8.259423456474251E-15,1.0261633343222194E-14,-6.744823291931067E-15,3.4671738624769365E-15,3.5639457866563884E-15,-6.8948787800380664E-15,-1.446192530247117E-14,3.625318043107435E-15,2.6556272588860036E-14,-3.233013230827645E-14,-1.0130514211126137E-14,6.2044054308755246E-15,-1.0355152697839537E-14,8.382290601036113E-15,-0.0,-2.226374782698317E-15,2.293098054267281E-15,4.702239250282475E-15,2.4211891451754197E-15,2.4931104376966405E-15,-5.106889704357591E-15,-0.0,-0.0,3.0741618858075903E-15,-3.1622630323342675E-15,8.712837514800596E-15</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P1Y</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P1Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-1.582247144670276E-14,9.681181086362068E-15,2.3733339283714265E-14,4.2480136451815645E-15,-3.2818745973563E-15,-1.0031774379965049E-14,1.7691298307780297E-14,1.7559997089173377E-14,-1.9431895444852105E-14,1.1133051543191464E-15,1.1305619880107026E-14,-1.5827543893305816E-14,-8.098035158318608E-15,9.443143710170374E-15,-7.258627107966602E-15,-7.4369175644836E-15,3.8285548545661574E-15,1.0393078916834935E-14,-1.1854766826731964E-14,-0.0,-0.0,-1.4449407605911355E-15,-2.2369921262546514E-14,-1.441691541283035E-15,-1.1699191981197221E-14,1.4688357474022303E-14,-2.7431787582893907E-14,-2.1361458619098502E-14,-0.0,-1.1190665988848007E-14,1.442426569822488E-15,7.389906744832407E-15,-2.026449132833881E-14,1.7263656793642275E-14,1.3078005999593956E-14,5.9694269633056445E-15,-2.5462994581373994E-14,1.557605914900838E-14,-7.256268349554707E-15,1.9933217145730328E-14,-1.830813970282584E-14,1.0044307630994148E-14,-3.8193849479044545E-14,2.867975286921996E-14</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P2Y</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P2Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-2.6138540928925785E-16,-1.3373640968221491E-16,9.712641271839007E-16,5.720662885389727E-16,-7.676252531097438E-17,-2.0711692941266072E-16,-2.669474338756294E-17,4.697271826171069E-16,1.5144708095807353E-16,-1.2921361049636716E-16,7.974062407140826E-17,8.200296689700659E-17,8.43151696649729E-17,5.78909261256099E-17,-4.583342939270393E-16,8.317017896851659E-17,-4.204937527536755E-16,1.868160561038319E-16,1.3650219171052457E-16,1.1201078677852695E-16,-6.858995592929713E-16,1.1345826344221196E-16,-5.865543763121959E-16,-5.646743890726703E-16,-1.227232982321971E-16,2.792425331539356E-16,4.2861368442163825E-16,-6.787477936984495E-17,-8.487126417105053E-16,-2.24638056440945E-16,-1.2058740751631352E-16,-3.2326876803154577E-16,3.3326363080313334E-17,1.5862751686112266E-16,2.922343047636648E-16,-2.796913908943017E-16,-1.5972856280582155E-16,4.7024967759315623E-17,-3.845683786627675E-16,2.70822411498452E-16,-2.2742848197727124E-16,-5.446439517953636E-16,-2.0421287254346522E-16,6.951511776780251E-16</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P3Y</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P3Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-9.549296202668622E-15,1.9265812790430025E-14,2.6617487760859586E-14,6.5605592053116486E-15,-0.0,1.7430846149930806E-15,1.039647292790763E-14,-1.1132984890470257E-14,1.764773198355686E-15,-0.0,-9.384371393102893E-16,-3.852742746657737E-15,-3.953316077046233E-15,1.0190352365078561E-15,-2.2943453226700715E-14,1.2457574900021288E-14,-2.042823574075199E-14,3.0010846230740172E-15,-1.7879263302434215E-14,4.9251185481620536E-15,4.3272694792965545E-15,-2.9668627480941122E-15,-2.3693316781104096E-14,-1.2996788449013087E-14,6.0201663199445715E-15,2.8446859827637867E-14,-1.7273785966744788E-14,-4.425347392424949E-15,-2.2409574335577536E-14,-6.559093901398041E-15,-7.343460250459903E-15,-9.447951519031173E-15,-7.217146603529747E-16,4.437324995823359E-15,6.761095542137076E-15,-6.494097126860754E-15,-7.878566818553351E-16,1.6238138073511157E-15,-4.983289945446664E-15,2.564369699177175E-15,-4.407960523338054E-16,-2.158161037903038E-14,-7.289062561040757E-15,2.1001842615790204E-14</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P4Y</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P4Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">2.8194575999187263E-15,-3.360774673983694E-15,-4.5090541283791885E-15,-1.4626686699972836E-15,-1.1546292925741572E-15,1.1908454469771745E-16,-3.682903220656836E-16,2.115873091272911E-15,-2.5668397074936006E-16,-5.289392361444968E-16,2.7270301586044725E-16,2.3408469688329185E-15,-1.548064575295815E-15,7.243372863549318E-16,5.407937064604448E-15,-2.8966732292956415E-15,5.1107090394411E-15,7.514355742461419E-16,3.562157627735628E-15,-1.1346795074174152E-15,-1.6725386611701643E-15,3.9786024591979666E-16,5.612831654652263E-15,3.832786289527965E-15,-7.173694767190714E-16,-1.9447282679942555E-15,1.1228998656908453E-15,3.0984236172338645E-15,6.156525583091173E-15,2.5010510893562194E-15,5.601263168999258E-16,4.650555822425716E-15,-7.614369597464538E-16,1.2271073899868562E-15,-2.790687078788274E-15,-9.181447031994511E-16,3.996375534830957E-15,0.0,-2.3137147925900297E-15,-3.577892128891461E-16,-1.2300344137264166E-16,6.837770504154787E-15,1.768230067303974E-15,-6.768384275547711E-15</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P5Y</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P5Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-9.648624197044844E-15,1.6074289261641887E-14,1.3983276500004961E-14,6.010617735771012E-15,4.920732312356002E-15,-0.0,-1.4945862994691244E-15,-1.1601239281049027E-14,1.3287727265454824E-15,3.122767576505264E-15,1.6091001515910153E-15,-1.1507612097980826E-14,8.014431846704851E-15,-5.323765864305388E-15,-2.001043461627816E-14,1.1321827129688215E-14,-1.6075822497891375E-14,-2.438819743777567E-15,-9.420871627885507E-15,5.3482799721572705E-15,6.1745539523610735E-15,3.7460459620625473E-16,-1.9979199216698484E-14,-9.342207403838919E-15,1.0320474987377901E-15,3.884056850066131E-15,-6.815267040238315E-15,-1.8478085848304144E-15,-2.142887673397983E-14,-8.226532539676587E-15,-2.9860956548865458E-15,-1.3073971826560242E-14,2.8228606811747422E-15,-5.261731204601076E-15,6.2232412553855E-15,3.551467185309217E-15,-1.4625216039790343E-14,-2.1018513855065467E-15,1.0126017665413955E-14,6.049814640937434E-15,1.83327811233852E-15,-2.239827307888392E-14,-4.463138229716137E-15,2.5390281849172543E-14</values>
+                        </fudgeField3>
+                        <fudgeField0 ordinal="0" type="string">com.opengamma.util.time.Tenor</fudgeField0>
+                        <fudgeField1 ordinal="1" type="string">P10Y</fudgeField1>
+                        <fudgeField2 ordinal="2" type="string">P10Y</fudgeField2>
+                        <fudgeField3 ordinal="3" type="message">
+                           <fudgeField0 ordinal="0" type="string">com.opengamma.timeseries.DoubleTimeSeries</fudgeField0>
+                           <dates type="int[]">20131112,20131113,20131114,20131115,20131118,20131119,20131120,20131121,20131122,20131125,20131126,20131127,20131128,20131129,20131202,20131203,20131204,20131205,20131206,20131209,20131210,20131211,20131212,20131213,20131216,20131217,20131218,20131219,20131220,20131223,20131224,20131225,20131226,20131227,20131230,20131231,20140101,20140102,20140103,20140106,20140107,20140108,20140109,20140110</dates>
+                           <values type="double[]">-9.311541247582628E-15,5.61749880543607E-15,5.266774091081675E-16,5.5881772794688155E-15,4.512376633211996E-15,5.675173716557947E-16,-5.104426530909769E-15,-6.255261634383328E-15,2.0663887170143203E-15,1.0026238976968742E-15,2.065200768364999E-15,-5.789421519436913E-15,2.0327689267224185E-15,-8.384524043234595E-16,-9.096461947085645E-15,4.160792603228022E-15,-8.646307256912381E-15,-7.430234427790346E-16,-1.2255548601123625E-15,5.012111663797881E-15,3.21939141288567E-15,1.1616492865710806E-15,-8.34923965439841E-15,-2.40640721145961E-15,-1.5941803145395783E-15,2.914545043018794E-15,-4.293650068525955E-15,-2.4976913764698856E-15,-2.963460020380161E-15,-3.65093536423681E-15,-3.953302663429901E-15,-1.0326796257549338E-14,4.442878030956427E-15,-6.451435226517647E-15,6.554489249528923E-15,-1.3512334550724232E-15,-1.5129548455391027E-14,-0.0,1.1259163831908955E-14,5.9553428994240256E-15,-2.274947111708259E-16,-1.0798854420877835E-14,4.640557475734742E-16,2.0682232878926693E-14</values>
+                        </fudgeField3>
+                     </matrix>
+                  </result>
+                  <fudgeField0 ordinal="0" type="string">com.opengamma.util.result.SuccessResult</fudgeField0>
+               </result>
+            </fudgeField>
+         </items>
+      </fudgeField>
+   </rows>
+   <nonPortfolioResults type="message"/>
+   <fudgeField0 ordinal="0" type="string">com.opengamma.sesame.engine.ViewOutputs</fudgeField0>
+</fudgeEnvelope>

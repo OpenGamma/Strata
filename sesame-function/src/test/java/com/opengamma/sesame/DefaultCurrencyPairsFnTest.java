@@ -5,20 +5,20 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
-import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static com.opengamma.util.money.Currency.AUD;
 import static com.opengamma.util.money.Currency.EUR;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.USD;
+import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import static com.opengamma.util.result.SuccessStatus.SUCCESS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.sesame.component.CurrencyPairSet;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
@@ -31,10 +31,8 @@ public class DefaultCurrencyPairsFnTest {
 
   @BeforeMethod
   public void setUp() {
-
-    ImmutableSet<CurrencyPair> pairs = ImmutableSet.of(
-        CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD));
-    _pairsFunction = new DefaultCurrencyPairsFn(pairs);
+    _pairsFunction = new DefaultCurrencyPairsFn(
+        CurrencyPairSet.of(CurrencyPair.of(EUR, USD), CurrencyPair.of(GBP, USD)));
   }
 
   @Test

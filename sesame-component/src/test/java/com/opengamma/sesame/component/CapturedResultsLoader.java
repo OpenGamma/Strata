@@ -5,12 +5,20 @@
  */
 package com.opengamma.sesame.component;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.opengamma.core.config.ConfigSource;
@@ -24,9 +32,12 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.financial.currency.CurrencyMatrix;
-import com.opengamma.financial.currency.SimpleCurrencyMatrix;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.DefaultConventionBundleSource;
+import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
@@ -38,6 +49,9 @@ import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.master.convention.impl.InMemoryConventionMaster;
 import com.opengamma.master.convention.impl.MasterConventionSource;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
@@ -68,8 +82,10 @@ import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.FieldName;
+import com.opengamma.sesame.marketdata.HtsRequestKey;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
@@ -86,6 +102,7 @@ public class CapturedResultsLoader {
   private final ViewInputs _viewInputs;
   private final AvailableOutputs _availableOutputs;
   private final AvailableImplementations _availableImplementations;
+  private final Multimap<String, ConfigItem<?>> additionalConfigData = HashMultimap.create();
 
   /**
    * Creates a new loader.
@@ -117,8 +134,8 @@ public class CapturedResultsLoader {
     ViewFactory viewFactory =
         EngineTestUtils.createViewFactory(components, _availableOutputs, _availableImplementations);
 
-    // Run view
-    View view = viewFactory.createView(_viewInputs.getViewConfig());
+    Set<Class<?>> inputTypes = extractInputTypes(_viewInputs.getTradeInputs());
+    View view = viewFactory.createView(_viewInputs.getViewConfig(), inputTypes);
 
     ZonedDateTime valTime = _viewInputs.getValuationTime();
 
@@ -156,11 +173,24 @@ public class CapturedResultsLoader {
         ThreadLocalServiceContext.getInstance().get(VersionCorrectionProvider.class).getConfigVersionCorrection();
 
     CycleArguments cycleArguments = new CycleArguments(valTime, versionCorrection, cycleMarketDataFactory);
-    return view.run(cycleArguments);
+    return view.run(cycleArguments, _viewInputs.getTradeInputs());
+  }
+
+  private Set<Class<?>> extractInputTypes(List<Object> tradeInputs) {
+    Set<Class<?>> inputTypes = new HashSet<>();
+    for (Object tradeInput : tradeInputs) {
+      inputTypes.add(tradeInput.getClass());
+    }
+    return inputTypes;
   }
 
   private ImmutableMap<Class<?>, Object> createComponents(Multimap<Class<?>, UniqueIdentifiable> configData) {
     ConfigMaster configMaster = new InMemoryConfigMaster();
+    for (Map.Entry<String, ConfigItem<?>> entry : additionalConfigData.entries()) {
+      ConfigDocument document = new ConfigDocument(entry.getValue());
+      document.setName(entry.getKey());
+      configMaster.add(document);
+    }
     for (UniqueIdentifiable item : configData.get(ConfigSource.class)) {
       configMaster.add(new ConfigDocument((ConfigItem<?>) item));
     }
@@ -192,12 +222,62 @@ public class CapturedResultsLoader {
     }
 
     RegionSource regionSource = new MasterRegionSource(regionMaster);
+    ConventionBundleSource conventionBundleSource =
+        new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
 
-    // TODO - this currently doesn't return data - see SSM-338
     InMemoryHistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
-    MasterHistoricalTimeSeriesSource historicalTimeSeriesSource =
-        new MasterHistoricalTimeSeriesSource(htsMaster, new DefaultHistoricalTimeSeriesResolver(
-            new DefaultHistoricalTimeSeriesSelector(configSource), htsMaster));
+    HistoricalTimeSeriesResolver resolver = new DefaultHistoricalTimeSeriesResolver(
+        new DefaultHistoricalTimeSeriesSelector(configSource), htsMaster);
+    HistoricalTimeSeriesSource historicalTimeSeriesSource =
+        new MasterHistoricalTimeSeriesSource(htsMaster, resolver);
+
+    Multimap<HtsRequestKey, LocalDateDoubleTimeSeries> htsData = _viewInputs.getHtsData();
+    for (HtsRequestKey htsKey : htsData.keySet()) {
+      ManageableHistoricalTimeSeriesInfo htsInfo = new ManageableHistoricalTimeSeriesInfo();
+      htsInfo.setExternalIdBundle(ExternalIdBundleWithDates.of(htsKey.getIdentifierBundle()));
+      htsInfo.setDataSource(htsKey.getDataSource() == null ? "Blah" : htsKey.getDataSource());
+      htsInfo.setDataProvider(htsKey.getDataProvider() == null ? "Blah" : htsKey.getDataProvider());
+      htsInfo.setObservationTime("blah");
+      htsInfo.setDataField(htsKey.getDataField());
+
+      ObjectId objectId  = htsMaster.add(new HistoricalTimeSeriesInfoDocument(htsInfo)).getObjectId();
+
+      Collection<LocalDateDoubleTimeSeries> series = htsData.get(htsKey);
+      if (series.size() == 1) {
+        htsMaster.updateTimeSeriesDataPoints(objectId, series.iterator().next());
+      } else {
+
+        List<LocalDateDoubleTimeSeries> sorted = new ArrayList<>(series);
+        Collections.sort(sorted, new Comparator<LocalDateDoubleTimeSeries>() {
+          @Override
+          public int compare(LocalDateDoubleTimeSeries o1, LocalDateDoubleTimeSeries o2) {
+            return o1.getEarliestTimeFast() - o2.getEarliestTimeFast();
+          }
+        });
+
+        int previousEnd = Integer.MIN_VALUE;
+        for (LocalDateDoubleTimeSeries timeSeries : sorted) {
+
+          if (timeSeries.getEarliestTimeFast() > previousEnd) {
+
+            htsMaster.updateTimeSeriesDataPoints(objectId, timeSeries);
+            previousEnd = timeSeries.getLatestTimeFast();
+
+          } else if (timeSeries.getLatestTimeFast() > previousEnd) {
+
+            // This timeseries overlaps with the previous, we
+            // need to extract the dates from this one that weren't
+            // in the previous.
+            // We need to skip the first date (as that is already included
+            // in the data) but ensure we include the end date.
+            LocalDateDoubleTimeSeries subSeries =
+                timeSeries.subSeriesFast(previousEnd, false, timeSeries.getLatestTimeFast(), true);
+            htsMaster.updateTimeSeriesDataPoints(objectId, subSeries);
+            previousEnd = timeSeries.getLatestTimeFast();
+          }
+        }
+      }
+    }
 
     return ImmutableMap.<Class<?>, Object>builder()
         .put(ConfigSource.class, configSource)
@@ -205,9 +285,31 @@ public class CapturedResultsLoader {
         .put(SecuritySource.class, securitySource)
         .put(HolidaySource.class, holidaySource)
         .put(RegionSource.class, regionSource)
-        // TODO - We should be using currency links in views, not this - see SSM-339
-        .put(CurrencyMatrix.class, new SimpleCurrencyMatrix())
         .put(HistoricalTimeSeriesSource.class, historicalTimeSeriesSource)
+        .put(HistoricalTimeSeriesResolver.class, resolver)
+        .put(ConventionBundleSource.class, conventionBundleSource)
         .build();
+  }
+
+  /**
+   * Add extra config data items. Intended for items that cannot currently
+   * be captured by the ViewInputs e.g. config links.
+   *
+   * @param data  config data to be added
+   */
+  public void addExtraConfigData(ConfigItem<?> data) {
+    addExtraConfigData(data.getName(), data);
+  }
+
+
+  /**
+   * Add extra config data items with a specific name. Intended for items
+   * that cannot currently be captured by the ViewInputs e.g. config links.
+   *
+   * @param name  the name for the config item
+   * @param data  config data to be added
+   */
+  public void addExtraConfigData(String name, ConfigItem<?> data) {
+    additionalConfigData.put(ArgumentChecker.notEmpty(name, "name"), ArgumentChecker.notNull(data, "data"));
   }
 }

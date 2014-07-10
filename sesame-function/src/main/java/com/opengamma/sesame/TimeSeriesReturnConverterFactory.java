@@ -5,10 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
-import com.opengamma.analytics.financial.timeseries.util.TimeSeriesPercentageChangeOperator;
-import com.opengamma.analytics.financial.timeseries.util.TimeSeriesWeightedVolatilityOperator;
-
 /**
  * Helper methods to create time series conversions for creating return series.
  */
@@ -20,21 +16,25 @@ public final class TimeSeriesReturnConverterFactory {
   private TimeSeriesReturnConverterFactory() {
   }
 
+  enum ConversionType {
+    ABSOLUTE, RELATIVE
+  }
+
   //-------------------------------------------------------------------------
   public static TimeSeriesReturnConverter absolute() {
-    return new DifferenceOperatorReturnConverter(new TimeSeriesDifferenceOperator());
+    return new DifferenceOperatorReturnConverter(ConversionType.ABSOLUTE);
   }
 
   public static TimeSeriesReturnConverter relative() {
-    return new DifferenceOperatorReturnConverter(new TimeSeriesPercentageChangeOperator());
-  }
-
-  public static TimeSeriesReturnConverter relativeVolatilityWeighted(double lambda) {
-    return new VolatilityWeightedReturnConverter(TimeSeriesWeightedVolatilityOperator.relative(lambda));
+    return new DifferenceOperatorReturnConverter(ConversionType.RELATIVE);
   }
 
   public static TimeSeriesReturnConverter absoluteVolatilityWeighted(double lambda) {
-    return new VolatilityWeightedReturnConverter(TimeSeriesWeightedVolatilityOperator.absolute(lambda));
+    return new VolatilityWeightedReturnConverter(ConversionType.ABSOLUTE, lambda);
+  }
+
+  public static TimeSeriesReturnConverter relativeVolatilityWeighted(double lambda) {
+    return new VolatilityWeightedReturnConverter(ConversionType.RELATIVE, lambda);
   }
 
 }

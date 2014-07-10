@@ -35,7 +35,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
@@ -90,6 +89,7 @@ import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.TimeSeriesReturnConverterFactory;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
+import com.opengamma.sesame.component.CurrencyPairSet;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
 import com.opengamma.sesame.config.EngineUtils;
@@ -193,7 +193,7 @@ public class FXForwardPnlSeriesFunctionTest {
     Environment env = new SimpleEnvironment(s_valuationTime, dataSource);
 
     for (int i = 0; i < nRuns; i++) {
-      result = pvFunction.calculatePnlSeries(env, security, date);
+      result = pvFunction.calculatePnlSeries(env, security);
       System.out.println();
     }
     System.out.println(TracingProxy.end().prettyPrint());
@@ -220,9 +220,9 @@ public class FXForwardPnlSeriesFunctionTest {
                          argument("rootFinderRelativeTolerance", 1e-9),
                          argument("rootFinderMaxIterations", 1000)),
                 function(DefaultCurrencyPairsFn.class,
-                         argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                   CurrencyPair.of(EUR, USD),
-                                                                   CurrencyPair.of(GBP, USD)))),
+                         argument("currencyPairs", CurrencyPairSet.of(CurrencyPair.of(USD, JPY),
+                                                                      CurrencyPair.of(EUR, USD),
+                                                                      CurrencyPair.of(GBP, USD)))),
                 function(DefaultHistoricalTimeSeriesFn.class,
                          argument("resolutionKey", "DEFAULT_TSS"),
                          argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))),

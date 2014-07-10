@@ -21,7 +21,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * an input stream. Primarily a wrapper to hide underlying
  * fudge deserialization constructs.
  */
-public class ViewInputsDeserializer {
+public class ViewResultsDeserializer {
 
   private final InputStream _inputStream;
 
@@ -30,22 +30,26 @@ public class ViewInputsDeserializer {
    *
    * @param inputStream the stream to create a deserializer for
    */
-  public ViewInputsDeserializer(InputStream inputStream) {
+  public ViewResultsDeserializer(InputStream inputStream) {
     _inputStream = ArgumentChecker.notNull(inputStream, "inputStream");
   }
 
   /**
-   * Deserialize the view inputs from the input stream.
+   * Deserialize the requested object from the input stream.
+   * Generally, this will either be a {@link ViewInputs} or a
+   * {@link ViewOutputs} object.
    *
-   * @return the deserialized ViewInputs object
+   * @param clss the class for the type of object to be returned
+   * @param <T> the type of the object to be returned
+   * @return the deserialized object
    */
-  public ViewInputs deserialize() {
+  public <T> T deserialize(Class<T> clss) {
 
     // Configure view from file
     FudgeContext ctx = OpenGammaFudgeContext.getInstance();
     FudgeXMLStreamReader reader = new FudgeXMLStreamReader(ctx, new InputStreamReader(_inputStream));
     FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(reader);
     FudgeDeserializer deserializer = new FudgeDeserializer(ctx);
-    return deserializer.fudgeMsgToObject(ViewInputs.class, fudgeMsgReader.nextMessage());
+    return deserializer.fudgeMsgToObject(clss, fudgeMsgReader.nextMessage());
   }
 }

@@ -10,10 +10,10 @@ import java.util.Map;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
-import com.opengamma.financial.analytics.isda.credit.config.RestructuringSettings;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.credit.config.RestructuringSettings;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
@@ -31,15 +31,18 @@ public class DefaultStandardCdsMarketDataResolverFn implements StandardCdsMarket
   //JPY -> CR
   //EUR -> MM
   private final RestructuringSettings _restructuringSettings;
-  
+  private final CreditKeyMapperFn _creditKeyMapperFn;
   /**
    * Creates an instance of the function.
    * 
    * @param restructuringSettings the settings to use for 
+   * @param creditKeyMapperFn credit key mapper function to use
    * inferring restructuring clauses on standard CDSs.
    */
-  public DefaultStandardCdsMarketDataResolverFn(RestructuringSettings restructuringSettings) {
+  public DefaultStandardCdsMarketDataResolverFn(RestructuringSettings restructuringSettings,
+                                                CreditKeyMapperFn creditKeyMapperFn) {
     _restructuringSettings = ArgumentChecker.notNull(restructuringSettings, "restructuringSettings");
+    _creditKeyMapperFn = ArgumentChecker.notNull(creditKeyMapperFn, "creditKeyMapperFn");
   }
 
   @Override
@@ -64,7 +67,7 @@ public class DefaultStandardCdsMarketDataResolverFn implements StandardCdsMarket
                                 .restructuring(restructuringClause)
                                 .build();
     
-    return Result.success(key);
+    return _creditKeyMapperFn.getMapping(key);
   }
 
 }

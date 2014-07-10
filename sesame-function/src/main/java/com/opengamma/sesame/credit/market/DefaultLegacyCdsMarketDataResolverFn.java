@@ -11,6 +11,7 @@ import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
@@ -20,6 +21,17 @@ import com.opengamma.util.result.Result;
  * key construction is a simple case of copying fields over to the key object.
  */
 public class DefaultLegacyCdsMarketDataResolverFn implements LegacyCdsMarketDataResolverFn {
+
+  private final CreditKeyMapperFn _creditKeyMapperFn;
+  
+  /**
+   * Creates an instance.
+   * 
+   * @param creditKeyMapperFn 
+   */
+  public DefaultLegacyCdsMarketDataResolverFn(CreditKeyMapperFn creditKeyMapperFn) {
+    _creditKeyMapperFn = ArgumentChecker.notNull(creditKeyMapperFn, "creditKeyMapperFn");
+  }
 
   @Override
   public Result<CreditCurveDataKey> resolve(Environment env, LegacyCDSSecurity security) {
@@ -34,8 +46,9 @@ public class DefaultLegacyCdsMarketDataResolverFn implements LegacyCdsMarketData
         .seniority(seniority)
         .restructuring(restructuringClause)
         .build();
-
-    return Result.success(key);
+    
+    return _creditKeyMapperFn.getMapping(key);
+    
   }
 
 }
