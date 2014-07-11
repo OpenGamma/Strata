@@ -20,7 +20,7 @@ import com.opengamma.util.result.Result;
 /**
  * Discounting calculator for bond.
  */
-public class BondDiscountingCalculator implements BondCalculator {
+public class DiscountingBondCalculator implements BondCalculator {
 
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
 
@@ -28,7 +28,7 @@ public class BondDiscountingCalculator implements BondCalculator {
 
   private final ParameterIssuerProviderInterface _curves;
 
-  public BondDiscountingCalculator(BondTrade trade,
+  public DiscountingBondCalculator(BondTrade trade,
                                    ParameterIssuerProviderInterface curves,
                                    BondAndBondFutureTradeConverter converter,
                                    ZonedDateTime valuationTime) {

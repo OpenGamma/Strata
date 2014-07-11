@@ -123,7 +123,7 @@ import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.bond.BondCalculatorFactory;
-import com.opengamma.sesame.bond.BondDiscountingCalculatorFactory;
+import com.opengamma.sesame.bond.DiscountingBondCalculatorFactory;
 import com.opengamma.sesame.bond.BondFn;
 import com.opengamma.sesame.bond.DefaultBondFn;
 import com.opengamma.sesame.bondfuture.BondFutureCalculatorFactory;
@@ -159,39 +159,32 @@ import com.opengamma.util.time.Tenor;
 public class BondMockSources {
   
   private static final ChangeManager MOCK_CHANGE_MANAGER = mock(ChangeManager.class);
-  
+
+  /*Static data*/
   private static final String TICKER = "Ticker";
-  
   private static final String BOND_CURVE_NODE_ID_MAPPER = "Test Bond Mapper";
-  
   private static final String BOND_CURVE_NAME = "USD Test Bond Curve";
-  
   private static final String BOND_CURVE_CONFIG_NAME = "Test Bond Curve Config";
-  
   public static final String BOND_ISSUER_KEY = "US GOVERNMENT";
-  
   public static final String BOND_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions";
-  
   private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
 
   /*Bond*/
-  public static BondSecurity BOND_SECURITY = createBondSecurity();
-  public static BondTrade BOND_TRADE = createBondTrade();
+  public static final BondSecurity BOND_SECURITY = createBondSecurity();
+  public static final BondTrade BOND_TRADE = createBondTrade();
 
   /*Bond Future*/
-  public static BondFutureSecurity BOND_FUTURE_SECURITY = createBondFutureSecurity();
-  public static BondFutureTrade BOND_FUTURE_TRADE = createBondFutureTrade();
+  public static final BondFutureSecurity BOND_FUTURE_SECURITY = createBondFutureSecurity();
+  public static final BondFutureTrade BOND_FUTURE_TRADE = createBondFutureTrade();
 
   /*Bond Future Option*/
-  public static BondFutureOptionSecurity BOND_FUTURE_OPTION_SECURITY = createBondFutureOptionSecurity();
-  public static BondFutureOptionTrade BOND_FUTURE_OPTION_TRADE = createBondFutureOptionTrade();
+  public static final BondFutureOptionSecurity BOND_FUTURE_OPTION_SECURITY = createBondFutureOptionSecurity();
+  public static final BondFutureOptionTrade BOND_FUTURE_OPTION_TRADE = createBondFutureOptionTrade();
 
   /*Environment*/
   private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
   public static final Environment ENV = new SimpleEnvironment(BondMockSources.VALUATION_TIME,
                                                               BondMockSources.createMarketDataSource());
-
-
 
   private static CurveNodeIdMapper getBondCurveNodeIdMapper() {
     Map<Tenor, CurveInstrumentProvider> bondNodes = Maps.newHashMap();
@@ -214,7 +207,6 @@ public class BondMockSources {
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   }
-
 
   public static FunctionModelConfig getConfig() {
 
@@ -248,7 +240,7 @@ public class BondMockSources {
                         MarketDataFn.class, DefaultMarketDataFn.class,
                         /*Bond*/
                         BondFn.class, DefaultBondFn.class,
-                        BondCalculatorFactory.class, BondDiscountingCalculatorFactory.class,
+                        BondCalculatorFactory.class, DiscountingBondCalculatorFactory.class,
                         /*Bond Future Option*/
                         BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
                         BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,

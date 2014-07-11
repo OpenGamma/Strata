@@ -15,6 +15,6 @@ public interface BondCalculatorFactory {
    * @param trade the bond trade.
    * @return a calculator for bonds.
    */
-  Result<BondDiscountingCalculator> createCalculator(Environment env, BondTrade trade);
+  Result<DiscountingBondCalculator> createCalculator(Environment env, BondTrade trade);
 
 }

@@ -19,26 +19,26 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Implementation of the BondCalculatorFactory that uses the discounting calculator to return values.
  */
-public class BondDiscountingCalculatorFactory implements BondCalculatorFactory {
+public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
 
   private final BondAndBondFutureTradeConverter _converter;
   private final IssuerProviderFn _issuerProviderFn;
 
-  public BondDiscountingCalculatorFactory(BondAndBondFutureTradeConverter converter,
+  public DiscountingBondCalculatorFactory(BondAndBondFutureTradeConverter converter,
                                           IssuerProviderFn issuerProviderFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _issuerProviderFn = ArgumentChecker.notNull(issuerProviderFn, "issuerProviderFn");
   }
 
   @Override
-  public Result<BondDiscountingCalculator> createCalculator(Environment env, BondTrade trade) {
+  public Result<DiscountingBondCalculator> createCalculator(Environment env, BondTrade trade) {
 
     Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> bundleResult =
         _issuerProviderFn.createBundle(env, trade, new FXMatrix());
 
     if (bundleResult.isSuccess()) {
       ParameterIssuerProviderInterface curves = bundleResult.getValue().getFirst();
-      BondDiscountingCalculator calculator = new BondDiscountingCalculator(trade,
+      DiscountingBondCalculator calculator = new DiscountingBondCalculator(trade,
                                                                            curves,
                                                                            _converter,
                                                                            env.getValuationTime());

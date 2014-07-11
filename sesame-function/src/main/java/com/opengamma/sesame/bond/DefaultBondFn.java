@@ -24,7 +24,7 @@ public class DefaultBondFn implements BondFn {
 
   @Override
   public Result<MultipleCurrencyAmount> calculatePV(Environment env, BondTrade bondTrade) {
-    Result<BondDiscountingCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    Result<DiscountingBondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
     if (calculatorResult.isSuccess()) {
       return calculatorResult.getValue().calculatePV();
     }
