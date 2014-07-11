@@ -24,8 +24,9 @@ In order to capture all the data used within a calculation it is
 necessary to disable the caches that normally allow calculations 
 to run fast. This means that running a cycle and capturing the 
 input data will run much slower than a normal cycle. For this
-reason, it is turned off by default and must be explicitly switched
-on for a particular cycle.
+reason, capture is turned off by default and must be explicitly
+switched on for a particular cycle. Doing this will then
+automatically disable the caching for the cycle.
 
 Where a call is currently made to set up and run a view:
 
@@ -74,7 +75,7 @@ Replaying the data
 Now that the data is captured it can be replayed using the current state
 of the code base. This ensures that even if code is changed to enable
 new functionality, an existing configuration will still calculate the same
-results:
+results. First load in the data from the previously saved file:
 
 .. code:: java
 
@@ -82,11 +83,16 @@ results:
         new ViewResultsDeserializer(new FileInputStream("/path/to/output/inputs_file.xml"));
     ViewInputs viewInputs = inputsDeserializer.deserialize(ViewInputs.class);
 
+The view inputs can then be used with the ``CapturedResultsLoader``
+to run the view:
+
+.. code:: java
+
     CapturedResultsLoader loader =
         new CapturedResultsLoader(viewInputs, availableOutputs, availableImplementations);
     Results results = loader.runViewFromInputs();
 
-In some cases, generally where providing data to the view configuration via
+In cases where some data is provided to the original view configuration via
 links, it is necessary to add in the linked data manually. This is due to the
 links being resolved before the data capture takes place and will be
 corrected in a future release. For the time being the additional config data
