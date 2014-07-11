@@ -5,8 +5,8 @@
  */
 package com.opengamma.sesame.credit.market;
 
-import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.id.ExternalId;
@@ -36,7 +36,7 @@ public class DefaultLegacyCdsMarketDataResolverFn implements LegacyCdsMarketData
   @Override
   public Result<CreditCurveDataKey> resolve(Environment env, LegacyCDSSecurity security) {
     ExternalId referenceEntity = security.getReferenceEntity();
-    DebtSeniority seniority = security.getDebtSeniority();
+    SeniorityLevel seniority = security.getSeniority();
     RestructuringClause restructuringClause = security.getRestructuringClause();
     Currency currency = security.getNotional().getCurrency();
     
