@@ -3,8 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.bond;
+package com.opengamma.sesame.sources;
 
+import static com.opengamma.sesame.config.ConfigBuilder.argument;
+import static com.opengamma.sesame.config.ConfigBuilder.arguments;
+import static com.opengamma.sesame.config.ConfigBuilder.config;
+import static com.opengamma.sesame.config.ConfigBuilder.function;
+import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -41,18 +46,24 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.legalentity.LegalEntitySource;
+import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
@@ -84,13 +95,59 @@ import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
+import com.opengamma.sesame.CurveDefinitionFn;
+import com.opengamma.sesame.CurveSpecificationFn;
+import com.opengamma.sesame.CurveSpecificationMarketDataFn;
+import com.opengamma.sesame.DefaultCurveDefinitionFn;
+import com.opengamma.sesame.DefaultCurveSpecificationFn;
+import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
+import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DefaultFXMatrixFn;
+import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
+import com.opengamma.sesame.DiscountingMulticurveBundleFn;
+import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
+import com.opengamma.sesame.ExposureFunctionsIssuerProviderFn;
+import com.opengamma.sesame.FXMatrixFn;
+import com.opengamma.sesame.HistoricalTimeSeriesFn;
+import com.opengamma.sesame.InterpolatedIssuerBundleFn;
+import com.opengamma.sesame.IssuerProviderBundleFn;
+import com.opengamma.sesame.IssuerProviderFn;
+import com.opengamma.sesame.MarketExposureSelectorFn;
+import com.opengamma.sesame.RootFinderConfiguration;
+import com.opengamma.sesame.SimpleEnvironment;
+import com.opengamma.sesame.bond.BondCalculatorFactory;
+import com.opengamma.sesame.bond.BondDiscountingCalculatorFactory;
+import com.opengamma.sesame.bond.BondFn;
+import com.opengamma.sesame.bond.DefaultBondFn;
+import com.opengamma.sesame.bondfuture.BondFutureCalculatorFactory;
+import com.opengamma.sesame.bondfuture.BondFutureDiscountingCalculatorFactory;
+import com.opengamma.sesame.bondfuture.BondFutureFn;
+import com.opengamma.sesame.bondfuture.DefaultBondFutureFn;
+import com.opengamma.sesame.bondfutureoption.BlackBondFuturesProviderFn;
+import com.opengamma.sesame.bondfutureoption.BondFutureOptionBlackCalculatorFactory;
+import com.opengamma.sesame.bondfutureoption.BondFutureOptionCalculatorFactory;
+import com.opengamma.sesame.bondfutureoption.BondFutureOptionFn;
+import com.opengamma.sesame.bondfutureoption.DefaultBondFutureOptionFn;
+import com.opengamma.sesame.bondfutureoption.TestBlackBondFuturesProviderFn;
+import com.opengamma.sesame.component.RetrievalPeriod;
+import com.opengamma.sesame.component.StringSet;
+import com.opengamma.sesame.config.FunctionModelConfig;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
+import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.trade.BondFutureOptionTrade;
 import com.opengamma.sesame.trade.BondFutureTrade;
+import com.opengamma.sesame.trade.BondTrade;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
@@ -116,7 +173,26 @@ public class BondMockSources {
   public static final String BOND_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions";
   
   private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
-  
+
+  /*Bond*/
+  public static BondSecurity BOND_SECURITY = createBondSecurity();
+  public static BondTrade BOND_TRADE = createBondTrade();
+
+  /*Bond Future*/
+  public static BondFutureSecurity BOND_FUTURE_SECURITY = createBondFutureSecurity();
+  public static BondFutureTrade BOND_FUTURE_TRADE = createBondFutureTrade();
+
+  /*Bond Future Option*/
+  public static BondFutureOptionSecurity BOND_FUTURE_OPTION_SECURITY = createBondFutureOptionSecurity();
+  public static BondFutureOptionTrade BOND_FUTURE_OPTION_TRADE = createBondFutureOptionTrade();
+
+  /*Environment*/
+  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
+  public static final Environment ENV = new SimpleEnvironment(BondMockSources.VALUATION_TIME,
+                                                              BondMockSources.createMarketDataSource());
+
+
+
   private static CurveNodeIdMapper getBondCurveNodeIdMapper() {
     Map<Tenor, CurveInstrumentProvider> bondNodes = Maps.newHashMap();
     bondNodes.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B1")));
@@ -137,6 +213,51 @@ public class BondMockSources {
     return new InterpolatedCurveDefinition(BOND_CURVE_NAME, nodes, Interpolator1DFactory.LINEAR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  }
+
+
+  public static FunctionModelConfig getConfig() {
+
+    return config(
+        arguments(
+            function(ConfigDbMarketExposureSelectorFn.class,
+                     argument("exposureConfig", ConfigLink.resolvable(BondMockSources.BOND_EXPOSURE_FUNCTIONS,
+                                                                      ExposureFunctions.class))),
+            function(RootFinderConfiguration.class,
+                     argument("rootFinderAbsoluteTolerance", 1e-9),
+                     argument("rootFinderRelativeTolerance", 1e-9),
+                     argument("rootFinderMaxIterations", 1000)),
+            function(DefaultDiscountingMulticurveBundleFn.class,
+                     argument("impliedCurveNames", StringSet.of())),
+            function(DefaultHistoricalTimeSeriesFn.class,
+                     argument("resolutionKey", "DEFAULT_TSS"),
+                     argument("htsRetrievalPeriod", RetrievalPeriod.of(Period.ofYears(1)))
+            )
+        ),
+        implementations(CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
+                        FXMatrixFn.class, DefaultFXMatrixFn.class,
+                        DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
+                        IssuerProviderFn.class, ExposureFunctionsIssuerProviderFn.class,
+                        IssuerProviderBundleFn.class, InterpolatedIssuerBundleFn.class,
+                        CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
+                        DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
+                        CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
+                        CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
+                        HistoricalTimeSeriesFn.class, DefaultHistoricalTimeSeriesFn.class,
+                        MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
+                        MarketDataFn.class, DefaultMarketDataFn.class,
+                        /*Bond*/
+                        BondFn.class, DefaultBondFn.class,
+                        BondCalculatorFactory.class, BondDiscountingCalculatorFactory.class,
+                        /*Bond Future Option*/
+                        BondFutureOptionFn.class, DefaultBondFutureOptionFn.class,
+                        BondFutureOptionCalculatorFactory.class, BondFutureOptionBlackCalculatorFactory.class,
+                        BlackBondFuturesProviderFn.class, TestBlackBondFuturesProviderFn.class,
+                        /*Bond Future*/
+                        BondFutureFn.class, DefaultBondFutureFn.class,
+                        BondFutureCalculatorFactory.class, BondFutureDiscountingCalculatorFactory.class)
+    );
+
   }
   
   @SuppressWarnings("unchecked")
@@ -244,11 +365,29 @@ public class BondMockSources {
   }
   
   private static SecuritySource mockSecuritySource() {
-    return mock(SecuritySource.class);
+    SecuritySource mock = mock(SecuritySource.class);
+    when(mock.getSingle(eq(BondMockSources.BOND_SECURITY.getExternalIdBundle())))
+        .thenReturn(BondMockSources.BOND_SECURITY);
+    when(mock.getSingle(eq(BondMockSources.BOND_FUTURE_SECURITY.getExternalIdBundle())))
+        .thenReturn(BondMockSources.BOND_FUTURE_SECURITY);
+    return mock;
   }
 
   private static HistoricalTimeSeriesSource mockHistoricalTimeSeriesSource() {
-    return mock(HistoricalTimeSeriesSource.class);
+    HistoricalTimeSeriesSource mock =  mock(HistoricalTimeSeriesSource.class);
+
+    HistoricalTimeSeries irFuturePrices = new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"),
+                                                                         ImmutableLocalDateDoubleTimeSeries.of(
+                                                                             VALUATION_TIME.toLocalDate(),
+                                                                             0.975));
+    when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE),
+                                      any(ExternalIdBundle.class),
+                                      eq("DEFAULT_TSS"),
+                                      any(LocalDate.class),
+                                      eq(true),
+                                      any(LocalDate.class),
+                                      eq(true))).thenReturn(irFuturePrices);
+    return mock;
   }
 
   public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
@@ -265,7 +404,7 @@ public class BondMockSources {
                                 mockLegalEntitySource());
   }
 
-  public static BondSecurity createBondSecurity() {
+  private static BondSecurity createBondSecurity() {
 
     String issuerName = BondMockSources.BOND_ISSUER_KEY;
     String issuerDomicile = "US";
@@ -301,7 +440,19 @@ public class BondMockSources {
     return bond;
   }
 
-  public static BondFutureSecurity createBondFutureSecurity() {
+  private static BondTrade createBondTrade() {
+    Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+    BigDecimal tradeQuantity = BigDecimal.valueOf(1);
+    LocalDate tradeDate = LocalDate.of(2014, 1, 1);
+    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+    SimpleTrade trade = new SimpleTrade(BOND_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremium(10.0);
+    trade.setPremiumDate(tradeDate);
+    trade.setPremiumCurrency(Currency.USD);
+    return new BondTrade(trade);
+  }
+
+  private static BondFutureSecurity createBondFutureSecurity() {
 
     Currency currency = Currency.USD;
 
@@ -312,55 +463,58 @@ public class BondMockSources {
     double unitAmount = 1;
     Collection<BondFutureDeliverable> basket = new ArrayList<>();
     BondFutureDeliverable bondFutureDeliverable =
-        new BondFutureDeliverable(createBondSecurity().getExternalIdBundle(), 0.9);
+        new BondFutureDeliverable(BOND_SECURITY.getExternalIdBundle(), 0.9);
     basket.add(bondFutureDeliverable);
 
     ZonedDateTime firstDeliveryDate = deliveryDate;
     ZonedDateTime lastDeliveryDate = deliveryDate;
     String category = "test";
 
-    return new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket,
+
+    BondFutureSecurity security =  new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket,
                                   firstDeliveryDate, lastDeliveryDate, category);
+    security.setExternalIdBundle(ExternalSchemes.isinSecurityId("Test bond future").toBundle());
+    return security;
   }
 
-  public static BondFutureTrade createBondFutureTrade() {
-
-    BondFutureSecurity bondFuture = createBondFutureSecurity();
-
-    bondFuture.setExternalIdBundle(ExternalSchemes.isinSecurityId("Test bond future").toBundle());
+  private static BondFutureTrade createBondFutureTrade() {
 
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
     BigDecimal tradeQuantity = BigDecimal.valueOf(1);
     LocalDate tradeDate = LocalDate.of(2000, 1, 1);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
-    SimpleTrade trade = new SimpleTrade(bondFuture, tradeQuantity, counterparty, tradeDate, tradeTime);
+    SimpleTrade trade = new SimpleTrade(BOND_FUTURE_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
     trade.setPremium(10.0);
     trade.setPremiumCurrency(Currency.USD);
     return new BondFutureTrade(trade);
   }
 
-  public static BondFutureOptionTrade createBondFutureOptionTrade() {
-    BondFutureSecurity bondFuture = createBondFutureSecurity();
+  private static BondFutureOptionSecurity createBondFutureOptionSecurity() {
+
     String tradingExchange = "";
     String settlementExchange = "";
-    Expiry expiry = bondFuture.getExpiry();
+    Expiry expiry = BOND_FUTURE_SECURITY.getExpiry();
     ExerciseType exerciseType = new EuropeanExerciseType();
-    ExternalId underlyingId = Iterables.getOnlyElement(bondFuture.getExternalIdBundle());
+    ExternalId underlyingId = Iterables.getOnlyElement(BOND_FUTURE_SECURITY.getExternalIdBundle());
     double pointValue = Double.NaN;
-    Currency currency = bondFuture.getCurrency();
+    Currency currency = BOND_FUTURE_SECURITY.getCurrency();
     double strike = 0.2;
     OptionType optionType = OptionType.PUT;
     boolean margined = true;
-    BondFutureOptionSecurity option = new BondFutureOptionSecurity(tradingExchange, settlementExchange, expiry,
+    BondFutureOptionSecurity security = new BondFutureOptionSecurity(tradingExchange, settlementExchange, expiry,
                                                                    exerciseType, underlyingId, pointValue, margined,
                                                                    currency, strike, optionType);
-    option.setExternalIdBundle(ExternalSchemes.isinSecurityId("Test bond future option").toBundle());
+    security.setExternalIdBundle(ExternalSchemes.isinSecurityId("Test bond future option").toBundle());
+    return security;
+  }
+
+  private static BondFutureOptionTrade createBondFutureOptionTrade() {
 
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
     BigDecimal tradeQuantity = BigDecimal.valueOf(10);
     LocalDate tradeDate = LocalDate.of(2000, 1, 1);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
-    SimpleTrade trade = new SimpleTrade(option, tradeQuantity, counterparty, tradeDate, tradeTime);
+    SimpleTrade trade = new SimpleTrade(BOND_FUTURE_OPTION_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
     trade.setPremium(10.0);
     trade.setPremiumCurrency(Currency.USD);
     return new BondFutureOptionTrade(trade);

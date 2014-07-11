@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.bondfuture;
+package com.opengamma.sesame.bond;
 
 import static org.testng.AssertJUnit.fail;
 
@@ -27,9 +27,9 @@ import com.opengamma.util.test.TestGroup;
  * Tests for bond future functions using the discounting calculator.
  */
 @Test(groups = TestGroup.UNIT)
-public class BondFutureFnTest {
+public class BondFnTest {
 
-  private BondFutureFn _bondFutureFn;
+  private BondFn _bondFn;
 
   @BeforeClass
   public void setUp() {
@@ -38,14 +38,14 @@ public class BondFutureFnTest {
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);
-    
-    _bondFutureFn = FunctionModel.build(BondFutureFn.class, BondMockSources.getConfig(), ComponentMap.of(components));
+
+    _bondFn = FunctionModel.build(BondFn.class, BondMockSources.getConfig(), ComponentMap.of(components));
   }
 
   @Test
   public void testPresentValue() {
-    Result<MultipleCurrencyAmount> pvComputed = _bondFutureFn.calculatePV(BondMockSources.ENV,
-                                                                          BondMockSources.BOND_FUTURE_TRADE);
+    Result<MultipleCurrencyAmount> pvComputed = _bondFn.calculatePV(BondMockSources.ENV,
+                                                                    BondMockSources.BOND_TRADE);
     if (!pvComputed.isSuccess()) {
       fail(pvComputed.getFailureMessage());
     }
