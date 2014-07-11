@@ -18,7 +18,6 @@ public class BondTrade extends TradeWrapper<BondSecurity> {
    * Base trade wrapper constructor that wraps a trade in an explicit instrument type.
    *
    * @param trade the trade containing the instrument, not null.
-
    */
   public BondTrade(Trade trade) {
     super(ArgumentChecker.notNull(trade, "trade"), BondSecurity.class);

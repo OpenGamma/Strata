@@ -37,7 +37,8 @@ public abstract class TradeWrapper<S extends Security> implements Trade {
   public TradeWrapper(Trade trade, Class<S> clazz) {
     _trade = ArgumentChecker.notNull(trade, "trade");
     _clazz = ArgumentChecker.notNull(clazz, "clazz");
-    ArgumentChecker.isTrue(clazz.isAssignableFrom(trade.getSecurity().getClass()), trade.getSecurity() + " is not a " + clazz);
+    ArgumentChecker.isTrue(clazz.isAssignableFrom(trade.getSecurity().getClass()),
+                           trade.getSecurity() + " is not a " + clazz);
   }
 
   @Override

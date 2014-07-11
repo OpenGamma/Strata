@@ -13,6 +13,11 @@ import com.opengamma.util.result.Result;
  */
 public interface BondCalculator {
 
+  /**
+   * Calculates the present value for the security
+   *
+   * @return result containing the PV if successfully created, a failure result otherwise
+   */
   Result<MultipleCurrencyAmount> calculatePV();
 
 }

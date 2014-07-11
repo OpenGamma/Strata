@@ -22,12 +22,29 @@ import com.opengamma.util.result.Result;
  */
 public class DiscountingBondCalculator implements BondCalculator {
 
+  /**
+   * Calculator for PV01
+   */
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
 
+  /**
+   * Derivative form of the security.
+   */
   private final InstrumentDerivative _derivative;
 
+  /**
+   * The issuer and multicurve provider.
+   */
   private final ParameterIssuerProviderInterface _curves;
 
+  /**
+   * Creates a calculator for a InterestRateSwapSecurity.
+   *
+   * @param trade the bond trade to calculate values for
+   * @param curves the ParameterIssuerProviderInterface
+   * @param converter the BondAndBondFutureTradeConverter
+   * @param valuationTime the ZonedDateTime
+   */
   public DiscountingBondCalculator(BondTrade trade,
                                    ParameterIssuerProviderInterface curves,
                                    BondAndBondFutureTradeConverter converter,

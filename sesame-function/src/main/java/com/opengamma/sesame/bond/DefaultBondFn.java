@@ -18,6 +18,11 @@ public class DefaultBondFn implements BondFn {
 
   private final BondCalculatorFactory _bondCalculatorFactory;
 
+  /**
+  * Create the function.
+  *
+  * @param bondCalculatorFactory function to generate the calculator for the security
+  */
   public DefaultBondFn(BondCalculatorFactory bondCalculatorFactory) {
     _bondCalculatorFactory = ArgumentChecker.notNull(bondCalculatorFactory, "bondCalculatorFactory");
   }

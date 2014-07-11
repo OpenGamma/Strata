@@ -21,9 +21,24 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
 
+
+  /**
+   * Converter to the appropriate classes in the analytics
+   */
   private final BondAndBondFutureTradeConverter _converter;
+
+  /**
+   * The multicurve bundle for curves by issuer.
+   */
   private final IssuerProviderFn _issuerProviderFn;
 
+  /**
+   * Creates the factory.
+   *
+   * @param converter converter for transforming a bond
+   * @param issuerProviderFn multicurve bundle for curves by issuer.
+
+   */
   public DiscountingBondCalculatorFactory(BondAndBondFutureTradeConverter converter,
                                           IssuerProviderFn issuerProviderFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
