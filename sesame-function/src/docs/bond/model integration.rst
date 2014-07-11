@@ -9,12 +9,12 @@ Multicurve
 
 The ``DiscountingBondCalculator`` is the discounting calculator implementation for ``BondCalculator``.
 
-Creation of the calculator is dependent on the:
+*Creation of the calculator is dependent on the*:
+
 * ``IssuerProviderFn`` -  to provide the multicurve bundle for curves by issuer.
 * ``BondAndBondFutureTradeConverter`` - to convert the trade/security into the analytics object.
 * ``Environment`` - to provide the valuation time and market data
-* ``BondTrade`` - containing the ``BondSecurity`` or the subtypes ``MunicipalBondSecurity``, ``InflationBondSecurity``,
-``GovernmentBondSecurity`` or ``CorporateBondSecurity``
+* ``BondTrade`` - containing the ``BondSecurity`` or the subtypes ``MunicipalBondSecurity``, ``InflationBondSecurity``, ``GovernmentBondSecurity`` or ``CorporateBondSecurity``
 
 Outputs
 -------
