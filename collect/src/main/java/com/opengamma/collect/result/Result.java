@@ -6,7 +6,6 @@
 package com.opengamma.collect.result;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -228,7 +227,7 @@ public final class Result<T>
    * Creates a failed result combining multiple failed results.
    * <p>
    * The input results can be successes or failures, only the failures will be included in the created result.
-   * Intended to be used with {@link #anyFailures(Collection)}.
+   * Intended to be used with {@link #anyFailures(Iterable)}.
    * <code>
    *   if (Result.anyFailures(results) {
    *     return Result.failure(results);

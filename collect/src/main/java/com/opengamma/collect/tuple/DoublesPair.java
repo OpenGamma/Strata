@@ -86,6 +86,7 @@ public final class DoublesPair
    * 
    * @param pairStr  the text to parse
    * @return the parsed pair
+   * @throws IllegalArgumentException if the pair cannot be parsed
    */
   @FromString
   public static DoublesPair parse(String pairStr) {

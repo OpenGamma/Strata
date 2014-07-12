@@ -33,6 +33,8 @@ import com.opengamma.collect.validate.ArgChecker;
  * This class is similar to {@link Pair} but includes a primitive element.
  * <p>
  * This class is immutable and thread-safe.
+ * 
+ * @param <A> the type of the object
  */
 @BeanDefinition(builderScope = "private")
 public final class ObjectDoublePair<A>
