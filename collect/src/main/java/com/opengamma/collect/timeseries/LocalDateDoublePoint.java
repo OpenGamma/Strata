@@ -75,7 +75,8 @@ public final class LocalDateDoublePoint
   //-------------------------------------------------------------------------
   /**
    * Returns a copy of this point with another date.
-   *
+   * 
+   * @param date  the date to change the point to
    * @return a point based on this point with the date changed
    */
   public LocalDateDoublePoint withDate(LocalDate date) {
@@ -84,7 +85,8 @@ public final class LocalDateDoublePoint
 
   /**
    * Returns a copy of this point with another value.
-   *
+   * 
+   * @param value  the value to change the point to
    * @return a point based on this point with the value changed
    */
   public LocalDateDoublePoint withValue(double value) {

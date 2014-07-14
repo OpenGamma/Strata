@@ -8,9 +8,14 @@ package com.opengamma.collect.range;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjuster;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -26,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Ordering;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -76,6 +82,7 @@ public final class LocalDateRange
    * @param startInclusive  the inclusive start date, MIN_DATE treated as unbounded
    * @param endExclusive  the exclusive end date, MAX_DATE treated as unbounded
    * @return the half-open range
+   * @throws IllegalArgumentException if the end date is before or equal the start date
    */
   public static LocalDateRange halfOpen(LocalDate startInclusive, LocalDate endExclusive) {
     ArgChecker.notNull(startInclusive, "startDate");
@@ -93,6 +100,7 @@ public final class LocalDateRange
    * @param startInclusive  the inclusive start date, MIN_DATE treated as unbounded
    * @param endInclusive  the inclusive end date, MAX_DATE treated as unbounded
    * @return the closed range
+   * @throws IllegalArgumentException if the end date is before the start date
    */
   public static LocalDateRange closed(LocalDate startInclusive, LocalDate endInclusive) {
     ArgChecker.notNull(startInclusive, "startDate");
@@ -199,6 +207,7 @@ public final class LocalDateRange
    * 
    * @param adjuster  the adjuster to use
    * @return a copy of this range with the start date adjusted
+   * @throws IllegalArgumentException if the new start date is after the current end date
    */
   public LocalDateRange withStart(TemporalAdjuster adjuster) {
     ArgChecker.notNull(adjuster, "adjuster");
@@ -219,6 +228,7 @@ public final class LocalDateRange
    * 
    * @param adjuster  the adjuster to use
    * @return a copy of this range with the end date adjusted
+   * @throws IllegalArgumentException if the new end date is before the current start date
    */
   public LocalDateRange withEndInclusive(TemporalAdjuster adjuster) {
     ArgChecker.notNull(adjuster, "adjuster");
@@ -244,16 +254,106 @@ public final class LocalDateRange
   /**
    * Checks if this range contains all dates in the specified range.
    * <p>
-   * This checks that the start date of this range is before or equal the specified
-   * start date and the end date of this range is before or equal the specified end date.
+   * This checks that the start date of this range is before or equal the specified start date,
+   * and the end date of this range is after or equal the specified end date.
    * 
    * @param other  the other range to check for
    * @return true if this range contains all dates in the other range
    */
   public boolean encloses(LocalDateRange other) {
     ArgChecker.notNull(other, "other");
-    // start <= other.start && other.end <= end
-    return start.compareTo(other.start) <= 0 && other.endInclusive.compareTo(endInclusive) <= 0;
+    // start <= other.start && end >= other.end
+    return start.compareTo(other.start) <= 0 && endInclusive.compareTo(other.endInclusive) >= 0;
+  }
+
+  /**
+   * Checks if this range overlaps any dates in the specified range.
+   * <p>
+   * This checks that the start date of this range is before or equal the specified end date,
+   * and the end date of this range is after or equal the specified start date.
+   * 
+   * @param other  the other range to check for
+   * @return true if this range contains all dates in the other range
+   */
+  public boolean overlaps(LocalDateRange other) {
+    ArgChecker.notNull(other, "other");
+    // start <= other.end && end >= other.start
+    return start.compareTo(other.endInclusive) <= 0 && endInclusive.compareTo(other.start) >= 0;
+  }
+
+  /**
+   * Calculates the range that is the intersection of this range and the specified range.
+   * <p>
+   * This returns an exception if the two ranges do not {@linkplain #overlaps(LocalDateRange) overlap}.
+   * 
+   * @param other  the other range to check for
+   * @return the range that is the intersection of the two ranges
+   * @throws IllegalArgumentException if the ranges do not overlap
+   */
+  public LocalDateRange intersection(LocalDateRange other) {
+    ArgChecker.notNull(other, "other");
+    if (overlaps(other) == false) {
+      throw new IllegalArgumentException("Ranges do not overlap: " + this + " and " + other);
+    }
+    if (this.equals(other)) {
+      return this;
+    }
+    LocalDate newStart = Ordering.natural().max(start, other.start);
+    LocalDate newEnd = Ordering.natural().min(endInclusive, other.endInclusive);
+    return LocalDateRange.closed(newStart, newEnd);
+  }
+
+  /**
+   * Calculates the range that is the union of this range and the specified range.
+   * <p>
+   * This returns an exception if the two ranges do not {@linkplain #overlaps(LocalDateRange) overlap}.
+   * 
+   * @param other  the other range to check for
+   * @return the range that is the union of the two ranges
+   * @throws IllegalArgumentException if the ranges do not overlap
+   */
+  public LocalDateRange union(LocalDateRange other) {
+    ArgChecker.notNull(other, "other");
+    if (overlaps(other) == false) {
+      throw new IllegalArgumentException("Ranges do not overlap: " + this + " and " + other);
+    }
+    if (this.equals(other)) {
+      return this;
+    }
+    LocalDate newStart = Ordering.natural().min(start, other.start);
+    LocalDate newEnd = Ordering.natural().max(endInclusive, other.endInclusive);
+    return LocalDateRange.closed(newStart, newEnd);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Streams the set of dates included in the range.
+   * <p>
+   * This returns a stream consisting of each date in the range.
+   * The stream is ordered.
+   * 
+   * @return the stream of dates from the start to the end
+   */
+  public Stream<LocalDate> stream() {
+    Iterator<LocalDate> it = new Iterator<LocalDate>() {
+      private LocalDate current = start;
+      @Override
+      public LocalDate next() {
+        LocalDate result = current;
+        current = current.plusDays(1);
+        return result;
+      }
+      @Override
+      public boolean hasNext() {
+        return current.isBefore(endInclusive) || current.equals(endInclusive);
+      }
+    };
+    long count = endInclusive.toEpochDay() - start.toEpochDay() + 1;
+    Spliterator<LocalDate> spliterator = Spliterators.spliterator(it, count,
+        Spliterator.IMMUTABLE | Spliterator.NONNULL |
+        Spliterator.DISTINCT | Spliterator.ORDERED | Spliterator.SORTED |
+        Spliterator.SIZED | Spliterator.SUBSIZED);
+    return StreamSupport.stream(spliterator, false);
   }
 
   //-------------------------------------------------------------------------

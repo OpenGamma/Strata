@@ -8,12 +8,18 @@ package com.opengamma.collect.range;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Test LocalDateRange.
@@ -321,6 +327,138 @@ public class LocalDateRangeTest {
   public void test_encloses_null() {
     LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.encloses(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "intersection")
+  Object[][] data_intersection() {
+    return new Object[][] {
+        // overlap one day
+        {DATE_2012_07_01, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_28},
+        // overlap more than one day
+        {DATE_2012_07_01, DATE_2012_07_29, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_29},
+        // encloses
+        {DATE_2012_07_01, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_29, DATE_2012_07_28, DATE_2012_07_29},
+    };
+  }
+
+  @Test(dataProvider = "intersection")
+  public void test_intersection(
+      LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
+    
+    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
+    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
+    LocalDateRange expected = LocalDateRange.closed(expStart, expEnd);
+    assertTrue(test1.overlaps(test2));
+    assertEquals(test1.intersection(test2), expected);
+  }
+
+  @Test(dataProvider = "intersection")
+  public void test_intersection_reverse(
+      LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
+    
+    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
+    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
+    LocalDateRange expected = LocalDateRange.closed(expStart, expEnd);
+    assertTrue(test2.overlaps(test1));
+    assertEquals(test2.intersection(test1), expected);
+  }
+
+  @DataProvider(name = "union")
+  Object[][] data_union() {
+    return new Object[][] {
+        // overlap one day
+        {DATE_2012_07_01, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_01, DATE_2012_07_30},
+        // overlap more than one day
+        {DATE_2012_07_01, DATE_2012_07_29, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_01, DATE_2012_07_30},
+        // encloses
+        {DATE_2012_07_01, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_29, DATE_2012_07_01, DATE_2012_07_30},
+    };
+  }
+
+  @Test(dataProvider = "union")
+  public void test_union(
+      LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
+    
+    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
+    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
+    LocalDateRange expected = LocalDateRange.closed(expStart, expEnd);
+    assertTrue(test1.overlaps(test2));
+    assertEquals(test1.union(test2), expected);
+  }
+
+  @Test(dataProvider = "union")
+  public void test_union_reverse(
+      LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
+    
+    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
+    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
+    LocalDateRange expected = LocalDateRange.closed(expStart, expEnd);
+    assertTrue(test2.overlaps(test1));
+    assertEquals(test2.union(test1), expected);
+  }
+
+  @DataProvider(name = "noOverlap")
+  Object[][] data_noOverlap() {
+    return new Object[][] {
+        {DATE_2012_07_01, DATE_2012_07_27, DATE_2012_07_28, DATE_2012_07_29},
+        {DATE_2012_07_01, DATE_2012_07_27, DATE_2012_07_29, DATE_2012_07_30},
+    };
+  }
+
+  @Test(dataProvider = "noOverlap")
+  public void test_noOverlap(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2) {
+    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
+    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
+    assertFalse(test1.overlaps(test2));
+    assertThrows(() -> test1.intersection(test2), IllegalArgumentException.class);
+    assertThrows(() -> test1.union(test2), IllegalArgumentException.class);
+  }
+
+  @Test(dataProvider = "noOverlap")
+  public void test_noOverlap_reverse(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2) {
+    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
+    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
+    assertFalse(test2.overlaps(test1));
+    assertThrows(() -> test2.intersection(test1), IllegalArgumentException.class);
+    assertThrows(() -> test2.union(test1), IllegalArgumentException.class);
+  }
+
+  public void test_overlaps_same() {
+    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_31);
+    assertEquals(test.overlaps(test), true);
+  }
+
+  public void test_overlaps_null() {
+    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    assertThrows(() -> test.overlaps(null), IllegalArgumentException.class);
+  }
+
+  public void test_intersection_same() {
+    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_31);
+    assertEquals(test.intersection(test), test);
+  }
+
+  public void test_intersection_null() {
+    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    assertThrows(() -> test.intersection(null), IllegalArgumentException.class);
+  }
+
+  public void test_union_same() {
+    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_31);
+    assertEquals(test.union(test), test);
+  }
+
+  public void test_union_null() {
+    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    assertThrows(() -> test.union(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_stream() {
+    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_31);
+    List<LocalDate> result = test.stream().collect(Collectors.toList());
+    assertEquals(result, ImmutableList.of(DATE_2012_07_28, DATE_2012_07_29, DATE_2012_07_30, DATE_2012_07_31));
   }
 
   //-------------------------------------------------------------------------
