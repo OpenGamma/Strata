@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import com.google.common.math.DoubleMath;
+
 /**
  * Contains utility methods for checking inputs to methods.
  * <p>
@@ -663,7 +665,7 @@ public final class ArgChecker {
    * @throws IllegalArgumentException if the absolute value of the argument is less than eps
    */
   public static double notNegativeOrZero(double parameter, double tolerance, String name) {
-    if (CompareUtils.closeEquals(parameter, 0, tolerance)) {
+    if (DoubleMath.fuzzyEquals(parameter, 0, tolerance)) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
     }
     if (parameter < 0) {
@@ -691,7 +693,7 @@ public final class ArgChecker {
    * @throws IllegalArgumentException if the absolute value of the argument is less than eps
    */
   public static double notZero(double parameter, double tolerance, String name) {
-    if (CompareUtils.closeEquals(parameter, 0d, tolerance)) {
+    if (DoubleMath.fuzzyEquals(parameter, 0d, tolerance)) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
     }
     return parameter;
