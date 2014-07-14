@@ -30,8 +30,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Guavate;
-import com.opengamma.collect.validate.ArgChecker;
 
 /**
  * An immutable calculation result.

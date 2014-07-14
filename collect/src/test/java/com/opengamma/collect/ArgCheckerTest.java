@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.collect.validate;
+package com.opengamma.collect;
 
 import static com.opengamma.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;

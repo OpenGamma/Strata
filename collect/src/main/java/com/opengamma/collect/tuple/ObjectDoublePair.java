@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
-import com.opengamma.collect.validate.ArgChecker;
+import com.opengamma.collect.ArgChecker;
 
 /**
  * An immutable pair consisting of an {@code Object} and {@code double}.

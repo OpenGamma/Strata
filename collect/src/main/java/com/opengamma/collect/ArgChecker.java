@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.collect.validate;
+package com.opengamma.collect;
 
 import java.util.Collection;
 import java.util.Map;

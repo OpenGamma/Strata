@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.collect.validate.ArgChecker;
+import com.opengamma.collect.ArgChecker;
 
 /**
  * A range of local dates.

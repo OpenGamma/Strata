@@ -28,7 +28,7 @@ import org.joda.convert.ToString;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.opengamma.collect.validate.ArgChecker;
+import com.opengamma.collect.ArgChecker;
 
 /**
  * An immutable pair consisting of a {@code long} and {@code double}.

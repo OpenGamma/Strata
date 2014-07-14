@@ -13,7 +13,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import com.opengamma.collect.validate.ArgChecker;
+import com.opengamma.collect.ArgChecker;
 
 /**
  * Builder to create the immutable {@code LocalDateDoubleTimeSeries}.

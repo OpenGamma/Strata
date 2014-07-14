@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.collect.validate.ArgChecker;
+import com.opengamma.collect.ArgChecker;
 
 /**
  * Description of a failed result.

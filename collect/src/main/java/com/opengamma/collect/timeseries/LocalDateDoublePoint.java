@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import org.joda.beans.JodaBeanUtils;
 
 import com.google.common.collect.ComparisonChain;
-import com.opengamma.collect.validate.ArgChecker;
+import com.opengamma.collect.ArgChecker;
 
 /**
  * Immutable representation of a single point in a {@code DoubleTimeSeries}.
