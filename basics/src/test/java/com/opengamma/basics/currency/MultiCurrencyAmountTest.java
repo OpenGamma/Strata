@@ -32,20 +32,20 @@ public class MultiCurrencyAmountTest {
   private static final Currency CCY1 = Currency.AUD;
   private static final Currency CCY2 = Currency.CAD;
   private static final Currency CCY3 = Currency.CHF;
-  private static final double A1 = 101;
-  private static final double A2 = 103;
-  private static final double A3 = 107;
-  private static final CurrencyAmount CA1 = CurrencyAmount.of(CCY1, A1);
-  private static final CurrencyAmount CA2 = CurrencyAmount.of(CCY2, A2);
-  private static final CurrencyAmount CA3 = CurrencyAmount.of(CCY3, A3);
+  private static final double AMT1 = 101;
+  private static final double AMT2 = 103;
+  private static final double AMT3 = 107;
+  private static final CurrencyAmount CA1 = CurrencyAmount.of(CCY1, AMT1);
+  private static final CurrencyAmount CA2 = CurrencyAmount.of(CCY2, AMT2);
+  private static final CurrencyAmount CA3 = CurrencyAmount.of(CCY3, AMT3);
 
   //-------------------------------------------------------------------------
   public void test_of_CurrencyDouble() {
-    assertMCA(MultiCurrencyAmount.of(CCY1, A1), CA1);
+    assertMCA(MultiCurrencyAmount.of(CCY1, AMT1), CA1);
   }
 
   public void test_of_CurrencyDouble_null() {
-    assertThrows(() -> MultiCurrencyAmount.of(null, A1), IllegalArgumentException.class);
+    assertThrows(() -> MultiCurrencyAmount.of(null, AMT1), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -54,7 +54,7 @@ public class MultiCurrencyAmountTest {
   }
 
   public void test_of_VarArgs_duplicate() {
-    assertThrows(() -> MultiCurrencyAmount.of(CA1, CurrencyAmount.of(CCY1, A2)), IllegalArgumentException.class);
+    assertThrows(() -> MultiCurrencyAmount.of(CA1, CurrencyAmount.of(CCY1, AMT2)), IllegalArgumentException.class);
   }
 
   public void test_of_VarArgs_null() {
@@ -69,7 +69,7 @@ public class MultiCurrencyAmountTest {
   }
 
   public void test_of_Iterable_duplicate() {
-    Iterable<CurrencyAmount> iterable = Arrays.asList(CA1, CurrencyAmount.of(CCY1, A2));
+    Iterable<CurrencyAmount> iterable = Arrays.asList(CA1, CurrencyAmount.of(CCY1, AMT2));
     assertThrows(() -> MultiCurrencyAmount.of(iterable), IllegalArgumentException.class);
   }
 
@@ -86,8 +86,8 @@ public class MultiCurrencyAmountTest {
   //-------------------------------------------------------------------------
   public void test_of_Map() {
     Map<Currency, Double> map = ImmutableMap.<Currency, Double>builder()
-        .put(CCY1, A1)
-        .put(CCY3, A3)
+        .put(CCY1, AMT1)
+        .put(CCY3, AMT3)
         .build();
     assertMCA(MultiCurrencyAmount.of(map), CA1, CA3);
   }
@@ -104,8 +104,8 @@ public class MultiCurrencyAmountTest {
   }
 
   public void test_total_Iterable_duplicate() {
-    Iterable<CurrencyAmount> iterable = Arrays.asList(CA1, CurrencyAmount.of(CCY1, A2), CA2);
-    assertMCA(MultiCurrencyAmount.total(iterable), CurrencyAmount.of(CCY1, A1 + A2), CA2);
+    Iterable<CurrencyAmount> iterable = Arrays.asList(CA1, CurrencyAmount.of(CCY1, AMT2), CA2);
+    assertMCA(MultiCurrencyAmount.total(iterable), CurrencyAmount.of(CCY1, AMT1 + AMT2), CA2);
   }
 
   public void test_total_Iterable_null() {
@@ -129,7 +129,7 @@ public class MultiCurrencyAmountTest {
   public void test_beanBuilder_invalid() {
     BeanBuilder<? extends MultiCurrencyAmount> test = MultiCurrencyAmount.meta().builder()
         .set(MultiCurrencyAmount.meta().amounts(),
-            ImmutableSortedSet.of(CA1, CA2, CurrencyAmount.of(CA1.getCurrency(), A3)));
+            ImmutableSortedSet.of(CA1, CA2, CurrencyAmount.of(CA1.getCurrency(), AMT3)));
     assertThrows(() -> test.build(), IllegalArgumentException.class);
   }
 
@@ -343,8 +343,9 @@ public class MultiCurrencyAmountTest {
       assertEquals(actual.getAmount(expectedAmount.getCurrency()), expectedAmount);
     }
     assertEquals(actual.getCurrencies(), currencies);
-    assertEquals(actual.contains(Currency.FRF), false);
-    assertThrows(() -> actual.getAmount(Currency.FRF), IllegalArgumentException.class);
+    Currency nonExisting = Currency.of("FRZ");
+    assertEquals(actual.contains(nonExisting), false);
+    assertThrows(() -> actual.getAmount(nonExisting), IllegalArgumentException.class);
   }
 
 }

@@ -10,7 +10,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.joda.beans.PropertyDefinition;
+import javax.annotation.Nullable;
+
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -38,13 +39,11 @@ public final class CurrencyPair
    * The base currency of the pair.
    * In the pair 'AAA/BBB' the base is 'AAA'.
    */
-  @PropertyDefinition(validate = "notNull")
   private final Currency base;
   /**
    * The counter currency of the pair.
    * In the pair 'AAA/BBB' the counter is 'BBB'.
    */
-  @PropertyDefinition(validate = "notNull")
   private final Currency counter;
 
   //-------------------------------------------------------------------------
@@ -116,7 +115,7 @@ public final class CurrencyPair
    * @param currency  the currency to check against the pair, null returns false
    * @return true if the currency is either the base or counter currency in the pair
    */
-  public boolean contains(Currency currency) {
+  public boolean contains(@Nullable Currency currency) {
     return base.equals(currency) || counter.equals(currency);
   }
 

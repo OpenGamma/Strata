@@ -24,37 +24,37 @@ public class CurrencyAmountTest {
 
   private static final Currency CCY1 = Currency.AUD;
   private static final Currency CCY2 = Currency.CAD;
-  private static final double A1 = 100;
-  private static final double A2 = 200;
-  private static final CurrencyAmount CCY_AMOUNT = CurrencyAmount.of(CCY1, A1);
+  private static final double AMT1 = 100;
+  private static final double AMT2 = 200;
+  private static final CurrencyAmount CCY_AMOUNT = CurrencyAmount.of(CCY1, AMT1);
 
   public void test_fixture() {
     assertEquals(CCY_AMOUNT.getCurrency(), CCY1);
-    assertEquals(CCY_AMOUNT.getAmount(), A1, 0);
+    assertEquals(CCY_AMOUNT.getAmount(), AMT1, 0);
   }
 
   //-------------------------------------------------------------------------
   public void test_of_Currency() {
-    CurrencyAmount test = CurrencyAmount.of(Currency.USD, A1);
+    CurrencyAmount test = CurrencyAmount.of(Currency.USD, AMT1);
     assertEquals(test.getCurrency(), Currency.USD);
-    assertEquals(test.getAmount(), A1, 0.0001d);
+    assertEquals(test.getAmount(), AMT1, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_Currency_nullCurrency() {
-    CurrencyAmount.of((Currency) null, A1);
+    CurrencyAmount.of((Currency) null, AMT1);
   }
 
   //-------------------------------------------------------------------------
   public void test_of_String() {
-    CurrencyAmount test = CurrencyAmount.of("USD", A1);
+    CurrencyAmount test = CurrencyAmount.of("USD", AMT1);
     assertEquals(test.getCurrency(), Currency.USD);
-    assertEquals(test.getAmount(), A1, 0.0001d);
+    assertEquals(test.getAmount(), AMT1, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_String_nullCurrency() {
-    CurrencyAmount.of((String) null, A1);
+    CurrencyAmount.of((String) null, AMT1);
   }
 
   //-------------------------------------------------------------------------
@@ -85,6 +85,7 @@ public class CurrencyAmountTest {
     return new Object[][] {
       {"AUD"},
       {"AUD aa"},
+      {"AUD -.+-"},
       {"123"},
       {null},
     };
@@ -97,9 +98,9 @@ public class CurrencyAmountTest {
 
   //-------------------------------------------------------------------------
   public void test_plus_CurrencyAmount() {
-    CurrencyAmount ccyAmount = CurrencyAmount.of(CCY1, A2);
+    CurrencyAmount ccyAmount = CurrencyAmount.of(CCY1, AMT2);
     CurrencyAmount test = CCY_AMOUNT.plus(ccyAmount);
-    assertEquals(test, CurrencyAmount.of(CCY1, A1 + A2));
+    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 + AMT2));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -109,19 +110,19 @@ public class CurrencyAmountTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_plus_CurrencyAmount_wrongCurrency() {
-    CCY_AMOUNT.plus(CurrencyAmount.of(CCY2, A2));
+    CCY_AMOUNT.plus(CurrencyAmount.of(CCY2, AMT2));
   }
 
   public void test_plus_double() {
-    CurrencyAmount test = CCY_AMOUNT.plus(A2);
-    assertEquals(test, CurrencyAmount.of(CCY1, A1 + A2));
+    CurrencyAmount test = CCY_AMOUNT.plus(AMT2);
+    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 + AMT2));
   }
 
   //-------------------------------------------------------------------------
   public void test_minus_CurrencyAmount() {
-    CurrencyAmount ccyAmount = CurrencyAmount.of(CCY1, A2);
+    CurrencyAmount ccyAmount = CurrencyAmount.of(CCY1, AMT2);
     CurrencyAmount test = CCY_AMOUNT.minus(ccyAmount);
-    assertEquals(test, CurrencyAmount.of(CCY1, A1 - A2));
+    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 - AMT2));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -131,43 +132,43 @@ public class CurrencyAmountTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_minus_CurrencyAmount_wrongCurrency() {
-    CCY_AMOUNT.minus(CurrencyAmount.of(CCY2, A2));
+    CCY_AMOUNT.minus(CurrencyAmount.of(CCY2, AMT2));
   }
 
   public void test_minus_double() {
-    CurrencyAmount test = CCY_AMOUNT.minus(A2);
-    assertEquals(test, CurrencyAmount.of(CCY1, A1 - A2));
+    CurrencyAmount test = CCY_AMOUNT.minus(AMT2);
+    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 - AMT2));
   }
 
   //-------------------------------------------------------------------------
   public void test_multipliedBy() {
     CurrencyAmount test = CCY_AMOUNT.multipliedBy(3.5);
-    assertEquals(test, CurrencyAmount.of(CCY1, A1 * 3.5));
+    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 * 3.5));
   }
 
   public void test_negated() {
     CurrencyAmount test = CCY_AMOUNT.negated();
-    assertEquals(test, CurrencyAmount.of(CCY1, -A1));
+    assertEquals(test, CurrencyAmount.of(CCY1, -AMT1));
   }
 
   public void test_mapAmount() {
     CurrencyAmount test = CCY_AMOUNT.mapAmount(v -> v * 2 + 1);
-    assertEquals(test, CurrencyAmount.of(CCY1, A1 * 2 + 1));
+    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 * 2 + 1));
   }
 
   //-------------------------------------------------------------------------
   public void test_equals_hashCode() {
-    CurrencyAmount other = CurrencyAmount.of(CCY1, A1);
+    CurrencyAmount other = CurrencyAmount.of(CCY1, AMT1);
     assertTrue(CCY_AMOUNT.equals(CCY_AMOUNT));
     assertTrue(CCY_AMOUNT.equals(other));
     assertTrue(other.equals(CCY_AMOUNT));
     assertEquals(CCY_AMOUNT.hashCode(), other.hashCode());
-    other = CurrencyAmount.of(CCY1, A1);
+    other = CurrencyAmount.of(CCY1, AMT1);
     assertEquals(CCY_AMOUNT, other);
     assertEquals(CCY_AMOUNT.hashCode(), other.hashCode());
-    other = CurrencyAmount.of(CCY2, A1);
+    other = CurrencyAmount.of(CCY2, AMT1);
     assertFalse(CCY_AMOUNT.equals(other));
-    other = CurrencyAmount.of(CCY1, A2);
+    other = CurrencyAmount.of(CCY1, AMT2);
     assertFalse(CCY_AMOUNT.equals(other));
   }
 

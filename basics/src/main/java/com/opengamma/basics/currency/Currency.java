@@ -39,7 +39,7 @@ public final class Currency
    * The valid regex for schemes.
    * Three ASCII upper case letters.
    */
-  private static final Pattern REGEX_CODE = Pattern.compile("[A-Z][A-Z][A-Z]");
+  private static final Pattern REGEX_CODE = Pattern.compile("[A-Z]{3}");
 
   // a selection of commonly traded, stable currencies
   /**

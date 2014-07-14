@@ -15,6 +15,7 @@ import org.joda.convert.ToString;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.math.DoubleMath;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -121,8 +122,7 @@ public final class CurrencyAmount
    * @param amount  the amount
    */
   private CurrencyAmount(Currency currency, double amount) {
-    ArgChecker.notNull(currency, "currency");
-    this.currency = currency;
+    this.currency = ArgChecker.notNull(currency, "currency");
     this.amount = amount;
   }
 
@@ -196,7 +196,7 @@ public final class CurrencyAmount
    * @throws IllegalArgumentException if the currencies are not equal
    */
   public CurrencyAmount minus(CurrencyAmount amountToSubtract) {
-    ArgChecker.notNull(amountToSubtract, "amountToAdd");
+    ArgChecker.notNull(amountToSubtract, "amountToSubtract");
     ArgChecker.isTrue(amountToSubtract.getCurrency().equals(currency), "Unable to subtract amounts in different currencies");
     return minus(amountToSubtract.getAmount());
   }
@@ -251,7 +251,7 @@ public final class CurrencyAmount
    * This is generally used to apply a mathematical operation to the amount.
    * For example, the operator could multiply the amount by a constant, or take the inverse.
    * <pre>
-   *   multiplied = base.mapAmount(value -> value * 3);
+   *   multiplied = base.mapAmount(value -> (value &lt; 0 ? 0 : value * 3));
    * </pre>
    *
    * @param mapper  the operator to be applied to the amount
@@ -320,10 +320,8 @@ public final class CurrencyAmount
   @Override
   @ToString
   public String toString() {
-    if (amount == (long) amount) {
-      return currency + " " + Long.toString((long) amount);
-    }
-    return currency + " " + Double.toString(amount);
+    return currency + " " +
+        (DoubleMath.isMathematicalInteger(amount) ? Long.toString((long) amount) : Double.toString(amount));
   }
 
 }

@@ -25,27 +25,26 @@ public class FxRateTest {
   private static final Currency EUR = Currency.EUR;
   private static final Currency GBP = Currency.GBP;
   private static final Currency USD = Currency.USD;
-  private static final double TOLERANCE = 0.00001d;
 
   //-------------------------------------------------------------------------
   public void test_of_CurrencyCurrencyDouble() {
     FxRate test = FxRate.of(GBP, USD, 1.5d);
     assertEquals(test.getPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getRate(), 1.5d, TOLERANCE);
+    assertEquals(test.getRate(), 1.5d, 0);
     assertEquals(test.toString(), "GBP/USD 1.5");
   }
 
   public void test_of_CurrencyCurrencyDouble_reverseStandardOrder() {
     FxRate test = FxRate.of(USD, GBP, 0.8d);
     assertEquals(test.getPair(), CurrencyPair.of(USD, GBP));
-    assertEquals(test.getRate(), 0.8d, TOLERANCE);
+    assertEquals(test.getRate(), 0.8d, 0);
     assertEquals(test.toString(), "USD/GBP 0.8");
   }
 
   public void test_of_CurrencyCurrencyDouble_same() {
     FxRate test = FxRate.of(USD, USD, 1d);
     assertEquals(test.getPair(), CurrencyPair.of(USD, USD));
-    assertEquals(test.getRate(), 1d, TOLERANCE);
+    assertEquals(test.getRate(), 1d, 0);
     assertEquals(test.toString(), "USD/USD 1");
   }
 
@@ -64,21 +63,21 @@ public class FxRateTest {
   public void test_of_CurrencyPairDouble() {
     FxRate test = FxRate.of(CurrencyPair.of(GBP, USD), 1.5d);
     assertEquals(test.getPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getRate(), 1.5d, TOLERANCE);
+    assertEquals(test.getRate(), 1.5d, 0);
     assertEquals(test.toString(), "GBP/USD 1.5");
   }
 
   public void test_of_CurrencyPairDouble_reverseStandardOrder() {
     FxRate test = FxRate.of(CurrencyPair.of(USD, GBP), 0.8d);
     assertEquals(test.getPair(), CurrencyPair.of(USD, GBP));
-    assertEquals(test.getRate(), 0.8d, TOLERANCE);
+    assertEquals(test.getRate(), 0.8d, 0);
     assertEquals(test.toString(), "USD/GBP 0.8");
   }
 
   public void test_of_CurrencyPairDouble_same() {
     FxRate test = FxRate.of(CurrencyPair.of(USD, USD), 1d);
     assertEquals(test.getPair(), CurrencyPair.of(USD, USD));
-    assertEquals(test.getRate(), 1d, TOLERANCE);
+    assertEquals(test.getRate(), 1d, 0);
     assertEquals(test.toString(), "USD/USD 1");
   }
 

@@ -5,6 +5,11 @@
  */
 package com.opengamma.basics.currency;
 
+import static com.opengamma.basics.currency.Currency.AUD;
+import static com.opengamma.basics.currency.Currency.CAD;
+import static com.opengamma.basics.currency.Currency.EUR;
+import static com.opengamma.basics.currency.Currency.GBP;
+import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static org.testng.Assert.assertEquals;
@@ -18,12 +23,6 @@ import org.testng.annotations.Test;
  */
 @Test
 public class CurrencyPairTest {
-
-  private static final Currency AUD = Currency.AUD;
-  private static final Currency CAD = Currency.CAD;
-  private static final Currency EUR = Currency.EUR;
-  private static final Currency GBP = Currency.GBP;
-  private static final Currency USD = Currency.USD;
 
   //-------------------------------------------------------------------------
   public void test_of_CurrencyCurrency() {
@@ -104,6 +103,7 @@ public class CurrencyPairTest {
     assertEquals(test.contains(GBP), true);
     assertEquals(test.contains(USD), true);
     assertEquals(test.contains(EUR), false);
+    assertEquals(test.contains(null), false);
   }
 
   public void test_contains_Currency_same() {

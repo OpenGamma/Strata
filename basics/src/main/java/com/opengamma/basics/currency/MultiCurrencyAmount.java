@@ -53,6 +53,10 @@ import com.opengamma.collect.Guavate;
 @BeanDefinition(builderScope = "private")
 public final class MultiCurrencyAmount
     implements ImmutableBean, Serializable {
+  // the choice of a set as the internal storage is driven by serialization concerns
+  // the ideal storage form would be Map<Currency, CurrencyAmount> but this
+  // would duplicate the currency in the serialized form
+  // a set was chosen as a suitable middle ground
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -176,7 +180,7 @@ public final class MultiCurrencyAmount
         .distinct()
         .count();
     if (currencyCount < amounts.size()) {
-      throw new IllegalArgumentException("Duplicate currency not allowed");
+      throw new IllegalArgumentException("Duplicate currency not allowed: " + amounts);
     }
   }
 
@@ -367,7 +371,7 @@ public final class MultiCurrencyAmount
    * <p>
    * This provides access to the entire set of amounts.
    *
-   * @return a stream over the points of this time-series
+   * @return a stream over the individual amounts
    */
   public Stream<CurrencyAmount> stream() {
     return amounts.stream();
