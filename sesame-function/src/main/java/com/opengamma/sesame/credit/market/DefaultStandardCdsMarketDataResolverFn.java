@@ -7,8 +7,8 @@ package com.opengamma.sesame.credit.market;
 
 import java.util.Map;
 
-import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.id.ExternalId;
@@ -58,7 +58,7 @@ public class DefaultStandardCdsMarketDataResolverFn implements StandardCdsMarket
     
     RestructuringClause restructuringClause = restructuringMappings.get(currency);
     ExternalId referenceEntity = security.getReferenceEntity();
-    DebtSeniority seniority = security.getDebtSeniority();
+    SeniorityLevel seniority = security.getSeniority();
     
     CreditCurveDataKey key = CreditCurveDataKey.builder()
                                 .currency(currency)

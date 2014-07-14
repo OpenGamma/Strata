@@ -8,8 +8,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.core.legalentity.SeniorityLevel;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.security.credit.LegacyCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -27,7 +27,7 @@ import com.opengamma.util.test.TestGroup;
 public class DefaultLegacyCdsMarketDataResolverFnTest {
 
   private RestructuringClause _clause;
-  private DebtSeniority _seniority;
+  private SeniorityLevel _seniority;
   private ExternalId _refEntity;
   private Currency _ccy;
   
@@ -39,13 +39,13 @@ public class DefaultLegacyCdsMarketDataResolverFnTest {
   @BeforeMethod
   public void beforeMethod() {
     _clause = RestructuringClause.CR;
-    _seniority = DebtSeniority.JRSUBUT2;
+    _seniority = SeniorityLevel.JRSUBUT2;
     _refEntity = ExternalId.of(ExternalScheme.of("refentity"), "test");
     _ccy = Currency.USD;
     _sec = mock(LegacyCDSSecurity.class);
     when(_sec.getNotional()).thenReturn(new InterestRateNotional(_ccy, 0));
     when(_sec.getReferenceEntity()).thenReturn(_refEntity);
-    when(_sec.getDebtSeniority()).thenReturn(_seniority);
+    when(_sec.getSeniority()).thenReturn(_seniority);
     when(_sec.getRestructuringClause()).thenReturn(_clause);
     
     _env = mock(Environment.class);
