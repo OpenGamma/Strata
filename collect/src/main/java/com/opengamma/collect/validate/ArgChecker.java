@@ -837,7 +837,7 @@ public final class ArgChecker {
    * No attempt is made to format the arguments.
    * 
    * @param messageTemplate  the message template with "{}" placeholders, not null
-   * @param arg  the message arguments, not null
+   * @param args  the message arguments, not null
    * @return the formatted message
    */
   public static String formatMessage(String messageTemplate, Object... args) {
