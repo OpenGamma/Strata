@@ -118,9 +118,7 @@ public class TestHelper {
           }
         }
       }
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    } catch (ClassNotFoundException ex) {
+    } catch (IOException | ClassNotFoundException ex) {
       throw new RuntimeException(ex);
     }
   }
@@ -251,7 +249,6 @@ public class TestHelper {
    */
   public static void coverImmutableBean(ImmutableBean bean) {
     assertNotNull(bean, "coverImmutableBean() called with null bean");
-    assertTrue(bean instanceof ImmutableBean);
     assertSame(JodaBeanUtils.clone(bean), bean);
     coverBean(bean);
   }
@@ -272,6 +269,7 @@ public class TestHelper {
     for (MetaProperty<?> mp : metaBean.metaPropertyIterable()) {
       assertTrue(metaBean.metaPropertyExists(mp.name()));
       assertEquals(metaBean.metaProperty(mp.name()), mp);
+      // Ensure we don't use interned value
       assertEquals(metaBean.metaProperty(new String(mp.name())), mp);
       assertEquals(metaPropMap.values().contains(mp), true);
       assertEquals(metaPropMap.keySet().contains(mp.name()), true);
@@ -383,8 +381,6 @@ public class TestHelper {
         Bean built = bld.build();
         assertEquals(built, built);
         assertEquals(built.hashCode(), built.hashCode());
-      } catch (AssertionError ex) {
-        throw ex;
       } catch (RuntimeException ex) {
         // ignore
       }
@@ -468,10 +464,10 @@ public class TestHelper {
         .put(URI.class, Arrays.asList(URI.create("http://www.opengamma.com"), URI.create("http://www.joda.org")))
         .put(Class.class, Arrays.asList(Throwable.class, RuntimeException.class, String.class))
         .put(Object.class, Arrays.asList("", 6))
-        .put(Collection.class, Arrays.asList(new ArrayList<String>()))
-        .put(List.class, Arrays.asList(new ArrayList<String>()))
-        .put(Set.class, Arrays.asList(new HashSet<String>()))
-        .put(SortedSet.class, Arrays.asList(new TreeSet<String>()))
+        .put(Collection.class, Arrays.asList(new ArrayList<>()))
+        .put(List.class, Arrays.asList(new ArrayList<>()))
+        .put(Set.class, Arrays.asList(new HashSet<>()))
+        .put(SortedSet.class, Arrays.asList(new TreeSet<>()))
         .put(ImmutableList.class, Arrays.asList(ImmutableList.<String>of()))
         .put(ImmutableSet.class, Arrays.asList(ImmutableSet.<String>of()))
         .put(ImmutableSortedSet.class, Arrays.asList(ImmutableSortedSet.<String>naturalOrder()))
