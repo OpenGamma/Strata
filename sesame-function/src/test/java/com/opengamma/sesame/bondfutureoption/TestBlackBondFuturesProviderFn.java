@@ -59,10 +59,10 @@ public final class TestBlackBondFuturesProviderFn implements BlackBondFuturesPro
     return Result.failure(bundleResult);
   }
 
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(
-                                                                                                            Interpolator1DFactory.LINEAR,
-                                                                                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-                                                                                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D LINEAR_FLAT =
+      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+                                                              Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+                                                              Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   
   private static final GridInterpolator2D INTERPOLATOR_2D = new GridInterpolator2D(LINEAR_FLAT, LINEAR_FLAT);
   
