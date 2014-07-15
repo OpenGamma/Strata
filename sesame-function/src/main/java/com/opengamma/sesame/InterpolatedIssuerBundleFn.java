@@ -74,13 +74,13 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
     
     ZonedDateTime now = env.getValuationTime();
 
-    final IssuerProviderDiscount curveBundle = new IssuerProviderDiscount(new FXMatrix());
-    final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
-    final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
+    IssuerProviderDiscount curveBundle = new IssuerProviderDiscount(new FXMatrix());
+    LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
+    LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
     int totalNodes = 0;
-    for (final CurveGroupConfiguration group: curveConfig.getCurveGroups()) {
+    for (CurveGroupConfiguration group: curveConfig.getCurveGroups()) {
 
-      for (final Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: group.resolveTypesForCurves().entrySet()) {
+      for (Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: group.resolveTypesForCurves().entrySet()) {
         
         AbstractCurveDefinition curve = entry.getKey();
         
@@ -95,19 +95,19 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
           if (marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
             
             // todo this is temporary to allow us to get up and running fast
-            final SnapshotDataBundle snapshot = createSnapshotDataBundle(marketDataResult.getValue());
+            SnapshotDataBundle snapshot = createSnapshotDataBundle(marketDataResult.getValue());
   
             int n = specification.getNodes().size();
             
-            final double[] times = new double[n];
-            final double[] yields = new double[n];
-            final double[][] jacobian = new double[n][n];
+            double[] times = new double[n];
+            double[] yields = new double[n];
+            double[][] jacobian = new double[n][n];
             boolean isYield = false;
             int i = 0;
             int compoundPeriodsPerYear = 0;
-            final int nNodesForCurve = specification.getNodes().size();
-            for (final CurveNodeWithIdentifier node: specification.getNodes()) {
-              final CurveNode curveNode = node.getCurveNode();
+            int nNodesForCurve = specification.getNodes().size();
+            for (CurveNodeWithIdentifier node: specification.getNodes()) {
+              CurveNode curveNode = node.getCurveNode();
               if (curveNode instanceof ContinuouslyCompoundedRateNode) {
                 if (i == 0) {
                   isYield = true;
@@ -136,23 +136,23 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
               } else {
                 throw new OpenGammaRuntimeException("Can only handle discount factor or continuously-compounded rate nodes; have " + curveNode);
               }
-              final Double marketValue = snapshot.getDataPoint(node.getIdentifier());
+              Double marketValue = snapshot.getDataPoint(node.getIdentifier());
               if (marketValue == null) {
                 throw new OpenGammaRuntimeException("Could not get market value for " + node);
               }
-              final Tenor maturity = curveNode.getResolvedMaturity();
+              Tenor maturity = curveNode.getResolvedMaturity();
               times[i] = TimeCalculator.getTimeBetween(now, now.plus(maturity.getPeriod()));
               yields[i] = marketValue;
               jacobian[i][i] = 1;
               i++;
             }
-            final String interpolatorName = specification.getInterpolatorName();
-            final String rightExtrapolatorName = specification.getRightExtrapolatorName();
-            final String leftExtrapolatorName = specification.getLeftExtrapolatorName();
-            final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-            final String curveName = curve.getName();
-            final InterpolatedDoublesCurve rawCurve = InterpolatedDoublesCurve.from(times, yields, interpolator, curveName);
-            final YieldAndDiscountCurve discountCurve;
+            String interpolatorName = specification.getInterpolatorName();
+            String rightExtrapolatorName = specification.getRightExtrapolatorName();
+            String leftExtrapolatorName = specification.getLeftExtrapolatorName();
+            Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+            String curveName = curve.getName();
+            InterpolatedDoublesCurve rawCurve = InterpolatedDoublesCurve.from(times, yields, interpolator, curveName);
+            YieldAndDiscountCurve discountCurve;
             if (compoundPeriodsPerYear != 0 && isYield) {
               discountCurve = YieldPeriodicCurve.from(compoundPeriodsPerYear, rawCurve);
             } else if (isYield) {
@@ -161,14 +161,14 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
               discountCurve = new DiscountCurve(curveName, rawCurve);
             }
     
-            for (final CurveTypeConfiguration type: entry.getValue()) {
+            for (CurveTypeConfiguration type: entry.getValue()) {
               if (type instanceof IssuerCurveTypeConfiguration) {
-                final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
+                IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
                 curveBundle.setCurve(Pairs.<Object, LegalEntityFilter<LegalEntity>>of(issuer.getKeys(), issuer.getFilters()), discountCurve);
                 curveBundle.getMulticurveProvider().setCurve(Currency.of(curveName.substring(0, 3)), discountCurve);
               }
             }
-            unitMap.put(curveName, Pairs.of(totalNodes + nNodesForCurve, nNodesForCurve));
+            unitMap.put(curveName, Pairs.of(totalNodes, nNodesForCurve));
             unitBundles.put(curveName, Pairs.of(new CurveBuildingBlock(unitMap), new DoubleMatrix2D(jacobian)));
             totalNodes += nNodesForCurve;
           } else {
