@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.irs;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -62,9 +61,11 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
    * @param htsFn hts function for providing fixing timeseries, not null.
    * @param curveDefinitionFn the curve definition function, not null.
    */
-  public DiscountingInterestRateSwapCalculatorFactory(InterestRateSwapSecurityConverter swapConverter, FixedIncomeConverterDataProvider definitionConverter,
-      DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn, HistoricalTimeSeriesFn htsFn,
-      CurveDefinitionFn curveDefinitionFn) {
+  public DiscountingInterestRateSwapCalculatorFactory(InterestRateSwapSecurityConverter swapConverter,
+                                                      FixedIncomeConverterDataProvider definitionConverter,
+                                                      DiscountingMulticurveCombinerFn discountingMulticurveCombinerFn,
+                                                      HistoricalTimeSeriesFn htsFn,
+                                                      CurveDefinitionFn curveDefinitionFn) {
     _swapConverter = ArgumentChecker.notNull(swapConverter, "swapConverter");
     _fixedIncomeConverterDataProvider = ArgumentChecker.notNull(definitionConverter, "definitionConverter");
     _discountingMulticurveCombinerFn = ArgumentChecker.notNull(discountingMulticurveCombinerFn, "discountingMulticurveCombinerFn");
@@ -74,32 +75,28 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
 
   @Override
   public Result<InterestRateSwapCalculator> createCalculator(Environment env, InterestRateSwapSecurity security) {
+
+    Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
     Result<Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle>> bundleResult =
         _discountingMulticurveCombinerFn.createMergedMulticurveBundle(env, security, new FXMatrix());
 
-    final Result<HistoricalTimeSeriesBundle> fixings = _htsFn.getFixingsForSecurity(env, security);
+    if (Result.allSuccessful(bundleResult, fixings)) {
 
-    //TODO: Obtain curve definitions when CurveBuildingBlockBundle is created (avoid this 2nd lookup)
-    Result<?> curveDefinitionResult = Result.success(true);
-    Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
-    if (bundleResult.isSuccess()) {
-      for (String curveName : bundleResult.getValue().getValue().getData().keySet()) {
-        Result<CurveDefinition> curveDefinition = _curveDefinitionFn.getCurveDefinition(curveName);
-        if (curveDefinition.isSuccess()) {
-          curveDefinitions.put(curveName, curveDefinition.getValue());
-        } else {
-          curveDefinitionResult = Result.failure(curveDefinitionResult, Result.failure(curveDefinition));
-        }
+      Result<Map<String, CurveDefinition>> curveDefinitions =
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond());
+
+      if (!curveDefinitions.isSuccess()) {
+        return Result.failure(curveDefinitions);
       }
-    }
 
-    if (Result.allSuccessful(bundleResult, fixings, curveDefinitionResult)) {
-      InterestRateSwapCalculator calculator = new DiscountingInterestRateSwapCalculator(security, bundleResult.getValue().getFirst(),
-          bundleResult.getValue().getSecond(), _swapConverter, env.getValuationTime(),
-          _fixedIncomeConverterDataProvider, fixings.getValue(), curveDefinitions);
+      InterestRateSwapCalculator calculator =
+          new DiscountingInterestRateSwapCalculator(security, bundleResult.getValue().getFirst(),
+                                                    bundleResult.getValue().getSecond(), _swapConverter,
+                                                    env.getValuationTime(), _fixedIncomeConverterDataProvider,
+                                                    fixings.getValue(), curveDefinitions.getValue());
       return Result.success(calculator);
     } else {
-      return Result.failure(bundleResult, fixings, curveDefinitionResult);
+      return Result.failure(bundleResult, fixings);
     }
   }
 }
