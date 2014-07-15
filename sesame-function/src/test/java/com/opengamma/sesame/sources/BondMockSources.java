@@ -64,6 +64,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
@@ -123,9 +124,9 @@ import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.bond.BondCalculatorFactory;
-import com.opengamma.sesame.bond.DiscountingBondCalculatorFactory;
 import com.opengamma.sesame.bond.BondFn;
 import com.opengamma.sesame.bond.DefaultBondFn;
+import com.opengamma.sesame.bond.DiscountingBondCalculatorFactory;
 import com.opengamma.sesame.bondfuture.BondFutureCalculatorFactory;
 import com.opengamma.sesame.bondfuture.BondFutureDiscountingCalculatorFactory;
 import com.opengamma.sesame.bondfuture.BondFutureFn;
@@ -193,7 +194,9 @@ public class BondMockSources {
     bondNodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B3")));
     bondNodes.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B4")));
     bondNodes.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B5")));
-    return CurveNodeIdMapper.builder().name(BOND_CURVE_NODE_ID_MAPPER).periodicallyCompoundedRateNodeIds(bondNodes).build();
+    return CurveNodeIdMapper.builder().name(BOND_CURVE_NODE_ID_MAPPER)
+                                      .periodicallyCompoundedRateNodeIds(bondNodes)
+                                      .build();
   }
   
   private static InterpolatedCurveDefinition getBondCurveDefinition() {
@@ -342,9 +345,13 @@ public class BondMockSources {
       .thenReturn(getBondCurveNodeIdMapper());
     
     // curve def
+    ConfigItem<Object> bondCurveDefinitionItem = ConfigItem.<Object>of(getBondCurveDefinition());
     when(mock.get(eq(Object.class), eq(BOND_CURVE_NAME), any(VersionCorrection.class)))
-      .thenReturn(ImmutableSet.of(ConfigItem.<Object>of(getBondCurveDefinition())));
-    
+      .thenReturn(ImmutableSet.of(bondCurveDefinitionItem));
+    when(mock.getSingle(eq(CurveDefinition.class), eq(BOND_CURVE_NAME), any(VersionCorrection.class)))
+        .thenReturn((CurveDefinition) bondCurveDefinitionItem.getValue());
+
+
     // curve config
     when(mock.get(eq(CurveConstructionConfiguration.class), eq(BOND_CURVE_CONFIG_NAME), any(VersionCorrection.class)))
       .thenReturn(ImmutableSet.of(ConfigItem.of(getBondCurveConfig())));
@@ -370,8 +377,8 @@ public class BondMockSources {
 
     HistoricalTimeSeries irFuturePrices = new SimpleHistoricalTimeSeries(UniqueId.of("Blah", "1"),
                                                                          ImmutableLocalDateDoubleTimeSeries.of(
-                                                                             VALUATION_TIME.toLocalDate(),
-                                                                             0.975));
+                                                                         VALUATION_TIME.toLocalDate(),
+                                                                         0.975));
     when(mock.getHistoricalTimeSeries(eq(MarketDataRequirementNames.MARKET_VALUE),
                                       any(ExternalIdBundle.class),
                                       eq("DEFAULT_TSS"),
@@ -401,13 +408,13 @@ public class BondMockSources {
     String issuerName = BondMockSources.BOND_ISSUER_KEY;
     String issuerDomicile = "US";
     String issuerType = "Sovereign";
-    ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 6, 18);
-    ZonedDateTime maturityDate = DateUtils.getUTCDate(2015, 6, 18);
+    ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 1, 22);
+    ZonedDateTime maturityDate = DateUtils.getUTCDate(2015, 6, 22);
     Currency currency = Currency.USD;
     YieldConvention yieldConvention = SimpleYieldConvention.US_TREASURY_EQUIVALANT;
     Expiry lastTradeDate = new Expiry(maturityDate);
     String couponType = "Fixed";
-    double couponRate = 0.02;
+    double couponRate = 0.05;
     Period couponPeriod = Period.parse("P6M");
     Frequency couponFrequency = PeriodFrequency.of(couponPeriod);
     DayCount dayCountConvention = DayCounts.ACT_ACT_ICMA;
@@ -434,7 +441,7 @@ public class BondMockSources {
 
   private static BondTrade createBondTrade() {
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-    BigDecimal tradeQuantity = BigDecimal.valueOf(1);
+    BigDecimal tradeQuantity = BigDecimal.valueOf(1000000);
     LocalDate tradeDate = LocalDate.of(2014, 1, 1);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
     SimpleTrade trade = new SimpleTrade(BOND_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
