@@ -7,8 +7,8 @@ package com.opengamma.sesame;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
@@ -46,16 +46,19 @@ public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
   }
 
   @Override
-  public Result<Map<String, CurveDefinition>> getCurveDefinitions(CurveBuildingBlockBundle block) {
-
+  public Result<Map<String, CurveDefinition>> getCurveDefinitions(Set<String> curveNames) {
     Map<String, CurveDefinition> curveDefinitions = new HashMap<>();
-    for (String curveName : block.getData().keySet()) {
+    Result<?> curveDefinitionResult = Result.success(true);
+    for (String curveName : curveNames) {
       Result<CurveDefinition> curveDefinition = getCurveDefinition(curveName);
       if (curveDefinition.isSuccess()) {
         curveDefinitions.put(curveName, curveDefinition.getValue());
       } else {
-        return Result.failure(FailureStatus.MISSING_DATA, "Could not get curve definition called {}", curveName);
+        curveDefinitionResult = Result.failure(curveDefinitionResult, Result.failure(curveDefinition));
       }
+    }
+    if (!curveDefinitionResult.isSuccess()) {
+      return Result.failure(curveDefinitionResult);
     }
     return Result.success(curveDefinitions);
   }

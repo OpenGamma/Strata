@@ -66,7 +66,7 @@ public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
     if (bundleResult.isSuccess()) {
 
       Result<Map<String, CurveDefinition>> curveDefinitions =
-          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond());
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
 
       if (!curveDefinitions.isSuccess()) {
         return Result.failure(curveDefinitions);

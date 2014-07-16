@@ -12,14 +12,12 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -49,13 +47,11 @@ public class DiscountingBondCalculator implements BondCalculator {
   /**
    * Calculator for PV01
    */
-  private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface,
-                                                   ReferenceAmount<Pair<String, Currency>>> PV01C =
+  private static final PV01CurveParametersCalculator<ParameterIssuerProviderInterface> PV01C =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityIssuerCalculator.getInstance());
 
   /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface,
-                                                   MultipleCurrencyMulticurveSensitivity> PVCSDC =
+  private static final PresentValueCurveSensitivityIssuerCalculator PVCSDC =
       PresentValueCurveSensitivityIssuerCalculator.getInstance();
 
   /** The parameter sensitivity calculator */
@@ -107,9 +103,12 @@ public class DiscountingBondCalculator implements BondCalculator {
                                    BondAndBondFutureTradeConverter converter,
                                    ZonedDateTime valuationTime,
                                    Map<String, CurveDefinition> curveDefinitions) {
+    ArgumentChecker.notNull(trade, "trade");
+    ArgumentChecker.notNull(converter, "converter");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
     _derivative = createInstrumentDerivative(trade, converter, valuationTime);
-    _blocks = blocks;
-    _curves = curves;
+    _blocks = ArgumentChecker.notNull(blocks, "blocks");
+    _curves = ArgumentChecker.notNull(curves, "curves");
     _curveDefinitions = ArgumentChecker.notNull(curveDefinitions, "curveDefinitions");
   }
 

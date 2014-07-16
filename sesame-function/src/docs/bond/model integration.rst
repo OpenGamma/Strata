@@ -13,6 +13,7 @@ The ``DiscountingBondCalculator`` is the discounting calculator implementation f
 
 * ``IssuerProviderFn`` -  to provide the multicurve bundle for curves by issuer.
 * ``BondAndBondFutureTradeConverter`` - to convert the trade/security into the analytics object.
+* ``CurveDefinitionFn`` - to obtain cure definitions by curve name.
 * ``Environment`` - to provide the valuation time and market data
 * ``BondTrade`` - containing the ``BondSecurity`` or the subtypes ``MunicipalBondSecurity``, ``InflationBondSecurity``, ``GovernmentBondSecurity`` or ``CorporateBondSecurity``
 
@@ -20,3 +21,5 @@ Outputs
 -------
 
 * Present value, in the form of a ``MultipleCurrencyAmount``
+* PV01, in the form of a ``ReferenceAmount``
+* Bucketed PV01, in the form of ``BucketedCurveSensitivities``

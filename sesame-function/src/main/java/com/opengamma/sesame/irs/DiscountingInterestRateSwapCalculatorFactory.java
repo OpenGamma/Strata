@@ -83,7 +83,7 @@ public class DiscountingInterestRateSwapCalculatorFactory implements InterestRat
     if (Result.allSuccessful(bundleResult, fixings)) {
 
       Result<Map<String, CurveDefinition>> curveDefinitions =
-          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond());
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
 
       if (!curveDefinitions.isSuccess()) {
         return Result.failure(curveDefinitions);

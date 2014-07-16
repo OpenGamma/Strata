@@ -10,6 +10,8 @@ import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -60,11 +62,12 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
   private final CurveSpecificationFn _curveSpecificationProvider;
   
   private final CurveSpecificationMarketDataFn _curveSpecificationMarketDataProvider;
-  
+
   public InterpolatedIssuerBundleFn(CurveSpecificationFn curveSpecificationProvider,
                                     CurveSpecificationMarketDataFn curveSpecificationMarketDataProvider) {
     _curveSpecificationProvider = ArgumentChecker.notNull(curveSpecificationProvider, "curveSpecificationProvider");
-    _curveSpecificationMarketDataProvider = ArgumentChecker.notNull(curveSpecificationMarketDataProvider, "curveSpecificationMarketDataProvider");
+    _curveSpecificationMarketDataProvider =
+        ArgumentChecker.notNull(curveSpecificationMarketDataProvider, "curveSpecificationMarketDataProvider");
   }
 
   @Override
@@ -79,8 +82,9 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
     LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
     int totalNodes = 0;
     for (CurveGroupConfiguration group: curveConfig.getCurveGroups()) {
-
-      for (Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: group.resolveTypesForCurves().entrySet()) {
+      Set<Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>>> curveEntrySet =
+          group.resolveTypesForCurves().entrySet();
+      for (Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: curveEntrySet) {
         
         AbstractCurveDefinition curve = entry.getKey();
         
@@ -90,7 +94,8 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
   
           InterpolatedCurveSpecification specification = (InterpolatedCurveSpecification) curveSpecResult.getValue();
           
-          Result<Map<ExternalIdBundle, Double>> marketDataResult = _curveSpecificationMarketDataProvider.requestData(env, specification);
+          Result<Map<ExternalIdBundle, Double>> marketDataResult =
+              _curveSpecificationMarketDataProvider.requestData(env, specification);
           
           if (marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
             
@@ -149,7 +154,9 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
             String interpolatorName = specification.getInterpolatorName();
             String rightExtrapolatorName = specification.getRightExtrapolatorName();
             String leftExtrapolatorName = specification.getLeftExtrapolatorName();
-            Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+            Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName,
+                                                                                                  leftExtrapolatorName,
+                                                                                                  rightExtrapolatorName);
             String curveName = curve.getName();
             InterpolatedDoublesCurve rawCurve = InterpolatedDoublesCurve.from(times, yields, interpolator, curveName);
             YieldAndDiscountCurve discountCurve;

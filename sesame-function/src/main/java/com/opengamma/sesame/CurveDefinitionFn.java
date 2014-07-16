@@ -6,8 +6,8 @@
 package com.opengamma.sesame;
 
 import java.util.Map;
+import java.util.Set;
 
-import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.util.result.Result;
 
@@ -29,9 +29,9 @@ public interface CurveDefinitionFn {
   /**
    * Gets the curve definitions by name.
    *
-   * @param block  the curve building block bundle, not null
+   * @param curveNames the set of curve names not null
    * @return the curve definitions keyed by curve name, a failure result if not found
    */
-  Result<Map<String, CurveDefinition>> getCurveDefinitions(CurveBuildingBlockBundle block);
+  Result<Map<String, CurveDefinition>> getCurveDefinitions(Set<String> curveNames);
 
 }
