@@ -8,7 +8,6 @@ package com.opengamma.sesame;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
