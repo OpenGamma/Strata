@@ -192,7 +192,7 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
               }
             }
 
-            unitMap.put(curveName, Pairs.of(totalNodes + nNodesForCurve, nNodesForCurve));
+            unitMap.put(curveName, Pairs.of(totalNodes, nNodesForCurve));
             unitBundles.put(curveName, Pairs.of(new CurveBuildingBlock(unitMap), new DoubleMatrix2D(jacobian)));
             totalNodes += nNodesForCurve;
           } else {

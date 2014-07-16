@@ -5,10 +5,14 @@
  */
 package com.opengamma.sesame.bond;
 
+import java.util.Map;
+
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeConverter;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.sesame.CurveDefinitionFn;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.IssuerProviderFn;
 import com.opengamma.sesame.trade.BondTrade;
@@ -33,16 +37,24 @@ public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
   private final IssuerProviderFn _issuerProviderFn;
 
   /**
+   * Curve definition function
+   */
+  private final CurveDefinitionFn _curveDefinitionFn;
+
+  /**
    * Creates the factory.
    *
    * @param converter converter for transforming a bond
    * @param issuerProviderFn multicurve bundle for curves by issuer.
+   * @param curveDefinitionFn the curve definition function, not null.
 
    */
   public DiscountingBondCalculatorFactory(BondAndBondFutureTradeConverter converter,
-                                          IssuerProviderFn issuerProviderFn) {
+                                          IssuerProviderFn issuerProviderFn,
+                                          CurveDefinitionFn curveDefinitionFn) {
     _converter = ArgumentChecker.notNull(converter, "converter");
     _issuerProviderFn = ArgumentChecker.notNull(issuerProviderFn, "issuerProviderFn");
+    _curveDefinitionFn = ArgumentChecker.notNull(curveDefinitionFn, "curveDefinitionFn");
   }
 
   @Override
@@ -52,11 +64,19 @@ public class DiscountingBondCalculatorFactory implements BondCalculatorFactory {
         _issuerProviderFn.createBundle(env, trade, new FXMatrix());
 
     if (bundleResult.isSuccess()) {
+
+      Result<Map<String, CurveDefinition>> curveDefinitions =
+          _curveDefinitionFn.getCurveDefinitions(bundleResult.getValue().getSecond().getData().keySet());
+
+      if (!curveDefinitions.isSuccess()) {
+        return Result.failure(curveDefinitions);
+      }
+
       ParameterIssuerProviderInterface curves = bundleResult.getValue().getFirst();
-      DiscountingBondCalculator calculator = new DiscountingBondCalculator(trade,
-                                                                           curves,
-                                                                           _converter,
-                                                                           env.getValuationTime());
+      CurveBuildingBlockBundle blocks = bundleResult.getValue().getSecond();
+      DiscountingBondCalculator calculator =
+          new DiscountingBondCalculator(trade, curves, blocks,  _converter, env.getValuationTime(),
+                                        curveDefinitions.getValue());
       return Result.success(calculator);
     } else {
       return Result.failure(bundleResult);
