@@ -16,6 +16,8 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
@@ -73,7 +75,9 @@ public class DefaultIsdaCompliantYieldCurveFnTest {
     when(providerFn.retrieveYieldCurveData(Currency.GBP)).
         thenReturn(Result.<YieldCurveData> failure(FailureStatus.ERROR, "test"));
     
-    _fn = new DefaultIsdaCompliantYieldCurveFn(providerFn);
+    _fn = new DefaultIsdaCompliantYieldCurveFn(providerFn, 
+                                               mock(RegionSource.class), 
+                                               mock(HolidaySource.class));
     
     YieldCurveData ycData = CreditTestData.createYieldCurveData();
     

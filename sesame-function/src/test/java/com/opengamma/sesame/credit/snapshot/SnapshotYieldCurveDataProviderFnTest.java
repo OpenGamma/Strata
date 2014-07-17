@@ -16,7 +16,6 @@ import com.opengamma.core.link.SnapshotLink;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -32,11 +31,11 @@ public class SnapshotYieldCurveDataProviderFnTest {
   private static YieldCurveData YIELD_CURVE_DATA;
   static {
     YIELD_CURVE_DATA = YieldCurveData.builder()
-        .calendar(new MondayToFridayCalendar("test"))
         .cashDayCount(DayCounts.ACT_360)
         .currency(Currency.USD)
         .curveBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
         .curveDayCount(DayCounts.ACT_365)
+        .regionId(null)//weekend only calendar
         .spotDate(LocalDate.of(2014, 1, 1))
         .swapDayCount(DayCounts.THIRTY_360)
         .swapFixedLegInterval(Tenor.ONE_YEAR)
