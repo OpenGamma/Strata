@@ -23,14 +23,15 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.link.ConventionLink;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.isda.credit.CdsQuote;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.ParSpreadQuote;
 import com.opengamma.financial.convention.IsdaCreditCurveConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.snapshot.CreditCurveDataProviderFn;
@@ -96,8 +97,10 @@ public class StandardIsdaCompliantCreditCurveFnTest {
 
     _curveDataProviderFn = mock(CreditCurveDataProviderFn.class);
     
-    _fn = new StandardIsdaCompliantCreditCurveFn(_yieldCurveFn, _curveDataProviderFn);
+    HolidaySource holidaySource = mock(HolidaySource.class);
+    RegionSource regionSource = mock(RegionSource.class);
     
+    _fn = new StandardIsdaCompliantCreditCurveFn(_yieldCurveFn, _curveDataProviderFn, holidaySource, regionSource);    
     IsdaCreditCurveConvention curveConvention = new IsdaCreditCurveConvention();
     curveConvention.setAccrualDayCount(DayCounts.ACT_360);
     curveConvention.setBusinessDayConvention(BusinessDayConventions.FOLLOWING);
@@ -106,7 +109,6 @@ public class StandardIsdaCompliantCreditCurveFnTest {
     curveConvention.setCurveDayCount(DayCounts.ACT_365);
     curveConvention.setPayAccOnDefault(true);
     curveConvention.setProtectFromStartOfDay(true);
-    curveConvention.setRegionCalendar(new MondayToFridayCalendar("test"));
     curveConvention.setStepIn(1);
     curveConvention.setStubType(StubType.FRONTSHORT);
     
@@ -121,7 +123,7 @@ public class StandardIsdaCompliantCreditCurveFnTest {
                 .build();
     
     when(_curveDataProviderFn.retrieveCreditCurveData(_goodKey)).thenReturn(Result.success(curveData));
-                
+    
   }
   
   @Test
