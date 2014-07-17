@@ -18,6 +18,7 @@ import com.opengamma.financial.security.credit.StandardCDSSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.IsdaCreditCurve;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
 /**
@@ -28,9 +29,15 @@ public class DefaultStandardCdsConverterFn implements StandardCdsConverterFn {
   private final RegionSource _regionSource;
   private final HolidaySource _holidaySource;
   
+  /**
+   * Creates an instance
+   * 
+   * @param regionSource the region source for resolving holiday calendars
+   * @param holidaySource the holiday source for resolving holiday calendars
+   */
   public DefaultStandardCdsConverterFn(RegionSource regionSource, HolidaySource holidaySource) {
-    _regionSource = regionSource;
-    _holidaySource = holidaySource;
+    _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
+    _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
   }
 
   @Override

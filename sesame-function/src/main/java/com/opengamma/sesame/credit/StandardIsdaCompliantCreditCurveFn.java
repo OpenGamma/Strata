@@ -57,18 +57,19 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
    * @param holidaySource holiday source for sourcing calendars
    * @param regionSource region source for sourcing calendars
    */
-  public StandardIsdaCompliantCreditCurveFn(IsdaCompliantYieldCurveFn yieldCurveFn, CreditCurveDataProviderFn curveDataProviderFn, HolidaySource holidaySource, RegionSource regionSource) {
+  public StandardIsdaCompliantCreditCurveFn(IsdaCompliantYieldCurveFn yieldCurveFn, 
+                                            CreditCurveDataProviderFn curveDataProviderFn, 
+                                            HolidaySource holidaySource, 
+                                            RegionSource regionSource) {
     _yieldCurveFn = ArgumentChecker.notNull(yieldCurveFn, "yieldCurveFn");
     _curveDataProviderFn = ArgumentChecker.notNull(curveDataProviderFn, "curveDataProviderFn");
     _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
     _regionSource = ArgumentChecker.notNull(regionSource, "regionSource");
   }
 
-
-
   @Override
   public Result<IsdaCreditCurve> buildIsdaCompliantCreditCurve(Environment env, 
-                                                                        CreditCurveDataKey creditCurveKey) {
+                                                               CreditCurveDataKey creditCurveKey) {
     
     Result<IsdaYieldCurve> yieldCurveResult = 
         _yieldCurveFn.buildIsdaCompliantCurve(env, creditCurveKey.getCurrency());
@@ -137,7 +138,6 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
     
   }
 
-
   private Calendar getRegionCalendar(ExternalId regionId) {
     if (regionId == null) {
       return new MondayToFridayCalendar("weekday calendar");
@@ -145,7 +145,5 @@ public class StandardIsdaCompliantCreditCurveFn implements IsdaCompliantCreditCu
       return CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
     }
   }
-
-
 
 }
