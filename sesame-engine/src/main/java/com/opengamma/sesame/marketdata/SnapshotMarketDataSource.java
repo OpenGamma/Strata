@@ -43,7 +43,7 @@ public class SnapshotMarketDataSource implements MarketDataSource {
   public SnapshotMarketDataSource(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
     // TODO if ID is unversioned need to get the VC from the engine to ensure consistency across the cycle
-    _snapshot = getFlattenedSnapshot(snapshotSource.get(snapshotId));
+    _snapshot = getFlattenedSnapshot((StructuredMarketDataSnapshot) snapshotSource.get(snapshotId));
   }
 
   @Override
