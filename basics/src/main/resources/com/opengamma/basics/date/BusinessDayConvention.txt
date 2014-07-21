@@ -1,0 +1,15 @@
+Following = F
+
+ModifiedFollowing = M
+ModifiedFollowing = MF
+ModifiedFollowing = Modified
+ModifiedFollowing = Modified Following
+ModifiedFollowing = ModFollowing
+
+Preceding = P
+
+ModifiedPreceding = MP
+ModifiedPreceding = Modified Preceding
+ModifiedPreceding = ModPreceding
+
+NoAdjust = None
