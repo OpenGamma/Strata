@@ -619,6 +619,7 @@ public class InterestRateMockSources {
     return new MasterSecuritySource(securityMaster);
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   private static ConfigSource mockConfigSource() {
 
     //Config source mock
@@ -685,23 +686,23 @@ public class InterestRateMockSources {
     //return curve definitions via mock
     ConfigItem<Object> usdDiscountingCurveDefItem = ConfigItem.<Object>of(getUSDDiscountingCurveDefinition());
     usdDiscountingCurveDefItem.setUniqueId(UniqueId.of("CONFIG", "3"));
-    when(mock.get(any(Class.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.get((Class) any(Class.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(usdDiscountingCurveDefItem));
-    when(mock.getSingle(any(Class.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.getSingle((Class) any(Class.class), eq(USD_OIS_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(usdDiscountingCurveDefItem.getValue());
 
     ConfigItem<Object> libor3mCurveDefinitionItem = ConfigItem.<Object>of(get3MLiborCurveDefinition());
     libor3mCurveDefinitionItem.setUniqueId(UniqueId.of("CONFIG", "4"));
-    when(mock.get(any(Class.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.get((Class) any(Class.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(libor3mCurveDefinitionItem));
-    when(mock.getSingle(any(Class.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.getSingle((Class) any(Class.class), eq(USD_LIBOR3M_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(libor3mCurveDefinitionItem.getValue());
 
     ConfigItem<Object> usdFedFundFuturesCurveDefItem = ConfigItem.<Object>of(getUSDFedFundFuturesCurveDefinition());
     usdFedFundFuturesCurveDefItem.setUniqueId(UniqueId.of("CONFIG", "5"));
-    when(mock.get(any(Class.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.get((Class) any(Class.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(ImmutableSet.of(usdFedFundFuturesCurveDefItem));
-    when(mock.getSingle(any(Class.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
+    when(mock.getSingle((Class) any(Class.class), eq(USD_FFF_CURVE_NAME), any(VersionCorrection.class)))
         .thenReturn(usdFedFundFuturesCurveDefItem.getValue());
 
     //return node mappers via mock
@@ -745,7 +746,7 @@ public class InterestRateMockSources {
     SabrConfigSelector sabrConfigSelector = buildSabrConfigSelector();
     ConfigItem<SabrConfigSelector> sabrConfigItem = ConfigItem.of(sabrConfigSelector);
     sabrConfigItem.setUniqueId(UniqueId.of("CONFIG", "10"));
-    when(mock.get(any(Class.class), eq("TEST_SABR"), any(VersionCorrection.class)))
+    when(mock.get((Class) any(Class.class), eq("TEST_SABR"), any(VersionCorrection.class)))
         .thenReturn(ImmutableList.of(sabrConfigItem));
 
 
