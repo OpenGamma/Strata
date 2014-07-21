@@ -1,0 +1,50 @@
+Act/Act ISDA = Actual/Actual ISDA
+Act/Act ISDA = Act/Act (ISDA)
+Act/Act ISDA = Actual/Actual (ISDA)
+Act/Act ISDA = Act/Act
+Act/Act ISDA = Actual/Actual
+
+Act/360 = Actual/360
+Act/360 = A/360
+Act/360 = French
+
+Act/364 = Actual/364
+Act/364 = A/364
+
+Act/365F = Actual/365F
+Act/365F = A/365F
+Act/365F = Actual/365 (Fixed)
+Act/365F = Act/365 (Fixed)
+Act/365F = A/365 (Fixed)
+Act/365F = Actual/365
+Act/365F = Act/365
+Act/365F = A/365
+Act/365F = Actual/Fixed 365
+Act/365F = English
+
+Act/365.25 = Actual/365.25
+Act/365.25 = A/365.25
+
+NL/365 = Actual/NL
+NL/365 = NL365
+
+30E/360 = Eurobond Basis
+30E/360 = 30S/360
+30E/360 = Special German
+30E/360 = Eurobond Basis
+30E/360 = 30/360 ICMA
+30E/360 = 30/360 (ICMA)
+
+30E/360 ISDA = 30/360 German
+30E/360 ISDA = German
+
+30U/360 = 30/360 US
+30U/360 = 30/360 (US)
+30U/360 = 30/360
+30U/360 = 30US/360
+30U/360 = 360/360
+30U/360 = Bond Basis
+30U/360 = US
+30U/360 = ISMA-30/360
+30U/360 = 30/360 SIA
+30U/360 = 30/360 (SIA)
