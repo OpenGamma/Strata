@@ -85,23 +85,14 @@ public class TenorTest {
   }
 
   @Test
-  public void testToFormattedString() {
-    assertEquals(TENOR_3D.toFormattedString(), "3D");
-    assertEquals(TENOR_2W.toFormattedString(), "2W");
-    assertEquals(TENOR_4M.toFormattedString(), "4M");
-    assertEquals(TENOR_1Y.toFormattedString(), "1Y");
-    assertEquals(TENOR_12M.toFormattedString(), "12M");
-    assertEquals(TENOR_18M.toFormattedString(), "18M");
-    assertEquals(TENOR_4Y.toFormattedString(), "4Y");
-  }
-
-  @Test
   public void testToString() {
-    assertEquals(TENOR_3D.toString(), "Tenor[3D]");
-    assertEquals(TENOR_3W.toString(), "Tenor[3W]");
-    assertEquals(TENOR_4M.toString(), "Tenor[4M]");
-    assertEquals(TENOR_18M.toString(), "Tenor[18M]");
-    assertEquals(TENOR_4Y.toString(), "Tenor[4Y]");
+    assertEquals(TENOR_3D.toString(), "3D");
+    assertEquals(TENOR_2W.toString(), "2W");
+    assertEquals(TENOR_4M.toString(), "4M");
+    assertEquals(TENOR_1Y.toString(), "1Y");
+    assertEquals(TENOR_12M.toString(), "12M");
+    assertEquals(TENOR_18M.toString(), "18M");
+    assertEquals(TENOR_4Y.toString(), "4Y");
   }
 
 }

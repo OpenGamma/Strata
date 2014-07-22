@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.time.Period;
 
 import org.joda.convert.FromString;
-import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
 
@@ -290,26 +289,6 @@ public class Tenor implements Serializable {
     return period;
   }
 
-  /**
-   * Returns a formatted string representing the tenor.
-   * <p>
-   * The format is a combination of the quantity and
-   * time unit e.g. 1D, 2W, 3M, 4Y.
-   *
-   * @return the formatted tenor
-   */
-  @ToString
-  public String toFormattedString() {
-    return representsWeeks() ?
-        (period.getDays() / 7) + "W" :
-        period.toString().substring(1);
-  }
-
-  // Does this period represent an exact number of weeks
-  private boolean representsWeeks() {
-    return period.getDays() > 0 && period.getDays() % 7 == 0;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (o == null || !(o instanceof Tenor)) {
@@ -325,7 +304,14 @@ public class Tenor implements Serializable {
 
   @Override
   public String toString() {
-    return "Tenor[" + toFormattedString() + "]";
+    return representsWeeks() ?
+        (period.getDays() / 7) + "W" :
+        period.toString().substring(1);
+  }
+
+  // Does this period represent an exact number of weeks
+  private boolean representsWeeks() {
+    return period.getDays() > 0 && period.getDays() % 7 == 0;
   }
 
 }
