@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.time.Period;
 
 import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
 
@@ -302,6 +303,15 @@ public class Tenor implements Serializable {
     return period.hashCode();
   }
 
+  /**
+   * Returns a formatted string representing the tenor.
+   * <p>
+   * The format is a combination of the quantity and
+   * time unit e.g. 1D, 2W, 3M, 4Y.
+   *
+   * @return the formatted tenor
+   */
+  @ToString
   @Override
   public String toString() {
     return representsWeeks() ?
