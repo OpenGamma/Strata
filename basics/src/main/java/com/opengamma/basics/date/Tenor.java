@@ -27,157 +27,177 @@ public class Tenor implements Serializable {
   /**
    * A tenor of one day.
    */
-  public static final Tenor DAY = ofDays(1);
-
-  /**
-   * A tenor of one day.
-   */
-  public static final Tenor ONE_DAY = DAY;
+  public static final Tenor TENOR_1D = ofDays(1);
 
   /**
    * A tenor of two days.
    */
-  public static final Tenor TWO_DAYS = ofDays(2);
+  public static final Tenor TENOR_2D = ofDays(2);
 
   /**
-   * A tenor of two days.
+   * A tenor of three days.
    */
-  public static final Tenor THREE_DAYS = ofDays(3);
+  public static final Tenor TENOR_3D = ofDays(3);
 
   /**
    * A tenor of 1 week.
    */
-  public static final Tenor ONE_WEEK = ofWeeks(1);
+  public static final Tenor TENOR_1W= ofWeeks(1);
 
   /**
    * A tenor of 2 weeks.
    */
-  public static final Tenor TWO_WEEKS = ofWeeks(2);
+  public static final Tenor TENOR_2W = ofWeeks(2);
 
   /**
    * A tenor of 3 weeks.
    */
-  public static final Tenor THREE_WEEKS = ofWeeks(3);
+  public static final Tenor TENOR_3W = ofWeeks(3);
 
   /**
    * A tenor of 6 weeks.
    */
-  public static final Tenor SIX_WEEKS = ofWeeks(6);
+  public static final Tenor TENOR_6W = ofWeeks(6);
 
   /**
    * A tenor of 1 month.
    */
-  public static final Tenor ONE_MONTH = ofMonths(1);
+  public static final Tenor TENOR_1M = ofMonths(1);
 
   /**
    * A tenor of 2 months.
    */
-  public static final Tenor TWO_MONTHS = ofMonths(2);
+  public static final Tenor TENOR_2M = ofMonths(2);
 
   /**
    * A tenor of 3 months.
    */
-  public static final Tenor THREE_MONTHS = ofMonths(3);
+  public static final Tenor TENOR_3M = ofMonths(3);
 
   /**
    * A tenor of 4 months.
    */
-  public static final Tenor FOUR_MONTHS = ofMonths(4);
+  public static final Tenor TENOR_4M = ofMonths(4);
 
   /**
    * A tenor of 5 months.
    */
-  public static final Tenor FIVE_MONTHS = ofMonths(5);
+  public static final Tenor TENOR_5M = ofMonths(5);
 
   /**
    * A tenor of 6 months.
    */
-  public static final Tenor SIX_MONTHS = ofMonths(6);
+  public static final Tenor TENOR_6M = ofMonths(6);
 
   /**
    * A tenor of 7 months.
    */
-  public static final Tenor SEVEN_MONTHS = ofMonths(7);
+  public static final Tenor TENOR_7M = ofMonths(7);
 
   /**
    * A tenor of 8 months.
    */
-  public static final Tenor EIGHT_MONTHS = ofMonths(8);
+  public static final Tenor TENOR_8M = ofMonths(8);
 
   /**
    * A tenor of 9 months.
    */
-  public static final Tenor NINE_MONTHS = ofMonths(9);
+  public static final Tenor TENOR_9M = ofMonths(9);
 
   /**
    * A tenor of 10 months.
    */
-  public static final Tenor TEN_MONTHS = ofMonths(10);
+  public static final Tenor TENOR_10M = ofMonths(10);
 
   /**
    * A tenor of 11 months.
    */
-  public static final Tenor ELEVEN_MONTHS = ofMonths(11);
+  public static final Tenor TENOR_11M = ofMonths(11);
 
   /**
    * A tenor of 12 months.
    */
-  public static final Tenor TWELVE_MONTHS = ofMonths(12);
+  public static final Tenor TENOR_12M = ofMonths(12);
 
   /**
    * A tenor of 18 months.
    */
-  public static final Tenor EIGHTEEN_MONTHS = ofMonths(18);
+  public static final Tenor TENOR_18M = ofMonths(18);
 
   /**
    * A tenor of 1 year.
    */
-  public static final Tenor ONE_YEAR = ofYears(1);
+  public static final Tenor TENOR_1Y = ofYears(1);
 
   /**
    * A tenor of 2 years.
    */
-  public static final Tenor TWO_YEARS = ofYears(2);
+  public static final Tenor TENOR_2Y = ofYears(2);
 
   /**
    * A tenor of 3 years.
    */
-  public static final Tenor THREE_YEARS = ofYears(3);
+  public static final Tenor TENOR_3Y = ofYears(3);
 
   /**
    * A tenor of 4 years.
    */
-  public static final Tenor FOUR_YEARS = ofYears(4);
+  public static final Tenor TENOR_4Y = ofYears(4);
 
   /**
    * A tenor of 5 years.
    */
-  public static final Tenor FIVE_YEARS = ofYears(5);
+  public static final Tenor TENOR_5Y = ofYears(5);
 
   /**
    * A tenor of 6 years.
    */
-  public static final Tenor SIX_YEARS = ofYears(6);
+  public static final Tenor TENOR_6Y = ofYears(6);
 
   /**
    * A tenor of 7 years.
    */
-  public static final Tenor SEVEN_YEARS = ofYears(7);
+  public static final Tenor TENOR_7Y = ofYears(7);
 
   /**
    * A tenor of 8 years.
    */
-  public static final Tenor EIGHT_YEARS = ofYears(8);
+  public static final Tenor TENOR_8Y = ofYears(8);
 
   /**
    * A tenor of 9 years.
    */
-  public static final Tenor NINE_YEARS = ofYears(9);
+  public static final Tenor TENOR_9Y = ofYears(9);
 
   /**
    * A tenor of 10 years.
    */
-  public static final Tenor TEN_YEARS = ofYears(10);
+  public static final Tenor TENOR_10Y = ofYears(10);
+
+  /**
+   * A tenor of 12 years.
+   */
+  public static final Tenor TENOR_12Y = ofYears(12);
+
+  /**
+   * A tenor of 15 years.
+   */
+  public static final Tenor TENOR_15Y = ofYears(15);
+
+  /**
+   * A tenor of 20 years.
+   */
+  public static final Tenor TENOR_20Y = ofYears(20);
+
+  /**
+   * A tenor of 25 years.
+   */
+  public static final Tenor TENOR_25Y = ofYears(25);
+
+  /**
+   * A tenor of 30 years.
+   */
+  public static final Tenor TENOR_30Y = ofYears(30);
 
   /**
    * The period of the tenor.
@@ -192,39 +212,6 @@ public class Tenor implements Serializable {
    */
   public static Tenor of(Period period) {
     return new Tenor(period);
-  }
-
-  /**
-   * Parses a formatted string representing the tenor.
-   * <p>
-   * The format is based on ISO-8601, such as 'P3M'.
-   *
-   * @param toParse  the string representing the tenor, not null
-   * @return the tenor, not null
-   */
-  @FromString
-  public static Tenor parse(String toParse) {
-    return new Tenor(Period.parse(ArgChecker.notNull(toParse, "toParse")));
-  }
-
-  /**
-   * Creates a tenor.
-   *
-   * @param period  the period to represent
-   */
-  private Tenor(Period period) {
-    ArgChecker.notNull(period, "period");
-    ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
-    this.period = period;
-  }
-
-  /**
-   * Gets the tenor period.
-   *
-   * @return the period
-   */
-  public Period getPeriod() {
-    return period;
   }
 
   /**
@@ -268,15 +255,59 @@ public class Tenor implements Serializable {
   }
 
   /**
+   * Parses a formatted string representing the tenor.
+   * <p>
+   * The format can either be based on ISO-8601, such as 'P3M'
+   * or without the 'P' prefix e.g. '2W'.
+   *
+   * @param toParse  the string representing the tenor
+   * @return the tenor
+   */
+  @FromString
+  public static Tenor parse(String toParse) {
+    ArgChecker.notNull(toParse, "toParse");
+    String prefixed = toParse.startsWith("P") ? toParse : "P" + toParse;
+    return new Tenor(Period.parse(prefixed));
+  }
+
+  /**
+   * Creates a tenor.
+   *
+   * @param period  the period to represent
+   */
+  private Tenor(Period period) {
+    ArgChecker.notNull(period, "period");
+    ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
+    this.period = period;
+  }
+
+  /**
+   * Gets the tenor period.
+   *
+   * @return the period
+   */
+  public Period getPeriod() {
+    return period;
+  }
+
+  /**
    * Returns a formatted string representing the tenor.
    * <p>
-   * The format is based on ISO-8601, such as 'P3M'.
+   * The format is a combination of the quantity and
+   * time unit e.g. 1D, 2W, 3M, 4Y.
    *
    * @return the formatted tenor
    */
   @ToString
   public String toFormattedString() {
-    return getPeriod().toString();
+    return representsWeeks() ?
+        (period.getDays() / 7) + "W" :
+        period.toString().substring(1);
+  }
+
+  // Does this period represent an exact number of weeks
+  private boolean representsWeeks() {
+    return period.getDays() > 0 && period.getDays() % 7 == 0;
   }
 
   @Override
@@ -289,12 +320,12 @@ public class Tenor implements Serializable {
 
   @Override
   public int hashCode() {
-    return getPeriod().hashCode();
+    return period.hashCode();
   }
 
   @Override
   public String toString() {
-    return "Tenor[" + getPeriod().toString() + "]";
+    return "Tenor[" + toFormattedString() + "]";
   }
 
 }
