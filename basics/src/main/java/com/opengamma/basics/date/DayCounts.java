@@ -15,9 +15,9 @@ import com.opengamma.collect.ArgChecker;
 enum DayCounts implements DayCount {
 
   /**
-   * See {@link DayCount#ACT_ACT_ISDA}.
+   * See {@link DayCount#DC_ACT_ACT_ISDA}.
    */
-  ACT_ACT_ISDA {
+  DC_ACT_ACT_ISDA {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       check(firstDate, secondDate);
@@ -41,9 +41,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#ACT_360}.
+   * See {@link DayCount#DC_ACT_360}.
    */
-  ACT_360 {
+  DC_ACT_360 {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -55,9 +55,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#ACT_364}.
+   * See {@link DayCount#DC_ACT_364}.
    */
-  ACT_364 {
+  DC_ACT_364 {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -69,9 +69,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#ACT_365F}.
+   * See {@link DayCount#DC_ACT_365F}.
    */
-  ACT_365F {
+  DC_ACT_365F {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -83,9 +83,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#ACT_365_25}.
+   * See {@link DayCount#DC_ACT_365_25}.
    */
-  ACT_365_25 {
+  DC_ACT_365_25 {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -97,9 +97,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#NL_365}.
+   * See {@link DayCount#DC_NL_365}.
    */
-  NL_365 {
+  DC_NL_365 {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -117,9 +117,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#_30_360_ISDA}.
+   * See {@link DayCount#DC_30_360_ISDA}.
    */
-  _30_360_ISDA {
+  DC_30_360_ISDA {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       check(firstDate, secondDate);
@@ -141,9 +141,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#_30U_360}.
+   * See {@link DayCount#DC_30U_360}.
    */
-  _30U_360 {
+  DC_30U_360 {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       check(firstDate, secondDate);
@@ -173,9 +173,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#_30_360_ISDA}.
+   * See {@link DayCount#DC_30_360_ISDA}.
    */
-  _30E_360_ISDA {
+  DC_30E_360_ISDA {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       check(firstDate, secondDate);
@@ -199,9 +199,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#_30E_360}.
+   * See {@link DayCount#DC_30E_360}.
    */
-  _30E_360 {
+  DC_30E_360 {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       check(firstDate, secondDate);
@@ -223,9 +223,9 @@ enum DayCounts implements DayCount {
     }
   },
   /**
-   * See {@link DayCount#_30EPLUS_360}.
+   * See {@link DayCount#DC_30EPLUS_360}.
    */
-  _30EPLUS_360 {
+  DC_30EPLUS_360 {
     @Override
     public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
       check(firstDate, secondDate);

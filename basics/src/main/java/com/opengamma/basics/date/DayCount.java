@@ -32,7 +32,7 @@ public interface DayCount {
    * <p>
    * Also known as 'Actual/Actual'.
    */
-  public static final DayCount ACT_ACT_ISDA = DayCounts.ACT_ACT_ISDA;
+  public static final DayCount DC_ACT_ACT_ISDA = DayCounts.DC_ACT_ACT_ISDA;
   /**
    * The 'Act/360' day count, which divides the actual number of days by 360.
    * <p>
@@ -42,7 +42,7 @@ public interface DayCount {
    * <p>
    * Also known as 'Actual/360' or 'French'.
    */
-  public static final DayCount ACT_360 = DayCounts.ACT_360;
+  public static final DayCount DC_ACT_360 = DayCounts.DC_ACT_360;
   /**
    * The 'Act/364' day count, which divides the actual number of days by 364.
    * <p>
@@ -52,7 +52,7 @@ public interface DayCount {
    * <p>
    * Also known as 'Actual/364'.
    */
-  public static final DayCount ACT_364 = DayCounts.ACT_364;
+  public static final DayCount DC_ACT_364 = DayCounts.DC_ACT_364;
   /**
    * The 'Act/365F' day count, which divides the actual number of days by 365.
    * <p>
@@ -62,7 +62,7 @@ public interface DayCount {
    * <p>
    * Also known as 'Actual/365 Fixed' or 'English'.
    */
-  public static final DayCount ACT_365F = DayCounts.ACT_365F;
+  public static final DayCount DC_ACT_365F = DayCounts.DC_ACT_365F;
   /**
    * The 'Act/365.25' day count, which divides the actual number of days by 365.25.
    * <p>
@@ -70,7 +70,7 @@ public interface DayCount {
    * The numerator is the actual number of days in the period.
    * The denominator is always 365.25.
    */
-  public static final DayCount ACT_365_25 = DayCounts.ACT_365_25;
+  public static final DayCount DC_ACT_365_25 = DayCounts.DC_ACT_365_25;
   /**
    * The 'NL/365' day count, which divides the actual number of days omitting leap days by 365.
    * <p>
@@ -81,7 +81,7 @@ public interface DayCount {
    * <p>
    * Also known as 'Actual/365 No Leap'.
    */
-  public static final DayCount NL_365 = DayCounts.NL_365;
+  public static final DayCount DC_NL_365 = DayCounts.DC_NL_365;
   /**
    * The '30/360 ISDA' day count, which treats input day-of-month 31 specially.
    * <p>
@@ -92,7 +92,7 @@ public interface DayCount {
    * <p>
    * Also known as '30/360 U.S. Municipal' or '30/360 Bond Basis'.
    */
-  public static final DayCount _30_360_ISDA = DayCounts._30_360_ISDA;
+  public static final DayCount DC_30_360_ISDA = DayCounts.DC_30_360_ISDA;
   /**
    * The '30U/360' day count, which treats input day-of-month 31 and end of February specially.
    * <p>
@@ -107,7 +107,7 @@ public interface DayCount {
    * <p>
    * Also known as '30/360 US', '30US/360' or '30/360 SIA'.
    */
-  public static final DayCount _30U_360 = DayCounts._30U_360;
+  public static final DayCount DC_30U_360 = DayCounts.DC_30U_360;
   /**
    * The '30E/360 ISDA' day count, which treats input day-of-month 31 and end of February specially.
    * <p>
@@ -123,7 +123,7 @@ public interface DayCount {
    * <p>
    * Also known as '30E/360 ISDA' or 'German'.
    */
-  public static final DayCount _30E_360_ISDA = DayCounts._30E_360_ISDA;
+  public static final DayCount DC_30E_360_ISDA = DayCounts.DC_30E_360_ISDA;
   /**
    * The '30E/360' day count, which treats input day-of-month 31 specially.
    * <p>
@@ -134,7 +134,7 @@ public interface DayCount {
    * <p>
    * Also known as '30/360 ISMA', '30/360 European', '30S/360 Special German' or 'Eurobond'.
    */
-  public static final DayCount _30E_360 = DayCounts._30E_360;
+  public static final DayCount DC_30E_360 = DayCounts.DC_30E_360;
   /**
    * The '30E+/360' day count, which treats input day-of-month 31 specially.
    * <p>
@@ -143,7 +143,7 @@ public interface DayCount {
    * If the first day-of-month is 31, it is changed to 30.
    * If the second day-of-month is 31, it is changed to 1 and the second month is incremented.
    */
-  public static final DayCount _30EPLUS_360 = DayCounts._30EPLUS_360;
+  public static final DayCount DC_30EPLUS_360 = DayCounts.DC_30EPLUS_360;
 
   //-------------------------------------------------------------------------
   /**
