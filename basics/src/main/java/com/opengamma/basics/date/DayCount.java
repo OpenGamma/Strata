@@ -14,9 +14,9 @@ import org.joda.convert.ToString;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * A convention defining how to adjust a date if it falls on a day other than a business day.
+ * A convention defining how to calculate accrued interest over time.
  * <p>
- * This class is immutable and thread-safe.
+ * All implementations of this interface must be immutable and thread-safe.
  */
 public interface DayCount {
 

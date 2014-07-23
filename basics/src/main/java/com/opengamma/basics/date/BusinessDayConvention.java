@@ -16,7 +16,7 @@ import com.opengamma.collect.ArgChecker;
 /**
  * A convention defining how to adjust a date if it falls on a day other than a business day.
  * <p>
- * This class is immutable and thread-safe.
+ * All implementations of this interface must be immutable and thread-safe.
  */
 public interface BusinessDayConvention {
 
