@@ -37,7 +37,6 @@ import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.util.test.TestGroup;
 
 /**

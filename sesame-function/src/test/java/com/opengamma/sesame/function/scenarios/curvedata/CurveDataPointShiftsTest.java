@@ -5,7 +5,6 @@
  */
 package com.opengamma.sesame.function.scenarios.curvedata;
 
-import static com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShifts.PointShift;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -16,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShifts.PointShift;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;

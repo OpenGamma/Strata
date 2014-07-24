@@ -116,6 +116,7 @@ public class DecoratorConfig implements FunctionModelConfig {
     return _decoratorImplByInterface.get(functionType);
   }
 
+  @Override
   public Class<?> getFunctionImplementation(Parameter parameter) {
     return _decoratorImplByParameter.get(parameter);
   }

@@ -5,16 +5,12 @@
  */
 package com.opengamma.sesame;
 
-import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.sesame.cache.CacheLifetime;
 import com.opengamma.sesame.cache.Cacheable;
 import com.opengamma.util.result.Result;
-import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Triple;
 
 /**
  * Function capable of providing a discounting multi-curve bundle.

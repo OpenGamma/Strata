@@ -167,6 +167,7 @@ public final class SabrExpiryTenorSurface implements ImmutableBean, NamedSnapsho
    * Not null after insertion/retrieval from master.
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -176,6 +177,7 @@ public final class SabrExpiryTenorSurface implements ImmutableBean, NamedSnapsho
    * Gets the name for this surface.
    * @return the value of the property, not null
    */
+  @Override
   public String getName() {
     return _name;
   }

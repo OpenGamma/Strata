@@ -177,6 +177,7 @@ public class RobotLegsTest {
       _foot = foot;
     }
 
+    @Override
     public Foot getFoot() {
       return _foot;
     }

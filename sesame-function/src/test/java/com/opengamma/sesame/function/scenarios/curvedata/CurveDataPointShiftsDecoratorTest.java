@@ -10,8 +10,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.arguments;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.implementations;
-import static com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShifts.PointShift;
-import static com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShiftsDecorator.Shifts;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
@@ -33,6 +31,8 @@ import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.DecoratorConfig;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.function.Output;
+import com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShifts.PointShift;
+import com.opengamma.sesame.function.scenarios.curvedata.CurveDataPointShiftsDecorator.Shifts;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;

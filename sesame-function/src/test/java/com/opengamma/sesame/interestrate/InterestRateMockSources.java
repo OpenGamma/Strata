@@ -9,7 +9,6 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.F
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.USD;
 import static org.mockito.Matchers.any;
@@ -126,6 +125,7 @@ import com.opengamma.sesame.sabr.SabrConfigSelector;
 import com.opengamma.sesame.sabr.SabrExpiryTenorSurface;
 import com.opengamma.sesame.sabr.SabrNode;
 import com.opengamma.sesame.sabr.SabrSurfaceSelector;
+import com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
 import com.opengamma.sesame.sabr.SabrSwaptionConfig;
 import com.opengamma.sesame.sabr.SabrSwaptionDataConfig;
 import com.opengamma.sesame.sabr.SabrSwaptionInterpolationConfig;

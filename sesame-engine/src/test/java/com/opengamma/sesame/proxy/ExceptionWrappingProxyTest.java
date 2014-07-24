@@ -112,6 +112,7 @@ public class ExceptionWrappingProxyTest {
 
   public  static class HappyMockFn implements MockFn {
 
+    @Override
     public Result<Boolean> doSomething() {
       return Result.success(true);
     }
@@ -124,6 +125,7 @@ public class ExceptionWrappingProxyTest {
 
   public static class UnhappyMockFn implements MockFn {
 
+    @Override
     public Result<Boolean> doSomething() {
       throw new RuntimeException("so unhappy");
     }

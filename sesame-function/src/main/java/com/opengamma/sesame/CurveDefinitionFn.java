@@ -7,6 +7,7 @@ package com.opengamma.sesame;
 
 import java.util.Map;
 import java.util.Set;
+
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.util.result.Result;
 

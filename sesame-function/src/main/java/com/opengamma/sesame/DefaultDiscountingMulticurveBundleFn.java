@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -95,8 +96,6 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.

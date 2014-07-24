@@ -145,6 +145,7 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     List<ObjectId> list = ImmutableList.of(OID_INLINE_1000);
