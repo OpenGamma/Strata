@@ -18,24 +18,58 @@ import com.opengamma.util.tuple.Pair;
 public interface BondCalculator {
 
   /**
-   * Calculates the present value for the security
+   * Calculates the present value for the trade from the curves
    *
    * @return result containing the PV if successfully created, a failure result otherwise
    */
-  Result<MultipleCurrencyAmount> calculatePV();
+  Result<MultipleCurrencyAmount> calculatePresentValueFromCurves();
 
   /**
-   * Calculates the bucketed PV01 for the security
+   * Calculates the present value for the trade from the clean price
+   *
+   * @return result containing the PV if successfully created, a failure result otherwise
+   */
+  Result<MultipleCurrencyAmount> calculatePresentValueFromClean();
+
+  /**
+   * Calculates the present value for the trade from the yield
+   *
+   * @return result containing the PV if successfully created, a failure result otherwise
+   */
+  Result<MultipleCurrencyAmount> calculatePresentValueFromYield();
+
+  /**
+   * Calculates the bucketed PV01 for the trade
    *
    * @return result containing the bucketed PV01 if successfully created, a failure result otherwise
    */
   Result<BucketedCurveSensitivities> calculateBucketedPV01();
 
   /**
-   * Calculates the PV01 for the security
+   * Calculates the PV01 for the trade
    *
    * @return result containing the PV01 if successfully created, a failure result otherwise
    */
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01();
 
+  /**
+   * Calculates the Z Spread for the trade
+   *
+   * @return result containing the PV01 if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateZSpread();
+
+  /**
+   * Calculates the Market Clean Price for the trade
+   *
+   * @return result containing the Market Clean Price if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateMarketCleanPrice();
+
+  /**
+   * Calculates the Yield To Maturity for the trade
+   *
+   * @return result containing the Yield To Maturity if successfully created, a failure result otherwise
+   */
+  Result<Double> calculateYieldToMaturity();
 }
