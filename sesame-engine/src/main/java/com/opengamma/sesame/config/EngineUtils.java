@@ -6,8 +6,8 @@
 package com.opengamma.sesame.config;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -33,12 +33,6 @@ import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Parameter;
 import com.opengamma.sesame.proxy.ProxyInvocationHandler;
 import com.opengamma.util.ArgumentChecker;
-import com.thoughtworks.paranamer.AdaptiveParanamer;
-import com.thoughtworks.paranamer.AnnotationParanamer;
-import com.thoughtworks.paranamer.BytecodeReadingParanamer;
-import com.thoughtworks.paranamer.CachingParanamer;
-import com.thoughtworks.paranamer.Paranamer;
-import com.thoughtworks.paranamer.PositionalParanamer;
 
 /**
  * Utilities to assist working with functions in the calculation engine.
@@ -53,13 +47,6 @@ public final class EngineUtils {
    * Cache of the results of {@link #getInterfaces}.
    */
   private static ConcurrentMap<Class<?>, Set<Class<?>>> s_interfaces = Maps.newConcurrentMap();
-  /**
-   * Paranamer instance.
-   */
-  private static Paranamer s_paranamer =
-      new CachingParanamer(
-          new AdaptiveParanamer(
-              new BytecodeReadingParanamer(), new AnnotationParanamer(), new PositionalParanamer()));
 
   /**
    * Restricted constructor.
@@ -135,11 +122,12 @@ public final class EngineUtils {
                          constructor.getParameterAnnotations());
   }
 
-  private static List<Parameter> getParameters(AccessibleObject ctorOrMethod,
+  private static List<Parameter> getParameters(Executable ctorOrMethod,
                                                Class<?> declaringClass,
                                                Type[] genericTypes,
                                                Annotation[][] allAnnotations) {
-    String[] paramNames = s_paranamer.lookupParameterNames(ctorOrMethod);
+    
+    java.lang.reflect.Parameter[] reflectParams = ctorOrMethod.getParameters();
     List<Parameter> parameters = Lists.newArrayList();
     for (int i = 0; i < genericTypes.length; i++) {
       Map<Class<?>, Annotation> annotationMap = Maps.newHashMap();
@@ -148,7 +136,7 @@ public final class EngineUtils {
       for (Annotation annotation : annotations) {
         annotationMap.put(annotation.annotationType(), annotation);
       }
-      parameters.add(new Parameter(declaringClass, paramNames[i], genericType, i, annotationMap));
+      parameters.add(new Parameter(declaringClass, reflectParams[i].getName(), genericType, i, annotationMap));
     }
     return parameters;
   }

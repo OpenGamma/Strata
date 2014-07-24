@@ -48,14 +48,6 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- 3rd party dependencies -->
-
-    <dependency>
-      <groupId>com.thoughtworks.paranamer</groupId>
-      <artifactId>paranamer</artifactId>
-      <version>2.6</version>
-    </dependency>
-
     <!-- test dependencies -->
 
     <dependency>
