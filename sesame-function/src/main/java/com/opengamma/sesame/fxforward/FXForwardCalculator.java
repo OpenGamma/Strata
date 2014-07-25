@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -75,7 +74,7 @@ public class FXForwardCalculator {
    * @return the present value, not null
    */
   public CurrencyLabelledMatrix1D calculatePV(Environment env) {
-    return FXUtils.getMultipleCurrencyAmountAsMatrix(calculateCurrencyExposure(env));
+    return CurrencyLabelledMatrix1D.of(calculateCurrencyExposure(env));
   }
 
   public MultipleCurrencyAmount calculateCurrencyExposure(Environment env) {

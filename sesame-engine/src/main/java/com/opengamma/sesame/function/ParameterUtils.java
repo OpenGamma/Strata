@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import groovy.json.StringEscapeUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import com.google.common.reflect.TypeToken;
 
