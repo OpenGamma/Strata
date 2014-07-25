@@ -12,12 +12,13 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
-import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixExternalId;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
@@ -111,52 +112,40 @@ public class DefaultHistoricalMarketDataFn implements HistoricalMarketDataFn {
                                      "No conversion found for {}",
                                      CurrencyPair.of(base, counter));
     }
-    CurrencyMatrixValueVisitor<Result<LocalDateDoubleTimeSeries>> visitor =
-        new CurrencyMatrixValueVisitor<Result<LocalDateDoubleTimeSeries>>() {
-
-      @Override
-      public Result<LocalDateDoubleTimeSeries> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
-        LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
-        LocalDate start = dateRange.getStartDateInclusive();
-        LocalDate end = dateRange.getEndDateInclusive();
-        double fixedRate = fixedValue.getFixedValue();
-
-        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-          builder.put(date, fixedRate);
-        }
-        return Result.success(builder.build());
+    if (value instanceof CurrencyMatrixFixed) {
+      double rate = ((CurrencyMatrixFixed) value).getFixedValue();
+      LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
+      LocalDate start = dateRange.getStartDateInclusive();
+      LocalDate end = dateRange.getEndDateInclusive();
+      for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+        builder.put(date, rate);
       }
-
-      @Override
-      public Result<LocalDateDoubleTimeSeries> visitValueRequirement(
-          CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
-
-        ValueRequirement valueRequirement = req.getValueRequirement();
-        ExternalIdBundle idBundle = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
-        String dataField = valueRequirement.getValueName();
-        Result<LocalDateDoubleTimeSeries> result = get(idBundle, FieldName.of(dataField), dateRange);
-
-        if (!result.isSuccess()) {
-          return result;
-        }
-        LocalDateDoubleTimeSeries spotRate = result.getValue();
-        return Result.success(req.isReciprocal() ? spotRate.reciprocal() : spotRate);
+      return Result.success(builder.build());
+    }
+    if (value instanceof CurrencyMatrixCross) {
+      Currency crossCurrency = ((CurrencyMatrixCross) value).getCrossCurrency();
+      Result<LocalDateDoubleTimeSeries> baseCrossRate = getFxRates(dateRange, base, crossCurrency);
+      Result<LocalDateDoubleTimeSeries> crossCounterRate = getFxRates(dateRange, crossCurrency, counter);
+      if (Result.anyFailures(baseCrossRate, crossCounterRate)) {
+        return Result.failure(baseCrossRate, crossCounterRate);
+      } else {
+        LocalDateDoubleTimeSeries rate1 = baseCrossRate.getValue();
+        LocalDateDoubleTimeSeries rate2 = crossCounterRate.getValue();
+        return Result.success(rate1.multiply(rate2));
       }
-
-      @Override
-      public Result<LocalDateDoubleTimeSeries> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        Result<LocalDateDoubleTimeSeries> baseCrossRate = getFxRates(dateRange, base, cross.getCrossCurrency());
-        Result<LocalDateDoubleTimeSeries> crossCounterRate = getFxRates(dateRange, cross.getCrossCurrency(), counter);
-
-        if (Result.anyFailures(baseCrossRate, crossCounterRate)) {
-          return Result.failure(baseCrossRate, crossCounterRate);
-        } else {
-          LocalDateDoubleTimeSeries rate1 = baseCrossRate.getValue();
-          LocalDateDoubleTimeSeries rate2 = crossCounterRate.getValue();
-          return Result.success(rate1.multiply(rate2));
-        }
+    }
+    if (value instanceof CurrencyMatrixExternalId) {
+      CurrencyMatrixExternalId idValue = (CurrencyMatrixExternalId) value;
+      ExternalIdBundle externalId = idValue.getExternalIdBundle();
+      String dataField = idValue.getFieldName();
+      Result<LocalDateDoubleTimeSeries> result = get(externalId, FieldName.of(dataField), dateRange);
+      if (!result.isSuccess()) {
+        return result;
       }
-    };
-    return value.accept(visitor);
+      LocalDateDoubleTimeSeries spotRate = result.getValue();
+      return Result.success(idValue.isReciprocal() ? spotRate.reciprocal() : spotRate);
+    }
+    throw new IllegalStateException("Unknown CurrencyMatrix class");
   }
+
 }

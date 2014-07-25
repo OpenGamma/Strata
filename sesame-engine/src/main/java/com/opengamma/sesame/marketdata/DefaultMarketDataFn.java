@@ -6,19 +6,19 @@
 package com.opengamma.sesame.marketdata;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
-import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixExternalId;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.sesame.Environment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.FailureStatus;
-import com.opengamma.util.result.Function2;
 import com.opengamma.util.result.Result;
 
 /**
@@ -69,40 +69,28 @@ public class DefaultMarketDataFn implements MarketDataFn {
     if (value == null) {
       return Result.failure(FailureStatus.MISSING_DATA, "No conversion available for {}", CurrencyPair.of(base, counter));
     }
-    CurrencyMatrixValueVisitor<Result<Double>> visitor = new CurrencyMatrixValueVisitor<Result<Double>>() {
-      @Override
-      public Result<Double> visitFixed(CurrencyMatrixValue.CurrencyMatrixFixed fixedValue) {
-        return Result.success(fixedValue.getFixedValue());
+    if (value instanceof CurrencyMatrixFixed) {
+      double rate = ((CurrencyMatrixFixed) value).getFixedValue();
+      return Result.success(rate);
+    }
+    if (value instanceof CurrencyMatrixCross) {
+      Currency crossCurrency = ((CurrencyMatrixCross) value).getCrossCurrency();
+      Result<Double> baseCrossRate = getFxRate(env, base, crossCurrency);
+      Result<Double> crossCounterRate = getFxRate(env, crossCurrency, counter);
+      return baseCrossRate.combineWith(crossCounterRate, (rate1, rate2) -> Result.success(rate1 * rate2));
+    }
+    if (value instanceof CurrencyMatrixExternalId) {
+      CurrencyMatrixExternalId idValue = (CurrencyMatrixExternalId) value;
+      ExternalIdBundle externalId = idValue.getExternalIdBundle();
+      String dataField = idValue.getFieldName();
+      Result<?> result = env.getMarketDataSource().get(externalId, FieldName.of(dataField));
+      if (result.isSuccess()) {
+        Double spotRate = (Double) result.getValue();
+        return Result.success(idValue.isReciprocal() ? 1 / spotRate : spotRate);
+      } else {
+        return Result.failure(result);
       }
-
-      @Override
-      public Result<Double> visitValueRequirement(CurrencyMatrixValue.CurrencyMatrixValueRequirement req) {
-        ValueRequirement valueRequirement = req.getValueRequirement();
-        ExternalIdBundle id = valueRequirement.getTargetReference().getRequirement().getIdentifiers();
-        String dataField = valueRequirement.getValueName();
-        Result<?> result = env.getMarketDataSource().get(id, FieldName.of(dataField));
-
-        if (result.isSuccess()) {
-          Double spotRate = (Double) result.getValue();
-          return Result.success(req.isReciprocal() ? 1 / spotRate : spotRate);
-        } else {
-          return Result.failure(result);
-        }
-      }
-
-      @Override
-      public Result<Double> visitCross(CurrencyMatrixValue.CurrencyMatrixCross cross) {
-        Result<Double> baseCrossRate = getFxRate(env, base, cross.getCrossCurrency());
-        Result<Double> crossCounterRate = getFxRate(env, cross.getCrossCurrency(), counter);
-
-        return baseCrossRate.combineWith(crossCounterRate, new Function2<Double, Double, Result<Double>>() {
-          @Override
-          public Result<Double> apply(Double rate1, Double rate2) {
-            return Result.success(rate1 * rate2);
-          }
-        });
-      }
-    };
-    return value.accept(visitor);
+    }
+    throw new IllegalStateException("Unknown CurrencyMatrix class");
   }
 }
