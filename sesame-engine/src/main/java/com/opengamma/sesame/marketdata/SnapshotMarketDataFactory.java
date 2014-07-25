@@ -6,8 +6,8 @@
 package com.opengamma.sesame.marketdata;
 
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**

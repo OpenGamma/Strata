@@ -7,8 +7,8 @@ package com.opengamma.sesame.marketdata;
 
 import java.util.Objects;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 

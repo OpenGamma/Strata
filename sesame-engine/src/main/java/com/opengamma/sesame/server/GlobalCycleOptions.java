@@ -23,7 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 
 /**
  * Contains cycle options that can be used to execute a view across multiple

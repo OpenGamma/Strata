@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**

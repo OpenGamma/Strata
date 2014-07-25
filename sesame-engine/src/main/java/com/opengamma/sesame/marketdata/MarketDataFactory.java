@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 
 /**
  * Factory for {@link MarketDataSource}.

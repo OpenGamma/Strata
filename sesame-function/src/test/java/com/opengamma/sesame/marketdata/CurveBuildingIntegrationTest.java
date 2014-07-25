@@ -34,7 +34,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentServer;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
@@ -80,6 +79,7 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.sesame.server.DefaultCycleMarketDataFactory;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
@@ -173,7 +173,7 @@ public class CurveBuildingIntegrationTest {
     LiveDataManager liveDataManager = new DefaultLiveDataManager(buildLiveDataClient());
     // TODO provide appropriate mock values
     LDClient liveDataClient = new LDClient(liveDataManager);
-    StrategyAwareMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(MarketData.live(), liveDataClient);
+    StrategyAwareMarketDataSource liveDataSource = new ResettableLiveMarketDataSource(MarketDataSpecification.live(), liveDataClient);
     CycleMarketDataFactory cycleMarketDataFactory = new DefaultCycleMarketDataFactory(mock(MarketDataFactory.class), liveDataSource);
 
     CycleArguments cycleArguments = new CycleArguments(valuationTime, VersionCorrection.LATEST, cycleMarketDataFactory);

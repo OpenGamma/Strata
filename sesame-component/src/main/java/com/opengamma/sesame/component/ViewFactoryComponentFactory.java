@@ -30,7 +30,6 @@ import com.google.common.cache.CacheBuilder;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
@@ -97,11 +96,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
-  /**
-   * For obtaining the live market data provider names.
-   */
-  @PropertyDefinition
-  private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
   /**
    * Maximum number of entries to store in the cache.
    */
@@ -299,31 +293,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets for obtaining the live market data provider names.
-   * @return the value of the property
-   */
-  public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
-    return _liveMarketDataProviderFactory;
-  }
-
-  /**
-   * Sets for obtaining the live market data provider names.
-   * @param liveMarketDataProviderFactory  the new value of the property
-   */
-  public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
-    this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
-  }
-
-  /**
-   * Gets the the {@code liveMarketDataProviderFactory} property.
-   * @return the property, not null
-   */
-  public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
-    return metaBean().liveMarketDataProviderFactory().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets maximum number of entries to store in the cache.
    * @return the value of the property
    */
@@ -361,7 +330,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     if (obj != null && obj.getClass() == this.getClass()) {
       ViewFactoryComponentFactory other = (ViewFactoryComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           (getMaxCacheEntries() == other.getMaxCacheEntries()) &&
           super.equals(obj);
     }
@@ -372,14 +340,13 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxCacheEntries());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("ViewFactoryComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -394,7 +361,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
-    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
     buf.append("maxCacheEntries").append('=').append(JodaBeanUtils.toString(getMaxCacheEntries())).append(',').append(' ');
   }
 
@@ -414,11 +380,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", ViewFactoryComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code liveMarketDataProviderFactory} property.
-     */
-    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
-        this, "liveMarketDataProviderFactory", ViewFactoryComponentFactory.class, LiveMarketDataProviderFactory.class);
-    /**
      * The meta-property for the {@code maxCacheEntries} property.
      */
     private final MetaProperty<Long> _maxCacheEntries = DirectMetaProperty.ofReadWrite(
@@ -429,7 +390,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "liveMarketDataProviderFactory",
         "maxCacheEntries");
 
     /**
@@ -443,8 +403,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -301472921:  // liveMarketDataProviderFactory
-          return _liveMarketDataProviderFactory;
         case -949200334:  // maxCacheEntries
           return _maxCacheEntries;
       }
@@ -476,14 +434,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code liveMarketDataProviderFactory} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
-      return _liveMarketDataProviderFactory;
-    }
-
-    /**
      * The meta-property for the {@code maxCacheEntries} property.
      * @return the meta-property, not null
      */
@@ -497,8 +447,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return ((ViewFactoryComponentFactory) bean).getClassifier();
-        case -301472921:  // liveMarketDataProviderFactory
-          return ((ViewFactoryComponentFactory) bean).getLiveMarketDataProviderFactory();
         case -949200334:  // maxCacheEntries
           return ((ViewFactoryComponentFactory) bean).getMaxCacheEntries();
       }
@@ -510,9 +458,6 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           ((ViewFactoryComponentFactory) bean).setClassifier((String) newValue);
-          return;
-        case -301472921:  // liveMarketDataProviderFactory
-          ((ViewFactoryComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
           return;
         case -949200334:  // maxCacheEntries
           ((ViewFactoryComponentFactory) bean).setMaxCacheEntries((Long) newValue);

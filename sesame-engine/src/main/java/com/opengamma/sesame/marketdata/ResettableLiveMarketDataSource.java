@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 

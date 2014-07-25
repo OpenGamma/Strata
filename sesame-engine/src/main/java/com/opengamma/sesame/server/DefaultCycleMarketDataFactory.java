@@ -7,12 +7,12 @@ package com.opengamma.sesame.server;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**

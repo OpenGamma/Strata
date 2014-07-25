@@ -10,10 +10,10 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.component.factory.livedata.LiveMarketDataProviderFactoryComponentFactory;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
+import com.opengamma.sesame.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
 
