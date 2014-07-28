@@ -44,7 +44,7 @@
 
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-integration</artifactId>
+      <artifactId>og-financial</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
