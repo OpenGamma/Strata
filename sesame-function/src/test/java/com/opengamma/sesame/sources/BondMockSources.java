@@ -32,6 +32,7 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -293,12 +294,12 @@ public class BondMockSources {
     return ExternalId.of(TICKER, ticker);
   }
 
-  private static ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {
+  private static ImmutableClassToInstanceMap<Object> generateComponentMap(Object... components) {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     for (Object component : components) {
       builder.put(component.getClass().getInterfaces()[0], component);
     }
-    return builder.build();
+    return ImmutableClassToInstanceMap.copyOf(builder.build());
   }
 
   private static HolidaySource mockHolidaySource() {
@@ -389,7 +390,7 @@ public class BondMockSources {
     return mock;
   }
 
-  public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
+  public static ImmutableClassToInstanceMap<Object> generateBaseComponents() {
     return generateComponentMap(mockHolidaySource(),
                                 mockRegionSource(),
                                 mockConventionSource(),

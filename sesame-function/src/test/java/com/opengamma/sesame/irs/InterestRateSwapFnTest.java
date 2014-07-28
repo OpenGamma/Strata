@@ -30,6 +30,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -200,7 +201,7 @@ public class InterestRateSwapFnTest {
                             MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
                             MarketDataFn.class, DefaultMarketDataFn.class));
 
-    ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
+    ImmutableClassToInstanceMap<Object> components = InterestRateMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);

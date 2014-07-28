@@ -27,7 +27,7 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -93,7 +93,7 @@ public class ExposureFunctionTest {
 
   private static FXMatrix _emptyFxMatrix = new FXMatrix();
   private static SimpleEnvironment _environment;
-  private static ImmutableMap<Class<?>, Object> _components = InterestRateMockSources.generateBaseComponents();
+  private static ImmutableClassToInstanceMap<Object> _components = InterestRateMockSources.generateBaseComponents();
 
   @BeforeClass
   private void setUpClass() {

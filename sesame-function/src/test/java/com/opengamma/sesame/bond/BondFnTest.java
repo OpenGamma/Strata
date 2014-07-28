@@ -11,7 +11,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.financial.analytics.model.fixedincome.BucketedCurveSensitivities;
 import com.opengamma.service.ServiceContext;
@@ -38,7 +38,7 @@ public class BondFnTest {
   @BeforeClass
   public void setUp() {
 
-    ImmutableMap<Class<?>, Object> components = BondMockSources.generateBaseComponents();
+    ImmutableClassToInstanceMap<Object> components = BondMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());
     ServiceContext serviceContext = ServiceContext.of(components).with(VersionCorrectionProvider.class, vcProvider);
     ThreadLocalServiceContext.init(serviceContext);

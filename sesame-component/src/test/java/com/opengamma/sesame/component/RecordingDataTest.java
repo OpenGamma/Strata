@@ -32,8 +32,8 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -134,7 +134,7 @@ public class RecordingDataTest {
     AvailableOutputs availableOutputs = createAvailableOutputs();
     AvailableImplementations availableImplementations = createAvailableImplementations();
 
-    ImmutableMap<Class<?>, Object> components = InterestRateMockSources.generateBaseComponents();
+    ImmutableClassToInstanceMap<Object> components = InterestRateMockSources.generateBaseComponents();
 
     ViewFactory viewFactory = EngineTestUtils.createViewFactory(components,
                                                                 availableOutputs,
