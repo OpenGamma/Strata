@@ -156,7 +156,7 @@ public class FxForwardPVFnIntegrationTest {
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
-    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+    ComponentMap componentMap = ComponentMapTestUtils.fromToolContext(serverUrl).with(comps);
     CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(
         FunctionTestUtils.createCache(),
         new ExecutingMethodsThreadLocal());
@@ -198,7 +198,7 @@ public class FxForwardPVFnIntegrationTest {
                                                                                  ExternalSchemes.BLOOMBERG_TICKER);
     marketData.put(ExternalIdBundle.of(ExternalSchemes.BLOOMBERG_TICKER, "JPY Curncy"), 98.86);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
-    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+    ComponentMap componentMap = ComponentMapTestUtils.fromToolContext(serverUrl).with(comps);
 
     DiscountingMulticurveBundleResolverFn bundleProvider =
         FunctionModel.build(
@@ -276,7 +276,7 @@ public class FxForwardPVFnIntegrationTest {
     URI htsResolverUri = URI.create(serverUrl + "/jax/components/HistoricalTimeSeriesResolver/shared");
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
-    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+    ComponentMap componentMap = ComponentMapTestUtils.fromToolContext(serverUrl).with(comps);
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider();
     ServiceContext serviceContext =
         ServiceContext.of(componentMap.getComponents()).with(VersionCorrectionProvider.class, vcProvider);
@@ -351,7 +351,7 @@ public class FxForwardPVFnIntegrationTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     long startComponents = System.currentTimeMillis();
-    ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
+    ComponentMap componentMap = ComponentMapTestUtils.fromToolContext(serverUrl).with(comps);
     s_logger.info("loaded components in {}ms", System.currentTimeMillis() - startComponents);
     AvailableOutputs availableOutputs = new AvailableOutputsImpl();
     availableOutputs.register(FXForwardPVFn.class);

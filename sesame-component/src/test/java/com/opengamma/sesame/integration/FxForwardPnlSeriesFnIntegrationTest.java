@@ -73,7 +73,7 @@ public class FxForwardPnlSeriesFnIntegrationTest {
   private Result<LocalDateDoubleTimeSeries> executeAgainstRemoteServer() {
     String serverUrl = "http://devsvr-lx-2:8080";
     //String serverUrl = "http://localhost:8080";
-    ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
+    ComponentMap serverComponents = ComponentMapTestUtils.fromToolContext(serverUrl);
     ConfigSource configSource = serverComponents.getComponent(ConfigSource.class);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);

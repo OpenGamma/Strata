@@ -6,6 +6,7 @@
 package com.opengamma.sesame.integration;
 
 import static org.testng.AssertJUnit.assertNotNull;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.core.config.ConfigSource;
@@ -30,7 +31,7 @@ public class ComponentMapIntegrationTest {
 
   @Test(enabled = false)
   public void connect() {
-    ComponentMap componentMap = ComponentMap.loadComponents("http://localhost:8080");
+    ComponentMap componentMap = ComponentMapTestUtils.fromToolContext("http://localhost:8080");
     assertNotNull(componentMap);
     assertNotNull(componentMap.getComponent(ConfigSource.class));
     assertNotNull(componentMap.getComponent(ConventionBundleSource.class));

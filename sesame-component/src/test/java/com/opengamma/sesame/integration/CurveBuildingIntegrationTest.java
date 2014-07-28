@@ -163,7 +163,7 @@ public class CurveBuildingIntegrationTest {
                                       DefaultMarketDataFn.class,
                                       DefaultHistoricalMarketDataFn.class);
 
-    ComponentMap componentMap = ComponentMap.loadComponents("http://devsvr-lx-2:8080");
+    ComponentMap componentMap = ComponentMapTestUtils.fromToolContext("http://devsvr-lx-2:8080");
 
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider();
     ServiceContext serviceContext =

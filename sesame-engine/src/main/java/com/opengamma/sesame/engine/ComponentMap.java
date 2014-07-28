@@ -9,35 +9,16 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.component.tool.ToolContextUtils;
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.exchange.ExchangeSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.legalentity.LegalEntitySource;
-import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
-import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Loads components using {@link ToolContext} configuration and puts them in a map.
- * This isn't a long-term solution but will do for the time being.
- * TODO rename ComponentLookup or create interface and have this implement it
- * TODO would it be better to compose by delegation/chaining instead of with()?
+ * A map of components keyed by their type.
  */
 public final class ComponentMap {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(ComponentMap.class);
+  // TODO rename ComponentLookup or create interface and have this implement it
+  // TODO would it be better to compose by delegation/chaining instead of with()?
 
   /**
    * The empty component map.
@@ -47,32 +28,6 @@ public final class ComponentMap {
 
   private ComponentMap(Map<Class<?>, Object> components) {
     _components = ImmutableMap.copyOf(components);
-  }
-
-  /**
-   * @param location Location of the component config, can be a classpath: or file: resource or the URL or a remote
-   * server
-   * @return The available components, keyed by type.
-   */
-  public static ComponentMap loadComponents(String location) {
-    ArgumentChecker.notEmpty(location, "location");
-    ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
-    s_logger.info("Loading components from {}", location);
-    ToolContext toolContext = ToolContextUtils.getToolContext(location, ToolContext.class);
-
-    builder.put(ConfigSource.class, toolContext.getConfigSource());
-    builder.put(ConventionBundleSource.class, toolContext.getConventionBundleSource());
-    builder.put(ConventionSource.class, toolContext.getConventionSource());
-    builder.put(ExchangeSource.class, toolContext.getExchangeSource());
-    builder.put(HolidaySource.class, toolContext.getHolidaySource());
-    builder.put(LegalEntitySource.class, toolContext.getLegalEntitySource());
-    builder.put(PositionSource.class, toolContext.getPositionSource());
-    builder.put(RegionSource.class, toolContext.getRegionSource());
-    builder.put(SecuritySource.class, toolContext.getSecuritySource());
-    builder.put(HistoricalTimeSeriesSource.class, toolContext.getHistoricalTimeSeriesSource());
-    builder.put(MarketDataSnapshotSource.class, toolContext.getMarketDataSnapshotSource());
-
-    return new ComponentMap(builder.build());
   }
 
   /**

@@ -68,7 +68,7 @@ public class FxForwardYieldCurveNodeSensitivitiesFnIntegrationTest {
 
   private Result<DoubleLabelledMatrix1D> executeAgainstRemoteServer() {
     String serverUrl = "http://localhost:8080";
-    ComponentMap serverComponents = ComponentMap.loadComponents(serverUrl);
+    ComponentMap serverComponents = ComponentMapTestUtils.fromToolContext(serverUrl);
     HistoricalTimeSeriesSource timeSeriesSource = serverComponents.getComponent(HistoricalTimeSeriesSource.class);
     LocalDate date = LocalDate.of(2013, 11, 7);
     FixedHistoricalMarketDataSource dataSource = new FixedHistoricalMarketDataSource(timeSeriesSource, date, "BLOOMBERG", null);
