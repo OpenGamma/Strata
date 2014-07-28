@@ -585,7 +585,7 @@ public class BondMockSources {
 
     Currency currency = Currency.GBP;
 
-    ZonedDateTime deliveryDate = DateUtils.getUTCDate(2014, 6, 18);
+    ZonedDateTime deliveryDate = DateUtils.getUTCDate(2014, 8, 18);
     Expiry expiry = new Expiry(deliveryDate);
     String tradingExchange = "";
     String settlementExchange = "";
@@ -609,7 +609,7 @@ public class BondMockSources {
 
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
     BigDecimal tradeQuantity = BigDecimal.valueOf(1);
-    LocalDate tradeDate = LocalDate.of(2014, 7, 23);
+    LocalDate tradeDate = LocalDate.of(2014, 1, 23);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
     SimpleTrade trade = new SimpleTrade(BOND_FUTURE_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
     trade.setPremium(10.0);
