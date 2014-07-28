@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.marketdata;
+package com.opengamma.sesame.integration;
 
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
@@ -79,6 +79,15 @@ import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
+import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
+import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.DefaultLiveDataManager;
+import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
+import com.opengamma.sesame.marketdata.LDClient;
+import com.opengamma.sesame.marketdata.LiveDataManager;
+import com.opengamma.sesame.marketdata.MarketDataFactory;
+import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
+import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.sesame.server.DefaultCycleMarketDataFactory;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;

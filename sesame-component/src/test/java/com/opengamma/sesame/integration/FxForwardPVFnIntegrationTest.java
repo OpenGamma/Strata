@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.fxforward;
+package com.opengamma.sesame.integration;
 
 import static com.opengamma.sesame.config.ConfigBuilder.argument;
 import static com.opengamma.sesame.config.ConfigBuilder.arguments;
@@ -11,7 +11,6 @@ import static com.opengamma.sesame.config.ConfigBuilder.column;
 import static com.opengamma.sesame.config.ConfigBuilder.config;
 import static com.opengamma.sesame.config.ConfigBuilder.configureView;
 import static com.opengamma.sesame.config.ConfigBuilder.function;
-import static com.opengamma.sesame.config.ConfigBuilder.implementations;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
 import static com.opengamma.util.money.Currency.EUR;
@@ -48,31 +47,21 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
-import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
-import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -84,28 +73,18 @@ import com.opengamma.service.ServiceContext;
 import com.opengamma.service.ThreadLocalServiceContext;
 import com.opengamma.service.VersionCorrectionProvider;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
-import com.opengamma.sesame.CurrencyPairsFn;
-import com.opengamma.sesame.CurveDefinitionFn;
-import com.opengamma.sesame.CurveNodeConverterFn;
-import com.opengamma.sesame.CurveSpecificationFn;
-import com.opengamma.sesame.CurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
 import com.opengamma.sesame.DefaultCurveDefinitionFn;
-import com.opengamma.sesame.DefaultCurveNodeConverterFn;
 import com.opengamma.sesame.DefaultCurveSpecificationFn;
 import com.opengamma.sesame.DefaultCurveSpecificationMarketDataFn;
 import com.opengamma.sesame.DefaultDiscountingMulticurveBundleFn;
-import com.opengamma.sesame.DefaultDiscountingMulticurveBundleResolverFn;
 import com.opengamma.sesame.DefaultFXMatrixFn;
 import com.opengamma.sesame.DefaultHistoricalTimeSeriesFn;
 import com.opengamma.sesame.DirectExecutorService;
 import com.opengamma.sesame.DiscountingMulticurveBundleFn;
 import com.opengamma.sesame.DiscountingMulticurveBundleResolverFn;
-import com.opengamma.sesame.DiscountingMulticurveCombinerFn;
 import com.opengamma.sesame.ExposureFunctionsDiscountingMulticurveCombinerFn;
-import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.MarketDataResourcesLoader;
-import com.opengamma.sesame.MarketExposureSelectorFn;
 import com.opengamma.sesame.MulticurveBundle;
 import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
@@ -114,7 +93,6 @@ import com.opengamma.sesame.cache.CachingProxyDecorator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
-import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.CachingManager;
@@ -131,18 +109,18 @@ import com.opengamma.sesame.function.AvailableImplementations;
 import com.opengamma.sesame.function.AvailableImplementationsImpl;
 import com.opengamma.sesame.function.AvailableOutputs;
 import com.opengamma.sesame.function.AvailableOutputsImpl;
-import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.scenarios.curvedata.FunctionTestUtils;
-import com.opengamma.sesame.graph.FunctionBuilder;
+import com.opengamma.sesame.fxforward.DiscountingFXForwardPVFn;
+import com.opengamma.sesame.fxforward.FXForwardDiscountingCalculatorFn;
+import com.opengamma.sesame.fxforward.FXForwardPVFn;
+import com.opengamma.sesame.fxforward.FxForwardPvFnTest;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.FieldName;
-import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
-import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataSource;
 import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.sesame.proxy.TimingProxy;
@@ -151,34 +129,13 @@ import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
 import com.opengamma.util.test.TestGroup;
 
-@Test(groups = TestGroup.UNIT)
-public class FXForwardPVFnTest {
+@Test(groups = TestGroup.INTEGRATION)
+public class FxForwardPVFnIntegrationTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardPVFnTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(FxForwardPVFnIntegrationTest.class);
 
   private static final AtomicLong s_nextId = new AtomicLong(0);
 
-  @Test
-  public void buildGraph() {
-    FunctionMetadata calculatePV = EngineUtils.createMetadata(FXForwardPVFn.class, "calculatePV");
-    FunctionModelConfig config = createFunctionConfig();
-    ComponentMap componentMap = componentMap(ConfigSource.class,
-                                             ConventionSource.class,
-                                             ConventionBundleSource.class,
-                                             HistoricalTimeSeriesResolver.class,
-                                             SecuritySource.class,
-                                             HolidaySource.class,
-                                             HistoricalTimeSeriesSource.class,
-                                             MarketDataFn.class,
-                                             HistoricalMarketDataFn.class,
-                                             RegionSource.class);
-    FunctionModel functionModel = FunctionModel.forFunction(calculatePV, config, componentMap.getComponentTypes());
-    Object fn = functionModel.build(new FunctionBuilder(), componentMap).getReceiver();
-    assertTrue(fn instanceof FXForwardPVFn);
-    System.out.println(functionModel.prettyPrint(true));
-  }
-
-  //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithNoData() throws IOException {
     Result<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(Collections.<ExternalIdBundle, Double>emptyMap());
@@ -186,7 +143,6 @@ public class FXForwardPVFnTest {
     MatcherAssert.assertThat(pv.getStatus(), is((ResultStatus) MISSING_DATA));
   }
 
-  //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeAgainstRemoteServerWithData() throws IOException {
     Result<CurrencyLabelledMatrix1D> pv = executeAgainstRemoteServer(
@@ -201,13 +157,15 @@ public class FXForwardPVFnTest {
     HistoricalTimeSeriesResolver htsResolver = new RemoteHistoricalTimeSeriesResolver(htsResolverUri);
     Map<Class<?>, Object> comps = ImmutableMap.<Class<?>, Object>of(HistoricalTimeSeriesResolver.class, htsResolver);
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
-    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(FunctionTestUtils.createCache(),
-                                                                       new ExecutingMethodsThreadLocal());
-    FXForwardPVFn pvFunction = FunctionModel.build(FXForwardPVFn.class,
-                                                   createFunctionConfig(),
-                                                   componentMap,
-                                                   TimingProxy.INSTANCE,
-                                                   cachingDecorator);
+    CachingProxyDecorator cachingDecorator = new CachingProxyDecorator(
+        FunctionTestUtils.createCache(),
+        new ExecutingMethodsThreadLocal());
+    FXForwardPVFn pvFunction = FunctionModel.build(
+        FXForwardPVFn.class,
+        FxForwardPvFnTest.createFunctionConfig(),
+        componentMap,
+        TimingProxy.INSTANCE,
+        cachingDecorator);
     ExternalId regionId = ExternalId.of(ExternalSchemes.FINANCIAL, "US");
     ZonedDateTime forwardDate = ZonedDateTime.of(2014, 11, 7, 12, 0, 0, 0, ZoneOffset.UTC);
     FXForwardSecurity security = new FXForwardSecurity(EUR, 10_000_000, USD, 14_000_000, forwardDate, regionId);
@@ -228,7 +186,6 @@ public class FXForwardPVFnTest {
     return result;
   }
 
-  //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void executeYieldCurveAgainstRemoteServer() throws IOException {
 
@@ -244,8 +201,9 @@ public class FXForwardPVFnTest {
     ComponentMap componentMap = ComponentMap.loadComponents(serverUrl).with(comps);
 
     DiscountingMulticurveBundleResolverFn bundleProvider =
-        FunctionModel.build(DiscountingMulticurveBundleResolverFn.class, createFunctionConfig(), componentMap);
-
+        FunctionModel.build(
+            DiscountingMulticurveBundleResolverFn.class,
+            FxForwardPvFnTest.createFunctionConfig(), componentMap);
 
     ConfigSource configSource = componentMap.getComponent(ConfigSource.class);
     CurveConstructionConfiguration curveConfig = configSource.get(CurveConstructionConfiguration.class, "Z-Marc JPY Dsc - FX USD", VersionCorrection.LATEST)
@@ -262,7 +220,6 @@ public class FXForwardPVFnTest {
     // Can examine result.getValue().getCurve("Z-Marc JPY Discounting - USD FX")) which should match view
   }
 
-  //@Test(groups = TestGroup.INTEGRATION)
   @Test(groups = TestGroup.INTEGRATION, enabled = false)
   public void curveBundleOnly() throws IOException {
     ZonedDateTime valuationTime = ZonedDateTime.of(2013, 11, 1, 9, 0, 0, 0, ZoneOffset.UTC);
@@ -505,46 +462,4 @@ public class FXForwardPVFnTest {
     return trade;
   }
 
-  private static FunctionModelConfig createFunctionConfig() {
-    return
-        config(
-            arguments(
-                function(ConfigDbMarketExposureSelectorFn.class,
-                         argument("exposureConfig", ConfigLink.resolved( mock(ExposureFunctions.class)))),
-                function(RootFinderConfiguration.class,
-                         argument("rootFinderAbsoluteTolerance", 1e-9),
-                         argument("rootFinderRelativeTolerance", 1e-9),
-                         argument("rootFinderMaxIterations", 1000)),
-                function(DefaultCurveNodeConverterFn.class,
-                         argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                function(DefaultCurrencyPairsFn.class,
-                         argument("currencyPairs", ImmutableSet.of(CurrencyPair.of(USD, JPY),
-                                                                   CurrencyPair.of(EUR, USD),
-                                                                   CurrencyPair.of(GBP, USD)))),
-                function(DefaultDiscountingMulticurveBundleFn.class,
-                         argument("impliedCurveNames", StringSet.of()))),
-            implementations(FXForwardPVFn.class, DiscountingFXForwardPVFn.class,
-                            FXForwardCalculatorFn.class, FXForwardDiscountingCalculatorFn.class,
-                            MarketExposureSelectorFn.class, ConfigDbMarketExposureSelectorFn.class,
-                            CurrencyPairsFn.class, DefaultCurrencyPairsFn.class,
-                            FinancialSecurityVisitor.class, FXForwardSecurityConverter.class,
-                            InstrumentExposuresProvider.class, ConfigDBInstrumentExposuresProvider.class,
-                            CurveSpecificationMarketDataFn.class, DefaultCurveSpecificationMarketDataFn.class,
-                            FXMatrixFn.class, DefaultFXMatrixFn.class,
-                            CurveDefinitionFn.class, DefaultCurveDefinitionFn.class,
-                            DiscountingMulticurveBundleFn.class, DefaultDiscountingMulticurveBundleFn.class,
-                            DiscountingMulticurveBundleResolverFn.class, DefaultDiscountingMulticurveBundleResolverFn.class,
-                            DiscountingMulticurveCombinerFn.class, ExposureFunctionsDiscountingMulticurveCombinerFn.class,
-                            CurveSpecificationFn.class, DefaultCurveSpecificationFn.class,
-                            CurveConstructionConfigurationSource.class, ConfigDBCurveConstructionConfigurationSource.class,
-                            CurveNodeConverterFn.class, DefaultCurveNodeConverterFn.class));
-  }
-
-  private static ComponentMap componentMap(Class<?>... componentTypes) {
-    Map<Class<?>, Object> compMap = Maps.newHashMap();
-    for (Class<?> componentType : componentTypes) {
-      compMap.put(componentType, mock(componentType));
-    }
-    return ComponentMap.of(compMap);
-  }
 }

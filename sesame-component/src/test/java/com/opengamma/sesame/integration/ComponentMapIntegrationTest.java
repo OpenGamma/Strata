@@ -3,10 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.sesame.engine;
+package com.opengamma.sesame.integration;
 
 import static org.testng.AssertJUnit.assertNotNull;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.core.config.ConfigSource;
@@ -20,13 +19,14 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * This requires an examples-simulated server running on http://localhost:8080
  */
 @Test(groups = TestGroup.INTEGRATION)
-public class ComponentMapTest {
+public class ComponentMapIntegrationTest {
 
   @Test(enabled = false)
   public void connect() {
