@@ -126,12 +126,12 @@ public final class CreditTestData {
         .put(Tenor.EIGHT_YEARS, 0.02931)
         .put(Tenor.NINE_YEARS, 0.03017)
         .put(Tenor.TEN_YEARS, 0.03092)
-        .put(new Tenor(Period.ofYears(11)), 0.0316)
-        .put(new Tenor(Period.ofYears(12)), 0.03231)
-        .put(new Tenor(Period.ofYears(15)), 0.03367)
-        .put(new Tenor(Period.ofYears(20)), 0.03419)
-        .put(new Tenor(Period.ofYears(25)), 0.03411)
-        .put(new Tenor(Period.ofYears(30)), 0.03412)
+        .put(Tenor.of(Period.ofYears(11)), 0.0316)
+        .put(Tenor.of(Period.ofYears(12)), 0.03231)
+        .put(Tenor.of(Period.ofYears(15)), 0.03367)
+        .put(Tenor.of(Period.ofYears(20)), 0.03419)
+        .put(Tenor.of(Period.ofYears(25)), 0.03411)
+        .put(Tenor.of(Period.ofYears(30)), 0.03412)
         .build();
 
     YieldCurveData ycData = YieldCurveData.builder()

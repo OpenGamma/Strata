@@ -5,7 +5,8 @@
  */
 package com.opengamma.sesame.swaption;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
+
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
