@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.sesame;
 
 import static org.mockito.Mockito.mock;
@@ -13,14 +18,16 @@ import com.google.common.collect.MutableClassToInstanceMap;
 import com.opengamma.sesame.engine.ComponentMap;
 
 /**
- * Utils for mocking. Creates mock maps useful for insertion in 
- * {@link ComponentMap}. Note, strict features are not threadsafe.
+ * Utils for component maps.
+ * Creates mock maps useful for insertion in {@link ComponentMap}.
+ * Note, strict features are not threadsafe.
  */
-public final class MockUtils {
+public final class ComponentMockUtils {
 
-  private MockUtils() {}
-  
-  
+  private ComponentMockUtils() {
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns a map of mock instances, indexed by class.
    * @param classes the classes to use to mock
