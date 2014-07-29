@@ -22,14 +22,38 @@ import com.opengamma.util.tuple.Pair;
 public interface BondFn {
 
   /**
-   * Calculate the present value of a bond.
+   * Calculate the present value of bond transaction by discounting the cash flows using an issuer specific curve.
    *
    * @param env the environment that the PV will be calculate with.
    * @param bondTrade the bond trade to calculate the PV for.
    * @return result containing the present value if successful, a Failure otherwise.
    */
-  @Output(value = OutputNames.PRESENT_VALUE)
-  Result<MultipleCurrencyAmount> calculatePV(Environment env, BondTrade bondTrade);
+  @Output(value = OutputNames.PRESENT_VALUE_CURVES)
+  Result<MultipleCurrencyAmount> calculatePresentValueFromCurves(Environment env, BondTrade bondTrade);
+
+  /**
+   * Calculates the present value of a bond from its market quoted price, which applies to instruments 
+   * quoted in price. The present value function will scale the market price by the bond size and add 
+   * any accrued interest into the final result.
+   *
+   * @param env the environment that the PV will be calculate with.
+   * @param bondTrade the bond trade to calculate the PV for.
+   * @return result containing the present value if successful, a Failure otherwise.
+   */
+  @Output(value = OutputNames.PRESENT_VALUE_MARKET_CLEAN)
+  Result<MultipleCurrencyAmount> calculatePresentValueFromClean(Environment env, BondTrade bondTrade);
+
+  /**
+   * Calculates the present value of a bond from its market quoted price, which applies to instruments 
+   * quoted in yield, such as bills. The present value function will scale the market price by the bond 
+   * size and add any accrued interest into the final result.
+   *
+   * @param env the environment that the PV will be calculate with.
+   * @param bondTrade the bond trade to calculate the PV for.
+   * @return result containing the present value if successful, a Failure otherwise.
+   */
+  @Output(value = OutputNames.PRESENT_VALUE_YIELD)
+  Result<MultipleCurrencyAmount> calculatePresentValueFromYield(Environment env, BondTrade bondTrade);
 
   /**
    * Calculate the bucketed PV01 of a bond.
@@ -51,5 +75,37 @@ public interface BondFn {
    */
   @Output(value = OutputNames.PV01)
   Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, BondTrade bondTrade);
+
+  /**
+   * Calculate the Z-Spread of a bond.
+   *
+   * @param env the environment that the Z-Spread will be calculate with.
+   * @param bondTrade the bond trade to calculate the Z-Spread for.
+   * @return result containing the present value if successful, a Failure otherwise.
+   */
+  @Output(value = OutputNames.Z_SPREAD)
+  Result<Double> calculateZSpread(Environment env, BondTrade bondTrade);
+
+  /**
+   * Calculate the Market Clean Price of a bond.
+   *
+   * @param env the environment that the Market Clean Price will be calculate with.
+   * @param bondTrade the bond trade to calculate the Market Clean Price for.
+   * @return result containing the present value if successful, a Failure otherwise.
+   */
+  @Output(value = OutputNames.MARKET_CLEAN_PRICE)
+  Result<Double> calculateMarketCleanPrice(Environment env, BondTrade bondTrade);
+
+  /**
+   * Calculate the Yield To Maturity of a bond.
+   *
+   * @param env the environment that the Yield To Maturity will be calculate with.
+   * @param bondTrade the bond trade to calculate the Yield To Maturity for.
+   * @return result containing the present value if successful, a Failure otherwise.
+   */
+  @Output(value = OutputNames.YIELD_TO_MATURITY)
+  Result<Double> calculateYieldToMaturity(Environment env, BondTrade bondTrade);
+
+
 
 }

@@ -88,6 +88,7 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -163,16 +164,24 @@ public class BondMockSources {
 
   /*Static data*/
   private static final String TICKER = "Ticker";
+  private static final String GOVERNMENT_BOND_ISSUER_KEY = "UK GOVERNMENT";
+  private static final String CORPORATE_BOND_ISSUER_KEY = "TELECOM ITALIA SPA";
+  private static final String BOND_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions";
+  private static final ExternalId GB_ID = ExternalSchemes.financialRegionId("GB");
+  private static final ExternalId US_ID = ExternalSchemes.financialRegionId("US");
+  private static final ExternalId IT_ID = ExternalSchemes.financialRegionId("IT");
+
+  /*USD and GBP curve share all the same data, except the name*/
   private static final String BOND_CURVE_NODE_ID_MAPPER = "Test Bond Mapper";
-  private static final String BOND_CURVE_NAME = "USD Test Bond Curve";
+  private static final String BOND_USD_CURVE_NAME = "USD Bond Curve";
+  public static final String BOND_GBP_CURVE_NAME = "GBP Bond Curve";
   private static final String BOND_CURVE_CONFIG_NAME = "Test Bond Curve Config";
-  public static final String BOND_ISSUER_KEY = "US GOVERNMENT";
-  public static final String BOND_EXPOSURE_FUNCTIONS = "Test Bond Exposure Functions";
-  private static final ExternalId s_USID = ExternalSchemes.financialRegionId("US");
 
   /*Bond*/
-  public static final BondSecurity BOND_SECURITY = createBondSecurity();
-  public static final BondTrade BOND_TRADE = createBondTrade();
+  public static final BondSecurity GOVERNMENT_BOND_SECURITY = createGovernmentBondSecurity();
+  public static final BondSecurity CORPORATE_BOND_SECURITY = createCorporateBondSecurity();
+  public static final BondTrade GOVERNMENT_BOND_TRADE = createGovernmentBondTrade();
+  public static final BondTrade CORPORATE_BOND_TRADE = createCorporateBondTrade();
 
   /*Bond Future*/
   public static final BondFutureSecurity BOND_FUTURE_SECURITY = createBondFutureSecurity();
@@ -183,7 +192,7 @@ public class BondMockSources {
   public static final BondFutureOptionTrade BOND_FUTURE_OPTION_TRADE = createBondFutureOptionTrade();
 
   /*Environment*/
-  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 1, 22);
+  private static final ZonedDateTime VALUATION_TIME = DateUtils.getUTCDate(2014, 7, 22);
   public static final Environment ENV = new SimpleEnvironment(BondMockSources.VALUATION_TIME,
                                                               BondMockSources.createMarketDataSource());
 
@@ -194,19 +203,42 @@ public class BondMockSources {
     bondNodes.put(Tenor.THREE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B3")));
     bondNodes.put(Tenor.FOUR_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B4")));
     bondNodes.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B5")));
+    bondNodes.put(Tenor.SIX_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B6")));
+    bondNodes.put(Tenor.SEVEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B7")));
+    bondNodes.put(Tenor.EIGHT_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B8")));
+    bondNodes.put(Tenor.NINE_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B9")));
+    bondNodes.put(Tenor.TEN_YEARS, new StaticCurveInstrumentProvider(ExternalId.of(TICKER, "B10")));
     return CurveNodeIdMapper.builder().name(BOND_CURVE_NODE_ID_MAPPER)
                                       .periodicallyCompoundedRateNodeIds(bondNodes)
                                       .build();
   }
-  
-  private static InterpolatedCurveDefinition getBondCurveDefinition() {
+
+  private static InterpolatedCurveDefinition getBondUsdCurveDefinition() {
     Set<CurveNode> nodes = new TreeSet<>();
     nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.ONE_YEAR, 1));
     nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.TWO_YEARS, 1));
     nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.THREE_YEARS, 1));
     nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.FOUR_YEARS, 1));
     nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.FIVE_YEARS, 1));
-    return new InterpolatedCurveDefinition(BOND_CURVE_NAME, nodes, Interpolator1DFactory.LINEAR,
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.SIX_YEARS, 1));
+    return new InterpolatedCurveDefinition(BOND_USD_CURVE_NAME, nodes, Interpolator1DFactory.LINEAR,
+                                           Interpolator1DFactory.FLAT_EXTRAPOLATOR,
+                                           Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  }
+
+  private static InterpolatedCurveDefinition getBondGbpCurveDefinition() {
+    Set<CurveNode> nodes = new TreeSet<>();
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.ONE_YEAR, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.TWO_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.THREE_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.FOUR_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.FIVE_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.SIX_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.SEVEN_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.EIGHT_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.NINE_YEARS, 1));
+    nodes.add(new PeriodicallyCompoundedRateNode(BOND_CURVE_NODE_ID_MAPPER, Tenor.TEN_YEARS, 1));
+    return new InterpolatedCurveDefinition(BOND_GBP_CURVE_NAME, nodes, Interpolator1DFactory.LINEAR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR,
                                            Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   }
@@ -257,15 +289,21 @@ public class BondMockSources {
   
   @SuppressWarnings("unchecked")
   private static CurveConstructionConfiguration getBondCurveConfig() {
-    Set<Object> keys = Sets.newHashSet();
-    keys.add(BOND_ISSUER_KEY);
     Set<LegalEntityFilter<LegalEntity>> filters = Sets.newHashSet();
     filters.add(new LegalEntityShortName());
-    List<CurveTypeConfiguration> curveTypeConfigs = Lists.newArrayList();
-    curveTypeConfigs.add(new IssuerCurveTypeConfiguration(keys, filters));
+
+    Set<Object> govKeys = Sets.newHashSet();
+    govKeys.add(GOVERNMENT_BOND_ISSUER_KEY);
+
+    Set<Object> corpKeys = Sets.newHashSet();
+    corpKeys.add(CORPORATE_BOND_ISSUER_KEY);
+
+    List<CurveTypeConfiguration> configs = Lists.newArrayList();
+    configs.add(new IssuerCurveTypeConfiguration(corpKeys, filters));
+    configs.add(new IssuerCurveTypeConfiguration(govKeys, filters));
     
     Map<String, List<? extends CurveTypeConfiguration>> curveTypes = Maps.newHashMap();
-    curveTypes.put(BOND_CURVE_NAME, curveTypeConfigs);
+    curveTypes.put(BOND_GBP_CURVE_NAME, configs);
     
     return new CurveConstructionConfiguration(BOND_CURVE_CONFIG_NAME,
                                               Lists.newArrayList(new CurveGroupConfiguration(0, curveTypes)),
@@ -275,18 +313,25 @@ public class BondMockSources {
   private static ExposureFunctions getExposureFunctions() {
     List<String> exposureFunctions = ImmutableList.of("Currency");
     Map<ExternalId, String> idsToNames = Maps.newHashMap();
-    idsToNames.put(ExternalId.of("CurrencyISO", Currency.USD.getCode()), BOND_CURVE_CONFIG_NAME);
+    idsToNames.put(ExternalId.of("CurrencyISO", Currency.GBP.getCode()), BOND_CURVE_CONFIG_NAME);
     return new ExposureFunctions(BOND_EXPOSURE_FUNCTIONS, exposureFunctions, idsToNames);
   }
-  
+
   public static MarketDataSource createMarketDataSource() {
     return MapMarketDataSource.builder()
-        .add(createId("B1"), 0.01)
-        .add(createId("B2"), 0.015)
-        .add(createId("B3"), 0.02)
-        .add(createId("B4"), 0.025)
-        .add(createId("B5"), 0.03)
-        .build();
+          .add(createId("B1"), 0.009154010130285646)
+          .add(createId("B2"), 0.013529850844352658)
+          .add(createId("B3"), 0.0172583393761524)
+          .add(createId("B4"), 0.020001507249248547)
+          .add(createId("B5"), 0.022004447649196877)
+          .add(createId("B6"), 0.023628241845802613)
+          .add(createId("B7"), 0.025005300419649393)
+          .add(createId("B8"), 0.02619214367588991)
+          .add(createId("B9"), 0.02719250291972944)
+          .add(createId("B10"), 0.02808602151907749)
+          .add(ExternalId.of("ISIN", "Test Corp bond"), 108.672)
+          .add(ExternalId.of("ISIN", "Test Gov bond"), 136.375)
+          .build();
   }
 
   private static ExternalId createId(String ticker) {
@@ -307,11 +352,21 @@ public class BondMockSources {
 
   private static RegionSource mockRegionSource() {
     RegionSource mock = mock(RegionSource.class);
-    SimpleRegion region = new SimpleRegion();
-    region.addExternalId(s_USID);
+
+    SimpleRegion usRegion = new SimpleRegion();
+    usRegion.addExternalId(US_ID);
+    SimpleRegion euRegion = new SimpleRegion();
+    euRegion.addExternalId(IT_ID);
+    SimpleRegion gbRegion = new SimpleRegion();
+    gbRegion.addExternalId(GB_ID);
+
     when(mock.changeManager()).thenReturn(MOCK_CHANGE_MANAGER);
-    when(mock.getHighestLevelRegion(any(ExternalId.class)))
-        .thenReturn(region);
+    when(mock.getHighestLevelRegion(eq(US_ID)))
+        .thenReturn(usRegion);
+    when(mock.getHighestLevelRegion(eq(IT_ID)))
+        .thenReturn(euRegion);
+    when(mock.getHighestLevelRegion(eq(GB_ID)))
+        .thenReturn(gbRegion);
     return mock;
   }
   
@@ -323,12 +378,26 @@ public class BondMockSources {
     ConventionBundleSource mock = mock(ConventionBundleSource.class);
     
     String usBondConvention = "US_TREASURY_BOND_CONVENTION";
-    ExternalId conventionId = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, usBondConvention);
-    ConventionBundle convention =
-        new ConventionBundleImpl(conventionId.toBundle(), usBondConvention, DayCounts.THIRTY_360,
-                                 new ModifiedFollowingBusinessDayConvention(), Period.ofYears(1), 1, false,
-                                 ExternalSchemes.financialRegionId("US"));
-    when(mock.getConventionBundle(eq(conventionId))).thenReturn(convention);
+    ExternalId usConventionId = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, usBondConvention);
+    ConventionBundle usConvention =
+        new ConventionBundleImpl(usConventionId.toBundle(), usBondConvention, DayCounts.THIRTY_360,
+                                 new ModifiedFollowingBusinessDayConvention(), Period.ofYears(1), 1, false, US_ID);
+    when(mock.getConventionBundle(eq(usConventionId))).thenReturn(usConvention);
+
+    String gbBondConvention = "GB_TREASURY_BOND_CONVENTION";
+    ExternalId gbConventionId = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, gbBondConvention);
+    ConventionBundle gbConvention =
+        new ConventionBundleImpl(gbConventionId.toBundle(), gbBondConvention, DayCounts.THIRTY_360,
+                                 new ModifiedFollowingBusinessDayConvention(), Period.ofYears(1), 0, false, GB_ID);
+    when(mock.getConventionBundle(eq(gbConventionId))).thenReturn(gbConvention);
+
+    String itBondConvention = "IT_CORPORATE_BOND_CONVENTION";
+    ExternalId itConventionId = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, itBondConvention);
+    ConventionBundle itConvention =
+        new ConventionBundleImpl(itConventionId.toBundle(), itBondConvention, DayCounts.ACT_ACT_ICMA,
+                                 new ModifiedFollowingBusinessDayConvention(), Period.ofYears(1), 3, false, IT_ID);
+    when(mock.getConventionBundle(eq(itConventionId))).thenReturn(itConvention);
+
     return mock;
   }
   
@@ -344,12 +413,19 @@ public class BondMockSources {
     when(mock.getSingle(CurveNodeIdMapper.class, BOND_CURVE_NODE_ID_MAPPER, VersionCorrection.LATEST))
       .thenReturn(getBondCurveNodeIdMapper());
     
-    // curve def
-    ConfigItem<Object> bondCurveDefinitionItem = ConfigItem.<Object>of(getBondCurveDefinition());
-    when(mock.get(eq(Object.class), eq(BOND_CURVE_NAME), any(VersionCorrection.class)))
-      .thenReturn(ImmutableSet.of(bondCurveDefinitionItem));
-    when(mock.getSingle(eq(CurveDefinition.class), eq(BOND_CURVE_NAME), any(VersionCorrection.class)))
-        .thenReturn((CurveDefinition) bondCurveDefinitionItem.getValue());
+    // USD curve def
+    ConfigItem<Object> bondUsdCurveDefinitionItem = ConfigItem.<Object>of(getBondUsdCurveDefinition());
+    when(mock.get(eq(Object.class), eq(BOND_USD_CURVE_NAME), any(VersionCorrection.class)))
+      .thenReturn(ImmutableSet.of(bondUsdCurveDefinitionItem));
+    when(mock.getSingle(eq(CurveDefinition.class), eq(BOND_USD_CURVE_NAME), any(VersionCorrection.class)))
+        .thenReturn((CurveDefinition) bondUsdCurveDefinitionItem.getValue());
+
+    // GBP curve def
+    ConfigItem<Object> bondGbpCurveDefinitionItem = ConfigItem.<Object>of(getBondGbpCurveDefinition());
+    when(mock.get(eq(Object.class), eq(BOND_GBP_CURVE_NAME), any(VersionCorrection.class)))
+        .thenReturn(ImmutableSet.of(bondGbpCurveDefinitionItem));
+    when(mock.getSingle(eq(CurveDefinition.class), eq(BOND_GBP_CURVE_NAME), any(VersionCorrection.class)))
+        .thenReturn((CurveDefinition) bondGbpCurveDefinitionItem.getValue());
 
 
     // curve config
@@ -365,8 +441,10 @@ public class BondMockSources {
   
   private static SecuritySource mockSecuritySource() {
     SecuritySource mock = mock(SecuritySource.class);
-    when(mock.getSingle(eq(BondMockSources.BOND_SECURITY.getExternalIdBundle())))
-        .thenReturn(BondMockSources.BOND_SECURITY);
+    when(mock.getSingle(eq(BondMockSources.GOVERNMENT_BOND_SECURITY.getExternalIdBundle())))
+        .thenReturn(BondMockSources.GOVERNMENT_BOND_SECURITY);
+    when(mock.getSingle(eq(BondMockSources.CORPORATE_BOND_SECURITY.getExternalIdBundle())))
+        .thenReturn(BondMockSources.CORPORATE_BOND_SECURITY);
     when(mock.getSingle(eq(BondMockSources.BOND_FUTURE_SECURITY.getExternalIdBundle())))
         .thenReturn(BondMockSources.BOND_FUTURE_SECURITY);
     return mock;
@@ -403,28 +481,30 @@ public class BondMockSources {
                                 mockLegalEntitySource());
   }
 
-  private static BondSecurity createBondSecurity() {
+  private static BondSecurity createGovernmentBondSecurity() {
 
-    String issuerName = BondMockSources.BOND_ISSUER_KEY;
-    String issuerDomicile = "US";
+    String issuerName = BondMockSources.GOVERNMENT_BOND_ISSUER_KEY;
+    String issuerDomicile = "GB";
     String issuerType = "Sovereign";
-    ZonedDateTime effectiveDate = DateUtils.getUTCDate(2014, 1, 22);
-    ZonedDateTime maturityDate = DateUtils.getUTCDate(2015, 6, 22);
-    Currency currency = Currency.USD;
-    YieldConvention yieldConvention = SimpleYieldConvention.US_TREASURY_EQUIVALANT;
-    Expiry lastTradeDate = new Expiry(maturityDate);
-    String couponType = "Fixed";
-    double couponRate = 0.05;
-    Period couponPeriod = Period.parse("P6M");
-    Frequency couponFrequency = PeriodFrequency.of(couponPeriod);
+    Currency currency = Currency.GBP;
+    YieldConvention yieldConvention = SimpleYieldConvention.UK_BUMP_DMO_METHOD;
     DayCount dayCountConvention = DayCounts.ACT_ACT_ICMA;
-    ZonedDateTime firstCouponDate = effectiveDate;
-    ZonedDateTime interestAccrualDate = effectiveDate.minus(couponPeriod);
-    ZonedDateTime settlementDate = maturityDate; // assume 0 day settlement lag
-    Double issuancePrice = null;
-    double totalAmountIssued = 100_000_000;
-    double minimumAmount = 1;
-    double minimumIncrement = 1;
+
+    Period couponPeriod = Period.parse("P6M");
+    String couponType = "Fixed";
+    double couponRate = 8.0;
+    Frequency couponFrequency = PeriodFrequency.of(couponPeriod);
+
+    ZonedDateTime maturityDate = DateUtils.getUTCDate(2021, 6, 7);
+    ZonedDateTime firstCouponDate = DateUtils.getUTCDate(1996, 6, 7);
+    ZonedDateTime interestAccrualDate = firstCouponDate.minus(couponPeriod);
+    ZonedDateTime settlementDate = DateUtils.getUTCDate(2014, 6, 13);
+    Expiry lastTradeDate = new Expiry(maturityDate);
+
+    double issuancePrice = 100.0;
+    double totalAmountIssued = 23499000000.0;
+    double minimumAmount = 0.01;
+    double minimumIncrement = 0.01;
     double parAmount = 100;
     double redemptionValue = 100;
 
@@ -434,41 +514,90 @@ public class BondMockSources {
                                    interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
                                    totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
     // Need this for time series lookup
-    ExternalId bondId = ExternalSchemes.isinSecurityId("Test bond");
+    ExternalId bondId = ExternalSchemes.isinSecurityId("Test Gov bond");
     bond.setExternalIdBundle(bondId.toBundle());
     return bond;
   }
 
-  private static BondTrade createBondTrade() {
+  private static BondSecurity createCorporateBondSecurity() {
+
+    String issuerName = BondMockSources.CORPORATE_BOND_ISSUER_KEY;
+    String issuerDomicile = "IT";
+    String issuerType = "Corporate";
+    Currency currency = Currency.GBP;
+    YieldConvention yieldConvention = SimpleYieldConvention.US_STREET;
+    DayCount dayCountConvention = DayCounts.ACT_ACT_ICMA;
+
+    String couponType = "Fixed";
+    double couponRate = 6.375;
+    Period couponPeriod = Period.ofYears(1);
+    Frequency couponFrequency = PeriodFrequency.of(couponPeriod);
+
+    ZonedDateTime maturityDate = DateUtils.getUTCDate(2019, 6, 24);
+    ZonedDateTime firstCouponDate = DateUtils.getUTCDate(2005, 6, 24);
+    ZonedDateTime interestAccrualDate = firstCouponDate.minus(couponPeriod);
+    ZonedDateTime settlementDate = DateUtils.getUTCDate(2014, 6, 13);
+    Expiry lastTradeDate = new Expiry(maturityDate);
+
+    double issuancePrice = 98.85;
+    double totalAmountIssued = 850000000;
+    double minimumAmount = 50000;
+    double minimumIncrement = 50000;
+    double parAmount = 50000;
+    double redemptionValue = 100;
+
+    CorporateBondSecurity bond =
+        new CorporateBondSecurity(issuerName, issuerType, issuerDomicile, issuerType, currency, yieldConvention,
+                                  lastTradeDate, couponType, couponRate, couponFrequency, dayCountConvention,
+                                  interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
+                                  totalAmountIssued, minimumAmount, minimumIncrement, parAmount, redemptionValue);
+    // Need this for time series lookup
+    ExternalId bondId = ExternalSchemes.isinSecurityId("Test Corp bond");
+    bond.setExternalIdBundle(bondId.toBundle());
+    return bond;
+  }
+
+  private static BondTrade createGovernmentBondTrade() {
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
-    BigDecimal tradeQuantity = BigDecimal.valueOf(1000000);
-    LocalDate tradeDate = LocalDate.of(2014, 1, 1);
+    BigDecimal tradeQuantity = BigDecimal.valueOf(10000);
+    LocalDate tradeDate = LocalDate.of(2014, 7, 23);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
-    SimpleTrade trade = new SimpleTrade(BOND_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
-    trade.setPremium(10.0);
+    SimpleTrade trade = new SimpleTrade(GOVERNMENT_BOND_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremium(0.0);
     trade.setPremiumDate(tradeDate);
-    trade.setPremiumCurrency(Currency.USD);
+    trade.setPremiumCurrency(Currency.GBP);
+    return new BondTrade(trade);
+  }
+
+  private static BondTrade createCorporateBondTrade() {
+    Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
+    BigDecimal tradeQuantity = BigDecimal.valueOf(10000);
+    LocalDate tradeDate = LocalDate.of(2014, 7, 2);
+    OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
+    SimpleTrade trade = new SimpleTrade(CORPORATE_BOND_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
+    trade.setPremiumDate(tradeDate);
+    trade.setPremium(0.0);
+    trade.setPremiumCurrency(Currency.GBP);
     return new BondTrade(trade);
   }
 
   private static BondFutureSecurity createBondFutureSecurity() {
 
-    Currency currency = Currency.USD;
+    Currency currency = Currency.GBP;
 
-    ZonedDateTime deliveryDate = DateUtils.getUTCDate(2014, 6, 18);
+    ZonedDateTime deliveryDate = DateUtils.getUTCDate(2014, 8, 18);
     Expiry expiry = new Expiry(deliveryDate);
     String tradingExchange = "";
     String settlementExchange = "";
     double unitAmount = 1;
     Collection<BondFutureDeliverable> basket = new ArrayList<>();
     BondFutureDeliverable bondFutureDeliverable =
-        new BondFutureDeliverable(BOND_SECURITY.getExternalIdBundle(), 0.9);
+        new BondFutureDeliverable(GOVERNMENT_BOND_SECURITY.getExternalIdBundle(), 0.9);
     basket.add(bondFutureDeliverable);
 
     ZonedDateTime firstDeliveryDate = deliveryDate;
     ZonedDateTime lastDeliveryDate = deliveryDate;
     String category = "test";
-
 
     BondFutureSecurity security =  new BondFutureSecurity(expiry, tradingExchange, settlementExchange, currency, unitAmount, basket,
                                   firstDeliveryDate, lastDeliveryDate, category);
@@ -480,11 +609,11 @@ public class BondMockSources {
 
     Counterparty counterparty = new SimpleCounterparty(ExternalId.of(Counterparty.DEFAULT_SCHEME, "COUNTERPARTY"));
     BigDecimal tradeQuantity = BigDecimal.valueOf(1);
-    LocalDate tradeDate = LocalDate.of(2000, 1, 1);
+    LocalDate tradeDate = LocalDate.of(2014, 1, 23);
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
     SimpleTrade trade = new SimpleTrade(BOND_FUTURE_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
     trade.setPremium(10.0);
-    trade.setPremiumCurrency(Currency.USD);
+    trade.setPremiumCurrency(Currency.GBP);
     return new BondFutureTrade(trade);
   }
 
@@ -515,7 +644,7 @@ public class BondMockSources {
     OffsetTime tradeTime = OffsetTime.of(LocalTime.of(0, 0), ZoneOffset.UTC);
     SimpleTrade trade = new SimpleTrade(BOND_FUTURE_OPTION_SECURITY, tradeQuantity, counterparty, tradeDate, tradeTime);
     trade.setPremium(10.0);
-    trade.setPremiumCurrency(Currency.USD);
+    trade.setPremiumCurrency(Currency.GBP);
     return new BondFutureOptionTrade(trade);
   }
 

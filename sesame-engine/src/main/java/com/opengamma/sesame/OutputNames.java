@@ -24,6 +24,18 @@ public final class OutputNames {
    */
   public static final String PRESENT_VALUE = "Present Value";
   /**
+   * Output name when providing Present Value.
+   */
+  public static final String PRESENT_VALUE_CURVES = "Present Value From Curves";
+  /**
+   * Output name when providing Present Value.
+   */
+  public static final String PRESENT_VALUE_MARKET_CLEAN = "Present Value From Market Clean Price";
+  /**
+   * Output name when providing Present Value.
+   */
+  public static final String PRESENT_VALUE_YIELD = "Present Value From Yield";
+  /**
    * Output name when providing FX Present Value.
    */
   public static final String FX_PRESENT_VALUE = "FX Present Value";
@@ -95,6 +107,18 @@ public final class OutputNames {
    * The theta.
    */
   public static final String THETA = "Theta";
+  /**
+   * The Market Clean Price.
+   */
+  public static final String MARKET_CLEAN_PRICE = "Market Clean Price";
+  /**
+   * The Z Spread.
+   */
+  public static final String Z_SPREAD = "Z Spread";
+  /**
+   * The Yield To Maturity.
+   */
+  public static final String YIELD_TO_MATURITY = "Yield To Maturity";
   /**
    * The cash flows of the swap pay leg.
    */

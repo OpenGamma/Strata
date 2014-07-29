@@ -32,17 +32,35 @@ public class DefaultBondFn implements BondFn {
   }
 
   @Override
-  public Result<MultipleCurrencyAmount> calculatePV(Environment env, BondTrade bondTrade) {
-    Result<DiscountingBondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+  public Result<MultipleCurrencyAmount> calculatePresentValueFromCurves(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
     if (calculatorResult.isSuccess()) {
-      return calculatorResult.getValue().calculatePV();
+      return calculatorResult.getValue().calculatePresentValueFromCurves();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<MultipleCurrencyAmount> calculatePresentValueFromClean(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculatePresentValueFromClean();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<MultipleCurrencyAmount> calculatePresentValueFromYield(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculatePresentValueFromYield();
     }
     return Result.failure(calculatorResult);
   }
 
   @Override
   public Result<BucketedCurveSensitivities> calculateBucketedPV01(Environment env, BondTrade bondTrade) {
-    Result<DiscountingBondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
     if (calculatorResult.isSuccess()) {
       return calculatorResult.getValue().calculateBucketedPV01();
     }
@@ -51,9 +69,36 @@ public class DefaultBondFn implements BondFn {
 
   @Override
   public Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, BondTrade bondTrade) {
-    Result<DiscountingBondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
     if (calculatorResult.isSuccess()) {
       return calculatorResult.getValue().calculatePV01();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateZSpread(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateZSpread();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateMarketCleanPrice(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateMarketCleanPrice();
+    }
+    return Result.failure(calculatorResult);
+  }
+
+  @Override
+  public Result<Double> calculateYieldToMaturity(Environment env, BondTrade bondTrade) {
+    Result<BondCalculator> calculatorResult = _bondCalculatorFactory.createCalculator(env, bondTrade);
+    if (calculatorResult.isSuccess()) {
+      return calculatorResult.getValue().calculateYieldToMaturity();
     }
     return Result.failure(calculatorResult);
   }
