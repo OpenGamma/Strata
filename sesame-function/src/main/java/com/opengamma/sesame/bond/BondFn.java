@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
 public interface BondFn {
 
   /**
-   * Calculate the present value of a bond from the issuer-specific curves.
+   * Calculate the present value of bond transaction by discounting the cash flows using an issuer specific curve.
    *
    * @param env the environment that the PV will be calculate with.
    * @param bondTrade the bond trade to calculate the PV for.
@@ -32,7 +32,9 @@ public interface BondFn {
   Result<MultipleCurrencyAmount> calculatePresentValueFromCurves(Environment env, BondTrade bondTrade);
 
   /**
-   * Calculate the present value of a bond transaction from its clean market price..
+   * Calculates the present value of a bond from its market quoted price, which applies to instruments 
+   * quoted in price. The present value function will scale the market price by the bond size and add 
+   * any accrued interest into the final result.
    *
    * @param env the environment that the PV will be calculate with.
    * @param bondTrade the bond trade to calculate the PV for.
@@ -42,7 +44,9 @@ public interface BondFn {
   Result<MultipleCurrencyAmount> calculatePresentValueFromClean(Environment env, BondTrade bondTrade);
 
   /**
-   * Calculate the present value of a bond transaction from its conventional yield.
+   * Calculates the present value of a bond from its market quoted price, which applies to instruments 
+   * quoted in yield, such as bills. The present value function will scale the market price by the bond 
+   * size and add any accrued interest into the final result.
    *
    * @param env the environment that the PV will be calculate with.
    * @param bondTrade the bond trade to calculate the PV for.
