@@ -36,6 +36,14 @@ public final class OutputNames {
    */
   public static final String ISSUER_PROVIDER_BUNDLE = "Issuer Provider Bundle";
   /**
+   * Isda credit curve output name.
+   */
+  public static final String ISDA_CREDIT_CURVE = "Isda Credit Curve";
+  /**
+   * Isda yield curve output name.
+   */
+  public static final String ISDA_YIELD_CURVE = "Isda Yield Curve";
+  /**
    * Output name when providing P&L Series.
    */
   public static final String PNL_SERIES = "P&L Series";
