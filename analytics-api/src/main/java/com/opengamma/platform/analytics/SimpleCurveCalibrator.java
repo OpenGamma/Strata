@@ -176,9 +176,5 @@ public class SimpleCurveCalibrator implements CurveCalibrator {
     };
   }
 
-  @Override
-  public YieldCurve buildYieldCurve(Map<Tenor, CurveInstrument> instruments, Map<Tenor, Double> rates, LocalDate valuationDate) {
-    return null;
-  }
 }
 
