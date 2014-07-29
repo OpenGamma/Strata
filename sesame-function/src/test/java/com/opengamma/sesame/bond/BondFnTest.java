@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
@@ -45,7 +46,8 @@ public class BondFnTest {
   private static final double STD_TOLERANCE_PV = 1.0E-3;
   private static final double STD_TOLERANCE_RATE = 1.0E-8;
   private static final double STD_TOLERANCE_PV01 = 1.0E-4;
-  
+
+  @BeforeClass
   public void setUp() {
     ImmutableMap<Class<?>, Object> components = BondMockSources.generateBaseComponents();
     VersionCorrectionProvider vcProvider = new FixedInstantVersionCorrectionProvider(Instant.now());

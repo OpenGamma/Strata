@@ -71,6 +71,9 @@ public class DiscountingBondCalculator implements BondCalculator {
 
   private static final double BASIS_POINT_FACTOR = 1.0E-4;
 
+  /** Needed to scale down the market price as required by the calculators*/
+  private static final double SCALING_FACTOR = 100;
+
   private final BondFixedTransaction _derivative;
 
   private final ParameterIssuerProviderInterface _curves;
@@ -127,7 +130,7 @@ public class DiscountingBondCalculator implements BondCalculator {
     if (marketResult.isSuccess()) {
       return Result.success(BTDM.presentValueFromCleanPrice(_derivative,
                                                             _curves.getIssuerProvider(),
-                                                            marketResult.getValue() / 100));
+                                                            marketResult.getValue() / SCALING_FACTOR));
     } else {
       return Result.failure(marketResult);
     }
@@ -174,7 +177,7 @@ public class DiscountingBondCalculator implements BondCalculator {
   public Result<Double> calculateYieldToMaturity() {
     Result<Double> marketResult = calculateMarketCleanPrice();
     if (marketResult.isSuccess()) {
-      return Result.success(_derivative.accept(YFCPC, marketResult.getValue() / 100));
+      return Result.success(_derivative.accept(YFCPC, marketResult.getValue() / SCALING_FACTOR));
     } else {
       return Result.failure(marketResult);
     }
@@ -185,7 +188,7 @@ public class DiscountingBondCalculator implements BondCalculator {
     Result<Double> marketResult = calculateMarketCleanPrice();
     if (marketResult.isSuccess()) {
       ObjectsPair<IssuerProviderInterface, Double> pair = ObjectsPair.of(_curves.getIssuerProvider(),
-                                                                         marketResult.getValue() / 100);
+                                                                         marketResult.getValue() / SCALING_FACTOR);
       return Result.success(_derivative.accept(ZSC, pair));
     } else {
       return Result.failure(marketResult);
