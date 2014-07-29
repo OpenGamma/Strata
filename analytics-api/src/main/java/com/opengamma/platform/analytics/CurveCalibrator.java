@@ -23,9 +23,6 @@ public interface CurveCalibrator {
   // Curve builds using rates derived from instruments and market rates
 
 
-  // create an InstrumentWithRate class and pass a single map?
-  YieldCurve buildYieldCurve(Map<Tenor, CurveInstrument> instruments, Map<Tenor, Double> rates,
-                             LocalDate valuationDate);
 
 
   // build curves based on underlying curve e.g. build me a forward curve using this discounting curve
@@ -56,8 +53,8 @@ public interface CurveCalibrator {
   }
 
   // Represents the instruments used to build a curve
-  public interface CurveInstrument {
-
+  public enum InstrumentType {
+    CASH, SWAP, FUTURE, FRA
   }
 
 }
