@@ -74,6 +74,7 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.DateUtils;
 
 
 /**
@@ -82,7 +83,7 @@ import com.opengamma.util.test.TestGroup;
  * and a the curve bundle used to price the swap.
  */
 
-@Test(groups = TestGroup.INTEGRATION)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class RemoteInterestRateSwapTest {
 
   private static final String URL = "http://localhost:8080/jax";
@@ -92,47 +93,46 @@ public class RemoteInterestRateSwapTest {
   private ConfigLink<ExposureFunctions> _exposureConfig;
   private ConfigLink<CurrencyMatrix> _currencyMatrixLink;
   private ConfigLink<CurveConstructionConfiguration> _curveConstructionConfiguration;
-  private List<ManageableSecurity> _input = new ArrayList<>();
+  private List<ManageableSecurity> _inputs = new ArrayList<>();
 
 
   @BeforeClass
   public void setUp() {
 
-    /** Create a RemoteFunctionServer to executes view requests RESTfully.*/
+    /* Create a RemoteFunctionServer to executes view requests RESTfully.*/
     _functionServer = new RemoteFunctionServer(URI.create(URL));
 
-    /** Single cycle options containing the market data specification and valuation time*/
+    /* Single cycle options containing the market data specification and valuation time */
     _cycleOptions = IndividualCycleOptions.builder()
-        .valuationTime(ZonedDateTime.now())
+        .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
         .marketDataSpec(LiveMarketDataSpecification.of("Bloomberg"))
         .build();
 
-    /** Configuration links matching the curve exposure function, currency matrix and curve bundle
-     *  as named on the remote server. These are needed as specific arguments in the creation
-     *  of the ViewConfig.
-     */
+    /* Configuration links matching the curve exposure function, currency matrix and curve bundle
+       as named on the remote server. These are needed as specific arguments in the creation
+       of the ViewConfig. */
     _exposureConfig = ConfigLink.resolvable("USD CSA Exposure Functions", ExposureFunctions.class);
     _currencyMatrixLink = ConfigLink.resolvable("BloombergLiveData", CurrencyMatrix.class);
     _curveConstructionConfiguration = ConfigLink.resolvable("USD TO GBP CSA USD Curve Construction Configuration",
                                                             CurveConstructionConfiguration.class);
 
-    /** Add a single Fixed vs Libor 3m Swap to the ManageableSecurity list*/
-    _input.add(createFixedVsLibor3mSwap());
+    /* Add a single Fixed vs Libor 3m Swap to the ManageableSecurity list */
+    _inputs.add(createFixedVsLibor3mSwap());
   }
 
   @Test(enabled = false)
   public void testSingleSwapPVExecution() {
 
-    /** Building the output specific request, based on a the view config, the single cycle options
-     *  and the List<ManageableSecurity> containing a single swap */
+    /* Building the output specific request, based on a the view config, the single cycle options
+       and the List<ManageableSecurity> containing a single swap */
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig(OutputNames.PRESENT_VALUE))
-            .inputs(_input)
+            .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
 
-    /** Execute the engine cycle and extract the result**/
+    /* Execute the engine cycle and extract the result */
     Results results = _functionServer.executeSingleCycle(request);
     Result result = results.get(0,0).getResult();
     assertThat(result.isSuccess(), is(true));
@@ -145,7 +145,7 @@ public class RemoteInterestRateSwapTest {
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig(OutputNames.RECEIVE_LEG_CASH_FLOWS))
-            .inputs(_input)
+            .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
 
@@ -161,7 +161,7 @@ public class RemoteInterestRateSwapTest {
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig(OutputNames.PAY_LEG_CASH_FLOWS))
-            .inputs(_input)
+            .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
 
@@ -177,7 +177,7 @@ public class RemoteInterestRateSwapTest {
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig(OutputNames.BUCKETED_PV01))
-            .inputs(_input)
+            .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
 
@@ -193,7 +193,7 @@ public class RemoteInterestRateSwapTest {
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
             .viewConfig(createViewConfig(OutputNames.PV01))
-            .inputs(_input)
+            .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
 
@@ -218,7 +218,7 @@ public class RemoteInterestRateSwapTest {
 
   }
 
-  /** Output specific view configuration for interest rate swaps */
+  /* Output specific view configuration for interest rate swaps */
   private ViewConfig createViewConfig(String output) {
 
     return
@@ -256,7 +256,7 @@ public class RemoteInterestRateSwapTest {
       );
   }
 
-  /** A non portfolio output view configuration to capture the build curves */
+  /* A non portfolio output view configuration to capture the build curves */
   private ViewConfig createCurveBundleConfig() {
 
     return configureView(
@@ -294,7 +294,7 @@ public class RemoteInterestRateSwapTest {
 
   private InterestRateSwapSecurity createFixedVsLibor3mSwap() {
 
-    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 100000000);
+    InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1_000_000);
     PeriodFrequency freq6m = PeriodFrequency.of(Period.ofMonths(6));
     PeriodFrequency freq3m = PeriodFrequency.of(Period.ofMonths(3));
     Set<ExternalId> calendarUSNY = Sets.newHashSet(ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, "USNY"));
