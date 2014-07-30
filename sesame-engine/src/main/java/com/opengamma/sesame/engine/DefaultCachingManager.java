@@ -20,9 +20,9 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.sesame.cache.CacheInvalidator;
 import com.opengamma.sesame.cache.CachingProxyDecorator;
-import com.opengamma.sesame.cache.DefaultCacheInvalidator;
 import com.opengamma.sesame.cache.ExecutingMethodsThreadLocal;
 import com.opengamma.sesame.cache.MethodInvocationKey;
+import com.opengamma.sesame.cache.NoOpCacheInvalidator;
 import com.opengamma.sesame.cache.source.CacheAwareConfigSource;
 import com.opengamma.sesame.cache.source.CacheAwareConventionSource;
 import com.opengamma.sesame.cache.source.CacheAwareHistoricalTimeSeriesSource;
@@ -52,7 +52,7 @@ public class DefaultCachingManager implements CachingManager {
   public DefaultCachingManager(ComponentMap componentMap, Cache<MethodInvocationKey, FutureTask<Object>> cache) {
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
     _cache = ArgumentChecker.notNull(cache, "cache");
-    _cacheInvalidator = new DefaultCacheInvalidator(executingMethods, _cache);
+    _cacheInvalidator = new NoOpCacheInvalidator();
     _cachingDecorator = new CachingProxyDecorator(_cache, executingMethods);
     _componentMap = decorateSources(ArgumentChecker.notNull(componentMap, "componentMap"));
   }
