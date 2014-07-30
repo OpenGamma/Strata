@@ -14,14 +14,12 @@ import static com.opengamma.sesame.config.ConfigBuilder.function;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutput;
 import static com.opengamma.sesame.config.ConfigBuilder.nonPortfolioOutputs;
 import static com.opengamma.sesame.config.ConfigBuilder.output;
-import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.mockito.Mockito.mock;
 import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.EnumSet;
 import java.util.Map;
 
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -64,8 +62,7 @@ import com.opengamma.sesame.marketdata.MarketDataFn;
 /**
  * Tests graph building for credit curve functions.
  */
-@PrepareForTest(CreditCurveDataSnapshot.class)
-public class StandardIsdaCompliantCreditCurveGraphTest extends PowerMockTestCase {
+public class StandardIsdaCompliantCreditCurveGraphTest {
   
   private ViewFactory _viewFactory;
 
@@ -106,7 +103,6 @@ public class StandardIsdaCompliantCreditCurveGraphTest extends PowerMockTestCase
   
   @Test
   public void testBuildYieldCurve() {
-    
     ViewConfig config = createViewConfig();
     
     View view = _viewFactory.createView(config);
