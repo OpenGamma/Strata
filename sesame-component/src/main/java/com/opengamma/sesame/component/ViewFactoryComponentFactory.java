@@ -90,7 +90,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   /**
    * The default maximum size of the view factory cache if none is specified in the config.
    */
-  private static final long MAX_CACHE_ENTRIES = 100_000;
+  private static final long MAX_CACHE_ENTRIES = 10_000;
 
   /**
    * The classifier that the factory should publish under.
@@ -248,6 +248,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     int concurrencyLevel = Runtime.getRuntime().availableProcessors() + 2;
     return CacheBuilder.newBuilder()
         .maximumSize(getMaxCacheEntries())
+        .softValues()
         .concurrencyLevel(concurrencyLevel)
         .build();
   }
