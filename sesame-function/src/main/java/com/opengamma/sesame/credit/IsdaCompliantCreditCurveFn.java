@@ -8,7 +8,9 @@ package com.opengamma.sesame.credit;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.cache.Cacheable;
+import com.opengamma.sesame.function.Output;
 import com.opengamma.util.result.Result;
 
 /**
@@ -24,6 +26,7 @@ public interface IsdaCompliantCreditCurveFn {
    * @return an {@link ISDACompliantCreditCurve} result
    */
   @Cacheable
+  @Output(OutputNames.ISDA_CREDIT_CURVE)
   Result<IsdaCreditCurve> buildIsdaCompliantCreditCurve(Environment env, CreditCurveDataKey creditCurveKey);
   
 }

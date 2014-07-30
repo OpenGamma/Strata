@@ -8,7 +8,9 @@ package com.opengamma.sesame.credit;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.sesame.Environment;
+import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.cache.Cacheable;
+import com.opengamma.sesame.function.Output;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 
@@ -25,6 +27,7 @@ public interface IsdaCompliantYieldCurveFn {
    * @return a result containing an {@link ISDACompliantCurve} if successful, or failure
    */
   @Cacheable
+  @Output(OutputNames.ISDA_YIELD_CURVE)
   Result<IsdaYieldCurve> buildIsdaCompliantCurve(Environment env, Currency ccy);
   
 }
