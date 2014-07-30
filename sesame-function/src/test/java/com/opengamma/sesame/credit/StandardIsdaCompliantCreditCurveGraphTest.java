@@ -31,8 +31,11 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.link.SnapshotLink;
+import com.opengamma.core.marketdatasnapshot.NamedSnapshot;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.analytics.isda.credit.CreditCurveData;
+import com.opengamma.financial.analytics.isda.credit.CreditCurveDataKey;
 import com.opengamma.financial.analytics.isda.credit.CreditCurveDataSnapshot;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveDataSnapshot;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -128,7 +131,14 @@ public class StandardIsdaCompliantCreditCurveGraphTest extends PowerMockTestCase
   }
 
   private ViewConfig createViewConfig() {
-
+    //note: ideally should use mock(CreditCurveDataSnapshot.class) for this.
+    //despite CreditCurveDataSnapshot being final, powermock still allows it to be mocked.
+    //however due to a bug in Java Version 7 Update 65, this is disabled for now.
+    //see:
+    //https://code.google.com/p/powermock/issues/detail?id=504
+    //https://bugs.openjdk.java.net/browse/JDK-8051012
+    Map<CreditCurveDataKey, CreditCurveData> emptyData = Maps.newHashMap();
+    NamedSnapshot snapshot = CreditCurveDataSnapshot.builder().creditCurves(emptyData).name("test").build();
     ViewConfig viewConfig =
         configureView("Yield curve",
             config(
@@ -137,7 +147,7 @@ public class StandardIsdaCompliantCreditCurveGraphTest extends PowerMockTestCase
                              argument("snapshotLink", SnapshotLink.resolved(mock(YieldCurveDataSnapshot.class)))),
                      function(SnapshotCreditCurveDataProviderFn.class,
                               argument("snapshotLink", 
-                                      SnapshotLink.resolved(mock(CreditCurveDataSnapshot.class)))))),
+                                      SnapshotLink.resolved(snapshot))))),
                  columns(),
                  nonPortfolioOutputs(
                    nonPortfolioOutput("Yield curve",
