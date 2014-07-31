@@ -59,6 +59,7 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.test.BeanAssert;
+import org.joda.convert.StringConvert;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -121,6 +122,21 @@ public class TestHelper {
     } catch (IOException | ClassNotFoundException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Asserts that the object can be serialized and deserialized via a string using Joda-Convert.
+   * 
+   * @param cls  the effective type
+   * @param base  the object to be tested
+   */
+  public static <T> void assertJodaConvert(Class<T> cls, Object base) {
+    assertNotNull(base);
+    StringConvert convert = StringConvert.create();
+    String str = convert.convertToString(base);
+    T result = convert.convertFromString(cls, str);
+    assertEquals(result, base);
   }
 
   //-------------------------------------------------------------------------

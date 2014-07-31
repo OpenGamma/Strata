@@ -5,6 +5,8 @@
  */
 package com.opengamma.collect.tuple;
 
+import static com.opengamma.collect.TestHelper.assertJodaConvert;
+import static com.opengamma.collect.TestHelper.assertSerialization;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -173,6 +175,14 @@ public class LongDoublePairTest {
   public void coverage() {
     LongDoublePair test = LongDoublePair.of(1L, 1.7d);
     TestHelper.coverImmutableBean(test);
+  }
+
+  public void test_serialization() {
+    assertSerialization(LongDoublePair.of(1L, 1.7d));
+  }
+
+  public void test_jodaConvert() {
+    assertJodaConvert(LongDoublePair.class, LongDoublePair.of(1L, 1.7d));
   }
 
 }
