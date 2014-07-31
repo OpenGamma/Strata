@@ -26,7 +26,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
@@ -58,6 +57,7 @@ import com.opengamma.sesame.OutputNames;
 import com.opengamma.sesame.RootFinderConfiguration;
 import com.opengamma.sesame.component.RetrievalPeriod;
 import com.opengamma.sesame.component.StringSet;
+import com.opengamma.sesame.config.ViewColumn;
 import com.opengamma.sesame.config.ViewConfig;
 import com.opengamma.sesame.engine.Results;
 import com.opengamma.sesame.irs.DiscountingInterestRateSwapCalculatorFactory;
@@ -83,10 +83,10 @@ import com.opengamma.util.time.DateUtils;
  * and a the curve bundle used to price the swap.
  */
 
-@Test(groups = TestGroup.INTEGRATION, enabled = false)
+@Test(groups = TestGroup.INTEGRATION)
 public class RemoteInterestRateSwapTest {
 
-  private static final String URL = "http://localhost:8080/jax";
+  private static final String URL = "http://devsvr-lx-3:8080/jax";
   private static final String CURVE_RESULT = "Curve Bundle";
   private FunctionServer _functionServer;
   private IndividualCycleOptions _cycleOptions;
@@ -102,10 +102,13 @@ public class RemoteInterestRateSwapTest {
     /* Create a RemoteFunctionServer to executes view requests RESTfully.*/
     _functionServer = new RemoteFunctionServer(URI.create(URL));
 
-    /* Single cycle options containing the market data specification and valuation time */
+    /* Single cycle options containing the market data specification and valuation time.
+       The captureInputs flag (false by default) will return the data used to calculate
+       the result. Note this can be a very large object. */
     _cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(DateUtils.getUTCDate(2014, 1, 22))
         .marketDataSpec(LiveMarketDataSpecification.of("Bloomberg"))
+        .captureInputs(false)
         .build();
 
     /* Configuration links matching the curve exposure function, currency matrix and curve bundle
@@ -116,51 +119,38 @@ public class RemoteInterestRateSwapTest {
     _curveConstructionConfiguration = ConfigLink.resolvable("USD TO GBP CSA USD Curve Construction Configuration",
                                                             CurveConstructionConfiguration.class);
 
-    /* Add a single Fixed vs Libor 3m Swap to the ManageableSecurity list */
-    _inputs.add(createFixedVsLibor3mSwap());
+    /* Add Fixed vs Libor 3m Swaps to the ManageableSecurity list, with different fixed leg rates*/
+    _inputs.add(createFixedVsLibor3mSwap(0.015));
+    _inputs.add(createFixedVsLibor3mSwap(0.016));
+    _inputs.add(createFixedVsLibor3mSwap(0.017));
+    _inputs.add(createFixedVsLibor3mSwap(0.018));
   }
 
-  @Test(enabled = false)
-  public void testSingleSwapPVExecution() {
+  @Test
+  public void testSwapPVExecution() {
 
     /* Building the output specific request, based on a the view config, the single cycle options
-       and the List<ManageableSecurity> containing a single swap */
+       and the List<ManageableSecurity> containing the swaps */
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig(OutputNames.PRESENT_VALUE))
+            .viewConfig(createSingleColumnViewConfig(OutputNames.PRESENT_VALUE))
             .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
 
-    /* Execute the engine cycle and extract the result */
+    /* Execute the engine cycle and extract the first result result */
     Results results = _functionServer.executeSingleCycle(request);
     Result result = results.get(0,0).getResult();
     assertThat(result.isSuccess(), is(true));
 
   }
 
-  @Test(enabled = false)
-  public void testSingleSwapReceiveLegCashFlowsExecution() {
+  @Test
+  public void testSwapPVAndBucketedPV01Execution() {
 
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig(OutputNames.RECEIVE_LEG_CASH_FLOWS))
-            .inputs(_inputs)
-            .cycleOptions(_cycleOptions)
-            .build();
-
-    Results results = _functionServer.executeSingleCycle(request);
-    Result result = results.get(0,0).getResult();
-    assertThat(result.isSuccess(), is(true));
-
-  }
-
-  @Test(enabled = false)
-  public void testSingleSwapPayLegCashFlowsExecution() {
-
-    FunctionServerRequest<IndividualCycleOptions> request =
-        FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig(OutputNames.PAY_LEG_CASH_FLOWS))
+            .viewConfig(createDoubleColumnViewConfig(OutputNames.PRESENT_VALUE, OutputNames.BUCKETED_PV01))
             .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
@@ -172,11 +162,11 @@ public class RemoteInterestRateSwapTest {
   }
 
   @Test(enabled = false)
-  public void testSingleSwapBucketedPV01Execution() {
+  public void testSwapReceiveLegCashFlowsExecution() {
 
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig(OutputNames.BUCKETED_PV01))
+            .viewConfig(createSingleColumnViewConfig(OutputNames.RECEIVE_LEG_CASH_FLOWS))
             .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
@@ -188,11 +178,43 @@ public class RemoteInterestRateSwapTest {
   }
 
   @Test(enabled = false)
-  public void testSingleSwapPV01Execution() {
+  public void testSwapPayLegCashFlowsExecution() {
 
     FunctionServerRequest<IndividualCycleOptions> request =
         FunctionServerRequest.<IndividualCycleOptions>builder()
-            .viewConfig(createViewConfig(OutputNames.PV01))
+            .viewConfig(createSingleColumnViewConfig(OutputNames.PAY_LEG_CASH_FLOWS))
+            .inputs(_inputs)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    Results results = _functionServer.executeSingleCycle(request);
+    Result result = results.get(0,0).getResult();
+    assertThat(result.isSuccess(), is(true));
+
+  }
+
+  @Test(enabled = false)
+  public void testSwapBucketedPV01Execution() {
+
+    FunctionServerRequest<IndividualCycleOptions> request =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createSingleColumnViewConfig(OutputNames.BUCKETED_PV01))
+            .inputs(_inputs)
+            .cycleOptions(_cycleOptions)
+            .build();
+
+    Results results = _functionServer.executeSingleCycle(request);
+    Result result = results.get(0,0).getResult();
+    assertThat(result.isSuccess(), is(true));
+
+  }
+
+  @Test(enabled = false)
+  public void testSwapPV01Execution() {
+
+    FunctionServerRequest<IndividualCycleOptions> request =
+        FunctionServerRequest.<IndividualCycleOptions>builder()
+            .viewConfig(createSingleColumnViewConfig(OutputNames.PV01))
             .inputs(_inputs)
             .cycleOptions(_cycleOptions)
             .build();
@@ -218,42 +240,58 @@ public class RemoteInterestRateSwapTest {
 
   }
 
-  /* Output specific view configuration for interest rate swaps */
-  private ViewConfig createViewConfig(String output) {
+  /* Output specific single column view configuration for interest rate swaps */
+  private ViewConfig createSingleColumnViewConfig(String output) {
 
     return
       configureView(
         "IRS Remote view",
-        column(output,
-          config(
-              arguments(
-                  function(ConfigDbMarketExposureSelectorFn.class, argument("exposureConfig", _exposureConfig)),
-                  function(
-                      RootFinderConfiguration.class,
-                      argument("rootFinderAbsoluteTolerance", 1e-9),
-                      argument("rootFinderRelativeTolerance", 1e-9),
-                      argument("rootFinderMaxIterations", 1000)),
-                  function(DefaultCurveNodeConverterFn.class,
-                           argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
-                  function(DefaultHistoricalMarketDataFn.class,
-                           argument("dataSource", "BLOOMBERG"),
-                           argument("currencyMatrix", _currencyMatrixLink)),
-                  function(DefaultMarketDataFn.class,
-                           argument("dataSource", "BLOOMBERG"),
-                           argument("currencyMatrix", _currencyMatrixLink)),
-                  function(
-                      DefaultHistoricalTimeSeriesFn.class,
-                      argument("resolutionKey", "DEFAULT_TSS"),
-                      argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
-                  function(
-                      DefaultDiscountingMulticurveBundleFn.class,
-                      argument("impliedCurveNames", StringSet.of()))),
-              implementations(InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
-                              InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)
-          ),
-          output(output, InterestRateSwapSecurity.class)
-        )
+        createViewColumn(output)
       );
+  }
+
+  /* Output specific double column view configuration for interest rate swaps */
+  private ViewConfig createDoubleColumnViewConfig(String first, String second) {
+
+    return
+        configureView(
+            "IRS Remote view",
+            createViewColumn(first),
+            createViewColumn(second)
+        );
+  }
+
+  /* Shared column configuration */
+  private ViewColumn createViewColumn(String output) {
+    return column(output,
+                  config(
+                      arguments(
+                          function(ConfigDbMarketExposureSelectorFn.class, argument("exposureConfig", _exposureConfig)),
+                          function(
+                              RootFinderConfiguration.class,
+                              argument("rootFinderAbsoluteTolerance", 1e-9),
+                              argument("rootFinderRelativeTolerance", 1e-9),
+                              argument("rootFinderMaxIterations", 1000)),
+                          function(DefaultCurveNodeConverterFn.class,
+                                   argument("timeSeriesDuration", RetrievalPeriod.of(Period.ofYears(1)))),
+                          function(DefaultHistoricalMarketDataFn.class,
+                                   argument("dataSource", "BLOOMBERG"),
+                                   argument("currencyMatrix", _currencyMatrixLink)),
+                          function(DefaultMarketDataFn.class,
+                                   argument("dataSource", "BLOOMBERG"),
+                                   argument("currencyMatrix", _currencyMatrixLink)),
+                          function(
+                              DefaultHistoricalTimeSeriesFn.class,
+                              argument("resolutionKey", "DEFAULT_TSS"),
+                              argument("htsRetrievalPeriod", RetrievalPeriod.of((Period.ofYears(1))))),
+                          function(
+                              DefaultDiscountingMulticurveBundleFn.class,
+                              argument("impliedCurveNames", StringSet.of()))),
+                      implementations(InterestRateSwapFn.class, DiscountingInterestRateSwapFn.class,
+                                      InterestRateSwapCalculatorFactory.class, DiscountingInterestRateSwapCalculatorFactory.class)
+                  ),
+                  output(output, InterestRateSwapSecurity.class)
+    );
   }
 
   /* A non portfolio output view configuration to capture the build curves */
@@ -292,7 +330,7 @@ public class RemoteInterestRateSwapTest {
              ));
   }
 
-  private InterestRateSwapSecurity createFixedVsLibor3mSwap() {
+  private InterestRateSwapSecurity createFixedVsLibor3mSwap(double rate) {
 
     InterestRateSwapNotional notional = new InterestRateSwapNotional(Currency.USD, 1_000_000);
     PeriodFrequency freq6m = PeriodFrequency.of(Period.ofMonths(6));
@@ -310,7 +348,7 @@ public class RemoteInterestRateSwapTest {
     payLeg.setAccrualPeriodBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     payLeg.setMaturityDateBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     payLeg.setAccrualPeriodCalendars(calendarUSNY);
-    payLeg.setRate(new Rate(0.0150));
+    payLeg.setRate(new Rate(rate));
     payLeg.setPayReceiveType(PayReceiveType.PAY);
     legs.add(payLeg);
 
@@ -338,7 +376,7 @@ public class RemoteInterestRateSwapTest {
 
     return new InterestRateSwapSecurity(
         ExternalIdBundle.of(ExternalId.of("UUID", GUIDGenerator.generate().toString())),
-        "Fixed vs Libor 3m",
+        "Fixed " + rate + " vs Libor 3m",
         LocalDate.of(2014, 9, 12), // effective date
         LocalDate.of(2021, 9, 12), // maturity date,
         legs);
