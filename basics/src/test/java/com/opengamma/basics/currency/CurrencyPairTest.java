@@ -10,6 +10,7 @@ import static com.opengamma.basics.currency.Currency.CAD;
 import static com.opengamma.basics.currency.Currency.EUR;
 import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.currency.Currency.USD;
+import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static org.testng.Assert.assertEquals;
@@ -148,6 +149,11 @@ public class CurrencyPairTest {
   public void test_serialization() {
     assertSerialization(CurrencyPair.of(GBP, USD));
     assertSerialization(CurrencyPair.of(GBP, GBP));
+  }
+
+  public void test_jodaConvert() {
+    assertJodaConvert(CurrencyPair.class, CurrencyPair.of(GBP, USD));
+    assertJodaConvert(CurrencyPair.class, CurrencyPair.of(GBP, GBP));
   }
 
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.basics.currency;
 
+import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
@@ -14,9 +15,6 @@ import java.util.Set;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.currency.CurrencyAmount;
 
 /**
  * Test {@link Currency}.
@@ -197,6 +195,11 @@ public class CurrencyTest {
   public void test_serialization() {
     assertSerialization(Currency.GBP);
     assertSerialization(Currency.of("ABB"));
+  }
+
+  public void test_jodaConvert() {
+    assertJodaConvert(Currency.class, Currency.GBP);
+    assertJodaConvert(Currency.class, Currency.of("ABB"));
   }
 
 }
