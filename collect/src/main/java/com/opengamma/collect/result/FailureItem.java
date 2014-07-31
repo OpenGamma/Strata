@@ -15,6 +15,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -23,6 +24,9 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.Interner;
+import com.google.common.collect.Interners;
 
 /**
  * Details of a single failed item in a failure.
@@ -35,6 +39,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @BeanDefinition(builderScope = "private")
 public final class FailureItem
     implements ImmutableBean {
+
+  /**
+   * Stack traces can take up a lot of memory if a large number of failures are stored.
+   * They are often duplicated many times so interning them can save a significant amount of memory.
+   */
+  private static final Interner<String> INTERNER = Interners.newWeakInterner();
 
   /**
    * The reason associated with the failure.
@@ -59,6 +69,21 @@ public final class FailureItem
   @PropertyDefinition
   @Nullable
   private final Class<? extends Exception> causeType;
+
+  @ImmutableConstructor
+  private FailureItem(
+      FailureReason reason,
+      String message,
+      String stackTrace,
+      @Nullable Class<? extends Exception> causeType) {
+    JodaBeanUtils.notNull(reason, "reason");
+    JodaBeanUtils.notEmpty(message, "message");
+    JodaBeanUtils.notNull(stackTrace, "stackTrace");
+    this.reason = reason;
+    this.message = message;
+    this.stackTrace = INTERNER.intern(stackTrace);
+    this.causeType = causeType;
+  }
 
   /**
    * Creates an instance.
@@ -86,20 +111,6 @@ public final class FailureItem
 
   static {
     JodaBeanUtils.registerMetaBean(FailureItem.Meta.INSTANCE);
-  }
-
-  private FailureItem(
-      FailureReason reason,
-      String message,
-      String stackTrace,
-      Class<? extends Exception> causeType) {
-    JodaBeanUtils.notNull(reason, "reason");
-    JodaBeanUtils.notEmpty(message, "message");
-    JodaBeanUtils.notNull(stackTrace, "stackTrace");
-    this.reason = reason;
-    this.message = message;
-    this.stackTrace = stackTrace;
-    this.causeType = causeType;
   }
 
   @Override
