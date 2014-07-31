@@ -224,7 +224,7 @@ public class RemoteInterestRateSwapTest {
     return
       configureView(
         "IRS Remote view",
-        column(OutputNames.PRESENT_VALUE,
+        column(output,
           config(
               arguments(
                   function(ConfigDbMarketExposureSelectorFn.class, argument("exposureConfig", _exposureConfig)),
