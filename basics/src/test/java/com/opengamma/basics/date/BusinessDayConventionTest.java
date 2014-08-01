@@ -12,14 +12,19 @@ import static com.opengamma.basics.date.BusinessDayConvention.MODIFIED_PRECEDING
 import static com.opengamma.basics.date.BusinessDayConvention.NEAREST;
 import static com.opengamma.basics.date.BusinessDayConvention.NO_ADJUST;
 import static com.opengamma.basics.date.BusinessDayConvention.PRECEDING;
+import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverEnum;
+import static java.time.DayOfWeek.SATURDAY;
+import static java.time.DayOfWeek.SUNDAY;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@link BusinessDayConvention}.
@@ -31,6 +36,7 @@ public class BusinessDayConventionTest {
   private static final LocalDate SAT_2014_07_12 = LocalDate.of(2014, 7, 12);
   private static final LocalDate SUN_2014_07_13 = LocalDate.of(2014, 7, 13);
   private static final LocalDate MON_2014_07_14 = LocalDate.of(2014, 7, 14);
+  private static final LocalDate TUE_2014_07_15 = LocalDate.of(2014, 7, 15);
 
   private static final LocalDate FRI_2014_08_29 = LocalDate.of(2014, 8, 29);
   private static final LocalDate SAT_2014_08_30 = LocalDate.of(2014, 8, 30);
@@ -166,6 +172,14 @@ public class BusinessDayConventionTest {
     assertEquals(convention.adjust(input, BusinessDayCalendar.WEEKENDS), expected);
   }
 
+  public void test_nearest() {
+    BusinessDayCalendar cal = BusinessDayCalendar.of(ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
+    assertEquals(NEAREST.adjust(FRI_2014_07_11, cal), FRI_2014_07_11);
+    assertEquals(NEAREST.adjust(SAT_2014_07_12, cal), FRI_2014_07_11);
+    assertEquals(NEAREST.adjust(SUN_2014_07_13, cal), TUE_2014_07_15);
+    assertEquals(NEAREST.adjust(MON_2014_07_14, cal), TUE_2014_07_15);
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   Object[][] data_name() {
@@ -201,6 +215,11 @@ public class BusinessDayConventionTest {
   //-------------------------------------------------------------------------
   public void covergage() {
     coverEnum(BusinessDayConventions.class);
+  }
+
+  public void test_jodaConvert() {
+    assertJodaConvert(BusinessDayConvention.class, NO_ADJUST);
+    assertJodaConvert(BusinessDayConvention.class, MODIFIED_FOLLOWING);
   }
 
 }

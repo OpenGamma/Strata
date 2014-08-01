@@ -5,17 +5,18 @@
  */
 package com.opengamma.basics.date;
 
+import static com.opengamma.basics.date.DayCount.DC_30EPLUS_360;
+import static com.opengamma.basics.date.DayCount.DC_30E_360;
+import static com.opengamma.basics.date.DayCount.DC_30E_360_ISDA;
+import static com.opengamma.basics.date.DayCount.DC_30U_360;
+import static com.opengamma.basics.date.DayCount.DC_30_360_ISDA;
 import static com.opengamma.basics.date.DayCount.DC_ACT_360;
 import static com.opengamma.basics.date.DayCount.DC_ACT_364;
 import static com.opengamma.basics.date.DayCount.DC_ACT_365F;
 import static com.opengamma.basics.date.DayCount.DC_ACT_365_25;
 import static com.opengamma.basics.date.DayCount.DC_ACT_ACT_ISDA;
 import static com.opengamma.basics.date.DayCount.DC_NL_365;
-import static com.opengamma.basics.date.DayCount.DC_30EPLUS_360;
-import static com.opengamma.basics.date.DayCount.DC_30E_360;
-import static com.opengamma.basics.date.DayCount.DC_30E_360_ISDA;
-import static com.opengamma.basics.date.DayCount.DC_30U_360;
-import static com.opengamma.basics.date.DayCount.DC_30_360_ISDA;
+import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverEnum;
 import static org.testng.Assert.assertEquals;
@@ -303,6 +304,11 @@ public class DayCountTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverEnum(DayCounts.class);
+  }
+
+  public void test_jodaConvert() {
+    assertJodaConvert(DayCount.class, DC_30_360_ISDA);
+    assertJodaConvert(DayCount.class, DC_ACT_365F);
   }
 
 }
