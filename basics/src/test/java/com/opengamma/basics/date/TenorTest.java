@@ -86,19 +86,17 @@ public class TenorTest {
         {"12M", TENOR_12M},
         {"1Y", TENOR_1Y},
         {"2Y", TENOR_2Y},
-        {"P2D", TENOR_2D},
-        {"P2W", TENOR_2W},
-        {"P6W", TENOR_6W},
-        {"P2M", TENOR_2M},
-        {"P12M", TENOR_12M},
-        {"P1Y", TENOR_1Y},
-        {"P2Y", TENOR_2Y},
     };
   }
 
   @Test(dataProvider = "parseGood")
-  public void test_parse_String_good(String input, Tenor expected) {
+  public void test_parse_String_good_noP(String input, Tenor expected) {
     assertEquals(Tenor.parse(input), expected);
+  }
+
+  @Test(dataProvider = "parseGood")
+  public void test_parse_String_good_withP(String input, Tenor expected) {
+    assertEquals(Tenor.parse("P" + input), expected);
   }
 
   @DataProvider(name = "parseBad")
@@ -123,7 +121,6 @@ public class TenorTest {
     assertEquals(TENOR_3W.getPeriod(), Period.ofDays(21));
     assertEquals(TENOR_3M.getPeriod(), Period.ofMonths(3));
     assertEquals(TENOR_3Y.getPeriod(), Period.ofYears(3));
-    assertThrows(() -> TENOR_10M.get(CENTURIES), UnsupportedTemporalTypeException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -134,6 +131,7 @@ public class TenorTest {
     assertEquals(TENOR_3D.subtractFrom(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 6, 27));
     assertEquals(LocalDate.of(2014, 6, 30).plus(TENOR_1W), LocalDate.of(2014, 7, 7));
     assertEquals(LocalDate.of(2014, 6, 30).minus(TENOR_1W), LocalDate.of(2014, 6, 23));
+    assertThrows(() -> TENOR_10M.get(CENTURIES), UnsupportedTemporalTypeException.class);
   }
 
   //-------------------------------------------------------------------------

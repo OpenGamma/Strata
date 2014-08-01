@@ -186,6 +186,9 @@ public class Tenor
   //-------------------------------------------------------------------------
   /**
    * Obtains a {@code Tenor} from a {@code Period}.
+   * <p>
+   * The period normally consists of either days and weeks, or months and years.
+   * It must also be positive and non-zero.
    *
    * @param period  the period to convert to a tenor
    * @return the tenor
@@ -214,7 +217,7 @@ public class Tenor
    * @throws IllegalArgumentException if the period is negative
    */
   public static Tenor ofWeeks(int weeks) {
-    return of(Period.ofDays(weeks * 7));
+    return of(Period.ofWeeks(weeks));
   }
 
   /**
@@ -255,7 +258,7 @@ public class Tenor
     ArgChecker.notNull(toParse, "toParse");
     String prefixed = toParse.startsWith("P") ? toParse : "P" + toParse;
     try {
-      return new Tenor(Period.parse(prefixed));
+      return Tenor.of(Period.parse(prefixed));
     } catch (DateTimeParseException ex) {
       throw new IllegalArgumentException(ex);
     }
@@ -273,9 +276,14 @@ public class Tenor
     this.period = period;
   }
 
+  // safe deserialization
+  private Object readResolve() {
+    return new Tenor(period);
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Gets the tenor period.
+   * Gets the underlying period of the tenor.
    *
    * @return the period
    */
@@ -306,7 +314,7 @@ public class Tenor
    * This returns a list containing years, months and days.
    * Note that weeks are not included.
    *
-   * @return a list containing the years, months and days units, not null
+   * @return a list containing the years, months and days units
    */
   @Override
   public List<TemporalUnit> getUnits() {
@@ -319,8 +327,8 @@ public class Tenor
    * This is an implementation method used by {@link LocalDate#plus(TemporalAmount)}.
    * See {@link Period#addTo(Temporal)} for more details.
    *
-   * @param temporal  the temporal object to add to, not null
-   * @return the result with this tenor added, not null
+   * @param temporal  the temporal object to add to
+   * @return the result with this tenor added
    * @throws DateTimeException if unable to add
    * @throws ArithmeticException if numeric overflow occurs
    */
@@ -335,8 +343,8 @@ public class Tenor
    * This is an implementation method used by {@link LocalDate#minus(TemporalAmount)}.
    * See {@link Period#subtractFrom(Temporal)} for more details.
    *
-   * @param temporal  the temporal object to subtract from, not null
-   * @return the result with this tenor subtracted, not null
+   * @param temporal  the temporal object to subtract from
+   * @return the result with this tenor subtracted
    * @throws DateTimeException if unable to subtract
    * @throws ArithmeticException if numeric overflow occurs
    */
@@ -363,7 +371,7 @@ public class Tenor
   }
 
   /**
-   * Returns a suitable hash code for the currency.
+   * Returns a suitable hash code for the tenor.
    * 
    * @return the hash code
    */
@@ -375,8 +383,7 @@ public class Tenor
   /**
    * Returns a formatted string representing the tenor.
    * <p>
-   * The format is a combination of the quantity and
-   * time unit e.g. 1D, 2W, 3M, 4Y.
+   * The format is a combination of the quantity and unit, such as 1D, 2W, 3M, 4Y.
    *
    * @return the formatted tenor
    */
