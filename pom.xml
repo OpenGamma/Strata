@@ -318,7 +318,7 @@
   <!-- ==================================================================== -->
   <properties>
     <guava.version>17.0</guava.version>
-    <joda-convert.version>1.6</joda-convert.version>
+    <joda-convert.version>1.7</joda-convert.version>
     <joda-beans.version>1.0.2</joda-beans.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma</windowtitle>
