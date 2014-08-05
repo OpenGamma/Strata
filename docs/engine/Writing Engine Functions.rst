@@ -247,7 +247,7 @@ or mocked independently of the engine.
         ExternalIdBundle securityId = ExternalId.of("BLOOMBERG_TICKER", "AAPL US Equity").toBundle();
         MarketDataFn marketDataFn = mock(MarketDataFn.class);
         Environment env = mock(Environment.class);
-        when(marketDataFn.getMarketValue(env, securityId).thenReturn(94.8);
+        when(marketDataFn.getMarketValue(env, securityId)).thenReturn(94.8);
         EquityPresentValueFn presentValueFn = new DefaultEquityPresentValueFn(marketDataFn);
         EquityTrade trade = new EquityTrade(10_000, securityId);
         assertEquals(presentValueFn.calculatePresentValue(env, trade), 948000.0, 0.0001);
