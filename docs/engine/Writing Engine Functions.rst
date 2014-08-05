@@ -18,6 +18,11 @@ as a very simple function:
         }
     }
 
+Functions can call other functions and use services and objects provided by the calculation engine. Typically
+a calculation will be performed by multiple functions working together, with different functions performing
+different parts of the calculation, e.g. building curves, requesting market data and calling into the
+analytics library.
+
 Anatomy of a function
 ---------------------
 Functions are not required to implement any OpenGamma interface, but there are a number of characteristics a
