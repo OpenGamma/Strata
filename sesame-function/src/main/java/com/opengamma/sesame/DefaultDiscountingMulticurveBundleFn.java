@@ -10,6 +10,7 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionLink;
 import static com.opengamma.util.result.FailureStatus.ERROR;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,13 +30,16 @@ import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorY
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeIndexCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
@@ -95,8 +99,6 @@ import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Function implementation that provides a discounting multi-curve bundle.
@@ -373,7 +375,13 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
                 forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
               }
               if (derivativesForCurve.isSuccess()) {
-                final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate());
+                IndexDeposit baseIndex = null;
+                if (iborIndex.size() == 1 && overnightIndex.isEmpty()) {
+                  baseIndex = iborIndex.get(0);
+                } else if (overnightIndex.size() == 1 && iborIndex.isEmpty()) {
+                  baseIndex = overnightIndex.get(0);
+                }
+                final GeneratorYDCurve generator = getGenerator(curve, env.getValuationDate(), baseIndex);
                 singleCurves[j] = new SingleCurveBundle<>(curveName, derivativesForCurve.getValue(), generator.initialGuess(parameterGuessForCurves), generator);
               } else {
                 curveBundleResult = Result.failure(curveBundleResult, derivativesForCurve);
@@ -454,7 +462,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
 
     ImpliedDepositCurveData impliedCurveData =
         extractImpliedDepositCurveData(currency, impliedCurveDefinition, multicurves, valuationTime);
-    GeneratorYDCurve generator = getGenerator(impliedCurveDefinition, valuationTime.toLocalDate());
+    GeneratorYDCurve generator = getGenerator(impliedCurveDefinition, valuationTime.toLocalDate(), null);
     List<InstrumentDerivative> instrumentDerivatives = impliedCurveData.getCashNodes();
     return new SingleCurveBundle<>(impliedCurveDefinition.getName(),
                                    instrumentDerivatives.toArray(new InstrumentDerivative[instrumentDerivatives.size()]),
@@ -497,7 +505,7 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
     }
   }
 
-  private GeneratorYDCurve getGenerator(final AbstractCurveDefinition definition, LocalDate valuationDate) {
+  private GeneratorYDCurve getGenerator(final AbstractCurveDefinition definition, LocalDate valuationDate, IndexDeposit baseIndex) {
 
     if (definition instanceof InterpolatedCurveDefinition) {
       final InterpolatedCurveDefinition interpolatedDefinition = (InterpolatedCurveDefinition) definition;
@@ -517,7 +525,8 @@ public class DefaultDiscountingMulticurveBundleFn implements DiscountingMulticur
         final double anchor = nodePoints.get(0); //TODO should the anchor go into the definition?
         return new GeneratorCurveYieldInterpolatedAnchorNode(nodePoints.toDoubleArray(), anchor, interpolator);
       }
-      return new GeneratorCurveYieldInterpolated(LastTimeCalculator.getInstance(), interpolator);
+      InstrumentDerivativeVisitor<Object, Double> lastTimeCalculator = baseIndex != null ? new LastTimeIndexCalculator(baseIndex) : LastTimeCalculator.getInstance();
+      return new GeneratorCurveYieldInterpolated(lastTimeCalculator, interpolator);
     }
 
     throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());
