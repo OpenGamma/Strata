@@ -3,7 +3,7 @@ Writing Functions for the OpenGamma Calculation Engine
 ======================================================
 
 Function Basics
-===============
+^^^^^^^^^^^^^^^
 
 Functions are the basic building block of calculations in the OpenGamma calculation engine. A function is simply
 a Java object whose methods are invoked by the OpenGamma engine. For example, the following class could be used
@@ -123,7 +123,7 @@ The annotation tells the engine that the method can calculate an output called "
 infer that it's the present value for an ``EquityTrade``.
 
 Engine Services
-===============
+^^^^^^^^^^^^^^^
 The OpenGamma calculation engine provides a number of higher level services to functions.
 
 Market Data
@@ -156,7 +156,7 @@ In order to take advantage of caching, a function method must be invoked through
 that a function calling one of its own methods (``this.foo()``) will bypass caching.
 
 Example Function
-================
+^^^^^^^^^^^^^^^^
 This section demonstrates the implementation of a function to calculate an extremely simple but realistic risk
 measure, namely present value of an equity security.
 
@@ -242,12 +242,12 @@ or mocked independently of the engine.
 
     @Test
     public void equityPresentValue() {
-        // TODO finish thisDocu
+        // TODO finish this
     }
 
 
 TODO Topics not covered yet
-===========================
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * non-portfolio outputs
 * functions should request all market data if possible, even in event of failure
 * functions should only get data from the engine, don't go directly to the outside world
