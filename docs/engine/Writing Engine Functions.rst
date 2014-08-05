@@ -226,7 +226,7 @@ a constructor parameter.
         public Result<Double> calculatePresentValue(Environment env, EquityTrade trade) {
             Result<Double> securityPrice = marketDataFn.getMarketValue(env, trade.getSecurityId());
 
-            if (!securityPrice.isSuccess) {
+            if (!securityPrice.isSuccess()) {
                 return Result.failure(securityPrice);
             }
             double presentValue = securityPrice.getValue() * trade.getQuantity();
