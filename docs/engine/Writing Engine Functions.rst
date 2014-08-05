@@ -107,7 +107,7 @@ or PV01, a trade attribute, e.g. quantity or description, or any other arbitrary
 
 If a method of a function interface can produce an output it should have an annotation with the name of the output, e.g.
 ``@Output("Present Value")``. This allows the engine to choose the correct function when a user wants to
-calculate present value (see the view configuration documentation for details TODO link).
+calculate present value (see the view configuration documentation for details [TODO link]).
 
 Methods that produce outputs are invoked directly by the calculation engine. Therefore the engine must know how
 to provide all the method arguments. Typically an method that produces an output will have two parameters, the
@@ -128,41 +128,43 @@ The OpenGamma calculation engine provides a number of higher level services to f
 
 Market Data
 -----------
-Provision of market data is obviously a key feature of a risk system. The OpenGamma engine has built-in
-functions to provide market data: ``MarketDataFn`` (single values) and ``HistoricalMarketDataFn`` (time series).
-A function that requires market data should declare a constructor parameter taking one of the market data
-functions and the engine will provide it when it creates the function instance.
+Provision of market data is obviously a key feature of a risk system. The OpenGamma platform includes
+functions to provide market data: ``MarketDataFn`` (single values) and ``HistoricalMarketDataFn`` (time series of
+values). A function that requires market data should declare a constructor parameter taking one of the market data
+functions and the engine will provide it.
 
 Caching of calculated values
 ----------------------------
 Arguably the most important service provided by the calculation engine is the caching of calculated values.
-If a value is expensive to calculate and is used more than once then it should probably be cached. Caching is enabled
-by adding the annotation ``@Cacheable`` to the method declaration. No other changes are required.
+If a value is expensive to calculate and is calculated more than once then it is a candidate for caching.
+Caching is enabled by adding the annotation ``@Cacheable`` to the method declaration. No other changes are required.
 
 Functions shouldn't ever need to implement their own caching. Function methods should be written naively so they
 calculate a value every time they are invoked. If a cached value is available the engine will return it
 and skip the calculation.
 
-Caching in the OpenGamma engine is based on memoization. i.e. if a function method is invoked multiple times with
+Caching in the OpenGamma engine is based on memoization. If a function method is invoked multiple times with
 the same set of arguments then the same result is returned. This requires the parameter types to have sensible
-implementations of ``equals()`` and ``hashCode()``. If any of the parameters don't have a sensible definition
-of equality then caching will fail and the value will be recalculated every time the method is called.
+implementations of ``equals()`` and ``hashCode()``.
 
-If any method parameters are mutable (e.g. arrays) they must not be mutated in the function. Doing so would
+If any of the parameters don't have a sensible definition of equality then caching will fail and the value
+will be recalculated every time the method is called.
+
+If any method arguments are mutable they must not be mutated in the function. Doing so would
 cause undefined caching behaviour and potentially incorrect results. For this reason immutable types are
 preferred as method parameters and arrays are specifically discouraged.
 
 In order to take advantage of caching, a function method must be invoked through its interface. This means
-that a function calling one of its own methods (``this.foo()``) will bypass caching.
+that a function calling one of its own methods ( e.g. ``this.foo()``) will not benefit from caching.
 
 Example Function
 ^^^^^^^^^^^^^^^^
 This section demonstrates the implementation of a function to calculate an extremely simple but realistic risk
-measure, namely present value of an equity security.
+measure, present value of an equity security.
 
 Function interface
 ------------------
-The first task is to define an interface for the function. It must have a single method to calculate the present value.
+The first task is to define an interface for the function. We only need one method which calculates the present value.
 Assume the following definition of an equity trade:
 
 .. code:: java
@@ -205,7 +207,7 @@ Function implementation
 -----------------------
 The present value of an equity depends on two things:
 
-* The size of the trade - available as ``trade.getQuantity()``
+* The size of the trade - available from ``trade.getQuantity()``
 * The current price of the underlying security - this requires market data
 
 In order to request market data, the function needs a reference to ``MarketDataFn``. Therefore it must declare
@@ -234,7 +236,7 @@ a constructor parameter.
 
 Testing
 -------
-Functions are normal Java classes so they can be unit tested outside the OpenGamma calculation engine. The functions
+Functions are normal Java classes which can be unit tested outside of the OpenGamma calculation engine. The functions
 provided by the OpenGamma platform (e.g. market data functions) are also normal Java types which can be created
 or mocked independently of the engine.
 
@@ -242,7 +244,13 @@ or mocked independently of the engine.
 
     @Test
     public void equityPresentValue() {
-        // TODO finish this
+        ExternalIdBundle securityId = ExternalId.of("BLOOMBERG_TICKER", "AAPL US Equity").toBundle();
+        MarketDataFn marketDataFn = mock(MarketDataFn.class);
+        Environment env = mock(Environment.class);
+        when(marketDataFn.getMarketValue(env, securityId).thenReturn(94.8);
+        EquityPresentValueFn presentValueFn = new DefaultEquityPresentValueFn(marketDataFn);
+        EquityTrade trade = new EquityTrade(10_000, securityId);
+        assertEquals(presentValueFn.calculatePresentValue(env, trade), 948000.0, 0.0001);
     }
 
 
