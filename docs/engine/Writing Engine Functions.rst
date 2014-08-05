@@ -101,16 +101,18 @@ it is caught by the engine and wrapped in a ``Result``.
 Functions that provide outputs
 ------------------------------
 Functions can be grouped into two categories - functions that produce intermediate values as part of
-a calculation and functions that produce values which are of interest to the user. Values that are returned to
-the user in the calculation results are referred to as "outputs". An output can be a risk measure, e.g. present value
-or PV01, a trade attribute, e.g. quantity or description, or any other arbitrary value the user is interested in.
+a calculation and functions that produce values which are of interest to the user.
+
+Values that are returned to the user in the calculation results are referred to as "outputs". An output can be
+a risk measure, e.g. present value or PV01, a trade attribute, e.g. quantity or description, or any other
+arbitrary value the user is interested in.
 
 If a method of a function interface can produce an output it should have an annotation with the name of the output, e.g.
 ``@Output("Present Value")``. This allows the engine to choose the correct function when a user wants to
 calculate present value (see the view configuration documentation for details [TODO link]).
 
 Methods that produce outputs are invoked directly by the calculation engine. Therefore the engine must know how
-to provide all the method arguments. Typically an method that produces an output will have two parameters, the
+to provide all the method arguments. Typically a method that produces an output will have two parameters, the
 ``Environment`` and the trade which is the subject of the calculation. For example, a method capable of calculating
 the present value of an equity trade might have the following signature:
 
