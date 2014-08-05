@@ -160,7 +160,7 @@ that a function calling one of its own methods ( e.g. ``this.foo()``) will not b
 Example Function
 ^^^^^^^^^^^^^^^^
 This section demonstrates the implementation of a function to calculate an extremely simple but realistic risk
-measure, present value of an equity security.
+measure, present value of an equity trade.
 
 Function interface
 ------------------
