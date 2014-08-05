@@ -9,6 +9,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.threeten.bp.Duration;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
@@ -73,6 +78,18 @@ public class CycleRunner {
    * user then decides they have finished with).
    */
   private final CycleTerminator _cycleTerminator;
+  /**
+   * Responsible for executing the next cycle after a the minimum period
+   * has passed.
+   */
+  private final ScheduledExecutorService _scheduler = Executors.newScheduledThreadPool(1);
+  /**
+   * Minimum time period between cycles, not null. If a series of cycles are to
+   * be run and the first starts at time <code>t</code>, then the next cycle
+   * will not be started until at least time <code>t + minimumTimeBetweenCycles</code>.
+   * This prevents the server "spinning" for cases where the cycles execute quickly.
+   */
+  private final Duration _minimumTimeBetweenCycles;
 
   /**
    * Creates the new cycle runner.
@@ -83,13 +100,15 @@ public class CycleRunner {
    * @param inputs  the trades/securities to execute the cycles with, may be empty
    * @param handler  handler for the results produced by each cycle of the engine
    * @param cycleTerminator  determines whether the execution of the cycles should be terminated
+   * @param minimumTimeBetweenCycles  minimum duration between cycles, not null
    */
   public CycleRunner(View view,
                      MarketDataFactory marketDataFactory,
                      CycleOptions cycleOptions,
                      List<ManageableSecurity> inputs,
                      CycleResultsHandler handler,
-                     CycleTerminator cycleTerminator) {
+                     CycleTerminator cycleTerminator,
+                     Duration minimumTimeBetweenCycles) {
 
     _view = view;
     _marketDataFactory = marketDataFactory;
@@ -97,6 +116,7 @@ public class CycleRunner {
     _inputs = inputs;
     _handler = handler;
     _cycleTerminator = cycleTerminator;
+    _minimumTimeBetweenCycles = minimumTimeBetweenCycles;
   }
 
   //-------------------------------------------------------------------------
@@ -109,19 +129,59 @@ public class CycleRunner {
 
     // We keep track of the market data being used so that when required we can
     // track the changes in market data between cycles
-    CycleMarketDataFactory cycleMarketDataFactory =
+    final CycleMarketDataFactory cycleMarketDataFactory =
         new DefaultCycleMarketDataFactory(_marketDataFactory, INITIAL_MARKET_DATA_SOURCE);
 
     // Iterate over the cycle options. As they may be infinite (e.g. streaming),
-    // we check the terminator to see if external events mean we should stop.
-    for (Iterator<IndividualCycleOptions> it = _cycleOptions.iterator();
-         _cycleTerminator.shouldContinue() && it.hasNext();) {
+    // we need to check the terminator to see if external events mean we should stop.
+    final Iterator<IndividualCycleOptions> cycleOptions = _cycleOptions.iterator();
 
-      Pair<Results, CycleMarketDataFactory> result =
-          cycleUntilResultsAvailable(it.next(), cycleMarketDataFactory);
-      _handler.handleResults(result.getFirst());
-      cycleMarketDataFactory = result.getSecond();
+    // We create an initial task and execute it immediately. The task
+    // itself will then schedule the next task, which in turn creates
+    // the next etc. There are alternative implementations that could
+    // be used and these should be reassessed:
+    //   - create a simple timed task that periodically enables a
+    //     semaphore/latch. Loop over cycle options and await the
+    //     semaphore. When acquired, execute the cycle
+    //   - use the scheduler to periodically schedule a job. Job
+    //     picks up the next cycle option and executes
+    _scheduler.execute(createNextCycleTask(cycleMarketDataFactory, cycleOptions, _handler, _scheduler));
+
+    // Wait for all work to be completed before exiting
+    try {
+      _scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+    } catch (InterruptedException e) {
+      // Thread was interrupted, just exit with no action
     }
+
+  }
+
+  private Runnable createNextCycleTask(final CycleMarketDataFactory cycleMarketDataFactory,
+                                       final Iterator<IndividualCycleOptions> cycleOptions,
+                                       final CycleResultsHandler handler,
+                                       final ScheduledExecutorService scheduler) {
+    return new Runnable() {
+      @Override
+      public void run() {
+        if (_cycleTerminator.shouldContinue() && cycleOptions.hasNext()) {
+          long cycleStart = System.currentTimeMillis();
+          Pair<Results, CycleMarketDataFactory> result =
+              cycleUntilResultsAvailable(cycleOptions.next(), cycleMarketDataFactory);
+          handler.handleResults(result.getFirst());
+          CycleMarketDataFactory cycleMarketDataFactory = result.getSecond();
+
+          // Now schedule the next execution, negative value means
+          // it will be executed immediately
+          long delay = cycleStart + _minimumTimeBetweenCycles.toMillis() - System.currentTimeMillis();
+          scheduler.schedule(createNextCycleTask(cycleMarketDataFactory, cycleOptions, handler, scheduler), delay,
+                             TimeUnit.MILLISECONDS);
+        } else {
+          // No more work to be done, shut down the scheduler which
+          // will allow the execute method to complete
+          scheduler.shutdown();
+        }
+      }
+    };
   }
 
   private Pair<Results, CycleMarketDataFactory> cycleUntilResultsAvailable(IndividualCycleOptions cycleOptions,

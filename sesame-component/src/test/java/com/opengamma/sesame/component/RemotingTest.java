@@ -330,7 +330,7 @@ public class RemotingTest {
     StreamingClient streamingClient = functionServer.createStreamingClient(request);
 
     // Get some results first
-    final CountDownLatch resultsLatch = new CountDownLatch(10);
+    final CountDownLatch resultsLatch = new CountDownLatch(5);
 
     streamingClient.registerListener(new StreamingClientResultListener() {
       @Override
@@ -346,7 +346,9 @@ public class RemotingTest {
       public void serverConnectionFailed(Exception e) { }
     });
 
-    assertThat(resultsLatch.await(10, TimeUnit.SECONDS), is(true));
+    // By default there a 5s between each cycle so we need to give
+    // it enough time to finish
+    assertThat(resultsLatch.await(30, TimeUnit.SECONDS), is(true));
 
     streamingClient.stop();
 
