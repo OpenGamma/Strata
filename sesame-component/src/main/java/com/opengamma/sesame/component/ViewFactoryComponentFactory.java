@@ -7,6 +7,7 @@ package com.opengamma.sesame.component;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -107,6 +108,14 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private long _maxCacheEntries = MAX_CACHE_ENTRIES;
+  /**
+   * The set of function services to be enabled for the server by default.
+   * The names need to match those of the {@link FunctionService} num - any
+   * that do not will be ignored. If null, then
+   * {@link FunctionService#DEFAULT_SERVICES} will be used.
+   */
+  @PropertyDefinition
+  private List<String> _defaultFunctionServices;
 
   //-------------------------------------------------------------------------
   @Override
@@ -128,11 +137,13 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     ExecutorService executor = createExecutorService(repo);
     AvailableOutputs availableOutputs = createAvailableOutputs(repo);
     AvailableImplementations availableImplementations = createAvailableImplementations(repo);
+
+    FunctionServiceParser parser = new FunctionServiceParser(_defaultFunctionServices);
     ViewFactory viewFactory = new ViewFactory(executor,
                                               availableOutputs,
                                               availableImplementations,
                                               FunctionModelConfig.EMPTY,
-                                              FunctionService.DEFAULT_SERVICES,
+                                              parser.determineFunctionServices(),
                                               cachingManager);
 
     ComponentInfo engineInfo = new ComponentInfo(ViewFactory.class, getClassifier());
@@ -349,6 +360,40 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the set of function services to be enabled for the server by default.
+   * The names need to match those of the {@link FunctionService} num - any
+   * that do not will be ignored. If null, then
+   * {@link FunctionService#DEFAULT_SERVICES} will be used.
+   * @return the value of the property
+   */
+  public List<String> getDefaultFunctionServices() {
+    return _defaultFunctionServices;
+  }
+
+  /**
+   * Sets the set of function services to be enabled for the server by default.
+   * The names need to match those of the {@link FunctionService} num - any
+   * that do not will be ignored. If null, then
+   * {@link FunctionService#DEFAULT_SERVICES} will be used.
+   * @param defaultFunctionServices  the new value of the property
+   */
+  public void setDefaultFunctionServices(List<String> defaultFunctionServices) {
+    this._defaultFunctionServices = defaultFunctionServices;
+  }
+
+  /**
+   * Gets the the {@code defaultFunctionServices} property.
+   * The names need to match those of the {@link FunctionService} num - any
+   * that do not will be ignored. If null, then
+   * {@link FunctionService#DEFAULT_SERVICES} will be used.
+   * @return the property, not null
+   */
+  public final Property<List<String>> defaultFunctionServices() {
+    return metaBean().defaultFunctionServices().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public ViewFactoryComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -364,6 +409,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           (getMaxCacheEntries() == other.getMaxCacheEntries()) &&
+          JodaBeanUtils.equal(getDefaultFunctionServices(), other.getDefaultFunctionServices()) &&
           super.equals(obj);
     }
     return false;
@@ -375,12 +421,13 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxCacheEntries());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultFunctionServices());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("ViewFactoryComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -397,6 +444,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
     buf.append("maxCacheEntries").append('=').append(JodaBeanUtils.toString(getMaxCacheEntries())).append(',').append(' ');
+    buf.append("defaultFunctionServices").append('=').append(JodaBeanUtils.toString(getDefaultFunctionServices())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -425,13 +473,20 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<Long> _maxCacheEntries = DirectMetaProperty.ofReadWrite(
         this, "maxCacheEntries", ViewFactoryComponentFactory.class, Long.TYPE);
     /**
+     * The meta-property for the {@code defaultFunctionServices} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<String>> _defaultFunctionServices = DirectMetaProperty.ofReadWrite(
+        this, "defaultFunctionServices", ViewFactoryComponentFactory.class, (Class) List.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "liveMarketDataProviderFactory",
-        "maxCacheEntries");
+        "maxCacheEntries",
+        "defaultFunctionServices");
 
     /**
      * Restricted constructor.
@@ -448,6 +503,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           return _liveMarketDataProviderFactory;
         case -949200334:  // maxCacheEntries
           return _maxCacheEntries;
+        case -544798537:  // defaultFunctionServices
+          return _defaultFunctionServices;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -492,6 +549,14 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       return _maxCacheEntries;
     }
 
+    /**
+     * The meta-property for the {@code defaultFunctionServices} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<List<String>> defaultFunctionServices() {
+      return _defaultFunctionServices;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -502,10 +567,13 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           return ((ViewFactoryComponentFactory) bean).getLiveMarketDataProviderFactory();
         case -949200334:  // maxCacheEntries
           return ((ViewFactoryComponentFactory) bean).getMaxCacheEntries();
+        case -544798537:  // defaultFunctionServices
+          return ((ViewFactoryComponentFactory) bean).getDefaultFunctionServices();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -517,6 +585,9 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           return;
         case -949200334:  // maxCacheEntries
           ((ViewFactoryComponentFactory) bean).setMaxCacheEntries((Long) newValue);
+          return;
+        case -544798537:  // defaultFunctionServices
+          ((ViewFactoryComponentFactory) bean).setDefaultFunctionServices((List<String>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

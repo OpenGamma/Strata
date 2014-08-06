@@ -23,7 +23,11 @@ public enum FunctionService {
    */
   TRACING,
   /**
-   * The timing service.
+   * The tracing service.
+   */
+  METRICS,
+  /**
+   * The metrics service.
    */
   TIMING;
 
