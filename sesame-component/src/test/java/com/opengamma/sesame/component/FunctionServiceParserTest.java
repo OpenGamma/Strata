@@ -3,7 +3,9 @@ package com.opengamma.sesame.component;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -19,27 +21,31 @@ import com.opengamma.util.test.TestGroup;
 public class FunctionServiceParserTest {
 
   public void nullMeansDefaultsAreUsed() {
-    FunctionServiceParser parser = new FunctionServiceParser(null);
-    assertThat(parser.determineFunctionServices(), is(FunctionService.DEFAULT_SERVICES));
+    checkResults(null, FunctionService.DEFAULT_SERVICES);
   }
 
   public void emptyMeansNoneAreUsed() {
-    FunctionServiceParser parser = new FunctionServiceParser(ImmutableList.<String>of());
-    assertThat(parser.determineFunctionServices().isEmpty(), is(true));
+    checkResults(ImmutableList.<String>of(), FunctionService.NONE);
   }
 
   public void unparseableElementIsIgnored() {
-    FunctionServiceParser parser = new FunctionServiceParser(ImmutableList.of("CACHING", "MEEETRICS"));
-    assertThat(parser.determineFunctionServices(), is(EnumSet.of(FunctionService.CACHING)));
+    checkResults(ImmutableList.of("CACHING", "MEEETRICS"), FunctionService.CACHING);
   }
 
   public void allUnparseableMeansDefaultsAreUsed() {
-    FunctionServiceParser parser = new FunctionServiceParser(ImmutableList.of("CAAAACHING", "MEEETRICS"));
-    assertThat(parser.determineFunctionServices(), is(FunctionService.DEFAULT_SERVICES));
+    checkResults(ImmutableList.of("CAAAACHING", "MEEETRICS"), FunctionService.DEFAULT_SERVICES);
   }
 
   public void successfulParsing() {
-    FunctionServiceParser parser = new FunctionServiceParser(ImmutableList.of("CACHING", "METRICS"));
-    assertThat(parser.determineFunctionServices(), is(EnumSet.of(FunctionService.CACHING, FunctionService.METRICS)));
+    checkResults(ImmutableList.of("CACHING", "METRICS"), FunctionService.CACHING, FunctionService.METRICS);
+  }
+
+  private void checkResults(List<String> requestedServices, FunctionService... expectedServices) {
+    checkResults(requestedServices, EnumSet.copyOf(Arrays.asList(expectedServices)));
+  }
+
+  private void checkResults(List<String> requestedServices, EnumSet<FunctionService> expectedServices) {
+    FunctionServiceParser parser = new FunctionServiceParser(requestedServices);
+    assertThat(parser.determineFunctionServices(), is(expectedServices));
   }
 }

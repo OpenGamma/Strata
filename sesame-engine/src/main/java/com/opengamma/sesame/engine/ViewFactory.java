@@ -28,6 +28,7 @@ import com.opengamma.sesame.graph.GraphBuilder;
 import com.opengamma.sesame.graph.GraphModel;
 import com.opengamma.sesame.graph.NodeDecorator;
 import com.opengamma.sesame.proxy.ExceptionWrappingProxy;
+import com.opengamma.sesame.proxy.MetricsProxy;
 import com.opengamma.sesame.proxy.TimingProxy;
 import com.opengamma.sesame.trace.TracingProxy;
 import com.opengamma.util.ArgumentChecker;
@@ -139,6 +140,9 @@ public class ViewFactory {
     } else {
       List<NodeDecorator> decorators = Lists.newArrayListWithCapacity(services.size());
 
+      if (services.contains(FunctionService.METRICS)) {
+        decorators.add(MetricsProxy.INSTANCE);
+      }
       if (services.contains(FunctionService.CACHING)) {
         decorators.add(_cachingManager.getCachingDecorator());
       }

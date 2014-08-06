@@ -58,7 +58,7 @@ public class FunctionServiceParser {
       return defaultServices;
     } else if (_requestedFunctionServices.isEmpty()) {
       s_logger.info("Empty function services defined - no services will be used");
-      return EnumSet.noneOf(FunctionService.class);
+      return FunctionService.NONE;
     } else {
 
       EnumSet<FunctionService> parsedServices = parseFunctionServices();
