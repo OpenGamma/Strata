@@ -28,6 +28,7 @@ import com.opengamma.sesame.marketdata.CycleMarketDataFactory;
 import com.opengamma.sesame.marketdata.FieldName;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -79,11 +80,6 @@ public class CycleRunner {
    */
   private final CycleTerminator _cycleTerminator;
   /**
-   * Responsible for executing the next cycle after a the minimum period
-   * has passed.
-   */
-  private final ScheduledExecutorService _scheduler = Executors.newScheduledThreadPool(1);
-  /**
    * Minimum time period between cycles, not null. If a series of cycles are to
    * be run and the first starts at time <code>t</code>, then the next cycle
    * will not be started until at least time <code>t + minimumTimeBetweenCycles</code>.
@@ -94,12 +90,12 @@ public class CycleRunner {
   /**
    * Creates the new cycle runner.
    *
-   * @param view  the view to be executed
-   * @param marketDataFactory  the factory for market data sources
-   * @param cycleOptions  the cycle options determining how the cycles of the view should be executed
-   * @param inputs  the trades/securities to execute the cycles with, may be empty
-   * @param handler  handler for the results produced by each cycle of the engine
-   * @param cycleTerminator  determines whether the execution of the cycles should be terminated
+   * @param view  the view to be executed, not null
+   * @param marketDataFactory  the factory for market data sources, not null
+   * @param cycleOptions  the cycle options determining how the cycles of the view should be executed, not null
+   * @param inputs  the trades/securities to execute the cycles with, not null but may be empty
+   * @param handler  handler for the results produced by each cycle of the engine, not null
+   * @param cycleTerminator  determines whether the execution of the cycles should be terminated, not null
    * @param minimumTimeBetweenCycles  minimum duration between cycles, not null
    */
   public CycleRunner(View view,
@@ -110,13 +106,13 @@ public class CycleRunner {
                      CycleTerminator cycleTerminator,
                      Duration minimumTimeBetweenCycles) {
 
-    _view = view;
-    _marketDataFactory = marketDataFactory;
-    _cycleOptions = cycleOptions;
-    _inputs = inputs;
-    _handler = handler;
-    _cycleTerminator = cycleTerminator;
-    _minimumTimeBetweenCycles = minimumTimeBetweenCycles;
+    _view = ArgumentChecker.notNull(view, "view");
+    _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
+    _cycleOptions = ArgumentChecker.notNull(cycleOptions, "cycleOptions");
+    _inputs = ArgumentChecker.notNull(inputs, "inputs");
+    _handler = ArgumentChecker.notNull(handler, "handler");
+    _cycleTerminator = ArgumentChecker.notNull(cycleTerminator, "cycleTerminator");
+    _minimumTimeBetweenCycles = ArgumentChecker.notNull(minimumTimeBetweenCycles, "minimumTimeBetweenCycles");
   }
 
   //-------------------------------------------------------------------------
@@ -136,6 +132,10 @@ public class CycleRunner {
     // we need to check the terminator to see if external events mean we should stop.
     final Iterator<IndividualCycleOptions> cycleOptions = _cycleOptions.iterator();
 
+    // Scheduler to be used for executing the next cycle after
+    // the minimum period has passed.
+    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
     // We create an initial task and execute it immediately. The task
     // itself will then schedule the next task, which in turn creates
     // the next etc. There are alternative implementations that could
@@ -145,11 +145,11 @@ public class CycleRunner {
     //     semaphore. When acquired, execute the cycle
     //   - use the scheduler to periodically schedule a job. Job
     //     picks up the next cycle option and executes
-    _scheduler.execute(createNextCycleTask(cycleMarketDataFactory, cycleOptions, _handler, _scheduler));
+    scheduler.execute(createNextCycleTask(cycleMarketDataFactory, cycleOptions, _handler, scheduler));
 
     // Wait for all work to be completed before exiting
     try {
-      _scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+      scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
     } catch (InterruptedException e) {
       // Thread was interrupted, just exit with no action
     }
