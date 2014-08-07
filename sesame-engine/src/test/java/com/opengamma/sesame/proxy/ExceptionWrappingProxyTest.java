@@ -79,34 +79,30 @@ public class ExceptionWrappingProxyTest {
   }
 
   private MockFn createHappyResultReturner() {
-    return createMockFn("doSomething", HappyMockFn.class);
+    return createMockFn(HappyMockFn.class);
   }
 
   private MockFn createHappyNonResultReturner() {
-    return createMockFn("doSomethingElse", HappyMockFn.class);
+    return createMockFn(HappyMockFn.class);
   }
 
   private MockFn createUnhappyResultReturner() {
-    return createMockFn("doSomething", UnhappyMockFn.class);
+    return createMockFn(UnhappyMockFn.class);
   }
 
   private MockFn createUnappyNonResultReturner() {
-    return createMockFn("doSomethingElse", UnhappyMockFn.class);
+    return createMockFn(UnhappyMockFn.class);
   }
 
-  private MockFn createMockFn(String methodName, Class<? extends MockFn> implementationClass) {
+  private MockFn createMockFn(Class<? extends MockFn> implementationClass) {
     FunctionModelConfig config = config(implementations(MockFn.class, implementationClass));
-    FunctionMetadata metadata = EngineUtils.createMetadata(MockFn.class, methodName);
-    FunctionModel functionModel =
-        FunctionModel.forFunction(metadata, config, ComponentMap.EMPTY.getComponentTypes(),
-                                  ExceptionWrappingProxy.INSTANCE);
-    return (MockFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    return FunctionModel.build(MockFn.class, config, ComponentMap.EMPTY, ExceptionWrappingProxy.INSTANCE);
   }
 
   private interface MockFn {
-    @Output(value = "this")
+    @Output("this")
     Result<Boolean> doSomething();
-    @Output(value = "that")
+    @Output("that")
     boolean doSomethingElse();
   }
 
