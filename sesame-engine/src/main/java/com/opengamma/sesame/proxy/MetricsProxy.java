@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.opengamma.sesame.config.EngineUtils;
-import com.opengamma.sesame.graph.NodeDecorator;
 
 /**
  * A proxy that measured the time taken by each method call and
@@ -25,16 +24,8 @@ public final class MetricsProxy extends ProxyNodeDecorator {
    * record the timings.
    *
    * @param metricRegistry  registry to record the timings in
-   * @return a new proxy
    */
-  public static NodeDecorator of(MetricRegistry metricRegistry) {
-    return new MetricsProxy(metricRegistry);
-  }
-
-  /**
-   * Restricted constructor.
-   */
-  private MetricsProxy(MetricRegistry metricRegistry) {
+  public MetricsProxy(MetricRegistry metricRegistry) {
     _metricRegistry = metricRegistry;
   }
 

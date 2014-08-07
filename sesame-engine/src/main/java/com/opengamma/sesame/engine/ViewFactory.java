@@ -178,10 +178,10 @@ public class ViewFactory {
     // get from the cache
     if (services.contains(FunctionService.METRICS)) {
       if (_metricRegistry.isPresent()) {
-        decorators.add(MetricsProxy.of(_metricRegistry.get()));
+        decorators.add(new MetricsProxy(_metricRegistry.get()));
       } else {
         // This should be prevented by the ViewFactoryComponentFactory but is
-        // here in case or programmatic misconfiguration
+        // here in case of programmatic misconfiguration
         s_logger.warn("Unable to create metrics proxy as no metrics repository has been configured");
       }
     }

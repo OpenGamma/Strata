@@ -17,7 +17,6 @@ import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.graph.FunctionModel;
-import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
 
@@ -72,7 +71,7 @@ public class MetricsProxyTest {
   private MockFn createMockFn(Class<? extends MockFn> implementationClass) {
     FunctionModelConfig config = config(implementations(MockFn.class, implementationClass));
     return FunctionModel.build(MockFn.class, config, ComponentMap.EMPTY,
-                               ExceptionWrappingProxy.INSTANCE, MetricsProxy.of(_registry));
+                               ExceptionWrappingProxy.INSTANCE, new MetricsProxy(_registry));
   }
 
   private interface MockFn {
