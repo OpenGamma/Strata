@@ -22,11 +22,11 @@ import java.util.function.Function;
 public interface ObjLongFunction<T, R> {
 
   /**
-   * Evaluates the predicate.
+   * Applies the function.
    *
    * @param obj  the first argument
    * @param value  the second argument
-   * @return true if the arguments match the predicate
+   * @return the result of the function
    */
   R apply(T obj, long value);
 
