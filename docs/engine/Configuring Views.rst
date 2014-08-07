@@ -203,8 +203,8 @@ Any values not specified in the column configuration are inherited from the view
                     implementations(
                         DiscountingMulticurveBundleFn.class, InterpolatedMulticurveBundleFn.class))),
             // these columns use the function implementation defined in the view config
-            column("PV01", OutputNames.YIELD_CURVE_NODE_SENSITIVITIES),
-            column("Yield Curve Node Sensitivities", OutputNames.PV01));
+            column("PV01", OutputNames.PV01),
+            column("Yield Curve Node Sensitivities", OutputNames.YIELD_CURVE_NODE_SENSITIVITIES));
 
 This example also shows defining the view configuration inline rather than separately as in previous examples.
 
