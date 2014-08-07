@@ -18,10 +18,9 @@ as a very simple function:
         }
     }
 
-Functions can call other functions and use services and objects provided by the calculation engine. Typically
-a calculation will be performed by multiple functions working together, with different functions performing
-different parts of the calculation, e.g. building curves, requesting market data and calling into the
-analytics library.
+Functions can call other functions and use services and objects provided by the calculation engine. A typical
+calculation will be performed by multiple functions working together, with different functions performing
+different parts of the calculation, e.g. building curves, requesting market data and calling the analytics library.
 
 Anatomy of a function
 ---------------------
@@ -58,6 +57,9 @@ Function dependencies
 A function's dependencies should be passed into the constructor and stored in fields. If a function depends on
 other functions, it should use the function's interface type, not its implementation type.
 
+Functions can also declare constructor arguments for configuration parameters. Values for these parameters must
+be specified when configuring a view that uses the function (see here [TODO link to view config docs]).
+
 Function construction
 ~~~~~~~~~~~~~~~~~~~~~
 Function instances are created by the OpenGamma engine. The engine locates or creates everything needed by the
@@ -82,16 +84,16 @@ for interest rate swaps:
 
     Result<ReferenceAmount<Pair<String, Currency>>> calculatePV01(Environment env, InterestRateSwapSecurity security);
 
-``Environment`` parameter
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Environment parameter
+~~~~~~~~~~~~~~~~~~~~~
 By convention, the first parameter of function methods should be of type ``Environment``. This is not mandatory,
 but most non-trivial functions will require access to data in the environment. The environment has methods
 ``getValuationDate()`` and ``getValuationTime()``. These are the *only* source a function should use to
 get the current date and time. The environment also provides market data and arguments for functions that
 implement scenarios (documented elsewhere [TODO link]).
 
-``Result`` return type
-~~~~~~~~~~~~~~~~~~~~~~
+Result return type
+~~~~~~~~~~~~~~~~~~
 By convention, function methods should have a return type of ``Result<T>``, where ``T`` is the type of the
 calculation result. The ``Result`` class can contain the result of a successful calculation or the details
 of any problems that caused a calculation to fail.
