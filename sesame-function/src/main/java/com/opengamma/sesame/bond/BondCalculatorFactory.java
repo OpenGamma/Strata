@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.sesame.bond;
 
 import com.opengamma.sesame.Environment;
@@ -15,6 +20,6 @@ public interface BondCalculatorFactory {
    * @param trade the bond trade.
    * @return a calculator for bonds.
    */
-  Result<DiscountingBondCalculator> createCalculator(Environment env, BondTrade trade);
+  Result<BondCalculator> createCalculator(Environment env, BondTrade trade);
 
 }

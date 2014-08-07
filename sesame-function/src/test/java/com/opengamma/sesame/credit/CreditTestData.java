@@ -137,11 +137,11 @@ public final class CreditTestData {
     YieldCurveData ycData = YieldCurveData.builder()
         .cashData(cashData)
         .swapData(swapData)
-        .calendar(new MondayToFridayCalendar("test"))
         .cashDayCount(DayCounts.ACT_360)
         .currency(Currency.USD)
         .curveBusinessDayConvention(BusinessDayConventions.MODIFIED_FOLLOWING)
         .curveDayCount(DayCounts.ACT_365)
+        .regionId(null) //weekend only calendar
         .spotDate(SPOT_DATE)
         .swapDayCount(DayCounts.THIRTY_360)
         .swapFixedLegInterval(Tenor.ONE_YEAR)

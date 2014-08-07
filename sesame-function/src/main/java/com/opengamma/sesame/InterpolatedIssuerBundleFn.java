@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -50,7 +49,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.SuccessStatus;
-import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -74,20 +72,19 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
   public Result<Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle>> generateBundle(Environment env,
                                                                                                  CurveConstructionConfiguration curveConfig) {
     boolean valid = true;
-    
     ZonedDateTime now = env.getValuationTime();
-
     IssuerProviderDiscount curveBundle = new IssuerProviderDiscount(new FXMatrix());
-    LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
     LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
-    int totalNodes = 0;
+
+    /* For each group of curves */
     for (CurveGroupConfiguration group: curveConfig.getCurveGroups()) {
-      Set<Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>>> curveEntrySet =
-          group.resolveTypesForCurves().entrySet();
-      for (Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: curveEntrySet) {
-        
+
+      /* For each curve definition */
+      for (Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: group.resolveTypesForCurves().entrySet()) {
+
+        LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
+        int totalNodes = 0;
         AbstractCurveDefinition curve = entry.getKey();
-        
         Result<AbstractCurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(env, curve);
         
         if (curveSpecResult.isSuccess()) {
@@ -145,18 +142,16 @@ public class InterpolatedIssuerBundleFn implements IssuerProviderBundleFn {
               if (marketValue == null) {
                 throw new OpenGammaRuntimeException("Could not get market value for " + node);
               }
-              Tenor maturity = curveNode.getResolvedMaturity();
-              times[i] = TimeCalculator.getTimeBetween(now, now.plus(maturity.getPeriod()));
+              times[i] = TimeCalculator.getTimeBetween(now, now.plus(curveNode.getResolvedMaturity().getPeriod()));
               yields[i] = marketValue;
               jacobian[i][i] = 1;
               i++;
             }
-            String interpolatorName = specification.getInterpolatorName();
-            String rightExtrapolatorName = specification.getRightExtrapolatorName();
-            String leftExtrapolatorName = specification.getLeftExtrapolatorName();
-            Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName,
-                                                                                                  leftExtrapolatorName,
-                                                                                                  rightExtrapolatorName);
+
+            Interpolator1D interpolator =
+                CombinedInterpolatorExtrapolatorFactory.getInterpolator(specification.getInterpolatorName(),
+                                                                        specification.getLeftExtrapolatorName(),
+                                                                        specification.getRightExtrapolatorName());
             String curveName = curve.getName();
             InterpolatedDoublesCurve rawCurve = InterpolatedDoublesCurve.from(times, yields, interpolator, curveName);
             YieldAndDiscountCurve discountCurve;

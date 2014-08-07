@@ -8,6 +8,7 @@ package com.opengamma.sesame;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
@@ -74,54 +75,55 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
 
   @Override
   public Result<MulticurveBundle> generateBundle(
-      Environment env, CurveConstructionConfiguration curveConfig,
-      Map<CurveConstructionConfiguration, Result<MulticurveBundle>> requiredCurves) {
+     Environment env, CurveConstructionConfiguration curveConfig,
+     Map<CurveConstructionConfiguration, Result<MulticurveBundle>> requiredCurves) {
 
     // Interim result object used to build up the complete set of
     // failures rather than exiting early
     Result<Boolean> result = Result.success(true);
     
     ZonedDateTime now = env.getValuationTime();
+    MulticurveProviderDiscount curveBundle = new MulticurveProviderDiscount(new FXMatrix());
+    LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
     
-    final MulticurveProviderDiscount curveBundle = new MulticurveProviderDiscount(new FXMatrix());
-    final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
-    final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
-    int totalNodes = 0;
-    
-    for (final CurveGroupConfiguration group: curveConfig.getCurveGroups()) {
+    /* For each group of curves */
+    for (CurveGroupConfiguration group: curveConfig.getCurveGroups()) {
       
-      for (final Map.Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: group.resolveTypesForCurves().entrySet()) {
-        
-        AbstractCurveDefinition curve = entry.getKey();
-        
+      /* For each curve definition */
+      for (Entry<AbstractCurveDefinition, List<? extends CurveTypeConfiguration>> entry: group.resolveTypesForCurves().entrySet()) {
+
+        LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
+        int totalNodes = 0;
+        AbstractCurveDefinition curve = entry.getKey();        
         Result<AbstractCurveSpecification> curveSpecResult = _curveSpecificationProvider.getCurveSpecification(env, curve);
         
         if (curveSpecResult.isSuccess()) {
 
           InterpolatedCurveSpecification specification = (InterpolatedCurveSpecification) curveSpecResult.getValue();
           
-          Result<Map<ExternalIdBundle, Double>> marketDataResult = _curveSpecificationMarketDataProvider.requestData(env, specification);
+          Result<Map<ExternalIdBundle, Double>> marketDataResult =
+              _curveSpecificationMarketDataProvider.requestData(env, specification);
           
           if (marketDataResult.getStatus() == SuccessStatus.SUCCESS) {
             
             // todo this is temporary to allow us to get up and running fast
-            final SnapshotDataBundle snapshot = createSnapshotDataBundle(marketDataResult.getValue());
+            SnapshotDataBundle snapshot = createSnapshotDataBundle(marketDataResult.getValue());
             
             Set<CurveNodeWithIdentifier> nodes = specification.getNodes();
-            final int n = nodes.size();
-            final double[] ttm = new double[n];
-            final double[] yields = new double[n];
-            final double[][] jacobian = new double[n][n];
+            int n = nodes.size();
+            double[] ttm = new double[n];
+            double[] yields = new double[n];
+            double[][] jacobian = new double[n][n];
             
             int i = 0;
             int compoundPeriodsPerYear = 0;
-            final int nNodesForCurve = specification.getNodes().size();
+            int nNodesForCurve = specification.getNodes().size();
             boolean isYield = false;
             for (CurveNodeWithIdentifier node: nodes) {
               CurveNode curveNode = node.getCurveNode();
               if (curveNode instanceof ContinuouslyCompoundedRateNode) {
                 if (i == 0) {
-                  // First node - set expecation that all nodes are ContinuouslyCompoundedRateNodes
+                  // First node - set expectation that all nodes are ContinuouslyCompoundedRateNodes
                   isYield = true;
                 } else {
                   if (!isYield) {
@@ -151,11 +153,11 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
               }
               
               // ttm
-              final Tenor maturity = curveNode.getResolvedMaturity();
+              Tenor maturity = curveNode.getResolvedMaturity();
               ttm[i] = TimeCalculator.getTimeBetween(now, now.plus(maturity.getPeriod()));
               
               // yield
-              final Double yield = snapshot.getDataPoint(node.getIdentifier());
+              Double yield = snapshot.getDataPoint(node.getIdentifier());
               if (yield == null) {
                 throw new OpenGammaRuntimeException("Could not get market data value for " + node);
               }
@@ -164,13 +166,13 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
               i++;
             }
 
-            final String interpolatorName = specification.getInterpolatorName();
-            final String rightExtrapolatorName = specification.getRightExtrapolatorName();
-            final String leftExtrapolatorName = specification.getLeftExtrapolatorName();
-            final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-            final String curveName = curve.getName();
-            final InterpolatedDoublesCurve rawCurve = InterpolatedDoublesCurve.from(ttm, yields, interpolator, curveName);
-            final YieldAndDiscountCurve discountCurve;
+            Interpolator1D interpolator = 
+                CombinedInterpolatorExtrapolatorFactory.getInterpolator(specification.getInterpolatorName(),
+                                                                        specification.getLeftExtrapolatorName(),
+                                                                        specification.getRightExtrapolatorName());
+            String curveName = curve.getName();
+            InterpolatedDoublesCurve rawCurve = InterpolatedDoublesCurve.from(ttm, yields, interpolator, curveName);
+            YieldAndDiscountCurve discountCurve;
             if (compoundPeriodsPerYear != 0 && isYield) {
               discountCurve = YieldPeriodicCurve.from(compoundPeriodsPerYear, rawCurve);
             } else if (isYield) {
@@ -179,9 +181,9 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
               discountCurve = new DiscountCurve(curveName, rawCurve);
             }
                         
-            for (final CurveTypeConfiguration type: entry.getValue()) {
+            for (CurveTypeConfiguration type: entry.getValue()) {
               if (type instanceof DiscountingCurveTypeConfiguration) {
-                final Currency currency = Currency.parse(((DiscountingCurveTypeConfiguration) type).getReference());
+                Currency currency = Currency.parse(((DiscountingCurveTypeConfiguration) type).getReference());
                 curveBundle.setCurve(currency, discountCurve);
               } else if (type instanceof IborCurveTypeConfiguration) {
                 curveBundle.setCurve(createIborIndex((IborCurveTypeConfiguration) type), discountCurve);
@@ -222,14 +224,17 @@ public class InterpolatedMulticurveBundleFn implements DiscountingMulticurveBund
   }
 
   private IndexON createIndexON(OvernightCurveTypeConfiguration type) {
-    final OvernightIndex security = SecurityLink.resolvable(type.getConvention(), OvernightIndex.class).resolve();
-    final OvernightIndexConvention indexConvention = ConventionLink.resolvable(security.getConventionId(), OvernightIndexConvention.class).resolve();
+    OvernightIndex security = SecurityLink.resolvable(type.getConvention(), OvernightIndex.class).resolve();
+    OvernightIndexConvention indexConvention =
+        ConventionLink.resolvable(security.getConventionId(), OvernightIndexConvention.class).resolve();
     return ConverterUtils.indexON(security.getName(), indexConvention);
   }
 
   private IborIndex createIborIndex(IborCurveTypeConfiguration type) {
-    final com.opengamma.financial.security.index.IborIndex security = SecurityLink.resolvable(type.getConvention(), com.opengamma.financial.security.index.IborIndex.class).resolve();
-    final IborIndexConvention indexConvention = ConventionLink.resolvable(security.getConventionId(), IborIndexConvention.class).resolve();
+    com.opengamma.financial.security.index.IborIndex security =
+        SecurityLink.resolvable(type.getConvention(), com.opengamma.financial.security.index.IborIndex.class).resolve();
+    IborIndexConvention indexConvention =
+        ConventionLink.resolvable(security.getConventionId(), IborIndexConvention.class).resolve();
     return ConverterUtils.indexIbor(security.getName(), indexConvention, security.getTenor());
   }
 

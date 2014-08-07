@@ -15,7 +15,13 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
+import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.isda.credit.YieldCurveData;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.Environment;
 import com.opengamma.sesame.credit.snapshot.YieldCurveDataProviderFn;
 import com.opengamma.util.ArgumentChecker;
@@ -35,12 +41,21 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
 
   private final YieldCurveDataProviderFn _yieldCurveProvider;
   
+  private final RegionSource _regionSource;
+  private final HolidaySource _holidaySource;
+  
   /**
    * Builds a new instance.
    * @param yieldCurveProvider a provider which, given a currency, returns a {@link YieldCurveData} instance.
+   * @param regionSource used to source holiday calendar data
+   * @param holidaySource used to source holiday calendar data
    */
-  public DefaultIsdaCompliantYieldCurveFn(YieldCurveDataProviderFn yieldCurveProvider) {
+  public DefaultIsdaCompliantYieldCurveFn(YieldCurveDataProviderFn yieldCurveProvider,
+                                          RegionSource regionSource,
+                                          HolidaySource holidaySource) {
     _yieldCurveProvider = ArgumentChecker.notNull(yieldCurveProvider, "yieldCurveProvider");
+    _regionSource = ArgumentChecker.notNull(regionSource, "regionSoruce");
+    _holidaySource = ArgumentChecker.notNull(holidaySource, "holidaySource");
   }
 
   @Override
@@ -91,6 +106,14 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
       i++;
     }
     
+    ExternalId regionId = yieldCurveData.getRegionId();
+    Calendar calendar;
+    if (regionId != null) {
+      calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+    } else {
+      calendar = new MondayToFridayCalendar("weekend_only");
+    }
+    
     ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(
             env.getValuationDate(), //can theoretically be after the spot date
             yieldCurveData.getSpotDate(),
@@ -101,7 +124,7 @@ public class DefaultIsdaCompliantYieldCurveFn implements IsdaCompliantYieldCurve
             yieldCurveData.getSwapFixedLegInterval().getPeriod(),
             yieldCurveData.getCurveDayCount(),
             yieldCurveData.getCurveBusinessDayConvention(),
-            yieldCurveData.getCalendar()
+            calendar
     );
     
     return builder.build(rates);
