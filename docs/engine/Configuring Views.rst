@@ -226,9 +226,9 @@ but inherit the rest of their configuration from the view.
         configureView(
             "Example View", defaultConfig,
             column(
-                "PV",
+                "PV", OutputNames.PRESENT_VALUE,
                 output(
-                    OutputNames.PRESENT_VALUE, InterestRateSwapSecurity.class,
+                    InterestRateSwapSecurity.class,
                     config(
                         arguments(
                             function(
@@ -237,7 +237,7 @@ but inherit the rest of their configuration from the view.
                                 argument("rootFinderRelativeTolerance", 1e-9),
                                 argument("rootFinderMaxIterations", 1000))))),
                 output(
-                    OutputNames.PRESENT_VALUE, SwaptionSecurity.class,
+                    SwaptionSecurity.class,
                     config(
                         arguments(
                             function(
