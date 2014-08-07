@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.opengamma.sesame.config.EngineUtils;
-import com.opengamma.util.metric.OpenGammaMetricRegistry;
+import com.opengamma.sesame.graph.NodeDecorator;
 
 /**
  * A proxy that measured the time taken by each method call and
@@ -18,20 +18,26 @@ import com.opengamma.util.metric.OpenGammaMetricRegistry;
  */
 public final class MetricsProxy extends ProxyNodeDecorator {
 
-  /**
-   * Singleton instance of the timing proxy.
-   */
-  public static final MetricsProxy INSTANCE = new MetricsProxy();
+  private final MetricRegistry _metricRegistry;
 
-  private final MetricRegistry _metricRegistry = OpenGammaMetricRegistry.getSummaryInstance();
+  /**
+   * Create a metrics proxy using the specified registry to
+   * record the timings.
+   *
+   * @param metricRegistry  registry to record the timings in
+   * @return a new proxy
+   */
+  public static NodeDecorator of(MetricRegistry metricRegistry) {
+    return new MetricsProxy(metricRegistry);
+  }
 
   /**
    * Restricted constructor.
    */
-  private MetricsProxy() {
+  private MetricsProxy(MetricRegistry metricRegistry) {
+    _metricRegistry = metricRegistry;
   }
 
-  //-------------------------------------------------------------------------
   @Override
   protected boolean decorate(Class<?> interfaceType, Class<?> implementationType) {
     return true;
@@ -55,5 +61,4 @@ public final class MetricsProxy extends ProxyNodeDecorator {
     Object proxiedObject = EngineUtils.getProxiedObject(delegate);
     return proxiedObject.getClass().getCanonicalName() + "." + method.getName();
   }
-
 }

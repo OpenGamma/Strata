@@ -6,15 +6,16 @@
 package com.opengamma.sesame.engine;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.sesame.config.FunctionModelConfig;
@@ -35,10 +36,12 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Factory for creating instances of {@link View}.
- * This is one of the key classes of the calculation engine. The {@link #createView} methods take a view configuration
+ * This is one of the key classes of the calculation engine.
+ * The {@link #createView} methods take a view configuration
  * and returns a view that is ready to be executed.
  * <p>
- * Each view factory contains a cache which is shared by all views it creates.
+ * Each view factory contains a cache which is shared by all
+ * views it creates.
  */
 public class ViewFactory {
 
@@ -51,6 +54,7 @@ public class ViewFactory {
   private final FunctionModelConfig _defaultConfig;
   private final FunctionBuilder _functionBuilder = new FunctionBuilder();
   private final CachingManager _cachingManager;
+  private final Optional<MetricRegistry> _metricRegistry;
 
   public ViewFactory(ExecutorService executor,
                      AvailableOutputs availableOutputs,
@@ -58,12 +62,24 @@ public class ViewFactory {
                      FunctionModelConfig defaultConfig,
                      EnumSet<FunctionService> defaultServices,
                      CachingManager cachingManager) {
+    this(executor, availableOutputs, availableImplementations, defaultConfig,
+         defaultServices, cachingManager, Optional.<MetricRegistry>absent());
+  }
+
+  public ViewFactory(ExecutorService executor,
+                     AvailableOutputs availableOutputs,
+                     AvailableImplementations availableImplementations,
+                     FunctionModelConfig defaultConfig,
+                     EnumSet<FunctionService> defaultServices,
+                     CachingManager cachingManager,
+                     Optional<MetricRegistry> metricRegistry) {
     _availableOutputs = ArgumentChecker.notNull(availableOutputs, "availableOutputs");
     _availableImplementations = ArgumentChecker.notNull(availableImplementations, "availableImplementations");
     _defaultServices = ArgumentChecker.notNull(defaultServices, "defaultServices");
     _defaultConfig = ArgumentChecker.notNull(defaultConfig, "defaultConfig");
     _executor = ArgumentChecker.notNull(executor, "executor");
     _cachingManager = ArgumentChecker.notNull(cachingManager, "cachingManager");
+    _metricRegistry = ArgumentChecker.notNull(metricRegistry, "metricRegistry");
   }
 
   /**
@@ -134,26 +150,46 @@ public class ViewFactory {
 
   private NodeDecorator createNodeDecorator(EnumSet<FunctionService> services) {
 
-    // Ensure we always have the exception wrapping behaviour
-    if (services.isEmpty()) {
-      return ExceptionWrappingProxy.INSTANCE;
-    } else {
-      List<NodeDecorator> decorators = Lists.newArrayListWithCapacity(services.size());
+    ImmutableList.Builder<NodeDecorator> decorators = new ImmutableList.Builder<>();
 
-      if (services.contains(FunctionService.METRICS)) {
-        decorators.add(MetricsProxy.INSTANCE);
-      }
-      if (services.contains(FunctionService.CACHING)) {
-        decorators.add(_cachingManager.getCachingDecorator());
-      }
-      if (services.contains(FunctionService.TIMING)) {
-        decorators.add(TimingProxy.INSTANCE);
-      }
-      if (services.contains(FunctionService.TRACING)) {
-        decorators.add(TracingProxy.INSTANCE);
-      }
-      decorators.add(ExceptionWrappingProxy.INSTANCE);
-      return CompositeNodeDecorator.compose(decorators);
+    // Build up the proxies to be used from the outermost
+    // to the innermost
+
+    // Timing/tracing sits outside of caching so the actual
+    // time taken for a request is reported. This can also
+    // report on whether came from the cache or were calculated
+    if (services.contains(FunctionService.TIMING)) {
+      decorators.add(TimingProxy.INSTANCE);
     }
+    if (services.contains(FunctionService.TRACING)) {
+      decorators.add(TracingProxy.INSTANCE);
+    }
+
+    // Caching proxy memoizes requests as required so that
+    // expensive calculations are not performed more
+    // frequently than they need to be
+    if (services.contains(FunctionService.CACHING)) {
+      decorators.add(_cachingManager.getCachingDecorator());
+    }
+
+    // Metrics records time taken to execute each function. This
+    // sits inside the caching layer as we're interested in how
+    // long the actual calculation takes not how long it takes to
+    // get from the cache
+    if (services.contains(FunctionService.METRICS)) {
+      if (_metricRegistry.isPresent()) {
+        decorators.add(MetricsProxy.of(_metricRegistry.get()));
+      } else {
+        // This should be prevented by the ViewFactoryComponentFactory but is
+        // here in case or programmatic misconfiguration
+        s_logger.warn("Unable to create metrics proxy as no metrics repository has been configured");
+      }
+    }
+
+    // Ensure we always have the exception wrapping behaviour so
+    // methods returning Result<?> return Failure if an exception
+    // is thrown internally.
+    decorators.add(ExceptionWrappingProxy.INSTANCE);
+    return CompositeNodeDecorator.compose(decorators.build());
   }
 }

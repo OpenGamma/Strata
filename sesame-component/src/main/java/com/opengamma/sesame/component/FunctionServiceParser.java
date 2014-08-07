@@ -16,9 +16,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.sesame.engine.FunctionService;
 
 /**
- * Parses a list of strings and extracts a set of function
- * services from it. The list is provided via user configuration
- * so is checked to ensure the values are valid.
+ * Parses a list of strings (generally coming from a configuration
+ * file via a component factory) and extracts a set of function
+ * services from it. As the list is provided via user configuration
+ * it is checked to ensure the values are valid.
  */
 public class FunctionServiceParser {
 
@@ -26,11 +27,20 @@ public class FunctionServiceParser {
 
   /**
    * The services that were requested by the user, may be null.
+   * Null value indicates that no configuration item was
+   * specified, whereas an empty list indicates that the
+   * configuration item was specified but with a blank value.
    */
   private final List<String> _requestedFunctionServices;
 
   /**
-   * Create a parser for the supplied services.
+   * Create a parser for the supplied services. Passing a null
+   * value indicates that no configuration item was
+   * specified, whereas an empty list indicates that the
+   * configuration item was specified but with a blank value.
+   * In the former case the default services (specified by
+   * {@link FunctionService#DEFAULT_SERVICES}) will be used.
+   * In the latter an empty set of services will be used.
    *
    * @param requestedFunctionServices  the services that were requested
    * by the user, may be null

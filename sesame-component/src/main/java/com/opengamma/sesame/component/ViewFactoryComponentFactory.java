@@ -5,6 +5,7 @@
  */
 package com.opengamma.sesame.component;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,8 +27,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -109,13 +113,19 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private long _maxCacheEntries = MAX_CACHE_ENTRIES;
   /**
-   * The set of function services to be enabled for the server by default.
-   * The names need to match those of the {@link FunctionService} num - any
-   * that do not will be ignored. If null, then
-   * {@link FunctionService#DEFAULT_SERVICES} will be used.
+   * The set of function services to be enabled for the server for
+   * most runs of the engine. These can be overridden at run time
+   * for individual views. The names need to match those of the
+   * {@link FunctionService} enum - any that do not will be ignored.
+   * If null, then {@link FunctionService#DEFAULT_SERVICES} will be used.
    */
   @PropertyDefinition
   private List<String> _defaultFunctionServices;
+  /**
+   * The registry to be used for recording metrics, may be null.
+   */
+  @PropertyDefinition
+  private MetricRegistry _metricRegistry;
 
   //-------------------------------------------------------------------------
   @Override
@@ -128,7 +138,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     configuration.clear();
 
     Cache<MethodInvocationKey, FutureTask<Object>> cache = createCache(repo);
-    CachingManager cachingManager = new DefaultCachingManager(componentMap, cache);
+    CachingManager cachingManager =
+        new DefaultCachingManager(componentMap, cache, Optional.fromNullable(_metricRegistry));
 
     // Initialize the service context with the same wrapped components that
     // we use within the engine itself
@@ -139,21 +150,22 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     AvailableImplementations availableImplementations = createAvailableImplementations(repo);
 
     FunctionServiceParser parser = new FunctionServiceParser(_defaultFunctionServices);
-    ViewFactory viewFactory = new ViewFactory(executor,
-                                              availableOutputs,
-                                              availableImplementations,
-                                              FunctionModelConfig.EMPTY,
-                                              parser.determineFunctionServices(),
-                                              cachingManager);
+    EnumSet<FunctionService> functionServices = parser.determineFunctionServices();
 
-    ComponentInfo engineInfo = new ComponentInfo(ViewFactory.class, getClassifier());
-    repo.registerComponent(engineInfo, viewFactory);
+    if (functionServices.contains(FunctionService.METRICS) && _metricRegistry == null) {
+      throw new OpenGammaRuntimeException(
+          "Metrics service has been requested but no registry has been provided. " +
+          "Either remove METRICS from defaultFunctionServices or specify a valid " +
+          "metrics registry");
+    }
 
-    ComponentInfo outputsInfo = new ComponentInfo(AvailableOutputs.class, getClassifier());
-    repo.registerComponent(outputsInfo, availableOutputs);
+    ViewFactory viewFactory = new ViewFactory(
+        executor, availableOutputs, availableImplementations, FunctionModelConfig.EMPTY,
+        functionServices, cachingManager, Optional.fromNullable(_metricRegistry));
 
-    ComponentInfo implsInfo = new ComponentInfo(AvailableImplementations.class, getClassifier());
-    repo.registerComponent(implsInfo, availableImplementations);
+    repo.registerComponent(ViewFactory.class, getClassifier(), viewFactory);
+    repo.registerComponent(AvailableOutputs.class, getClassifier(), availableOutputs);
+    repo.registerComponent(AvailableImplementations.class, getClassifier(), availableImplementations);
   }
 
   private Map<Class<?>, Object> getComponents(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
@@ -361,10 +373,11 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the set of function services to be enabled for the server by default.
-   * The names need to match those of the {@link FunctionService} num - any
-   * that do not will be ignored. If null, then
-   * {@link FunctionService#DEFAULT_SERVICES} will be used.
+   * Gets the set of function services to be enabled for the server for
+   * most runs of the engine. These can be overridden at run time
+   * for individual views. The names need to match those of the
+   * {@link FunctionService} enum - any that do not will be ignored.
+   * If null, then {@link FunctionService#DEFAULT_SERVICES} will be used.
    * @return the value of the property
    */
   public List<String> getDefaultFunctionServices() {
@@ -372,10 +385,11 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the set of function services to be enabled for the server by default.
-   * The names need to match those of the {@link FunctionService} num - any
-   * that do not will be ignored. If null, then
-   * {@link FunctionService#DEFAULT_SERVICES} will be used.
+   * Sets the set of function services to be enabled for the server for
+   * most runs of the engine. These can be overridden at run time
+   * for individual views. The names need to match those of the
+   * {@link FunctionService} enum - any that do not will be ignored.
+   * If null, then {@link FunctionService#DEFAULT_SERVICES} will be used.
    * @param defaultFunctionServices  the new value of the property
    */
   public void setDefaultFunctionServices(List<String> defaultFunctionServices) {
@@ -384,13 +398,39 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code defaultFunctionServices} property.
-   * The names need to match those of the {@link FunctionService} num - any
-   * that do not will be ignored. If null, then
-   * {@link FunctionService#DEFAULT_SERVICES} will be used.
+   * most runs of the engine. These can be overridden at run time
+   * for individual views. The names need to match those of the
+   * {@link FunctionService} enum - any that do not will be ignored.
+   * If null, then {@link FunctionService#DEFAULT_SERVICES} will be used.
    * @return the property, not null
    */
   public final Property<List<String>> defaultFunctionServices() {
     return metaBean().defaultFunctionServices().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the registry to be used for recording metrics, may be null.
+   * @return the value of the property
+   */
+  public MetricRegistry getMetricRegistry() {
+    return _metricRegistry;
+  }
+
+  /**
+   * Sets the registry to be used for recording metrics, may be null.
+   * @param metricRegistry  the new value of the property
+   */
+  public void setMetricRegistry(MetricRegistry metricRegistry) {
+    this._metricRegistry = metricRegistry;
+  }
+
+  /**
+   * Gets the the {@code metricRegistry} property.
+   * @return the property, not null
+   */
+  public final Property<MetricRegistry> metricRegistry() {
+    return metaBean().metricRegistry().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -410,6 +450,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           (getMaxCacheEntries() == other.getMaxCacheEntries()) &&
           JodaBeanUtils.equal(getDefaultFunctionServices(), other.getDefaultFunctionServices()) &&
+          JodaBeanUtils.equal(getMetricRegistry(), other.getMetricRegistry()) &&
           super.equals(obj);
     }
     return false;
@@ -422,12 +463,13 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxCacheEntries());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultFunctionServices());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMetricRegistry());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("ViewFactoryComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -445,6 +487,7 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
     buf.append("maxCacheEntries").append('=').append(JodaBeanUtils.toString(getMaxCacheEntries())).append(',').append(' ');
     buf.append("defaultFunctionServices").append('=').append(JodaBeanUtils.toString(getDefaultFunctionServices())).append(',').append(' ');
+    buf.append("metricRegistry").append('=').append(JodaBeanUtils.toString(getMetricRegistry())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -479,6 +522,11 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<List<String>> _defaultFunctionServices = DirectMetaProperty.ofReadWrite(
         this, "defaultFunctionServices", ViewFactoryComponentFactory.class, (Class) List.class);
     /**
+     * The meta-property for the {@code metricRegistry} property.
+     */
+    private final MetaProperty<MetricRegistry> _metricRegistry = DirectMetaProperty.ofReadWrite(
+        this, "metricRegistry", ViewFactoryComponentFactory.class, MetricRegistry.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -486,7 +534,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
         "classifier",
         "liveMarketDataProviderFactory",
         "maxCacheEntries",
-        "defaultFunctionServices");
+        "defaultFunctionServices",
+        "metricRegistry");
 
     /**
      * Restricted constructor.
@@ -505,6 +554,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           return _maxCacheEntries;
         case -544798537:  // defaultFunctionServices
           return _defaultFunctionServices;
+        case 1925437965:  // metricRegistry
+          return _metricRegistry;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -557,6 +608,14 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
       return _defaultFunctionServices;
     }
 
+    /**
+     * The meta-property for the {@code metricRegistry} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<MetricRegistry> metricRegistry() {
+      return _metricRegistry;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -569,6 +628,8 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           return ((ViewFactoryComponentFactory) bean).getMaxCacheEntries();
         case -544798537:  // defaultFunctionServices
           return ((ViewFactoryComponentFactory) bean).getDefaultFunctionServices();
+        case 1925437965:  // metricRegistry
+          return ((ViewFactoryComponentFactory) bean).getMetricRegistry();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -588,6 +649,9 @@ public class ViewFactoryComponentFactory extends AbstractComponentFactory {
           return;
         case -544798537:  // defaultFunctionServices
           ((ViewFactoryComponentFactory) bean).setDefaultFunctionServices((List<String>) newValue);
+          return;
+        case 1925437965:  // metricRegistry
+          ((ViewFactoryComponentFactory) bean).setMetricRegistry((MetricRegistry) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

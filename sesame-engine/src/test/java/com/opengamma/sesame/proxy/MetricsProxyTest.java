@@ -13,12 +13,9 @@ import org.testng.annotations.Test;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.config.FunctionModelConfig;
 import com.opengamma.sesame.engine.ComponentMap;
-import com.opengamma.sesame.function.FunctionMetadata;
 import com.opengamma.sesame.function.Output;
-import com.opengamma.sesame.graph.FunctionBuilder;
 import com.opengamma.sesame.graph.FunctionModel;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.result.Result;
@@ -41,7 +38,7 @@ public class MetricsProxyTest {
   @Test
   public void metricsShouldGetRecordedForInterfaceMethods() {
 
-    MockFn fn = createMockFn("doSomething", SimpleMockFn.class);
+    MockFn fn = createMockFn(SimpleMockFn.class);
 
     for (int i = 0; i < 10; i++) {
       fn.doSomething();
@@ -63,7 +60,7 @@ public class MetricsProxyTest {
   @Test
   public void noMetricsForStandardObjectMethods() {
 
-    MockFn fn = createMockFn("doSomething", SimpleMockFn.class);
+    MockFn fn = createMockFn(SimpleMockFn.class);
 
     for (int i = 0; i < 10; i++) {
       fn.hashCode();
@@ -73,19 +70,16 @@ public class MetricsProxyTest {
     assertThat(_registry.getTimers().isEmpty(), is(true));
   }
 
-  private MockFn createMockFn(String methodName, Class<? extends MockFn> implementationClass) {
+  private MockFn createMockFn(Class<? extends MockFn> implementationClass) {
     FunctionModelConfig config = config(implementations(MockFn.class, implementationClass));
-    FunctionMetadata metadata = EngineUtils.createMetadata(MockFn.class, methodName);
-    FunctionModel functionModel =
-        FunctionModel.forFunction(metadata, config, ComponentMap.EMPTY.getComponentTypes(),
-                                  ExceptionWrappingProxy.INSTANCE, MetricsProxy.INSTANCE);
-    return (MockFn) functionModel.build(new FunctionBuilder(), ComponentMap.EMPTY).getReceiver();
+    return FunctionModel.build(MockFn.class, config, ComponentMap.EMPTY,
+                               ExceptionWrappingProxy.INSTANCE, MetricsProxy.of(_registry));
   }
 
   private interface MockFn {
-    @Output(value = "this")
+    @Output("this")
     Result<Boolean> doSomething();
-    @Output(value = "that")
+    @Output("that")
     Result<Boolean> doSomethingElse();
   }
 
