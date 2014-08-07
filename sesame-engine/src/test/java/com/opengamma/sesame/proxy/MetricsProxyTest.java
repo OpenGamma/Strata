@@ -32,7 +32,6 @@ public class MetricsProxyTest {
   @BeforeMethod
   public void setUp() {
     _registry = new MetricRegistry();
-    OpenGammaMetricRegistry.setSummaryRegistry(_registry);
   }
 
   @Test
