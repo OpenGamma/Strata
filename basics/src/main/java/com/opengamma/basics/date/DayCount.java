@@ -147,17 +147,17 @@ public interface DayCount {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code BusinessDayConvention} from a unique name.
+   * Obtains a {@code DayCount} from a unique name.
    * 
    * @param name  the unique name
-   * @return the business convention
+   * @return the day count
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
   public static DayCount of(String name) {
     ArgChecker.notNull(name, "name");
     return Stream.of(DayCounts.values())
-        .filter(bdc -> bdc.getName().equals(name))
+        .filter(convention -> convention.getName().equals(name))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("Unknown name: " + name));
   }
