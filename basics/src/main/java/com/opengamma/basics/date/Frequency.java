@@ -35,7 +35,7 @@ import com.opengamma.collect.ArgChecker;
  * <p>
  * {@code Frequency} implements {@code TemporalAmount} allowing it to be directly added to a date.
  */
-public class Frequency
+public final class Frequency
     implements TemporalAmount, Serializable {
 
   /**
@@ -291,6 +291,31 @@ public class Frequency
    */
   public boolean isTerm() {
     return this == TERM;
+  }
+
+  /**
+   * Checks if the periodic frequency is week-based.
+   * <p>
+   * A week-based frequency consists of an integral number of weeks.
+   * There must be no day, month or year element.
+   *
+   * @return true if this is week-based
+   */
+  public boolean isWeekBased() {
+    return period.toTotalMonths() == 0 && period.getDays() % 7 == 0;
+  }
+
+  /**
+   * Checks if the periodic frequency is month-based.
+   * <p>
+   * A week-based frequency consists of an integral number of months.
+   * Any year-based frequency is also counted as month-based.
+   * There must be no day or week element.
+   *
+   * @return true if this is week-based
+   */
+  public boolean isMonthBased() {
+    return period.toTotalMonths() > 0 && period.getDays() == 0 && isTerm() == false;
   }
 
   //-------------------------------------------------------------------------

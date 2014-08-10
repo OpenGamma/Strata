@@ -105,6 +105,35 @@ public class FrequencyTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "based")
+  static Object[][] data_based() {
+    return new Object[][] {
+        {Frequency.ofDays(1), false, false},
+        {Frequency.ofDays(2), false, false},
+        {Frequency.ofDays(6), false, false},
+        {Frequency.ofDays(7), true, false},
+        {Frequency.ofWeeks(1), true, false},
+        {Frequency.ofWeeks(3), true, false},
+        {Frequency.ofMonths(1), false, true},
+        {Frequency.ofMonths(3), false, true},
+        {Frequency.ofYears(1), false, true},
+        {Frequency.ofYears(3), false, true},
+        {Frequency.of(Period.of(1, 2, 3)), false, false},
+        {Frequency.TERM, false, false},
+    };
+  }
+
+  @Test(dataProvider = "based")
+  public void test_isWeekBased(Frequency test, boolean weekBased, boolean monthBased) {
+    assertEquals(test.isWeekBased(), weekBased);
+  }
+
+  @Test(dataProvider = "based")
+  public void test_isMonthBased(Frequency test, boolean weekBased, boolean monthBased) {
+    assertEquals(test.isMonthBased(), monthBased);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_parse_String_roundTrip() {
     assertEquals(Frequency.parse(P6M.toString()), P6M);
   }

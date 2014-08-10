@@ -29,7 +29,7 @@ import com.opengamma.collect.ArgChecker;
  * <p>
  * {@code Tenor} implements {@code TemporalAmount} allowing it to be directly added to a date.
  */
-public class Tenor
+public final class Tenor
     implements TemporalAmount, Serializable {
 
   /**
