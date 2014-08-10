@@ -36,7 +36,7 @@ import com.google.common.collect.ImmutableList;
 public class FrequencyTest {
 
   @DataProvider(name = "create")
-  Object[][] data_create() {
+  static Object[][] data_create() {
     return new Object[][] {
         {Frequency.ofDays(1), Period.ofDays(1), "P1D"},
         {Frequency.ofDays(2), Period.ofDays(2), "P2D"},
@@ -110,7 +110,7 @@ public class FrequencyTest {
   }
 
   @DataProvider(name = "parseGood")
-  Object[][] data_parseGood() {
+  static Object[][] data_parseGood() {
     return new Object[][] {
         {"1D", Frequency.ofDays(1)},
         {"2D", Frequency.ofDays(2)},
@@ -137,7 +137,7 @@ public class FrequencyTest {
   }
 
   @DataProvider(name = "parseBad")
-  Object[][] data_parseBad() {
+  static Object[][] data_parseBad() {
     return new Object[][] {
       {""},
       {"2"},

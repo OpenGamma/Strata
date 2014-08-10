@@ -37,7 +37,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
-  Object[][] data_types() {
+  static Object[][] data_types() {
     DayCounts[] conv = DayCounts.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
@@ -68,7 +68,7 @@ public class DayCountTest {
   private static Double SIMPLE_30_360 = new Double(Double.NaN);
 
   @DataProvider(name = "dayCountFraction")
-  Object[][] data_dayCountFraction() {
+  static Object[][] data_dayCountFraction() {
       return new Object[][] {
           {DC_ACT_ACT_ISDA, 2011, 12, 28, 2012, 2, 28, (4d / 365d + 58d / 366d)},
           {DC_ACT_ACT_ISDA, 2011, 12, 28, 2012, 2, 29, (4d / 365d + 59d / 366d)},
@@ -253,7 +253,7 @@ public class DayCountTest {
       };
   }
 
-  private double calc360(int y1, int m1, int d1, int y2, int m2, int d2) {
+  private static double calc360(int y1, int m1, int d1, int y2, int m2, int d2) {
     return ((y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)) / 360d;
   }
 
@@ -267,7 +267,7 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  Object[][] data_name() {
+  static Object[][] data_name() {
       return new Object[][] {
           {DC_ACT_ACT_ISDA, "Act/Act ISDA"},
           {DC_ACT_360, "Act/360"},

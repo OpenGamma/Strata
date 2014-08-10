@@ -77,7 +77,7 @@ public class TenorTest {
   }
 
   @DataProvider(name = "parseGood")
-  Object[][] data_parseGood() {
+  static Object[][] data_parseGood() {
     return new Object[][] {
         {"2D", TENOR_2D},
         {"2W", TENOR_2W},
@@ -100,7 +100,7 @@ public class TenorTest {
   }
 
   @DataProvider(name = "parseBad")
-  Object[][] data_parseBad() {
+  static Object[][] data_parseBad() {
     return new Object[][] {
       {""},
       {"2"},

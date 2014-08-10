@@ -55,7 +55,7 @@ public class BusinessDayConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
-  Object[][] data_types() {
+  static Object[][] data_types() {
     BusinessDayConventions[] conv = BusinessDayConventions.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
@@ -73,7 +73,7 @@ public class BusinessDayConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "convention")
-  Object[][] data_convention() {
+  static Object[][] data_convention() {
       return new Object[][] {
           {NO_ADJUST, FRI_2014_07_11, FRI_2014_07_11},
           {NO_ADJUST, SAT_2014_07_12, SAT_2014_07_12},
@@ -182,7 +182,7 @@ public class BusinessDayConventionTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
-  Object[][] data_name() {
+  static Object[][] data_name() {
       return new Object[][] {
           {NO_ADJUST, "NoAdjust"},
           {FOLLOWING, "Following"},

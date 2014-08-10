@@ -72,7 +72,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createSatSunWeekend")
-  Object[][] data_createSatSunWeekend() {
+  static Object[][] data_createSatSunWeekend() {
       return new Object[][] {
           {FRI_2014_07_11, true},
           {SAT_2014_07_12, false},
@@ -115,7 +115,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createThuFriWeekend")
-  Object[][] data_createThuFriWeekend() {
+  static Object[][] data_createThuFriWeekend() {
       return new Object[][] {
           {FRI_2014_07_11, false},
           {SAT_2014_07_12, true},
@@ -156,7 +156,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createSunWeekend")
-  Object[][] data_createSunWeekend() {
+  static Object[][] data_createSunWeekend() {
       return new Object[][] {
           {FRI_2014_07_11, true},
           {SAT_2014_07_12, true},
@@ -197,7 +197,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "createThuFriSatWeekend")
-  Object[][] data_createThuFriSatWeekend() {
+  static Object[][] data_createThuFriSatWeekend() {
       return new Object[][] {
           {FRI_2014_07_11, false},
           {SAT_2014_07_12, false},
@@ -302,7 +302,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "shift")
-  Object[][] data_shift() {
+  static Object[][] data_shift() {
       return new Object[][] {
           {THU_2014_07_10, 1, FRI_2014_07_11},
           {FRI_2014_07_11, 1, TUE_2014_07_15},
@@ -391,7 +391,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "next")
-  Object[][] data_next() {
+  static Object[][] data_next() {
       return new Object[][] {
           {THU_2014_07_10, FRI_2014_07_11},
           {FRI_2014_07_11, TUE_2014_07_15},
@@ -421,7 +421,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "previous")
-  Object[][] data_previous() {
+  static Object[][] data_previous() {
       return new Object[][] {
           {FRI_2014_07_11, THU_2014_07_10},
           {SAT_2014_07_12, FRI_2014_07_11},
@@ -451,7 +451,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "ensure")
-  Object[][] data_ensure() {
+  static Object[][] data_ensure() {
       return new Object[][] {
           {FRI_2014_07_11, FRI_2014_07_11},
           {SAT_2014_07_12, TUE_2014_07_15},
@@ -484,7 +484,7 @@ public class BusinessDayCalendarTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "daysBetween")
-  Object[][] data_daysBetween() {
+  static Object[][] data_daysBetween() {
       return new Object[][] {
           {FRI_2014_07_11, FRI_2014_07_11, 0},
           {FRI_2014_07_11, SAT_2014_07_12, 1},
