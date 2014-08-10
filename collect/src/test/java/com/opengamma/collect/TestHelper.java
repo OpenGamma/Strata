@@ -18,7 +18,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -75,6 +74,31 @@ public class TestHelper {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates a {@code LocalDate}, intended for static import.
+   * 
+   * @param year  the year
+   * @param month  the month
+   * @param dayOfMonth  the dayOfMonth
+   * @return the date
+   */
+  public static LocalDate date(int year, int month, int dayOfMonth) {
+    return LocalDate.of(year, month, dayOfMonth);
+  }
+
+  /**
+   * Creates a {@code LocalDate}, intended for static import.
+   * 
+   * @param year  the year
+   * @param month  the month
+   * @param dayOfMonth  the dayOfMonth
+   * @return the date
+   */
+  public static LocalDate date(int year, Month month, int dayOfMonth) {
+    return LocalDate.of(year, month, dayOfMonth);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Asserts that two beans are equal.
    * Provides better error messages than a normal {@code assertEquals} comparison.
    * 
@@ -105,7 +129,7 @@ public class TestHelper {
    * 
    * @param base  the object to be tested
    */
-  public static void assertSerialization(Serializable base) {
+  public static void assertSerialization(Object base) {
     assertNotNull(base);
     try {
       try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -238,11 +262,28 @@ public class TestHelper {
    */
   public static <E extends Enum<E>>void coverEnum(Class<E> clazz) {
     assertNotNull(clazz, "coverEnum() called with null class");
-    ignoreThrows(() -> clazz.getDeclaredMethod("values").invoke(null));
+    ignoreThrows(() -> {
+      Method method = clazz.getDeclaredMethod("values");
+      method.setAccessible(true);;
+      method.invoke(null);
+    });
     for (E val : clazz.getEnumConstants()) {
-      ignoreThrows(() -> clazz.getDeclaredMethod("valueOf", String.class).invoke(null, val.name()));
+      ignoreThrows(() -> {
+        Method method = clazz.getDeclaredMethod("valueOf", String.class);
+        method.setAccessible(true);;
+        method.invoke(null, val.name());
+      });
     }
-    ignoreThrows(() -> clazz.getDeclaredMethod("valueOf", String.class).invoke(null, ""));
+    ignoreThrows(() -> {
+      Method method = clazz.getDeclaredMethod("valueOf", String.class);
+      method.setAccessible(true);;
+      method.invoke(null, "");
+    });
+    ignoreThrows(() -> {
+      Method method = clazz.getDeclaredMethod("valueOf", String.class);
+      method.setAccessible(true);;
+      method.invoke(null, (Object) null);
+    });
   }
 
   //-------------------------------------------------------------------------
