@@ -155,7 +155,7 @@ public final class RetrievalPeriod implements ImmutableBean {
     }
 
     @Override
-    public RetrievalPeriod.Builder builder() {
+    public BeanBuilder<? extends RetrievalPeriod> builder() {
       return new RetrievalPeriod.Builder();
     }
 
@@ -250,7 +250,7 @@ public final class RetrievalPeriod implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

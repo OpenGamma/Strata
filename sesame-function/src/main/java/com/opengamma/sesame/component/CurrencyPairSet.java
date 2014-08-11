@@ -161,7 +161,7 @@ public final class CurrencyPairSet implements ImmutableBean {
     }
 
     @Override
-    public CurrencyPairSet.Builder builder() {
+    public BeanBuilder<? extends CurrencyPairSet> builder() {
       return new CurrencyPairSet.Builder();
     }
 
@@ -257,7 +257,7 @@ public final class CurrencyPairSet implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

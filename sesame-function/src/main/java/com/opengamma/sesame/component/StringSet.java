@@ -158,7 +158,7 @@ public final class StringSet implements ImmutableBean {
     }
 
     @Override
-    public StringSet.Builder builder() {
+    public BeanBuilder<? extends StringSet> builder() {
       return new StringSet.Builder();
     }
 
@@ -254,7 +254,7 @@ public final class StringSet implements ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

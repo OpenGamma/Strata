@@ -171,7 +171,7 @@ public final class FieldName implements Comparable<FieldName>, ImmutableBean {
     }
 
     @Override
-    public FieldName.Builder builder() {
+    public BeanBuilder<? extends FieldName> builder() {
       return new FieldName.Builder();
     }
 
@@ -266,7 +266,7 @@ public final class FieldName implements Comparable<FieldName>, ImmutableBean {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 
