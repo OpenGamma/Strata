@@ -19,6 +19,10 @@ public enum FunctionService {
    */
   CACHING,
   /**
+   * The metrics service.
+   */
+  METRICS,
+  /**
    * The tracing service.
    */
   TRACING,

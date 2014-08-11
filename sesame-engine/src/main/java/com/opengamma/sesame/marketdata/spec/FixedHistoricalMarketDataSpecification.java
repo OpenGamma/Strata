@@ -102,6 +102,7 @@ public class FixedHistoricalMarketDataSpecification extends HistoricalMarketData
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
+  @Override
   public Builder toBuilder() {
     return new Builder(this);
   }
@@ -287,7 +288,7 @@ public class FixedHistoricalMarketDataSpecification extends HistoricalMarketData
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

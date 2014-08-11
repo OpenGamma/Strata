@@ -278,7 +278,7 @@ public final class EngineUtils {
       return object;
     }
     ProxyInvocationHandler invocationHandler = (ProxyInvocationHandler) Proxy.getInvocationHandler(object);
-    return getProxiedObject(invocationHandler.getReceiver());
+    return invocationHandler.getProxiedObject();
   }
 
   /**

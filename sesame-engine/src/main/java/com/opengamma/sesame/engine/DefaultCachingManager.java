@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.FutureTask;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -40,6 +42,7 @@ public class DefaultCachingManager implements CachingManager {
   private final Cache<MethodInvocationKey, FutureTask<Object>> _cache;
   private final CacheInvalidator _cacheInvalidator;
   private final CachingProxyDecorator _cachingDecorator;
+  private final Optional<MetricRegistry> _metricRegistry;
 
   /**
    * Constructs the set of objects which are used to manage caching
@@ -50,11 +53,26 @@ public class DefaultCachingManager implements CachingManager {
    * @param cache the cache to be used by the engine
    */
   public DefaultCachingManager(ComponentMap componentMap, Cache<MethodInvocationKey, FutureTask<Object>> cache) {
+    this(componentMap, cache, Optional.<MetricRegistry>absent());
+  }
+
+  /**
+   * Constructs the set of objects which are used to manage caching
+   * within the engine.
+   *
+   * @param componentMap  the map of components to be provided to the engine
+   * @param cache  the cache to be used by the engine
+   * @param metricRegistry  the registry to be used to capture metrics about the caching
+   */
+  public DefaultCachingManager(ComponentMap componentMap,
+                               Cache<MethodInvocationKey, FutureTask<Object>> cache,
+                               Optional<MetricRegistry> metricRegistry) {
     ExecutingMethodsThreadLocal executingMethods = new ExecutingMethodsThreadLocal();
     _cache = ArgumentChecker.notNull(cache, "cache");
     _cacheInvalidator = new NoOpCacheInvalidator();
     _cachingDecorator = new CachingProxyDecorator(_cache, executingMethods);
     _componentMap = decorateSources(ArgumentChecker.notNull(componentMap, "componentMap"));
+    _metricRegistry = ArgumentChecker.notNull(metricRegistry, "metricRegistry");
   }
 
   @Override

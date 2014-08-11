@@ -15,8 +15,16 @@ public interface ProxyInvocationHandler extends InvocationHandler {
   /**
    * Gets the receiver object.
    * 
-   * @return the object to which the handler delegates method calls, may be a proxy instance, not null
+   * @return the object to which the handler delegates method calls, may
+   * be a proxy instance, not null
    */
   Object getReceiver();
 
+  /**
+   * Gets the receiver object ignoring any proxies.
+   *
+   * @return the object to which the handler delegates method calls once
+   * all proxies have executed, not null
+   */
+  Object getProxiedObject();
 }
