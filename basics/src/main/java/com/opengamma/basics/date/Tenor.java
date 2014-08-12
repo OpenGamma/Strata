@@ -26,8 +26,12 @@ import com.opengamma.collect.ArgChecker;
  * <p>
  * A tenor is allowed to be any non-negative period of days, weeks, month or years.
  * This class provides constants for common tenors which are best used by static import.
- * <p>
- * {@code Tenor} implements {@code TemporalAmount} allowing it to be directly added to a date.
+ * 
+ * <h4>Usage</h4>
+ * {@code Tenor} implements {@code TemporalAmount} allowing it to be directly added to a date:
+ * <pre>
+ *  LocalDate later = baseDate.plus(tenor);
+ * </pre>
  */
 public final class Tenor
     implements TemporalAmount, Serializable {
@@ -298,6 +302,9 @@ public final class Tenor
    * This will return a value for the years, months and days units.
    * Note that weeks are not included.
    * All other units throw an exception.
+   * <p>
+   * This method implements {@link TemporalAmount}.
+   * It is not intended to be called directly.
    *
    * @param unit  the unit to query
    * @return the value of the unit
@@ -313,6 +320,9 @@ public final class Tenor
    * <p>
    * This returns a list containing years, months and days.
    * Note that weeks are not included.
+   * <p>
+   * This method implements {@link TemporalAmount}.
+   * It is not intended to be called directly.
    *
    * @return a list containing the years, months and days units
    */
@@ -326,6 +336,10 @@ public final class Tenor
    * <p>
    * This is an implementation method used by {@link LocalDate#plus(TemporalAmount)}.
    * See {@link Period#addTo(Temporal)} for more details.
+   * <p>
+   * This method implements {@link TemporalAmount}.
+   * It is not intended to be called directly.
+   * Use {@link LocalDate#plus(TemporalAmount)} instead.
    *
    * @param temporal  the temporal object to add to
    * @return the result with this tenor added
@@ -340,8 +354,9 @@ public final class Tenor
   /**
    * Subtracts this tenor from the specified date.
    * <p>
-   * This is an implementation method used by {@link LocalDate#minus(TemporalAmount)}.
-   * See {@link Period#subtractFrom(Temporal)} for more details.
+   * This method implements {@link TemporalAmount}.
+   * It is not intended to be called directly.
+   * Use {@link LocalDate#minus(TemporalAmount)} instead.
    *
    * @param temporal  the temporal object to subtract from
    * @return the result with this tenor subtracted

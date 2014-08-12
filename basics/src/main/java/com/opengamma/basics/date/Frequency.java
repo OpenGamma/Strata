@@ -32,8 +32,12 @@ import com.opengamma.collect.ArgChecker;
  * A special value, 'Term', is provided for when there are no subdivisions of the entire term.
  * This is also know as 'zero-coupon' or 'once'. It is represented using the period 10,000 years,
  * which allows addition/subtraction to work, producing a date after the end of the term.
- * <p>
- * {@code Frequency} implements {@code TemporalAmount} allowing it to be directly added to a date.
+ * 
+ * <h4>Usage</h4>
+ * {@code Frequency} implements {@code TemporalAmount} allowing it to be directly added to a date:
+ * <pre>
+ *  LocalDate later = baseDate.plus(frequency);
+ * </pre>
  */
 public final class Frequency
     implements TemporalAmount, Serializable {
@@ -327,6 +331,9 @@ public final class Frequency
    * All other units throw an exception.
    * <p>
    * The 'Term' period is returned as a period of 10,000 years.
+   * <p>
+   * This method implements {@link TemporalAmount}.
+   * It is not intended to be called directly.
    *
    * @param unit  the unit to query
    * @return the value of the unit
@@ -344,6 +351,9 @@ public final class Frequency
    * Note that weeks are not included.
    * <p>
    * The 'Term' period is returned as a period of 10,000 years.
+   * <p>
+   * This method implements {@link TemporalAmount}.
+   * It is not intended to be called directly.
    *
    * @return a list containing the years, months and days units
    */
@@ -355,8 +365,9 @@ public final class Frequency
   /**
    * Adds the period of this frequency to the specified date.
    * <p>
-   * This is an implementation method used by {@link LocalDate#plus(TemporalAmount)}.
-   * See {@link Period#addTo(Temporal)} for more details.
+   * This method implements {@link TemporalAmount}.
+   * It is not intended to be called directly.
+   * Use {@link LocalDate#plus(TemporalAmount)} instead.
    *
    * @param temporal  the temporal object to add to
    * @return the result with this frequency added
@@ -371,8 +382,9 @@ public final class Frequency
   /**
    * Subtracts the period of this frequency from the specified date.
    * <p>
-   * This is an implementation method used by {@link LocalDate#minus(TemporalAmount)}.
-   * See {@link Period#subtractFrom(Temporal)} for more details.
+   * This method implements {@link TemporalAmount}.
+   * It is not intended to be called directly.
+   * Use {@link LocalDate#minus(TemporalAmount)} instead.
    *
    * @param temporal  the temporal object to subtract from
    * @return the result with this frequency subtracted
