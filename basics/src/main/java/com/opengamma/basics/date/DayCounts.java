@@ -10,265 +10,359 @@ import java.time.LocalDate;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * Implementation of standard day count conventions.
+ * Constants and implementations for standard day count conventions.
+ * <p>
+ * The purpose of each convention is to define how to convert dates into numeric year fractions.
+ * The is of use when calculating accrued interest over time.
  */
-enum DayCounts implements DayCount {
+public final class DayCounts {
 
   /**
-   * See {@link DayCount#DC_ACT_ACT_ISDA}.
+   * The 'Act/Act ISDA' day count, which divides the actual number of days in a
+   * leap year by 366 and the actual number of days in a standard year by 365.
+   * <p>
+   * The result is calculated in two parts.
+   * The actual number of days in the period that fall in a leap year is divided by 366.
+   * The actual number of days in the period that fall in a standard year is divided by 365.
+   * The result is the sum of the two.
+   * The first day in the period is included, the last day is excluded.
+   * <p>
+   * Also known as 'Actual/Actual'.
    */
-  DC_ACT_ACT_ISDA {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      check(firstDate, secondDate);
-      int y1 = firstDate.getYear();
-      int y2 = secondDate.getYear();
-      double firstYearLength = firstDate.lengthOfYear();
-      if (y1 == y2) {
-        double actualDays = secondDate.getDayOfYear() - firstDate.getDayOfYear();
-        return actualDays / firstYearLength;
+  public static final DayCount DC_ACT_ACT_ISDA = Standard.DC_ACT_ACT_ISDA;
+  /**
+   * The 'Act/360' day count, which divides the actual number of days by 360.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the period.
+   * The denominator is always 360.
+   * <p>
+   * Also known as 'Actual/360' or 'French'.
+   */
+  public static final DayCount DC_ACT_360 = Standard.DC_ACT_360;
+  /**
+   * The 'Act/364' day count, which divides the actual number of days by 364.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the period.
+   * The denominator is always 364.
+   * <p>
+   * Also known as 'Actual/364'.
+   */
+  public static final DayCount DC_ACT_364 = Standard.DC_ACT_364;
+  /**
+   * The 'Act/365F' day count, which divides the actual number of days by 365.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the period.
+   * The denominator is always 365.
+   * <p>
+   * Also known as 'Actual/365 Fixed' or 'English'.
+   */
+  public static final DayCount DC_ACT_365F = Standard.DC_ACT_365F;
+  /**
+   * The 'Act/365.25' day count, which divides the actual number of days by 365.25.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the period.
+   * The denominator is always 365.25.
+   */
+  public static final DayCount DC_ACT_365_25 = Standard.DC_ACT_365_25;
+  /**
+   * The 'NL/365' day count, which divides the actual number of days omitting leap days by 365.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the period minus the number of occurrences of February 29.
+   * The denominator is always 365.
+   * The first day in the period is excluded, the last day is included.
+   * <p>
+   * Also known as 'Actual/365 No Leap'.
+   */
+  public static final DayCount DC_NL_365 = Standard.DC_NL_365;
+  /**
+   * The '30/360 ISDA' day count, which treats input day-of-month 31 specially.
+   * <p>
+   * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
+   * The deltaDay is then calculated once day-of-month adjustments have occurred.
+   * If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
+   * If the first day-of-month is 31, change the first day-of-month to 30.
+   * <p>
+   * Also known as '30/360 U.S. Municipal' or '30/360 Bond Basis'.
+   */
+  public static final DayCount DC_30_360_ISDA = Standard.DC_30_360_ISDA;
+  /**
+   * The '30U/360' day count, which treats input day-of-month 31 and end of February specially.
+   * <p>
+   * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
+   * The deltaDay is then calculated once day-of-month adjustments have occurred.
+   * If the both dates are the last day of February, change the second day-of-month to 30.
+   * If the first date is the last day of February, change the first day-of-month to 30.
+   * If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
+   * If the first day-of-month is 31, change the first day-of-month to 30.
+   * <p>
+   * This is the same as '30/360 ISDA' but with an additional end of February rule.
+   * <p>
+   * Also known as '30/360 US', '30US/360' or '30/360 SIA'.
+   */
+  public static final DayCount DC_30U_360 = Standard.DC_30U_360;
+  /**
+   * The '30E/360 ISDA' day count, which treats input day-of-month 31 and end of February specially.
+   * <p>
+   * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
+   * The deltaDay is then calculated once day-of-month adjustments have occurred.
+   * If the first day-of-month is 31, change the first day-of-month to 30.
+   * If the second day-of-month is 31, change the second day-of-month to 30.
+   * If the first date is the last day of February, change the first day-of-month to 30.
+   * If the second date is the last day of February, change the second day-of-month to 30.
+   * <p>
+   * Note that the last rule should be omitted when the second date is the maturity date,
+   * however that is not implemented here.
+   * <p>
+   * Also known as '30E/360 German' or 'German'.
+   */
+  public static final DayCount DC_30E_360_ISDA = Standard.DC_30E_360_ISDA;
+  /**
+   * The '30E/360' day count, which treats input day-of-month 31 specially.
+   * <p>
+   * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
+   * The deltaDay is then calculated once day-of-month adjustments have occurred.
+   * If the first day-of-month is 31, it is changed to 30.
+   * If the second day-of-month is 31, it is changed to 30.
+   * <p>
+   * Also known as '30/360 ISMA', '30/360 European', '30S/360 Special German' or 'Eurobond'.
+   */
+  public static final DayCount DC_30E_360 = Standard.DC_30E_360;
+  /**
+   * The '30E+/360' day count, which treats input day-of-month 31 specially.
+   * <p>
+   * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
+   * The deltaDay and deltaMonth are calculated once adjustments have occurred.
+   * If the first day-of-month is 31, it is changed to 30.
+   * If the second day-of-month is 31, it is changed to 1 and the second month is incremented.
+   */
+  public static final DayCount DC_30EPLUS_360 = Standard.DC_30EPLUS_360;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor.
+   */
+  private DayCounts() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Standard day count conventions.
+   */
+  enum Standard implements DayCount {
+
+    // actual days / 360
+    DC_ACT_ACT_ISDA("Act/Act ISDA") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        check(firstDate, secondDate);
+        int y1 = firstDate.getYear();
+        int y2 = secondDate.getYear();
+        double firstYearLength = firstDate.lengthOfYear();
+        if (y1 == y2) {
+          double actualDays = secondDate.getDayOfYear() - firstDate.getDayOfYear();
+          return actualDays / firstYearLength;
+        }
+        double firstRemainderOfYear = firstYearLength - firstDate.getDayOfYear() + 1;
+        double secondRemainderOfYear = secondDate.getDayOfYear() - 1;
+        double secondYearLength = secondDate.lengthOfYear();
+        return firstRemainderOfYear / firstYearLength +
+            secondRemainderOfYear / secondYearLength +
+            (y2 - y1 - 1);
       }
-      double firstRemainderOfYear = firstYearLength - firstDate.getDayOfYear() + 1;
-      double secondRemainderOfYear = secondDate.getDayOfYear() - 1;
-      double secondYearLength = secondDate.lengthOfYear();
-      return firstRemainderOfYear / firstYearLength +
-          secondRemainderOfYear / secondYearLength +
-          (y2 - y1 - 1);
-    }
-    @Override
-    public String getName() {
-      return "Act/Act ISDA";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_ACT_360}.
-   */
-  DC_ACT_360 {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      long actualDays = checkGetActualDays(firstDate, secondDate);
-      return actualDays / 360d;
-    }
-    @Override
-    public String getName() {
-      return "Act/360";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_ACT_364}.
-   */
-  DC_ACT_364 {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      long actualDays = checkGetActualDays(firstDate, secondDate);
-      return actualDays / 364d;
-    }
-    @Override
-    public String getName() {
-      return "Act/364";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_ACT_365F}.
-   */
-  DC_ACT_365F {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      long actualDays = checkGetActualDays(firstDate, secondDate);
-      return actualDays / 365d;
-    }
-    @Override
-    public String getName() {
-      return "Act/365F";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_ACT_365_25}.
-   */
-  DC_ACT_365_25 {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      long actualDays = checkGetActualDays(firstDate, secondDate);
-      return actualDays / 365.25d;
-    }
-    @Override
-    public String getName() {
-      return "Act/365.25";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_NL_365}.
-   */
-  DC_NL_365 {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      long actualDays = checkGetActualDays(firstDate, secondDate);
-      int numberOfLeapDays = 0;
-      LocalDate temp = DateAdjusters.nextLeapDay(firstDate);
-      while (temp.isAfter(secondDate) == false) {
-        numberOfLeapDays++;
-        temp = DateAdjusters.nextLeapDay(temp);
+    },
+    // simple actual days / 360
+    DC_ACT_360("Act/360") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        long actualDays = checkGetActualDays(firstDate, secondDate);
+        return actualDays / 360d;
       }
-      return (actualDays - numberOfLeapDays) / 365d;
-    }
-    @Override
-    public String getName() {
-      return "NL/365";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_30_360_ISDA}.
-   */
-  DC_30_360_ISDA {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      check(firstDate, secondDate);
-      int d1 = firstDate.getDayOfMonth();
-      int d2 = secondDate.getDayOfMonth();
-      if (d1 == 31) {
-        d1 = 30;
+    },
+    // simple actual days / 364
+    DC_ACT_364("Act/364") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        long actualDays = checkGetActualDays(firstDate, secondDate);
+        return actualDays / 364d;
       }
-      if (d2 == 31 && d1 == 30) {
-        d2 = 30;
+    },
+    // simple actual days / 365
+    DC_ACT_365F("Act/365F") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        long actualDays = checkGetActualDays(firstDate, secondDate);
+        return actualDays / 365d;
       }
-      return thirty360(
-          firstDate.getYear(), firstDate.getMonthValue(), d1,
-          secondDate.getYear(), secondDate.getMonthValue(), d2);
-    }
-    @Override
-    public String getName() {
-      return "30/360 ISDA";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_30U_360}.
-   */
-  DC_30U_360 {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      check(firstDate, secondDate);
-      int d1 = firstDate.getDayOfMonth();
-      int d2 = secondDate.getDayOfMonth();
-      boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
-      boolean lastFeb2 = (secondDate.getMonthValue() == 2 && d2 == secondDate.lengthOfMonth());
-      if (lastFeb1) {
-        if (lastFeb2) {
+    },
+    // simple actual days / 365.25
+    DC_ACT_365_25("Act/365.25") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        long actualDays = checkGetActualDays(firstDate, secondDate);
+        return actualDays / 365.25d;
+      }
+    },
+    // no leaps / 365
+    DC_NL_365("NL/365") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        long actualDays = checkGetActualDays(firstDate, secondDate);
+        int numberOfLeapDays = 0;
+        LocalDate temp = DateAdjusters.nextLeapDay(firstDate);
+        while (temp.isAfter(secondDate) == false) {
+          numberOfLeapDays++;
+          temp = DateAdjusters.nextLeapDay(temp);
+        }
+        return (actualDays - numberOfLeapDays) / 365d;
+      }
+    },
+    // ISDA thirty day months / 360
+    DC_30_360_ISDA("30/360 ISDA") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        check(firstDate, secondDate);
+        int d1 = firstDate.getDayOfMonth();
+        int d2 = secondDate.getDayOfMonth();
+        if (d1 == 31) {
+          d1 = 30;
+        }
+        if (d2 == 31 && d1 == 30) {
           d2 = 30;
         }
-        d1 = 30;
+        return thirty360(
+            firstDate.getYear(), firstDate.getMonthValue(), d1,
+            secondDate.getYear(), secondDate.getMonthValue(), d2);
       }
-      if (d1 == 31) {
-        d1 = 30;
+    },
+    // U thirty day months / 360
+    DC_30U_360("30U/360") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        check(firstDate, secondDate);
+        int d1 = firstDate.getDayOfMonth();
+        int d2 = secondDate.getDayOfMonth();
+        boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
+        boolean lastFeb2 = (secondDate.getMonthValue() == 2 && d2 == secondDate.lengthOfMonth());
+        if (lastFeb1) {
+          if (lastFeb2) {
+            d2 = 30;
+          }
+          d1 = 30;
+        }
+        if (d1 == 31) {
+          d1 = 30;
+        }
+        if (d2 == 31 && d1 == 30) {
+          d2 = 30;
+        }
+        return thirty360(
+            firstDate.getYear(), firstDate.getMonthValue(), d1,
+            secondDate.getYear(), secondDate.getMonthValue(), d2);
       }
-      if (d2 == 31 && d1 == 30) {
-        d2 = 30;
+    },
+    // E ISDA thirty day months / 360
+    DC_30E_360_ISDA("30E/360 ISDA") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        check(firstDate, secondDate);
+        int d1 = firstDate.getDayOfMonth();
+        int d2 = secondDate.getDayOfMonth();
+        boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
+        boolean lastFeb2 = (secondDate.getMonthValue() == 2 && d2 == secondDate.lengthOfMonth());
+        if (d1 == 31 || lastFeb1) {
+          d1 = 30;
+        }
+        if (d2 == 31 || lastFeb2) {
+          d2 = 30;
+        }
+        return thirty360(
+            firstDate.getYear(), firstDate.getMonthValue(), d1,
+            secondDate.getYear(), secondDate.getMonthValue(), d2);
       }
-      return thirty360(
-          firstDate.getYear(), firstDate.getMonthValue(), d1,
-          secondDate.getYear(), secondDate.getMonthValue(), d2);
-    }
-    @Override
-    public String getName() {
-      return "30U/360";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_30_360_ISDA}.
-   */
-  DC_30E_360_ISDA {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      check(firstDate, secondDate);
-      int d1 = firstDate.getDayOfMonth();
-      int d2 = secondDate.getDayOfMonth();
-      boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
-      boolean lastFeb2 = (secondDate.getMonthValue() == 2 && d2 == secondDate.lengthOfMonth());
-      if (d1 == 31 || lastFeb1) {
-        d1 = 30;
+    },
+    // E thirty day months / 360
+    DC_30E_360("30E/360") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        check(firstDate, secondDate);
+        int d1 = firstDate.getDayOfMonth();
+        int d2 = secondDate.getDayOfMonth();
+        if (d1 == 31) {
+          d1 = 30;
+        }
+        if (d2 == 31) {
+          d2 = 30;
+        }
+        return thirty360(
+            firstDate.getYear(), firstDate.getMonthValue(), d1,
+            secondDate.getYear(), secondDate.getMonthValue(), d2);
       }
-      if (d2 == 31 || lastFeb2) {
-        d2 = 30;
+    },
+    // E+ thirty day months / 360
+    DC_30EPLUS_360("30E+/360") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        check(firstDate, secondDate);
+        int d1 = firstDate.getDayOfMonth();
+        int d2 = secondDate.getDayOfMonth();
+        int m1 = firstDate.getMonthValue();
+        int m2 = secondDate.getMonthValue();
+        if (d1 == 31) {
+          d1 = 30;
+        }
+        if (d2 == 31) {
+          d2 = 1;
+          m2 = m2 + 1;  // nature of calculation means no need to adjust Dec to Jan
+        }
+        return thirty360(
+            firstDate.getYear(), m1, d1,
+            secondDate.getYear(), m2, d2);
       }
-      return thirty360(
-          firstDate.getYear(), firstDate.getMonthValue(), d1,
-          secondDate.getYear(), secondDate.getMonthValue(), d2);
-    }
-    @Override
-    public String getName() {
-      return "30/360 German";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_30E_360}.
-   */
-  DC_30E_360 {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      check(firstDate, secondDate);
-      int d1 = firstDate.getDayOfMonth();
-      int d2 = secondDate.getDayOfMonth();
-      if (d1 == 31) {
-        d1 = 30;
-      }
-      if (d2 == 31) {
-        d2 = 30;
-      }
-      return thirty360(
-          firstDate.getYear(), firstDate.getMonthValue(), d1,
-          secondDate.getYear(), secondDate.getMonthValue(), d2);
-    }
-    @Override
-    public String getName() {
-      return "30E/360";
-    }
-  },
-  /**
-   * See {@link DayCount#DC_30EPLUS_360}.
-   */
-  DC_30EPLUS_360 {
-    @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-      check(firstDate, secondDate);
-      int d1 = firstDate.getDayOfMonth();
-      int d2 = secondDate.getDayOfMonth();
-      int m1 = firstDate.getMonthValue();
-      int m2 = secondDate.getMonthValue();
-      if (d1 == 31) {
-        d1 = 30;
-      }
-      if (d2 == 31) {
-        d2 = 1;
-        m2 = m2 + 1;  // nature of calculation means no need to adjust Dec to Jan
-      }
-      return thirty360(
-          firstDate.getYear(), m1, d1,
-          secondDate.getYear(), m2, d2);
-    }
-    @Override
-    public String getName() {
-      return "30E+/360";
-    }
-  };
+    };
 
-  // calculate using the standard 30/360 function - 360(y2 - y1) + 30(m2 - m1) + (d2 - d1)) / 360
-  private static double thirty360(int y1, int m1, int d1, int y2, int m2, int d2) {
-    return (360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)) / 360d;
-  }
+    // name
+    private final String name;
 
-  // validate inputs and return actual days difference
-  private static long checkGetActualDays(LocalDate firstDate, LocalDate secondDate ) {
-    ArgChecker.notNull(firstDate, "firstDate");
-    ArgChecker.notNull(secondDate, "secondDate");
-    long actualDays = secondDate.toEpochDay() - firstDate.toEpochDay();
-    ArgChecker.isTrue(actualDays >= 0, "Dates must be in order");
-    return actualDays;
-  }
+    // create
+    private Standard(String name) {
+      this.name = name;
+    }
 
-  // validate inputs
-  private static void check(LocalDate firstDate, LocalDate secondDate ) {
-    ArgChecker.notNull(firstDate, "firstDate");
-    ArgChecker.notNull(secondDate, "secondDate");
-    ArgChecker.isFalse(secondDate.isBefore(firstDate), "Dates must be in order");
+    // calculate using the standard 30/360 function - 360(y2 - y1) + 30(m2 - m1) + (d2 - d1)) / 360
+    private static double thirty360(int y1, int m1, int d1, int y2, int m2, int d2) {
+      return (360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)) / 360d;
+    }
+
+    // validate inputs and return actual days difference
+    private static long checkGetActualDays(LocalDate firstDate, LocalDate secondDate ) {
+      ArgChecker.notNull(firstDate, "firstDate");
+      ArgChecker.notNull(secondDate, "secondDate");
+      long actualDays = secondDate.toEpochDay() - firstDate.toEpochDay();
+      ArgChecker.isTrue(actualDays >= 0, "Dates must be in order");
+      return actualDays;
+    }
+
+    // validate inputs
+    private static void check(LocalDate firstDate, LocalDate secondDate ) {
+      ArgChecker.notNull(firstDate, "firstDate");
+      ArgChecker.notNull(secondDate, "secondDate");
+      ArgChecker.isFalse(secondDate.isBefore(firstDate), "Dates must be in order");
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
   }
 
 }

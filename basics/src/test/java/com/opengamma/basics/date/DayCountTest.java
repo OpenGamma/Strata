@@ -5,20 +5,21 @@
  */
 package com.opengamma.basics.date;
 
-import static com.opengamma.basics.date.DayCount.DC_30EPLUS_360;
-import static com.opengamma.basics.date.DayCount.DC_30E_360;
-import static com.opengamma.basics.date.DayCount.DC_30E_360_ISDA;
-import static com.opengamma.basics.date.DayCount.DC_30U_360;
-import static com.opengamma.basics.date.DayCount.DC_30_360_ISDA;
-import static com.opengamma.basics.date.DayCount.DC_ACT_360;
-import static com.opengamma.basics.date.DayCount.DC_ACT_364;
-import static com.opengamma.basics.date.DayCount.DC_ACT_365F;
-import static com.opengamma.basics.date.DayCount.DC_ACT_365_25;
-import static com.opengamma.basics.date.DayCount.DC_ACT_ACT_ISDA;
-import static com.opengamma.basics.date.DayCount.DC_NL_365;
+import static com.opengamma.basics.date.DayCounts.DC_30EPLUS_360;
+import static com.opengamma.basics.date.DayCounts.DC_30E_360;
+import static com.opengamma.basics.date.DayCounts.DC_30E_360_ISDA;
+import static com.opengamma.basics.date.DayCounts.DC_30U_360;
+import static com.opengamma.basics.date.DayCounts.DC_30_360_ISDA;
+import static com.opengamma.basics.date.DayCounts.DC_ACT_360;
+import static com.opengamma.basics.date.DayCounts.DC_ACT_364;
+import static com.opengamma.basics.date.DayCounts.DC_ACT_365F;
+import static com.opengamma.basics.date.DayCounts.DC_ACT_365_25;
+import static com.opengamma.basics.date.DayCounts.DC_ACT_ACT_ISDA;
+import static com.opengamma.basics.date.DayCounts.DC_NL_365;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverEnum;
+import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -27,7 +28,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link DateAdjusters}.
+ * Test {@link DayCount}.
  */
 @Test
 public class DayCountTest {
@@ -38,7 +39,7 @@ public class DayCountTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
   static Object[][] data_types() {
-    DayCounts[] conv = DayCounts.values();
+    DayCounts.Standard[] conv = DayCounts.Standard.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
       result[i] = new Object[] {conv[i]};
@@ -289,6 +290,11 @@ public class DayCountTest {
   }
 
   @Test(dataProvider = "name")
+  public void test_toString(DayCount convention, String name) {
+    assertEquals(convention.toString(), name);
+  }
+
+  @Test(dataProvider = "name")
   public void test_of_lookup(DayCount convention, String name) {
     assertEquals(DayCount.of(name), convention);
   }
@@ -303,7 +309,8 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverEnum(DayCounts.class);
+    coverPrivateConstructor(DayCounts.class);
+    coverEnum(DayCounts.Standard.class);
   }
 
   public void test_jodaConvert() {

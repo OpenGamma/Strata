@@ -20,10 +20,11 @@ public class SerializeTest {
 
   public void test_serialize() {
     MockSerBean bean = new MockSerBean();
-    bean.setBdConvention(BusinessDayConvention.MODIFIED_FOLLOWING);
+    bean.setBdConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
     bean.setBdCalendar(BusinessDayCalendar.ALL);
-    bean.setDayCount(DayCount.DC_ACT_360);
-    bean.setObjects(ImmutableList.of(BusinessDayConvention.MODIFIED_FOLLOWING, BusinessDayCalendar.ALL, DayCount.DC_ACT_360));
+    bean.setDayCount(DayCounts.DC_ACT_360);
+    bean.setObjects(ImmutableList.of(
+        BusinessDayConventions.MODIFIED_FOLLOWING, BusinessDayCalendar.ALL, DayCounts.DC_ACT_360));
     
     String xml = JodaBeanSer.PRETTY.xmlWriter().write(bean);
     MockSerBean test = JodaBeanSer.COMPACT.xmlReader().read(xml, MockSerBean.class);

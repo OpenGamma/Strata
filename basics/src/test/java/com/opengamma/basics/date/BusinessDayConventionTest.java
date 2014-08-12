@@ -5,16 +5,18 @@
  */
 package com.opengamma.basics.date;
 
-import static com.opengamma.basics.date.BusinessDayConvention.FOLLOWING;
-import static com.opengamma.basics.date.BusinessDayConvention.MODIFIED_FOLLOWING;
-import static com.opengamma.basics.date.BusinessDayConvention.MODIFIED_FOLLOWING_BI_MONTHLY;
-import static com.opengamma.basics.date.BusinessDayConvention.MODIFIED_PRECEDING;
-import static com.opengamma.basics.date.BusinessDayConvention.NEAREST;
-import static com.opengamma.basics.date.BusinessDayConvention.NO_ADJUST;
-import static com.opengamma.basics.date.BusinessDayConvention.PRECEDING;
+import static com.opengamma.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING_BI_MONTHLY;
+import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_PRECEDING;
+import static com.opengamma.basics.date.BusinessDayConventions.NEAREST;
+import static com.opengamma.basics.date.BusinessDayConventions.NO_ADJUST;
+import static com.opengamma.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
+import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverEnum;
+import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.testng.Assert.assertEquals;
@@ -56,7 +58,7 @@ public class BusinessDayConventionTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
   static Object[][] data_types() {
-    BusinessDayConventions[] conv = BusinessDayConventions.values();
+    BusinessDayConventions.Standard[] conv = BusinessDayConventions.Standard.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
       result[i] = new Object[] {conv[i]};
@@ -200,6 +202,11 @@ public class BusinessDayConventionTest {
   }
 
   @Test(dataProvider = "name")
+  public void test_toString(BusinessDayConvention convention, String name) {
+    assertEquals(convention.toString(), name);
+  }
+
+  @Test(dataProvider = "name")
   public void test_of_lookup(BusinessDayConvention convention, String name) {
     assertEquals(BusinessDayConvention.of(name), convention);
   }
@@ -213,8 +220,13 @@ public class BusinessDayConventionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void covergage() {
-    coverEnum(BusinessDayConventions.class);
+  public void coverage() {
+    coverPrivateConstructor(BusinessDayConventions.class);
+    coverEnum(BusinessDayConventions.Standard.class);
+  }
+
+  public void test_serialization() {
+    assertSerialization(NO_ADJUST);
   }
 
   public void test_jodaConvert() {

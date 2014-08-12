@@ -472,12 +472,12 @@ public class BusinessDayCalendarTest {
   public void test_ensure(LocalDate date, LocalDate expected) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
     BusinessDayCalendar test = BusinessDayCalendar.of(holidays, SATURDAY, SUNDAY);
-    assertEquals(test.ensure(date, BusinessDayConvention.FOLLOWING), expected);
+    assertEquals(test.ensure(date, BusinessDayConventions.FOLLOWING), expected);
   }
 
   public void test_ensure_null() {
     BusinessDayCalendar test = BusinessDayCalendar.WEEKENDS;
-    assertThrows(() -> test.ensure(null, BusinessDayConvention.NO_ADJUST), IllegalArgumentException.class);
+    assertThrows(() -> test.ensure(null, BusinessDayConventions.NO_ADJUST), IllegalArgumentException.class);
     assertThrows(() -> test.ensure(THU_2014_07_10, null), IllegalArgumentException.class);
     assertThrows(() -> test.ensure(null, null), IllegalArgumentException.class);
   }

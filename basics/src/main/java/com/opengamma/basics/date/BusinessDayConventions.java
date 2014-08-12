@@ -13,143 +13,196 @@ import java.time.LocalDate;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * Implementation of standard business day conventions.
+ * Constants and implementations for standard business day conventions.
+ * <p>
+ * The purpose of each convention is to define how to handle non-business days.
+ * When processing dates in finance, it is typically intended that non-business days,
+ * such as weekends and holidays, are converted to a nearby valid business day.
+ * The convention, in conjunction with a {@linkplain BusinessDayCalendar business day calendar},
+ * defines exactly how the adjustment should be made.
  */
-enum BusinessDayConventions implements BusinessDayConvention {
+public final class BusinessDayConventions {
 
   /**
-   * See {@link BusinessDayConvention#NO_ADJUST}.
+   * The 'NoAdjust' convention which makes no adjustment.
+   * <p>
+   * The input date will not be adjusted even if it is not a business day.
    */
-  NO_ADJUST {
-    @Override
-    public LocalDate adjust(LocalDate inputDate, BusinessDayCalendar businessDays) {
-      ArgChecker.notNull(inputDate, "inputDate");
-      ArgChecker.notNull(businessDays, "businessDays");
-      return inputDate;
-    }
-    @Override
-    public String getName() {
-      return "NoAdjust";
-    }
-  },
+  public static final BusinessDayConvention NO_ADJUST = Standard.NO_ADJUST;
   /**
-   * See {@link BusinessDayConvention#FOLLOWING}.
+   * The 'Following' convention which adjusts to the next business day.
+   * <p>
+   * If the input date is not a business day then the date is adjusted.
+   * The adjusted date is the next business day.
    */
-  FOLLOWING {
-    @Override
-    public LocalDate adjust(LocalDate inputDate, BusinessDayCalendar businessDays) {
-      ArgChecker.notNull(inputDate, "inputDate");
-      ArgChecker.notNull(businessDays, "businessDays");
-      return (businessDays.isBusinessDay(inputDate) ? inputDate : businessDays.next(inputDate));
-    }
-    @Override
-    public String getName() {
-      return "Following";
-    }
-  },
+  public static final BusinessDayConvention FOLLOWING = Standard.FOLLOWING;
   /**
-   * See {@link BusinessDayConvention#MODIFIED_FOLLOWING}.
+   * The 'ModifiedFollowing' convention which adjusts to the next business day without crossing month end.
+   * <p>
+   * If the input date is not a business day then the date is adjusted.
+   * The adjusted date is the next business day unless that day is in a different
+   * calendar month, in which case the previous business day is returned.
    */
-  MODIFIED_FOLLOWING {
-    @Override
-    public LocalDate adjust(LocalDate inputDate, BusinessDayCalendar businessDays) {
-      ArgChecker.notNull(inputDate, "inputDate");
-      ArgChecker.notNull(businessDays, "businessDays");
-      if (businessDays.isBusinessDay(inputDate)) {
-        return inputDate;
-      }
-      LocalDate adjusted = businessDays.next(inputDate);
-      if (adjusted.getMonth() != inputDate.getMonth()) {
-        adjusted = businessDays.previous(inputDate);
-      }
-      return adjusted;
-    }
-    @Override
-    public String getName() {
-      return "ModifiedFollowing";
-    }
-  },
+  public static final BusinessDayConvention MODIFIED_FOLLOWING = Standard.MODIFIED_FOLLOWING;
   /**
-   * See {@link BusinessDayConvention#MODIFIED_FOLLOWING_BI_MONTHLY}.
+   * The 'ModifiedFollowingBiMonthly' convention which adjusts to the next business day without
+   * crossing mid-month or month end.
+   * <p>
+   * If the input date is not a business day then the date is adjusted.
+   * The month is divided into two parts, the first half, the 1st to 15th and the 16th onwards.
+   * The adjusted date is the next business day unless that day is in a different half-month,
+   * in which case the previous business day is returned.
    */
-  MODIFIED_FOLLOWING_BI_MONTHLY {
-    @Override
-    public LocalDate adjust(LocalDate inputDate, BusinessDayCalendar businessDays) {
-      ArgChecker.notNull(inputDate, "inputDate");
-      ArgChecker.notNull(businessDays, "businessDays");
-      if (businessDays.isBusinessDay(inputDate)) {
-        return inputDate;
-      }
-      LocalDate adjusted = businessDays.next(inputDate);
-      if (adjusted.getMonth() != inputDate.getMonth() ||
-          (adjusted.getDayOfMonth() > 15 && inputDate.getDayOfMonth() <= 15)) {
-        adjusted = businessDays.previous(inputDate);
-      }
-      return adjusted;
-    }
-    @Override
-    public String getName() {
-      return "ModifiedFollowingBiMonthly";
-    }
-  },
+  public static final BusinessDayConvention MODIFIED_FOLLOWING_BI_MONTHLY = Standard.MODIFIED_FOLLOWING_BI_MONTHLY;
   /**
-   * See {@link BusinessDayConvention#PRECEDING}.
+   * The 'Preceding' convention which adjusts to the previous business day.
+   * <p>
+   * If the input date is not a business day then the date is adjusted.
+   * The adjusted date is the previous business day.
    */
-  PRECEDING {
-    @Override
-    public LocalDate adjust(LocalDate inputDate, BusinessDayCalendar businessDays) {
-      ArgChecker.notNull(inputDate, "inputDate");
-      ArgChecker.notNull(businessDays, "businessDays");
-      return (businessDays.isBusinessDay(inputDate) ? inputDate : businessDays.previous(inputDate));
-    }
-    @Override
-    public String getName() {
-      return "Preceding";
-    }
-  },
+  public static final BusinessDayConvention PRECEDING = Standard.PRECEDING;
   /**
-   * See {@link BusinessDayConvention#MODIFIED_PRECEDING}.
+   * The 'ModifiedPreceding' convention which adjusts to the previous business day without crossing month start.
+   * <p>
+   * If the input date is not a business day then the date is adjusted.
+   * The adjusted date is the previous business day unless that day is in a different
+   * calendar month, in which case the next business day is returned.
    */
-  MODIFIED_PRECEDING {
-    @Override
-    public LocalDate adjust(LocalDate inputDate, BusinessDayCalendar businessDays) {
-      ArgChecker.notNull(inputDate, "inputDate");
-      ArgChecker.notNull(businessDays, "businessDays");
-      if (businessDays.isBusinessDay(inputDate)) {
-        return inputDate;
-      }
-      LocalDate adjusted = businessDays.previous(inputDate);
-      if (adjusted.getMonth() != inputDate.getMonth()) {
-        adjusted = businessDays.next(inputDate);
-      }
-      return adjusted;
-    }
-    @Override
-    public String getName() {
-      return "ModifiedPreceding";
-    }
-  },
+  public static final BusinessDayConvention MODIFIED_PRECEDING = Standard.MODIFIED_PRECEDING;
   /**
-   * See {@link BusinessDayConvention#NEAREST}.
+   * The 'Nearest' convention which adjusts Sunday and Monday forward, and other days backward.
+   * <p>
+   * If the input date is not a business day then the date is adjusted.
+   * If the input is Sunday or Monday then the next business day is returned.
+   * Otherwise the previous business day is returned.
+   * <p>
+   * Note that despite the name, the algorithm may not return the business day that is actually nearest.
    */
-  NEAREST {
-    @Override
-    public LocalDate adjust(LocalDate inputDate, BusinessDayCalendar businessDays) {
-      ArgChecker.notNull(inputDate, "inputDate");
-      ArgChecker.notNull(businessDays, "businessDays");
-      if (businessDays.isBusinessDay(inputDate)) {
-        return inputDate;
+  public static final BusinessDayConvention NEAREST = Standard.NEAREST;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor.
+   */
+  private BusinessDayConventions() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Standard business day conventions.
+   */
+  enum Standard implements BusinessDayConvention {
+
+    // make no adjustment
+    NO_ADJUST("NoAdjust") {
+      @Override
+      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(businessDays, "businessDays");
+        return date;
       }
-      if (inputDate.getDayOfWeek() == SUNDAY || inputDate.getDayOfWeek() == MONDAY) {
-        return businessDays.next(inputDate);
-      } else {
-        return businessDays.previous(inputDate);
+    },
+    // next business day
+    FOLLOWING("Following") {
+      @Override
+      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(businessDays, "businessDays");
+        return (businessDays.isBusinessDay(date) ? date : businessDays.next(date));
       }
+    },
+    // next business day unless over a month end
+    MODIFIED_FOLLOWING("ModifiedFollowing") {
+      @Override
+      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(businessDays, "businessDays");
+        if (businessDays.isBusinessDay(date)) {
+          return date;
+        }
+        LocalDate adjusted = businessDays.next(date);
+        if (adjusted.getMonth() != date.getMonth()) {
+          adjusted = businessDays.previous(date);
+        }
+        return adjusted;
+      }
+    },
+    // next business day unless over a month end or mid
+    MODIFIED_FOLLOWING_BI_MONTHLY("ModifiedFollowingBiMonthly") {
+      @Override
+      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(businessDays, "businessDays");
+        if (businessDays.isBusinessDay(date)) {
+          return date;
+        }
+        LocalDate adjusted = businessDays.next(date);
+        if (adjusted.getMonth() != date.getMonth() ||
+            (adjusted.getDayOfMonth() > 15 && date.getDayOfMonth() <= 15)) {
+          adjusted = businessDays.previous(date);
+        }
+        return adjusted;
+      }
+    },
+    // previous business day
+    PRECEDING("Preceding") {
+      @Override
+      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(businessDays, "businessDays");
+        return (businessDays.isBusinessDay(date) ? date : businessDays.previous(date));
+      }
+    },
+    // previous business day unless over a month end
+    MODIFIED_PRECEDING("ModifiedPreceding") {
+      @Override
+      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(businessDays, "businessDays");
+        if (businessDays.isBusinessDay(date)) {
+          return date;
+        }
+        LocalDate adjusted = businessDays.previous(date);
+        if (adjusted.getMonth() != date.getMonth()) {
+          adjusted = businessDays.next(date);
+        }
+        return adjusted;
+      }
+    },
+    // next business day if Sun/Mon, otherwise previous
+    NEAREST("Nearest") {
+      @Override
+      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(businessDays, "businessDays");
+        if (businessDays.isBusinessDay(date)) {
+          return date;
+        }
+        if (date.getDayOfWeek() == SUNDAY || date.getDayOfWeek() == MONDAY) {
+          return businessDays.next(date);
+        } else {
+          return businessDays.previous(date);
+        }
+      }
+    };
+
+    // name
+    private final String name;
+
+    // create
+    private Standard(String name) {
+      this.name = name;
     }
+
     @Override
     public String getName() {
-      return "Nearest";
+      return name;
     }
-  };
+
+    @Override
+    public String toString() {
+      return name;
+    }
+  }
 
 }

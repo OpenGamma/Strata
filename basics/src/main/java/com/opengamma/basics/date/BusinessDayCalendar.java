@@ -342,9 +342,9 @@ public final class BusinessDayCalendar
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the amount as a string.
+   * Returns a string describing the calendar.
    * 
-   * @return a description of the business days
+   * @return the descriptive string
    */
   @Override
   public String toString() {
