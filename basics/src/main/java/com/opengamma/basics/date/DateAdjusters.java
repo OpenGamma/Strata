@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -7,8 +7,6 @@ package com.opengamma.basics.date;
 
 import java.time.LocalDate;
 import java.time.Year;
-import java.time.temporal.TemporalAdjuster;
-import java.time.temporal.TemporalAdjusters;
 
 /**
  * Date adjusters that perform useful operations on {@code LocalDate}.
@@ -32,8 +30,8 @@ public final class DateAdjusters {
    * 
    * @return an adjuster that finds the next leap day
    */
-  public static TemporalAdjuster nextLeapDay() {
-    return TemporalAdjusters.ofDateAdjuster(DateAdjusters::nextLeapDay);
+  public static DateAdjuster nextLeapDay() {
+    return DateAdjusters::nextLeapDay;
   }
 
   /**

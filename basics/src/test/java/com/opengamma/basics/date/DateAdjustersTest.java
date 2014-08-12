@@ -82,7 +82,16 @@ public class DateAdjustersTest {
   }
 
   @Test(dataProvider = "nextLeapDay")
-  public void test_nextLeapDay(int year, int month, int day, int expectedYear) {
+  public void test_nextLeapDay_LocalDate(int year, int month, int day, int expectedYear) {
+    LocalDate date = LocalDate.of(year, month, day);
+    LocalDate test = DateAdjusters.nextLeapDay().adjust(date);
+    assertEquals(test.getYear(), expectedYear);
+    assertEquals(test.getMonthValue(), 2);
+    assertEquals(test.getDayOfMonth(), 29);
+  }
+
+  @Test(dataProvider = "nextLeapDay")
+  public void test_nextLeapDay_Temporal(int year, int month, int day, int expectedYear) {
     LocalDate date = LocalDate.of(year, month, day);
     LocalDate test = (LocalDate) DateAdjusters.nextLeapDay().adjustInto(date);
     assertEquals(test.getYear(), expectedYear);
