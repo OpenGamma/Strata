@@ -29,7 +29,7 @@ public final class DayCounts {
    * <p>
    * Also known as 'Actual/Actual'.
    */
-  public static final DayCount DC_ACT_ACT_ISDA = Standard.DC_ACT_ACT_ISDA;
+  public static final DayCount ACT_ACT_ISDA = Standard.ACT_ACT_ISDA;
   /**
    * The 'Act/360' day count, which divides the actual number of days by 360.
    * <p>
@@ -39,7 +39,7 @@ public final class DayCounts {
    * <p>
    * Also known as 'Actual/360' or 'French'.
    */
-  public static final DayCount DC_ACT_360 = Standard.DC_ACT_360;
+  public static final DayCount ACT_360 = Standard.ACT_360;
   /**
    * The 'Act/364' day count, which divides the actual number of days by 364.
    * <p>
@@ -49,17 +49,17 @@ public final class DayCounts {
    * <p>
    * Also known as 'Actual/364'.
    */
-  public static final DayCount DC_ACT_364 = Standard.DC_ACT_364;
+  public static final DayCount ACT_364 = Standard.ACT_364;
   /**
-   * The 'Act/365F' day count, which divides the actual number of days by 365.
+   * The 'Act/365' day count, which divides the actual number of days by 365 (fixed).
    * <p>
    * The result is a simple division.
    * The numerator is the actual number of days in the period.
    * The denominator is always 365.
    * <p>
-   * Also known as 'Actual/365 Fixed' or 'English'.
+   * Also known as 'Act/365F', 'Actual/365 Fixed' or 'English'.
    */
-  public static final DayCount DC_ACT_365F = Standard.DC_ACT_365F;
+  public static final DayCount ACT_365 = Standard.ACT_365;
   /**
    * The 'Act/365.25' day count, which divides the actual number of days by 365.25.
    * <p>
@@ -67,7 +67,7 @@ public final class DayCounts {
    * The numerator is the actual number of days in the period.
    * The denominator is always 365.25.
    */
-  public static final DayCount DC_ACT_365_25 = Standard.DC_ACT_365_25;
+  public static final DayCount ACT_365_25 = Standard.ACT_365_25;
   /**
    * The 'NL/365' day count, which divides the actual number of days omitting leap days by 365.
    * <p>
@@ -78,7 +78,7 @@ public final class DayCounts {
    * <p>
    * Also known as 'Actual/365 No Leap'.
    */
-  public static final DayCount DC_NL_365 = Standard.DC_NL_365;
+  public static final DayCount NL_365 = Standard.NL_365;
   /**
    * The '30/360 ISDA' day count, which treats input day-of-month 31 specially.
    * <p>
@@ -89,7 +89,7 @@ public final class DayCounts {
    * <p>
    * Also known as '30/360 U.S. Municipal' or '30/360 Bond Basis'.
    */
-  public static final DayCount DC_30_360_ISDA = Standard.DC_30_360_ISDA;
+  public static final DayCount THIRTY_360_ISDA = Standard.THIRTY_360_ISDA;
   /**
    * The '30U/360' day count, which treats input day-of-month 31 and end of February specially.
    * <p>
@@ -104,7 +104,7 @@ public final class DayCounts {
    * <p>
    * Also known as '30/360 US', '30US/360' or '30/360 SIA'.
    */
-  public static final DayCount DC_30U_360 = Standard.DC_30U_360;
+  public static final DayCount THIRTY_U_360 = Standard.THIRTY_U_360;
   /**
    * The '30E/360 ISDA' day count, which treats input day-of-month 31 and end of February specially.
    * <p>
@@ -120,7 +120,7 @@ public final class DayCounts {
    * <p>
    * Also known as '30E/360 German' or 'German'.
    */
-  public static final DayCount DC_30E_360_ISDA = Standard.DC_30E_360_ISDA;
+  public static final DayCount THIRTY_E_360_ISDA = Standard.THIRTY_E_360_ISDA;
   /**
    * The '30E/360' day count, which treats input day-of-month 31 specially.
    * <p>
@@ -131,7 +131,7 @@ public final class DayCounts {
    * <p>
    * Also known as '30/360 ISMA', '30/360 European', '30S/360 Special German' or 'Eurobond'.
    */
-  public static final DayCount DC_30E_360 = Standard.DC_30E_360;
+  public static final DayCount THIRTY_E_360 = Standard.THIRTY_E_360;
   /**
    * The '30E+/360' day count, which treats input day-of-month 31 specially.
    * <p>
@@ -140,7 +140,7 @@ public final class DayCounts {
    * If the first day-of-month is 31, it is changed to 30.
    * If the second day-of-month is 31, it is changed to 1 and the second month is incremented.
    */
-  public static final DayCount DC_30EPLUS_360 = Standard.DC_30EPLUS_360;
+  public static final DayCount THIRTY_EPLUS_360 = Standard.THIRTY_EPLUS_360;
 
   //-------------------------------------------------------------------------
   /**
@@ -156,7 +156,7 @@ public final class DayCounts {
   enum Standard implements DayCount {
 
     // actual days / 360
-    DC_ACT_ACT_ISDA("Act/Act ISDA") {
+    ACT_ACT_ISDA("Act/Act ISDA") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         check(firstDate, secondDate);
@@ -176,7 +176,7 @@ public final class DayCounts {
       }
     },
     // simple actual days / 360
-    DC_ACT_360("Act/360") {
+    ACT_360("Act/360") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -184,7 +184,7 @@ public final class DayCounts {
       }
     },
     // simple actual days / 364
-    DC_ACT_364("Act/364") {
+    ACT_364("Act/364") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -192,7 +192,7 @@ public final class DayCounts {
       }
     },
     // simple actual days / 365
-    DC_ACT_365F("Act/365F") {
+    ACT_365("Act/365") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -200,7 +200,7 @@ public final class DayCounts {
       }
     },
     // simple actual days / 365.25
-    DC_ACT_365_25("Act/365.25") {
+    ACT_365_25("Act/365.25") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -208,7 +208,7 @@ public final class DayCounts {
       }
     },
     // no leaps / 365
-    DC_NL_365("NL/365") {
+    NL_365("NL/365") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         long actualDays = checkGetActualDays(firstDate, secondDate);
@@ -222,7 +222,7 @@ public final class DayCounts {
       }
     },
     // ISDA thirty day months / 360
-    DC_30_360_ISDA("30/360 ISDA") {
+    THIRTY_360_ISDA("30/360 ISDA") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         check(firstDate, secondDate);
@@ -239,8 +239,8 @@ public final class DayCounts {
             secondDate.getYear(), secondDate.getMonthValue(), d2);
       }
     },
-    // U thirty day months / 360
-    DC_30U_360("30U/360") {
+    // US thirty day months / 360
+    THIRTY_U_360("30U/360") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         check(firstDate, secondDate);
@@ -265,8 +265,8 @@ public final class DayCounts {
             secondDate.getYear(), secondDate.getMonthValue(), d2);
       }
     },
-    // E ISDA thirty day months / 360
-    DC_30E_360_ISDA("30E/360 ISDA") {
+    // ISDA EU thirty day months / 360
+    THIRTY_E_360_ISDA("30E/360 ISDA") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         check(firstDate, secondDate);
@@ -286,7 +286,7 @@ public final class DayCounts {
       }
     },
     // E thirty day months / 360
-    DC_30E_360("30E/360") {
+    THIRTY_E_360("30E/360") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         check(firstDate, secondDate);
@@ -304,7 +304,7 @@ public final class DayCounts {
       }
     },
     // E+ thirty day months / 360
-    DC_30EPLUS_360("30E+/360") {
+    THIRTY_EPLUS_360("30E+/360") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
         check(firstDate, secondDate);
