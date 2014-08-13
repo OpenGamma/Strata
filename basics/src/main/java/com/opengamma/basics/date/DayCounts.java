@@ -153,7 +153,7 @@ public final class DayCounts {
   /**
    * Standard day count conventions.
    */
-  enum Standard implements DayCount {
+  static enum Standard implements DayCount {
 
     // actual days / 360
     ACT_ACT_ISDA("Act/Act ISDA") {

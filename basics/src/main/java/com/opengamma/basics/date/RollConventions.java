@@ -440,7 +440,7 @@ public final class RollConventions {
   /**
    * Standard roll conventions.
    */
-  enum Standard implements RollConvention {
+  static enum Standard implements RollConvention {
 
     // no adjustment
     NONE("None") {

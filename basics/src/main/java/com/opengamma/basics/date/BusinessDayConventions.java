@@ -91,7 +91,7 @@ public final class BusinessDayConventions {
   /**
    * Standard business day conventions.
    */
-  enum Standard implements BusinessDayConvention {
+  static enum Standard implements BusinessDayConvention {
 
     // make no adjustment
     NO_ADJUST("NoAdjust") {
