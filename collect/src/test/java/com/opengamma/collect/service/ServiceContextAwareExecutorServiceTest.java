@@ -8,13 +8,13 @@ package com.opengamma.collect.service;
 import static org.testng.Assert.assertEquals;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Callables;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Runnables;
 
 /**
@@ -24,12 +24,12 @@ import com.google.common.util.concurrent.Runnables;
 public class ServiceContextAwareExecutorServiceTest {
 
   public void test_submit_Callable() throws Exception {
-    ServiceContextAwareExecutorService test = new ServiceContextAwareExecutorService(Executors.newSingleThreadExecutor());
+    ServiceContextAwareExecutorService test = new ServiceContextAwareExecutorService(MoreExecutors.sameThreadExecutor());
     assertEquals(test.submit(Callables.returning("HelloWorld")).get(), "HelloWorld");
   }
 
   public void test_submit_Callable_bound() throws Exception {
-    ServiceContextAwareExecutorService test = new ServiceContextAwareExecutorService(Executors.newSingleThreadExecutor());
+    ServiceContextAwareExecutorService test = new ServiceContextAwareExecutorService(MoreExecutors.sameThreadExecutor());
     Callable<String> c = () -> {
       assertEquals(ServiceManager.getContext().contains(Number.class), true);
       return "HelloWorld";
@@ -45,7 +45,7 @@ public class ServiceContextAwareExecutorServiceTest {
   }
 
   public void test_submit_Callable_unbound() throws Exception {
-    ServiceContextAwareExecutorService test = new ServiceContextAwareExecutorService(Executors.newSingleThreadExecutor());
+    ServiceContextAwareExecutorService test = new ServiceContextAwareExecutorService(MoreExecutors.sameThreadExecutor());
     Callable<String> c = () -> {
       assertEquals(ServiceManager.getContext().contains(Number.class), false);
       return "HelloWorld";
@@ -54,7 +54,7 @@ public class ServiceContextAwareExecutorServiceTest {
   }
 
   public void coverage() throws Exception {
-    ServiceContextAwareExecutorService test = new ServiceContextAwareExecutorService(Executors.newSingleThreadExecutor());
+    ServiceContextAwareExecutorService test = new ServiceContextAwareExecutorService(MoreExecutors.sameThreadExecutor());
     Callable<Object> callable = Callables.returning("");
     Runnable runnable = Runnables.doNothing();
     test.submit(callable);

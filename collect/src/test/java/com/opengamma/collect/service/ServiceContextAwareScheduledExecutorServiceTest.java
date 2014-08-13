@@ -5,6 +5,7 @@
  */
 package com.opengamma.collect.service;
 
+import static com.opengamma.collect.TestHelper.ignoreThrows;
 import static org.testng.Assert.assertEquals;
 
 import java.util.concurrent.Callable;
@@ -61,24 +62,26 @@ public class ServiceContextAwareScheduledExecutorServiceTest {
         new ServiceContextAwareScheduledExecutorService(Executors.newSingleThreadScheduledExecutor());
     Callable<Object> callable = Callables.returning("");
     Runnable runnable = Runnables.doNothing();
-    test.submit(callable);
-    test.submit(runnable, "");
-    test.submit(runnable);
-    test.invokeAll(ImmutableList.of(callable));
-    test.invokeAll(ImmutableList.of(callable), 1, TimeUnit.MICROSECONDS);
-    test.invokeAny(ImmutableList.of(callable));
-    test.invokeAny(ImmutableList.of(callable), 1, TimeUnit.MICROSECONDS);
-    test.execute(runnable);
-    test.schedule(runnable, 1, TimeUnit.MICROSECONDS);
-    test.schedule(callable, 1, TimeUnit.MICROSECONDS);
-    test.scheduleAtFixedRate(runnable, 1, 1, TimeUnit.MICROSECONDS);
-    test.scheduleWithFixedDelay(runnable, 1, 1, TimeUnit.MICROSECONDS);
-    test.shutdown();
-    test.shutdownNow();
-    test.isShutdown();
-    test.isTerminated();
-    test.awaitTermination(1, TimeUnit.MICROSECONDS);
-    test.toString();
+    ignoreThrows(() -> {
+      test.submit(callable);
+      test.submit(runnable, "");
+      test.submit(runnable);
+      test.invokeAll(ImmutableList.of(callable));
+      test.invokeAll(ImmutableList.of(callable), 1, TimeUnit.MICROSECONDS);
+      test.invokeAny(ImmutableList.of(callable));
+      test.invokeAny(ImmutableList.of(callable), 1, TimeUnit.MICROSECONDS);
+      test.execute(runnable);
+      test.schedule(runnable, 1, TimeUnit.MICROSECONDS);
+      test.schedule(callable, 1, TimeUnit.MICROSECONDS);
+      test.scheduleAtFixedRate(runnable, 1, 1, TimeUnit.MICROSECONDS);
+      test.scheduleWithFixedDelay(runnable, 1, 1, TimeUnit.MICROSECONDS);
+      test.shutdown();
+      test.shutdownNow();
+      test.isShutdown();
+      test.isTerminated();
+      test.awaitTermination(1, TimeUnit.MICROSECONDS);
+      test.toString();
+    });
   }
 
 }
