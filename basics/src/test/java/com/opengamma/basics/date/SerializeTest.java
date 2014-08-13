@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -21,10 +21,10 @@ public class SerializeTest {
   public void test_serialize() {
     MockSerBean bean = new MockSerBean();
     bean.setBdConvention(BusinessDayConventions.MODIFIED_FOLLOWING);
-    bean.setBdCalendar(BusinessDayCalendar.ALL);
+    bean.setHolidayCalendar(HolidayCalendar.NONE);
     bean.setDayCount(DayCounts.ACT_360);
     bean.setObjects(ImmutableList.of(
-        BusinessDayConventions.MODIFIED_FOLLOWING, BusinessDayCalendar.ALL, DayCounts.ACT_360));
+        BusinessDayConventions.MODIFIED_FOLLOWING, HolidayCalendar.NONE, DayCounts.ACT_360));
     
     String xml = JodaBeanSer.PRETTY.xmlWriter().write(bean);
     MockSerBean test = JodaBeanSer.COMPACT.xmlReader().read(xml, MockSerBean.class);

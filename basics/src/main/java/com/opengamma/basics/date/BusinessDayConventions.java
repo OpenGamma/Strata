@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -18,7 +18,7 @@ import com.opengamma.collect.ArgChecker;
  * The purpose of each convention is to define how to handle non-business days.
  * When processing dates in finance, it is typically intended that non-business days,
  * such as weekends and holidays, are converted to a nearby valid business day.
- * The convention, in conjunction with a {@linkplain BusinessDayCalendar business day calendar},
+ * The convention, in conjunction with a {@linkplain HolidayCalendar holiday calendar},
  * defines exactly how the adjustment should be made.
  */
 public final class BusinessDayConventions {
@@ -96,7 +96,7 @@ public final class BusinessDayConventions {
     // make no adjustment
     NO_ADJUST("NoAdjust") {
       @Override
-      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(businessDays, "businessDays");
         return date;
@@ -105,7 +105,7 @@ public final class BusinessDayConventions {
     // next business day
     FOLLOWING("Following") {
       @Override
-      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(businessDays, "businessDays");
         return (businessDays.isBusinessDay(date) ? date : businessDays.next(date));
@@ -114,7 +114,7 @@ public final class BusinessDayConventions {
     // next business day unless over a month end
     MODIFIED_FOLLOWING("ModifiedFollowing") {
       @Override
-      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(businessDays, "businessDays");
         if (businessDays.isBusinessDay(date)) {
@@ -130,7 +130,7 @@ public final class BusinessDayConventions {
     // next business day unless over a month end or mid
     MODIFIED_FOLLOWING_BI_MONTHLY("ModifiedFollowingBiMonthly") {
       @Override
-      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(businessDays, "businessDays");
         if (businessDays.isBusinessDay(date)) {
@@ -147,7 +147,7 @@ public final class BusinessDayConventions {
     // previous business day
     PRECEDING("Preceding") {
       @Override
-      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(businessDays, "businessDays");
         return (businessDays.isBusinessDay(date) ? date : businessDays.previous(date));
@@ -156,7 +156,7 @@ public final class BusinessDayConventions {
     // previous business day unless over a month end
     MODIFIED_PRECEDING("ModifiedPreceding") {
       @Override
-      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(businessDays, "businessDays");
         if (businessDays.isBusinessDay(date)) {
@@ -172,7 +172,7 @@ public final class BusinessDayConventions {
     // next business day if Sun/Mon, otherwise previous
     NEAREST("Nearest") {
       @Override
-      public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(businessDays, "businessDays");
         if (businessDays.isBusinessDay(date)) {

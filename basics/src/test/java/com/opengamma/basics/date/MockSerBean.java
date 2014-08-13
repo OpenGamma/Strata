@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -32,7 +32,7 @@ public class MockSerBean implements Bean {
   private BusinessDayConvention bdConvention;
 
   @PropertyDefinition
-  private BusinessDayCalendar bdCalendar;
+  private HolidayCalendar holidayCalendar;
 
   @PropertyDefinition
   private DayCount dayCount;
@@ -96,27 +96,27 @@ public class MockSerBean implements Bean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the bdCalendar.
+   * Gets the holidayCalendar.
    * @return the value of the property
    */
-  public BusinessDayCalendar getBdCalendar() {
-    return bdCalendar;
+  public HolidayCalendar getHolidayCalendar() {
+    return holidayCalendar;
   }
 
   /**
-   * Sets the bdCalendar.
-   * @param bdCalendar  the new value of the property
+   * Sets the holidayCalendar.
+   * @param holidayCalendar  the new value of the property
    */
-  public void setBdCalendar(BusinessDayCalendar bdCalendar) {
-    this.bdCalendar = bdCalendar;
+  public void setHolidayCalendar(HolidayCalendar holidayCalendar) {
+    this.holidayCalendar = holidayCalendar;
   }
 
   /**
-   * Gets the the {@code bdCalendar} property.
+   * Gets the the {@code holidayCalendar} property.
    * @return the property, not null
    */
-  public final Property<BusinessDayCalendar> bdCalendar() {
-    return metaBean().bdCalendar().createProperty(this);
+  public final Property<HolidayCalendar> holidayCalendar() {
+    return metaBean().holidayCalendar().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -183,7 +183,7 @@ public class MockSerBean implements Bean {
     if (obj != null && obj.getClass() == this.getClass()) {
       MockSerBean other = (MockSerBean) obj;
       return JodaBeanUtils.equal(getBdConvention(), other.getBdConvention()) &&
-          JodaBeanUtils.equal(getBdCalendar(), other.getBdCalendar()) &&
+          JodaBeanUtils.equal(getHolidayCalendar(), other.getHolidayCalendar()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getObjects(), other.getObjects());
     }
@@ -194,7 +194,7 @@ public class MockSerBean implements Bean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getBdConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBdCalendar());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjects());
     return hash;
@@ -215,7 +215,7 @@ public class MockSerBean implements Bean {
 
   protected void toString(StringBuilder buf) {
     buf.append("bdConvention").append('=').append(JodaBeanUtils.toString(getBdConvention())).append(',').append(' ');
-    buf.append("bdCalendar").append('=').append(JodaBeanUtils.toString(getBdCalendar())).append(',').append(' ');
+    buf.append("holidayCalendar").append('=').append(JodaBeanUtils.toString(getHolidayCalendar())).append(',').append(' ');
     buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
     buf.append("objects").append('=').append(JodaBeanUtils.toString(getObjects())).append(',').append(' ');
   }
@@ -236,10 +236,10 @@ public class MockSerBean implements Bean {
     private final MetaProperty<BusinessDayConvention> bdConvention = DirectMetaProperty.ofReadWrite(
         this, "bdConvention", MockSerBean.class, BusinessDayConvention.class);
     /**
-     * The meta-property for the {@code bdCalendar} property.
+     * The meta-property for the {@code holidayCalendar} property.
      */
-    private final MetaProperty<BusinessDayCalendar> bdCalendar = DirectMetaProperty.ofReadWrite(
-        this, "bdCalendar", MockSerBean.class, BusinessDayCalendar.class);
+    private final MetaProperty<HolidayCalendar> holidayCalendar = DirectMetaProperty.ofReadWrite(
+        this, "holidayCalendar", MockSerBean.class, HolidayCalendar.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
@@ -257,7 +257,7 @@ public class MockSerBean implements Bean {
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "bdConvention",
-        "bdCalendar",
+        "holidayCalendar",
         "dayCount",
         "objects");
 
@@ -272,8 +272,8 @@ public class MockSerBean implements Bean {
       switch (propertyName.hashCode()) {
         case 196761939:  // bdConvention
           return bdConvention;
-        case 1746012576:  // bdCalendar
-          return bdCalendar;
+        case -30625866:  // holidayCalendar
+          return holidayCalendar;
         case 1905311443:  // dayCount
           return dayCount;
         case -1659648748:  // objects
@@ -307,11 +307,11 @@ public class MockSerBean implements Bean {
     }
 
     /**
-     * The meta-property for the {@code bdCalendar} property.
+     * The meta-property for the {@code holidayCalendar} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<BusinessDayCalendar> bdCalendar() {
-      return bdCalendar;
+    public final MetaProperty<HolidayCalendar> holidayCalendar() {
+      return holidayCalendar;
     }
 
     /**
@@ -336,8 +336,8 @@ public class MockSerBean implements Bean {
       switch (propertyName.hashCode()) {
         case 196761939:  // bdConvention
           return ((MockSerBean) bean).getBdConvention();
-        case 1746012576:  // bdCalendar
-          return ((MockSerBean) bean).getBdCalendar();
+        case -30625866:  // holidayCalendar
+          return ((MockSerBean) bean).getHolidayCalendar();
         case 1905311443:  // dayCount
           return ((MockSerBean) bean).getDayCount();
         case -1659648748:  // objects
@@ -353,8 +353,8 @@ public class MockSerBean implements Bean {
         case 196761939:  // bdConvention
           ((MockSerBean) bean).setBdConvention((BusinessDayConvention) newValue);
           return;
-        case 1746012576:  // bdCalendar
-          ((MockSerBean) bean).setBdCalendar((BusinessDayCalendar) newValue);
+        case -30625866:  // holidayCalendar
+          ((MockSerBean) bean).setHolidayCalendar((HolidayCalendar) newValue);
           return;
         case 1905311443:  // dayCount
           ((MockSerBean) bean).setDayCount((DayCount) newValue);

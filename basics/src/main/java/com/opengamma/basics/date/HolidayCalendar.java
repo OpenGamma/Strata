@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -43,27 +43,28 @@ import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.range.LocalDateRange;
 
 /**
- * A pre-calculated set of dates classifying business days, weekends and holidays.
+ * A pre-calculated set of dates classifying dates as holidays or business days.
  * <p>
  * Many calculations in finance require knowledge of whether a date is a business day or not.
- * Non business days can be specified as either weekends or holidays.
+ * This class encapsulates that knowledge, with each day treated as a holiday or a business day.
+ * Weekends are effectively treated as a special kind of holiday.
  * <p>
  * This class is immutable and thread-safe.
  */
 @BeanDefinition(builderScope = "private")
-public final class BusinessDayCalendar
+public final class HolidayCalendar
     implements ImmutableBean, Serializable {
 
   /**
-   * An instance declaring all days as business days.
-   * This instance has no holidays and no weekends.
+   * An instance declaring no holidays and no weekends.
+   * This has the effect of making every day a business day.
    */
-  public static final BusinessDayCalendar ALL = new BusinessDayCalendar(ImmutableSet.of());
+  public static final HolidayCalendar NONE = new HolidayCalendar(ImmutableSet.of());
   /**
    * An instance declaring all days as business days except Saturday/Sunday weekends.
    * Note that not all countries use Saturday and Sunday weekends.
    */
-  public static final BusinessDayCalendar WEEKENDS = new BusinessDayCalendar(ImmutableSet.of(SATURDAY, SUNDAY));
+  public static final HolidayCalendar WEEKENDS = new HolidayCalendar(ImmutableSet.of(SATURDAY, SUNDAY));
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -86,7 +87,7 @@ public final class BusinessDayCalendar
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code BusinessDayCalendar} from a set of holiday dates.
+   * Obtains a {@code HolidayCalendar} from a set of holiday dates.
    * <p>
    * The holiday dates will be extracted into a set with duplicates ignored.
    * The minimum supported date for query is the start of the year of the earliest holiday.
@@ -99,11 +100,11 @@ public final class BusinessDayCalendar
    * @param secondWeekendDay  the second weekend day, may be same as first
    * @return the business days instance
    */
-  public static BusinessDayCalendar of(Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
+  public static HolidayCalendar of(Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
     ArgChecker.noNulls(holidays, "holidays");
     ArgChecker.notNull(firstWeekendDay, "firstWeekendDay");
     ArgChecker.notNull(secondWeekendDay, "secondWeekendDay");
-    return new BusinessDayCalendar(
+    return new HolidayCalendar(
         ImmutableSortedSet.copyOf(holidays),
         Sets.immutableEnumSet(firstWeekendDay, secondWeekendDay));
   }
@@ -122,10 +123,10 @@ public final class BusinessDayCalendar
    * @param weekendDays  the days that define the weekend, if empty then weekends are treated as business days
    * @return the business days instance
    */
-  public static BusinessDayCalendar of(Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
+  public static HolidayCalendar of(Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
     ArgChecker.noNulls(holidays, "holidays");
     ArgChecker.noNulls(weekendDays, "weekendDays");
-    return new BusinessDayCalendar(ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays));
+    return new HolidayCalendar(ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays));
   }
 
   //-------------------------------------------------------------------------
@@ -134,7 +135,7 @@ public final class BusinessDayCalendar
    * 
    * @param weekendDays  the set of weekend days, validated non-null
    */
-  private BusinessDayCalendar(ImmutableSet<DayOfWeek> weekendDays) {
+  private HolidayCalendar(ImmutableSet<DayOfWeek> weekendDays) {
     this.range = LocalDateRange.ALL;
     this.holidays = ImmutableSortedSet.of();
     this.weekendDays = weekendDays;
@@ -146,7 +147,7 @@ public final class BusinessDayCalendar
    * @param holidays  the set of holidays, validated non-null
    * @param weekendDays  the set of weekend days, validated non-null
    */
-  private BusinessDayCalendar(ImmutableSortedSet<LocalDate> holidays, ImmutableSet<DayOfWeek> weekendDays) {
+  private HolidayCalendar(ImmutableSortedSet<LocalDate> holidays, ImmutableSet<DayOfWeek> weekendDays) {
     this.range = LocalDateRange.closed(
         holidays.first().with(TemporalAdjusters.firstDayOfYear()),
         holidays.last().with(TemporalAdjusters.lastDayOfYear()));
@@ -169,27 +170,33 @@ public final class BusinessDayCalendar
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if the specified date is a business day.
-   * 
-   * @param date  the date to check
-   * @return true if the specified date is a business day
-   */
-  public boolean isBusinessDay(LocalDate date) {
-    return !isNonBusinessDay(date);
-  }
-
-  /**
    * Checks if the specified date is a holiday.
+   * <p>
+   * This is the opposite of {@link #isBusinessDay(LocalDate)}.
+   * A weekend is treated as a holiday.
    * 
    * @param date  the date to check
    * @return true if the specified date is a holiday
    */
-  public boolean isNonBusinessDay(LocalDate date) {
+  public boolean isHoliday(LocalDate date) {
     ArgChecker.notNull(date, "date");
     if (range.contains(date) == false) {
       throw new IllegalArgumentException("Date is not within the range of known holidays: " + date + ", " + range);
     }
     return holidays.contains(date) || weekendDays.contains(date.getDayOfWeek());
+  }
+
+  /**
+   * Checks if the specified date is a business day.
+   * <p>
+   * This is the opposite of {@link #isHoliday(LocalDate)}.
+   * A weekend is treated as a holiday.
+   * 
+   * @param date  the date to check
+   * @return true if the specified date is a business day
+   */
+  public boolean isBusinessDay(LocalDate date) {
+    return !isHoliday(date);
   }
 
   //-------------------------------------------------------------------------
@@ -247,7 +254,7 @@ public final class BusinessDayCalendar
   public LocalDate next(LocalDate date) {
     ArgChecker.notNull(date, "date");
     LocalDate next = date.plusDays(1);
-    return isNonBusinessDay(next) ? next(next) : next;
+    return isHoliday(next) ? next(next) : next;
   }
 
   /**
@@ -261,7 +268,7 @@ public final class BusinessDayCalendar
   public LocalDate previous(LocalDate date) {
     ArgChecker.notNull(date, "date");
     LocalDate previous = date.minusDays(1);
-    return isNonBusinessDay(previous) ? previous(previous) : previous;
+    return isHoliday(previous) ? previous(previous) : previous;
   }
 
   /**
@@ -318,16 +325,16 @@ public final class BusinessDayCalendar
 
   //-------------------------------------------------------------------------
   /**
-   * Combines this definition of business days with another.
+   * Combines this holiday calendar with another.
    * <p>
-   * The combined business days are formed by merging the set of holidays and weekend days.
+   * The combined calendar is formed by merging the two sets of holidays and weekend days.
    * If the supported ranges do not match the range will be reduced to that
    * specified by both objects. If there is no overlap, then an exception is thrown.
    * 
-   * @param other  the other business days
-   * @return the combined set of business days
+   * @param other  the other holiday calendar
+   * @return the combined calendar
    */
-  public BusinessDayCalendar combineWith(BusinessDayCalendar other) {
+  public HolidayCalendar combineWith(HolidayCalendar other) {
     ArgChecker.notNull(other, "other");
     if (this.equals(other)) {
       return this;
@@ -337,7 +344,7 @@ public final class BusinessDayCalendar
         ImmutableSortedSet.copyOf(Iterables.concat(holidays, other.holidays))
             .subSet(newRange.getStart(), newRange.getEndExclusive());
     ImmutableSet<DayOfWeek> newWeekends = ImmutableSet.copyOf(Iterables.concat(weekendDays, other.weekendDays));
-    return new BusinessDayCalendar(newHolidays, newWeekends);
+    return new HolidayCalendar(newHolidays, newWeekends);
   }
 
   //-----------------------------------------------------------------------
@@ -348,24 +355,29 @@ public final class BusinessDayCalendar
    */
   @Override
   public String toString() {
+    if (WEEKENDS.equals(this)) {
+      return "Weekends";
+    } else if (NONE.equals(this)) {
+      return "None";
+    }
     return "BusinessDayCalendar" + range;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code BusinessDayCalendar}.
+   * The meta-bean for {@code HolidayCalendar}.
    * @return the meta-bean, not null
    */
-  public static BusinessDayCalendar.Meta meta() {
-    return BusinessDayCalendar.Meta.INSTANCE;
+  public static HolidayCalendar.Meta meta() {
+    return HolidayCalendar.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(BusinessDayCalendar.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(HolidayCalendar.Meta.INSTANCE);
   }
 
-  private BusinessDayCalendar(
+  private HolidayCalendar(
       LocalDateRange range,
       SortedSet<LocalDate> holidays,
       Set<DayOfWeek> weekendDays) {
@@ -379,8 +391,8 @@ public final class BusinessDayCalendar
   }
 
   @Override
-  public BusinessDayCalendar.Meta metaBean() {
-    return BusinessDayCalendar.Meta.INSTANCE;
+  public HolidayCalendar.Meta metaBean() {
+    return HolidayCalendar.Meta.INSTANCE;
   }
 
   @Override
@@ -427,7 +439,7 @@ public final class BusinessDayCalendar
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      BusinessDayCalendar other = (BusinessDayCalendar) obj;
+      HolidayCalendar other = (HolidayCalendar) obj;
       return JodaBeanUtils.equal(getRange(), other.getRange()) &&
           JodaBeanUtils.equal(getHolidays(), other.getHolidays()) &&
           JodaBeanUtils.equal(getWeekendDays(), other.getWeekendDays());
@@ -446,7 +458,7 @@ public final class BusinessDayCalendar
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code BusinessDayCalendar}.
+   * The meta-bean for {@code HolidayCalendar}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -458,19 +470,19 @@ public final class BusinessDayCalendar
      * The meta-property for the {@code range} property.
      */
     private final MetaProperty<LocalDateRange> range = DirectMetaProperty.ofImmutable(
-        this, "range", BusinessDayCalendar.class, LocalDateRange.class);
+        this, "range", HolidayCalendar.class, LocalDateRange.class);
     /**
      * The meta-property for the {@code holidays} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableSortedSet<LocalDate>> holidays = DirectMetaProperty.ofImmutable(
-        this, "holidays", BusinessDayCalendar.class, (Class) ImmutableSortedSet.class);
+        this, "holidays", HolidayCalendar.class, (Class) ImmutableSortedSet.class);
     /**
      * The meta-property for the {@code weekendDays} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableSet<DayOfWeek>> weekendDays = DirectMetaProperty.ofImmutable(
-        this, "weekendDays", BusinessDayCalendar.class, (Class) ImmutableSet.class);
+        this, "weekendDays", HolidayCalendar.class, (Class) ImmutableSet.class);
     /**
      * The meta-properties.
      */
@@ -500,13 +512,13 @@ public final class BusinessDayCalendar
     }
 
     @Override
-    public BeanBuilder<? extends BusinessDayCalendar> builder() {
-      return new BusinessDayCalendar.Builder();
+    public BeanBuilder<? extends HolidayCalendar> builder() {
+      return new HolidayCalendar.Builder();
     }
 
     @Override
-    public Class<? extends BusinessDayCalendar> beanType() {
-      return BusinessDayCalendar.class;
+    public Class<? extends HolidayCalendar> beanType() {
+      return HolidayCalendar.class;
     }
 
     @Override
@@ -544,11 +556,11 @@ public final class BusinessDayCalendar
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 108280125:  // range
-          return ((BusinessDayCalendar) bean).getRange();
+          return ((HolidayCalendar) bean).getRange();
         case -510663909:  // holidays
-          return ((BusinessDayCalendar) bean).getHolidays();
+          return ((HolidayCalendar) bean).getHolidays();
         case 563236190:  // weekendDays
-          return ((BusinessDayCalendar) bean).getWeekendDays();
+          return ((HolidayCalendar) bean).getWeekendDays();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -566,9 +578,9 @@ public final class BusinessDayCalendar
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code BusinessDayCalendar}.
+   * The bean-builder for {@code HolidayCalendar}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<BusinessDayCalendar> {
+  private static final class Builder extends DirectFieldsBeanBuilder<HolidayCalendar> {
 
     private LocalDateRange range;
     private SortedSet<LocalDate> holidays = new TreeSet<LocalDate>();
@@ -639,8 +651,8 @@ public final class BusinessDayCalendar
     }
 
     @Override
-    public BusinessDayCalendar build() {
-      return new BusinessDayCalendar(
+    public HolidayCalendar build() {
+      return new HolidayCalendar(
           range,
           holidays,
           weekendDays);
@@ -650,7 +662,7 @@ public final class BusinessDayCalendar
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
-      buf.append("BusinessDayCalendar.Builder{");
+      buf.append("HolidayCalendar.Builder{");
       buf.append("range").append('=').append(JodaBeanUtils.toString(range)).append(',').append(' ');
       buf.append("holidays").append('=').append(JodaBeanUtils.toString(holidays)).append(',').append(' ');
       buf.append("weekendDays").append('=').append(JodaBeanUtils.toString(weekendDays));

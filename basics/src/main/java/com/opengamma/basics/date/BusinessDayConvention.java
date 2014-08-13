@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -19,7 +19,7 @@ import com.opengamma.collect.ArgChecker;
  * The purpose of this convention is to define how to handle non-business days.
  * When processing dates in finance, it is typically intended that non-business days,
  * such as weekends and holidays, are converted to a nearby valid business day.
- * The convention, in conjunction with a {@linkplain BusinessDayCalendar business day calendar},
+ * The convention, in conjunction with a {@linkplain HolidayCalendar holiday calendar},
  * defines exactly how the adjustment should be made.
  * <p>
  * The most common implementations are provided in {@link BusinessDayConventions}.
@@ -53,10 +53,10 @@ public interface BusinessDayConvention {
    * If the date is not a business day, the convention will be applied.
    * 
    * @param date  the date to adjust
-   * @param businessDays  the definition of which days are business days
+   * @param calendar  the calendar that defines holidays and business days
    * @return the adjusted date
    */
-  public LocalDate adjust(LocalDate date, BusinessDayCalendar businessDays);
+  public LocalDate adjust(LocalDate date, HolidayCalendar calendar);
 
   /**
    * Gets the name that uniquely identifies this convention.
