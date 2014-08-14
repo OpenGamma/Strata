@@ -13,10 +13,10 @@ import java.util.concurrent.TimeUnit;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * A {@code ScheduledExecutorService} that ensures the correct service context is initialized on each thread.
+ * A {@code ScheduledExecutorService} that ensures the correct service context map is initialized on each thread.
  * <p>
- * This executor decorates an original executor service to make it aware of {@link ServiceManager}.
- * It ensures that the {@link ServiceManager} thread-local is initialized for each task that is processed.
+ * This executor decorates an original executor service to make it aware of {@link ServiceContext}.
+ * It ensures that the {@link ServiceContext} thread-local is initialized for each task that is processed.
  */
 public class ServiceContextAwareScheduledExecutorService
     extends ServiceContextAwareExecutorService

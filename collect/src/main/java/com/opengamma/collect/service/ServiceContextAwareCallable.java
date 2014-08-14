@@ -10,38 +10,38 @@ import java.util.concurrent.Callable;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * A {@code Runnable} decorator that ensures the service context is present.
+ * A {@code Callable} decorator that ensures the thread-local service context map is present.
  */
 final class ServiceContextAwareCallable<V>
     implements Callable<V> {
 
   /**
-   * The service context.
+   * The service context map.
    */
-  private final ServiceContext serviceContext;
+  private final ServiceContextMap serviceContextMap;
   /**
    * The delegate.
    */
   private final Callable<V> delegate;
 
   /**
-   * Creates an instance
+   * Creates an instance.
    * 
-   * @param serviceContext  the service context
+   * @param serviceContextMap  the service context map
    * @param delegate  the delegate callable
    */
-  ServiceContextAwareCallable(ServiceContext serviceContext, Callable<V> delegate) {
-    this.serviceContext = ArgChecker.notNull(serviceContext, "serviceContext");
+  ServiceContextAwareCallable(ServiceContextMap serviceContextMap, Callable<V> delegate) {
+    this.serviceContextMap = ArgChecker.notNull(serviceContextMap, "serviceContextMap");
     this.delegate = ArgChecker.notNull(delegate, "delegate");
   }
 
   @Override
   public V call() throws Exception {
     try {
-      ServiceManager.init(serviceContext);
+      ServiceContext.init(serviceContextMap);
       return delegate.call();
     } finally {
-      ServiceManager.clear();
+      ServiceContext.clear();
     }
   }
 

@@ -13,47 +13,47 @@ import static org.testng.Assert.assertSame;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link ServiceManager}.
+ * Test {@link ServiceContext}.
  */
 @Test
 public class ServiceManagerTest {
 
   public void test_getContext_default() {
-    ServiceContext test = ServiceManager.getContext();
+    ServiceContextMap test = ServiceContext.getMap();
     assertNotNull(test);
   }
 
   public void test_init_clear() {
     try {
-      ServiceContext base = ServiceContext.of(CharSequence.class, "HelloWorld");
-      ServiceContext test1 = ServiceManager.getContext();
+      ServiceContextMap base = ServiceContextMap.of(CharSequence.class, "HelloWorld");
+      ServiceContextMap test1 = ServiceContext.getMap();
       assertNotNull(test1);
       
-      ServiceManager.init(base);
-      ServiceContext test2 = ServiceManager.getContext();
+      ServiceContext.init(base);
+      ServiceContextMap test2 = ServiceContext.getMap();
       assertSame(test2, base);
       
-      ServiceManager.clear();
-      ServiceContext test3 = ServiceManager.getContext();
+      ServiceContext.clear();
+      ServiceContextMap test3 = ServiceContext.getMap();
       assertNotNull(test3);
       assertSame(test3, test1);
       
     } finally {
       // try to cleanup in case of problems
-      ServiceManager.clear();
+      ServiceContext.clear();
     }
   }
 
   //-------------------------------------------------------------------------
   public void test_addServiceToDefault() {
-    assertEquals(ServiceManager.getContext().contains(ServiceManagerTest.class), false);
-    ServiceManager.addServiceToDefault(ServiceManagerTest.class, this);
-    assertEquals(ServiceManager.getContext().contains(ServiceManagerTest.class), true);
+    assertEquals(ServiceContext.getMap().contains(ServiceManagerTest.class), false);
+    ServiceContext.addServiceToDefault(ServiceManagerTest.class, this);
+    assertEquals(ServiceContext.getMap().contains(ServiceManagerTest.class), true);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(ServiceManager.class);
+    coverPrivateConstructor(ServiceContext.class);
   }
 
 }

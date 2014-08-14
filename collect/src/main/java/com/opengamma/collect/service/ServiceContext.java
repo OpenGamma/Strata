@@ -5,278 +5,125 @@
  */
 package com.opengamma.collect.service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
-import javax.annotation.Nullable;
-
-import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * Context providing services keyed by type, normally obtained via {@code ServiceManager}.
+ * Manager of global application services provided by a thread-local.
  * <p>
- * A single context holds a map of services keyed by a {@code Class} known as the service type.
+ * This manager is used by applications to obtain access to a set of services.
  * For the purpose of this class, a service can be any thread-safe Java object.
+ * A service is obtained using the service type, which is a {@code Class}, typically an interface.
  * <p>
- * Services are always obtained using the service context.
- * The service context itself is controlled and managed using {@link ServiceManager}.
- * It operates using a thread-local model, allowing different threads to have different services.
+ * The manager is typically initialized by the framework surrounding the application.
+ * As such, an application does not normally need to initialize the manager.
+ * It is always possible to obtain a context map, however it may be empty if not initialized.
  * 
  * <h4>Usage</h4>
- * A thread-local instance of the context is obtained using {@code ServiceManager}
- * and then queried using {@code get(Class)}:
+ * A thread-local instance of the context map is obtained using {@code getMap()}:
  * <pre>
- *   FooService foo = ServiceManager.getContext().get(FooService.class);
+ *   FooService foo = ServiceContext.getMap().get(FooService.class);
  * </pre>
- * The context should be re-obtained from the manager every time it is needed.
- * Caching the context or passing it around via method parameters is strongly discouraged.
+ * The context map should be re-obtained by calling this method every time it is needed.
+ * Caching the context map or passing it around via method parameters is strongly discouraged.
+ * 
+ * <h4>Design note</h4>
+ * The class effectively manages a form of shared global state.
+ * While it is easy to say that global state is a Bad Thing, in practice it can be
+ * a very important design tool to simplify API usage.
+ * Alternative designs usually require application users to pass around and manage
+ * objects that the framework could manage on behalf of the user.
  */
 public final class ServiceContext {
 
   /**
-   * The services held by this context.
+   * The default service context map.
    */
-  private ImmutableClassToInstanceMap<Object> services;
+  private static volatile ServiceContextMap DEFAULT = ServiceContextMap.of(ImmutableClassToInstanceMap.builder().build());
+  /**
+   * The thread-local service context map.
+   */
+  private static final ThreadLocal<ServiceContextMap> THREAD_LOCAL = new InheritableThreadLocal<ServiceContextMap>();
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a service context using the specified map of services.
+   * Gets the service context map applicable to this thread.
    * <p>
-   * The map consists of services keyed by the service type.
-   * This must follow the principles of {@link ClassToInstanceMap}.
+   * This method is intended to be used within application code.
+   * It returns the service context map that has been initialized for this thread.
+   * <p>
+   * It is bad practice to retain a reference to the context map, or pass it around
+   * within application code. Instead, the context map should always be re-obtained
+   * by calling this method.
+   * <p>
+   * If no context map has been initialized for this thread, a default instance is returned,
+   * see {@link #addServiceToDefault(Class, Object)}.
+   * Use of the default is a useful convenience intended primarily for a proof of concept environment.
+   * Best practice is to run in a framework environment that correctly initializes a real context map.
    * 
-   * @param services  a map of type to service-providing objects
-   * @return the service context
+   * @return the context map
    */
-  public static ServiceContext of(Map<Class<?>, Object> services) {
-    ArgChecker.noNulls(services, "services");
-    return new ServiceContext(ImmutableClassToInstanceMap.copyOf(services));
+  public static ServiceContextMap getMap() {
+    // note that the default must be substituted here
+    // using ThreadLocal.initialValue() would lock a specific default immutable instance to a thread
+    // as such, the thread would not pickup any subsequent alterations, such as from static initializers
+    ServiceContextMap context = THREAD_LOCAL.get();
+    if (context == null) {
+      context = DEFAULT;
+    }
+    return context;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the service context map applicable to this thread.
+   * <p>
+   * This method is intended to be used by frameworks and initialization code.
+   * It sets the context map accessible from the current thread.
+   * 
+   * @param serviceContextMap  the context map to use for this thread
+   */
+  public static void init(ServiceContextMap serviceContextMap) {
+    ArgChecker.notNull(serviceContextMap, "serviceContextMap");
+    THREAD_LOCAL.set(serviceContextMap);
   }
 
   /**
-   * Obtains a service context containing a single service.
+   * Clears the service context map from this thread.
    * <p>
-   * The resulting context contains the single specified service keyed by the type.
-   * Typically this context would then be augmented using the {@code with} method,
-   * effectively acting as a builder.
+   * This method is intended to be used by frameworks and initialization code.
+   * It removes any current context map from the current thread.
+   */
+  public static void clear() {
+    THREAD_LOCAL.remove();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a service to the default instance, intended for proof of concept use only.
+   * <p>
+   * In most cases, applications should not call this method.
+   * It adds a service to the default context map, which is intended for simple
+   * proof of concept use only.
+   * In general, the service context map should be created and managed by a framework
+   * and initialized on each thread using {@link #init(ServiceContextMap)}.
+   * <p>
+   * If the service type has already been registered, an exception will be thrown.
    * 
    * @param <T> the type being added
-   * @param serviceType  the type of the service
-   * @param service  a service-providing object
-   * @return the service context
+   * @param serviceType  the type of the service being added
+   * @param service  the service instance to associate with the service type
+   * @throws IllegalArgumentException if the service type is already present
    */
-  public static <T> ServiceContext of(Class<T> serviceType, T service) {
-    ArgChecker.notNull(serviceType, "serviceType");
-    ArgChecker.notNull(service, "service");
-    return new ServiceContext(ImmutableClassToInstanceMap.builder().put(serviceType, service).build());
+  public static <T> void addServiceToDefault(Class<T> serviceType, T service) {
+    DEFAULT = DEFAULT.withAdded(serviceType, service);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
-   * 
-   * @param services  the services to start with
    */
-  private ServiceContext(ImmutableClassToInstanceMap<Object> services) {
-    this.services = ArgChecker.notNull(services, "services");
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Checks if this context contains the specified service type.
-   * <p>
-   * This checks to see if this context contains an entry for the service type.
-   * 
-   * @param serviceType  the type of the service
-   * @return true if the service is available
-   */
-  public boolean contains(Class<?> serviceType) {
-    ArgChecker.notNull(serviceType, "serviceType");
-    return services.containsKey(serviceType);
-  }
-
-  /**
-   * Gets the service associated with the specified specified type.
-   * <p>
-   * This returns the service associated with the service type.
-   * If the service type is not found, an exception is thrown.
-   * 
-   * @param <T>  the required service type
-   * @param serviceType  the type of the service
-   * @return the service
-   * @throws IllegalArgumentException if the service is not found
-   */
-  public <T> T get(Class<T> serviceType) {
-    ArgChecker.notNull(serviceType, "serviceType");
-    final T service = services.getInstance(serviceType);
-    if (service == null) {
-      throw new IllegalArgumentException("No service found: " + serviceType);
-    }
-    return service;
-  }
-
-  /**
-   * Finds the service associated with the specified specified type, returning null if not found.
-   * <p>
-   * This returns the service associated with the service type.
-   * If the service type is not found, null is returned.
-   * 
-   * @param <T>  the required service type
-   * @param serviceType  the type of the service
-   * @return the service, null if not found
-   */
-  @Nullable
-  public <T> T find(Class<T> serviceType) {
-    ArgChecker.notNull(serviceType, "serviceType");
-    return services.getInstance(serviceType);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a copy of this context with the map of services added.
-   * <p>
-   * If any services are provided that are already registered, the service registry
-   * will be updated with the provided services.
-   * 
-   * @param services  a map of services objects keyed by their class
-   * @return an updated service context
-   */
-  public ServiceContext with(Map<Class<?>, Object> services) {
-    // have to calculate which of the original objects need to be retained as
-    // ImmutableMap.Builder won't allow a key to be put more than once
-    ArgChecker.noNulls(services, "services");
-    Map<Class<?>, Object> combined = new HashMap<>(this.services);
-    combined.putAll(services);
-    return new ServiceContext(ImmutableClassToInstanceMap.copyOf(combined));
-  }
-
-  /**
-   * Returns a copy of this context with the specified service added.
-   * <p>
-   * The returned context will consist of all the existing services plus the new one.
-   * If the service type already exists, the specified service will replace the existing
-   * one in the result.
-   * 
-   * @param serviceType  the type of the service being added
-   * @param service  the service instance to associate with the service type
-   * @return a copy of this context with the new service added
-   */
-  public <T> ServiceContext with(Class<? extends T> serviceType, T service) {
-    ArgChecker.notNull(serviceType, "serviceType");
-    ArgChecker.notNull(service, "service");
-    return with(ImmutableMap.of(serviceType, service));
-  }
-
-  /**
-   * Returns a copy of this context with the specified service added.
-   * <p>
-   * The returned context will consist of all the existing services plus the new one.
-   * An exception is thrown if the service type is already registered unless the
-   * news service equals the old one.
-   * 
-   * @param <T> the type being added
-   * @param serviceType  the type of the service being added
-   * @param service  the service instance to associate with the service type
-   * @return a copy of this context with the new service added
-   * @throws IllegalArgumentException if the service type is already associated with a service
-   */
-  <T> ServiceContext withAdded(Class<? extends T> serviceType, T service) {
-    ArgChecker.notNull(serviceType, "serviceType");
-    ArgChecker.notNull(service, "service");
-    // slight leniency allows equal service to be registered more than once
-    Object existing = services.get(serviceType);
-    if (existing != null && existing.equals(service) == false) {
-      throw new IllegalArgumentException(
-          "Unable to add service as the type has already been associated with a service: " + serviceType.getSimpleName());
-    }
-    return with(ImmutableMap.of(serviceType, service));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the entire map of services.
-   * <p>
-   * This returns the immutable map of known services.
-   * This is intended primarily for use by frameworks rather than applications.
-   * 
-   * @return the map of available services keyed by service type
-   */
-  public ImmutableClassToInstanceMap<Object> getServices() {
-    return services;
-  }
-
-  /**
-   * Gets the entire set of service types.
-   * <p>
-   * This returns the immutable set of known service types.
-   * This is intended primarily for use by frameworks rather than applications.
-   * 
-   * @return the set of available service types
-   */
-  public ImmutableSet<Class<?>> getServiceTypes() {
-    return ImmutableSet.copyOf(services.keySet());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Runs the specified {@code Runnable} using this context.
-   * <p>
-   * This is intended to be used to execute a lambda expression using this context.
-   * <pre>
-   *   context.run(() -> {
-   *     // code executed on this thread
-   *     // where ServiceManager.getContext() returns this context
-   *   });
-   * </pre>
-   * Execution occurs on this thread.
-   * 
-   * @param closure  the runnable to run using this context, typically a lambda expression
-   */
-  public void run(Runnable closure) {
-    associateWith(closure).run();
-  }
-
-  /**
-   * Associates the specified {@code Runnable} with this context.
-   * <p>
-   * This can be used to associate a task with this context.
-   * Calling this method is necessary to ensure that the task has the correct context
-   * if it is run on a different thread.
-   * In general, it is recommended to use {@link ServiceContextAwareExecutorService}
-   * instead of calling this method.
-   * 
-   * @param runnable  the runnable to associate
-   * @return the decorated runnable
-   */
-  public Runnable associateWith(Runnable runnable) {
-    return new ServiceContextAwareRunnable(this, runnable);
-  }
-
-  /**
-   * Associates the specified {@code Callable} with this context.
-   * <p>
-   * This can be used to associate a task with this context.
-   * Calling this method is necessary to ensure that the task has the correct context
-   * if it is run on a different thread.
-   * In general, it is recommended to use {@link ServiceContextAwareExecutorService}
-   * instead of calling this method.
-   * 
-   * @param callable  the callable to associate
-   * @return the decorated callable
-   */
-  public <V> Callable<V> associateWith(Callable<V> callable) {
-    return new ServiceContextAwareCallable<>(this, callable);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public String toString() {
-    return "ServiceContext[size=" + services.size() + "]";
+  private ServiceContext() {
   }
 
 }

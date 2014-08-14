@@ -34,10 +34,10 @@ public class ServiceContextAwareScheduledExecutorServiceTest {
     ServiceContextAwareScheduledExecutorService test =
         new ServiceContextAwareScheduledExecutorService(Executors.newSingleThreadScheduledExecutor());
     Callable<String> c = () -> {
-      assertEquals(ServiceManager.getContext().contains(Number.class), true);
+      assertEquals(ServiceContext.getMap().contains(Number.class), true);
       return "HelloWorld";
     };
-    ServiceContext context = ServiceContext.of(Number.class, Integer.valueOf(2));
+    ServiceContextMap context = ServiceContextMap.of(Number.class, Integer.valueOf(2));
     context.run(() -> {
       try {
         assertEquals(test.submit(c).get(), "HelloWorld");
@@ -51,7 +51,7 @@ public class ServiceContextAwareScheduledExecutorServiceTest {
     ServiceContextAwareScheduledExecutorService test =
         new ServiceContextAwareScheduledExecutorService(Executors.newSingleThreadScheduledExecutor());
     Callable<String> c = () -> {
-      assertEquals(ServiceManager.getContext().contains(Number.class), false);
+      assertEquals(ServiceContext.getMap().contains(Number.class), false);
       return "HelloWorld";
     };
     assertEquals(test.submit(c).get(), "HelloWorld");

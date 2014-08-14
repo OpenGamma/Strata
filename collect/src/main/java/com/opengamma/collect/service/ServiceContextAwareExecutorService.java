@@ -18,10 +18,10 @@ import java.util.concurrent.TimeoutException;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * An {@code ExecutorService} that ensures the correct service context is initialized on each thread.
+ * An {@code ExecutorService} that ensures the correct service context map is initialized on each thread.
  * <p>
- * This executor decorates an original executor service to make it aware of {@link ServiceManager}.
- * It ensures that the {@link ServiceManager} thread-local is initialized for each task that is processed.
+ * This executor decorates an original executor service to make it aware of {@link ServiceContext}.
+ * It ensures that the {@link ServiceContext} thread-local is initialized for each task that is processed.
  */
 public class ServiceContextAwareExecutorService
     implements ExecutorService {
@@ -111,20 +111,20 @@ public class ServiceContextAwareExecutorService
   //-------------------------------------------------------------------------
   // decorates a runnable
   ServiceContextAwareRunnable decorate(Runnable task) {
-    return new ServiceContextAwareRunnable(ServiceManager.getContext(), task);
+    return new ServiceContextAwareRunnable(ServiceContext.getMap(), task);
   }
 
   // decorates a callable
   <T> ServiceContextAwareCallable<T> decorate(Callable<T> task) {
-    return new ServiceContextAwareCallable<>(ServiceManager.getContext(), task);
+    return new ServiceContextAwareCallable<>(ServiceContext.getMap(), task);
   }
 
   // decorates a list of callables
   <T> List<Callable<T>> decorate(Collection<? extends Callable<T>> tasks) {
-    ServiceContext context = ServiceManager.getContext();
+    ServiceContextMap contextMap = ServiceContext.getMap();
     List<Callable<T>> taskList = new ArrayList<>(tasks.size());
     for (Callable<T> task : tasks) {
-      taskList.add(new ServiceContextAwareCallable<>(context, task));
+      taskList.add(new ServiceContextAwareCallable<>(contextMap, task));
     }
     return taskList;
   }
