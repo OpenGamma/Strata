@@ -42,34 +42,101 @@ public class LocalDateRangeTest {
     assertEquals(test.getStart(), LocalDate.MIN);
     assertEquals(test.getEndInclusive(), LocalDate.MAX);
     assertEquals(test.getEndExclusive(), LocalDate.MAX);
+    assertEquals(test.isEmpty(), false);
     assertEquals(test.isUnboundedStart(), true);
     assertEquals(test.isUnboundedEnd(), true);
     assertEquals(test.toString(), "[-INFINITY,+INFINITY]");
   }
 
   //-------------------------------------------------------------------------
-  public void test_halfOpen() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+  public void test_of() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    assertEquals(test.getStart(), DATE_2012_07_28);
+    assertEquals(test.getEndInclusive(), DATE_2012_07_30);
+    assertEquals(test.getEndExclusive(), DATE_2012_07_31);
+    assertEquals(test.isEmpty(), false);
+    assertEquals(test.isUnboundedStart(), false);
+    assertEquals(test.isUnboundedEnd(), false);
+    assertEquals(test.toString(), "[2012-07-28,2012-07-31)");
+  }
+
+  public void test_of_MIN() {
+    LocalDateRange test = LocalDateRange.of(LocalDate.MIN, DATE_2012_07_31);
+    assertEquals(test.getStart(), LocalDate.MIN);
+    assertEquals(test.getEndInclusive(), DATE_2012_07_30);
+    assertEquals(test.getEndExclusive(), DATE_2012_07_31);
+    assertEquals(test.isEmpty(), false);
+    assertEquals(test.isUnboundedStart(), true);
+    assertEquals(test.isUnboundedEnd(), false);
+    assertEquals(test.toString(), "[-INFINITY,2012-07-31)");
+  }
+
+  public void test_of_MAX() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, LocalDate.MAX);
+    assertEquals(test.getStart(), DATE_2012_07_28);
+    assertEquals(test.getEndInclusive(), LocalDate.MAX);
+    assertEquals(test.getEndExclusive(), LocalDate.MAX);
+    assertEquals(test.isEmpty(), false);
+    assertEquals(test.isUnboundedStart(), false);
+    assertEquals(test.isUnboundedEnd(), true);
+    assertEquals(test.toString(), "[2012-07-28,+INFINITY]");
+  }
+
+  public void test_of_MIN_MAX() {
+    LocalDateRange test = LocalDateRange.of(LocalDate.MIN, LocalDate.MAX);
+    assertEquals(test.getStart(), LocalDate.MIN);
+    assertEquals(test.getEndInclusive(), LocalDate.MAX);
+    assertEquals(test.getEndExclusive(), LocalDate.MAX);
+    assertEquals(test.isEmpty(), false);
+    assertEquals(test.isUnboundedStart(), true);
+    assertEquals(test.isUnboundedEnd(), true);
+    assertEquals(test.toString(), "[-INFINITY,+INFINITY]");
+  }
+
+  public void test_of_empty() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_30);
+    assertEquals(test.getStart(), DATE_2012_07_30);
+    assertEquals(test.getEndInclusive(), DATE_2012_07_29);
+    assertEquals(test.getEndExclusive(), DATE_2012_07_30);
+    assertEquals(test.isEmpty(), true);
+    assertEquals(test.isUnboundedStart(), false);
+    assertEquals(test.isUnboundedEnd(), false);
+    assertEquals(test.toString(), "[2012-07-30,2012-07-30)");
+  }
+
+  public void test_of_nulls() {
+    assertThrows(() -> LocalDateRange.of(null, DATE_2012_07_30), IllegalArgumentException.class);
+    assertThrows(() -> LocalDateRange.of(DATE_2012_07_30, null), IllegalArgumentException.class);
+    assertThrows(() -> LocalDateRange.of(null, null), IllegalArgumentException.class);
+  }
+
+  public void test_of_badOrder() {
+    assertThrows(() -> LocalDateRange.of(DATE_2012_07_31, DATE_2012_07_30), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_ofClosed() {
+    LocalDateRange test = LocalDateRange.ofClosed(DATE_2012_07_28, DATE_2012_07_30);
     assertEquals(test.getStart(), DATE_2012_07_28);
     assertEquals(test.getEndInclusive(), DATE_2012_07_30);
     assertEquals(test.getEndExclusive(), DATE_2012_07_31);
     assertEquals(test.isUnboundedStart(), false);
     assertEquals(test.isUnboundedEnd(), false);
-    assertEquals(test.toString(), "[2012-07-28,2012-07-30]");
+    assertEquals(test.toString(), "[2012-07-28,2012-07-31)");
   }
 
-  public void test_halfOpen_MIN() {
-    LocalDateRange test = LocalDateRange.halfOpen(LocalDate.MIN, DATE_2012_07_31);
+  public void test_ofClosed_MIN() {
+    LocalDateRange test = LocalDateRange.ofClosed(LocalDate.MIN, DATE_2012_07_30);
     assertEquals(test.getStart(), LocalDate.MIN);
     assertEquals(test.getEndInclusive(), DATE_2012_07_30);
     assertEquals(test.getEndExclusive(), DATE_2012_07_31);
     assertEquals(test.isUnboundedStart(), true);
     assertEquals(test.isUnboundedEnd(), false);
-    assertEquals(test.toString(), "[-INFINITY,2012-07-30]");
+    assertEquals(test.toString(), "[-INFINITY,2012-07-31)");
   }
 
-  public void test_halfOpen_MAX() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, LocalDate.MAX);
+  public void test_ofClosed_MAX() {
+    LocalDateRange test = LocalDateRange.ofClosed(DATE_2012_07_28, LocalDate.MAX);
     assertEquals(test.getStart(), DATE_2012_07_28);
     assertEquals(test.getEndInclusive(), LocalDate.MAX);
     assertEquals(test.getEndExclusive(), LocalDate.MAX);
@@ -78,8 +145,8 @@ public class LocalDateRangeTest {
     assertEquals(test.toString(), "[2012-07-28,+INFINITY]");
   }
 
-  public void test_halfOpen_MIN_MAX() {
-    LocalDateRange test = LocalDateRange.halfOpen(LocalDate.MIN, LocalDate.MAX);
+  public void test_ofClosed_MIN_MAX() {
+    LocalDateRange test = LocalDateRange.ofClosed(LocalDate.MIN, LocalDate.MAX);
     assertEquals(test.getStart(), LocalDate.MIN);
     assertEquals(test.getEndInclusive(), LocalDate.MAX);
     assertEquals(test.getEndExclusive(), LocalDate.MAX);
@@ -88,106 +155,19 @@ public class LocalDateRangeTest {
     assertEquals(test.toString(), "[-INFINITY,+INFINITY]");
   }
 
-  public void test_halfOpen_nulls() {
-    assertThrows(() -> LocalDateRange.halfOpen(null, DATE_2012_07_30), IllegalArgumentException.class);
-    assertThrows(() -> LocalDateRange.halfOpen(DATE_2012_07_30, null), IllegalArgumentException.class);
-    assertThrows(() -> LocalDateRange.halfOpen(null, null), IllegalArgumentException.class);
+  public void test_ofClosed_nulls() {
+    assertThrows(() -> LocalDateRange.ofClosed(null, DATE_2012_07_30), IllegalArgumentException.class);
+    assertThrows(() -> LocalDateRange.ofClosed(DATE_2012_07_30, null), IllegalArgumentException.class);
+    assertThrows(() -> LocalDateRange.ofClosed(null, null), IllegalArgumentException.class);
   }
 
-  public void test_halfOpen_badOrder() {
-    assertThrows(() -> LocalDateRange.halfOpen(DATE_2012_07_30, DATE_2012_07_30), IllegalArgumentException.class);
-    assertThrows(() -> LocalDateRange.halfOpen(DATE_2012_07_31, DATE_2012_07_30), IllegalArgumentException.class);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_closed() {
-    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_30);
-    assertEquals(test.getStart(), DATE_2012_07_28);
-    assertEquals(test.getEndInclusive(), DATE_2012_07_30);
-    assertEquals(test.getEndExclusive(), DATE_2012_07_31);
-    assertEquals(test.isUnboundedStart(), false);
-    assertEquals(test.isUnboundedEnd(), false);
-    assertEquals(test.toString(), "[2012-07-28,2012-07-30]");
-  }
-
-  public void test_closed_MIN() {
-    LocalDateRange test = LocalDateRange.closed(LocalDate.MIN, DATE_2012_07_30);
-    assertEquals(test.getStart(), LocalDate.MIN);
-    assertEquals(test.getEndInclusive(), DATE_2012_07_30);
-    assertEquals(test.getEndExclusive(), DATE_2012_07_31);
-    assertEquals(test.isUnboundedStart(), true);
-    assertEquals(test.isUnboundedEnd(), false);
-    assertEquals(test.toString(), "[-INFINITY,2012-07-30]");
-  }
-
-  public void test_closed_MAX() {
-    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, LocalDate.MAX);
-    assertEquals(test.getStart(), DATE_2012_07_28);
-    assertEquals(test.getEndInclusive(), LocalDate.MAX);
-    assertEquals(test.getEndExclusive(), LocalDate.MAX);
-    assertEquals(test.isUnboundedStart(), false);
-    assertEquals(test.isUnboundedEnd(), true);
-    assertEquals(test.toString(), "[2012-07-28,+INFINITY]");
-  }
-
-  public void test_closed_MIN_MAX() {
-    LocalDateRange test = LocalDateRange.closed(LocalDate.MIN, LocalDate.MAX);
-    assertEquals(test.getStart(), LocalDate.MIN);
-    assertEquals(test.getEndInclusive(), LocalDate.MAX);
-    assertEquals(test.getEndExclusive(), LocalDate.MAX);
-    assertEquals(test.isUnboundedStart(), true);
-    assertEquals(test.isUnboundedEnd(), true);
-    assertEquals(test.toString(), "[-INFINITY,+INFINITY]");
-  }
-
-  public void test_closed_nulls() {
-    assertThrows(() -> LocalDateRange.closed(null, DATE_2012_07_30), IllegalArgumentException.class);
-    assertThrows(() -> LocalDateRange.closed(DATE_2012_07_30, null), IllegalArgumentException.class);
-    assertThrows(() -> LocalDateRange.closed(null, null), IllegalArgumentException.class);
-  }
-
-  public void test_closed_badOrder() {
-    assertThrows(() -> LocalDateRange.closed(DATE_2012_07_31, DATE_2012_07_30), IllegalArgumentException.class);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_single() {
-    LocalDateRange test = LocalDateRange.single(DATE_2012_07_28);
-    assertEquals(test.getStart(), DATE_2012_07_28);
-    assertEquals(test.getEndInclusive(), DATE_2012_07_28);
-    assertEquals(test.getEndExclusive(), DATE_2012_07_29);
-    assertEquals(test.isUnboundedStart(), false);
-    assertEquals(test.isUnboundedEnd(), false);
-    assertEquals(test.toString(), "[2012-07-28,2012-07-28]");
-  }
-
-  public void test_single_min() {
-    LocalDateRange test = LocalDateRange.single(LocalDate.MIN);
-    assertEquals(test.getStart(), LocalDate.MIN);
-    assertEquals(test.getEndInclusive(), LocalDate.MIN);
-    assertEquals(test.getEndExclusive(), LocalDate.MIN.plusDays(1));
-    assertEquals(test.isUnboundedStart(), true);
-    assertEquals(test.isUnboundedEnd(), false);
-    assertEquals(test.toString(), "[-INFINITY," + LocalDate.MIN + "]");
-  }
-
-  public void test_single_max() {
-    LocalDateRange test = LocalDateRange.single(LocalDate.MAX);
-    assertEquals(test.getStart(), LocalDate.MAX);
-    assertEquals(test.getEndInclusive(), LocalDate.MAX);
-    assertEquals(test.getEndExclusive(), LocalDate.MAX);
-    assertEquals(test.isUnboundedStart(), false);
-    assertEquals(test.isUnboundedEnd(), true);
-    assertEquals(test.toString(), "[" + LocalDate.MAX + ",+INFINITY]");
-  }
-
-  public void test_single_nulls() {
-    assertThrows(() -> LocalDateRange.single(null), IllegalArgumentException.class);
+  public void test_ofClosed_badOrder() {
+    assertThrows(() -> LocalDateRange.ofClosed(DATE_2012_07_31, DATE_2012_07_30), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void test_withStart() {
-    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     LocalDateRange test = base.withStart(DATE_2012_07_27);
     assertEquals(test.getStart(), DATE_2012_07_27);
     assertEquals(test.getEndInclusive(), DATE_2012_07_30);
@@ -195,7 +175,7 @@ public class LocalDateRangeTest {
   }
 
   public void test_withStart_adjuster() {
-    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     LocalDateRange test = base.withStart(date -> date.minus(1, ChronoUnit.WEEKS));
     assertEquals(test.getStart(), DATE_2012_07_28.minusWeeks(1));
     assertEquals(test.getEndInclusive(), DATE_2012_07_30);
@@ -203,65 +183,81 @@ public class LocalDateRangeTest {
   }
 
   public void test_withStart_min() {
-    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     LocalDateRange test = base.withStart(LocalDate.MIN);
     assertEquals(test.getStart(), LocalDate.MIN);
     assertEquals(test.getEndInclusive(), DATE_2012_07_30);
     assertEquals(test.getEndExclusive(), DATE_2012_07_31);
   }
 
+  public void test_withStart_empty() {
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = base.withStart(DATE_2012_07_31);
+    assertEquals(test.getStart(), DATE_2012_07_31);
+    assertEquals(test.getEndInclusive(), DATE_2012_07_30);
+    assertEquals(test.getEndExclusive(), DATE_2012_07_31);
+  }
+
   public void test_withStart_invalid() {
-    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_30);
     assertThrows(() -> base.withStart(DATE_2012_07_31), IllegalArgumentException.class);
     assertThrows(() -> base.withStart(LocalDate.MAX), IllegalArgumentException.class);
     assertThrows(() -> base.withStart(d -> null), IllegalArgumentException.class);
   }
 
   public void test_withStart_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.withStart(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
-  public void test_withEndInclusive() {
-    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    LocalDateRange test = base.withEndInclusive(DATE_2012_07_30);
+  public void test_withEndExclusive() {
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = base.withEndExclusive(DATE_2012_07_30);
     assertEquals(test.getStart(), DATE_2012_07_28);
-    assertEquals(test.getEndInclusive(), DATE_2012_07_30);
-    assertEquals(test.getEndExclusive(), DATE_2012_07_31);
+    assertEquals(test.getEndInclusive(), DATE_2012_07_29);
+    assertEquals(test.getEndExclusive(), DATE_2012_07_30);
   }
 
-  public void test_withEndInclusive_adjuster() {
-    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    LocalDateRange test = base.withEndInclusive(date -> date.plus(1, ChronoUnit.WEEKS));
+  public void test_withEndExclusive_adjuster() {
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = base.withEndExclusive(date -> date.plus(1, ChronoUnit.WEEKS));
     assertEquals(test.getStart(), DATE_2012_07_28);
     assertEquals(test.getEndInclusive(), DATE_2012_07_30.plusWeeks(1));
     assertEquals(test.getEndExclusive(), DATE_2012_07_31.plusWeeks(1));
   }
 
-  public void test_withEndInclusive_max() {
-    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    LocalDateRange test = base.withEndInclusive(LocalDate.MAX);
+  public void test_withEndExclusive_max() {
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = base.withEndExclusive(LocalDate.MAX);
     assertEquals(test.getStart(), DATE_2012_07_28);
     assertEquals(test.getEndInclusive(), LocalDate.MAX);
     assertEquals(test.getEndExclusive(), LocalDate.MAX);
   }
 
-  public void test_withEndInclusive_invalid() {
-    LocalDateRange base = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    assertThrows(() -> base.withEndInclusive(DATE_2012_07_27), IllegalArgumentException.class);
-    assertThrows(() -> base.withEndInclusive(LocalDate.MIN), IllegalArgumentException.class);
-    assertThrows(() -> base.withEndInclusive(d -> null), IllegalArgumentException.class);
+  public void test_withEndExclusive_empty() {
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_31);
+    LocalDateRange test = base.withEndExclusive(DATE_2012_07_30);
+    assertEquals(test.getStart(), DATE_2012_07_30);
+    assertEquals(test.getEndInclusive(), DATE_2012_07_29);
+    assertEquals(test.getEndExclusive(), DATE_2012_07_30);
   }
 
-  public void test_withEndInclusive_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    assertThrows(() -> test.withEndInclusive(null), IllegalArgumentException.class);
+  public void test_withEndExclusive_invalid() {
+    LocalDateRange base = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    assertThrows(() -> base.withEndExclusive(DATE_2012_07_27), IllegalArgumentException.class);
+    assertThrows(() -> base.withEndExclusive(LocalDate.MIN), IllegalArgumentException.class);
+    assertThrows(() -> base.withEndExclusive(d -> null), IllegalArgumentException.class);
+  }
+
+  public void test_withEndExclusive_null() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    assertThrows(() -> test.withEndExclusive(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void test_contains() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertEquals(test.contains(LocalDate.MIN), false);
     assertEquals(test.contains(DATE_2012_07_27), false);
     assertEquals(test.contains(DATE_2012_07_28), true);
@@ -272,8 +268,29 @@ public class LocalDateRangeTest {
     assertEquals(test.contains(LocalDate.MAX), false);
   }
 
+  public void test_contains_empty() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_28);
+    assertEquals(test.contains(LocalDate.MIN), false);
+    assertEquals(test.contains(DATE_2012_07_27), false);
+    assertEquals(test.contains(DATE_2012_07_28), false);
+    assertEquals(test.contains(DATE_2012_07_29), false);
+    assertEquals(test.contains(LocalDate.MAX), false);
+  }
+
+  public void test_contains_max() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, LocalDate.MAX);
+    assertEquals(test.contains(LocalDate.MIN), false);
+    assertEquals(test.contains(DATE_2012_07_27), false);
+    assertEquals(test.contains(DATE_2012_07_28), true);
+    assertEquals(test.contains(DATE_2012_07_29), true);
+    assertEquals(test.contains(DATE_2012_07_30), true);
+    assertEquals(test.contains(DATE_2012_07_31), true);
+    assertEquals(test.contains(DATE_2012_08_01), true);
+    assertEquals(test.contains(LocalDate.MAX), true);
+  }
+
   public void test_contains_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.contains(null), IllegalArgumentException.class);
   }
 
@@ -300,6 +317,12 @@ public class LocalDateRangeTest {
         // start past end
         {DATE_2012_07_31, DATE_2012_08_01, false},
         {DATE_2012_07_31, DATE_2012_08_31, false},
+        // empty
+        {DATE_2012_07_27, DATE_2012_07_27, false},
+        {DATE_2012_07_28, DATE_2012_07_28, true},
+        {DATE_2012_07_29, DATE_2012_07_29, true},
+        {DATE_2012_07_30, DATE_2012_07_30, true},
+        {DATE_2012_08_31, DATE_2012_08_31, false},
         // min
         {LocalDate.MIN, DATE_2012_07_27, false},
         {LocalDate.MIN, DATE_2012_07_28, false},
@@ -319,13 +342,32 @@ public class LocalDateRangeTest {
   }
 
   @Test(dataProvider = "encloses")
-  public void test_encloses(LocalDate start, LocalDate end, boolean isEnclosedBy) {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    assertEquals(test.encloses(LocalDateRange.halfOpen(start, end)), isEnclosedBy);
+  public void test_encloses(LocalDate start, LocalDate end, boolean isEnofClosedBy) {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    assertEquals(test.encloses(LocalDateRange.of(start, end)), isEnofClosedBy);
+  }
+
+  public void test_encloses_max() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, LocalDate.MAX);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_28)), true);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_29)), true);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_28, LocalDate.MAX)), true);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_01, DATE_2012_07_27)), false);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_27, DATE_2012_07_29)), false);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_27, LocalDate.MAX)), false);
+  }
+
+  public void test_encloses_empty() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_28);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_27, DATE_2012_07_27)), false);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_28)), true);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_29, DATE_2012_07_29)), false);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_27, LocalDate.MAX)), false);
+    assertEquals(test.encloses(LocalDateRange.of(DATE_2012_07_28, LocalDate.MAX)), false);
   }
 
   public void test_encloses_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.encloses(null), IllegalArgumentException.class);
   }
 
@@ -333,12 +375,16 @@ public class LocalDateRangeTest {
   @DataProvider(name = "intersection")
   Object[][] data_intersection() {
     return new Object[][] {
-        // overlap one day
+        // adjacent
         {DATE_2012_07_01, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_28},
-        // overlap more than one day
+        // adjacent empty
+        {DATE_2012_07_01, DATE_2012_07_30, DATE_2012_07_30, DATE_2012_07_30, DATE_2012_07_30, DATE_2012_07_30},
+        // overlap
         {DATE_2012_07_01, DATE_2012_07_29, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_29},
         // encloses
         {DATE_2012_07_01, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_29, DATE_2012_07_28, DATE_2012_07_29},
+        // encloses empty
+        {DATE_2012_07_01, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_28},
     };
   }
 
@@ -346,9 +392,9 @@ public class LocalDateRangeTest {
   public void test_intersection(
       LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
     
-    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
-    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
-    LocalDateRange expected = LocalDateRange.closed(expStart, expEnd);
+    LocalDateRange test1 = LocalDateRange.of(start1, end1);
+    LocalDateRange test2 = LocalDateRange.of(start2, end2);
+    LocalDateRange expected = LocalDateRange.of(expStart, expEnd);
     assertTrue(test1.overlaps(test2));
     assertEquals(test1.intersection(test2), expected);
   }
@@ -357,22 +403,27 @@ public class LocalDateRangeTest {
   public void test_intersection_reverse(
       LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
     
-    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
-    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
-    LocalDateRange expected = LocalDateRange.closed(expStart, expEnd);
+    LocalDateRange test1 = LocalDateRange.of(start1, end1);
+    LocalDateRange test2 = LocalDateRange.of(start2, end2);
+    LocalDateRange expected = LocalDateRange.of(expStart, expEnd);
     assertTrue(test2.overlaps(test1));
     assertEquals(test2.intersection(test1), expected);
   }
 
+  //-------------------------------------------------------------------------
   @DataProvider(name = "union")
   Object[][] data_union() {
     return new Object[][] {
-        // overlap one day
+        // adjacent
         {DATE_2012_07_01, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_01, DATE_2012_07_30},
-        // overlap more than one day
+        // adjacent empty
+        {DATE_2012_07_01, DATE_2012_07_30, DATE_2012_07_30, DATE_2012_07_30, DATE_2012_07_01, DATE_2012_07_30},
+        // overlap
         {DATE_2012_07_01, DATE_2012_07_29, DATE_2012_07_28, DATE_2012_07_30, DATE_2012_07_01, DATE_2012_07_30},
         // encloses
         {DATE_2012_07_01, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_29, DATE_2012_07_01, DATE_2012_07_30},
+        // encloses empty
+        {DATE_2012_07_01, DATE_2012_07_30, DATE_2012_07_28, DATE_2012_07_28, DATE_2012_07_01, DATE_2012_07_30},
     };
   }
 
@@ -380,9 +431,9 @@ public class LocalDateRangeTest {
   public void test_union(
       LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
     
-    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
-    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
-    LocalDateRange expected = LocalDateRange.closed(expStart, expEnd);
+    LocalDateRange test1 = LocalDateRange.of(start1, end1);
+    LocalDateRange test2 = LocalDateRange.of(start2, end2);
+    LocalDateRange expected = LocalDateRange.of(expStart, expEnd);
     assertTrue(test1.overlaps(test2));
     assertEquals(test1.union(test2), expected);
   }
@@ -391,25 +442,27 @@ public class LocalDateRangeTest {
   public void test_union_reverse(
       LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
     
-    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
-    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
-    LocalDateRange expected = LocalDateRange.closed(expStart, expEnd);
+    LocalDateRange test1 = LocalDateRange.of(start1, end1);
+    LocalDateRange test2 = LocalDateRange.of(start2, end2);
+    LocalDateRange expected = LocalDateRange.of(expStart, expEnd);
     assertTrue(test2.overlaps(test1));
     assertEquals(test2.union(test1), expected);
   }
 
+  //-------------------------------------------------------------------------
   @DataProvider(name = "noOverlap")
   Object[][] data_noOverlap() {
     return new Object[][] {
         {DATE_2012_07_01, DATE_2012_07_27, DATE_2012_07_28, DATE_2012_07_29},
         {DATE_2012_07_01, DATE_2012_07_27, DATE_2012_07_29, DATE_2012_07_30},
+        {DATE_2012_07_01, DATE_2012_07_27, DATE_2012_07_29, DATE_2012_07_29},
     };
   }
 
   @Test(dataProvider = "noOverlap")
   public void test_noOverlap(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2) {
-    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
-    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
+    LocalDateRange test1 = LocalDateRange.of(start1, end1);
+    LocalDateRange test2 = LocalDateRange.of(start2, end2);
     assertFalse(test1.overlaps(test2));
     assertThrows(() -> test1.intersection(test2), IllegalArgumentException.class);
     assertThrows(() -> test1.union(test2), IllegalArgumentException.class);
@@ -417,48 +470,57 @@ public class LocalDateRangeTest {
 
   @Test(dataProvider = "noOverlap")
   public void test_noOverlap_reverse(LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2) {
-    LocalDateRange test1 = LocalDateRange.closed(start1, end1);
-    LocalDateRange test2 = LocalDateRange.closed(start2, end2);
+    LocalDateRange test1 = LocalDateRange.of(start1, end1);
+    LocalDateRange test2 = LocalDateRange.of(start2, end2);
     assertFalse(test2.overlaps(test1));
     assertThrows(() -> test2.intersection(test1), IllegalArgumentException.class);
     assertThrows(() -> test2.union(test1), IllegalArgumentException.class);
   }
 
   public void test_overlaps_same() {
-    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertEquals(test.overlaps(test), true);
   }
 
+  public void test_overlaps_empty() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_30);
+    assertEquals(test.overlaps(LocalDateRange.of(DATE_2012_07_27, DATE_2012_07_27)), false);
+    assertEquals(test.overlaps(LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_28)), true);
+    assertEquals(test.overlaps(LocalDateRange.of(DATE_2012_07_29, DATE_2012_07_29)), true);
+    assertEquals(test.overlaps(LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_30)), true);
+    assertEquals(test.overlaps(LocalDateRange.of(DATE_2012_07_31, DATE_2012_07_31)), false);
+  }
+
   public void test_overlaps_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.overlaps(null), IllegalArgumentException.class);
   }
 
   public void test_intersection_same() {
-    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertEquals(test.intersection(test), test);
   }
 
   public void test_intersection_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.intersection(null), IllegalArgumentException.class);
   }
 
   public void test_union_same() {
-    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertEquals(test.union(test), test);
   }
 
   public void test_union_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.union(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void test_stream() {
-    LocalDateRange test = LocalDateRange.closed(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     List<LocalDate> result = test.stream().collect(Collectors.toList());
-    assertEquals(result, ImmutableList.of(DATE_2012_07_28, DATE_2012_07_29, DATE_2012_07_30, DATE_2012_07_31));
+    assertEquals(result, ImmutableList.of(DATE_2012_07_28, DATE_2012_07_29, DATE_2012_07_30));
   }
 
   //-------------------------------------------------------------------------
@@ -484,6 +546,9 @@ public class LocalDateRangeTest {
         // start past end
         {DATE_2012_07_31, DATE_2012_08_01, true},
         {DATE_2012_07_31, DATE_2012_08_31, true},
+        // empty
+        {DATE_2012_07_30, DATE_2012_07_30, false},
+        {DATE_2012_07_31, DATE_2012_07_31, true},
         // min
         {LocalDate.MIN, DATE_2012_07_27, false},
         {LocalDate.MIN, DATE_2012_07_28, false},
@@ -504,12 +569,22 @@ public class LocalDateRangeTest {
 
   @Test(dataProvider = "isBefore")
   public void test_isBefore(LocalDate start, LocalDate end, boolean before) {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    assertEquals(test.isBefore(LocalDateRange.halfOpen(start, end)), before);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    assertEquals(test.isBefore(LocalDateRange.of(start, end)), before);
+  }
+
+  public void test_isBefore_empty() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_29, DATE_2012_07_29);
+    assertEquals(test.isBefore(LocalDateRange.of(DATE_2012_07_27, DATE_2012_07_28)), false);
+    assertEquals(test.isBefore(LocalDateRange.of(DATE_2012_07_27, DATE_2012_07_29)), false);
+    assertEquals(test.isBefore(LocalDateRange.of(DATE_2012_07_29, DATE_2012_07_29)), false);
+    assertEquals(test.isBefore(LocalDateRange.of(DATE_2012_07_29, DATE_2012_07_30)), true);
+    assertEquals(test.isBefore(LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_30)), true);
+    assertEquals(test.isBefore(LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_31)), true);
   }
 
   public void test_isBefore_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.isBefore(null), IllegalArgumentException.class);
   }
 
@@ -536,6 +611,9 @@ public class LocalDateRangeTest {
         // start past end
         {DATE_2012_07_31, DATE_2012_08_01, false},
         {DATE_2012_07_31, DATE_2012_08_31, false},
+        // empty
+        {DATE_2012_07_28, DATE_2012_07_28, true},
+        {DATE_2012_07_29, DATE_2012_07_29, false},
         // min
         {LocalDate.MIN, DATE_2012_07_27, true},
         {LocalDate.MIN, DATE_2012_07_28, true},
@@ -556,21 +634,32 @@ public class LocalDateRangeTest {
 
   @Test(dataProvider = "isAfter")
   public void test_isAfter(LocalDate start, LocalDate end, boolean before) {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    assertEquals(test.isAfter(LocalDateRange.halfOpen(start, end)), before);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    assertEquals(test.isAfter(LocalDateRange.of(start, end)), before);
+  }
+
+  public void test_isAfter_empty() {
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_29, DATE_2012_07_29);
+    assertEquals(test.isAfter(LocalDateRange.of(DATE_2012_07_27, DATE_2012_07_28)), true);
+    assertEquals(test.isAfter(LocalDateRange.of(DATE_2012_07_27, DATE_2012_07_29)), true);
+    assertEquals(test.isAfter(LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_28)), true);
+    assertEquals(test.isAfter(LocalDateRange.of(DATE_2012_07_29, DATE_2012_07_29)), false);
+    assertEquals(test.isAfter(LocalDateRange.of(DATE_2012_07_29, DATE_2012_07_30)), false);
+    assertEquals(test.isAfter(LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_30)), false);
+    assertEquals(test.isAfter(LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_31)), false);
   }
 
   public void test_isAfter_null() {
-    LocalDateRange test = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange test = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     assertThrows(() -> test.isAfter(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
-    LocalDateRange a1 = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    LocalDateRange a2 = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31);
-    LocalDateRange b = LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_30);
-    LocalDateRange c = LocalDateRange.halfOpen(DATE_2012_07_30, DATE_2012_07_31);
+    LocalDateRange a1 = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange a2 = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
+    LocalDateRange b = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_30);
+    LocalDateRange c = LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_31);
     
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
@@ -593,7 +682,7 @@ public class LocalDateRangeTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverImmutableBean(LocalDateRange.halfOpen(DATE_2012_07_28, DATE_2012_07_31));
+    coverImmutableBean(LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31));
   }
 
 }

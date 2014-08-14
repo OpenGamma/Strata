@@ -32,7 +32,7 @@ import com.opengamma.collect.range.LocalDateRange;
 @Test
 public class HolidayCalendarTest {
 
-  private static final LocalDateRange RANGE_2014 = LocalDateRange.closed(
+  private static final LocalDateRange RANGE_2014 = LocalDateRange.ofClosed(
       LocalDate.of(2014,  1, 1), LocalDate.of(2014,  12, 31));
 
   private static final LocalDate WED_2014_07_09 = LocalDate.of(2014, 7, 9);
@@ -54,7 +54,7 @@ public class HolidayCalendarTest {
   //-------------------------------------------------------------------------
   public void test_NONE() {
     HolidayCalendar test = HolidayCalendar.NONE;
-    LocalDateRange range = LocalDateRange.closed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
+    LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
     range.stream().forEach(date -> {
       assertEquals(test.isBusinessDay(date), true);
       assertEquals(test.isHoliday(date), false);
@@ -65,7 +65,7 @@ public class HolidayCalendarTest {
 
   public void test_WEEKENDS() {
     HolidayCalendar test = HolidayCalendar.WEEKENDS;
-    LocalDateRange range = LocalDateRange.closed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
+    LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
     range.stream().forEach(date -> {
       boolean isBusinessDay = date.getDayOfWeek() != SATURDAY && date.getDayOfWeek() != SUNDAY;
       assertEquals(test.isBusinessDay(date), isBusinessDay);
@@ -290,7 +290,7 @@ public class HolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(FRIDAY, SATURDAY));
-    assertEquals(test.getRange(), LocalDateRange.closed(LocalDate.MIN, LocalDate.MAX));
+    assertEquals(test.getRange(), LocalDateRange.ofClosed(LocalDate.MIN, LocalDate.MAX));
     assertEquals(test.toString(), "Fri/Sat weekends");
   }
 
@@ -337,7 +337,7 @@ public class HolidayCalendarTest {
     BeanBuilder<? extends HolidayCalendar> builder = HolidayCalendar.meta().builder()
         .set(HolidayCalendar.meta().holidays(), holidays)
         .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), LocalDateRange.closed(TUE_2014_07_15, LocalDate.MAX));
+        .set(HolidayCalendar.meta().range(), LocalDateRange.ofClosed(TUE_2014_07_15, LocalDate.MAX));
     assertThrows(() -> builder.build(), IllegalArgumentException.class);
   }
 
@@ -347,7 +347,7 @@ public class HolidayCalendarTest {
     BeanBuilder<? extends HolidayCalendar> builder = HolidayCalendar.meta().builder()
         .set(HolidayCalendar.meta().holidays(), holidays)
         .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), LocalDateRange.closed(LocalDate.MIN, TUE_2014_07_15));
+        .set(HolidayCalendar.meta().range(), LocalDateRange.ofClosed(LocalDate.MIN, TUE_2014_07_15));
     assertThrows(() -> builder.build(), IllegalArgumentException.class);
   }
 
@@ -357,7 +357,7 @@ public class HolidayCalendarTest {
     BeanBuilder<? extends HolidayCalendar> builder = HolidayCalendar.meta().builder()
         .set(HolidayCalendar.meta().holidays(), holidays)
         .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), LocalDateRange.closed(TUE_2014_07_15, THU_2014_07_17));
+        .set(HolidayCalendar.meta().range(), LocalDateRange.ofClosed(TUE_2014_07_15, THU_2014_07_17));
     assertThrows(() -> builder.build(), IllegalArgumentException.class);
   }
 
@@ -581,10 +581,7 @@ public class HolidayCalendarTest {
   public void test_daysBetween_LocalDateRange(LocalDate start, LocalDate end, int expected) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
     HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
-    if (start.equals(end) == false) {
-      // TODO: range allow empty?
-      assertEquals(test.daysBetween(LocalDateRange.halfOpen(start, end)), expected);
-    }
+    assertEquals(test.daysBetween(LocalDateRange.of(start, end)), expected);
   }
 
   public void test_daysBetween_LocalDateRange_noHolidays() {

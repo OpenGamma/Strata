@@ -146,7 +146,7 @@ public final class HolidayCalendar
     if (holidays.isEmpty()) {
       this.range = LocalDateRange.ALL;
     } else {
-      this.range = LocalDateRange.closed(
+      this.range = LocalDateRange.ofClosed(
           holidays.first().with(TemporalAdjusters.firstDayOfYear()),
           holidays.last().with(TemporalAdjusters.lastDayOfYear()));
     }
@@ -310,12 +310,7 @@ public final class HolidayCalendar
    * @return the total number of business days between the start and end date
    */
   public int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
-    ArgChecker.notNull(startInclusive, "startInclusive");
-    ArgChecker.notNull(endExclusive, "endExclusive");
-    if (startInclusive.equals(endExclusive)) {
-      return 0;
-    }
-    return daysBetween(LocalDateRange.halfOpen(startInclusive, endExclusive));
+    return daysBetween(LocalDateRange.of(startInclusive, endExclusive));
   }
 
   /**

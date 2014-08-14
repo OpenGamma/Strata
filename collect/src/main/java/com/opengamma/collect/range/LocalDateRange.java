@@ -31,7 +31,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.Ordering;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -44,8 +43,6 @@ import com.opengamma.collect.ArgChecker;
  * The constants {@link LocalDate#MIN} and {@link LocalDate#MAX} can be used
  * to indicate an unbounded far-past or far-future. Note that there is no difference
  * between a half-open and a closed range when the end is {@link LocalDate#MAX}.
- * 
- * This holds a range of dates.
  * <p>
  * This class is immutable and thread-safe.
  */
@@ -67,59 +64,50 @@ public final class LocalDateRange
   @PropertyDefinition(validate = "notNull", get = "manual")
   private final LocalDate start;
   /**
-   * The end date, inclusive.
+   * The end date, exclusive.
    */
   @PropertyDefinition(validate = "notNull", get = "manual")
-  private final LocalDate endInclusive;
+  private final LocalDate endExclusive;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains a half-open range of dates, including the start and excluding the end.
    * <p>
    * The range includes the start date and excludes the end date, unless the end
-   * is {@link LocalDate#MAX}. The start date must be before the end date.
+   * is {@link LocalDate#MAX}.
+   * The end date must be equal to or after the start date.
+   * This definition permits an empty range located at a specific date.
    * 
    * @param startInclusive  the inclusive start date, MIN_DATE treated as unbounded
    * @param endExclusive  the exclusive end date, MAX_DATE treated as unbounded
    * @return the half-open range
-   * @throws IllegalArgumentException if the end date is before or equal the start date
+   * @throws IllegalArgumentException if the end date is before the start date
    */
-  public static LocalDateRange halfOpen(LocalDate startInclusive, LocalDate endExclusive) {
+  public static LocalDateRange of(LocalDate startInclusive, LocalDate endExclusive) {
     ArgChecker.notNull(startInclusive, "startDate");
     ArgChecker.notNull(endExclusive, "endExclusive");
-    LocalDate endInclusive = (endExclusive.isBefore(LocalDate.MAX) ? endExclusive.minusDays(1) : endExclusive);
-    return new LocalDateRange(startInclusive, endInclusive);
+    return new LocalDateRange(startInclusive, endExclusive);
   }
 
   /**
    * Obtains a closed range of dates, including the start and end.
    * <p>
    * The range includes the start date and the end date.
-   * The start date must be equal to or before the end date.
+   * The end date must be equal to or after the start date.
    * 
    * @param startInclusive  the inclusive start date, MIN_DATE treated as unbounded
    * @param endInclusive  the inclusive end date, MAX_DATE treated as unbounded
    * @return the closed range
    * @throws IllegalArgumentException if the end date is before the start date
    */
-  public static LocalDateRange closed(LocalDate startInclusive, LocalDate endInclusive) {
+  public static LocalDateRange ofClosed(LocalDate startInclusive, LocalDate endInclusive) {
     ArgChecker.notNull(startInclusive, "startDate");
     ArgChecker.notNull(endInclusive, "endExclusive");
-    return new LocalDateRange(startInclusive, endInclusive);
-  }
-
-  /**
-   * Obtains a range consisting of a single date.
-   * <p>
-   * This is equivalent to calling {@link #closed(LocalDate, LocalDate)} with
-   * the single date passed as the start and end.
-   * 
-   * @param singleDate  the single date in the range, must not be the MIN or MAX date
-   * @return the single date range
-   */
-  public static LocalDateRange single(LocalDate singleDate) {
-    ArgChecker.notNull(singleDate, "singleDate");
-    return new LocalDateRange(singleDate, singleDate);
+    if (endInclusive.isBefore(startInclusive)) {
+      throw new IllegalArgumentException("End date must not be before start date");
+    }
+    LocalDate endExclusive = (endInclusive.equals(LocalDate.MAX) ? LocalDate.MAX : endInclusive.plusDays(1));
+    return new LocalDateRange(startInclusive, endExclusive);
   }
 
   //-------------------------------------------------------------------------
@@ -128,8 +116,8 @@ public final class LocalDateRange
    */
   @ImmutableValidator
   private void validate() {
-    if (endInclusive.isBefore(start)) {
-      throw new IllegalArgumentException("Start date must be on or after end date");
+    if (endExclusive.isBefore(start)) {
+      throw new IllegalArgumentException("End date must not be before start date");
     }
   }
 
@@ -137,8 +125,8 @@ public final class LocalDateRange
   /**
    * Gets the start date, inclusive.
    * <p>
-   * This will return {@link LocalDate#MIN} if the range is unbounded at the
-   * start, including all dates into the far-past.
+   * This will return {@link LocalDate#MIN} if the range is unbounded at the start.
+   * In this case, the range includes all dates into the far-past.
    * 
    * @return the start date
    */
@@ -147,33 +135,42 @@ public final class LocalDateRange
   }
 
   /**
-   * Gets the end date, inclusive.
+   * Gets the end date, exclusive.
    * <p>
-   * This will return {@link LocalDate#MAX} if the range is unbounded at the
-   * end, including all dates into the far-future.
+   * This will return {@link LocalDate#MAX} if the range is unbounded at the end.
+   * In this case, the range includes all dates into the far-future.
    * 
-   * @return the end date
+   * @return the end date, exclusive
    */
-  public LocalDate getEndInclusive() {
-    return endInclusive;
+  public LocalDate getEndExclusive() {
+    return endExclusive;
   }
 
   /**
-   * Gets the end date, exclusive.
+   * Gets the end date, inclusive.
    * <p>
-   * This will return {@link LocalDate#MAX} if the range is unbounded at the
-   * end, including all dates into the far-future.
+   * This will return {@link LocalDate#MAX} if the range is unbounded at the end.
+   * In this case, the range includes all dates into the far-future.
    * 
-   * @return the end date
+   * @return the end date, inclusive
    */
-  public LocalDate getEndExclusive() {
+  public LocalDate getEndInclusive() {
     if (isUnboundedEnd()) {
-      return endInclusive;
+      return LocalDate.MAX;
     }
-    return endInclusive.plusDays(1);
+    return endExclusive.minusDays(1);
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Checks if the range is empty.
+   * 
+   * @return true if the range is empty
+   */
+  public boolean isEmpty() {
+    return start.equals(endExclusive);
+  }
+
   /**
    * Checks if the start date is unbounded.
    * 
@@ -189,7 +186,7 @@ public final class LocalDateRange
    * @return true if end is unbounded
    */
   public boolean isUnboundedEnd() {
-    return endInclusive.equals(LocalDate.MAX);
+    return endExclusive.equals(LocalDate.MAX);
   }
 
   //-------------------------------------------------------------------------
@@ -211,7 +208,7 @@ public final class LocalDateRange
    */
   public LocalDateRange withStart(TemporalAdjuster adjuster) {
     ArgChecker.notNull(adjuster, "adjuster");
-    return LocalDateRange.closed(start.with(adjuster), endInclusive);
+    return LocalDateRange.of(start.with(adjuster), endExclusive);
   }
 
   /**
@@ -223,16 +220,16 @@ public final class LocalDateRange
    * <p>
    * For example, to adjust the end to one week later:
    * <pre>
-   *  range = range.withEndInclusive(date -> date.plus(1, ChronoUnit.WEEKS));
+   *  range = range.withEndExclusive(date -> date.plus(1, ChronoUnit.WEEKS));
    * </pre>
    * 
    * @param adjuster  the adjuster to use
    * @return a copy of this range with the end date adjusted
    * @throws IllegalArgumentException if the new end date is before the current start date
    */
-  public LocalDateRange withEndInclusive(TemporalAdjuster adjuster) {
+  public LocalDateRange withEndExclusive(TemporalAdjuster adjuster) {
     ArgChecker.notNull(adjuster, "adjuster");
-    return LocalDateRange.closed(start, endInclusive.with(adjuster));
+    return LocalDateRange.of(start, endExclusive.with(adjuster));
   }
 
   //-------------------------------------------------------------------------
@@ -241,14 +238,15 @@ public final class LocalDateRange
    * <p>
    * If this range has an unbounded start then {@code contains(LocalDate#MIN)} returns true.
    * If this range has an unbounded end then {@code contains(LocalDate#MAX)} returns true.
+   * If this range is empty then this method always returns false.
    * 
    * @param date  the date to check for
    * @return true if this range contains the date
    */
   public boolean contains(LocalDate date) {
     ArgChecker.notNull(date, "date");
-    // start <= date && date <= end
-    return start.compareTo(date) <= 0 && date.compareTo(endInclusive) <= 0;
+    // start <= date && date < endExclusive
+    return start.compareTo(date) <= 0 && (date.compareTo(endExclusive) < 0 || isUnboundedEnd());
   }
 
   /**
@@ -256,35 +254,41 @@ public final class LocalDateRange
    * <p>
    * This checks that the start date of this range is before or equal the specified start date,
    * and the end date of this range is after or equal the specified end date.
+   * If this range is empty then it only encloses an equal range.
    * 
    * @param other  the other range to check for
    * @return true if this range contains all dates in the other range
    */
   public boolean encloses(LocalDateRange other) {
     ArgChecker.notNull(other, "other");
-    // start <= other.start && end >= other.end
-    return start.compareTo(other.start) <= 0 && endInclusive.compareTo(other.endInclusive) >= 0;
+    // start <= other.start && endExclusive >= other.endExclusive
+    return start.compareTo(other.start) <= 0 && endExclusive.compareTo(other.endExclusive) >= 0;
   }
 
   /**
    * Checks if this range overlaps any dates in the specified range.
    * <p>
-   * This checks that the start date of this range is before or equal the specified end date,
-   * and the end date of this range is after or equal the specified start date.
+   * This checks that the two ranges overlap.
+   * An empty range overlaps at dates where any date is in common.
+   * Thus [2014-06-20,2014-06-25) overlaps both [2014-06-20,2014-06-20) and [2014-06-25,2014-06-25).
    * 
    * @param other  the other range to check for
    * @return true if this range contains all dates in the other range
    */
   public boolean overlaps(LocalDateRange other) {
     ArgChecker.notNull(other, "other");
-    // start <= other.end && end >= other.start
-    return start.compareTo(other.endInclusive) <= 0 && endInclusive.compareTo(other.start) >= 0;
+    // start <= other.endExclusive && endExclusive >= other.start
+    return start.compareTo(other.endExclusive) <= 0 && endExclusive.compareTo(other.start) >= 0;
   }
 
   /**
    * Calculates the range that is the intersection of this range and the specified range.
    * <p>
+   * This finds the intersection of two ranges.
    * This returns an exception if the two ranges do not {@linkplain #overlaps(LocalDateRange) overlap}.
+   * <p>
+   * If the two ranges are adjacent but have no whole dates in common, an empty range is returned.
+   * Thus the intersection of [2014-06-20,2014-06-25) and [2014-06-25,2014-06-30) is [2014-06-25,2014-06-25).
    * 
    * @param other  the other range to check for
    * @return the range that is the intersection of the two ranges
@@ -295,18 +299,27 @@ public final class LocalDateRange
     if (overlaps(other) == false) {
       throw new IllegalArgumentException("Ranges do not overlap: " + this + " and " + other);
     }
-    if (this.equals(other)) {
+    int cmpStart = start.compareTo(other.start);
+    int cmpEnd = endExclusive.compareTo(other.endExclusive);
+    if (cmpStart >= 0 && cmpEnd <= 0) {
       return this;
+    } else if (cmpStart <= 0 && cmpEnd >= 0) {
+      return other;
+    } else {
+      LocalDate newStart = (cmpStart >= 0 ? start : other.start);
+      LocalDate newEnd = (cmpEnd <= 0 ? endExclusive : other.endExclusive);
+      return LocalDateRange.of(newStart, newEnd);
     }
-    LocalDate newStart = Ordering.natural().max(start, other.start);
-    LocalDate newEnd = Ordering.natural().min(endInclusive, other.endInclusive);
-    return LocalDateRange.closed(newStart, newEnd);
   }
 
   /**
    * Calculates the range that is the union of this range and the specified range.
    * <p>
+   * This finds the union of two ranges.
    * This returns an exception if the two ranges do not {@linkplain #overlaps(LocalDateRange) overlap}.
+   * <p>
+   * If the two ranges are adjacent but have no whole dates in common, the union is still returned.
+   * Thus the union of [2014-06-20,2014-06-25) and [2014-06-25,2014-06-30) is [2014-06-20,2014-06-30).
    * 
    * @param other  the other range to check for
    * @return the range that is the union of the two ranges
@@ -317,12 +330,17 @@ public final class LocalDateRange
     if (overlaps(other) == false) {
       throw new IllegalArgumentException("Ranges do not overlap: " + this + " and " + other);
     }
-    if (this.equals(other)) {
+    int cmpStart = start.compareTo(other.start);
+    int cmpEnd = endExclusive.compareTo(other.endExclusive);
+    if (cmpStart >= 0 && cmpEnd <= 0) {
+      return other;
+    } else if (cmpStart <= 0 && cmpEnd >= 0) {
       return this;
+    } else {
+      LocalDate newStart = (cmpStart >= 0 ? other.start : start);
+      LocalDate newEnd = (cmpEnd <= 0 ? other.endExclusive : endExclusive);
+      return LocalDateRange.of(newStart, newEnd);
     }
-    LocalDate newStart = Ordering.natural().min(start, other.start);
-    LocalDate newEnd = Ordering.natural().max(endInclusive, other.endInclusive);
-    return LocalDateRange.closed(newStart, newEnd);
   }
 
   //-------------------------------------------------------------------------
@@ -345,10 +363,10 @@ public final class LocalDateRange
       }
       @Override
       public boolean hasNext() {
-        return current.isBefore(endInclusive) || current.equals(endInclusive);
+        return current.isBefore(endExclusive);
       }
     };
-    long count = endInclusive.toEpochDay() - start.toEpochDay() + 1;
+    long count = endExclusive.toEpochDay() - start.toEpochDay() + 1;
     Spliterator<LocalDate> spliterator = Spliterators.spliterator(it, count,
         Spliterator.IMMUTABLE | Spliterator.NONNULL |
         Spliterator.DISTINCT | Spliterator.ORDERED | Spliterator.SORTED |
@@ -365,8 +383,11 @@ public final class LocalDateRange
    */
   public boolean isBefore(LocalDateRange other) {
     ArgChecker.notNull(other, "other");
-    // end < other.start
-    return endInclusive.isBefore(other.start);
+    if (isEmpty() && this.equals(other)) {
+      return false;
+    }
+    // endExclusive <= other.start
+    return endExclusive.compareTo(other.start) <= 0;
   }
 
   /**
@@ -377,8 +398,11 @@ public final class LocalDateRange
    */
   public boolean isAfter(LocalDateRange other) {
     ArgChecker.notNull(other, "other");
-    // start > other.end
-    return start.isAfter(other.endInclusive);
+    if (isEmpty() && this.equals(other)) {
+      return false;
+    }
+    // start >= other.endExclusive
+    return start.compareTo(other.endExclusive) >= 0;
   }
 
   //-------------------------------------------------------------------------
@@ -395,7 +419,7 @@ public final class LocalDateRange
     }
     if (obj instanceof LocalDateRange) {
       LocalDateRange other = (LocalDateRange) obj;
-      return start.equals(other.start) && endInclusive.equals(other.endInclusive);
+      return start.equals(other.start) && endExclusive.equals(other.endExclusive);
     }
     return false;
   }
@@ -407,16 +431,16 @@ public final class LocalDateRange
    */
   @Override
   public int hashCode() {
-    return start.hashCode() ^ endInclusive.hashCode();
+    return start.hashCode() ^ endExclusive.hashCode();
   }
 
   /**
-   * Returns this range as a string, such as {@code [2009-12-03,2014-06-30]}.
+   * Returns this range as a string, such as {@code [2009-12-03,2014-06-30)}.
    * <p>
    * The string will be one of these formats:<br />
-   *  {@code [2009-12-03,2014-06-30]}<br />
+   *  {@code [2009-12-03,2014-06-30)}<br />
    *  {@code [2009-12-03,+INFINITY]} - if the end is unbounded<br />
-   *  {@code [-INFINITY,2014-06-30]} - if the start is unbounded<br />
+   *  {@code [-INFINITY,2014-06-30)} - if the start is unbounded<br />
    *  {@code [-INFINITY,+INFINITY]} - if the start and end are unbounded<br />
    *
    * @return the standard string
@@ -432,7 +456,7 @@ public final class LocalDateRange
     if (isUnboundedEnd()) {
       buf.append("+INFINITY]");
     } else {
-      buf.append(endInclusive).append(']');
+      buf.append(endExclusive).append(')');
     }
     return buf.toString();
   }
@@ -453,11 +477,11 @@ public final class LocalDateRange
 
   private LocalDateRange(
       LocalDate start,
-      LocalDate endInclusive) {
+      LocalDate endExclusive) {
     JodaBeanUtils.notNull(start, "start");
-    JodaBeanUtils.notNull(endInclusive, "endInclusive");
+    JodaBeanUtils.notNull(endExclusive, "endExclusive");
     this.start = start;
-    this.endInclusive = endInclusive;
+    this.endExclusive = endExclusive;
     validate();
   }
 
@@ -492,17 +516,17 @@ public final class LocalDateRange
     private final MetaProperty<LocalDate> start = DirectMetaProperty.ofImmutable(
         this, "start", LocalDateRange.class, LocalDate.class);
     /**
-     * The meta-property for the {@code endInclusive} property.
+     * The meta-property for the {@code endExclusive} property.
      */
-    private final MetaProperty<LocalDate> endInclusive = DirectMetaProperty.ofImmutable(
-        this, "endInclusive", LocalDateRange.class, LocalDate.class);
+    private final MetaProperty<LocalDate> endExclusive = DirectMetaProperty.ofImmutable(
+        this, "endExclusive", LocalDateRange.class, LocalDate.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "start",
-        "endInclusive");
+        "endExclusive");
 
     /**
      * Restricted constructor.
@@ -515,8 +539,8 @@ public final class LocalDateRange
       switch (propertyName.hashCode()) {
         case 109757538:  // start
           return start;
-        case -1907681455:  // endInclusive
-          return endInclusive;
+        case 1275403267:  // endExclusive
+          return endExclusive;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -546,11 +570,11 @@ public final class LocalDateRange
     }
 
     /**
-     * The meta-property for the {@code endInclusive} property.
+     * The meta-property for the {@code endExclusive} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> endInclusive() {
-      return endInclusive;
+    public MetaProperty<LocalDate> endExclusive() {
+      return endExclusive;
     }
 
     //-----------------------------------------------------------------------
@@ -559,8 +583,8 @@ public final class LocalDateRange
       switch (propertyName.hashCode()) {
         case 109757538:  // start
           return ((LocalDateRange) bean).getStart();
-        case -1907681455:  // endInclusive
-          return ((LocalDateRange) bean).getEndInclusive();
+        case 1275403267:  // endExclusive
+          return ((LocalDateRange) bean).getEndExclusive();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -583,7 +607,7 @@ public final class LocalDateRange
   private static final class Builder extends DirectFieldsBeanBuilder<LocalDateRange> {
 
     private LocalDate start;
-    private LocalDate endInclusive;
+    private LocalDate endExclusive;
 
     /**
      * Restricted constructor.
@@ -597,8 +621,8 @@ public final class LocalDateRange
       switch (propertyName.hashCode()) {
         case 109757538:  // start
           return start;
-        case -1907681455:  // endInclusive
-          return endInclusive;
+        case 1275403267:  // endExclusive
+          return endExclusive;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -610,8 +634,8 @@ public final class LocalDateRange
         case 109757538:  // start
           this.start = (LocalDate) newValue;
           break;
-        case -1907681455:  // endInclusive
-          this.endInclusive = (LocalDate) newValue;
+        case 1275403267:  // endExclusive
+          this.endExclusive = (LocalDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -647,7 +671,7 @@ public final class LocalDateRange
     public LocalDateRange build() {
       return new LocalDateRange(
           start,
-          endInclusive);
+          endExclusive);
     }
 
     //-----------------------------------------------------------------------
@@ -656,7 +680,7 @@ public final class LocalDateRange
       StringBuilder buf = new StringBuilder(96);
       buf.append("LocalDateRange.Builder{");
       buf.append("start").append('=').append(JodaBeanUtils.toString(start)).append(',').append(' ');
-      buf.append("endInclusive").append('=').append(JodaBeanUtils.toString(endInclusive));
+      buf.append("endExclusive").append('=').append(JodaBeanUtils.toString(endExclusive));
       buf.append('}');
       return buf.toString();
     }
