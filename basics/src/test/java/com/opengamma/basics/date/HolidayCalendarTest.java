@@ -5,25 +5,23 @@
  */
 package com.opengamma.basics.date;
 
+import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
-import static com.opengamma.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.collect.TestHelper.coverEnum;
+import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static java.time.DayOfWeek.THURSDAY;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Arrays;
 
-import org.joda.beans.BeanBuilder;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.collect.range.LocalDateRange;
 
 /**
@@ -31,9 +29,6 @@ import com.opengamma.collect.range.LocalDateRange;
  */
 @Test
 public class HolidayCalendarTest {
-
-  private static final LocalDateRange RANGE_2014 = LocalDateRange.ofClosed(
-      LocalDate.of(2014,  1, 1), LocalDate.of(2014,  12, 31));
 
   private static final LocalDate WED_2014_07_09 = LocalDate.of(2014, 7, 9);
   private static final LocalDate THU_2014_07_10 = LocalDate.of(2014, 7, 10);
@@ -53,318 +48,231 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   public void test_NONE() {
-    HolidayCalendar test = HolidayCalendar.NONE;
+    HolidayCalendar test = HolidayCalendars.NONE;
     LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
     range.stream().forEach(date -> {
       assertEquals(test.isBusinessDay(date), true);
       assertEquals(test.isHoliday(date), false);
     });
+    assertEquals(test.getName(), "None");
     assertEquals(test.toString(), "None");
   }
 
+  public void test_NONE_of() {
+    HolidayCalendar test = HolidayCalendar.of("None");
+    assertEquals(test, HolidayCalendars.NONE);
+  }
+
+  public void test_NONE_shift() {
+    assertEquals(HolidayCalendars.NONE.shift(FRI_2014_07_11, 2), SUN_2014_07_13);
+    assertEquals(HolidayCalendars.NONE.shift(SUN_2014_07_13, -2), FRI_2014_07_11);
+  }
+
+  public void test_NONE_next() {
+    assertEquals(HolidayCalendars.NONE.next(FRI_2014_07_11), SAT_2014_07_12);
+    assertEquals(HolidayCalendars.NONE.next(SAT_2014_07_12), SUN_2014_07_13);
+  }
+
+  public void test_NONE_previous() {
+    assertEquals(HolidayCalendars.NONE.previous(SAT_2014_07_12), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.NONE.previous(SUN_2014_07_13), SAT_2014_07_12);
+  }
+
+  public void test_NONE_daysBetween_LocalDateLocalDate() {
+    assertEquals(HolidayCalendars.NONE.daysBetween(FRI_2014_07_11, MON_2014_07_14), 3);
+  }
+
+  public void test_NONE_daysBetween_LocalDateRange() {
+    assertEquals(HolidayCalendars.NONE.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 4);
+  }
+
+  public void test_NONE_combineWith() {
+    HolidayCalendar base = new MockHolCal();
+    HolidayCalendar test = HolidayCalendars.NONE.combineWith(base);
+    assertSame(test, base);
+  }
+
+  public void test_NONE_combineWith_null() {
+    assertThrows(() -> HolidayCalendars.NONE.combineWith(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_SAT_SUN() {
-    HolidayCalendar test = HolidayCalendar.SAT_SUN;
+    HolidayCalendar test = HolidayCalendars.SAT_SUN;
     LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
     range.stream().forEach(date -> {
       boolean isBusinessDay = date.getDayOfWeek() != SATURDAY && date.getDayOfWeek() != SUNDAY;
       assertEquals(test.isBusinessDay(date), isBusinessDay);
       assertEquals(test.isHoliday(date), !isBusinessDay);
     });
+    assertEquals(test.getName(), "Sat/Sun");
     assertEquals(test.toString(), "Sat/Sun");
   }
 
-  //-------------------------------------------------------------------------
-  @DataProvider(name = "createSatSunWeekend")
-  static Object[][] data_createSatSunWeekend() {
-      return new Object[][] {
-          {FRI_2014_07_11, true},
-          {SAT_2014_07_12, false},
-          {SUN_2014_07_13, false},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, true},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, false},
-          {SUN_2014_07_20, false},
-          {MON_2014_07_21, true},
-      };
+  public void test_SAT_SUN_of() {
+    HolidayCalendar test = HolidayCalendar.of("Sat/Sun");
+    assertEquals(test, HolidayCalendars.SAT_SUN);
   }
 
-  @Test(dataProvider = "createSatSunWeekend")
-  public void test_ofIterableDayOfWeekDayOfWeek_satSunWeekend(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(SATURDAY, SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
-    assertEquals(test.toString(), "2 holidays and Sat/Sun weekends");
+  public void test_SAT_SUN_shift() {
+    assertEquals(HolidayCalendars.SAT_SUN.shift(THU_2014_07_10, 2), MON_2014_07_14);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_11, 2), TUE_2014_07_15);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(SUN_2014_07_13, 2), TUE_2014_07_15);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(MON_2014_07_14, 2), WED_2014_07_16);
+    
+    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_11, -2), WED_2014_07_09);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(SAT_2014_07_12, -2), THU_2014_07_10);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(SUN_2014_07_13, -2), THU_2014_07_10);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(MON_2014_07_14, -2), THU_2014_07_10);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(TUE_2014_07_15, -2), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(WED_2014_07_16, -2), MON_2014_07_14);
+    
+    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_11, 5), FRI_2014_07_18);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_11, 6), MON_2014_07_21);
+    
+    assertEquals(HolidayCalendars.SAT_SUN.shift(FRI_2014_07_18, -5), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.SAT_SUN.shift(MON_2014_07_21, -6), FRI_2014_07_11);
   }
 
-  @Test(dataProvider = "createSatSunWeekend")
-  public void test_ofIterableIterable_satSunWeekend(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
-    Iterable<DayOfWeek> weekendDays = Arrays.asList(SATURDAY, SUNDAY);
-    HolidayCalendar test = HolidayCalendar.of(holidays, weekendDays);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(SATURDAY, SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
+  public void test_SAT_SUN_next() {
+    assertEquals(HolidayCalendars.SAT_SUN.next(THU_2014_07_10), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.SAT_SUN.next(FRI_2014_07_11), MON_2014_07_14);
+    assertEquals(HolidayCalendars.SAT_SUN.next(SAT_2014_07_12), MON_2014_07_14);
+    assertEquals(HolidayCalendars.SAT_SUN.next(SAT_2014_07_12), MON_2014_07_14);
   }
 
-  //-------------------------------------------------------------------------
-  @DataProvider(name = "createThuFriWeekend")
-  static Object[][] data_createThuFriWeekend() {
-      return new Object[][] {
-          {FRI_2014_07_11, false},
-          {SAT_2014_07_12, true},
-          {SUN_2014_07_13, true},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, false},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, false},
-          {SUN_2014_07_20, true},
-          {MON_2014_07_21, true},
-      };
+  public void test_SAT_SUN_previous() {
+    assertEquals(HolidayCalendars.SAT_SUN.previous(SAT_2014_07_12), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.SAT_SUN.previous(SUN_2014_07_13), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.SAT_SUN.previous(MON_2014_07_14), FRI_2014_07_11);
+    assertEquals(HolidayCalendars.SAT_SUN.previous(TUE_2014_07_15), MON_2014_07_14);
   }
 
-  @Test(dataProvider = "createThuFriWeekend")
-  public void test_ofIterableDayOfWeekDayOfWeek_thuFriWeekend(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, SAT_2014_07_19);
-    HolidayCalendar test = HolidayCalendar.of(holidays, THURSDAY, FRIDAY);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(THURSDAY, FRIDAY));
-    assertEquals(test.getRange(), RANGE_2014);
-    assertEquals(test.toString(), "2 holidays and Thu/Fri weekends");
+  public void test_SAT_SUN_daysBetween_LocalDateLocalDate() {
+    assertEquals(HolidayCalendars.SAT_SUN.daysBetween(FRI_2014_07_11, MON_2014_07_14), 1);
   }
 
-  @Test(dataProvider = "createThuFriWeekend")
-  public void test_ofIterableIterable_thuFriWeekend(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, SAT_2014_07_19);
-    Iterable<DayOfWeek> weekendDays = Arrays.asList(THURSDAY, FRIDAY);
-    HolidayCalendar test = HolidayCalendar.of(holidays, weekendDays);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(THURSDAY, FRIDAY));
-    assertEquals(test.getRange(), RANGE_2014);
+  public void test_SAT_SUN_daysBetween_LocalDateRange() {
+    assertEquals(HolidayCalendars.SAT_SUN.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 2);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "createSunWeekend")
-  static Object[][] data_createSunWeekend() {
-      return new Object[][] {
-          {FRI_2014_07_11, true},
-          {SAT_2014_07_12, true},
-          {SUN_2014_07_13, false},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, false},
-          {FRI_2014_07_18, true},
-          {SAT_2014_07_19, true},
-          {SUN_2014_07_20, false},
-          {MON_2014_07_21, true},
-      };
+  public void test_FRI_SAT() {
+    HolidayCalendar test = HolidayCalendars.FRI_SAT;
+    LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
+    range.stream().forEach(date -> {
+      boolean isBusinessDay = date.getDayOfWeek() != FRIDAY && date.getDayOfWeek() != SATURDAY;
+      assertEquals(test.isBusinessDay(date), isBusinessDay);
+      assertEquals(test.isHoliday(date), !isBusinessDay);
+    });
+    assertEquals(test.getName(), "Fri/Sat");
+    assertEquals(test.toString(), "Fri/Sat");
   }
 
-  @Test(dataProvider = "createSunWeekend")
-  public void test_ofIterableDayOfWeekDayOfWeek_sunWeekend(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, THU_2014_07_17);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SUNDAY, SUNDAY);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
-    assertEquals(test.toString(), "2 holidays and Sun weekends");
+  public void test_FRI_SAT_of() {
+    HolidayCalendar test = HolidayCalendar.of("Fri/Sat");
+    assertEquals(test, HolidayCalendars.FRI_SAT);
   }
 
-  @Test(dataProvider = "createSunWeekend")
-  public void test_ofIterableIterable_sunWeekend(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, THU_2014_07_17);
-    Iterable<DayOfWeek> weekendDays = Arrays.asList(SUNDAY);
-    HolidayCalendar test = HolidayCalendar.of(holidays, weekendDays);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
+  public void test_FRI_SAT_shift() {
+    assertEquals(HolidayCalendars.FRI_SAT.shift(THU_2014_07_10, 2), MON_2014_07_14);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(FRI_2014_07_11, 2), MON_2014_07_14);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(SUN_2014_07_13, 2), TUE_2014_07_15);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(MON_2014_07_14, 2), WED_2014_07_16);
+    
+    assertEquals(HolidayCalendars.FRI_SAT.shift(FRI_2014_07_11, -2), WED_2014_07_09);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(SAT_2014_07_12, -2), WED_2014_07_09);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(SUN_2014_07_13, -2), WED_2014_07_09);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(MON_2014_07_14, -2), THU_2014_07_10);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(TUE_2014_07_15, -2), SUN_2014_07_13);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(WED_2014_07_16, -2), MON_2014_07_14);
+    
+    assertEquals(HolidayCalendars.FRI_SAT.shift(THU_2014_07_10, 5), THU_2014_07_17);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(THU_2014_07_10, 6), SUN_2014_07_20);
+    
+    assertEquals(HolidayCalendars.FRI_SAT.shift(THU_2014_07_17, -5), THU_2014_07_10);
+    assertEquals(HolidayCalendars.FRI_SAT.shift(SUN_2014_07_20, -6), THU_2014_07_10);
   }
 
-  //-------------------------------------------------------------------------
-  @DataProvider(name = "createThuFriSatWeekend")
-  static Object[][] data_createThuFriSatWeekend() {
-      return new Object[][] {
-          {FRI_2014_07_11, false},
-          {SAT_2014_07_12, false},
-          {SUN_2014_07_13, true},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, false},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, false},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, false},
-          {SUN_2014_07_20, true},
-          {MON_2014_07_21, true},
-      };
+  public void test_FRI_SAT_next() {
+    assertEquals(HolidayCalendars.FRI_SAT.next(WED_2014_07_09), THU_2014_07_10);
+    assertEquals(HolidayCalendars.FRI_SAT.next(THU_2014_07_10), SUN_2014_07_13);
+    assertEquals(HolidayCalendars.FRI_SAT.next(FRI_2014_07_11), SUN_2014_07_13);
+    assertEquals(HolidayCalendars.FRI_SAT.next(SAT_2014_07_12), SUN_2014_07_13);
+    assertEquals(HolidayCalendars.FRI_SAT.next(SUN_2014_07_13), MON_2014_07_14);
   }
 
-  @Test(dataProvider = "createThuFriSatWeekend")
-  public void test_ofIterableIterable_thuFriSatWeekend(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, TUE_2014_07_15);
-    Iterable<DayOfWeek> weekendDays = Arrays.asList(THURSDAY, FRIDAY, SATURDAY);
-    HolidayCalendar test = HolidayCalendar.of(holidays, weekendDays);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(THURSDAY, FRIDAY, SATURDAY));
-    assertEquals(test.getRange(), RANGE_2014);
-    assertEquals(test.toString(), "2 holidays and Thu/Fri/Sat weekends");
+  public void test_FRI_SAT_previous() {
+    assertEquals(HolidayCalendars.FRI_SAT.previous(FRI_2014_07_11), THU_2014_07_10);
+    assertEquals(HolidayCalendars.FRI_SAT.previous(SAT_2014_07_12), THU_2014_07_10);
+    assertEquals(HolidayCalendars.FRI_SAT.previous(SUN_2014_07_13), THU_2014_07_10);
+    assertEquals(HolidayCalendars.FRI_SAT.previous(MON_2014_07_14), SUN_2014_07_13);
+  }
+
+  public void test_FRI_SAT_daysBetween_LocalDateLocalDate() {
+    assertEquals(HolidayCalendars.FRI_SAT.daysBetween(FRI_2014_07_11, MON_2014_07_14), 1);
+  }
+
+  public void test_FRI_SAT_daysBetween_LocalDateRange() {
+    assertEquals(HolidayCalendars.FRI_SAT.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 2);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "createNoWeekends")
-  static Object[][] data_createNoWeekends() {
-      return new Object[][] {
-          {FRI_2014_07_11, true},
-          {SAT_2014_07_12, true},
-          {SUN_2014_07_13, true},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, true},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, true},
-          {SUN_2014_07_20, true},
-          {MON_2014_07_21, true},
-      };
+  public void test_THU_FRI() {
+    HolidayCalendar test = HolidayCalendars.THU_FRI;
+    LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
+    range.stream().forEach(date -> {
+      boolean isBusinessDay = date.getDayOfWeek() != THURSDAY && date.getDayOfWeek() != FRIDAY;
+      assertEquals(test.isBusinessDay(date), isBusinessDay);
+      assertEquals(test.isHoliday(date), !isBusinessDay);
+    });
+    assertEquals(test.getName(), "Thu/Fri");
+    assertEquals(test.toString(), "Thu/Fri");
   }
 
-  @Test(dataProvider = "createNoWeekends")
-  public void test_ofIterableIterable_noWeekends(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
-    Iterable<DayOfWeek> weekendDays = Arrays.asList();
-    HolidayCalendar test = HolidayCalendar.of(holidays, weekendDays);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of());
-    assertEquals(test.getRange(), RANGE_2014);
-    assertEquals(test.toString(), "2 holidays and no weekends");
+  public void test_THU_FRI_of() {
+    HolidayCalendar test = HolidayCalendar.of("Thu/Fri");
+    assertEquals(test, HolidayCalendars.THU_FRI);
   }
 
-  //-------------------------------------------------------------------------
-  @DataProvider(name = "createNoHolidays")
-  static Object[][] data_createNoHolidays() {
-      return new Object[][] {
-          {FRI_2014_07_11, false},
-          {SAT_2014_07_12, false},
-          {SUN_2014_07_13, true},
-          {MON_2014_07_14, true},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, true},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, false},
-          {SUN_2014_07_20, true},
-          {MON_2014_07_21, true},
-      };
+  public void test_THU_FRI_shift() {
+    assertEquals(HolidayCalendars.THU_FRI.shift(WED_2014_07_09, 2), SUN_2014_07_13);
+    assertEquals(HolidayCalendars.THU_FRI.shift(THU_2014_07_10, 2), SUN_2014_07_13);
+    assertEquals(HolidayCalendars.THU_FRI.shift(FRI_2014_07_11, 2), SUN_2014_07_13);
+    assertEquals(HolidayCalendars.THU_FRI.shift(SAT_2014_07_12, 2), MON_2014_07_14);
+    
+    assertEquals(HolidayCalendars.THU_FRI.shift(FRI_2014_07_18, -2), TUE_2014_07_15);
+    assertEquals(HolidayCalendars.THU_FRI.shift(SAT_2014_07_19, -2), TUE_2014_07_15);
+    assertEquals(HolidayCalendars.THU_FRI.shift(SUN_2014_07_20, -2), WED_2014_07_16);
+    assertEquals(HolidayCalendars.THU_FRI.shift(MON_2014_07_21, -2), SAT_2014_07_19);
+    
+    assertEquals(HolidayCalendars.THU_FRI.shift(WED_2014_07_09, 5), WED_2014_07_16);
+    assertEquals(HolidayCalendars.THU_FRI.shift(WED_2014_07_09, 6), SAT_2014_07_19);
+    
+    assertEquals(HolidayCalendars.THU_FRI.shift(WED_2014_07_16, -5), WED_2014_07_09);
+    assertEquals(HolidayCalendars.THU_FRI.shift(SAT_2014_07_19, -6), WED_2014_07_09);
   }
 
-  @Test(dataProvider = "createNoHolidays")
-  public void test_ofIterableIterable_noHolidays(LocalDate date, boolean isBusinessDay) {
-    Iterable<LocalDate> holidays = Arrays.asList();
-    Iterable<DayOfWeek> weekendDays = Arrays.asList(FRIDAY, SATURDAY);
-    HolidayCalendar test = HolidayCalendar.of(holidays, weekendDays);
-    assertEquals(test.isBusinessDay(date), isBusinessDay);
-    assertEquals(test.isHoliday(date), !isBusinessDay);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(FRIDAY, SATURDAY));
-    assertEquals(test.getRange(), LocalDateRange.ofClosed(LocalDate.MIN, LocalDate.MAX));
-    assertEquals(test.toString(), "Fri/Sat weekends");
+  public void test_THU_FRI_next() {
+    assertEquals(HolidayCalendars.THU_FRI.next(WED_2014_07_09), SAT_2014_07_12);
+    assertEquals(HolidayCalendars.THU_FRI.next(THU_2014_07_10), SAT_2014_07_12);
+    assertEquals(HolidayCalendars.THU_FRI.next(FRI_2014_07_11), SAT_2014_07_12);
+    assertEquals(HolidayCalendars.THU_FRI.next(SAT_2014_07_12), SUN_2014_07_13);
   }
 
-  //-------------------------------------------------------------------------
-  public void test_beanBuilder() {
-    ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of(MON_2014_07_14, TUE_2014_07_15);
-    ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    HolidayCalendar test = HolidayCalendar.meta().builder()
-        .set(HolidayCalendar.meta().holidays(), holidays)
-        .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), RANGE_2014)
-        .build();
-    assertEquals(test.getHolidays(), holidays);
-    assertEquals(test.getWeekendDays(), weekendDays);
-    assertEquals(test.getRange(), RANGE_2014);
+  public void test_THU_FRI_previous() {
+    assertEquals(HolidayCalendars.THU_FRI.previous(THU_2014_07_10), WED_2014_07_09);
+    assertEquals(HolidayCalendars.THU_FRI.previous(FRI_2014_07_11), WED_2014_07_09);
+    assertEquals(HolidayCalendars.THU_FRI.previous(SAT_2014_07_12), WED_2014_07_09);
+    assertEquals(HolidayCalendars.THU_FRI.previous(SUN_2014_07_13), SAT_2014_07_12);
   }
 
-  public void test_beanBuilder_noHolidays() {
-    ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of();
-    ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    HolidayCalendar test = HolidayCalendar.meta().builder()
-        .set(HolidayCalendar.meta().holidays(), holidays)
-        .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), LocalDateRange.ALL)
-        .build();
-    assertEquals(test.getHolidays(), holidays);
-    assertEquals(test.getWeekendDays(), weekendDays);
-    assertEquals(test.getRange(), LocalDateRange.ALL);
+  public void test_THU_FRI_daysBetween_LocalDateLocalDate() {
+    assertEquals(HolidayCalendars.THU_FRI.daysBetween(FRI_2014_07_11, MON_2014_07_14), 2);
   }
 
-  public void test_beanBuilder_invalidRangeNotAllWhenNoHolidays() {
-    ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of();
-    ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    BeanBuilder<? extends HolidayCalendar> builder = HolidayCalendar.meta().builder()
-        .set(HolidayCalendar.meta().holidays(), holidays)
-        .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), RANGE_2014);
-    assertThrows(() -> builder.build(), IllegalArgumentException.class);
-  }
-
-  public void test_beanBuilder_invalidRangeHolidayBeforeRangeStart() {
-    ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of(MON_2014_07_14, FRI_2014_07_18);
-    ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    BeanBuilder<? extends HolidayCalendar> builder = HolidayCalendar.meta().builder()
-        .set(HolidayCalendar.meta().holidays(), holidays)
-        .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), LocalDateRange.ofClosed(TUE_2014_07_15, LocalDate.MAX));
-    assertThrows(() -> builder.build(), IllegalArgumentException.class);
-  }
-
-  public void test_beanBuilder_invalidRangeHolidayAfterRangeEnd() {
-    ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of(MON_2014_07_14, FRI_2014_07_18);
-    ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    BeanBuilder<? extends HolidayCalendar> builder = HolidayCalendar.meta().builder()
-        .set(HolidayCalendar.meta().holidays(), holidays)
-        .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), LocalDateRange.ofClosed(LocalDate.MIN, TUE_2014_07_15));
-    assertThrows(() -> builder.build(), IllegalArgumentException.class);
-  }
-
-  public void test_beanBuilder_invalidRangeHolidayBeforeAndAfterRange() {
-    ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of(MON_2014_07_14, FRI_2014_07_18);
-    ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    BeanBuilder<? extends HolidayCalendar> builder = HolidayCalendar.meta().builder()
-        .set(HolidayCalendar.meta().holidays(), holidays)
-        .set(HolidayCalendar.meta().weekendDays(), weekendDays)
-        .set(HolidayCalendar.meta().range(), LocalDateRange.ofClosed(TUE_2014_07_15, THU_2014_07_17));
-    assertThrows(() -> builder.build(), IllegalArgumentException.class);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_isBusinessDay_outOfRange() {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, TUE_2014_07_15);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
-    assertThrows(() -> test.isBusinessDay(LocalDate.of(2013, 12, 31)), IllegalArgumentException.class);
-    assertThrows(() -> test.isBusinessDay(LocalDate.of(2015, 1, 1)), IllegalArgumentException.class);
+  public void test_THU_FRI_daysBetween_LocalDateRange() {
+    assertEquals(HolidayCalendars.THU_FRI.daysBetween(LocalDateRange.of(FRI_2014_07_11, TUE_2014_07_15)), 3);
   }
 
   //-------------------------------------------------------------------------
@@ -372,26 +280,26 @@ public class HolidayCalendarTest {
   static Object[][] data_shift() {
       return new Object[][] {
           {THU_2014_07_10, 1, FRI_2014_07_11},
-          {FRI_2014_07_11, 1, TUE_2014_07_15},
-          {SAT_2014_07_12, 1, TUE_2014_07_15},
-          {SUN_2014_07_13, 1, TUE_2014_07_15},
+          {FRI_2014_07_11, 1, MON_2014_07_14},
+          {SAT_2014_07_12, 1, MON_2014_07_14},
+          {SUN_2014_07_13, 1, MON_2014_07_14},
           {MON_2014_07_14, 1, TUE_2014_07_15},
           {TUE_2014_07_15, 1, THU_2014_07_17},
           {WED_2014_07_16, 1, THU_2014_07_17},
-          {THU_2014_07_17, 1, FRI_2014_07_18},
+          {THU_2014_07_17, 1, MON_2014_07_21},
           {FRI_2014_07_18, 1, MON_2014_07_21},
           {SAT_2014_07_19, 1, MON_2014_07_21},
           {SUN_2014_07_20, 1, MON_2014_07_21},
           {MON_2014_07_21, 1, TUE_2014_07_22},
           
-          {THU_2014_07_10, 2, TUE_2014_07_15},
-          {FRI_2014_07_11, 2, THU_2014_07_17},
-          {SAT_2014_07_12, 2, THU_2014_07_17},
-          {SUN_2014_07_13, 2, THU_2014_07_17},
+          {THU_2014_07_10, 2, MON_2014_07_14},
+          {FRI_2014_07_11, 2, TUE_2014_07_15},
+          {SAT_2014_07_12, 2, TUE_2014_07_15},
+          {SUN_2014_07_13, 2, TUE_2014_07_15},
           {MON_2014_07_14, 2, THU_2014_07_17},
-          {TUE_2014_07_15, 2, FRI_2014_07_18},
-          {WED_2014_07_16, 2, FRI_2014_07_18},
-          {THU_2014_07_17, 2, MON_2014_07_21},
+          {TUE_2014_07_15, 2, MON_2014_07_21},
+          {WED_2014_07_16, 2, MON_2014_07_21},
+          {THU_2014_07_17, 2, TUE_2014_07_22},
           {FRI_2014_07_18, 2, TUE_2014_07_22},
           {SAT_2014_07_19, 2, TUE_2014_07_22},
           {SUN_2014_07_20, 2, TUE_2014_07_22},
@@ -414,45 +322,44 @@ public class HolidayCalendarTest {
           {SAT_2014_07_12, -1, FRI_2014_07_11},
           {SUN_2014_07_13, -1, FRI_2014_07_11},
           {MON_2014_07_14, -1, FRI_2014_07_11},
-          {TUE_2014_07_15, -1, FRI_2014_07_11},
+          {TUE_2014_07_15, -1, MON_2014_07_14},
           {WED_2014_07_16, -1, TUE_2014_07_15},
           {THU_2014_07_17, -1, TUE_2014_07_15},
           {FRI_2014_07_18, -1, THU_2014_07_17},
-          {SAT_2014_07_19, -1, FRI_2014_07_18},
-          {SUN_2014_07_20, -1, FRI_2014_07_18},
-          {MON_2014_07_21, -1, FRI_2014_07_18},
+          {SAT_2014_07_19, -1, THU_2014_07_17},
+          {SUN_2014_07_20, -1, THU_2014_07_17},
+          {MON_2014_07_21, -1, THU_2014_07_17},
           {TUE_2014_07_22, -1, MON_2014_07_21},
           
           {FRI_2014_07_11, -2, WED_2014_07_09},
           {SAT_2014_07_12, -2, THU_2014_07_10},
           {SUN_2014_07_13, -2, THU_2014_07_10},
           {MON_2014_07_14, -2, THU_2014_07_10},
-          {TUE_2014_07_15, -2, THU_2014_07_10},
-          {WED_2014_07_16, -2, FRI_2014_07_11},
-          {THU_2014_07_17, -2, FRI_2014_07_11},
+          {TUE_2014_07_15, -2, FRI_2014_07_11},
+          {WED_2014_07_16, -2, MON_2014_07_14},
+          {THU_2014_07_17, -2, MON_2014_07_14},
           {FRI_2014_07_18, -2, TUE_2014_07_15},
-          {SAT_2014_07_19, -2, THU_2014_07_17},
-          {SUN_2014_07_20, -2, THU_2014_07_17},
-          {MON_2014_07_21, -2, THU_2014_07_17},
-          {TUE_2014_07_22, -2, FRI_2014_07_18},
+          {SAT_2014_07_19, -2, TUE_2014_07_15},
+          {SUN_2014_07_20, -2, TUE_2014_07_15},
+          {MON_2014_07_21, -2, TUE_2014_07_15},
+          {TUE_2014_07_22, -2, THU_2014_07_17},
       };
   }
 
   @Test(dataProvider = "shift")
   public void test_shift(LocalDate date, int amount, LocalDate expected) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
+    // 16th, 18th, Sat, Sun
+    HolidayCalendar test = new MockHolCal();
     assertEquals(test.shift(date, amount), expected);
   }
 
   public void test_shift_null() {
-    assertThrows(() -> HolidayCalendar.SAT_SUN.shift(null, 1), IllegalArgumentException.class);
+    assertThrows(() -> new MockHolCal().shift(null, 1), IllegalArgumentException.class);
   }
 
   @Test(dataProvider = "shift")
   public void test_adjustBy(LocalDate date, int amount, LocalDate expected) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
+    HolidayCalendar test = new MockHolCal();
     assertEquals(date.with(test.adjustBy(amount)), expected);
   }
 
@@ -461,13 +368,13 @@ public class HolidayCalendarTest {
   static Object[][] data_next() {
       return new Object[][] {
           {THU_2014_07_10, FRI_2014_07_11},
-          {FRI_2014_07_11, TUE_2014_07_15},
-          {SAT_2014_07_12, TUE_2014_07_15},
-          {SUN_2014_07_13, TUE_2014_07_15},
+          {FRI_2014_07_11, MON_2014_07_14},
+          {SAT_2014_07_12, MON_2014_07_14},
+          {SUN_2014_07_13, MON_2014_07_14},
           {MON_2014_07_14, TUE_2014_07_15},
           {TUE_2014_07_15, THU_2014_07_17},
           {WED_2014_07_16, THU_2014_07_17},
-          {THU_2014_07_17, FRI_2014_07_18},
+          {THU_2014_07_17, MON_2014_07_21},
           {FRI_2014_07_18, MON_2014_07_21},
           {SAT_2014_07_19, MON_2014_07_21},
           {SUN_2014_07_20, MON_2014_07_21},
@@ -477,13 +384,12 @@ public class HolidayCalendarTest {
 
   @Test(dataProvider = "next")
   public void test_next(LocalDate date, LocalDate expectedNext) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
+    HolidayCalendar test = new MockHolCal();
     assertEquals(test.next(date), expectedNext);
   }
 
   public void test_next_null() {
-    assertThrows(() -> HolidayCalendar.SAT_SUN.next(null), IllegalArgumentException.class);
+    assertThrows(() -> new MockHolCal().next(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -494,26 +400,25 @@ public class HolidayCalendarTest {
           {SAT_2014_07_12, FRI_2014_07_11},
           {SUN_2014_07_13, FRI_2014_07_11},
           {MON_2014_07_14, FRI_2014_07_11},
-          {TUE_2014_07_15, FRI_2014_07_11},
+          {TUE_2014_07_15, MON_2014_07_14},
           {WED_2014_07_16, TUE_2014_07_15},
           {THU_2014_07_17, TUE_2014_07_15},
           {FRI_2014_07_18, THU_2014_07_17},
-          {SAT_2014_07_19, FRI_2014_07_18},
-          {SUN_2014_07_20, FRI_2014_07_18},
-          {MON_2014_07_21, FRI_2014_07_18},
+          {SAT_2014_07_19, THU_2014_07_17},
+          {SUN_2014_07_20, THU_2014_07_17},
+          {MON_2014_07_21, THU_2014_07_17},
           {TUE_2014_07_22, MON_2014_07_21},
       };
   }
 
   @Test(dataProvider = "previous")
   public void test_previous(LocalDate date, LocalDate expectedPrevious) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
+    HolidayCalendar test = new MockHolCal();
     assertEquals(test.previous(date), expectedPrevious);
   }
 
   public void test_previous_null() {
-    assertThrows(() -> HolidayCalendar.SAT_SUN.previous(null), IllegalArgumentException.class);
+    assertThrows(() -> new MockHolCal().previous(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -524,10 +429,10 @@ public class HolidayCalendarTest {
           {FRI_2014_07_11, SAT_2014_07_12, 1},
           {FRI_2014_07_11, SUN_2014_07_13, 1},
           {FRI_2014_07_11, MON_2014_07_14, 1},
-          {FRI_2014_07_11, TUE_2014_07_15, 1},
-          {FRI_2014_07_11, WED_2014_07_16, 2},
-          {FRI_2014_07_11, THU_2014_07_17, 2},
-          {FRI_2014_07_11, FRI_2014_07_18, 3},
+          {FRI_2014_07_11, TUE_2014_07_15, 2},
+          {FRI_2014_07_11, WED_2014_07_16, 3},
+          {FRI_2014_07_11, THU_2014_07_17, 3},
+          {FRI_2014_07_11, FRI_2014_07_18, 4},
           {FRI_2014_07_11, SAT_2014_07_19, 4},
           {FRI_2014_07_11, SUN_2014_07_20, 4},
           {FRI_2014_07_11, MON_2014_07_21, 4},
@@ -537,24 +442,18 @@ public class HolidayCalendarTest {
 
   @Test(dataProvider = "daysBetween")
   public void test_daysBetween_LocalDateLocalDate(LocalDate start, LocalDate end, int expected) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
+    HolidayCalendar test = new MockHolCal();
     assertEquals(test.daysBetween(start, end), expected);
   }
 
   @Test(dataProvider = "daysBetween")
   public void test_daysBetween_LocalDateRange(LocalDate start, LocalDate end, int expected) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
+    HolidayCalendar test = new MockHolCal();
     assertEquals(test.daysBetween(LocalDateRange.of(start, end)), expected);
   }
 
-  public void test_daysBetween_LocalDateRange_noHolidays() {
-    assertEquals(HolidayCalendar.NONE.daysBetween(FRI_2014_07_11, MON_2014_07_14), 3);
-  }
-
   public void test_daysBetween_null() {
-    HolidayCalendar test = HolidayCalendar.SAT_SUN;
+    HolidayCalendar test = new MockHolCal();
     assertThrows(() -> test.daysBetween(null, WED_2014_07_16), IllegalArgumentException.class);
     assertThrows(() -> test.daysBetween(WED_2014_07_16, null), IllegalArgumentException.class);
     assertThrows(() -> test.daysBetween(null, null), IllegalArgumentException.class);
@@ -563,40 +462,76 @@ public class HolidayCalendarTest {
 
   //-------------------------------------------------------------------------
   public void test_combineWith() {
-    Iterable<LocalDate> holidays1 = Arrays.asList(WED_2014_07_16);
-    HolidayCalendar base1 = HolidayCalendar.of(holidays1, SATURDAY, SUNDAY);
-    Iterable<LocalDate> holidays2 = Arrays.asList(MON_2014_07_14);
-    HolidayCalendar base2 = HolidayCalendar.of(holidays2, FRIDAY, SATURDAY);
+    HolidayCalendar base1 = new MockHolCal();
+    HolidayCalendar base2 = HolidayCalendars.FRI_SAT;
     HolidayCalendar test = base1.combineWith(base2);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.of(MON_2014_07_14, WED_2014_07_16));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(FRIDAY, SATURDAY, SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
+    assertEquals(test.toString(), "Mock+Fri/Sat");
+    assertEquals(test.getName(), "Mock+Fri/Sat");
+    assertEquals(test.equals(base1.combineWith(base2)), true);
+    assertEquals(test.equals(""), false);
+    assertEquals(test.equals(null), false);
+    assertEquals(test.hashCode(), base1.combineWith(base2).hashCode());
+    
+    assertEquals(test.isHoliday(THU_2014_07_10), false);
+    assertEquals(test.isHoliday(FRI_2014_07_11), true);
+    assertEquals(test.isHoliday(SAT_2014_07_12), true);
+    assertEquals(test.isHoliday(SUN_2014_07_13), true);
+    assertEquals(test.isHoliday(MON_2014_07_14), false);
+    assertEquals(test.isHoliday(TUE_2014_07_15), false);
+    assertEquals(test.isHoliday(WED_2014_07_16), true);
+    assertEquals(test.isHoliday(THU_2014_07_17), false);
+    assertEquals(test.isHoliday(FRI_2014_07_18), true);
+    assertEquals(test.isHoliday(SAT_2014_07_19), true);
+    assertEquals(test.isHoliday(SUN_2014_07_20), true);
+    assertEquals(test.isHoliday(MON_2014_07_21), false);
   }
 
-  public void test_combineWith_smae() {
-    Iterable<LocalDate> holidays1 = Arrays.asList(WED_2014_07_16);
-    HolidayCalendar base1 = HolidayCalendar.of(holidays1, SATURDAY, SUNDAY);
-    Iterable<LocalDate> holidays2 = Arrays.asList(WED_2014_07_16);
-    HolidayCalendar base2 = HolidayCalendar.of(holidays2, SATURDAY, SUNDAY);
-    HolidayCalendar test = base1.combineWith(base2);
-    assertEquals(test.getHolidays(), ImmutableSortedSet.of(WED_2014_07_16));
-    assertEquals(test.getWeekendDays(), ImmutableSet.of(SATURDAY, SUNDAY));
-    assertEquals(test.getRange(), RANGE_2014);
+  public void test_combineWith_same() {
+    HolidayCalendar base = new MockHolCal();
+    HolidayCalendar test = base.combineWith(base);
+    assertSame(test, base);
+  }
+
+  public void test_combineWith_none() {
+    HolidayCalendar base = new MockHolCal();
+    HolidayCalendar test = base.combineWith(HolidayCalendars.NONE);
+    assertSame(test, base);
   }
 
   public void test_combineWith_null() {
-    assertThrows(() -> HolidayCalendar.SAT_SUN.combineWith(null), IllegalArgumentException.class);
+    assertThrows(() -> new MockHolCal().combineWith(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, TUE_2014_07_15);
-    coverImmutableBean(HolidayCalendar.of(holidays, SATURDAY, SUNDAY));
+    coverPrivateConstructor(HolidayCalendars.class);
+    coverEnum(HolidayCalendars.Standard.class);
   }
 
   public void test_serialization() {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, TUE_2014_07_15);
-    assertSerialization(HolidayCalendar.of(holidays, SATURDAY, SUNDAY));
+    assertSerialization(HolidayCalendars.NONE);
+    assertSerialization(HolidayCalendars.SAT_SUN);
+    assertSerialization(HolidayCalendars.FRI_SAT);
+    assertSerialization(HolidayCalendars.FRI_SAT.combineWith(HolidayCalendars.SAT_SUN));
+  }
+
+  public void test_jodaConvert() {
+    assertJodaConvert(HolidayCalendar.class, HolidayCalendars.NONE);
+    assertJodaConvert(HolidayCalendar.class, HolidayCalendars.SAT_SUN);
+    assertJodaConvert(HolidayCalendar.class, HolidayCalendars.FRI_SAT.combineWith(HolidayCalendars.SAT_SUN));
+  }
+
+  //-------------------------------------------------------------------------
+  static class MockHolCal implements HolidayCalendar {
+    @Override
+    public boolean isHoliday(LocalDate date) {
+      return date.getDayOfMonth() == 16 || date.getDayOfMonth() == 18 ||
+          date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+    }
+    @Override
+    public String getName() {
+      return "Mock";
+    }
   }
 
 }

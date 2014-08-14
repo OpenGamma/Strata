@@ -127,7 +127,7 @@ public final class PeriodAdjustment
    * @return the period adjustment
    */
   public static PeriodAdjustment ofCalendarDays(int numberOfDays) {
-    return new PeriodAdjustment(numberOfDays, HolidayCalendar.NONE, BusinessDayAdjustment.NONE);
+    return new PeriodAdjustment(numberOfDays, HolidayCalendars.NONE, BusinessDayAdjustment.NONE);
   }
 
   /**
@@ -143,7 +143,7 @@ public final class PeriodAdjustment
    * @return the period adjustment
    */
   public static PeriodAdjustment ofCalendarDays(int numberOfDays, BusinessDayAdjustment adjustment) {
-    return new PeriodAdjustment(numberOfDays, HolidayCalendar.NONE, adjustment);
+    return new PeriodAdjustment(numberOfDays, HolidayCalendars.NONE, adjustment);
   }
 
   /**
@@ -214,7 +214,7 @@ public final class PeriodAdjustment
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append(days);
-    if (calendar == HolidayCalendar.NONE) {
+    if (calendar == HolidayCalendars.NONE) {
       buf.append(" calendar day");
       if (days != 1) {
         buf.append("s");

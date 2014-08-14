@@ -55,7 +55,7 @@ public final class BusinessDayAdjustment
    * The {@linkplain BusinessDayConventions#NO_ADJUST no adjustment convention}.
    */
   public static final BusinessDayAdjustment NONE =
-      new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST, HolidayCalendar.NONE);
+      new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NONE);
 
   /**
    * The convention used to the adjust the date if it does not fall on a business day.

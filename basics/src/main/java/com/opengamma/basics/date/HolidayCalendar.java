@@ -5,43 +5,14 @@
  */
 package com.opengamma.basics.date;
 
-import static java.time.DayOfWeek.SATURDAY;
-import static java.time.DayOfWeek.SUNDAY;
-
-import java.io.Serializable;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.TextStyle;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableValidator;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.range.LocalDateRange;
 
@@ -52,117 +23,29 @@ import com.opengamma.collect.range.LocalDateRange;
  * This class encapsulates that knowledge, with each day treated as a holiday or a business day.
  * Weekends are effectively treated as a special kind of holiday.
  * <p>
- * This class is immutable and thread-safe.
+ * The most common implementations are provided in {@link HolidayCalendars}.
+ * Additional implementations may be added by implementing this interface.
+ * <p>
+ * All implementations of this interface must be immutable and thread-safe.
  */
-@BeanDefinition(builderScope = "private")
-public final class HolidayCalendar
-    implements ImmutableBean, Serializable {
+public interface HolidayCalendar {
 
   /**
-   * An instance declaring no holidays and no weekends.
-   * This has the effect of making every day a business day.
-   */
-  public static final HolidayCalendar NONE =
-      new HolidayCalendar(ImmutableSortedSet.of(), ImmutableSet.of());
-  /**
-   * An instance declaring all days as business days except Saturday/Sunday weekends.
-   * Note that not all countries use Saturday and Sunday weekends.
-   */
-  public static final HolidayCalendar SAT_SUN =
-      new HolidayCalendar(ImmutableSortedSet.of(), ImmutableSet.of(SATURDAY, SUNDAY));
-
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
-  /**
-   * The supported range of dates.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDateRange range;
-  /**
-   * The set of holiday dates.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableSortedSet<LocalDate> holidays;
-  /**
-   * The set of weekend days.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<DayOfWeek> weekendDays;
-
-  //-------------------------------------------------------------------------
-  /**
-   * Obtains a {@code HolidayCalendar} from a set of holiday dates and weekend days.
+   * Obtains a {@code HolidayCalendar} from a unique name.
    * <p>
-   * The holiday dates will be extracted into a set with duplicates ignored.
-   * The minimum supported date for query is the start of the year of the earliest holiday.
-   * The maximum supported date for query is the end of the year of the latest holiday.
+   * The unique name identifies a calendar in an underlying source of calendars.
+   * The calendar itself is looked up on demand when required.
    * <p>
-   * The weekend days may both be the same.
+   * It is possible to combine two or more calendars using the '+' symbol.
+   * For example, 'GBLO+USNY' will combine the separate 'GBLO' and 'USNY' calendars.
    * 
-   * @param holidays  the set of holiday dates
-   * @param firstWeekendDay  the first weekend day
-   * @param secondWeekendDay  the second weekend day, may be same as first
+   * @param uniqueName  the unique name of the calendar
    * @return the holiday calendar
    */
-  public static HolidayCalendar of(Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
-    ArgChecker.noNulls(holidays, "holidays");
-    ArgChecker.notNull(firstWeekendDay, "firstWeekendDay");
-    ArgChecker.notNull(secondWeekendDay, "secondWeekendDay");
-    return new HolidayCalendar(
-        ImmutableSortedSet.copyOf(holidays),
-        Sets.immutableEnumSet(firstWeekendDay, secondWeekendDay));
-  }
-
-  /**
-   * Obtains a {@code HolidayCalendar} from a set of holiday dates and weekend days.
-   * <p>
-   * The holiday dates will be extracted into a set with duplicates ignored.
-   * The minimum supported date for query is the start of the year of the earliest holiday.
-   * The maximum supported date for query is the end of the year of the latest holiday.
-   * <p>
-   * The weekend days may be empty, in which case the holiday dates should contain any weekends.
-   * 
-   * @param holidays  the set of holiday dates
-   * @param weekendDays  the days that define the weekend, if empty then weekends are treated as business days
-   * @return the holiday calendar
-   */
-  public static HolidayCalendar of(Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
-    ArgChecker.noNulls(holidays, "holidays");
-    ArgChecker.noNulls(weekendDays, "weekendDays");
-    return new HolidayCalendar(ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates an instance calculating the supported range.
-   * 
-   * @param holidays  the set of holidays, validated non-null
-   * @param weekendDays  the set of weekend days, validated non-null
-   */
-  private HolidayCalendar(ImmutableSortedSet<LocalDate> holidays, ImmutableSet<DayOfWeek> weekendDays) {
-    if (holidays.isEmpty()) {
-      this.range = LocalDateRange.ALL;
-    } else {
-      this.range = LocalDateRange.ofClosed(
-          holidays.first().with(TemporalAdjusters.firstDayOfYear()),
-          holidays.last().with(TemporalAdjusters.lastDayOfYear()));
-    }
-    this.holidays = holidays;
-    this.weekendDays = weekendDays;
-  }
-
-  @ImmutableValidator
-  private void validate() {
-    if (holidays.isEmpty()) {
-      if (range.equals(LocalDateRange.ALL) == false) {
-        throw new IllegalArgumentException("Range must be ALL if holiday set is empty");
-      }
-    } else {
-      if (range.contains(holidays.first()) == false || range.contains(holidays.last()) == false) {
-        throw new IllegalArgumentException("All holidays must be within the supported range");
-      }
-    }
+  @FromString
+  public static HolidayCalendar of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return HolidayCalendars.of(uniqueName);
   }
 
   //-------------------------------------------------------------------------
@@ -176,13 +59,7 @@ public final class HolidayCalendar
    * @return true if the specified date is a holiday
    * @throws IllegalArgumentException if the date is outside the supported range
    */
-  public boolean isHoliday(LocalDate date) {
-    ArgChecker.notNull(date, "date");
-    if (range.contains(date) == false) {
-      throw new IllegalArgumentException("Date is not within the range of known holidays: " + date + ", " + range);
-    }
-    return holidays.contains(date) || weekendDays.contains(date.getDayOfWeek());
-  }
+  public abstract boolean isHoliday(LocalDate date);
 
   /**
    * Checks if the specified date is a business day.
@@ -194,7 +71,7 @@ public final class HolidayCalendar
    * @return true if the specified date is a business day
    * @throws IllegalArgumentException if the date is outside the supported range
    */
-  public boolean isBusinessDay(LocalDate date) {
+  public default boolean isBusinessDay(LocalDate date) {
     return !isHoliday(date);
   }
 
@@ -213,7 +90,7 @@ public final class HolidayCalendar
    * @return the first business day after this one
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
-  public TemporalAdjuster adjustBy(int amount) {
+  public default TemporalAdjuster adjustBy(int amount) {
     return TemporalAdjusters.ofDateAdjuster(date -> shift(date, amount));
   }
 
@@ -229,7 +106,7 @@ public final class HolidayCalendar
    * @return the shifted date
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
-  public LocalDate shift(LocalDate date, int amount) {
+  public default LocalDate shift(LocalDate date, int amount) {
     ArgChecker.notNull(date, "date");
     LocalDate adjusted = date;
     if (amount > 0) {
@@ -253,7 +130,7 @@ public final class HolidayCalendar
    * @return the first business day after this one
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
-  public LocalDate next(LocalDate date) {
+  public default LocalDate next(LocalDate date) {
     ArgChecker.notNull(date, "date");
     LocalDate next = date.plusDays(1);
     return isHoliday(next) ? next(next) : next;
@@ -268,7 +145,7 @@ public final class HolidayCalendar
    * @return the first business day before this one
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
-  public LocalDate previous(LocalDate date) {
+  public default LocalDate previous(LocalDate date) {
     ArgChecker.notNull(date, "date");
     LocalDate previous = date.minusDays(1);
     return isHoliday(previous) ? previous(previous) : previous;
@@ -287,7 +164,7 @@ public final class HolidayCalendar
    * @return the total number of business days between the start and end date
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
-  public int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
+  public default int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
     return daysBetween(LocalDateRange.of(startInclusive, endExclusive));
   }
 
@@ -300,7 +177,7 @@ public final class HolidayCalendar
    * @return the total number of business days between the start and end date
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
-  public int daysBetween(LocalDateRange dateRange) {
+  public default int daysBetween(LocalDateRange dateRange) {
     ArgChecker.notNull(dateRange, "dateRange");
     return Math.toIntExact(dateRange.stream()
         .filter(this::isBusinessDay)
@@ -311,360 +188,33 @@ public final class HolidayCalendar
   /**
    * Combines this holiday calendar with another.
    * <p>
-   * The resulting calendar will declare a day as a a business day if it is a
+   * The resulting calendar will declare a day as a business day if it is a
    * business day in both source calendars.
    * 
    * @param other  the other holiday calendar
    * @return the combined calendar
    * @throws IllegalArgumentException if unable to combine the calendars
    */
-  public HolidayCalendar combineWith(HolidayCalendar other) {
+  public default HolidayCalendar combineWith(HolidayCalendar other) {
     ArgChecker.notNull(other, "other");
     if (this.equals(other)) {
       return this;
     }
-    LocalDateRange newRange = range.union(other.range);  // exception if no overlap
-    ImmutableSortedSet<LocalDate> newHolidays =
-        ImmutableSortedSet.copyOf(Iterables.concat(holidays, other.holidays))
-            .subSet(newRange.getStart(), newRange.getEndExclusive());
-    ImmutableSet<DayOfWeek> newWeekends = ImmutableSet.copyOf(Iterables.concat(weekendDays, other.weekendDays));
-    return new HolidayCalendar(newHolidays, newWeekends);
+    if (other == HolidayCalendars.NONE) {
+      return this;
+    }
+    return new HolidayCalendars.Combined(this, other);
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
-   * Returns a string describing the calendar.
+   * Gets the name that uniquely identifies this calendar.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
    * 
-   * @return the descriptive string
+   * @return the unique name
    */
-  @Override
-  public String toString() {
-    if (SAT_SUN.equals(this)) {
-      return "Sat/Sun";
-    } else if (NONE.equals(this)) {
-      return "None";
-    }
-    if (weekendDays.size() == 0) {
-      return holidays.size() + " holidays and no weekends";
-    }
-    String weekends = weekendDays.stream()
-        .map(dow -> dow.getDisplayName(TextStyle.SHORT, Locale.ENGLISH))
-        .collect(Collectors.joining("/"));
-    if (holidays.size() == 0) {
-      return weekends + " weekends";
-    }
-    return holidays.size() + " holidays and " + weekends + " weekends";
-  }
+  @ToString
+  public String getName();
 
-  //------------------------- AUTOGENERATED START -------------------------
-  ///CLOVER:OFF
-  /**
-   * The meta-bean for {@code HolidayCalendar}.
-   * @return the meta-bean, not null
-   */
-  public static HolidayCalendar.Meta meta() {
-    return HolidayCalendar.Meta.INSTANCE;
-  }
-
-  static {
-    JodaBeanUtils.registerMetaBean(HolidayCalendar.Meta.INSTANCE);
-  }
-
-  private HolidayCalendar(
-      LocalDateRange range,
-      SortedSet<LocalDate> holidays,
-      Set<DayOfWeek> weekendDays) {
-    JodaBeanUtils.notNull(range, "range");
-    JodaBeanUtils.notNull(holidays, "holidays");
-    JodaBeanUtils.notNull(weekendDays, "weekendDays");
-    this.range = range;
-    this.holidays = ImmutableSortedSet.copyOfSorted(holidays);
-    this.weekendDays = ImmutableSet.copyOf(weekendDays);
-    validate();
-  }
-
-  @Override
-  public HolidayCalendar.Meta metaBean() {
-    return HolidayCalendar.Meta.INSTANCE;
-  }
-
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the supported range of dates.
-   * @return the value of the property, not null
-   */
-  public LocalDateRange getRange() {
-    return range;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the set of holiday dates.
-   * @return the value of the property, not null
-   */
-  public ImmutableSortedSet<LocalDate> getHolidays() {
-    return holidays;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the set of weekend days.
-   * @return the value of the property, not null
-   */
-  public ImmutableSet<DayOfWeek> getWeekendDays() {
-    return weekendDays;
-  }
-
-  //-----------------------------------------------------------------------
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HolidayCalendar other = (HolidayCalendar) obj;
-      return JodaBeanUtils.equal(getRange(), other.getRange()) &&
-          JodaBeanUtils.equal(getHolidays(), other.getHolidays()) &&
-          JodaBeanUtils.equal(getWeekendDays(), other.getWeekendDays());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeekendDays());
-    return hash;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code HolidayCalendar}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code range} property.
-     */
-    private final MetaProperty<LocalDateRange> range = DirectMetaProperty.ofImmutable(
-        this, "range", HolidayCalendar.class, LocalDateRange.class);
-    /**
-     * The meta-property for the {@code holidays} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSortedSet<LocalDate>> holidays = DirectMetaProperty.ofImmutable(
-        this, "holidays", HolidayCalendar.class, (Class) ImmutableSortedSet.class);
-    /**
-     * The meta-property for the {@code weekendDays} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<DayOfWeek>> weekendDays = DirectMetaProperty.ofImmutable(
-        this, "weekendDays", HolidayCalendar.class, (Class) ImmutableSet.class);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "range",
-        "holidays",
-        "weekendDays");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 108280125:  // range
-          return range;
-        case -510663909:  // holidays
-          return holidays;
-        case 563236190:  // weekendDays
-          return weekendDays;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public BeanBuilder<? extends HolidayCalendar> builder() {
-      return new HolidayCalendar.Builder();
-    }
-
-    @Override
-    public Class<? extends HolidayCalendar> beanType() {
-      return HolidayCalendar.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code range} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDateRange> range() {
-      return range;
-    }
-
-    /**
-     * The meta-property for the {@code holidays} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ImmutableSortedSet<LocalDate>> holidays() {
-      return holidays;
-    }
-
-    /**
-     * The meta-property for the {@code weekendDays} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ImmutableSet<DayOfWeek>> weekendDays() {
-      return weekendDays;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case 108280125:  // range
-          return ((HolidayCalendar) bean).getRange();
-        case -510663909:  // holidays
-          return ((HolidayCalendar) bean).getHolidays();
-        case 563236190:  // weekendDays
-          return ((HolidayCalendar) bean).getWeekendDays();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code HolidayCalendar}.
-   */
-  private static final class Builder extends DirectFieldsBeanBuilder<HolidayCalendar> {
-
-    private LocalDateRange range;
-    private SortedSet<LocalDate> holidays = new TreeSet<LocalDate>();
-    private Set<DayOfWeek> weekendDays = new HashSet<DayOfWeek>();
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Object get(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 108280125:  // range
-          return range;
-        case -510663909:  // holidays
-          return holidays;
-        case 563236190:  // weekendDays
-          return weekendDays;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Builder set(String propertyName, Object newValue) {
-      switch (propertyName.hashCode()) {
-        case 108280125:  // range
-          this.range = (LocalDateRange) newValue;
-          break;
-        case -510663909:  // holidays
-          this.holidays = (SortedSet<LocalDate>) newValue;
-          break;
-        case 563236190:  // weekendDays
-          this.weekendDays = (Set<DayOfWeek>) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
-      }
-      return this;
-    }
-
-    @Override
-    public Builder set(MetaProperty<?> property, Object value) {
-      super.set(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(String propertyName, String value) {
-      setString(meta().metaProperty(propertyName), value);
-      return this;
-    }
-
-    @Override
-    public Builder setString(MetaProperty<?> property, String value) {
-      super.setString(property, value);
-      return this;
-    }
-
-    @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
-      super.setAll(propertyValueMap);
-      return this;
-    }
-
-    @Override
-    public HolidayCalendar build() {
-      return new HolidayCalendar(
-          range,
-          holidays,
-          weekendDays);
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(128);
-      buf.append("HolidayCalendar.Builder{");
-      buf.append("range").append('=').append(JodaBeanUtils.toString(range)).append(',').append(' ');
-      buf.append("holidays").append('=').append(JodaBeanUtils.toString(holidays)).append(',').append(' ');
-      buf.append("weekendDays").append('=').append(JodaBeanUtils.toString(weekendDays));
-      buf.append('}');
-      return buf.toString();
-    }
-
-  }
-
-  ///CLOVER:ON
-  //-------------------------- AUTOGENERATED END --------------------------
 }

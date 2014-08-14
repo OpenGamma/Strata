@@ -6,7 +6,7 @@
 package com.opengamma.basics.date;
 
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.basics.date.HolidayCalendar.SAT_SUN;
+import static com.opengamma.basics.date.HolidayCalendars.SAT_SUN;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -37,21 +37,21 @@ public class BusinessDayAdjustmentTest {
   public void test_noAdjust_constant() {
     BusinessDayAdjustment test = BusinessDayAdjustment.NONE;
     assertEquals(test.getConvention(), BusinessDayConventions.NO_ADJUST);
-    assertEquals(test.getCalendar(), HolidayCalendar.NONE);
+    assertEquals(test.getCalendar(), HolidayCalendars.NONE);
     assertEquals(test.toString(), "NoAdjust");
   }
 
   public void test_noAdjust_factory() {
-    BusinessDayAdjustment test = BusinessDayAdjustment.of(BusinessDayConventions.NO_ADJUST, HolidayCalendar.NONE);
+    BusinessDayAdjustment test = BusinessDayAdjustment.of(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NONE);
     assertEquals(test.getConvention(), BusinessDayConventions.NO_ADJUST);
-    assertEquals(test.getCalendar(), HolidayCalendar.NONE);
+    assertEquals(test.getCalendar(), HolidayCalendars.NONE);
     assertEquals(test.toString(), "NoAdjust");
   }
 
   public void test_noAdjust_normalized() {
     BusinessDayAdjustment test = BusinessDayAdjustment.of(BusinessDayConventions.NO_ADJUST, SAT_SUN);
     assertEquals(test.getConvention(), BusinessDayConventions.NO_ADJUST);
-    assertEquals(test.getCalendar(), HolidayCalendar.SAT_SUN);
+    assertEquals(test.getCalendar(), SAT_SUN);
     assertEquals(test.toString(), "NoAdjust using calendar Sat/Sun");
   }
 

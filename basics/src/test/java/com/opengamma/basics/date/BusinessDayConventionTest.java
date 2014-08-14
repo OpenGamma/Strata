@@ -68,7 +68,7 @@ public class BusinessDayConventionTest {
 
   @Test(dataProvider = "types")
   public void test_null(BusinessDayConvention type) {
-    assertThrows(() -> type.adjust(null, HolidayCalendar.NONE), IllegalArgumentException.class);
+    assertThrows(() -> type.adjust(null, HolidayCalendars.NONE), IllegalArgumentException.class);
     assertThrows(() -> type.adjust(FRI_2014_11_14, null), IllegalArgumentException.class);
     assertThrows(() -> type.adjust(null, null), IllegalArgumentException.class);
   }
@@ -171,11 +171,11 @@ public class BusinessDayConventionTest {
 
   @Test(dataProvider = "convention")
   public void test_convention(BusinessDayConvention convention, LocalDate input, LocalDate expected) {
-    assertEquals(convention.adjust(input, HolidayCalendar.SAT_SUN), expected);
+    assertEquals(convention.adjust(input, HolidayCalendars.SAT_SUN), expected);
   }
 
   public void test_nearest() {
-    HolidayCalendar cal = HolidayCalendar.of(ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
+    HolidayCalendar cal = StandardHolidayCalendar.of("Test", ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
     assertEquals(NEAREST.adjust(FRI_2014_07_11, cal), FRI_2014_07_11);
     assertEquals(NEAREST.adjust(SAT_2014_07_12, cal), FRI_2014_07_11);
     assertEquals(NEAREST.adjust(SUN_2014_07_13, cal), TUE_2014_07_15);

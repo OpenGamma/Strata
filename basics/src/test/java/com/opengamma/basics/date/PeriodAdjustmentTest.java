@@ -25,12 +25,13 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class PeriodAdjustmentTest {
 
-  private static final HolidayCalendar HOLCAL_NONE = HolidayCalendar.NONE;
-  private static final HolidayCalendar HOLCAL_SAT_SUN = HolidayCalendar.SAT_SUN;
-  private static final HolidayCalendar HOLCAL_WED_THU = HolidayCalendar.of(ImmutableList.of(), WEDNESDAY, THURSDAY);
+  private static final HolidayCalendar HOLCAL_NONE = HolidayCalendars.NONE;
+  private static final HolidayCalendar HOLCAL_SAT_SUN = HolidayCalendars.SAT_SUN;
+  private static final HolidayCalendar HOLCAL_WED_THU =
+      StandardHolidayCalendar.of("WedThu", ImmutableList.of(), WEDNESDAY, THURSDAY);
   private static final BusinessDayAdjustment BDA_NONE = BusinessDayAdjustment.NONE;
   private static final BusinessDayAdjustment BDA_FOLLOW_SAT_SUN =
-      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendar.SAT_SUN);
+      BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
   private static final BusinessDayAdjustment BDA_FOLLOW_WED_THU =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HOLCAL_WED_THU);
 
