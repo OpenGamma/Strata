@@ -30,7 +30,7 @@ import com.opengamma.collect.ArgChecker;
  * A thread-local instance of the context map is obtained using {@code ServiceManager}
  * and then queried using {@code get(Class)}:
  * <pre>
- *   FooService foo = ServiceContext.get().get(FooService.class);
+ *   FooService foo = ServiceContext.getMap().get(FooService.class);
  * </pre>
  * The context map should be re-obtained from the {@code ServiceContext} every time it is needed.
  * Caching the context map or passing it around via method parameters is strongly discouraged.
@@ -40,7 +40,7 @@ public final class ServiceContextMap {
   /**
    * The services held by this context map.
    */
-  private ImmutableClassToInstanceMap<Object> services;
+  private final ImmutableClassToInstanceMap<Object> services;
 
   //-------------------------------------------------------------------------
   /**
@@ -112,7 +112,7 @@ public final class ServiceContextMap {
    */
   public <T> T get(Class<T> serviceType) {
     ArgChecker.notNull(serviceType, "serviceType");
-    final T service = services.getInstance(serviceType);
+    T service = services.getInstance(serviceType);
     if (service == null) {
       throw new IllegalArgumentException("No service found: " + serviceType);
     }
