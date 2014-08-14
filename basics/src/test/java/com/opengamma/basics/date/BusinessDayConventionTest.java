@@ -171,7 +171,7 @@ public class BusinessDayConventionTest {
 
   @Test(dataProvider = "convention")
   public void test_convention(BusinessDayConvention convention, LocalDate input, LocalDate expected) {
-    assertEquals(convention.adjust(input, HolidayCalendar.WEEKENDS), expected);
+    assertEquals(convention.adjust(input, HolidayCalendar.SAT_SUN), expected);
   }
 
   public void test_nearest() {

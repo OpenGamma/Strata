@@ -59,20 +59,18 @@ public class HolidayCalendarTest {
       assertEquals(test.isBusinessDay(date), true);
       assertEquals(test.isHoliday(date), false);
     });
-    assertEquals(test.hasNoHolidays(), true);
     assertEquals(test.toString(), "None");
   }
 
-  public void test_WEEKENDS() {
-    HolidayCalendar test = HolidayCalendar.WEEKENDS;
+  public void test_SAT_SUN() {
+    HolidayCalendar test = HolidayCalendar.SAT_SUN;
     LocalDateRange range = LocalDateRange.ofClosed(LocalDate.of(2011, 1, 1), LocalDate.of(2015, 1, 31));
     range.stream().forEach(date -> {
       boolean isBusinessDay = date.getDayOfWeek() != SATURDAY && date.getDayOfWeek() != SUNDAY;
       assertEquals(test.isBusinessDay(date), isBusinessDay);
       assertEquals(test.isHoliday(date), !isBusinessDay);
     });
-    assertEquals(test.hasNoHolidays(), false);
-    assertEquals(test.toString(), "Weekends");
+    assertEquals(test.toString(), "Sat/Sun");
   }
 
   //-------------------------------------------------------------------------
@@ -448,7 +446,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_shift_null() {
-    assertThrows(() -> HolidayCalendar.WEEKENDS.shift(null, 1), IllegalArgumentException.class);
+    assertThrows(() -> HolidayCalendar.SAT_SUN.shift(null, 1), IllegalArgumentException.class);
   }
 
   @Test(dataProvider = "shift")
@@ -485,7 +483,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_next_null() {
-    assertThrows(() -> HolidayCalendar.WEEKENDS.next(null), IllegalArgumentException.class);
+    assertThrows(() -> HolidayCalendar.SAT_SUN.next(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -515,40 +513,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_previous_null() {
-    assertThrows(() -> HolidayCalendar.WEEKENDS.previous(null), IllegalArgumentException.class);
-  }
-
-  //-------------------------------------------------------------------------
-  @DataProvider(name = "ensure")
-  static Object[][] data_ensure() {
-      return new Object[][] {
-          {FRI_2014_07_11, FRI_2014_07_11},
-          {SAT_2014_07_12, TUE_2014_07_15},
-          {SUN_2014_07_13, TUE_2014_07_15},
-          {MON_2014_07_14, TUE_2014_07_15},
-          {TUE_2014_07_15, TUE_2014_07_15},
-          {WED_2014_07_16, THU_2014_07_17},
-          {THU_2014_07_17, THU_2014_07_17},
-          {FRI_2014_07_18, FRI_2014_07_18},
-          {SAT_2014_07_19, MON_2014_07_21},
-          {SUN_2014_07_20, MON_2014_07_21},
-          {MON_2014_07_21, MON_2014_07_21},
-          {TUE_2014_07_22, TUE_2014_07_22},
-      };
-  }
-
-  @Test(dataProvider = "ensure")
-  public void test_ensure(LocalDate date, LocalDate expected) {
-    Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, WED_2014_07_16);
-    HolidayCalendar test = HolidayCalendar.of(holidays, SATURDAY, SUNDAY);
-    assertEquals(test.ensure(date, BusinessDayConventions.FOLLOWING), expected);
-  }
-
-  public void test_ensure_null() {
-    HolidayCalendar test = HolidayCalendar.WEEKENDS;
-    assertThrows(() -> test.ensure(null, BusinessDayConventions.NO_ADJUST), IllegalArgumentException.class);
-    assertThrows(() -> test.ensure(THU_2014_07_10, null), IllegalArgumentException.class);
-    assertThrows(() -> test.ensure(null, null), IllegalArgumentException.class);
+    assertThrows(() -> HolidayCalendar.SAT_SUN.previous(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -589,7 +554,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_daysBetween_null() {
-    HolidayCalendar test = HolidayCalendar.WEEKENDS;
+    HolidayCalendar test = HolidayCalendar.SAT_SUN;
     assertThrows(() -> test.daysBetween(null, WED_2014_07_16), IllegalArgumentException.class);
     assertThrows(() -> test.daysBetween(WED_2014_07_16, null), IllegalArgumentException.class);
     assertThrows(() -> test.daysBetween(null, null), IllegalArgumentException.class);
@@ -620,7 +585,7 @@ public class HolidayCalendarTest {
   }
 
   public void test_combineWith_null() {
-    assertThrows(() -> HolidayCalendar.WEEKENDS.combineWith(null), IllegalArgumentException.class);
+    assertThrows(() -> HolidayCalendar.SAT_SUN.combineWith(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------

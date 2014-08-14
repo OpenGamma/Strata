@@ -7,7 +7,6 @@ package com.opengamma.basics.date;
 
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
-import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
@@ -47,7 +46,7 @@ import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.range.LocalDateRange;
 
 /**
- * A pre-calculated set of dates classifying dates as holidays or business days.
+ * A holiday calendar, classifying dates as holidays or business days.
  * <p>
  * Many calculations in finance require knowledge of whether a date is a business day or not.
  * This class encapsulates that knowledge, with each day treated as a holiday or a business day.
@@ -69,7 +68,7 @@ public final class HolidayCalendar
    * An instance declaring all days as business days except Saturday/Sunday weekends.
    * Note that not all countries use Saturday and Sunday weekends.
    */
-  public static final HolidayCalendar WEEKENDS =
+  public static final HolidayCalendar SAT_SUN =
       new HolidayCalendar(ImmutableSortedSet.of(), ImmutableSet.of(SATURDAY, SUNDAY));
 
   /** Serialization version. */
@@ -93,7 +92,7 @@ public final class HolidayCalendar
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code HolidayCalendar} from a set of holiday dates.
+   * Obtains a {@code HolidayCalendar} from a set of holiday dates and weekend days.
    * <p>
    * The holiday dates will be extracted into a set with duplicates ignored.
    * The minimum supported date for query is the start of the year of the earliest holiday.
@@ -104,7 +103,7 @@ public final class HolidayCalendar
    * @param holidays  the set of holiday dates
    * @param firstWeekendDay  the first weekend day
    * @param secondWeekendDay  the second weekend day, may be same as first
-   * @return the business days instance
+   * @return the holiday calendar
    */
   public static HolidayCalendar of(Iterable<LocalDate> holidays, DayOfWeek firstWeekendDay, DayOfWeek secondWeekendDay) {
     ArgChecker.noNulls(holidays, "holidays");
@@ -116,8 +115,7 @@ public final class HolidayCalendar
   }
 
   /**
-   * Obtains a {@code BusinessDayCalendar} from a set of holiday dates, using Saturday
-   * and Sunday as the weekend days.
+   * Obtains a {@code HolidayCalendar} from a set of holiday dates and weekend days.
    * <p>
    * The holiday dates will be extracted into a set with duplicates ignored.
    * The minimum supported date for query is the start of the year of the earliest holiday.
@@ -127,7 +125,7 @@ public final class HolidayCalendar
    * 
    * @param holidays  the set of holiday dates
    * @param weekendDays  the days that define the weekend, if empty then weekends are treated as business days
-   * @return the business days instance
+   * @return the holiday calendar
    */
   public static HolidayCalendar of(Iterable<LocalDate> holidays, Iterable<DayOfWeek> weekendDays) {
     ArgChecker.noNulls(holidays, "holidays");
@@ -176,6 +174,7 @@ public final class HolidayCalendar
    * 
    * @param date  the date to check
    * @return true if the specified date is a holiday
+   * @throws IllegalArgumentException if the date is outside the supported range
    */
   public boolean isHoliday(LocalDate date) {
     ArgChecker.notNull(date, "date");
@@ -193,20 +192,10 @@ public final class HolidayCalendar
    * 
    * @param date  the date to check
    * @return true if the specified date is a business day
+   * @throws IllegalArgumentException if the date is outside the supported range
    */
   public boolean isBusinessDay(LocalDate date) {
     return !isHoliday(date);
-  }
-
-  /**
-   * Checks if the specified calendar has no holidays or weekends.
-   * <p>
-   * The constant {@link #NONE NONE} will return true as it has no holidays or weekends.
-   * 
-   * @return true if this calendar has no holidays or weekends
-   */
-  public boolean hasNoHolidays() {
-    return holidays.isEmpty() && weekendDays.isEmpty();
   }
 
   //-------------------------------------------------------------------------
@@ -222,6 +211,7 @@ public final class HolidayCalendar
    * 
    * @param amount  the number of business days to adjust by
    * @return the first business day after this one
+   * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public TemporalAdjuster adjustBy(int amount) {
     return TemporalAdjusters.ofDateAdjuster(date -> shift(date, amount));
@@ -237,6 +227,7 @@ public final class HolidayCalendar
    * @param date  the date to adjust
    * @param amount  the number of business days to adjust by
    * @return the shifted date
+   * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public LocalDate shift(LocalDate date, int amount) {
     ArgChecker.notNull(date, "date");
@@ -260,6 +251,7 @@ public final class HolidayCalendar
    * 
    * @param date  the date to adjust
    * @return the first business day after this one
+   * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public LocalDate next(LocalDate date) {
     ArgChecker.notNull(date, "date");
@@ -274,27 +266,12 @@ public final class HolidayCalendar
    * 
    * @param date  the date to adjust
    * @return the first business day before this one
+   * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public LocalDate previous(LocalDate date) {
     ArgChecker.notNull(date, "date");
     LocalDate previous = date.minusDays(1);
     return isHoliday(previous) ? previous(previous) : previous;
-  }
-
-  /**
-   * Ensures that the returned date is a business day.
-   * <p>
-   * This takes the input date and ensures it is a business day.
-   * If it is not a business day, then the convention is used to adjust it.
-   * 
-   * @param date  the date to check
-   * @param convention  the convention to use to locate a business day
-   * @return the first business day before this one
-   */
-  public LocalDate ensure(LocalDate date, BusinessDayConvention convention) {
-    ArgChecker.notNull(date, "date");
-    ArgChecker.notNull(convention, "convention");
-    return convention.adjust(date, this);
   }
 
   //-------------------------------------------------------------------------
@@ -308,6 +285,7 @@ public final class HolidayCalendar
    * @param startInclusive  the start date
    * @param endExclusive  the end date
    * @return the total number of business days between the start and end date
+   * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
     return daysBetween(LocalDateRange.of(startInclusive, endExclusive));
@@ -320,12 +298,10 @@ public final class HolidayCalendar
    * 
    * @param dateRange  the date range to calculate business days for
    * @return the total number of business days between the start and end date
+   * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public int daysBetween(LocalDateRange dateRange) {
     ArgChecker.notNull(dateRange, "dateRange");
-    if (hasNoHolidays()) {
-      return Math.toIntExact(DAYS.between(dateRange.getStart(), dateRange.getEndExclusive()));
-    }
     return Math.toIntExact(dateRange.stream()
         .filter(this::isBusinessDay)
         .count());
@@ -335,12 +311,12 @@ public final class HolidayCalendar
   /**
    * Combines this holiday calendar with another.
    * <p>
-   * The combined calendar is formed by merging the two sets of holidays and weekend days.
-   * If the supported ranges do not match the range will be reduced to that
-   * specified by both objects. If there is no overlap, then an exception is thrown.
+   * The resulting calendar will declare a day as a a business day if it is a
+   * business day in both source calendars.
    * 
    * @param other  the other holiday calendar
    * @return the combined calendar
+   * @throws IllegalArgumentException if unable to combine the calendars
    */
   public HolidayCalendar combineWith(HolidayCalendar other) {
     ArgChecker.notNull(other, "other");
@@ -363,8 +339,8 @@ public final class HolidayCalendar
    */
   @Override
   public String toString() {
-    if (WEEKENDS.equals(this)) {
-      return "Weekends";
+    if (SAT_SUN.equals(this)) {
+      return "Sat/Sun";
     } else if (NONE.equals(this)) {
       return "None";
     }

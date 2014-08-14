@@ -96,33 +96,33 @@ public final class BusinessDayConventions {
     // make no adjustment
     NO_ADJUST("NoAdjust") {
       @Override
-      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
         ArgChecker.notNull(date, "date");
-        ArgChecker.notNull(businessDays, "businessDays");
+        ArgChecker.notNull(calendar, "calendar");
         return date;
       }
     },
     // next business day
     FOLLOWING("Following") {
       @Override
-      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
         ArgChecker.notNull(date, "date");
-        ArgChecker.notNull(businessDays, "businessDays");
-        return (businessDays.isBusinessDay(date) ? date : businessDays.next(date));
+        ArgChecker.notNull(calendar, "calendar");
+        return (calendar.isBusinessDay(date) ? date : calendar.next(date));
       }
     },
     // next business day unless over a month end
     MODIFIED_FOLLOWING("ModifiedFollowing") {
       @Override
-      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
         ArgChecker.notNull(date, "date");
-        ArgChecker.notNull(businessDays, "businessDays");
-        if (businessDays.isBusinessDay(date)) {
+        ArgChecker.notNull(calendar, "calendar");
+        if (calendar.isBusinessDay(date)) {
           return date;
         }
-        LocalDate adjusted = businessDays.next(date);
+        LocalDate adjusted = calendar.next(date);
         if (adjusted.getMonth() != date.getMonth()) {
-          adjusted = businessDays.previous(date);
+          adjusted = calendar.previous(date);
         }
         return adjusted;
       }
@@ -130,16 +130,16 @@ public final class BusinessDayConventions {
     // next business day unless over a month end or mid
     MODIFIED_FOLLOWING_BI_MONTHLY("ModifiedFollowingBiMonthly") {
       @Override
-      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
         ArgChecker.notNull(date, "date");
-        ArgChecker.notNull(businessDays, "businessDays");
-        if (businessDays.isBusinessDay(date)) {
+        ArgChecker.notNull(calendar, "calendar");
+        if (calendar.isBusinessDay(date)) {
           return date;
         }
-        LocalDate adjusted = businessDays.next(date);
+        LocalDate adjusted = calendar.next(date);
         if (adjusted.getMonth() != date.getMonth() ||
             (adjusted.getDayOfMonth() > 15 && date.getDayOfMonth() <= 15)) {
-          adjusted = businessDays.previous(date);
+          adjusted = calendar.previous(date);
         }
         return adjusted;
       }
@@ -147,24 +147,24 @@ public final class BusinessDayConventions {
     // previous business day
     PRECEDING("Preceding") {
       @Override
-      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
         ArgChecker.notNull(date, "date");
-        ArgChecker.notNull(businessDays, "businessDays");
-        return (businessDays.isBusinessDay(date) ? date : businessDays.previous(date));
+        ArgChecker.notNull(calendar, "calendar");
+        return (calendar.isBusinessDay(date) ? date : calendar.previous(date));
       }
     },
     // previous business day unless over a month end
     MODIFIED_PRECEDING("ModifiedPreceding") {
       @Override
-      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
         ArgChecker.notNull(date, "date");
-        ArgChecker.notNull(businessDays, "businessDays");
-        if (businessDays.isBusinessDay(date)) {
+        ArgChecker.notNull(calendar, "calendar");
+        if (calendar.isBusinessDay(date)) {
           return date;
         }
-        LocalDate adjusted = businessDays.previous(date);
+        LocalDate adjusted = calendar.previous(date);
         if (adjusted.getMonth() != date.getMonth()) {
-          adjusted = businessDays.next(date);
+          adjusted = calendar.next(date);
         }
         return adjusted;
       }
@@ -172,16 +172,16 @@ public final class BusinessDayConventions {
     // next business day if Sun/Mon, otherwise previous
     NEAREST("Nearest") {
       @Override
-      public LocalDate adjust(LocalDate date, HolidayCalendar businessDays) {
+      public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
         ArgChecker.notNull(date, "date");
-        ArgChecker.notNull(businessDays, "businessDays");
-        if (businessDays.isBusinessDay(date)) {
+        ArgChecker.notNull(calendar, "calendar");
+        if (calendar.isBusinessDay(date)) {
           return date;
         }
         if (date.getDayOfWeek() == SUNDAY || date.getDayOfWeek() == MONDAY) {
-          return businessDays.next(date);
+          return calendar.next(date);
         } else {
-          return businessDays.previous(date);
+          return calendar.previous(date);
         }
       }
     };

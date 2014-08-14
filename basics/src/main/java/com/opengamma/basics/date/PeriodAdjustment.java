@@ -214,7 +214,7 @@ public final class PeriodAdjustment
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append(days);
-    if (calendar.hasNoHolidays()) {
+    if (calendar == HolidayCalendar.NONE) {
       buf.append(" calendar day");
       if (days != 1) {
         buf.append("s");
