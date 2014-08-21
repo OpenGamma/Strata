@@ -11,6 +11,7 @@ import static java.time.DayOfWeek.SUNDAY;
 import java.time.LocalDate;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.ExtendedEnum;
 
 /**
  * Constants and implementations for standard business day conventions.
@@ -79,6 +80,23 @@ public final class BusinessDayConventions {
    * Note that despite the name, the algorithm may not return the business day that is actually nearest.
    */
   public static final BusinessDayConvention NEAREST = Standard.NEAREST;
+
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  private static final ExtendedEnum<BusinessDayConvention> ENUM_LOOKUP = ExtendedEnum.of(BusinessDayConvention.class);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a {@code BusinessDayConvention} from a unique name.
+   * 
+   * @param uniqueName  the unique name of the calendar
+   * @return the holiday calendar
+   */
+  static BusinessDayConvention of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return ENUM_LOOKUP.lookup(uniqueName);
+  }
 
   //-------------------------------------------------------------------------
   /**

@@ -8,6 +8,7 @@ package com.opengamma.basics.date;
 import java.time.LocalDate;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.ExtendedEnum;
 
 /**
  * Constants and implementations for standard day count conventions.
@@ -141,6 +142,23 @@ public final class DayCounts {
    * If the second day-of-month is 31, it is changed to 1 and the second month is incremented.
    */
   public static final DayCount THIRTY_EPLUS_360 = Standard.THIRTY_EPLUS_360;
+
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  private static final ExtendedEnum<DayCount> ENUM_LOOKUP = ExtendedEnum.of(DayCount.class);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a {@code BusinessDayConvention} from a unique name.
+   * 
+   * @param uniqueName  the unique name of the calendar
+   * @return the holiday calendar
+   */
+  static DayCount of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return ENUM_LOOKUP.lookup(uniqueName);
+  }
 
   //-------------------------------------------------------------------------
   /**

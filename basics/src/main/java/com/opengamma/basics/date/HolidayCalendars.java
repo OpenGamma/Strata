@@ -16,6 +16,7 @@ import java.time.LocalDate;
 
 import com.google.common.base.Splitter;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.ExtendedEnum;
 import com.opengamma.collect.range.LocalDateRange;
 
 /**
@@ -53,6 +54,11 @@ public final class HolidayCalendars {
    */
   public static final HolidayCalendar THU_FRI = Standard.THU_FRI;
 
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  private static final ExtendedEnum<HolidayCalendar> ENUM_LOOKUP = ExtendedEnum.of(HolidayCalendar.class);
+
   //-------------------------------------------------------------------------
   /**
    * Obtains a {@code HolidayCalendar} from a unique name.
@@ -62,21 +68,12 @@ public final class HolidayCalendars {
    */
   static HolidayCalendar of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    if (uniqueName.equals("None")) {
-      return HolidayCalendars.NONE;
-    } else if (uniqueName.equals("Sat/Sun")) {
-      return HolidayCalendars.SAT_SUN;
-    } else if (uniqueName.equals("Fri/Sat")) {
-      return HolidayCalendars.FRI_SAT;
-    } else if (uniqueName.equals("Thu/Fri")) {
-      return HolidayCalendars.THU_FRI;
-    }
     if (uniqueName.contains("+")) {
       return Splitter.on('+').splitToList(uniqueName).stream()
           .map(HolidayCalendars::of)
           .reduce(NONE, HolidayCalendar::combineWith);
     }
-    throw new IllegalArgumentException("Unknown holiday calendar: " + uniqueName);
+    return ENUM_LOOKUP.lookup(uniqueName);
   }
 
   //-------------------------------------------------------------------------

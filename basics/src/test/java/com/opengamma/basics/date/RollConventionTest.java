@@ -506,6 +506,8 @@ public class RollConventionTest {
           {IMMNZD, "IMMNZD"},
           {SFE, "SFE"},
           {IMPLIED, "Implied"},
+          {DAY_2, "Day2"},
+          {DAY_THU, "DayThu"},
       };
   }
 

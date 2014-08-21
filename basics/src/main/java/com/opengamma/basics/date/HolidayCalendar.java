@@ -14,6 +14,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.Named;
 import com.opengamma.collect.range.LocalDateRange;
 
 /**
@@ -28,7 +29,8 @@ import com.opengamma.collect.range.LocalDateRange;
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
-public interface HolidayCalendar {
+public interface HolidayCalendar
+    extends Named {
 
   /**
    * Obtains a {@code HolidayCalendar} from a unique name.
@@ -215,6 +217,7 @@ public interface HolidayCalendar {
    * @return the unique name
    */
   @ToString
+  @Override
   public String getName();
 
 }

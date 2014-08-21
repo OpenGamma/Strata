@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.ExtendedEnum;
 
 /**
  * Constants and implementations for standard roll conventions.
@@ -428,6 +429,23 @@ public final class RollConventions {
    * This convention is intended for use with periods that are a multiple of weeks.
    */
   public static final RollConvention DAY_SUN = Dow.of(DayOfWeek.SUNDAY);
+
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  private static final ExtendedEnum<RollConvention> ENUM_LOOKUP = ExtendedEnum.of(RollConvention.class);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a {@code BusinessDayConvention} from a unique name.
+   * 
+   * @param uniqueName  the unique name of the calendar
+   * @return the holiday calendar
+   */
+  static RollConvention of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return ENUM_LOOKUP.lookup(uniqueName);
+  }
 
   //-------------------------------------------------------------------------
   /**

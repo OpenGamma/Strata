@@ -6,12 +6,12 @@
 package com.opengamma.basics.date;
 
 import java.time.LocalDate;
-import java.util.stream.Stream;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.Named;
 
 /**
  * A convention defining how to calculate fractions of a year.
@@ -24,22 +24,20 @@ import com.opengamma.collect.ArgChecker;
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
-public interface DayCount {
+public interface DayCount
+    extends Named {
 
   /**
    * Obtains a {@code DayCount} from a unique name.
    * 
-   * @param name  the unique name
+   * @param uniqueName  the unique name
    * @return the day count
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static DayCount of(String name) {
-    ArgChecker.notNull(name, "name");
-    return Stream.of(DayCounts.Standard.values())
-        .filter(convention -> convention.getName().equals(name))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unknown name: " + name));
+  public static DayCount of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return DayCounts.of(uniqueName);
   }
 
   //-------------------------------------------------------------------------
@@ -63,6 +61,7 @@ public interface DayCount {
    * @return the unique name
    */
   @ToString
+  @Override
   public String getName();
 
 }

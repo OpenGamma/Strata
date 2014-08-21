@@ -7,12 +7,12 @@ package com.opengamma.basics.date;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.stream.Stream;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.Named;
 
 /**
  * A convention defining how to roll dates.
@@ -35,22 +35,19 @@ import com.opengamma.collect.ArgChecker;
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface RollConvention
-    extends DateAdjuster {
+    extends DateAdjuster, Named {
 
   /**
    * Obtains a {@code RollConvention} from a unique name.
-   *
-   * @param name  the unique name
+   * 
+   * @param uniqueName  the unique name
    * @return the roll convention
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static RollConvention of(String name) {
-    ArgChecker.notNull(name, "name");
-    return Stream.of(RollConventions.Standard.values())
-        .filter(convention -> convention.getName().equals(name))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unknown name: " + name));
+  public static RollConvention of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return RollConventions.of(uniqueName);
   }
 
   /**
@@ -188,6 +185,7 @@ public interface RollConvention
    * @return the unique name
    */
   @ToString
+  @Override
   public String getName();
 
 }

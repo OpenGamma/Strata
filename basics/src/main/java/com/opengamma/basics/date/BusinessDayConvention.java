@@ -6,12 +6,12 @@
 package com.opengamma.basics.date;
 
 import java.time.LocalDate;
-import java.util.stream.Stream;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.Named;
 
 /**
  * A convention defining how to adjust a date if it falls on a day other than a business day.
@@ -27,22 +27,20 @@ import com.opengamma.collect.ArgChecker;
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
-public interface BusinessDayConvention {
+public interface BusinessDayConvention
+    extends Named {
 
   /**
    * Obtains a {@code BusinessDayConvention} from a unique name.
    * 
-   * @param name  the unique name
+   * @param uniqueName  the unique name
    * @return the business convention
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static BusinessDayConvention of(String name) {
-    ArgChecker.notNull(name, "name");
-    return Stream.of(BusinessDayConventions.Standard.values())
-        .filter(convention -> convention.getName().equals(name))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unknown name: " + name));
+  public static BusinessDayConvention of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return BusinessDayConventions.of(uniqueName);
   }
 
   //-------------------------------------------------------------------------
@@ -66,6 +64,7 @@ public interface BusinessDayConvention {
    * @return the unique name
    */
   @ToString
+  @Override
   public String getName();
 
 }
