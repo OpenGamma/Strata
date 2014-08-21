@@ -99,7 +99,7 @@ public final class IniFile {
       if (line.startsWith("[") && line.endsWith("]")) {
         String sectionName = line.substring(1, line.length() - 1).trim();
         if (ini.containsKey(sectionName)) {
-          throw new IllegalArgumentException("Invalid INI file, duplicate section no allowed, line " + lineNum);
+          throw new IllegalArgumentException("Invalid INI file, duplicate section not allowed, line " + lineNum);
         }
         currentSection = ArrayListMultimap.create();
         ini.put(sectionName, currentSection);
