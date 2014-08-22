@@ -32,6 +32,9 @@ import com.opengamma.collect.ArgChecker;
  * A special value, 'Term', is provided for when there are no subdivisions of the entire term.
  * This is also know as 'zero-coupon' or 'once'. It is represented using the period 10,000 years,
  * which allows addition/subtraction to work, producing a date after the end of the term.
+ * <p>
+ * The periodic frequency is often expressed as a number of events per year.
+ * The {@link #eventsPerYear()} method can be used to obtain this for common frequencies.
  * 
  * <h4>Usage</h4>
  * {@code Frequency} implements {@code TemporalAmount} allowing it to be directly added to a date:
@@ -50,68 +53,82 @@ public final class Frequency
   /**
    * A periodic frequency of one day.
    * Also known as daily.
+   * There are considered to be 364 events per year with this frequency.
    */
   public static final Frequency P1D = ofDays(1);
   /**
    * A periodic frequency of 1 week (7 days).
    * Also known as weekly.
+   * There are considered to be 52 events per year with this frequency.
    */
   public static final Frequency P1W = ofWeeks(1);
   /**
    * A periodic frequency of 2 weeks (14 days).
    * Also known as bi-weekly.
+   * There are considered to be 26 events per year with this frequency.
    */
   public static final Frequency P2W = ofWeeks(2);
   /**
    * A periodic frequency of 4 weeks (28 days).
    * Also known as lunar.
+   * There are considered to be 13 events per year with this frequency.
    */
   public static final Frequency P4W = ofWeeks(4);
   /**
+   * A periodic frequency of 13 weeks (91 days).
+   * There are considered to be 4 events per year with this frequency.
+   */
+  public static final Frequency P13W = ofWeeks(13);
+  /**
+   * A periodic frequency of 26 weeks (182 days).
+   * There are considered to be 2 events per year with this frequency.
+   */
+  public static final Frequency P26W = ofWeeks(26);
+  /**
+   * A periodic frequency of 52 weeks (364 days).
+   * There is considered to be 1 event per year with this frequency.
+   */
+  public static final Frequency P52W = ofWeeks(52);
+  /**
    * A periodic frequency of 1 month.
    * Also known as monthly.
+   * There are 12 events per year with this frequency.
    */
   public static final Frequency P1M = ofMonths(1);
   /**
    * A periodic frequency of 2 months.
    * Also known as bi-monthly.
+   * There are 6 events per year with this frequency.
    */
   public static final Frequency P2M = ofMonths(2);
   /**
    * A periodic frequency of 3 months.
    * Also known as quarterly.
+   * There are 4 events per year with this frequency.
    */
   public static final Frequency P3M = ofMonths(3);
   /**
    * A periodic frequency of 4 months.
+   * There are 3 events per year with this frequency.
    */
   public static final Frequency P4M = ofMonths(4);
   /**
    * A periodic frequency of 6 months.
    * Also known as semi-annual.
+   * There are 2 events per year with this frequency.
    */
   public static final Frequency P6M = ofMonths(6);
   /**
    * A periodic frequency of 1 year.
    * Also known as annual.
+   * There is 1 event per year with this frequency.
    */
   public static final Frequency P1Y = ofYears(1);
-  /**
-   * A periodic frequency of 91 days.
-   */
-  public static final Frequency P91D = ofDays(91);
-  /**
-   * A periodic frequency of 182 days.
-   */
-  public static final Frequency P182D = ofDays(182);
-  /**
-   * A periodic frequency of 364 days.
-   */
-  public static final Frequency P364D = ofDays(364);
   /**
    * A periodic frequency matching the term.
    * Also known as zero-coupon.
    * This is represented using the period 10,000 years.
+   * There are no events per year with this frequency.
    */
   public static final Frequency TERM = new Frequency(Period.ofYears(10000), "Term");
 
@@ -297,6 +314,7 @@ public final class Frequency
     return this == TERM;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Checks if the periodic frequency is week-based.
    * <p>
@@ -312,14 +330,48 @@ public final class Frequency
   /**
    * Checks if the periodic frequency is month-based.
    * <p>
-   * A week-based frequency consists of an integral number of months.
+   * A month-based frequency consists of an integral number of months.
    * Any year-based frequency is also counted as month-based.
    * There must be no day or week element.
    *
-   * @return true if this is week-based
+   * @return true if this is month-based
    */
   public boolean isMonthBased() {
     return period.toTotalMonths() > 0 && period.getDays() == 0 && isTerm() == false;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the number of events that occur in a year.
+   * <p>
+   * The number of events per year is the number of times that the period occurs per year.
+   * Not all periodic frequency instances can be converted to an integer events per year.
+   * All constants declared on this class will return a result.
+   * <p>
+   * Month-based periodic frequencies are converted by dividing 12 by the number of months.
+   * Only the following periodic frequencies return a value - P1M, P2M, P3M, P4M, P6M, P1Y.
+   * <p>
+   * Day-based and week-based periodic frequencies are converted by dividing 364 by the number of days.
+   * Only the following periodic frequencies return a value - P1D, P2D, P4D, P1W, P2W, P4W, P13W, P26W, P52W.
+   * <p>
+   * The 'Term' periodic frequency returns zero.
+   *
+   * @return the number of events per year
+   */
+  public int eventsPerYear() {
+    if (isTerm()) {
+      return 0;
+    }
+    long months = period.toTotalMonths();
+    int days = period.getDays();
+    if (isMonthBased()) {
+      if (12 % months == 0) {
+        return (int) (12 / months);
+      }
+    } else if (months == 0 && 364 % days == 0) {
+      return (int) (364 / days);
+    }
+    throw new IllegalArgumentException("Unable to calculate events per year: " + this);
   }
 
   //-------------------------------------------------------------------------

@@ -42,9 +42,27 @@ public class FrequencyTest {
         {Frequency.ofDays(2), Period.ofDays(2), "P2D"},
         {Frequency.ofDays(6), Period.ofDays(6), "P6D"},
         {Frequency.ofDays(7), Period.ofDays(7), "P1W"},
+        {Frequency.ofDays(91), Period.ofDays(91), "P13W"},
         {Frequency.ofWeeks(1), Period.ofDays(7), "P1W"},
         {Frequency.ofWeeks(3), Period.ofDays(21), "P3W"},
+        {Frequency.ofMonths(8), Period.ofMonths(8), "P8M"},
+        {Frequency.ofMonths(12), Period.ofYears(1), "P1Y"},
+        {Frequency.ofMonths(18), Period.ofMonths(18), "P18M"},
+        {Frequency.ofMonths(24), Period.ofYears(2), "P2Y"},
         {Frequency.of(Period.of(1, 2, 3)), Period.of(1, 2, 3), "P1Y2M3D"},
+        {Frequency.P1D, Period.ofDays(1), "P1D"},
+        {Frequency.P1W, Period.ofWeeks(1), "P1W"},
+        {Frequency.P2W, Period.ofWeeks(2), "P2W"},
+        {Frequency.P4W, Period.ofWeeks(4), "P4W"},
+        {Frequency.P13W, Period.ofWeeks(13), "P13W"},
+        {Frequency.P26W, Period.ofWeeks(26), "P26W"},
+        {Frequency.P52W, Period.ofWeeks(52), "P52W"},
+        {Frequency.P1M, Period.ofMonths(1), "P1M"},
+        {Frequency.P2M, Period.ofMonths(2), "P2M"},
+        {Frequency.P3M, Period.ofMonths(3), "P3M"},
+        {Frequency.P4M, Period.ofMonths(4), "P4M"},
+        {Frequency.P6M, Period.ofMonths(6), "P6M"},
+        {Frequency.P1Y, Period.ofYears(1), "P1Y"},
         {Frequency.TERM, Period.ofYears(10000), "Term"},
     };
   }
@@ -134,6 +152,40 @@ public class FrequencyTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "events")
+  static Object[][] data_events() {
+    return new Object[][] {
+        {Frequency.P1D, 364},
+        {Frequency.P1W, 52},
+        {Frequency.P2W, 26},
+        {Frequency.P4W, 13},
+        {Frequency.P13W, 4},
+        {Frequency.P26W, 2},
+        {Frequency.P52W, 1},
+        {Frequency.P1M, 12},
+        {Frequency.P2M, 6},
+        {Frequency.P3M, 4},
+        {Frequency.P4M, 3},
+        {Frequency.P6M, 2},
+        {Frequency.P1Y, 1},
+        {Frequency.TERM, 0},
+    };
+  }
+
+  @Test(dataProvider = "events")
+  public void test_eventsPerYear(Frequency test, int expected) {
+    assertEquals(test.eventsPerYear(), expected);
+  }
+
+  public void test_eventsPerYear_bad() {
+    assertThrows(() -> Frequency.ofDays(3).eventsPerYear(), IllegalArgumentException.class);
+    assertThrows(() -> Frequency.ofWeeks(3).eventsPerYear(), IllegalArgumentException.class);
+    assertThrows(() -> Frequency.ofWeeks(104).eventsPerYear(), IllegalArgumentException.class);
+    assertThrows(() -> Frequency.ofMonths(5).eventsPerYear(), IllegalArgumentException.class);
+    assertThrows(() -> Frequency.ofMonths(24).eventsPerYear(), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_parse_String_roundTrip() {
     assertEquals(Frequency.parse(P6M.toString()), P6M);
   }
@@ -143,6 +195,7 @@ public class FrequencyTest {
     return new Object[][] {
         {"1D", Frequency.ofDays(1)},
         {"2D", Frequency.ofDays(2)},
+        {"91D", Frequency.ofDays(91)},
         {"2W", Frequency.ofWeeks(2)},
         {"6W", Frequency.ofWeeks(6)},
         {"2M", Frequency.ofMonths(2)},
