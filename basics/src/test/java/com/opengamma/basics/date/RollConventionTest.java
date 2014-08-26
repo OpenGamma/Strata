@@ -11,6 +11,7 @@ import static com.opengamma.basics.date.Frequency.P1W;
 import static com.opengamma.basics.date.Frequency.P2W;
 import static com.opengamma.basics.date.Frequency.P3M;
 import static com.opengamma.basics.date.RollConventions.DAY_2;
+import static com.opengamma.basics.date.RollConventions.DAY_28;
 import static com.opengamma.basics.date.RollConventions.DAY_30;
 import static com.opengamma.basics.date.RollConventions.DAY_THU;
 import static com.opengamma.basics.date.RollConventions.DAY_WED;
@@ -18,7 +19,8 @@ import static com.opengamma.basics.date.RollConventions.EOM;
 import static com.opengamma.basics.date.RollConventions.IMM;
 import static com.opengamma.basics.date.RollConventions.IMMAUD;
 import static com.opengamma.basics.date.RollConventions.IMMNZD;
-import static com.opengamma.basics.date.RollConventions.IMPLIED;
+import static com.opengamma.basics.date.RollConventions.IMPLIED_DAY;
+import static com.opengamma.basics.date.RollConventions.IMPLIED_EOM;
 import static com.opengamma.basics.date.RollConventions.NONE;
 import static com.opengamma.basics.date.RollConventions.SFE;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
@@ -294,26 +296,53 @@ public class RollConventionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_adjust_IMPLIED() {
-    assertEquals(IMPLIED.adjust(date(2014, JULY, 2)), date(2014, JULY, 2));
+  public void test_adjust_IMPLIED_DAY() {
+    assertEquals(IMPLIED_EOM.adjust(date(2014, JULY, 2)), date(2014, JULY, 2));
   }
 
-  public void test_imply_IMPLIED() {
-    assertEquals(IMPLIED.imply(date(2014, JULY, 2), P1M), DAY_2);
-    assertEquals(IMPLIED.imply(date(2014, JULY, 30), P3M), DAY_30);
-    assertEquals(IMPLIED.imply(date(2014, JULY, 31), P3M), EOM);
-    assertEquals(IMPLIED.imply(date(2014, JULY, 2), P1W), DAY_WED);
-    assertEquals(IMPLIED.imply(date(2014, JULY, 3), P2W), DAY_THU);
-    assertEquals(IMPLIED.imply(date(2014, JULY, 3), P1D), NONE);
-    assertEquals(IMPLIED.imply(date(2014, JULY, 3), Frequency.of(Period.of(0, 2, 2))), NONE);
+  public void test_imply_IMPLIED_DAY() {
+    assertEquals(IMPLIED_DAY.imply(date(2014, FEBRUARY, 28), P3M), DAY_28);
+    assertEquals(IMPLIED_DAY.imply(date(2014, JUNE, 30), P3M), DAY_30);
+    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 2), P1M), DAY_2);
+    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 30), P3M), DAY_30);
+    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 31), P3M), EOM);
+    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 2), P1W), DAY_WED);
+    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 3), P2W), DAY_THU);
+    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 3), P1D), NONE);
+    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 3), Frequency.of(Period.of(0, 2, 2))), NONE);
   }
 
-  public void test_next_IMPLIED() {
-    assertThrows(() -> IMPLIED.next(date(2014, JULY, 1), P1M), IllegalStateException.class);
+  public void test_next_IMPLIED_DAY() {
+    assertThrows(() -> IMPLIED_DAY.next(date(2014, JULY, 1), P1M), IllegalStateException.class);
   }
 
-  public void test_previous_IMPLIED() {
-    assertThrows(() -> IMPLIED.previous(date(2014, JULY, 1), P1M), IllegalStateException.class);
+  public void test_previous_IMPLIED_DAY() {
+    assertThrows(() -> IMPLIED_DAY.previous(date(2014, JULY, 1), P1M), IllegalStateException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_adjust_IMPLIED_EOM() {
+    assertEquals(IMPLIED_EOM.adjust(date(2014, JULY, 2)), date(2014, JULY, 2));
+  }
+
+  public void test_imply_IMPLIED_EOM() {
+    assertEquals(IMPLIED_EOM.imply(date(2014, FEBRUARY, 28), P3M), EOM);
+    assertEquals(IMPLIED_EOM.imply(date(2014, JUNE, 30), P3M), EOM);
+    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 2), P1M), DAY_2);
+    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 30), P3M), DAY_30);
+    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 31), P3M), EOM);
+    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 2), P1W), DAY_WED);
+    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 3), P2W), DAY_THU);
+    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 3), P1D), NONE);
+    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 3), Frequency.of(Period.of(0, 2, 2))), NONE);
+  }
+
+  public void test_next_IMPLIED_EOM() {
+    assertThrows(() -> IMPLIED_EOM.next(date(2014, JULY, 1), P1M), IllegalStateException.class);
+  }
+
+  public void test_previous_IMPLIED_EOM() {
+    assertThrows(() -> IMPLIED_EOM.previous(date(2014, JULY, 1), P1M), IllegalStateException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -505,7 +534,8 @@ public class RollConventionTest {
           {IMMAUD, "IMMAUD"},
           {IMMNZD, "IMMNZD"},
           {SFE, "SFE"},
-          {IMPLIED, "Implied"},
+          {IMPLIED_DAY, "ImpliedDay"},
+          {IMPLIED_EOM, "ImpliedEOM"},
           {DAY_2, "Day2"},
           {DAY_THU, "DayThu"},
       };

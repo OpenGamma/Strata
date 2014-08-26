@@ -27,7 +27,8 @@ import com.opengamma.collect.named.Named;
  * In most cases the specific values for day-of-month and day-of-week are not needed.
  * A one month periodic frequency will naturally select the same day-of-month as the
  * input date, thus the day-of-month does not need to be additionally specified.
- * The {@link RollConventions#IMPLIED IMPLIED} convention can be used to indicate this.
+ * The {@link RollConventions#IMPLIED_DAY IMPLIED_DAY} and
+ * {@link RollConventions#IMPLIED_EOM IMPLIED_EOM} conventions can be used to indicate this.
  * <p>
  * The most common implementations are provided as constants on {@link RollConventions}.
  * Additional implementations may be added by implementing this interface.
@@ -114,7 +115,8 @@ public interface RollConvention
    * Implies the correct convention if necessary.
    * <p>
    * In most cases, calling this method has no effect, returning {@code this}.
-   * In the case of the {@link RollConventions#IMPLIED IMPLIED} convention, a different
+   * In the case of the {@link RollConventions#IMPLIED_DAY IMPLIED_DAY} and
+   * {@link RollConventions#IMPLIED_EOM IMPLIED_EOM} conventions a different
    * convention is returned, implied from the date and frequency.
    * <p>
    * The default implementation returns {@code this} and should not normally be overridden.

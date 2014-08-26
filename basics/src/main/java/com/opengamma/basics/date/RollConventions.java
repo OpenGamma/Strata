@@ -30,11 +30,62 @@ import com.opengamma.collect.named.ExtendedEnum;
 public final class RollConventions {
 
   /**
-   * The 'None' roll convention which makes no adjustment.
+   * The 'None' roll convention.
    * <p>
    * The input date will not be adjusted.
    */
   public static final RollConvention NONE = Standard.NONE;
+  /**
+   * The 'ImpliedDay' roll convention is used when the convention should be implied
+   * from the initial day-of-month.
+   * <p>
+   * In many cases, the convention to be used can be implied from an unadjusted date
+   * in the sequence and the {@linkplain Frequency periodic frequency}.
+   * For example, if the start date of the sequence is 2014-06-20 and the periodic
+   * frequency is 'P3M' (month-based), then the implied convention is 'Day20'.
+   * Whereas, if the frequency is 'P2W' (week-based), then the implied convention
+   * is 'DayFri', because 2014-06-20 is a Friday.
+   * <p>
+   * The rules are as follows.
+   * If the input frequency is week-based, then the implied convention is based on
+   * the day-of-week of the input date.
+   * If the input frequency is month-based, then the implied convention is based on
+   * the day-of-month of the input date, unless the input date is on the 31st day
+   * of the month, in which case then the implied convention is 'EOM'.
+   * In all other cases, the implied convention is 'None'.
+   * <p>
+   * It is not intended that this convention is directly used for calculation.
+   * It must be converted to a specific convention using
+   * {@link RollConvention#imply(LocalDate, Frequency)}
+   * before use with {@code next()} or {@code previous()}.
+   */
+  public static final RollConvention IMPLIED_DAY = Standard.IMPLIED_DAY;
+  /**
+   * The 'ImpliedEOM' roll convention is used when the convention should be implied
+   * from the initial day-of-month, choosing end-of-month when appropriate.
+   * <p>
+   * In many cases, the convention to be used can be implied from an unadjusted date
+   * in the sequence and the {@linkplain Frequency periodic frequency}.
+   * For example, if the start date of the sequence is 2014-06-20 and the periodic
+   * frequency is 'P3M' (month-based), then the implied convention is 'Day20'.
+   * Whereas, if the frequency is 'P2W' (week-based), then the implied convention
+   * is 'DayFri', because 2014-06-20 is a Friday.
+   * <p>
+   * The rules are as follows.
+   * If the input frequency is week-based, then the implied convention is based on
+   * the day-of-week of the input date.
+   * If the input frequency is month-based, then the implied convention is based on
+   * the day-of-month of the input date, unless the input date is at the end of the
+   * month, in which case then the implied convention is 'EOM'.
+   * In all other cases, the implied convention is 'None'.
+   * <p>
+   * It is not intended that this convention is directly used for calculation.
+   * It must be converted to a specific convention using
+   * {@link RollConvention#imply(LocalDate, Frequency)}
+   * before use with {@code next()} or {@code previous()}.
+   */
+  public static final RollConvention IMPLIED_EOM = Standard.IMPLIED_EOM;
+
   /**
    * The 'EOM' roll convention which adjusts the date to the end of the month.
    * <p>
@@ -83,31 +134,6 @@ public final class RollConventions {
    * This convention is intended for use with periods that are a multiple of months.
    */
   public static final RollConvention SFE = Standard.SFE;
-  /**
-   * The 'Implied' roll convention is used when the convention should be implied
-   * favoring end-of-month when ambiguous.
-   * <p>
-   * In many cases, the convention to be used can be implied from an unadjusted date
-   * in the sequence and the {@linkplain Frequency periodic frequency}.
-   * For example, if the start date of the sequence is 2014-06-20 and the periodic
-   * frequency is 'P3M' (month-based), then the implied convention is 'Day20'.
-   * Whereas, if the frequency is 'P2W' (week-based), then the implied convention
-   * is 'DayFri', because 2014-06-20 is a Friday.
-   * <p>
-   * The rules are as follows.
-   * If the input frequency is week-based, then the implied convention is based on
-   * the day-of-week of the input date.
-   * If the input frequency is month-based, then the implied convention is based on
-   * the day-of-month of the input date, unless the input date is at the end of the
-   * month, in which case then the implied convention is 'EOM'.
-   * In all other cases, the implied convention is 'None'.
-   * <p>
-   * It is not intended that this convention is directly used for calculation.
-   * It must be converted to a specific convention using
-   * {@link RollConvention#imply(LocalDate, Frequency)}
-   * before use with {@code next()} or {@code previous()}.
-   */
-  public static final RollConvention IMPLIED = Standard.IMPLIED;
 
   /**
    * The 'Day1' roll convention which adjusts the date to day-of-month 1.
@@ -508,7 +534,37 @@ public final class RollConventions {
       }
     },
     // implied from date and frequency
-    IMPLIED("Implied") {
+    IMPLIED_DAY("ImpliedDay") {
+      @Override
+      public LocalDate adjust(LocalDate date) {
+        return ArgChecker.notNull(date, "date");
+      }
+      @Override
+      public RollConvention imply(LocalDate date, Frequency periodicFrequency) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(periodicFrequency, "periodicFrequency");
+        if (periodicFrequency.isMonthBased()) {
+          return RollConvention.ofDayOfMonth(date.getDayOfMonth());
+        } else if (periodicFrequency.isWeekBased()) {
+          return RollConvention.ofDayOfWeek(date.getDayOfWeek());
+        }
+        return NONE;
+      }
+      @Override
+      public LocalDate next(LocalDate date, Frequency periodicFrequency) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(periodicFrequency, "periodicFrequency");
+        throw new IllegalStateException("RollConventions.IMPLIED_DAY must be resolved before use by calling imply()");
+      }
+      @Override
+      public LocalDate previous(LocalDate date, Frequency periodicFrequency) {
+        ArgChecker.notNull(date, "date");
+        ArgChecker.notNull(periodicFrequency, "periodicFrequency");
+        throw new IllegalStateException("RollConventions.IMPLIED_DAY must be resolved before use by calling imply()");
+      }
+    },
+    // implied from date and frequency
+    IMPLIED_EOM("ImpliedEOM") {
       @Override
       public LocalDate adjust(LocalDate date) {
         return ArgChecker.notNull(date, "date");
@@ -531,13 +587,13 @@ public final class RollConventions {
       public LocalDate next(LocalDate date, Frequency periodicFrequency) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(periodicFrequency, "periodicFrequency");
-        throw new IllegalStateException("RollConventions.IMPLIED must be resolved before use using imply()");
+        throw new IllegalStateException("RollConventions.IMPLIED_EOM must be resolved before use by calling imply()");
       }
       @Override
       public LocalDate previous(LocalDate date, Frequency periodicFrequency) {
         ArgChecker.notNull(date, "date");
         ArgChecker.notNull(periodicFrequency, "periodicFrequency");
-        throw new IllegalStateException("RollConventions.IMPLIED must be resolved before use using imply()");
+        throw new IllegalStateException("RollConventions.IMPLIED_EOM must be resolved before use by calling imply()");
       }
     };
 
