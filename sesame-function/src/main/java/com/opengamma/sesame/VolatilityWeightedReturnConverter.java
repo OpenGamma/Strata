@@ -5,8 +5,6 @@
  */
 package com.opengamma.sesame;
 
-import static com.opengamma.sesame.TimeSeriesReturnConverterFactory.ConversionType;
-
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -26,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesRelativeWeightedDifferenceOperator;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesWeightedVolatilityOperator;
+import com.opengamma.sesame.TimeSeriesReturnConverterFactory.ConversionType;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -331,7 +330,7 @@ public final class VolatilityWeightedReturnConverter implements TimeSeriesReturn
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

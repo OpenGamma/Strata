@@ -16,6 +16,7 @@ The ``DiscountingBondCalculator`` is the discounting calculator implementation f
 * ``CurveDefinitionFn`` - to obtain cure definitions by curve name.
 * ``Environment`` - to provide the valuation time and market data
 * ``BondTrade`` - containing the ``BondSecurity`` or the subtypes ``MunicipalBondSecurity``, ``InflationBondSecurity``, ``GovernmentBondSecurity`` or ``CorporateBondSecurity``
+* ``MarketDataFn`` - to provide the market price
 
 Outputs
 -------
@@ -23,3 +24,6 @@ Outputs
 * Present value, in the form of a ``MultipleCurrencyAmount``
 * PV01, in the form of a ``ReferenceAmount``
 * Bucketed PV01, in the form of ``BucketedCurveSensitivities``
+* Z-Spread, in the form of a ``Double``
+* Market Clean Price, in the form of a ``Double``
+* Yield To Maturity, in the form of a ``Double``

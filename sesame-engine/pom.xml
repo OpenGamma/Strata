@@ -44,37 +44,12 @@
 
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-core</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
       <artifactId>og-financial</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-financial-types</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-engine</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-component</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-integration</artifactId>
+      <artifactId>og-livedata</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -93,11 +68,6 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.thoughtworks.paranamer</groupId>
-      <artifactId>paranamer</artifactId>
     </dependency>
 
     <dependency>

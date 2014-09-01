@@ -10,8 +10,8 @@ import javax.annotation.Nullable;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**

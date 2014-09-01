@@ -27,7 +27,7 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -36,7 +36,6 @@ import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -77,6 +76,7 @@ import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.marketdata.StrategyAwareMarketDataSource;
+import com.opengamma.sesame.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.result.Result;
@@ -93,7 +93,7 @@ public class ExposureFunctionTest {
 
   private static FXMatrix _emptyFxMatrix = new FXMatrix();
   private static SimpleEnvironment _environment;
-  private static ImmutableMap<Class<?>, Object> _components = InterestRateMockSources.generateBaseComponents();
+  private static ImmutableClassToInstanceMap<Object> _components = InterestRateMockSources.generateBaseComponents();
 
   @BeforeClass
   private void setUpClass() {

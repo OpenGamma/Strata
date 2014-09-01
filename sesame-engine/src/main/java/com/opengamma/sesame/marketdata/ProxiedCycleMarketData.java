@@ -15,8 +15,8 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.tuple.Pair;
 

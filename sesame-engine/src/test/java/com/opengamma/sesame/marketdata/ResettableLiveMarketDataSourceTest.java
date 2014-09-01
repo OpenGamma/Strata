@@ -5,7 +5,7 @@
  */
 package com.opengamma.sesame.marketdata;
 
-import static com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification.LIVE_SPEC;
+import static com.opengamma.sesame.marketdata.spec.LiveMarketDataSpecification.LIVE_SPEC;
 import static com.opengamma.util.result.FailureStatus.MISSING_DATA;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -20,9 +20,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;
@@ -46,7 +46,7 @@ public class ResettableLiveMarketDataSourceTest {
   @Test
   public void alreadyPendingDataReturnsPendingResultButNoRequest() {
     ResettableLiveMarketDataSource dataSource = createBuilder().pending(_id1).build();
-        new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class));
+        new ResettableLiveMarketDataSource(MarketDataSpecification.live(), mock(LDClient.class));
     Result<?> result = dataSource.get(_id1, _fieldName);
     assertThat(result.getStatus(), Matchers.<ResultStatus>is(FailureStatus.PENDING_DATA));
     assertTrue(dataSource.getRequestedData().isEmpty());

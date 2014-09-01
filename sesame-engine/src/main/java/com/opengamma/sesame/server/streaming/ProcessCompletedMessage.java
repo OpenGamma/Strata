@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -118,7 +119,7 @@ public final class ProcessCompletedMessage implements Function<StreamingClientRe
     }
 
     @Override
-    public ProcessCompletedMessage.Builder builder() {
+    public BeanBuilder<? extends ProcessCompletedMessage> builder() {
       return new ProcessCompletedMessage.Builder();
     }
 
@@ -172,7 +173,7 @@ public final class ProcessCompletedMessage implements Function<StreamingClientRe
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

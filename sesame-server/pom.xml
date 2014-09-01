@@ -9,11 +9,11 @@
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform</artifactId>
     <version>3.0.0-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath></relativePath>
   </parent>
   <artifactId>sesame-server</artifactId>
   <packaging>jar</packaging>
-  <name>sesame-server</name>
+  <name>Sesame-Server</name>
   <description>OpenGamma Sesame Deployment Server</description>
 
   <!-- ==================================================================== -->

@@ -372,7 +372,7 @@ public final class SabrNode implements ImmutableBean, Comparable<SabrNode> {
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

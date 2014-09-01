@@ -16,6 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import spark.Request;
+import spark.Response;
+import spark.Route;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -69,10 +73,6 @@ import com.opengamma.sesame.irs.InterestRateSwapFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.MarketDataFn;
 import com.opengamma.sesame.trade.InterestRateFutureTrade;
-
-import spark.Request;
-import spark.Response;
-import spark.Route;
 
 /**
  * This is a temporary test server to save the hassle of setting up real web config for jersey etc.

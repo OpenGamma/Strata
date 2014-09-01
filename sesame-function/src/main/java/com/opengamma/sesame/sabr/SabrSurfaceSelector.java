@@ -389,7 +389,7 @@ public final class SabrSurfaceSelector<C extends Convention, S extends NamedSnap
 
     @Override
     public Builder<C, S> setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

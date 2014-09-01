@@ -19,14 +19,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
 import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.currency.AbstractCurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
+import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixExternalId;
 import com.opengamma.id.ExternalId;
 import com.opengamma.sesame.ConfigDbMarketExposureSelectorFn;
 import com.opengamma.sesame.DefaultCurrencyPairsFn;
@@ -190,8 +189,8 @@ public class TempleIntegrationTest {
   private class TempCurrencyMatrix extends AbstractCurrencyMatrix {
 
     private TempCurrencyMatrix() {
-      CurrencyMatrixValue.CurrencyMatrixValueRequirement value = CurrencyMatrixValue.of(new ValueRequirement(
-          "Market_Value", ComputationTargetType.PRIMITIVE, ExternalSchemes.bloombergTickerSecurityId("KRW Curncy")));
+      CurrencyMatrixExternalId value = CurrencyMatrixValue.of(
+          ExternalSchemes.bloombergTickerSecurityId("KRW Curncy").toBundle(), "Market_Value");
       addConversion(Currency.of("KRW"), Currency.USD, value);
       addConversion(Currency.USD, Currency.of("KRW"), value.getReciprocal());
     }

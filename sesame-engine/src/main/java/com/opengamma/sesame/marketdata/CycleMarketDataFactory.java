@@ -7,7 +7,7 @@ package com.opengamma.sesame.marketdata;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 
 /**
  * Provides the market data for the cycle of a view. This allows for

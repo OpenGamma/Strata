@@ -27,6 +27,7 @@ public class CurveDataParallelShift extends CurveDataShift {
    * @param normalizedValue the value
    * @return the shifted value
    */
+  @Override
   protected double shift(double normalizedValue) {
     return normalizedValue + getShiftAmount();
   }

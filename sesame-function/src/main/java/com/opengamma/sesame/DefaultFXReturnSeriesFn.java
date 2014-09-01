@@ -5,9 +5,10 @@
  */
 package com.opengamma.sesame;
 
+import java.util.function.Function;
+
 import org.threeten.bp.LocalDate;
 
-import com.google.common.base.Function;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.analytics.financial.schedule.Schedule;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;

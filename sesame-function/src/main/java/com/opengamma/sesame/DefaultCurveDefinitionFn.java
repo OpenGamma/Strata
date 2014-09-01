@@ -8,10 +8,12 @@ package com.opengamma.sesame;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
@@ -29,7 +31,8 @@ public class DefaultCurveDefinitionFn implements CurveDefinitionFn {
   private final CurveDefinitionSource _curveDefinitionSource;
 
   public DefaultCurveDefinitionFn(ConfigSource configSource) {
-    _curveDefinitionSource = new ConfigDBCurveDefinitionSource(ArgumentChecker.notNull(configSource, "configSource"));
+    _curveDefinitionSource = new ConfigDBCurveDefinitionSource(
+        ArgumentChecker.notNull(configSource, "configSource"), VersionCorrection.LATEST);
   }
 
   //-------------------------------------------------------------------------

@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterators;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 
 /**
  * The set of cycle options to be used for a single cycle within a view execution.
@@ -369,7 +369,7 @@ public final class IndividualCycleOptions implements ImmutableBean, CycleOptions
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

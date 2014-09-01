@@ -9,6 +9,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.result.Result;
 
@@ -24,7 +25,8 @@ public class DefaultCurveSpecificationFn implements CurveSpecificationFn {
 
   public DefaultCurveSpecificationFn(ConfigSource configSource) {
     // TODO shouldn't be using config source directly
-    _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(ArgumentChecker.notNull(configSource, "configSource"));
+    _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(
+        ArgumentChecker.notNull(configSource, "configSource"), VersionCorrection.LATEST);
   }
 
   //-------------------------------------------------------------------------

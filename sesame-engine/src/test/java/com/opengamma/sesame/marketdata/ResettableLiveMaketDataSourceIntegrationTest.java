@@ -27,8 +27,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.sesame.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.util.auth.PermissiveSecurityManager;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.result.ResultStatus;

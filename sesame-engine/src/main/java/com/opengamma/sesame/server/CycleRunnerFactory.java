@@ -5,6 +5,8 @@
  */
 package com.opengamma.sesame.server;
 
+import org.threeten.bp.Duration;
+
 import com.opengamma.sesame.config.EngineUtils;
 import com.opengamma.sesame.engine.View;
 import com.opengamma.sesame.engine.ViewFactory;
@@ -41,14 +43,24 @@ public class CycleRunnerFactory {
   private final MarketDataFactory _marketDataFactory;
 
   /**
+   * Minimum time period between cycles, not null. This is used to ensure
+   * the server does not spin when cycles complete quickly.
+   */
+  private final Duration _minimumTimeBetweenCycles;
+
+  /**
    * Creates the factory.
    *
    * @param viewFactory factory used to create the views which will be executed, not null
    * @param marketDataFactory  used to handle the market data requirements
+   * @param minimumTimeBetweenCycles  minimum time period between cycles, not null
    */
-  public CycleRunnerFactory(ViewFactory viewFactory, MarketDataFactory marketDataFactory) {
+  public CycleRunnerFactory(ViewFactory viewFactory,
+                            MarketDataFactory marketDataFactory,
+                            Duration minimumTimeBetweenCycles) {
     _viewFactory = ArgumentChecker.notNull(viewFactory, "viewFactory");
     _marketDataFactory = ArgumentChecker.notNull(marketDataFactory, "marketDataFactory");
+    _minimumTimeBetweenCycles = ArgumentChecker.notNull(minimumTimeBetweenCycles, "minimumTimeBetweenCycles");
   }
 
   /**
@@ -90,7 +102,8 @@ public class CycleRunnerFactory {
         request.getCycleOptions(),
         request.getInputs(),
         ArgumentChecker.notNull(handler, "handler"),
-        ArgumentChecker.notNull(cycleTerminator, "cycleTerminator"));
+        ArgumentChecker.notNull(cycleTerminator, "cycleTerminator"),
+        _minimumTimeBetweenCycles);
   }
 
   private View createView(FunctionServerRequest<?> request) {

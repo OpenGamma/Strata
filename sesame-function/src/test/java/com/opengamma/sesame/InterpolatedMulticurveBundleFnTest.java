@@ -132,7 +132,7 @@ public class InterpolatedMulticurveBundleFnTest {
   public void init() throws IOException {
     //builds graph, initializing mocks
     
-    ClassToInstanceMap<Object> mocks = MockUtils.mocks(MOCK_CLASSES);
+    ClassToInstanceMap<Object> mocks = ComponentMockUtils.mocks(MOCK_CLASSES);
     
     initConfigSource(mocks.getInstance(ConfigSource.class));
     initConventionSource(mocks.getInstance(ConventionSource.class));

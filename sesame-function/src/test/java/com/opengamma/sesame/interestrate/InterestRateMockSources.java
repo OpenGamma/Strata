@@ -9,7 +9,6 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.F
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
 import static com.opengamma.util.money.Currency.GBP;
 import static com.opengamma.util.money.Currency.USD;
 import static org.mockito.Matchers.any;
@@ -32,6 +31,7 @@ import org.mockito.Matchers;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -54,8 +54,6 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.SimpleRegion;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
@@ -122,10 +120,13 @@ import com.opengamma.sesame.marketdata.DefaultStrategyAwareMarketDataSource;
 import com.opengamma.sesame.marketdata.MapMarketDataSource;
 import com.opengamma.sesame.marketdata.MarketDataFactory;
 import com.opengamma.sesame.marketdata.MarketDataSource;
+import com.opengamma.sesame.marketdata.spec.LiveMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.sesame.sabr.SabrConfigSelector;
 import com.opengamma.sesame.sabr.SabrExpiryTenorSurface;
 import com.opengamma.sesame.sabr.SabrNode;
 import com.opengamma.sesame.sabr.SabrSurfaceSelector;
+import com.opengamma.sesame.sabr.SabrSurfaceSelector.SabrSurfaceName;
 import com.opengamma.sesame.sabr.SabrSwaptionConfig;
 import com.opengamma.sesame.sabr.SabrSwaptionDataConfig;
 import com.opengamma.sesame.sabr.SabrSwaptionInterpolationConfig;
@@ -220,7 +221,7 @@ public class InterestRateMockSources {
     return _onIndexId;
   }
 
-  public static ImmutableMap<Class<?>, Object> generateBaseComponents() {
+  public static ImmutableClassToInstanceMap<Object> generateBaseComponents() {
     return generateComponentMap(mockHolidaySource(),
                                 mockRegionSource(),
                                 mockConventionSource(),
@@ -462,12 +463,12 @@ public class InterestRateMockSources {
     return new InterpolatedCurveDefinition(USD_LIBOR3M_CURVE_NAME, nodes, "Linear", "FlatExtrapolator", "FlatExtrapolator");
   }
 
-  private static ImmutableMap<Class<?>, Object> generateComponentMap(Object... components) {
+  private static ImmutableClassToInstanceMap<Object> generateComponentMap(Object... components) {
     ImmutableMap.Builder<Class<?>, Object> builder = ImmutableMap.builder();
     for (Object component : components) {
       builder.put(component.getClass().getInterfaces()[0], component);
     }
-    return builder.build();
+    return ImmutableClassToInstanceMap.copyOf(builder.build());
   }
 
 

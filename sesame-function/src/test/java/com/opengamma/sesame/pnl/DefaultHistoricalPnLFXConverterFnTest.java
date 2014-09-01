@@ -11,9 +11,9 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
+import com.google.common.math.DoubleMath;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.integration.regression.EqualityChecker;
 import com.opengamma.sesame.FXMatrixFn;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
@@ -75,17 +75,17 @@ public class DefaultHistoricalPnLFXConverterFnTest {
     _range = LocalDateRange.of(PNL_START, PNL_START.plusDays(_inputPnL.size()-1), true);
     _adjustedRange = LocalDateRange.of(PNL_START.minusWeeks(1), _range.getEndDateInclusive(), true);
     
-    when(_fxMatrixFn.getFXMatrix(env, Sets.newHashSet(_ccyPair.getBase(), _ccyPair.getCounter()))).thenReturn(Result.success(fxMatrix));
-
+    when(_fxMatrixFn.getFXMatrix(env, Sets.newHashSet(_ccyPair.getBase(), _ccyPair.getCounter())))
+        .thenReturn(Result.success(fxMatrix));
   }
-  
-  
+
   @Test
   public void convertToSpotEnd() {
     
     HistoricalPnLFXConverterFn fn = new DefaultHistoricalPnLFXConverterFn(_fxMatrixFn, _mdFn, PnLPeriodBound.END);
     
-    when(_mdFn.getFxRates(env, _ccyPair, _range)).thenReturn(Result.success(_reciprocalFxRates));
+    when(_mdFn.getFxRates(env, _ccyPair, _range))
+        .thenReturn(Result.success(_reciprocalFxRates));
     
     Result<LocalDateDoubleTimeSeries> result = fn.convertToSpotRate(env, _ccyPair, _inputPnL);
     
@@ -93,27 +93,33 @@ public class DefaultHistoricalPnLFXConverterFnTest {
     
     assertEquals("Expected size of series to remain the same", _inputPnL.size(), result.getValue().size());
     assertTrue("Converted PnL did not match expected results.", checkResult(result, EXPECTED_PNL_WITH_END_FX));
-    
   }
-  
+
   @Test
   public void convertToSpotStart() {
     
     HistoricalPnLFXConverterFn fn = new DefaultHistoricalPnLFXConverterFn(_fxMatrixFn, _mdFn, PnLPeriodBound.START);
     
-    when(_mdFn.getFxRates(env, _ccyPair, _adjustedRange)).thenReturn(Result.success(_reciprocalFxRates));
+    when(_mdFn.getFxRates(env, _ccyPair, _adjustedRange))
+        .thenReturn(Result.success(_reciprocalFxRates));
     
     Result<LocalDateDoubleTimeSeries> result = fn.convertToSpotRate(env, _ccyPair, _inputPnL);
     
     assertEquals("Expected size of series to remain the same", _inputPnL.size(), result.getValue().size());
     assertTrue("Converted PnL did not match expected results.", checkResult(result, EXPECTED_PNL_WITH_START_FX));
-    
   }
 
   private boolean checkResult(Result<LocalDateDoubleTimeSeries> result, double[] expected) {
-    return EqualityChecker.equals(result.getValue().valuesArrayFast(), expected, DELTA);
+    double[] values = result.getValue().valuesArrayFast();
+    if (values.length != expected.length) {
+      return false;
+    }
+    for (int i = 0; i < values.length; i++) {
+      if (DoubleMath.fuzzyEquals(values[i], expected[i], DELTA) == false) {
+        return false;
+      }
+    }
+    return true;
   }
-  
-  
 
 }

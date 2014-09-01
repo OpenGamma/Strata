@@ -20,6 +20,8 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Duration;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
@@ -40,6 +42,8 @@ import com.opengamma.util.jms.JmsConnector;
  */
 @BeanDefinition
 public class FunctionServerComponentFactory extends AbstractComponentFactory {
+
+  private static final int DEFAULT_MINIMUM_TIME_BETWEEN_CYCLES = 5000;
 
   /**
    * The classifier that the factory should publish under.
@@ -84,12 +88,18 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private ScheduledExecutorService _scheduledExecutor = Executors.newScheduledThreadPool(5);
+  /**
+   * The minimum time between cycles (in milliseconds).
+   */
+  @PropertyDefinition
+  private long _minimumTimeBetweenCycles = DEFAULT_MINIMUM_TIME_BETWEEN_CYCLES;
 
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
 
-    CycleRunnerFactory cycleRunnerFactory = new CycleRunnerFactory(getViewFactory(), getMarketDataFactory());
+    CycleRunnerFactory cycleRunnerFactory = new CycleRunnerFactory(
+        getViewFactory(), getMarketDataFactory(), Duration.of(_minimumTimeBetweenCycles, ChronoUnit.MILLIS));
     DefaultFunctionServer server = initFunctionServer(repo, cycleRunnerFactory);
     if (isEnableStreamedResults()) {
       initStreamingServer(repo, server, cycleRunnerFactory);
@@ -357,6 +367,31 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the minimum time between cycles (in milliseconds).
+   * @return the value of the property
+   */
+  public long getMinimumTimeBetweenCycles() {
+    return _minimumTimeBetweenCycles;
+  }
+
+  /**
+   * Sets the minimum time between cycles (in milliseconds).
+   * @param minimumTimeBetweenCycles  the new value of the property
+   */
+  public void setMinimumTimeBetweenCycles(long minimumTimeBetweenCycles) {
+    this._minimumTimeBetweenCycles = minimumTimeBetweenCycles;
+  }
+
+  /**
+   * Gets the the {@code minimumTimeBetweenCycles} property.
+   * @return the property, not null
+   */
+  public final Property<Long> minimumTimeBetweenCycles() {
+    return metaBean().minimumTimeBetweenCycles().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public FunctionServerComponentFactory clone() {
     return JodaBeanUtils.cloneAlways(this);
@@ -377,6 +412,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getLiveDataClient(), other.getLiveDataClient()) &&
           JodaBeanUtils.equal(getScheduledExecutor(), other.getScheduledExecutor()) &&
+          (getMinimumTimeBetweenCycles() == other.getMinimumTimeBetweenCycles()) &&
           super.equals(obj);
     }
     return false;
@@ -393,12 +429,13 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveDataClient());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduledExecutor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinimumTimeBetweenCycles());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("FunctionServerComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -420,6 +457,7 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
     buf.append("liveDataClient").append('=').append(JodaBeanUtils.toString(getLiveDataClient())).append(',').append(' ');
     buf.append("scheduledExecutor").append('=').append(JodaBeanUtils.toString(getScheduledExecutor())).append(',').append(' ');
+    buf.append("minimumTimeBetweenCycles").append('=').append(JodaBeanUtils.toString(getMinimumTimeBetweenCycles())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -473,6 +511,11 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ScheduledExecutorService> _scheduledExecutor = DirectMetaProperty.ofReadWrite(
         this, "scheduledExecutor", FunctionServerComponentFactory.class, ScheduledExecutorService.class);
     /**
+     * The meta-property for the {@code minimumTimeBetweenCycles} property.
+     */
+    private final MetaProperty<Long> _minimumTimeBetweenCycles = DirectMetaProperty.ofReadWrite(
+        this, "minimumTimeBetweenCycles", FunctionServerComponentFactory.class, Long.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -484,7 +527,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
         "marketDataFactory",
         "jmsConnector",
         "liveDataClient",
-        "scheduledExecutor");
+        "scheduledExecutor",
+        "minimumTimeBetweenCycles");
 
     /**
      * Restricted constructor.
@@ -511,6 +555,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return _liveDataClient;
         case 1586176160:  // scheduledExecutor
           return _scheduledExecutor;
+        case -1691789766:  // minimumTimeBetweenCycles
+          return _minimumTimeBetweenCycles;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -595,6 +641,14 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
       return _scheduledExecutor;
     }
 
+    /**
+     * The meta-property for the {@code minimumTimeBetweenCycles} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Long> minimumTimeBetweenCycles() {
+      return _minimumTimeBetweenCycles;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -615,6 +669,8 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return ((FunctionServerComponentFactory) bean).getLiveDataClient();
         case 1586176160:  // scheduledExecutor
           return ((FunctionServerComponentFactory) bean).getScheduledExecutor();
+        case -1691789766:  // minimumTimeBetweenCycles
+          return ((FunctionServerComponentFactory) bean).getMinimumTimeBetweenCycles();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -645,6 +701,9 @@ public class FunctionServerComponentFactory extends AbstractComponentFactory {
           return;
         case 1586176160:  // scheduledExecutor
           ((FunctionServerComponentFactory) bean).setScheduledExecutor((ScheduledExecutorService) newValue);
+          return;
+        case -1691789766:  // minimumTimeBetweenCycles
+          ((FunctionServerComponentFactory) bean).setMinimumTimeBetweenCycles((Long) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

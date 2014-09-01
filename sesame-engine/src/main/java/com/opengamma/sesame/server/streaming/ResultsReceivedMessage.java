@@ -278,7 +278,7 @@ public final class ResultsReceivedMessage implements Function<StreamingClientRes
 
     @Override
     public Builder setString(MetaProperty<?> property, String value) {
-      super.set(property, value);
+      super.setString(property, value);
       return this;
     }
 

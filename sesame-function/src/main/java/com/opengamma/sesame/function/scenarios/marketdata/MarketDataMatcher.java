@@ -15,8 +15,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.RegexUtils;
 
 /**
  * Tests if an {@link ExternalIdBundle} representing a piece of market data matches a rule.
@@ -94,7 +94,7 @@ public abstract class MarketDataMatcher {
 
     private Like(String scheme, String glob) {
       _scheme = ExternalScheme.of(scheme);
-      _pattern = SimulationUtils.patternForGlob(glob);
+      _pattern = RegexUtils.globToPattern(glob);
     }
 
     @Override

@@ -40,7 +40,6 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.link.ConfigLink;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
@@ -90,6 +89,7 @@ import com.opengamma.sesame.fxforward.FXForwardPVFn;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
 import com.opengamma.sesame.marketdata.DefaultMarketDataFn;
 import com.opengamma.sesame.marketdata.HistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.sesame.pnl.DefaultHistoricalPnLFXConverterFn;
 import com.opengamma.sesame.pnl.PnLPeriodBound;
 import com.opengamma.sesame.server.FunctionServer;
@@ -145,6 +145,7 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
    * Creates the output root data.
    * @return the output root data, not null
    */
+  @Override
   protected FlexiBean createRootData() {
     FlexiBean out = super.createRootData();
     List<ObjectId> list = ImmutableList.of(OID_INLINE_1000);
@@ -196,7 +197,7 @@ public class WebAnalyticsViewsResource extends AbstractWebAnalyticsResource {
     
     IndividualCycleOptions cycleOptions = IndividualCycleOptions.builder()
         .valuationTime(valuationTime)
-        .marketDataSpec(LiveMarketDataSpecification.of("Bloomberg"))
+        .marketDataSpec(MarketDataSpecification.live())
 //        .marketDataSpec(new FixedHistoricalMarketDataSpecification(LocalDate.now().minusDays(2)))
         .build();
     

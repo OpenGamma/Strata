@@ -14,8 +14,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
 import com.opengamma.id.ExternalId;
@@ -52,8 +50,7 @@ public class DefaultMarketDataFnTest {
   public void lookUpRate() {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     ExternalId rateId = ExternalId.of("x", "GBPUSD");
-    ValueRequirement valueReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, rateId);
-    matrix.setLiveData(Currency.GBP, Currency.USD, valueReq);
+    matrix.setLiveData(Currency.GBP, Currency.USD, rateId.toBundle(), MARKET_VALUE.getName());
     MarketDataSource dataSource = mock(MarketDataSource.class);
     Object value = GBPUSD_RATE;
     when(dataSource.get(rateId.toBundle(), MARKET_VALUE)).thenAnswer(new Returns(Result.success(value)));
@@ -88,13 +85,11 @@ public class DefaultMarketDataFnTest {
     SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
 
     ExternalId usdchfRateId = ExternalId.of("x", "USDCHF");
-    ValueRequirement usdchfReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, usdchfRateId);
-    matrix.setLiveData(Currency.USD, Currency.CHF, usdchfReq);
+    matrix.setLiveData(Currency.USD, Currency.CHF, usdchfRateId.toBundle(), MARKET_VALUE.getName());
     Object usdchfValue = USDCHF_RATE;
 
     ExternalId eurusdRateId = ExternalId.of("x", "EURUSD");
-    ValueRequirement eurusdReq = new ValueRequirement(MARKET_VALUE.getName(), ComputationTargetType.PRIMITIVE, eurusdRateId);
-    matrix.setLiveData(Currency.EUR, Currency.USD, eurusdReq);
+    matrix.setLiveData(Currency.EUR, Currency.USD, eurusdRateId.toBundle(), MARKET_VALUE.getName());
     Object eurusdValue = EURUSD_RATE;
 
     matrix.setCrossConversion(Currency.EUR, Currency.CHF, Currency.USD);

@@ -47,8 +47,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.EmbeddedJettyComponentFactory;
 import com.opengamma.core.link.ConfigLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.LiveDataClient;
@@ -74,6 +72,8 @@ import com.opengamma.sesame.engine.ViewFactory;
 import com.opengamma.sesame.engine.ViewInputs;
 import com.opengamma.sesame.interestrate.InterestRateMockSources;
 import com.opengamma.sesame.marketdata.DefaultHistoricalMarketDataFn;
+import com.opengamma.sesame.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.sesame.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.sesame.server.FunctionServer;
 import com.opengamma.sesame.server.FunctionServerRequest;
 import com.opengamma.sesame.server.GlobalCycleOptions;
@@ -330,7 +330,7 @@ public class RemotingTest {
     StreamingClient streamingClient = functionServer.createStreamingClient(request);
 
     // Get some results first
-    final CountDownLatch resultsLatch = new CountDownLatch(10);
+    final CountDownLatch resultsLatch = new CountDownLatch(5);
 
     streamingClient.registerListener(new StreamingClientResultListener() {
       @Override
@@ -346,7 +346,9 @@ public class RemotingTest {
       public void serverConnectionFailed(Exception e) { }
     });
 
-    assertThat(resultsLatch.await(10, TimeUnit.SECONDS), is(true));
+    // By default there a 5s between each cycle so we need to give
+    // it enough time to finish
+    assertThat(resultsLatch.await(30, TimeUnit.SECONDS), is(true));
 
     streamingClient.stop();
 

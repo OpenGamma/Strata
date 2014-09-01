@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.sesame.SimpleEnvironment;
 import com.opengamma.sesame.config.EmptyFunctionArguments;
@@ -29,6 +28,7 @@ import com.opengamma.sesame.function.InvokableFunction;
 import com.opengamma.sesame.function.Output;
 import com.opengamma.sesame.marketdata.LDClient;
 import com.opengamma.sesame.marketdata.ResettableLiveMarketDataSource;
+import com.opengamma.sesame.marketdata.spec.MarketDataSpecification;
 import com.opengamma.util.result.FailureStatus;
 import com.opengamma.util.result.Result;
 import com.opengamma.util.test.TestGroup;
@@ -50,7 +50,8 @@ public class GraphModelTest {
     Map<Class<?>, InvokableFunction> functionsForColumn = graph.getFunctionsForColumn(columnName);
     InvokableFunction invokableFunction = functionsForColumn.get(FXForwardSecurity.class);
     assertNotNull(invokableFunction);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class)));
+    SimpleEnvironment env = new SimpleEnvironment(
+        ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketDataSpecification.live(), mock(LDClient.class)));
     Result<?> result = (Result<?>) invokableFunction.invoke(env, null, EmptyFunctionArguments.INSTANCE);
     assertFalse(result.isSuccess());
     assertEquals(FailureStatus.ERROR, result.getStatus());
@@ -69,7 +70,8 @@ public class GraphModelTest {
 
     InvokableFunction invokableFunction = graph.getNonPortfolioFunction(outputName);
     assertNotNull(invokableFunction);
-    SimpleEnvironment env = new SimpleEnvironment(ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketData.live(), mock(LDClient.class)));
+    SimpleEnvironment env = new SimpleEnvironment(
+        ZonedDateTime.now(), new ResettableLiveMarketDataSource(MarketDataSpecification.live(), mock(LDClient.class)));
     Result<?> result = (Result<?>) invokableFunction.invoke(env, null, EmptyFunctionArguments.INSTANCE);
     assertFalse(result.isSuccess());
     assertEquals(FailureStatus.ERROR, result.getStatus());
