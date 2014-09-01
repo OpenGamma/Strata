@@ -31,7 +31,7 @@ import com.opengamma.collect.Guavate;
  * very straightforward way to create yield curves in order to test
  * out other aspects of analytics.
  */
-public class SimpleCurveCalibrator implements CurveCalibrator {
+public class SimpleCurveCalibrator {
 
   /**
    * The default extrapolator to be used.
@@ -119,7 +119,6 @@ public class SimpleCurveCalibrator implements CurveCalibrator {
     return new CombinedInterpolatorExtrapolator(interpolationMethod.getInterpolator(), DEFAULT_EXTRAPOLATOR);
   }
 
-  @Override
   public YieldCurve buildYieldCurve(Map<Tenor, Double> zeroCouponRates, LocalDate valuationDate) {
 
     // Validate we have sensible tenors and order them (or ensure they're ordered)

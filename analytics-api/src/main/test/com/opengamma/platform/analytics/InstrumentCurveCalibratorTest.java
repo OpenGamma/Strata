@@ -10,8 +10,8 @@ import static com.opengamma.basics.date.Tenor.TENOR_2Y;
 import static com.opengamma.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.basics.date.Tenor.TENOR_3Y;
 import static com.opengamma.basics.date.Tenor.TENOR_6M;
-import static com.opengamma.platform.analytics.CurveCalibrator.InstrumentType.CASH;
-import static com.opengamma.platform.analytics.CurveCalibrator.InstrumentType.SWAP;
+import static com.opengamma.platform.analytics.CurveNodeInstrumentType.CASH;
+import static com.opengamma.platform.analytics.CurveNodeInstrumentType.SWAP;
 import static org.testng.Assert.assertNotNull;
 
 import java.time.LocalDate;
@@ -27,7 +27,7 @@ public class InstrumentCurveCalibratorTest {
   @Test
   public void cashOnly() {
 
-    CurveCalibrator.YieldCurve yieldCurve = new InstrumentCurveCalibrator().buildYieldCurve(
+    YieldCurve yieldCurve = new InstrumentCurveCalibrator().buildYieldCurve(
         ImmutableMap.of(
             TENOR_1D, CASH,
             TENOR_1W, CASH,
@@ -47,8 +47,8 @@ public class InstrumentCurveCalibratorTest {
   @Test
   public void cashAndSwaps() {
 
-    ImmutableMap<Tenor, CurveCalibrator.InstrumentType> instrumentTypes =
-        ImmutableMap.<Tenor, CurveCalibrator.InstrumentType>builder()
+    ImmutableMap<Tenor, CurveNodeInstrumentType> instrumentTypes =
+        ImmutableMap.<Tenor, CurveNodeInstrumentType>builder()
             .put(TENOR_1D, CASH)
             .put(TENOR_1W, CASH)
             .put(TENOR_2W, CASH)
@@ -73,7 +73,7 @@ public class InstrumentCurveCalibratorTest {
         .put(TENOR_2Y, 0.022)
         .put(TENOR_3Y, 0.029)
         .build();
-    CurveCalibrator.YieldCurve yieldCurve = new InstrumentCurveCalibrator().buildYieldCurve(
+    YieldCurve yieldCurve = new InstrumentCurveCalibrator().buildYieldCurve(
         instrumentTypes,
         rates,
         Currency.USD,
