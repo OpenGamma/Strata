@@ -88,11 +88,12 @@ public final class ValueAdjustment
   }
 
   /**
-   * Obtains a value adjustment specifying an amount to add to the base value.
+   * Obtains a value adjustment specifying a multiplication factor, adding it to the base value.
    * <p>
-   * The result will be {@code (baseValue + baseValue * (deltaPercentage / 100))}.
+   * The result will be {@code (baseValue + baseValue * modifyingValue)}.
    * 
-   * @param deltaMultiplier  the multiplier of the base amount to add
+   * @param deltaMultiplier  the multiplication factor to apply to the base amount
+   *  with the result added to the base amount
    * @return the adjustment
    */
   public static ValueAdjustment ofDeltaMultiplier(double deltaMultiplier) {
@@ -100,11 +101,11 @@ public final class ValueAdjustment
   }
 
   /**
-   * Obtains a value adjustment specifying an amount to add to the base value.
+   * Obtains a value adjustment specifying a multiplication factor to apply to the base value.
    * <p>
-   * The result will be {@code (baseValue + baseValue * (deltaPercentage / 100))}.
+   * The result will be {@code (baseValue * modifyingValue)}.
    * 
-   * @param multiplier  the factor to multiple the base amount by
+   * @param multiplier  the multiplication factor to apply to the base amount
    * @return the adjustment
    */
   public static ValueAdjustment ofMultiplier(double multiplier) {
