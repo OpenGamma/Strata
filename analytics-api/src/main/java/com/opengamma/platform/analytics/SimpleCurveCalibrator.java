@@ -135,16 +135,9 @@ public class SimpleCurveCalibrator {
     SortedMap<Double, Double> rateMap = zeroCouponRates.entrySet().stream()
         .collect(Guavate.toImmutableSortedMap(keyMapper, Map.Entry::getValue));
 
-
-    // Do date -> year fraction conversions
-
-
-    // Build doubles curve using default interpolator
-
-
-
     DoublesCurve curve = InterpolatedDoublesCurve.fromSorted(rateMap, interpolatorExtrapolator);
-    YieldAndDiscountCurve calibratedCurve = com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve.from(curve);
+    YieldAndDiscountCurve calibratedCurve =
+        com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve.from(curve);
 
     return new YieldCurve() {
       @Override
