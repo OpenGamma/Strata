@@ -46,15 +46,29 @@ public class SimpleCurveCalibrator {
   public static final Interpolator1D DEFAULT_INTERPOLATOR_EXTRAPOLATOR =
       new CombinedInterpolatorExtrapolator(NATURAL_CUBIC_SPLINE_INSTANCE, DEFAULT_EXTRAPOLATOR);
 
+  /**
+   * The interpolator/extrapolator to be used for calibrating the curve.
+   */
   private final Interpolator1D interpolatorExtrapolator;
 
+  /**
+   * The day count to be used when converting to year fractions.
+   */
   private final DayCount dayCount;
 
+  /**
+   * The business day adjustment to be performed.
+   */
   private final BusinessDayAdjustment businessDayAdjustment;
 
+  /**
+   * Creates a curve calibrator with default values for day count, interpolation
+   * and business day adjustments. To change the default values use the with...
+   * methods.
+   */
   public SimpleCurveCalibrator() {
 
-    // Don't worry about holidays yet
+    // TODO -when available use inbuilt holiday information
     this(DEFAULT_INTERPOLATOR_EXTRAPOLATOR, DayCounts.ACT_365,
         BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN));
   }
@@ -97,7 +111,7 @@ public class SimpleCurveCalibrator {
    * @param businessDayAdjustment  the business day adjustment to be used
    * @return a new curve calibrator
    */
-  public SimpleCurveCalibrator withBusinessDayConvention( BusinessDayAdjustment businessDayAdjustment) {
+  public SimpleCurveCalibrator withBusinessDayConvention(BusinessDayAdjustment businessDayAdjustment) {
     return new SimpleCurveCalibrator(interpolatorExtrapolator, dayCount, businessDayAdjustment);
   }
 
@@ -105,6 +119,13 @@ public class SimpleCurveCalibrator {
     return new CombinedInterpolatorExtrapolator(interpolationMethod.getInterpolator(), DEFAULT_EXTRAPOLATOR);
   }
 
+  /**
+   * Build a yield curve using the provided zero coupon rates and valuation date.
+   *
+   * @param zeroCouponRates  map of zero coupon rates to be used
+   * @param valuationDate  the valuation date for the curve
+   * @return a calibrated yield curve
+   */
   public YieldCurve buildYieldCurve(Map<Tenor, Double> zeroCouponRates, LocalDate valuationDate) {
 
     // TODO - Validate we have sensible tenors and order them (or ensure they're ordered)
