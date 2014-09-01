@@ -20,9 +20,11 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.basics.date.BusinessDayCalendar;
-import com.opengamma.basics.date.BusinessDayConvention;
+import com.opengamma.basics.date.BusinessDayAdjustment;
+import com.opengamma.basics.date.BusinessDayConventions;
 import com.opengamma.basics.date.DayCount;
+import com.opengamma.basics.date.DayCounts;
+import com.opengamma.basics.date.HolidayCalendars;
 import com.opengamma.basics.date.Tenor;
 import com.opengamma.collect.Guavate;
 
@@ -48,23 +50,20 @@ public class SimpleCurveCalibrator {
 
   private final DayCount dayCount;
 
-  private final BusinessDayConvention businessDayConvention;
-
-  private final BusinessDayCalendar businessDayCalendar;
+  private final BusinessDayAdjustment businessDayAdjustment;
 
   public SimpleCurveCalibrator() {
 
     // Don't worry about holidays yet
-    this(DEFAULT_INTERPOLATOR_EXTRAPOLATOR, DayCount.DC_ACT_365F, BusinessDayConvention.FOLLOWING, BusinessDayCalendar.WEEKENDS);
+    this(DEFAULT_INTERPOLATOR_EXTRAPOLATOR, DayCounts.ACT_365,
+        BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN));
   }
 
   private SimpleCurveCalibrator(Interpolator1D interpolatorExtrapolator, DayCount dayCount,
-                                BusinessDayConvention businessDayConvention,
-                                BusinessDayCalendar businessDayCalendar) {
+                                BusinessDayAdjustment businessDayAdjustment) {
     this.interpolatorExtrapolator = interpolatorExtrapolator;
     this.dayCount = dayCount;
-    this.businessDayConvention = businessDayConvention;
-    this.businessDayCalendar = businessDayCalendar;
+    this.businessDayAdjustment = businessDayAdjustment;
   }
 
   /**
@@ -75,8 +74,9 @@ public class SimpleCurveCalibrator {
    * @return a new curve calibrator
    */
   public SimpleCurveCalibrator withInterpolation(InterpolationMethod interpolationMethod) {
-    return new SimpleCurveCalibrator(buildInterpolatorExtrapolator(interpolationMethod), dayCount,
-        businessDayConvention, businessDayCalendar);
+    return new SimpleCurveCalibrator(
+        buildInterpolatorExtrapolator(interpolationMethod),
+        dayCount, businessDayAdjustment);
   }
 
   /**
@@ -87,32 +87,18 @@ public class SimpleCurveCalibrator {
    * @return a new curve calibrator
    */
   public SimpleCurveCalibrator withDayCount(DayCount dayCount) {
-    return new SimpleCurveCalibrator(interpolatorExtrapolator, dayCount,
-        businessDayConvention, businessDayCalendar);
+    return new SimpleCurveCalibrator(interpolatorExtrapolator, dayCount, businessDayAdjustment);
   }
 
   /**
    * Create a copy of this curve calibrator with the specified
    * business day convention.
    *
-   * @param businessDayConvention  the business day convention to be used
+   * @param businessDayAdjustment  the business day adjustment to be used
    * @return a new curve calibrator
    */
-  public SimpleCurveCalibrator withBusinessDayConvention(BusinessDayConvention businessDayConvention) {
-    return new SimpleCurveCalibrator(interpolatorExtrapolator, dayCount,
-        businessDayConvention, businessDayCalendar);
-  }
-
-  /**
-   * Create a copy of this curve calibrator with the specified
-   * business day convention.
-   *
-   * @param businessDayCalendar  the business day calendar to be used
-   * @return a new curve calibrator
-   */
-  public SimpleCurveCalibrator withBusinessDayCalendar(BusinessDayCalendar businessDayCalendar) {
-    return new SimpleCurveCalibrator(interpolatorExtrapolator, dayCount,
-        businessDayConvention, businessDayCalendar);
+  public SimpleCurveCalibrator withBusinessDayConvention( BusinessDayAdjustment businessDayAdjustment) {
+    return new SimpleCurveCalibrator(interpolatorExtrapolator, dayCount, businessDayAdjustment);
   }
 
   private Interpolator1D buildInterpolatorExtrapolator(InterpolationMethod interpolationMethod) {
@@ -121,14 +107,13 @@ public class SimpleCurveCalibrator {
 
   public YieldCurve buildYieldCurve(Map<Tenor, Double> zeroCouponRates, LocalDate valuationDate) {
 
-    // Validate we have sensible tenors and order them (or ensure they're ordered)
+    // TODO - Validate we have sensible tenors and order them (or ensure they're ordered)
 
-    LocalDate startDate = businessDayCalendar.ensure(valuationDate, businessDayConvention);
-
+    LocalDate startDate = businessDayAdjustment.adjust(valuationDate);
 
     Function<Map.Entry<Tenor, Double>, Double> keyMapper = e -> {
       Period period = e.getKey().getPeriod();
-      LocalDate rateDate = businessDayCalendar.ensure(startDate.plus(period), businessDayConvention);
+      LocalDate rateDate = businessDayAdjustment.adjust(startDate.plus(period));
       return dayCount.getDayCountFraction(startDate, rateDate);
     };
 
