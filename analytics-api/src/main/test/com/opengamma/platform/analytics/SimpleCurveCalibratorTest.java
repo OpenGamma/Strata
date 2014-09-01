@@ -29,7 +29,7 @@ public class SimpleCurveCalibratorTest {
   @Test
   public void simpleCurveCreation() {
 
-    CurveCalibrator curveCalibrator = new SimpleCurveCalibrator();
+    SimpleCurveCalibrator curveCalibrator = new SimpleCurveCalibrator();
 
     ImmutableMap<Tenor, Double> rates = ImmutableMap.of(
         TENOR_1M, 0.0015,
@@ -37,14 +37,14 @@ public class SimpleCurveCalibratorTest {
         TENOR_3M, 0.0023,
         TENOR_6M, 0.0032);
 
-    CurveCalibrator.YieldCurve yieldCurve = curveCalibrator.buildYieldCurve(rates, LocalDate.of(2014, 1, 1));
+    YieldCurve yieldCurve = curveCalibrator.buildYieldCurve(rates, LocalDate.of(2014, 1, 1));
     assertNotNull(yieldCurve);
   }
 
   @Test
   public void interpolateDiscountFactor() {
 
-    CurveCalibrator curveCalibrator = new SimpleCurveCalibrator().withInterpolation(LINEAR);
+    SimpleCurveCalibrator curveCalibrator = new SimpleCurveCalibrator().withInterpolation(LINEAR);
 
     LocalDate start = LocalDate.of(2014, 7, 23);
 
@@ -55,14 +55,14 @@ public class SimpleCurveCalibratorTest {
         TENOR_6M, 0.0032,
         TENOR_9M, 0.0042);
 
-    CurveCalibrator.YieldCurve yieldCurve = curveCalibrator.buildYieldCurve(rates, start);
+    YieldCurve yieldCurve = curveCalibrator.buildYieldCurve(rates, start);
     assertThat(yieldCurve.getDiscountFactor(TENOR_4M), is(closeTo(0.999123, 10e-6)));
   }
 
   @Test
   public void interpolateForwardRate() {
 
-    CurveCalibrator curveCalibrator = new SimpleCurveCalibrator().withInterpolation(LINEAR);
+    SimpleCurveCalibrator curveCalibrator = new SimpleCurveCalibrator().withInterpolation(LINEAR);
 
     LocalDate start = LocalDate.of(2014, 7, 23);
 
@@ -73,7 +73,7 @@ public class SimpleCurveCalibratorTest {
         TENOR_6M, 0.0032,
         TENOR_9M, 0.0042);
 
-    CurveCalibrator.YieldCurve yieldCurve = curveCalibrator.buildYieldCurve(rates, start);
+    YieldCurve yieldCurve = curveCalibrator.buildYieldCurve(rates, start);
     assertThat(yieldCurve.getForwardRate(TENOR_6M, TENOR_9M), is(closeTo(0.006249, 10e-6)));
   }
 }

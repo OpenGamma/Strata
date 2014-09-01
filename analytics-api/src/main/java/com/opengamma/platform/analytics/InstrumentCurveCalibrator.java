@@ -7,8 +7,6 @@ package com.opengamma.platform.analytics;
 
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;
-import static com.opengamma.platform.analytics.CurveCalibrator.InstrumentType;
-import static com.opengamma.platform.analytics.CurveCalibrator.YieldCurve;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -194,7 +192,7 @@ public class InstrumentCurveCalibrator {
   }
 
   // TODO - maybe we should introduce a CurveDefinition class (why are all the best names already used?)
-  YieldCurve buildYieldCurve(Map<Tenor, InstrumentType> instruments, Map<Tenor, Double> rates,
+  YieldCurve buildYieldCurve(Map<Tenor, CurveNodeInstrumentType> instruments, Map<Tenor, Double> rates,
                              Currency currency, LocalDate valuationDate) {
 
     // Validate we have sensible tenors and order them (or ensure they're ordered)
@@ -296,13 +294,13 @@ public class InstrumentCurveCalibrator {
     return com.opengamma.util.money.Currency.of(currency.toString());
   }
 
-  private InstrumentDerivative[] createDerivatives(Map<Tenor, InstrumentType> instruments,
+  private InstrumentDerivative[] createDerivatives(Map<Tenor, CurveNodeInstrumentType> instruments,
                                                    Map<Tenor, Double> rates, LocalDate startDate, Currency currency) {
 
     Function<Map.Entry<Tenor, Double>, InstrumentDerivative> valueMapper = e -> {
       Tenor tenor = e.getKey();
       double rate = e.getValue();
-      InstrumentType instrumentType = instruments.get(tenor);
+      CurveNodeInstrumentType instrumentType = instruments.get(tenor);
       switch (instrumentType) {
         case CASH:
           return convertCash(startDate, tenor, rate, currency);
