@@ -106,12 +106,12 @@ public class SimpleCurveCalibrator {
 
   /**
    * Create a copy of this curve calibrator with the specified
-   * business day convention.
+   * business day adjustment  .
    *
    * @param businessDayAdjustment  the business day adjustment to be used
    * @return a new curve calibrator
    */
-  public SimpleCurveCalibrator withBusinessDayConvention(BusinessDayAdjustment businessDayAdjustment) {
+  public SimpleCurveCalibrator withBusinessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
     return new SimpleCurveCalibrator(interpolatorExtrapolator, dayCount, businessDayAdjustment);
   }
 
