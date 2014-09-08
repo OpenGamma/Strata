@@ -100,6 +100,7 @@ public final class PeriodAdjustment
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * 
    * @param numberOfYears  the number of years
+   * @param adjustment  the business day adjustment to apply to the result of the addition
    * @return the period adjustment
    */
   public static PeriodAdjustment ofYears(int numberOfYears, BusinessDayAdjustment adjustment) {
@@ -113,6 +114,7 @@ public final class PeriodAdjustment
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * 
    * @param numberOfMonths  the number of months
+   * @param adjustment  the business day adjustment to apply to the result of the addition
    * @return the period adjustment
    */
   public static PeriodAdjustment ofMonths(int numberOfMonths, BusinessDayAdjustment adjustment) {
@@ -126,6 +128,7 @@ public final class PeriodAdjustment
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * 
    * @param numberOfDays  the number of days
+   * @param adjustment  the business day adjustment to apply to the result of the addition
    * @return the period adjustment
    */
   public static PeriodAdjustment ofDays(int numberOfDays, BusinessDayAdjustment adjustment) {
