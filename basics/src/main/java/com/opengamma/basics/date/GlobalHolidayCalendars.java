@@ -8,8 +8,10 @@ package com.opengamma.basics.date;
 import static java.time.DayOfWeek.MONDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
+import static java.time.DayOfWeek.THURSDAY;
 import static java.time.temporal.TemporalAdjusters.firstInMonth;
 import static java.time.temporal.TemporalAdjusters.lastInMonth;
+import static java.time.temporal.TemporalAdjusters.dayOfWeekInMonth;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,6 +35,22 @@ public final class GlobalHolidayCalendars {
    */
   public static final HolidayCalendar GBLO = generateLondon();
   /**
+   * The holiday calendar for Paris, France, with code 'FRPA'.
+   * <p>
+   * This constant provides the calendar for Paris public holidays.
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar FRPA = generateParis();
+  /**
+   * The holiday calendar for Zurich, Switzerland, with code 'EUTA'.
+   * <p>
+   * This constant provides the calendar for Zurich public holidays.
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar CHZU = generateZurich();
+  /**
    * The holiday calendar for the European Union TARGET system, with code 'EUTA'.
    * <p>
    * This constant provides the calendar for the TARGET interbank payment system holidays.
@@ -40,6 +58,14 @@ public final class GlobalHolidayCalendars {
    * Future dates are an extrapolations of the latest known rules.
    */
   public static final HolidayCalendar EUTA = generateEuropeanTarget();
+  /**
+   * The holiday calendar for United States Government Securities, with code 'USGS'.
+   * <p>
+   * This constant provides the calendar for United States Government Securities as per SIFMA.
+   * The default implementation is based on original research and covers 1950 to 2099.
+   * Future and past dates are an extrapolations of the latest known rules.
+   */
+  public static final HolidayCalendar USGS = generateUsGovtSecurities();
 
   //-------------------------------------------------------------------------
   /**
@@ -127,6 +153,56 @@ public final class GlobalHolidayCalendars {
   }
 
   //-------------------------------------------------------------------------
+  // generate FRPA
+  // data sources
+  // http://www.legifrance.gouv.fr/affichCodeArticle.do?idArticle=LEGIARTI000006902611&cidTexte=LEGITEXT000006072050
+  // http://jollyday.sourceforge.net/data/fr.html
+  static StandardHolidayCalendar generateParis() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      holidays.add(date(year, 1, 1));  // new year
+      holidays.add(easter(year).plusDays(1));  // easter monday
+      holidays.add(date(year, 5, 1));  // labour day
+      holidays.add(date(year, 5, 8));  // victory in europe
+      holidays.add(easter(year).plusDays(39));  // ascension day
+      if (year <= 2004 || year >= 2008) {
+        holidays.add(easter(year).plusDays(50));  // whit monday
+      }
+      holidays.add(date(year, 7, 14));  // bastille
+      holidays.add(date(year, 8, 15));  // assumption of mary
+      holidays.add(date(year, 11, 1));  // all saints
+      holidays.add(date(year, 11, 11));  // armistice day
+      holidays.add(date(year, 12, 25));  // christmas day
+    }
+    removeSatSun(holidays);
+    return StandardHolidayCalendar.of("FRPA", holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // generate CHZU
+  // data sources
+  // http://jollyday.sourceforge.net/data/ch.html
+  // https://github.com/lballabio/quantlib/blob/master/QuantLib/ql/time/calendars/switzerland.cpp
+  // http://www.six-swiss-exchange.com/funds/trading/trading_and_settlement_calendar_en.html
+  static StandardHolidayCalendar generateZurich() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      holidays.add(date(year, 1, 1));  // new year
+      holidays.add(date(year, 1, 2));  // saint berchtoldstag
+      holidays.add(easter(year).minusDays(2));  // good friday
+      holidays.add(easter(year).plusDays(1));  // easter monday
+      holidays.add(date(year, 5, 1));  // labour day
+      holidays.add(easter(year).plusDays(39));  // ascension day
+      holidays.add(easter(year).plusDays(50));  // whit monday
+      holidays.add(date(year, 8, 1));  // national day
+      holidays.add(date(year, 12, 25));  // christmas day
+      holidays.add(date(year, 12, 26));  // saint stephen
+    }
+    removeSatSun(holidays);
+    return StandardHolidayCalendar.of("CHZU", holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
   // generate EUTA
   // 1997 - 1998 (testing phase), Jan 1, christmas day
   // https://www.ecb.europa.eu/pub/pdf/other/tagien.pdf
@@ -157,7 +233,33 @@ public final class GlobalHolidayCalendars {
         holidays.add(date(year, 12, 31));
       }
     }
+    removeSatSun(holidays);
     return StandardHolidayCalendar.of("EUTA", holidays, SATURDAY, SUNDAY);
+  }
+
+  //-------------------------------------------------------------------------
+  // generate USGS
+  // http://www.sifma.org/services/holiday-schedule/
+  static StandardHolidayCalendar generateUsGovtSecurities() {
+    List<LocalDate> holidays = new ArrayList<>(2000);
+    for (int year = 1950; year <= 2099; year++) {
+      holidays.add(bumpSunToMon(date(year, 1, 1)));  // new year, adjusted if Sunday
+      holidays.add(date(year, 1, 1).with(dayOfWeekInMonth(3, MONDAY)));  // martin luther king day
+      holidays.add(date(year, 2, 1).with(dayOfWeekInMonth(3, MONDAY)));  // presidents day
+      holidays.add(easter(year).minusDays(2));  // good friday, in 1999/2007 only a partial holiday
+      holidays.add(date(year, 5, 1).with(lastInMonth(MONDAY)));  // memorial day
+      holidays.add(bumpToFriOrMon(date(year, 7, 4)));  // independence day, adjusted to weekday
+      holidays.add(date(year, 9, 1).with(firstInMonth(MONDAY)));  // labor day
+      holidays.add(date(year, 10, 1).with(dayOfWeekInMonth(2, MONDAY)));  // columbus day
+      holidays.add(bumpSunToMon(date(year, 11, 11)));  // veterans day, adjusted if Sunday
+      holidays.add(date(year, 11, 1).with(dayOfWeekInMonth(4, THURSDAY)));  // thanksgiving
+      holidays.add(bumpToFriOrMon(date(year, 12, 25)));  // christmas day, adjusted to weekday
+      if (year == 2012) {
+        holidays.add(date(year, 10, 30));  // hurricane sandy
+      }
+    }
+    removeSatSun(holidays);
+    return StandardHolidayCalendar.of("USGS", holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -170,6 +272,24 @@ public final class GlobalHolidayCalendars {
   private static LocalDate bumpToMon(LocalDate date) {
     if (date.getDayOfWeek() == SATURDAY) {
       return date.plusDays(2);
+    } else if (date.getDayOfWeek() == SUNDAY) {
+      return date.plusDays(1);
+    }
+    return date;
+  }
+
+  // bump Sunday to following Monday
+  private static LocalDate bumpSunToMon(LocalDate date) {
+    if (date.getDayOfWeek() == SUNDAY) {
+      return date.plusDays(1);
+    }
+    return date;
+  }
+
+  // bump to Saturday to Friday and Sunday to Monday
+  private static LocalDate bumpToFriOrMon(LocalDate date) {
+    if (date.getDayOfWeek() == SATURDAY) {
+      return date.minusDays(1);
     } else if (date.getDayOfWeek() == SUNDAY) {
       return date.plusDays(1);
     }
@@ -197,6 +317,11 @@ public final class GlobalHolidayCalendars {
   // first of a month
   private static LocalDate first(int year, int month) {
     return LocalDate.of(year, month, 1);
+  }
+
+  // remove any holidays covered by Sat/Sun
+  private static void removeSatSun(List<LocalDate> holidays) {
+    holidays.removeIf(date -> date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY);
   }
 
   // calculate easter day by Delambre

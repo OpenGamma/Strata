@@ -278,6 +278,79 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar FRPA = GlobalHolidayCalendars.generateParis();
+
+  @DataProvider(name = "frpa")
+  Object[][] data_frpa() {
+    return new Object[][] {
+        // dates not shifted if fall on a weekend
+        {2003, mds(2003, md(1, 1), md(4, 21), md(5, 1), md(5, 8), md(5, 29), md(6, 9),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2004, mds(2004, md(1, 1), md(4, 12), md(5, 1), md(5, 8), md(5, 20), md(5, 31),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2005, mds(2005, md(1, 1), md(3, 28), md(5, 1), md(5, 8), md(5, 5),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2006, mds(2006, md(1, 1), md(4, 17), md(5, 1), md(5, 8), md(5, 25),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2007, mds(2007, md(1, 1), md(4, 9), md(5, 1), md(5, 8), md(5, 17),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2008, mds(2008, md(1, 1), md(3, 24), md(5, 1), md(5, 8), md(5, 12), md(5, 24),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        
+        {2012, mds(2012, md(1, 1), md(4, 9), md(5, 1), md(5, 8), md(5, 17), md(5, 28),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2013, mds(2013, md(1, 1), md(4, 1), md(5, 1), md(5, 8), md(5, 9), md(5, 20),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2014, mds(2014, md(1, 1), md(4, 21), md(5, 1), md(5, 8), md(5, 29), md(6, 9),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2015, mds(2015, md(1, 1), md(4, 6), md(5, 1), md(5, 8), md(5, 14), md(5, 25),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+        {2016, mds(2016, md(1, 1), md(3, 28), md(5, 1), md(5, 8), md(5, 5), md(5, 16),
+            md(7, 14), md(8, 15), md(11, 1), md(11, 11), md(12, 25))},
+    };
+  }
+
+  @Test(dataProvider = "frpa")
+  public void test_frpa(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(FRPA.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar CHZU = GlobalHolidayCalendars.generateZurich();
+
+  @DataProvider(name = "chzu")
+  Object[][] data_chzu() {
+    return new Object[][] {
+        // dates not shifted if fall on a weekend
+        {2012, mds(2012, md(1, 1), md(1, 2), md(4, 6), md(4, 9), md(5, 1), md(5, 17), md(5, 28),
+            md(8, 1), md(12, 25), md(12, 26))},
+        {2013, mds(2013, md(1, 1), md(1, 2), md(3, 29), md(4, 1), md(5, 1), md(5, 9), md(5, 20),
+            md(8, 1), md(12, 25), md(12, 26))},
+        {2014, mds(2014, md(1, 1), md(1, 2), md(4, 18), md(4, 21), md(5, 1), md(5, 29), md(6, 9),
+            md(8, 1), md(12, 25), md(12, 26))},
+        {2015, mds(2015, md(1, 1), md(1, 2), md(4, 3), md(4, 6), md(5, 1), md(5, 14), md(5, 25),
+            md(8, 1), md(12, 25), md(12, 26))},
+        {2016, mds(2016, md(1, 1), md(1, 2), md(3, 25), md(3, 28), md(5, 1), md(5, 5), md(5, 16),
+            md(8, 1), md(12, 25), md(12, 26))},
+    };
+  }
+
+  @Test(dataProvider = "chzu")
+  public void test_chzu(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(CHZU.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static final HolidayCalendar EUTA = GlobalHolidayCalendars.generateEuropeanTarget();
 
   @DataProvider(name = "euta")
@@ -307,6 +380,46 @@ public class GlobalHolidayCalendarsTest {
     for (int i = 1; i < date.lengthOfYear(); i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
       assertEquals(EUTA.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar USGS = GlobalHolidayCalendars.generateUsGovtSecurities();
+
+  @DataProvider(name = "usgs")
+  Object[][] data_usgs() {
+    return new Object[][] {
+        // http://www.sifma.org/uploadedfiles/research/statistics/statisticsfiles/misc-us-historical-holiday-market-recommendations-sifma.pdf?n=53384
+        {1996, mds(1996, md(1, 1), md(1, 15), md(2, 19), md(4, 5), md(5, 27), md(7, 4), md(9, 2), md(10, 14), md(11, 11), md(11, 28), md(12, 25))},
+        {1997, mds(1997, md(1, 1), md(1, 20), md(2, 17), md(3, 28), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {1998, mds(1998, md(1, 1), md(1, 19), md(2, 16), md(4, 10), md(5, 25), md(7, 3), md(9, 7), md(10, 12), md(11, 11), md(11, 26), md(12, 25))},
+        {1999, mds(1999, md(1, 1), md(1, 18), md(2, 15), md(4, 2), md(5, 31), md(7, 5), md(9, 6), md(10, 11), md(11, 11), md(11, 25), md(12, 24))},
+        {2000, mds(2000, md(1, 17), md(2, 21), md(4, 21), md(5, 29), md(7, 4), md(9, 4), md(10, 9), md(11, 23), md(12, 25))},
+        {2001, mds(2001, md(1, 1), md(1, 15), md(2, 19), md(4, 13), md(5, 28), md(7, 4), md(9, 3), md(10, 8), md(11, 12), md(11, 22), md(12, 25))},
+        {2002, mds(2002, md(1, 1), md(1, 21), md(2, 18), md(3, 29), md(5, 27), md(7, 4), md(9, 2), md(10, 14), md(11, 11), md(11, 28), md(12, 25))},
+        {2003, mds(2003, md(1, 1), md(1, 20), md(2, 17), md(4, 18), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {2004, mds(2004, md(1, 1), md(1, 19), md(2, 16), md(4, 9), md(5, 31), md(7, 5), md(9, 6), md(10, 11), md(11, 11), md(11, 25), md(12, 24))},
+        {2005, mds(2005, md(1, 17), md(2, 21), md(3, 25), md(5, 30), md(7, 4), md(9, 5), md(10, 10), md(11, 11), md(11, 24), md(12, 26))},
+        {2006, mds(2006, md(1, 2), md(1, 16), md(2, 20), md(4, 14), md(5, 29), md(7, 4), md(9, 4), md(10, 9), md(11, 23), md(12, 25))},
+        {2007, mds(2007, md(1, 1), md(1, 15), md(2, 19), md(4, 6), md(5, 28), md(7, 4), md(9, 3), md(10, 8), md(11, 12), md(11, 22), md(12, 25))},
+        {2008, mds(2008, md(1, 1), md(1, 21), md(2, 18), md(3, 21), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {2009, mds(2009, md(1, 1), md(1, 19), md(2, 16), md(4, 10), md(5, 25), md(7, 3), md(9, 7), md(10, 12), md(11, 11), md(11, 26), md(12, 25))},
+        {2010, mds(2010, md(1, 1), md(1, 18), md(2, 15), md(4, 2), md(5, 31), md(7, 5), md(9, 6), md(10, 11), md(11, 11), md(11, 25), md(12, 24))},
+        {2011, mds(2011, md(1, 17), md(2, 21), md(4, 22), md(5, 30), md(7, 4), md(9, 5), md(10, 10), md(11, 11), md(11, 24), md(12, 26))},
+        {2012, mds(2012, md(1, 2), md(1, 16), md(2, 20), md(4, 6), md(5, 28), md(7, 4), md(9, 3), md(10, 8), md(10, 30), md(11, 12), md(11, 22), md(12, 25))},
+        {2013, mds(2013, md(1, 1), md(1, 21), md(2, 18), md(3, 29), md(5, 27), md(7, 4), md(9, 2), md(10, 14), md(11, 11), md(11, 28), md(12, 25))},
+        {2014, mds(2014, md(1, 1), md(1, 20), md(2, 17), md(4, 18), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {2015, mds(2015, md(1, 1), md(1, 19), md(2, 16), md(4, 3), md(5, 25), md(7, 3), md(9, 7), md(10, 12), md(11, 11), md(11, 26), md(12, 25))},
+    };
+  }
+
+  @Test(dataProvider = "usgs")
+  public void test_usgs(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(USGS.isHoliday(date), isHoliday, date.toString());
       date = date.plusDays(1);
     }
   }
