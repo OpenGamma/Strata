@@ -43,40 +43,6 @@
   </dependencies>
 
   <!-- ==================================================================== -->
-  <profiles>
-    <!-- setup to report code coverage with coveralls.io, activated with -Dcoveralls -->
-    <profile>
-      <id>coveralls</id>
-      <activation>
-        <property>
-          <name>coveralls</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.eluder.coveralls</groupId>
-            <artifactId>coveralls-maven-plugin</artifactId>
-            <version>2.2.0</version>
-            <executions>
-              <execution>
-                <id>coverall</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jacoco</goal>
-                </goals>
-                <configuration>
-                  <timestamp>${maven.build.timestamp}</timestamp>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
-  <!-- ==================================================================== -->
   <properties>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OG-Collect</windowtitle>
