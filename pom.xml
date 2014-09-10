@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
+  
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
@@ -11,67 +12,319 @@
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
-  <artifactId>sesame-dev</artifactId>
-  <version>2.5.0-SNAPSHOT</version>
+  <artifactId>og-platform-parent</artifactId>
+  <version>3.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>Sesame-Dev</name>
-  <description>OpenGamma Sesame aggregator project</description>
+  <name>OG-Platform-Parent</name>
+  <description>Parent for OpenGamma Platform</description>
 
   <!-- ==================================================================== -->
-  <inceptionYear>2013</inceptionYear>
   <licenses>
     <license>
-      <name>Proprietary OpenGamma licensing</name>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <!-- ==================================================================== -->
+  <issueManagement>
+    <system>Jira</system>
+    <url>http://jira.opengamma.com/browse/PLAT</url>
+  </issueManagement>
+  <inceptionYear>2013</inceptionYear>
+  <mailingLists>
+    <mailingList>
+      <name>OpenGamma forum</name>
+      <archive>http://forums.opengamma.com/</archive>
+    </mailingList>
+  </mailingLists>
   <scm>
-    <connection>scm:git:https://github.com/OpenGamma/Sesame.git</connection>
-    <developerConnection>scm:git:https://github.com/OpenGamma/Sesame.git</developerConnection>
-    <url>https://github.com/OpenGamma/Sesame</url>
+    <connection>scm:git:https://github.com/OpenGamma/OG-PlatformCore.git</connection>
+    <developerConnection>scm:git:https://github.com/OpenGamma/OG-PlatformCore.git</developerConnection>
+    <url>https://github.com/OpenGamma/OG-PlatformCore</url>
   </scm>
 
   <!-- ==================================================================== -->
+  <!-- OpenGamma public repositories -->
+  <!-- duplicated from corporate-pom to ensure this pom builds from scratch -->
+  <repositories>
+    <repository>
+      <id>og-public</id>
+      <name>OG Public</name>
+      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>og-public</id>
+      <name>OG Public</name>
+      <url>http://maven.opengamma.com/nexus/content/groups/public</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <!-- ==================================================================== -->
   <modules>
+    <module>analytics-api</module>
     <module>sesame-engine</module>
     <module>sesame-function</module>
     <module>sesame-web</module>
     <module>sesame-war-main</module>
     <module>sesame-component</module>
     <module>sesame-server</module>
-    <module>analytics-api</module>
   </modules>
 
   <!-- ==================================================================== -->
+  <!-- standard build setup -->
+  <build>
+    <plugins>
+      <!--  obtain git commit -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>buildnumber</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- fix TestNG -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <properties>
+            <property>
+              <name>reporter</name>
+              <value>org.testng.reporters.XMLReporter</value>
+            </property>
+          </properties>
+        </configuration>
+      </plugin>
+      <!-- create and publish test jar files -->
+      <!-- include build number in jar files -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>test-jar</id>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <excludes>
+            <exclude>tests.properties</exclude>
+          </excludes>
+          <skipIfEmpty>true</skipIfEmpty>
+          <archive>
+            <manifestEntries>
+              <Implementation-Build>${buildNumber}</Implementation-Build>
+              <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+              <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- generate source jar file when packaging -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+            <configuration>
+              <skipIfEmpty>true</skipIfEmpty>
+              <archive>
+                <manifest>
+                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                </manifest>
+                <manifestEntries>
+                  <Implementation-Build>${buildNumber}</Implementation-Build>
+                  <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                  <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                </manifestEntries>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- attach site -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>attach-descriptor</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- ==================================================================== -->
+  <!-- all modules get these dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-convert</artifactId>
+        <version>${joda-convert.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-beans</artifactId>
+        <version>${joda-beans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>1.3.9</version>
+        <optional>true</optional><!-- needed only for annotations -->
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <scope>test</scope>
+        <version>1.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- ==================================================================== -->
+  <distributionManagement>
+    <repository>
+      <id>og-platform-private-release</id>
+      <name>OpenGamma platform maven repository</name>
+      <url>${og-platform-private-release.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>og-platform-private-snapshot</id>
+      <name>OpenGamma platform snapshot maven repository</name>
+      <url>${og-platform-private-snapshot.url}</url>
+    </snapshotRepository>
+    <site>
+      <id>og-public-site</id>
+      <name>OpenGamma public site</name>
+      <url>http://developers.opengamma.com/og-platformcore</url>
+    </site>
+  </distributionManagement>
+
+  <!-- ==================================================================== -->
   <profiles>
-    <!-- if "javadoc-jar" property is set on command line then build/attach javadoc jars -->
+    <!-- apply strict build rules, activated with -Dstrict -->
     <profile>
-      <id>javadoc-jar</id>
+      <id>strict</id>
       <activation>
         <property>
-          <name>javadoc-jar</name>
+          <name>strict</name>
         </property>
       </activation>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${maven-javadoc-plugin.version}</version>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <version>${maven-enforcer-plugin.version}</version>
             <executions>
               <execution>
-                <id>attach-javadocs</id>
-                <phase>package</phase>
+                <id>enforce</id>
                 <goals>
-                  <goal>aggregate-jar</goal>
+                  <goal>enforce</goal>
                 </goals>
+                <configuration>
+                  <rules>
+                    <!-- no commons-logging or good/evil licensed json, junit only in test/provided -->
+                    <bannedDependencies>
+                      <excludes>
+                        <exclude>commons-logging:*</exclude>
+                        <exclude>org.json:json</exclude>
+                        <exclude>junit:*</exclude>
+                      </excludes>
+                      <includes>
+                        <include>junit:*:*:*:test</include>
+                        <include>junit:*:*:*:provided</include>
+                      </includes>
+                    </bannedDependencies>
+                    <banDuplicateClasses>
+                      <ignoreClasses>
+                        <ignoreClass>org.apache.commons.collections.ArrayStack</ignoreClass>
+                        <ignoreClass>org.apache.commons.collections.Buffer</ignoreClass>
+                        <ignoreClass>org.apache.commons.collections.BufferUnderflowException</ignoreClass>
+                        <ignoreClass>org.apache.commons.collections.FastHashMap*</ignoreClass>
+                        <ignoreClass>org.apache.tools.ant.ExitException</ignoreClass>
+                      </ignoreClasses>
+                      <findAllDuplicates>true</findAllDuplicates>
+                    </banDuplicateClasses>
+                    <!-- ensure dependencies resolve to latest version (removed as randomly fails MENFORCER-134) -->
+                    <!--requireUpperBoundDeps /-->
+                    <!-- need Java SE 8 or greater -->
+                    <requireJavaVersion>
+                      <version>[1.8,)</version>
+                    </requireJavaVersion>
+                    <requirePluginVersions>
+                    </requirePluginVersions>
+                  </rules>
+                  <fail>true</fail>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-              <links>
-                <link>http://docs-static.opengamma.com/${project.version}/java/javadocs/</link>
-              </links>
-            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>extra-enforcer-rules</artifactId>
+                <version>1.0-alpha-5</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+          <!-- validate Joda-Beans -->
+          <plugin>
+            <groupId>org.joda</groupId>
+            <artifactId>joda-beans-maven-plugin</artifactId>
+            <version>${joda-beans-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <goals>
+                  <goal>validate</goal>
+                </goals>
+                <configuration>
+                  <stopOnError>true</stopOnError>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
@@ -80,15 +333,16 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <guava.version>17.0</guava.version>
+    <joda-convert.version>1.7</joda-convert.version>
+    <joda-beans.version>1.1</joda-beans.version>
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OpenGamma Sesame project Engine API</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma Sesame project Engine API</h1>]]></doctitle>
+    <windowtitle>OpenGamma Platform</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
-    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i>]]></bottom>
-    <!-- Properties for maven-install-plugin -->
-    <maven.install.skip>true</maven.install.skip>
-    <!-- Properties for maven-deploy-plugin -->
-    <maven.deploy.skip>true</maven.deploy.skip>
+    <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
+    <javadoc.footer.license></javadoc.footer.license>
+    <additionalparam>-Xdoclint:none</additionalparam>
   </properties>
 
 </project>
