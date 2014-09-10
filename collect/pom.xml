@@ -47,8 +47,6 @@
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OG-Collect</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Commons Collect API</h1>]]></doctitle>
-    <!-- Properties for coveralls-maven-plugin -->
-    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
   </properties>
 
 </project>
