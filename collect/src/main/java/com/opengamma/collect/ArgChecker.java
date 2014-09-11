@@ -161,7 +161,7 @@ public final class ArgChecker {
    */
   public static <T> T notNull(T parameter, String name) {
     if (parameter == null) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be null");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be null");
     }
     return parameter;
   }
@@ -185,7 +185,7 @@ public final class ArgChecker {
    */
   public static <T> T notNullItem(T parameter) {
     if (parameter == null) {
-      throw new IllegalArgumentException("Input parameter array/collection/map must not contain null");
+      throw new IllegalArgumentException("Argument array/collection/map must not contain null");
     }
     return parameter;
   }
@@ -211,7 +211,7 @@ public final class ArgChecker {
     notNull(pattern, "pattern");
     notNull(parameter, name);
     if (pattern.matcher(parameter).matches() == false) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must match pattern: " + pattern);
+      throw new IllegalArgumentException("Argument '" + name + "' must match pattern: " + pattern);
     }
     return parameter;
   }
@@ -239,7 +239,7 @@ public final class ArgChecker {
   public static String notBlank(String parameter, String name) {
     notNull(parameter, name);
     if (parameter.trim().isEmpty()) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -264,7 +264,7 @@ public final class ArgChecker {
   public static String notEmpty(String parameter, String name) {
     notNull(parameter, name);
     if (parameter.isEmpty()) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -288,7 +288,7 @@ public final class ArgChecker {
   public static <T> T[] notEmpty(T[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument array '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -311,7 +311,7 @@ public final class ArgChecker {
   public static int[] notEmpty(int[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument array '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -334,7 +334,7 @@ public final class ArgChecker {
   public static long[] notEmpty(long[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument array '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -357,7 +357,7 @@ public final class ArgChecker {
   public static double[] notEmpty(double[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument array '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -382,7 +382,7 @@ public final class ArgChecker {
   public static <T, I extends Iterable<T>> I notEmpty(I parameter, String name) {
     notNull(parameter, name);
     if (!parameter.iterator().hasNext()) {
-      throw new IllegalArgumentException("Input parameter iterable '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument iterable '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -407,7 +407,7 @@ public final class ArgChecker {
   public static <T, C extends Collection<T>> C notEmpty(C parameter, String name) {
     notNull(parameter, name);
     if (parameter.isEmpty()) {
-      throw new IllegalArgumentException("Input parameter collection '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument collection '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -433,7 +433,7 @@ public final class ArgChecker {
   public static <K, V, M extends Map<K, V>> M notEmpty(M parameter, String name) {
     notNull(parameter, name);
     if (parameter.isEmpty()) {
-      throw new IllegalArgumentException("Input parameter map '" + name + "' must not be empty");
+      throw new IllegalArgumentException("Argument map '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -458,7 +458,7 @@ public final class ArgChecker {
     notNull(parameter, name);
     for (int i = 0; i < parameter.length; i++) {
       if (parameter[i] == null) {
-        throw new IllegalArgumentException("Input parameter array '" + name + "' must not contain null at index " + i);
+        throw new IllegalArgumentException("Argument array '" + name + "' must not contain null at index " + i);
       }
     }
     return parameter;
@@ -484,7 +484,7 @@ public final class ArgChecker {
     notNull(parameter, name);
     for (Object obj : parameter) {
       if (obj == null) {
-        throw new IllegalArgumentException("Input parameter iterable '" + name + "' must not contain null");
+        throw new IllegalArgumentException("Argument iterable '" + name + "' must not contain null");
       }
     }
     return parameter;
@@ -511,10 +511,10 @@ public final class ArgChecker {
     notNull(parameter, name);
     for (Entry<K, V> entry : parameter.entrySet()) {
       if (entry.getKey() == null) {
-        throw new IllegalArgumentException("Input parameter map '" + name + "' must not contain a null key");
+        throw new IllegalArgumentException("Argument map '" + name + "' must not contain a null key");
       }
       if (entry.getValue() == null) {
-        throw new IllegalArgumentException("Input parameter map '" + name + "' must not contain a null value");
+        throw new IllegalArgumentException("Argument map '" + name + "' must not contain a null value");
       }
     }
     return parameter;
@@ -537,7 +537,7 @@ public final class ArgChecker {
    */
   public static int notNegative(int parameter, String name) {
     if (parameter < 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be negative");
     }
     return parameter;
   }
@@ -558,7 +558,7 @@ public final class ArgChecker {
    */
   public static long notNegative(long parameter, String name) {
     if (parameter < 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be negative");
     }
     return parameter;
   }
@@ -579,7 +579,7 @@ public final class ArgChecker {
    */
   public static double notNegative(double parameter, String name) {
     if (parameter < 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be negative");
     }
     return parameter;
   }
@@ -601,7 +601,7 @@ public final class ArgChecker {
    */
   public static int notNegativeOrZero(int parameter, String name) {
     if (parameter <= 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be negative or zero");
     }
     return parameter;
   }
@@ -622,7 +622,7 @@ public final class ArgChecker {
    */
   public static long notNegativeOrZero(long parameter, String name) {
     if (parameter <= 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be negative or zero");
     }
     return parameter;
   }
@@ -643,7 +643,7 @@ public final class ArgChecker {
    */
   public static double notNegativeOrZero(double parameter, String name) {
     if (parameter <= 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be negative or zero");
     }
     return parameter;
   }
@@ -666,10 +666,10 @@ public final class ArgChecker {
    */
   public static double notNegativeOrZero(double parameter, double tolerance, String name) {
     if (DoubleMath.fuzzyEquals(parameter, 0, tolerance)) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be zero");
     }
     if (parameter < 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must be greater than zero");
+      throw new IllegalArgumentException("Argument '" + name + "' must be greater than zero");
     }
     return parameter;
   }
@@ -694,7 +694,7 @@ public final class ArgChecker {
    */
   public static double notZero(double parameter, double tolerance, String name) {
     if (DoubleMath.fuzzyEquals(parameter, 0d, tolerance)) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
+      throw new IllegalArgumentException("Argument '" + name + "' must not be zero");
     }
     return parameter;
   }
@@ -801,12 +801,32 @@ public final class ArgChecker {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Checks that the two values are in order and not equal.
+   * <p>
+   * Given two comparable instances, this checks that the first is "less than" the second.
+   * Two equal values also throw the exception.
+   *
+   * @param <T>  the type
+   * @param obj1  the first object, null throws an exception
+   * @param obj2  the second object, null throws an exception
+   * @param param1  the first parameter name, not null
+   * @param param2  the second parameter name, not null
+   * @throws IllegalArgumentException if either input is null or they are not in order
+   */
+  public static <T> void inOrderNotEqual(Comparable<? super T> obj1, T obj2, String param1, String param2) {
+    notNull(obj1, param1);
+    notNull(obj2, param2);
+    if (obj1.compareTo(obj2) >= 0) {
+      throw new IllegalArgumentException(
+          "Invalid order: Expected '" + param1 + "' < '" + param2 + "', but found: '" + obj1 + "' >= '" + obj2);
+    }
+  }
 
   /**
    * Checks that the two values are in order or equal.
    * <p>
-   * Given two comparable instances, this checks that the first is "lower than"
-   * or "equal to" the second.
+   * Given two comparable instances, this checks that the first is "less than" or "equal to" the second.
    *
    * @param <T>  the type
    * @param obj1  the first object, null throws an exception
@@ -819,7 +839,8 @@ public final class ArgChecker {
     notNull(obj1, param1);
     notNull(obj2, param2);
     if (obj1.compareTo(obj2) > 0) {
-      throw new IllegalArgumentException("Input parameter '" + param1 + "' must be before '" + param2 + "'");
+      throw new IllegalArgumentException(
+          "Invalid order: Expected '" + param1 + "' <= '" + param2 + "', but found: '" + obj1 + "' > '" + obj2);
     }
   }
 

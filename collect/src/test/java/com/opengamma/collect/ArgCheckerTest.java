@@ -541,6 +541,26 @@ public class ArgCheckerTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_inOrderNotEqual_true() {
+    LocalDate a = LocalDate.of(2011, 7, 2);
+    LocalDate b = LocalDate.of(2011, 7, 3);
+    ArgChecker.inOrderNotEqual(a, b, "a", "b");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*a.* [<] .*b.*")
+  public void test_inOrderNotEqual_false_invalidOrder() {
+    LocalDate a = LocalDate.of(2011, 7, 2);
+    LocalDate b = LocalDate.of(2011, 7, 3);
+    ArgChecker.inOrderNotEqual(b, a, "a", "b");
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*a.* [<] .*b.*")
+  public void test_inOrderNotEqual_false_equal() {
+    LocalDate a = LocalDate.of(2011, 7, 3);
+    ArgChecker.inOrderNotEqual(a, a, "a", "b");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_inOrderOrEqual_true() {
     LocalDate a = LocalDate.of(2011, 7, 2);
     LocalDate b = LocalDate.of(2011, 7, 3);
@@ -549,30 +569,7 @@ public class ArgCheckerTest {
     ArgChecker.inOrderOrEqual(b, b, "a", "b");
   }
 
-  // TODO - re-enable this test once Pair has been created
-//  public void test_inOrderOrEqual_generics() {
-//    final Pair<String, String> a = ObjectsPair.of("c", "d");
-//    final Pair<String, String> b = ObjectsPair.of("e", "f");
-//    final FirstThenSecondPairComparator<String, String> comparator = new FirstThenSecondPairComparator<String, String>();
-//    Comparable<? super Pair<String, String>> ca = new Comparable<Pair<String, String>>() {
-//      @Override
-//      public int compareTo(Pair<String, String> other) {
-//        return comparator.compare(a, other);
-//      }
-//    };
-//    Comparable<? super Pair<String, String>> cb = new Comparable<Pair<String, String>>() {
-//      @Override
-//      public int compareTo(Pair<String, String> other) {
-//        return comparator.compare(b, other);
-//      }
-//    };
-//    ArgChecker.inOrderOrEqual(ca, b, "a", "b");
-//    ArgChecker.inOrderOrEqual(ca, a, "a", "b");
-//    ArgChecker.inOrderOrEqual(cb, b, "a", "b");
-//  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*a.*before.*b.*")
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*a.* [<][=] .*b.*")
   public void test_inOrderOrEqual_false() {
     LocalDate a = LocalDate.of(2011, 7, 3);
     LocalDate b = LocalDate.of(2011, 7, 2);
