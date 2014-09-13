@@ -19,33 +19,56 @@ import com.opengamma.collect.named.ExtendedEnum;
 public final class DayCounts {
 
   /**
+   * The '1/1' day count, which always returns a day count of 1.
+   * <p>
+   * The result is always one.
+   * <p>
+   * Also known as 'One/One'.
+   * Defined by the 2006 ISDA definitions 4.16a.
+   */
+  public static final DayCount ONE_ONE = Standard.ONE_ONE;
+  /**
    * The 'Act/Act ISDA' day count, which divides the actual number of days in a
    * leap year by 366 and the actual number of days in a standard year by 365.
    * <p>
    * The result is calculated in two parts.
-   * The actual number of days in the period that fall in a leap year is divided by 366.
-   * The actual number of days in the period that fall in a standard year is divided by 365.
+   * The actual number of days in the requested period that fall in a leap year is divided by 366.
+   * The actual number of days in the requested period that fall in a standard year is divided by 365.
    * The result is the sum of the two.
    * The first day in the period is included, the last day is excluded.
    * <p>
    * Also known as 'Actual/Actual'.
+   * Defined by the 2006 ISDA definitions 4.16b.
    */
   public static final DayCount ACT_ACT_ISDA = Standard.ACT_ACT_ISDA;
+  /**
+   * The 'Act/365 Actual' day count, which divides the actual number of days by 366
+   * if a leap day is contained, or by 365 if not.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the requested period.
+   * The denominator is 366 if the period contains February 29th, if not it is 365.
+   * The first day in the period is excluded, the last day is included.
+   * <p>
+   * Also known as 'Act/365A'.
+   */
+  public static final DayCount ACT_365_ACTUAL = Standard.ACT_365_ACTUAL;
   /**
    * The 'Act/360' day count, which divides the actual number of days by 360.
    * <p>
    * The result is a simple division.
-   * The numerator is the actual number of days in the period.
+   * The numerator is the actual number of days in the requested period.
    * The denominator is always 360.
    * <p>
    * Also known as 'Actual/360' or 'French'.
+   * Defined by the 2006 ISDA definitions 4.16e and ICMA rule 251.1(i) part 1.
    */
   public static final DayCount ACT_360 = Standard.ACT_360;
   /**
    * The 'Act/364' day count, which divides the actual number of days by 364.
    * <p>
    * The result is a simple division.
-   * The numerator is the actual number of days in the period.
+   * The numerator is the actual number of days in the requested period.
    * The denominator is always 364.
    * <p>
    * Also known as 'Actual/364'.
@@ -55,17 +78,18 @@ public final class DayCounts {
    * The 'Act/365' day count, which divides the actual number of days by 365 (fixed).
    * <p>
    * The result is a simple division.
-   * The numerator is the actual number of days in the period.
+   * The numerator is the actual number of days in the requested period.
    * The denominator is always 365.
    * <p>
    * Also known as 'Act/365F', 'Actual/365 Fixed' or 'English'.
+   * Defined by the 2006 ISDA definitions 4.16d.
    */
   public static final DayCount ACT_365 = Standard.ACT_365;
   /**
    * The 'Act/365.25' day count, which divides the actual number of days by 365.25.
    * <p>
    * The result is a simple division.
-   * The numerator is the actual number of days in the period.
+   * The numerator is the actual number of days in the requested period.
    * The denominator is always 365.25.
    */
   public static final DayCount ACT_365_25 = Standard.ACT_365_25;
@@ -73,7 +97,7 @@ public final class DayCounts {
    * The 'NL/365' day count, which divides the actual number of days omitting leap days by 365.
    * <p>
    * The result is a simple division.
-   * The numerator is the actual number of days in the period minus the number of occurrences of February 29.
+   * The numerator is the actual number of days in the requested period minus the number of occurrences of February 29.
    * The denominator is always 365.
    * The first day in the period is excluded, the last day is included.
    * <p>
@@ -89,6 +113,7 @@ public final class DayCounts {
    * If the first day-of-month is 31, change the first day-of-month to 30.
    * <p>
    * Also known as '30/360 U.S. Municipal' or '30/360 Bond Basis'.
+   * Defined by the 2006 ISDA definitions 4.16f.
    */
   public static final DayCount THIRTY_360_ISDA = Standard.THIRTY_360_ISDA;
   /**
@@ -120,6 +145,7 @@ public final class DayCounts {
    * however that is not implemented here.
    * <p>
    * Also known as '30E/360 German' or 'German'.
+   * Defined by the 2006 ISDA definitions 4.16h.
    */
   public static final DayCount THIRTY_E_360_ISDA = Standard.THIRTY_E_360_ISDA;
   /**
@@ -131,6 +157,7 @@ public final class DayCounts {
    * If the second day-of-month is 31, it is changed to 30.
    * <p>
    * Also known as '30/360 ISMA', '30/360 European', '30S/360 Special German' or 'Eurobond'.
+   * Defined by the 2006 ISDA definitions 4.16g and ICMA rule 251.1(ii) and 252.2.
    */
   public static final DayCount THIRTY_E_360 = Standard.THIRTY_E_360;
   /**
@@ -173,7 +200,15 @@ public final class DayCounts {
    */
   static enum Standard implements DayCount {
 
-    // actual days / 360
+    // always one
+    ONE_ONE("1/1") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        check(firstDate, secondDate);
+        return 1;
+      }
+    },
+    // actual days / actual days in year
     ACT_ACT_ISDA("Act/Act ISDA") {
       @Override
       public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
@@ -191,6 +226,19 @@ public final class DayCounts {
         return firstRemainderOfYear / firstYearLength +
             secondRemainderOfYear / secondYearLength +
             (y2 - y1 - 1);
+      }
+    },
+    // actual days / 365 or 366
+    ACT_365_ACTUAL("Act/365 Actual") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
+        long actualDays = checkGetActualDays(firstDate, secondDate);
+        LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
+        if (nextLeap.isAfter(secondDate)) {
+          return actualDays / 365d;
+        } else {
+          return actualDays / 366d;
+        }
       }
     },
     // simple actual days / 360

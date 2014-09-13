@@ -9,8 +9,10 @@ import static com.opengamma.basics.date.DayCounts.ACT_360;
 import static com.opengamma.basics.date.DayCounts.ACT_364;
 import static com.opengamma.basics.date.DayCounts.ACT_365;
 import static com.opengamma.basics.date.DayCounts.ACT_365_25;
+import static com.opengamma.basics.date.DayCounts.ACT_365_ACTUAL;
 import static com.opengamma.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.basics.date.DayCounts.NL_365;
+import static com.opengamma.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.basics.date.DayCounts.THIRTY_360_ISDA;
 import static com.opengamma.basics.date.DayCounts.THIRTY_EPLUS_360;
 import static com.opengamma.basics.date.DayCounts.THIRTY_E_360;
@@ -62,7 +64,9 @@ public class DayCountTest {
 
   @Test(dataProvider = "types")
   public void test_same(DayCount type) {
-    assertEquals(type.getDayCountFraction(D2, D2), 0d, 0d);
+    if (type != ONE_ONE) {
+      assertEquals(type.getDayCountFraction(D2, D2), 0d, 0d);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -72,6 +76,17 @@ public class DayCountTest {
   @DataProvider(name = "dayCountFraction")
   static Object[][] data_dayCountFraction() {
       return new Object[][] {
+          {ONE_ONE, 2011, 12, 28, 2012, 2, 28, 1d},
+          {ONE_ONE, 2011, 12, 28, 2012, 2, 29, 1d},
+          {ONE_ONE, 2011, 12, 28, 2012, 3, 1, 1d},
+          {ONE_ONE, 2011, 12, 28, 2016, 2, 28, 1d},
+          {ONE_ONE, 2011, 12, 28, 2016, 2, 29, 1d},
+          {ONE_ONE, 2011, 12, 28, 2016, 3, 1, 1d},
+          {ONE_ONE, 2012, 2, 29, 2012, 3, 29, 1d},
+          {ONE_ONE, 2012, 2, 29, 2012, 3, 28, 1d},
+          {ONE_ONE, 2012, 3, 1, 2012, 3, 28, 1d},
+          
+          //-------------------------------------------------------
           {ACT_ACT_ISDA, 2011, 12, 28, 2012, 2, 28, (4d / 365d + 58d / 366d)},
           {ACT_ACT_ISDA, 2011, 12, 28, 2012, 2, 29, (4d / 365d + 59d / 366d)},
           {ACT_ACT_ISDA, 2011, 12, 28, 2012, 3, 1, (4d / 365d + 60d / 366d)},
@@ -81,6 +96,17 @@ public class DayCountTest {
           {ACT_ACT_ISDA, 2012, 2, 29, 2012, 3, 29, 29d / 366d},
           {ACT_ACT_ISDA, 2012, 2, 29, 2012, 3, 28, 28d / 366d},
           {ACT_ACT_ISDA, 2012, 3, 1, 2012, 3, 28, 27d / 366d},
+          
+          //-------------------------------------------------------
+          {ACT_365_ACTUAL, 2011, 12, 28, 2012, 2, 28, (62d / 365d)},
+          {ACT_365_ACTUAL, 2011, 12, 28, 2012, 2, 29, (63d / 366d)},
+          {ACT_365_ACTUAL, 2011, 12, 28, 2012, 3, 1, (64d / 366d)},
+          {ACT_365_ACTUAL, 2011, 12, 28, 2016, 2, 28, ((62d + 366d + 365d + 365d + 365d) / 366d)},
+          {ACT_365_ACTUAL, 2011, 12, 28, 2016, 2, 29, ((63d + 366d + 365d + 365d + 365d) / 366d)},
+          {ACT_365_ACTUAL, 2011, 12, 28, 2016, 3, 1, ((64d + 366d + 365d + 365d + 365d) / 366d)},
+          {ACT_365_ACTUAL, 2012, 2, 28, 2012, 3, 28, 29d / 366d},
+          {ACT_365_ACTUAL, 2012, 2, 29, 2012, 3, 28, 28d / 365d},
+          {ACT_365_ACTUAL, 2012, 3, 1, 2012, 3, 28, 27d / 365d},
           
           //-------------------------------------------------------
           {ACT_360, 2011, 12, 28, 2012, 2, 28, (62d / 360d)},
@@ -136,6 +162,7 @@ public class DayCountTest {
           {NL_365, 2012, 2, 28, 2012, 3, 28, 28d / 365d},
           {NL_365, 2012, 2, 29, 2012, 3, 28, 28d / 365d},
           {NL_365, 2012, 3, 1, 2012, 3, 28, 27d / 365d},
+          {NL_365, 2011, 12, 1, 2012, 12, 1, 365d / 365d},
           
           //-------------------------------------------------------
           {THIRTY_360_ISDA, 2011, 12, 28, 2012, 2, 28, SIMPLE_30_360},
@@ -271,7 +298,9 @@ public class DayCountTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
       return new Object[][] {
+          {ONE_ONE, "1/1"},
           {ACT_ACT_ISDA, "Act/Act ISDA"},
+          {ACT_365_ACTUAL, "Act/365 Actual"},
           {ACT_360, "Act/360"},
           {ACT_364, "Act/364"},
           {ACT_365, "Act/365"},

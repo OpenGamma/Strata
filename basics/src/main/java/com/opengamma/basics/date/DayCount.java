@@ -47,7 +47,7 @@ public interface DayCount
    * Given two dates, this method returns the fraction of a year between these
    * dates according to the convention.
    * 
-   * @param firstDate  the earlier date
+   * @param firstDate  the earlier date, which should be a schedule period date
    * @param secondDate  the later date
    * @return the day count fraction
    */
