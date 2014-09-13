@@ -1,0 +1,93 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.basics.schedule;
+
+import static com.opengamma.basics.schedule.Frequency.P1M;
+import static com.opengamma.basics.schedule.RollConventions.DAY_17;
+import static com.opengamma.collect.TestHelper.assertSerialization;
+import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.collect.TestHelper.date;
+import static java.time.Month.AUGUST;
+import static java.time.Month.JULY;
+import static java.time.Month.SEPTEMBER;
+import static org.testng.Assert.assertEquals;
+
+import java.time.LocalDate;
+
+import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableList;
+
+/**
+ * Test {@link PeriodicSchedule}.
+ */
+@Test
+public class PeriodicScheduleTest {
+
+  private static final LocalDate JUL_04 = date(2014, JULY, 4);
+  private static final LocalDate JUL_17 = date(2014, JULY, 17);
+  private static final LocalDate AUG_17 = date(2014, AUGUST, 17);
+  private static final LocalDate SEP_17 = date(2014, SEPTEMBER, 17);
+  private static final SchedulePeriod PERIOD1 =
+      SchedulePeriod.of(SchedulePeriodType.INITIAL, JUL_04, JUL_17, JUL_04, JUL_17, P1M, DAY_17);
+  private static final SchedulePeriod PERIOD2 =
+      SchedulePeriod.of(SchedulePeriodType.NORMAL, JUL_17, AUG_17, JUL_17, AUG_17, P1M, DAY_17);
+  private static final SchedulePeriod PERIOD3 =
+      SchedulePeriod.of(SchedulePeriodType.FINAL, AUG_17, SEP_17, AUG_17, SEP_17, P1M, DAY_17);
+
+  //-------------------------------------------------------------------------
+  public void test_of_size0() {
+    assertThrows(() -> PeriodicSchedule.of(ImmutableList.of()), IllegalArgumentException.class);
+  }
+
+  public void test_of_size1() {
+    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1));
+    assertEquals(test.size(), 1);
+    assertEquals(test.getPeriods(), ImmutableList.of(PERIOD1));
+    assertEquals(test.getPeriod(0), PERIOD1);
+    assertThrows(() -> test.getPeriod(1), IndexOutOfBoundsException.class);
+  }
+
+  public void test_of_size2() {
+    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2));
+    assertEquals(test.size(), 2);
+    assertEquals(test.getPeriods(), ImmutableList.of(PERIOD1, PERIOD2));
+    assertEquals(test.getPeriod(0), PERIOD1);
+    assertEquals(test.getPeriod(1), PERIOD2);
+    assertThrows(() -> test.getPeriod(2), IndexOutOfBoundsException.class);
+  }
+
+  public void test_of_size3() {
+    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2, PERIOD3));
+    assertEquals(test.size(), 3);
+    assertEquals(test.getPeriods(), ImmutableList.of(PERIOD1, PERIOD2, PERIOD3));
+    assertEquals(test.getPeriod(0), PERIOD1);
+    assertEquals(test.getPeriod(1), PERIOD2);
+    assertEquals(test.getPeriod(2), PERIOD3);
+    assertThrows(() -> test.getPeriod(3), IndexOutOfBoundsException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage_builder() {
+    PeriodicSchedule.Builder builder = PeriodicSchedule.builder();
+    builder
+      .periods(ImmutableList.of(PERIOD1))
+      .build();
+  }
+
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2));
+    coverImmutableBean(test);
+  }
+
+  public void test_serialization() {
+    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2));
+    assertSerialization(test);
+  }
+
+}

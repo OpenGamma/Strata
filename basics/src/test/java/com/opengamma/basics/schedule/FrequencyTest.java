@@ -3,14 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.basics.date;
+package com.opengamma.basics.schedule;
 
-import static com.opengamma.basics.date.Frequency.P1D;
-import static com.opengamma.basics.date.Frequency.P1W;
-import static com.opengamma.basics.date.Frequency.P1Y;
-import static com.opengamma.basics.date.Frequency.P3M;
-import static com.opengamma.basics.date.Frequency.P6M;
-import static com.opengamma.basics.date.Frequency.TERM;
+import static com.opengamma.basics.schedule.Frequency.P1D;
+import static com.opengamma.basics.schedule.Frequency.P1W;
+import static com.opengamma.basics.schedule.Frequency.P1Y;
+import static com.opengamma.basics.schedule.Frequency.P3M;
+import static com.opengamma.basics.schedule.Frequency.P6M;
+import static com.opengamma.basics.schedule.Frequency.TERM;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
@@ -28,6 +28,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.basics.schedule.Frequency;
 
 /**
  * Tests for the frequency class.

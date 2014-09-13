@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.basics.date;
+package com.opengamma.basics.schedule;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -17,18 +17,13 @@ import com.opengamma.collect.named.Named;
 /**
  * A convention defining how to roll dates.
  * <p>
- * The purpose of this convention is to define how to roll dates when building a schedule.
- * The standard approach to building a schedule is based on unadjusted dates, which do not
- * have a {@linkplain BusinessDayConvention business day convention} applied.
+ * A {@linkplain PeriodicScheduleDefn periodic schedule} is determined using a periodic frequency.
+ * When applying the frequency, the roll convention is used to fine tune the dates.
+ * This might involve selecting the last day of the month, or the third Wednesday.
+ * <p>
  * To get the next date in the schedule, take the base date and the
  * {@linkplain Frequency periodic frequency}. Once this date is calculated,
  * the roll convention is applied to produce the next schedule date.
- * <p>
- * In most cases the specific values for day-of-month and day-of-week are not needed.
- * A one month periodic frequency will naturally select the same day-of-month as the
- * input date, thus the day-of-month does not need to be additionally specified.
- * The {@link RollConventions#IMPLIED_DAY IMPLIED_DAY} and
- * {@link RollConventions#IMPLIED_EOM IMPLIED_EOM} conventions can be used to indicate this.
  * <p>
  * The most common implementations are provided as constants on {@link RollConventions}.
  * Additional implementations may be added by implementing this interface.
@@ -36,7 +31,7 @@ import com.opengamma.collect.named.Named;
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface RollConvention
-    extends DateAdjuster, Named {
+    extends Named {
 
   /**
    * Obtains a {@code RollConvention} from a unique name.
@@ -107,30 +102,22 @@ public interface RollConvention
    * @param date  the date to adjust
    * @return the adjusted temporal
    */
-  @Override
   public LocalDate adjust(LocalDate date);
 
-  //-------------------------------------------------------------------------
   /**
-   * Implies the correct convention if necessary.
+   * Checks if the date matches the rules of the roll convention.
    * <p>
-   * In most cases, calling this method has no effect, returning {@code this}.
-   * In the case of the {@link RollConventions#IMPLIED_DAY IMPLIED_DAY} and
-   * {@link RollConventions#IMPLIED_EOM IMPLIED_EOM} conventions a different
-   * convention is returned, implied from the date and frequency.
-   * <p>
-   * The default implementation returns {@code this} and should not normally be overridden.
+   * See the description of each roll convention to understand the rule applied.
    * 
-   * @param date  the date to adjust
-   * @param periodicFrequency  the period to add or subtract
-   * @return the adjusted date
+   * @param date  the date to check
+   * @return true if the date matches this convention
    */
-  public default RollConvention imply(LocalDate date, Frequency periodicFrequency) {
-    ArgChecker.notNull(date, "inputDate");
-    ArgChecker.notNull(periodicFrequency, "periodicFrequency");
-    return this;
+  public default boolean matches(LocalDate date) {
+    ArgChecker.notNull(date, "date");
+    return date.equals(adjust(date));
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the next date in the sequence after the input date.
    * <p>
@@ -141,7 +128,7 @@ public interface RollConvention
    * The default implementation is suitable for month-based conventions.
    * 
    * @param date  the date to adjust
-   * @param periodicFrequency  the period to add or subtract
+   * @param periodicFrequency  the periodic frequency of the schedule
    * @return the adjusted date
    * @throws IllegalStateException if the convention needs to be implied
    */
@@ -155,6 +142,7 @@ public interface RollConvention
     return calculated;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Calculates the previous date in the sequence after the input date.
    * <p>
@@ -165,7 +153,7 @@ public interface RollConvention
    * The default implementation is suitable for month-based conventions.
    * 
    * @param date  the date to adjust
-   * @param periodicFrequency  the period to add or subtract
+   * @param periodicFrequency  the periodic frequency of the schedule
    * @return the adjusted date
    * @throws IllegalStateException if the convention needs to be implied
    */
@@ -179,6 +167,7 @@ public interface RollConvention
     return calculated;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the name that uniquely identifies this convention.
    * <p>

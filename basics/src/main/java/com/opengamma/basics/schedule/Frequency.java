@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.basics.date;
+package com.opengamma.basics.schedule;
 
 import java.io.Serializable;
 import java.time.DateTimeException;
