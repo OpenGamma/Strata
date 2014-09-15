@@ -13,6 +13,8 @@ import com.google.common.collect.ImmutableMap;
  * A lookup for named instances.
  * <p>
  * This interface is used to lookup objects that can be {@linkplain Named identified by a unique name}.
+ * 
+ * @param <T>  the named type
  */
 public interface NamedLookup<T extends Named> {
 
