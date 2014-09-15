@@ -53,6 +53,40 @@ public final class DateAdjusters {
     return ensureLeapDay(((input.getYear() / 4) * 4) + 4);
   }
 
+  /**
+   * Obtains a date adjuster that finds the next leap day on or after the input date.
+   * <p>
+   * If the input date is February 29, the input date is returned unaltered.
+   * Otherwise, the adjuster returns the next occurrence of February 29 after the input date.
+   * 
+   * @return an adjuster that finds the next leap day
+   */
+  public static DateAdjuster nextOrSameLeapDay() {
+    return DateAdjusters::nextOrSameLeapDay;
+  }
+
+  /**
+   * Finds the next leap day on or after the input date.
+   * <p>
+   * If the input date is February 29, the input date is returned unaltered.
+   * Otherwise, the adjuster returns the next occurrence of February 29 after the input date.
+   * 
+   * @param input  the input date
+   * @return the next leap day date
+   */
+  static LocalDate nextOrSameLeapDay(LocalDate input) {
+    // already a leap day, return it
+    if (input.getMonthValue() == 2 && input.getDayOfMonth() == 29) {
+      return input;
+    }
+    // handle if before February 29 in a leap year
+    if (input.isLeapYear() && input.getMonthValue() <= 2) {
+      return LocalDate.of(input.getYear(), 2, 29);
+    }
+    // handle any other date
+    return ensureLeapDay(((input.getYear() / 4) * 4) + 4);
+  }
+
   // handle 2100, which is not a leap year
   private static LocalDate ensureLeapDay(int possibleLeapYear) {
     if (Year.isLeap(possibleLeapYear)) {

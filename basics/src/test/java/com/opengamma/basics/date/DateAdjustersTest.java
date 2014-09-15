@@ -99,6 +99,32 @@ public class DateAdjustersTest {
     assertEquals(test.getDayOfMonth(), 29);
   }
 
+  @Test(dataProvider = "nextLeapDay")
+  public void test_nextOrSameLeapDay_LocalDate(int year, int month, int day, int expectedYear) {
+    LocalDate date = LocalDate.of(year, month, day);
+    LocalDate test = DateAdjusters.nextOrSameLeapDay().adjust(date);
+    if (month == 2 && day == 29) {
+      assertEquals(test, date);
+    } else {
+      assertEquals(test.getYear(), expectedYear);
+      assertEquals(test.getMonthValue(), 2);
+      assertEquals(test.getDayOfMonth(), 29);
+    }
+  }
+
+  @Test(dataProvider = "nextLeapDay")
+  public void test_nextOrSameLeapDay_Temporal(int year, int month, int day, int expectedYear) {
+    LocalDate date = LocalDate.of(year, month, day);
+    LocalDate test = (LocalDate) DateAdjusters.nextOrSameLeapDay().adjustInto(date);
+    if (month == 2 && day == 29) {
+      assertEquals(test, date);
+    } else {
+      assertEquals(test.getYear(), expectedYear);
+      assertEquals(test.getMonthValue(), 2);
+      assertEquals(test.getDayOfMonth(), 29);
+    }
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     assertUtilityClass(DateAdjusters.class);
