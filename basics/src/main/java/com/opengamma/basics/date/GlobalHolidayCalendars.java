@@ -56,6 +56,8 @@ public final class GlobalHolidayCalendars {
    * This constant provides the calendar for the TARGET interbank payment system holidays.
    * The default implementation is based on original research and covers 1997 to 2099.
    * Future dates are an extrapolations of the latest known rules.
+   * <p>
+   * Referenced by the 2006 ISDA definitions 1.8.
    */
   public static final HolidayCalendar EUTA = generateEuropeanTarget();
   /**
@@ -64,6 +66,8 @@ public final class GlobalHolidayCalendars {
    * This constant provides the calendar for United States Government Securities as per SIFMA.
    * The default implementation is based on original research and covers 1950 to 2099.
    * Future and past dates are an extrapolations of the latest known rules.
+   * <p>
+   * Referenced by the 2006 ISDA definitions 1.11.
    */
   public static final HolidayCalendar USGS = generateUsGovtSecurities();
 
