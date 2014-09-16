@@ -19,11 +19,20 @@ public class ValueAdjustmentTest {
 
   private static double TOLERANCE = 0.0001d;
 
+  public void test_NONE() {
+    ValueAdjustment test = ValueAdjustment.NONE;
+    assertEquals(test.getModifyingValue(), 0, TOLERANCE);
+    assertEquals(test.getType(), ValueAdjustmentType.DELTA_AMOUNT);
+    assertEquals(test.adjust(100), 100, TOLERANCE);
+    assertEquals(test.toString(), "ValueAdjustment[result = input]");
+  }
+
   public void test_ofAbsolute() {
     ValueAdjustment test = ValueAdjustment.ofAbsolute(200);
     assertEquals(test.getModifyingValue(), 200, TOLERANCE);
     assertEquals(test.getType(), ValueAdjustmentType.ABSOLUTE);
     assertEquals(test.adjust(100), 200, TOLERANCE);
+    assertEquals(test.toString(), "ValueAdjustment[result = 200.0]");
   }
 
   public void test_ofDeltaAmount() {
@@ -31,6 +40,7 @@ public class ValueAdjustmentTest {
     assertEquals(test.getModifyingValue(), 20, TOLERANCE);
     assertEquals(test.getType(), ValueAdjustmentType.DELTA_AMOUNT);
     assertEquals(test.adjust(100), 120, TOLERANCE);
+    assertEquals(test.toString(), "ValueAdjustment[result = input + 20.0]");
   }
 
   public void test_ofDeltaMultiplier() {
@@ -38,6 +48,7 @@ public class ValueAdjustmentTest {
     assertEquals(test.getModifyingValue(), 0.1, TOLERANCE);
     assertEquals(test.getType(), ValueAdjustmentType.DELTA_MULTIPLIER);
     assertEquals(test.adjust(100), 110, TOLERANCE);
+    assertEquals(test.toString(), "ValueAdjustment[result = input + input * 0.1]");
   }
 
   public void test_ofMultiplier() {
@@ -45,6 +56,7 @@ public class ValueAdjustmentTest {
     assertEquals(test.getModifyingValue(), 1.1, TOLERANCE);
     assertEquals(test.getType(), ValueAdjustmentType.MULTIPLIER);
     assertEquals(test.adjust(100), 110, TOLERANCE);
+    assertEquals(test.toString(), "ValueAdjustment[result = input * 1.1]");
   }
 
   //-------------------------------------------------------------------------

@@ -47,6 +47,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class ValueAdjustment
     implements ImmutableBean, Serializable {
 
+  /**
+   * An instance that makes no adjustment to the value.
+   */
+  public static final ValueAdjustment NONE = ValueAdjustment.ofDeltaAmount(0);
+
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
@@ -100,6 +105,7 @@ public final class ValueAdjustment
     return new ValueAdjustment(deltaMultiplier, ValueAdjustmentType.DELTA_MULTIPLIER);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains a value adjustment specifying a multiplication factor to apply to the base value.
    * <p>
@@ -110,6 +116,34 @@ public final class ValueAdjustment
    */
   public static ValueAdjustment ofMultiplier(double multiplier) {
     return new ValueAdjustment(multiplier, ValueAdjustmentType.MULTIPLIER);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("ValueAdjustment[result = ");
+    switch (type) {
+      case ABSOLUTE:
+      default:
+        buf.append(modifyingValue);
+        break;
+      case DELTA_AMOUNT:
+        if (this == NONE) {
+          buf.append("input");
+        } else {
+          buf.append("input + ").append(modifyingValue);
+        }
+        break;
+      case DELTA_MULTIPLIER:
+        buf.append("input + input * ").append(modifyingValue);
+        break;
+      case MULTIPLIER:
+        buf.append("input * ").append(modifyingValue);
+        break;
+    }
+    buf.append(']');
+    return buf.toString();
   }
 
   //-----------------------------------------------------------------------
@@ -202,16 +236,6 @@ public final class ValueAdjustment
     hash += hash * 31 + JodaBeanUtils.hashCode(getModifyingValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
     return hash;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder buf = new StringBuilder(96);
-    buf.append("ValueAdjustment{");
-    buf.append("modifyingValue").append('=').append(getModifyingValue()).append(',').append(' ');
-    buf.append("type").append('=').append(JodaBeanUtils.toString(getType()));
-    buf.append('}');
-    return buf.toString();
   }
 
   //-----------------------------------------------------------------------
