@@ -40,6 +40,8 @@ public enum SchedulePeriodType {
   //-------------------------------------------------------------------------
   /**
    * Obtains the type from an index and size.
+   * <p>
+   * This is used when looping around a list of schedule periods to decide the type of each period.
    * 
    * @param index  the loop index, from zero to size - 1
    * @param size  the loop size

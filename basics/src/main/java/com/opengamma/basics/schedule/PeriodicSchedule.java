@@ -27,8 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.Guavate;
 
 /**
  * A complete schedule of periods (date ranges), with both unadjusted and adjusted dates.
@@ -69,9 +69,10 @@ public final class PeriodicSchedule
    */
   public static PeriodicSchedule of(Collection<SchedulePeriod> periods) {
     ArgChecker.notEmpty(periods, "periods");
-    ArrayList<SchedulePeriod> mutable = Lists.newArrayList(periods);
-    mutable.sort(Comparator.naturalOrder());
-    return new PeriodicSchedule(mutable);
+    ImmutableList<SchedulePeriod> sorted = periods.stream()
+        .sorted(Comparator.naturalOrder())
+        .collect(Guavate.toImmutableList());
+    return new PeriodicSchedule(sorted);
   }
 
   //-------------------------------------------------------------------------

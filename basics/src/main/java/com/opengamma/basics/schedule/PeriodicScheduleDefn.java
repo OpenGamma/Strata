@@ -47,6 +47,33 @@ import com.opengamma.collect.ArgChecker;
  * Note that a 23 month swap cannot be split into even 3 month periods.
  * Instead, there will be a 2 month "initial" stub at the start, a 2 month "final" stub at the end
  * or both an initial and final stub with a combined length of 2 months.
+ * 
+ * <h4>Example</h4>
+ * <p>
+ * This example creates a schedule for a 13 month swap cannot be split into 3 month periods
+ * with a long initial stub rolling at end-of-month:
+ * <pre>
+ *  // example swap using builder
+ *  BusinessDayAdjustment businessDayAdj =
+ *    BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, GlobalHolidayCalendars.EUTA);
+ *  PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
+ *      .startDate(AdjustableDate.of(LocalDate.of(2014, 2, 12), businessDayAdj))
+ *      .endDate(AdjustableDate.of(LocalDate.of(2015, 3, 31), businessDayAdj))
+ *      .businessDayAdjustment(businessDayAdj)
+ *      .frequency(Frequency.P3M)
+ *      .stubConvention(StubConvention.LONG_INITIAL)
+ *      .rollConvention(RollConventions.EOM)
+ *      .build();
+ *  PeriodicSchedule schedule = defn.createSchedule();
+ *  
+ *  // result
+ *  period 1: 2014-02-12 to 2014-06-30
+ *  period 2: 2014-06-30 to 2014-09-30
+ *  period 3: 2014-09-30 to 2014-12-31
+ *  period 4: 2014-12-31 to 2015-03-31
+ * </pre>
+ * 
+ * <h4>Details about stubs and date rolling</h4>
  * <p>
  * The stubs are specified using a combination of the {@link StubConvention}, {@link RollConvention} and dates.
  * <p>
@@ -72,7 +99,7 @@ import com.opengamma.collect.ArgChecker;
  * If this is not possible due to the dates specified then an exception will be thrown during schedule creation.
  * <p>
  * The schedule operates primarily on "unadjusted" dates.
- * An unadjusted date can be any day, including non-valid business days.
+ * An unadjusted date can be any day, including non-business days.
  * When the unadjusted schedule has been determined, the appropriate business day adjustment
  * is applied to create a parallel schedule of "adjusted" dates.
  */
@@ -313,6 +340,7 @@ public final class PeriodicScheduleDefn
    * Obtains an instance based on all the available parameters.
    * <p>
    * This low-level factory allows various combinations of dates and convention to be specified.
+   * As an alternative to this method, consider using the {@linkplain #builder() builder}.
    * 
    * @param startDate  start date, which is the start of the first schedule period
    * @param endDate  the end date, which is the end of the last schedule period
@@ -381,9 +409,16 @@ public final class PeriodicScheduleDefn
     RollConvention rollConv = getEffectiveRollConvention();
     List<SchedulePeriod> periods = new ArrayList<>();
     for (int i = 0; i < unadj.size() - 1; i++) {
-      SchedulePeriodType type = SchedulePeriodType.of(i, unadj.size());
       periods.add(
-          SchedulePeriod.of(type, adj.get(i), adj.get(i + 1), unadj.get(i), unadj.get(i + 1), frequency, rollConv));
+          SchedulePeriod.builder()
+            .type(SchedulePeriodType.of(i, unadj.size()))
+            .startDate(adj.get(i))
+            .endDate(adj.get(i + 1))
+            .unadjustedStartDate(unadj.get(i))
+            .unadjustedEndDate(unadj.get(i + 1))
+            .frequency(frequency)
+            .rollConvention(rollConv)
+            .build());
     }
     return PeriodicSchedule.of(periods);
   }
@@ -410,8 +445,8 @@ public final class PeriodicScheduleDefn
     LocalDate end = getEndDate().getUnadjusted();
     LocalDate regStart = getEffectiveFirstRegularStartDate();
     LocalDate regEnd = getEffectiveLastRegularEndDate();
-    boolean explicitInitialStub = start.equals(regStart) == false;
-    boolean explicitFinalStub = end.equals(regEnd) == false;
+    boolean explicitInitialStub = !start.equals(regStart);
+    boolean explicitFinalStub = !end.equals(regEnd);
     // handle TERM frequency
     if (frequency == Frequency.TERM) {
       if (explicitInitialStub || explicitFinalStub) {
@@ -422,12 +457,9 @@ public final class PeriodicScheduleDefn
     // calculate base schedule excluding explicit stubs
     RollConvention rollConv = getEffectiveRollConvention();
     StubConvention implicitStubConv = generateImplicitStubConvention(explicitInitialStub, explicitFinalStub);
-    List<LocalDate> unadj = new ArrayList<>();
-    if (implicitStubConv.isCalculateBackwards()) {
-      unadj = generateBackwards(regStart, regEnd, rollConv, implicitStubConv);
-    } else {
-      unadj = generateForwards(regStart, regEnd, rollConv, implicitStubConv);
-    }
+    List<LocalDate> unadj = (implicitStubConv.isCalculateBackwards() ?
+      generateBackwards(regStart, regEnd, rollConv, implicitStubConv) :
+      generateForwards(regStart, regEnd, rollConv, implicitStubConv));
     // add explicit stubs
     if (explicitInitialStub) {
       unadj.add(0, start);
@@ -435,6 +467,7 @@ public final class PeriodicScheduleDefn
     if (explicitFinalStub) {
       unadj.add(end);
     }
+    // sanity check
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
     if (deduplicated.size() < unadj.size()) {
       throw new PeriodicScheduleException(this, "Schedule calculation resulted in duplicate unadjusted dates: {}", unadj);
@@ -444,6 +477,9 @@ public final class PeriodicScheduleDefn
 
   // using knowledge of the explicit stubs, generate the correct convention for implicit stubs
   private StubConvention generateImplicitStubConvention(boolean explicitInitialStub, boolean explicitFinalStub) {
+    // null is not same as NONE
+    // NONE validates that there are no explicit stubs
+    // null ensures that remainder after explicit stubs are removed has no stubs
     if (stubConvention != null) {
       return stubConvention.toImplicit(this, explicitInitialStub, explicitFinalStub);
     }

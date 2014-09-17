@@ -98,7 +98,7 @@ public enum StubConvention {
    * and combined with the next period, making a total period longer than the standard frequency.
    * <p>
    * For example, an 8 month trade with a 3 month periodic frequency would result in
-   * a 5 month initial short stub followed by one period of 3 months.
+   * a 5 month initial long stub followed by one period of 3 months.
    * <p>
    * If there is no remaining period when calculating, then there is no stub.
    * For example, a 6 month trade can be exactly divided by a 3 month frequency.
