@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
+import com.opengamma.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -47,7 +48,7 @@ import com.opengamma.collect.ArgChecker;
  */
 @BeanDefinition
 public final class SchedulePeriod
-    implements ImmutableBean, Comparable<SchedulePeriod>, Serializable {
+    implements ScheduleInfo, ImmutableBean, Comparable<SchedulePeriod>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -57,7 +58,7 @@ public final class SchedulePeriod
    * <p>
    * This defines whether this period is an initial, final, term or normal period.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final SchedulePeriodType type;
   /**
    * The start date of this period, used for financial calculations such as interest accrual.
@@ -73,7 +74,7 @@ public final class SchedulePeriod
    * The last date in the schedule period, typically treated as exclusive.
    * If the schedule adjusts for business days, then this is the adjusted date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate endDate;
   /**
    * The unadjusted start date.
@@ -99,7 +100,7 @@ public final class SchedulePeriod
    * If the schedule was not built from a regular periodic frequency, then the frequency should
    * be the period between the unadjusted start and end date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Frequency frequency;
   /**
    * The roll convention used when building the schedule.
@@ -161,6 +162,33 @@ public final class SchedulePeriod
   private void validate() {
     ArgChecker.inOrderNotEqual(unadjustedStartDate, unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the specified date is the end of the overall schedule.
+   * <p>
+   * This is used to check for the maturity/termination date.
+   * 
+   * @param date  the date to check
+   * @return true if the date is the last date in the overall schedule
+   */
+  @Override
+  public boolean isScheduleEndDate(LocalDate date) {
+    return type == SchedulePeriodType.FINAL && date.equals(endDate);
+  }
+
+  /**
+   * Checks if the end of month convention is in use.
+   * <p>
+   * If true then when building a schedule, dates will be at the end-of-month if the
+   * first date in the series is at the end-of-month.
+   * 
+   * @return true if the end of month convention is in use
+   */
+  @Override
+  public boolean isEndOfMonthConvention() {
+    return rollConvention == RollConventions.EOM;
   }
 
   //-------------------------------------------------------------------------
@@ -247,6 +275,7 @@ public final class SchedulePeriod
    * This defines whether this period is an initial, final, term or normal period.
    * @return the value of the property, not null
    */
+  @Override
   public SchedulePeriodType getType() {
     return type;
   }
@@ -271,6 +300,7 @@ public final class SchedulePeriod
    * If the schedule adjusts for business days, then this is the adjusted date.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getEndDate() {
     return endDate;
   }
@@ -309,6 +339,7 @@ public final class SchedulePeriod
    * be the period between the unadjusted start and end date.
    * @return the value of the property, not null
    */
+  @Override
   public Frequency getFrequency() {
     return frequency;
   }

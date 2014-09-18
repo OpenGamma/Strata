@@ -121,12 +121,18 @@ public final class DayCounts {
    * <p>
    * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
    * The deltaDay is then calculated once day-of-month adjustments have occurred.
-   * If the both dates are the last day of February, change the second day-of-month to 30.
-   * If the first date is the last day of February, change the first day-of-month to 30.
+   * If the schedule uses EOM convention and both dates are the last day of February,
+   * change the second day-of-month to 30.
+   * If the schedule uses EOM convention and the first date is the last day of February,
+   * change the first day-of-month to 30.
    * If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
    * If the first day-of-month is 31, change the first day-of-month to 30.
    * <p>
-   * This is the same as '30/360 ISDA' but with an additional end of February rule.
+   * This is the same as '30/360 ISDA' if the EOM convention does not apply
+   * but with two additional end of February rules if the EOM does apply.
+   * <p>
+   * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will assume
+   * that the end-of-month rule applies.
    * <p>
    * Also known as '30/360 US', '30US/360' or '30/360 SIA'.
    */
@@ -139,10 +145,11 @@ public final class DayCounts {
    * If the first day-of-month is 31, change the first day-of-month to 30.
    * If the second day-of-month is 31, change the second day-of-month to 30.
    * If the first date is the last day of February, change the first day-of-month to 30.
-   * If the second date is the last day of February, change the second day-of-month to 30.
+   * If the second date is the last day of February and it is not the maturity date,
+   * change the second day-of-month to 30.
    * <p>
-   * Note that the last rule should be omitted when the second date is the maturity date,
-   * however that is not implemented here.
+   * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will assume
+   * that the second date is not the maturity date.
    * <p>
    * Also known as '30E/360 German' or 'German'.
    * Defined by the 2006 ISDA definitions 4.16h.
@@ -203,16 +210,16 @@ public final class DayCounts {
     // always one
     ONE_ONE("1/1") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        check(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
         return 1;
       }
     },
     // actual days / actual days in year
     ACT_ACT_ISDA("Act/Act ISDA") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        check(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
         int y1 = firstDate.getYear();
         int y2 = secondDate.getYear();
         double firstYearLength = firstDate.lengthOfYear();
@@ -231,53 +238,49 @@ public final class DayCounts {
     // actual days / 365 or 366
     ACT_365_ACTUAL("Act/365 Actual") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        long actualDays = checkGetActualDays(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
         LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
-        if (nextLeap.isAfter(secondDate)) {
-          return actualDays / 365d;
-        } else {
-          return actualDays / 366d;
-        }
+        return actualDays / (nextLeap.isAfter(secondDate) ? 365d : 366d);
       }
     },
     // simple actual days / 360
     ACT_360("Act/360") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        long actualDays = checkGetActualDays(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
         return actualDays / 360d;
       }
     },
     // simple actual days / 364
     ACT_364("Act/364") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        long actualDays = checkGetActualDays(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
         return actualDays / 364d;
       }
     },
     // simple actual days / 365
     ACT_365("Act/365") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        long actualDays = checkGetActualDays(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
         return actualDays / 365d;
       }
     },
     // simple actual days / 365.25
     ACT_365_25("Act/365.25") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        long actualDays = checkGetActualDays(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
         return actualDays / 365.25d;
       }
     },
     // no leaps / 365
     NL_365("NL/365") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        long actualDays = checkGetActualDays(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
         int numberOfLeapDays = 0;
         LocalDate temp = DateAdjusters.nextLeapDay(firstDate);
         while (temp.isAfter(secondDate) == false) {
@@ -290,8 +293,8 @@ public final class DayCounts {
     // ISDA thirty day months / 360
     THIRTY_360_ISDA("30/360 ISDA") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        check(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
         int d1 = firstDate.getDayOfMonth();
         int d2 = secondDate.getDayOfMonth();
         if (d1 == 31) {
@@ -308,13 +311,13 @@ public final class DayCounts {
     // US thirty day months / 360
     THIRTY_U_360("30U/360") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        check(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
         int d1 = firstDate.getDayOfMonth();
         int d2 = secondDate.getDayOfMonth();
         boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
         boolean lastFeb2 = (secondDate.getMonthValue() == 2 && d2 == secondDate.lengthOfMonth());
-        if (lastFeb1) {
+        if (scheduleInfo.isEndOfMonthConvention() && lastFeb1) {
           if (lastFeb2) {
             d2 = 30;
           }
@@ -334,8 +337,8 @@ public final class DayCounts {
     // ISDA EU thirty day months / 360
     THIRTY_E_360_ISDA("30E/360 ISDA") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        check(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
         int d1 = firstDate.getDayOfMonth();
         int d2 = secondDate.getDayOfMonth();
         boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
@@ -343,7 +346,7 @@ public final class DayCounts {
         if (d1 == 31 || lastFeb1) {
           d1 = 30;
         }
-        if (d2 == 31 || lastFeb2) {
+        if (d2 == 31 || (lastFeb2 && !scheduleInfo.isScheduleEndDate(secondDate))) {
           d2 = 30;
         }
         return thirty360(
@@ -354,8 +357,8 @@ public final class DayCounts {
     // E thirty day months / 360
     THIRTY_E_360("30E/360") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        check(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
         int d1 = firstDate.getDayOfMonth();
         int d2 = secondDate.getDayOfMonth();
         if (d1 == 31) {
@@ -372,8 +375,8 @@ public final class DayCounts {
     // E+ thirty day months / 360
     THIRTY_EPLUS_360("30E+/360") {
       @Override
-      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-        check(firstDate, secondDate);
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
         int d1 = firstDate.getDayOfMonth();
         int d2 = secondDate.getDayOfMonth();
         int m1 = firstDate.getMonthValue();
@@ -405,18 +408,20 @@ public final class DayCounts {
     }
 
     // validate inputs and return actual days difference
-    private static long checkGetActualDays(LocalDate firstDate, LocalDate secondDate ) {
+    private static long checkGetActualDays(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       ArgChecker.notNull(firstDate, "firstDate");
       ArgChecker.notNull(secondDate, "secondDate");
+      ArgChecker.notNull(scheduleInfo, "scheduleInfo");
       long actualDays = secondDate.toEpochDay() - firstDate.toEpochDay();
       ArgChecker.isTrue(actualDays >= 0, "Dates must be in order");
       return actualDays;
     }
 
     // validate inputs
-    private static void check(LocalDate firstDate, LocalDate secondDate ) {
+    private static void check(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       ArgChecker.notNull(firstDate, "firstDate");
       ArgChecker.notNull(secondDate, "secondDate");
+      ArgChecker.notNull(scheduleInfo, "scheduleInfo");
       ArgChecker.isFalse(secondDate.isBefore(firstDate), "Dates must be in order");
     }
 
