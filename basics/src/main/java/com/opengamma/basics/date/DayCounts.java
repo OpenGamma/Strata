@@ -7,6 +7,8 @@ package com.opengamma.basics.date;
 
 import java.time.LocalDate;
 
+import com.opengamma.basics.schedule.Frequency;
+import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.named.ExtendedEnum;
 
@@ -42,6 +44,84 @@ public final class DayCounts {
    */
   public static final DayCount ACT_ACT_ISDA = Standard.ACT_ACT_ISDA;
   /**
+   * The 'Act/Act ICMA' day count, which divides the actual number of days by
+   * the actual number of days in the coupon period multiplied by the frequency.
+   * <p>
+   * The result is calculated as follows.
+   * <p>
+   * First, the underlying schedule period is obtained treating the first date as the start of the schedule period.
+   * <p>
+   * Second, if the period is a stub, then nominal regular periods are created matching the
+   * schedule frequency, working forwards or backwards from the known regular schedule date.
+   * An end-of-month flag is used to handle month-ends.
+   * If the period is not a stub then the schedule period is treated as a nominal period below.
+   * <p>
+   * Third, the result is calculated as the sum of a calculation for each nominal period.
+   * The actual days between the first and second date are allocated to the matching nominal period.
+   * Each calculation is a division. The numerator is the actual number of days in
+   * the nominal period, which could be zero in the case of a long stub.
+   * The denominator is the length of the nominal period  multiplied by the frequency.
+   * The first day in the period is included, the last day is excluded.
+   * <p>
+   * Due to the way that the nominal periods are determined ignoring business day adjustments,
+   * this day count is recommended for use by bonds, not swaps.
+   * <p>
+   * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will throw an
+   * exception because schedule information is required for this day count.
+   * <p>
+   * Also known as 'Actual/Actual ICMA' or 'Actual/Actual (Bond)'.
+   * Defined by the 2006 ISDA definitions 4.16c and ICMA rule 251.1(iii) and 251.3
+   * as later clarified by ISDA 'EMU and market conventions' http://www.isda.org/c_and_a/pdf/mktc1198.pdf.
+   */
+  public static final DayCount ACT_ACT_ICMA = Standard.ACT_ACT_ICMA;
+  /**
+   * The 'Act/Act AFB' day count, which divides the actual number of days by 366
+   * if a leap day is contained, or by 365 if not, with additional rules for periods over one year.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the requested period.
+   * The denominator is determined by examining the period end date (the date of the next coupon).
+   * The denominator is 366 if the schedule period contains February 29th, if not it is 365.
+   * The first day in the schedule period is included, the last day is excluded.
+   * <p>
+   * Also known as 'Actual/Actual AFB' or 'Actual/Actual (Euro)'.
+   * Defined by the Association Francaise des Banques in September 1994 as 'Base Exact/Exact'
+   * in 'Definitions Communes plusieurs Additifs Techniques'.
+   * <p>
+   * OpenGamma implements this day count based on the original French documentation
+   * without the ISDA clarification. The ISDA document translates "Periode d'Application"
+   * to "Calculation Period" and then assigns the regular ISDA meaning of "Calculation Period".
+   * Examination of the original French indicates that "Periode d'Application" simply means
+   * the period that the day count is applied to, not a regular periodic schedule.
+   * <p>
+   * In addition, the ISDA document adds a roll back rule stating that if the period ends
+   * on the 28th February it should be rolled back to the 28th, or to the 29th in a leap year.
+   * Unfortunately, this rule has a strange effect when implemented, with one day receiving
+   * two days interest and the next receiving no interest:
+   * <pre>
+   *  From 2004-02-28 to 2008-02-27, ISDA rule = 3 + 365 / 366
+   *  From 2004-02-28 to 2008-02-28, ISDA rule = 4 + 1 / 366
+   *  From 2004-02-28 to 2008-02-29, ISDA rule = 4 + 1 / 366
+   * </pre>
+   * (Other strange example occur from 2004-02-29 and 2003-03-01).
+   * <p>
+   * OpenGamma interprets the roll back rule to be that if the period ends on the <i>29th</i> February
+   * it should be rolled back to the 28th, or to the 29th in a leap year.
+   * This change (which can be argued is closer to the original French than the ISDA "clarification")
+   * results in the following:
+   * <pre>
+   *  From 2004-02-28 to 2008-02-27, OpenGamma interpretation = 3 + 365 / 366
+   *  From 2004-02-28 to 2008-02-28, OpenGamma interpretation = 4
+   *  From 2004-02-28 to 2008-02-29, OpenGamma interpretation = 4 + 1 / 366
+   * </pre>
+   * <p>
+   * Original French (from 1999 as 1994 version cannot be found):
+   * http://www.banque-france.fr/fileadmin/user_upload/banque_de_france/archipel/publications/bdf_bof/bdf_bof_1999/bdf_bof_01.pdf
+   * ISDA "clarification":
+   * http://www.isda.org/c_and_a/pdf/ACT-ACT-ISDA-1999.pdf
+   */
+  public static final DayCount ACT_ACT_AFB = Standard.ACT_ACT_AFB;
+  /**
    * The 'Act/365 Actual' day count, which divides the actual number of days by 366
    * if a leap day is contained, or by 365 if not.
    * <p>
@@ -53,6 +133,25 @@ public final class DayCounts {
    * Also known as 'Act/365A'.
    */
   public static final DayCount ACT_365_ACTUAL = Standard.ACT_365_ACTUAL;
+  /**
+   * The 'Act/365L' day count, which divides the actual number of days by 365 or 366.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the requested period.
+   * The denominator is determined by examining the frequency and the period end date (the date of the next coupon).
+   * If the frequency is annual then the denominator is 366 if the period contains February 29th,
+   * if not it is 365. The first day in the period is excluded, the last day is included.
+   * If the frequency is not annual, the the denominator is 366 if the period end date
+   * is in a leap year, if not it is 365.
+   * <p>
+   * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will throw an
+   * exception because schedule information is required for this day count.
+   * <p>
+   * Also known as 'Act/365 Leap year'.
+   * Defined by the 2006 ISDA definitions 4.16i and ICMA rule 251.1(i) part 2
+   * as later clarified by ICMA and Swiss Exchange.
+   */
+  public static final DayCount ACT_365L = Standard.ACT_365L;
   /**
    * The 'Act/360' day count, which divides the actual number of days by 360.
    * <p>
@@ -235,6 +334,101 @@ public final class DayCounts {
             (y2 - y1 - 1);
       }
     },
+    // complex ICMA calculation
+    ACT_ACT_ICMA("Act/Act ICMA") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
+        // avoid using ScheduleInfo in this case
+        if (firstDate.equals(secondDate)) {
+          return 0d;
+        }
+        // calculation is based on the schedule period, firstDate assumed to be the start of the period
+        LocalDate nextCouponDate = scheduleInfo.getEndDate();
+        Frequency freq = scheduleInfo.getFrequency();
+        SchedulePeriodType type = scheduleInfo.getType();
+        switch (type) {
+          case NORMAL: {
+            double actualDays = secondDate.toEpochDay() - firstDate.toEpochDay();
+            double periodDays = nextCouponDate.toEpochDay() - firstDate.toEpochDay();
+            return actualDays / (freq.eventsPerYear() * periodDays);
+          }
+          case INITIAL: {
+            return initPeriod(firstDate, secondDate, nextCouponDate, freq, scheduleInfo.isEndOfMonthConvention());
+          }
+          case FINAL: {
+            return finalPeriod(firstDate, secondDate, freq, scheduleInfo.isEndOfMonthConvention());
+          }
+          case TERM:
+          default:
+            throw new IllegalArgumentException("Unable to calculate Act/Act ICMA day count for TERM period");
+        }
+      }
+      // calculate nominal periods backwards from couponDate
+      private double initPeriod(LocalDate startDate, LocalDate endDate, LocalDate couponDate, Frequency freq, boolean eom) {
+        LocalDate currentNominal = couponDate;
+        LocalDate prevNominal = eom(couponDate, currentNominal.minus(freq), eom);
+        double result = 0;
+        while (prevNominal.isAfter(startDate)) {
+          result += calc(prevNominal, currentNominal, startDate, endDate, freq);
+          currentNominal = prevNominal;
+          prevNominal = eom(couponDate, currentNominal.minus(freq), eom);
+        }
+        return result + calc(prevNominal, currentNominal, startDate, endDate, freq);
+      }
+      // calculate nominal periods forwards from couponDate
+      private double finalPeriod(LocalDate couponDate, LocalDate endDate, Frequency freq, boolean eom) {
+        LocalDate curNominal = couponDate;
+        LocalDate nextNominal = eom(couponDate, curNominal.plus(freq), eom);
+        double result = 0;
+        while (nextNominal.isBefore(endDate)) {
+          result += calc(curNominal, nextNominal, curNominal, endDate, freq);
+          curNominal = nextNominal;
+          nextNominal = eom(couponDate, curNominal.plus(freq), eom);
+        }
+        return result + calc(curNominal, nextNominal, curNominal, endDate, freq);
+      }
+      // apply eom convention
+      private LocalDate eom(LocalDate base, LocalDate calc, boolean eom) {
+        return (eom && base.getDayOfMonth() == base.lengthOfMonth() ? calc.withDayOfMonth(calc.lengthOfMonth()) : calc);
+      }
+      // calculate the result
+      private double calc(LocalDate prevNominal, LocalDate curNominal, LocalDate start, LocalDate end, Frequency freq) {
+        if (end.isAfter(prevNominal)) {
+          long curNominalEpochDay = curNominal.toEpochDay();
+          long prevNominalEpochDay = prevNominal.toEpochDay();
+          long startEpochDay = start.toEpochDay();
+          long endEpochDay = end.toEpochDay();
+          double periodDays = curNominalEpochDay - prevNominalEpochDay;
+          double actualDays = Math.min(endEpochDay, curNominalEpochDay) - Math.max(startEpochDay, prevNominalEpochDay);
+          return actualDays / (freq.eventsPerYear() * periodDays);
+        }
+        return 0;
+      }
+    },
+    // AFB year-based calculation
+    ACT_ACT_AFB("Act/Act AFB") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        check(firstDate, secondDate, scheduleInfo);
+        // tests show that there is no need to perform an initial check of period less than
+        // or equal one year when using the OpenGamma interpretation of end-of-February rule
+        // calculate the number of whole years back from the end
+        // OpenGamma interpretation: reject ISDA end-of-Feb if 28th Feb, apply simple subtraction from secondDate
+        LocalDate end = secondDate;
+        LocalDate start = secondDate.minusYears(1);
+        int years = 0;
+        while (!start.isBefore(firstDate)) {
+          years++;
+          end = start;
+          start = secondDate.minusYears(years + 1);
+        }
+        // calculate the remaining fraction, including start, excluding end
+        long actualDays = end.toEpochDay() - firstDate.toEpochDay();
+        LocalDate nextLeap = DateAdjusters.nextOrSameLeapDay(firstDate);
+        return years + (actualDays / (nextLeap.isBefore(end) ? 366d : 365d));
+      }
+    },
     // actual days / 365 or 366
     ACT_365_ACTUAL("Act/365 Actual") {
       @Override
@@ -242,6 +436,25 @@ public final class DayCounts {
         long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
         LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
         return actualDays / (nextLeap.isAfter(secondDate) ? 365d : 366d);
+      }
+    },
+    // actual days / 365 or 366
+    ACT_365L("Act/365L") {
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
+        // avoid using ScheduleInfo in this case
+        if (firstDate.equals(secondDate)) {
+          return 0d;
+        }
+        // calculation is based on the end of the schedule period (next coupon date) and annual/non-annual frequency
+        LocalDate nextCouponDate = scheduleInfo.getEndDate();
+        if (scheduleInfo.getFrequency().eventsPerYear() == 1) {
+          LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
+          return actualDays / (nextLeap.isAfter(nextCouponDate) ? 365d : 366d);
+        } else {
+          return actualDays / (nextCouponDate.isLeapYear() ? 366d : 365d);
+        }
       }
     },
     // simple actual days / 360
