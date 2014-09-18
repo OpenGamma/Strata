@@ -3,32 +3,27 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.basics.date;
+package com.opengamma.basics.schedule;
 
-import static com.opengamma.basics.date.Frequency.P1D;
-import static com.opengamma.basics.date.Frequency.P1M;
-import static com.opengamma.basics.date.Frequency.P1W;
-import static com.opengamma.basics.date.Frequency.P2W;
-import static com.opengamma.basics.date.Frequency.P3M;
-import static com.opengamma.basics.date.RollConventions.DAY_2;
-import static com.opengamma.basics.date.RollConventions.DAY_28;
-import static com.opengamma.basics.date.RollConventions.DAY_30;
-import static com.opengamma.basics.date.RollConventions.DAY_THU;
-import static com.opengamma.basics.date.RollConventions.DAY_WED;
-import static com.opengamma.basics.date.RollConventions.EOM;
-import static com.opengamma.basics.date.RollConventions.IMM;
-import static com.opengamma.basics.date.RollConventions.IMMAUD;
-import static com.opengamma.basics.date.RollConventions.IMMNZD;
-import static com.opengamma.basics.date.RollConventions.IMPLIED_DAY;
-import static com.opengamma.basics.date.RollConventions.IMPLIED_EOM;
-import static com.opengamma.basics.date.RollConventions.NONE;
-import static com.opengamma.basics.date.RollConventions.SFE;
+import static com.opengamma.basics.schedule.Frequency.P1D;
+import static com.opengamma.basics.schedule.Frequency.P1M;
+import static com.opengamma.basics.schedule.Frequency.P1W;
+import static com.opengamma.basics.schedule.Frequency.P3M;
+import static com.opengamma.basics.schedule.RollConventions.DAY_2;
+import static com.opengamma.basics.schedule.RollConventions.DAY_THU;
+import static com.opengamma.basics.schedule.RollConventions.EOM;
+import static com.opengamma.basics.schedule.RollConventions.IMM;
+import static com.opengamma.basics.schedule.RollConventions.IMMAUD;
+import static com.opengamma.basics.schedule.RollConventions.IMMNZD;
+import static com.opengamma.basics.schedule.RollConventions.NONE;
+import static com.opengamma.basics.schedule.RollConventions.SFE;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverEnum;
 import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.collect.TestHelper.date;
+import static java.time.DayOfWeek.TUESDAY;
 import static java.time.Month.APRIL;
 import static java.time.Month.AUGUST;
 import static java.time.Month.FEBRUARY;
@@ -43,13 +38,15 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.TemporalAdjusters;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.base.CaseFormat;
+import com.opengamma.basics.schedule.Frequency;
+import com.opengamma.basics.schedule.RollConvention;
+import com.opengamma.basics.schedule.RollConventions;
 
 /**
  * Test {@link RollConvention}.
@@ -71,8 +68,7 @@ public class RollConventionTest {
   @Test(dataProvider = "types")
   public void test_null(RollConvention type) {
     assertThrows(() -> type.adjust(null), IllegalArgumentException.class);
-    assertThrows(() -> type.imply(date(2014, JULY, 1), null), IllegalArgumentException.class);
-    assertThrows(() -> type.imply(null, P3M), IllegalArgumentException.class);
+    assertThrows(() -> type.matches(null), IllegalArgumentException.class);
     assertThrows(() -> type.next(date(2014, JULY, 1), null), IllegalArgumentException.class);
     assertThrows(() -> type.next(null, P3M), IllegalArgumentException.class);
     assertThrows(() -> type.previous(date(2014, JULY, 1), null), IllegalArgumentException.class);
@@ -83,7 +79,7 @@ public class RollConventionTest {
   public void test_noAdjust() {
     LocalDate date = date(2014, AUGUST, 17);
     assertEquals(NONE.adjust(date), date);
-    assertEquals(NONE.imply(date(2014, AUGUST, 1), Frequency.P1M), NONE);
+    assertEquals(NONE.matches(date), true);
   }
 
   //-------------------------------------------------------------------------
@@ -139,9 +135,37 @@ public class RollConventionTest {
     assertEquals(conv.adjust(input), expected);
   }
 
-  @Test(dataProvider = "adjust")
-  public void test_imply(RollConvention conv, LocalDate input, LocalDate expected) {
-    assertEquals(conv.imply(input, Frequency.P1M), conv);
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "matches")
+  static Object[][] data_matches() {
+    return new Object[][] {
+        {EOM, date(2014, AUGUST, 1), false},
+        {EOM, date(2014, AUGUST, 30), false},
+        {EOM, date(2014, AUGUST, 31), true},
+        {EOM, date(2014, SEPTEMBER, 1), false},
+        {EOM, date(2014, SEPTEMBER, 30), true},
+        
+        {IMM, date(2014, SEPTEMBER, 16), false},
+        {IMM, date(2014, SEPTEMBER, 17), true},
+        {IMM, date(2014, SEPTEMBER, 18), false},
+        
+        {IMMAUD, date(2014, SEPTEMBER, 10), false},
+        {IMMAUD, date(2014, SEPTEMBER, 11), true},
+        {IMMAUD, date(2014, SEPTEMBER, 12), false},
+        
+        {IMMNZD, date(2014, SEPTEMBER, 9), false},
+        {IMMNZD, date(2014, SEPTEMBER, 10), true},
+        {IMMNZD, date(2014, SEPTEMBER, 11), false},
+        
+        {SFE, date(2014, SEPTEMBER, 11), false},
+        {SFE, date(2014, SEPTEMBER, 12), true},
+        {SFE, date(2014, SEPTEMBER, 13), false},
+    };
+  }
+
+  @Test(dataProvider = "matches")
+  public void test_matches(RollConvention conv, LocalDate input, boolean expected) {
+    assertEquals(conv.matches(input), expected);
   }
 
   //-------------------------------------------------------------------------
@@ -296,56 +320,6 @@ public class RollConventionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_adjust_IMPLIED_DAY() {
-    assertEquals(IMPLIED_EOM.adjust(date(2014, JULY, 2)), date(2014, JULY, 2));
-  }
-
-  public void test_imply_IMPLIED_DAY() {
-    assertEquals(IMPLIED_DAY.imply(date(2014, FEBRUARY, 28), P3M), DAY_28);
-    assertEquals(IMPLIED_DAY.imply(date(2014, JUNE, 30), P3M), DAY_30);
-    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 2), P1M), DAY_2);
-    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 30), P3M), DAY_30);
-    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 31), P3M), EOM);
-    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 2), P1W), DAY_WED);
-    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 3), P2W), DAY_THU);
-    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 3), P1D), NONE);
-    assertEquals(IMPLIED_DAY.imply(date(2014, JULY, 3), Frequency.of(Period.of(0, 2, 2))), NONE);
-  }
-
-  public void test_next_IMPLIED_DAY() {
-    assertThrows(() -> IMPLIED_DAY.next(date(2014, JULY, 1), P1M), IllegalStateException.class);
-  }
-
-  public void test_previous_IMPLIED_DAY() {
-    assertThrows(() -> IMPLIED_DAY.previous(date(2014, JULY, 1), P1M), IllegalStateException.class);
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_adjust_IMPLIED_EOM() {
-    assertEquals(IMPLIED_EOM.adjust(date(2014, JULY, 2)), date(2014, JULY, 2));
-  }
-
-  public void test_imply_IMPLIED_EOM() {
-    assertEquals(IMPLIED_EOM.imply(date(2014, FEBRUARY, 28), P3M), EOM);
-    assertEquals(IMPLIED_EOM.imply(date(2014, JUNE, 30), P3M), EOM);
-    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 2), P1M), DAY_2);
-    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 30), P3M), DAY_30);
-    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 31), P3M), EOM);
-    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 2), P1W), DAY_WED);
-    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 3), P2W), DAY_THU);
-    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 3), P1D), NONE);
-    assertEquals(IMPLIED_EOM.imply(date(2014, JULY, 3), Frequency.of(Period.of(0, 2, 2))), NONE);
-  }
-
-  public void test_next_IMPLIED_EOM() {
-    assertThrows(() -> IMPLIED_EOM.next(date(2014, JULY, 1), P1M), IllegalStateException.class);
-  }
-
-  public void test_previous_IMPLIED_EOM() {
-    assertThrows(() -> IMPLIED_EOM.previous(date(2014, JULY, 1), P1M), IllegalStateException.class);
-  }
-
-  //-------------------------------------------------------------------------
   public void test_dayOfMonth_constants() {
     assertEquals(RollConventions.DAY_1.adjust(date(2014, JULY, 30)), date(2014, JULY, 1));
     assertEquals(RollConventions.DAY_2.adjust(date(2014, JULY, 30)), date(2014, JULY, 2));
@@ -384,9 +358,6 @@ public class RollConventionTest {
     for (int i = 1; i < 30; i++) {
       RollConvention test = RollConvention.ofDayOfMonth(i);
       assertEquals(test.adjust(date(2014, JULY, 1)), date(2014, JULY, i));
-      assertEquals(test.imply(date(2014, 6, 30), P1M), test);
-      assertEquals(test.imply(date(2014, 6, 30), P1W), test);
-      assertEquals(test.imply(date(2014, 6, 30), P1D), test);
       assertEquals(test.getName(), "Day" + i);
       assertEquals(test.toString(), "Day" + i);
     }
@@ -406,6 +377,12 @@ public class RollConventionTest {
     assertEquals(RollConvention.ofDayOfMonth(30).adjust(date(2016, FEBRUARY, 2)), date(2016, FEBRUARY, 29));
     assertEquals(RollConvention.ofDayOfMonth(29).adjust(date(2014, FEBRUARY, 2)), date(2014, FEBRUARY, 28));
     assertEquals(RollConvention.ofDayOfMonth(29).adjust(date(2016, FEBRUARY, 2)), date(2016, FEBRUARY, 29));
+  }
+
+  public void test_ofDayOfMonth_matches() {
+    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 29)), false);
+    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 30)), true);
+    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 31)), false);
   }
 
   public void test_ofDayOfMonth_next_oneMonth() {
@@ -469,9 +446,6 @@ public class RollConventionTest {
   public void test_ofDayOfWeek() {
     for (DayOfWeek dow : DayOfWeek.values()) {
       RollConvention test = RollConvention.ofDayOfWeek(dow);
-      assertEquals(test.imply(date(2014, 6, 30), P1M), test);
-      assertEquals(test.imply(date(2014, 6, 30), P1W), test);
-      assertEquals(test.imply(date(2014, 6, 30), P1D), test);
       assertEquals(test.getName(), "Day" +
             CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
       assertEquals(test.toString(), "Day" +
@@ -486,6 +460,12 @@ public class RollConventionTest {
           test.adjust(date(2014, AUGUST, 14)),
           date(2014, AUGUST, 14).with(TemporalAdjusters.nextOrSame(dow)));
     }
+  }
+
+  public void test_ofDayOfWeek_matches() {
+    assertEquals(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 1)), false);
+    assertEquals(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 2)), true);
+    assertEquals(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 3)), false);
   }
 
   public void test_ofDayOfWeek_next_oneMonth() {
@@ -534,8 +514,6 @@ public class RollConventionTest {
           {IMMAUD, "IMMAUD"},
           {IMMNZD, "IMMNZD"},
           {SFE, "SFE"},
-          {IMPLIED_DAY, "ImpliedDay"},
-          {IMPLIED_EOM, "ImpliedEOM"},
           {DAY_2, "Day2"},
           {DAY_THU, "DayThu"},
       };
