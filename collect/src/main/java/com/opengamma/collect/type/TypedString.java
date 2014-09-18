@@ -18,6 +18,8 @@ import com.opengamma.collect.ArgChecker;
  * that might otherwise be represented as a string.
  * It could be thought of as a way to provide a type alias for a string.
  * <p>
+ * The string wrapped by this type must not be empty.
+ * <p>
  * Subclasses must be written as follows:
  * <pre>
  *  public final class FooType
@@ -32,6 +34,9 @@ import com.opengamma.collect.ArgChecker;
  *    }
  *  }
  * </pre>
+ * <p>
+ * The net result is that an API can be written with methods taking
+ * {@code FooType} as a method parameter instead of {@code String}.
  * 
  * @param <T>  the implementation subclass of this class
  */
@@ -49,10 +54,10 @@ public abstract class TypedString<T extends TypedString<T>>
   /**
    * Creates an instance.
    * 
-   * @param name  the name, not null
+   * @param name  the name, not empty
    */
   protected TypedString(String name) {
-    this.name = ArgChecker.notNull(name, "name");
+    this.name = ArgChecker.notEmpty(name, "name");
   }
 
   //-------------------------------------------------------------------------
@@ -61,7 +66,7 @@ public abstract class TypedString<T extends TypedString<T>>
    * <p>
    * Instances are compared in alphabetical order based on the name.
    * 
-   * @param other  the object to compare to, not null
+   * @param other  the object to compare to
    * @return the comparison
    */
   @Override
@@ -102,7 +107,7 @@ public abstract class TypedString<T extends TypedString<T>>
   /**
    * Returns the name.
    * 
-   * @return the string form, not null
+   * @return the string form, not empty
    */
   @Override
   @ToString

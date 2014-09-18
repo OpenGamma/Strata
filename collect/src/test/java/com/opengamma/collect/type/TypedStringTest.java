@@ -23,8 +23,9 @@ public class TypedStringTest {
     assertEquals(test.toString(), "A");
   }
 
-  public void test_mock_of_null() {
+  public void test_mock_of_invalid() {
     assertThrows(() -> MockType.of(null), IllegalArgumentException.class);
+    assertThrows(() -> MockType.of(""), IllegalArgumentException.class);
   }
 
   public void test_mock_equalsHashCode() {
