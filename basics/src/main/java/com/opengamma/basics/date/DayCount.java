@@ -98,7 +98,8 @@ public interface DayCount
     /**
      * A simple schedule information object.
      * <p>
-     * The returns false for maturity date and end of month and an exception for the end date.
+     * The returns false for maturity date, true for end of month and an
+     * exception for all other methods.
      */
     public static final ScheduleInfo SIMPLE = new ScheduleInfo() {};
 

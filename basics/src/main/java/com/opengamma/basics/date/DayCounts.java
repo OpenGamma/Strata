@@ -128,7 +128,7 @@ public final class DayCounts {
    * If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
    * If the first day-of-month is 31, change the first day-of-month to 30.
    * <p>
-   * This is the same as '30/360 ISDA' is the EOM convention does not apply
+   * This is the same as '30/360 ISDA' if the EOM convention does not apply
    * but with two additional end of February rules if the EOM does apply.
    * <p>
    * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will assume

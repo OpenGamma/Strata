@@ -449,7 +449,6 @@ public class DayCountTest {
       this(maturity, eom, null, null, null);
     }
     public Info(boolean maturity, boolean eom, Frequency frequency, LocalDate periodEnd, SchedulePeriodType type) {
-      super();
       this.maturity = maturity;
       this.eom = eom;
       this.frequency = frequency;
