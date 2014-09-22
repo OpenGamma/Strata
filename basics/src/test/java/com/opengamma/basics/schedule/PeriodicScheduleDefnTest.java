@@ -259,7 +259,7 @@ public class PeriodicScheduleDefnTest {
     assertEquals(test.getRollConvention(), null);
     assertEquals(test.getFirstRegularStartDate(), null);
     assertEquals(test.getLastRegularEndDate(), null);
-    assertEquals(test.getEffectiveRollConvention(), RollConventions.NONE);
+    assertEquals(test.getEffectiveRollConvention(), RollConventions.DAY_4);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
     assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
   }
@@ -275,7 +275,7 @@ public class PeriodicScheduleDefnTest {
     assertEquals(test.getRollConvention(), null);
     assertEquals(test.getFirstRegularStartDate(), null);
     assertEquals(test.getLastRegularEndDate(), AUG_04);
-    assertEquals(test.getEffectiveRollConvention(), RollConventions.NONE);
+    assertEquals(test.getEffectiveRollConvention(), RollConventions.DAY_4);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
     assertEquals(test.getEffectiveLastRegularEndDate(), AUG_04);
   }
@@ -291,7 +291,7 @@ public class PeriodicScheduleDefnTest {
     assertEquals(test.getRollConvention(), null);
     assertEquals(test.getFirstRegularStartDate(), JUL_17);
     assertEquals(test.getLastRegularEndDate(), null);
-    assertEquals(test.getEffectiveRollConvention(), RollConventions.NONE);
+    assertEquals(test.getEffectiveRollConvention(), RollConventions.DAY_17);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUL_17);
     assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
   }
@@ -383,6 +383,9 @@ public class PeriodicScheduleDefnTest {
         {ad(date(2011, 6, 28)), ad(date(2011, 6, 30)), P1M, SHORT_FINAL, EOM, null, null,
           ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30)),
           ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30))},
+        {ad(date(2014, 11, 29)), ad(date(2015, 9, 2)), P3M, SHORT_FINAL, RollConventions.NONE, null, null,
+          ImmutableList.of(date(2014, 11, 29), date(2015, 2, 28), date(2015, 5, 29), date(2015, 8, 29), date(2015, 9, 2)),
+          ImmutableList.of(date(2014, 11, 28), date(2015, 2, 27), date(2015, 5, 29), date(2015, 8, 31), date(2015, 9, 2))},
         
         // stub LONG_FINAL
         {AD_JUN_04, AD_SEP_17, P1M, LONG_FINAL, null, null, null,

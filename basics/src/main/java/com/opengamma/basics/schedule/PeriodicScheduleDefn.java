@@ -612,6 +612,12 @@ public final class PeriodicScheduleDefn
         return (derived == RollConventions.NONE ? RollConventions.EOM : derived);
       }
     }
+    // avoid RollConventions.NONE if possible
+    if (rollConvention == null || rollConvention == RollConventions.NONE) {
+      return StubConvention.NONE.toRollConvention(
+          getEffectiveFirstRegularStartDate(), getEffectiveLastRegularEndDate(), frequency, false);
+    }
+    // use RollConventions.NONE if nothing else applies
     return Objects.firstNonNull(rollConvention, RollConventions.NONE);
   }
 
