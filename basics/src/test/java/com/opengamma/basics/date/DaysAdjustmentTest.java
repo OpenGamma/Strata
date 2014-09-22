@@ -118,7 +118,7 @@ public class DaysAdjustmentTest {
     assertEquals(test.getCalendar(), HOLCAL_SAT_SUN);
     assertEquals(test.getAdjustment(), BDA_FOLLOW_WED_THU);
     assertEquals(test.toString(), "1 business day using calendar Sat/Sun then apply Following using " +
-        "calendar Wed/Thu weekends");
+        "calendar WedThu");
   }
 
   public void test_ofBusinessDays3_fourDays() {
@@ -127,7 +127,7 @@ public class DaysAdjustmentTest {
     assertEquals(test.getCalendar(), HOLCAL_SAT_SUN);
     assertEquals(test.getAdjustment(), BDA_FOLLOW_WED_THU);
     assertEquals(test.toString(), "4 business days using calendar Sat/Sun then apply Following using " +
-        "calendar Wed/Thu weekends");
+        "calendar WedThu");
   }
 
   public void test_ofBusinessDays3_adjust() {
