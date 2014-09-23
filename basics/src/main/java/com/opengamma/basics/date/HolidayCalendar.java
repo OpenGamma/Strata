@@ -14,6 +14,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.ExtendedEnum;
 import com.opengamma.collect.named.Named;
 import com.opengamma.collect.range.LocalDateRange;
 
@@ -25,7 +26,8 @@ import com.opengamma.collect.range.LocalDateRange;
  * Weekends are effectively treated as a special kind of holiday.
  * <p>
  * The most common implementations are provided in {@link HolidayCalendars}.
- * Additional implementations may be added by implementing this interface.
+ * Additional implementations may be added using {@link ImmutableHolidayCalendar},
+ * or by directly implementing this interface.
  * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
@@ -43,11 +45,24 @@ public interface HolidayCalendar
    * 
    * @param uniqueName  the unique name of the calendar
    * @return the holiday calendar
+   * @throws IllegalArgumentException if the name is not known
    */
   @FromString
   public static HolidayCalendar of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return HolidayCalendars.of(uniqueName);
+  }
+
+  /**
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of {@code HolidayCalendar} to be lookup up.
+   * It also provides the complete set of available instances.
+   * 
+   * @return the extended enum helper
+   */
+  public static ExtendedEnum<HolidayCalendar> extendedEnum() {
+    return HolidayCalendars.ENUM_LOOKUP;
   }
 
   //-------------------------------------------------------------------------
@@ -202,7 +217,7 @@ public interface HolidayCalendar
     if (this.equals(other)) {
       return this;
     }
-    if (other == HolidayCalendars.NONE) {
+    if (other == HolidayCalendars.NO_HOLIDAYS) {
       return this;
     }
     return new HolidayCalendars.Combined(this, other);

@@ -11,7 +11,10 @@ import java.time.LocalDate;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.basics.schedule.DayRollConventions.Dom;
+import com.opengamma.basics.schedule.DayRollConventions.Dow;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.ExtendedEnum;
 import com.opengamma.collect.named.Named;
 
 /**
@@ -62,7 +65,7 @@ public interface RollConvention
    * @throws IllegalArgumentException if the day-of-month is invalid
    */
   public static RollConvention ofDayOfMonth(int dayOfMonth) {
-    return RollConventions.Dom.of(dayOfMonth);
+    return Dom.of(dayOfMonth);
   }
 
   /**
@@ -84,10 +87,21 @@ public interface RollConvention
    * 
    * @param dayOfWeek  the day-of-week
    * @return the roll convention
-   * @throws IllegalArgumentException if the day-of-month is invalid
    */
   public static RollConvention ofDayOfWeek(DayOfWeek dayOfWeek) {
-    return RollConventions.Dow.of(dayOfWeek);
+    return Dow.of(dayOfWeek);
+  }
+
+  /**
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of {@code RollConvention} to be lookup up.
+   * It also provides the complete set of available instances.
+   * 
+   * @return the extended enum helper
+   */
+  public static ExtendedEnum<RollConvention> extendedEnum() {
+    return RollConventions.ENUM_LOOKUP;
   }
 
   //-------------------------------------------------------------------------

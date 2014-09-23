@@ -7,7 +7,7 @@ package com.opengamma.basics.date;
 
 import static com.opengamma.basics.date.DayCounts.ACT_360;
 import static com.opengamma.basics.date.DayCounts.ACT_364;
-import static com.opengamma.basics.date.DayCounts.ACT_365;
+import static com.opengamma.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.basics.date.DayCounts.ACT_365L;
 import static com.opengamma.basics.date.DayCounts.ACT_365_25;
 import static com.opengamma.basics.date.DayCounts.ACT_365_ACTUAL;
@@ -36,6 +36,7 @@ import java.time.LocalDate;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.SchedulePeriodType;
@@ -54,7 +55,7 @@ public class DayCountTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
   static Object[][] data_types() {
-    DayCounts.Standard[] conv = DayCounts.Standard.values();
+    StandardDayCounts[] conv = StandardDayCounts.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
       result[i] = new Object[] {conv[i]};
@@ -172,15 +173,15 @@ public class DayCountTest {
           {ACT_364, 2012, 3, 1, 2012, 3, 28, 27d / 364d},
           
           //-------------------------------------------------------
-          {ACT_365, 2011, 12, 28, 2012, 2, 28, (62d / 365d)},
-          {ACT_365, 2011, 12, 28, 2012, 2, 29, (63d / 365d)},
-          {ACT_365, 2011, 12, 28, 2012, 3, 1, (64d / 365d)},
-          {ACT_365, 2011, 12, 28, 2016, 2, 28, ((62d + 366d + 365d + 365d + 365d) / 365d)},
-          {ACT_365, 2011, 12, 28, 2016, 2, 29, ((63d + 366d + 365d + 365d + 365d) / 365d)},
-          {ACT_365, 2011, 12, 28, 2016, 3, 1, ((64d + 366d + 365d + 365d + 365d) / 365d)},
-          {ACT_365, 2012, 2, 28, 2012, 3, 28, 29d / 365d},
-          {ACT_365, 2012, 2, 29, 2012, 3, 28, 28d / 365d},
-          {ACT_365, 2012, 3, 1, 2012, 3, 28, 27d / 365d},
+          {ACT_365F, 2011, 12, 28, 2012, 2, 28, (62d / 365d)},
+          {ACT_365F, 2011, 12, 28, 2012, 2, 29, (63d / 365d)},
+          {ACT_365F, 2011, 12, 28, 2012, 3, 1, (64d / 365d)},
+          {ACT_365F, 2011, 12, 28, 2016, 2, 28, ((62d + 366d + 365d + 365d + 365d) / 365d)},
+          {ACT_365F, 2011, 12, 28, 2016, 2, 29, ((63d + 366d + 365d + 365d + 365d) / 365d)},
+          {ACT_365F, 2011, 12, 28, 2016, 3, 1, ((64d + 366d + 365d + 365d + 365d) / 365d)},
+          {ACT_365F, 2012, 2, 28, 2012, 3, 28, 29d / 365d},
+          {ACT_365F, 2012, 2, 29, 2012, 3, 28, 28d / 365d},
+          {ACT_365F, 2012, 3, 1, 2012, 3, 28, 27d / 365d},
           
           //-------------------------------------------------------
           {ACT_365_25, 2011, 12, 28, 2012, 2, 28, (62d / 365.25d)},
@@ -715,7 +716,7 @@ public class DayCountTest {
           {ACT_365L, "Act/365L"},
           {ACT_360, "Act/360"},
           {ACT_364, "Act/364"},
-          {ACT_365, "Act/365"},
+          {ACT_365F, "Act/365F"},
           {ACT_365_25, "Act/365.25"},
           {NL_365, "NL/365"},
           {THIRTY_360_ISDA, "30/360 ISDA"},
@@ -741,6 +742,12 @@ public class DayCountTest {
     assertEquals(DayCount.of(name), convention);
   }
 
+  @Test(dataProvider = "name")
+  public void test_extendedEnum(DayCount convention, String name) {
+    ImmutableMap<String, DayCount> map = DayCount.extendedEnum().lookupAll();
+    assertEquals(map.get(name), convention);
+  }
+
   public void test_of_lookup_notFound() {
     assertThrows(() -> DayCount.of("Rubbish"), IllegalArgumentException.class);
   }
@@ -762,7 +769,7 @@ public class DayCountTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(DayCounts.class);
-    coverEnum(DayCounts.Standard.class);
+    coverEnum(StandardDayCounts.class);
   }
 
   public void test_serialization() {
@@ -771,7 +778,7 @@ public class DayCountTest {
 
   public void test_jodaConvert() {
     assertJodaConvert(DayCount.class, THIRTY_360_ISDA);
-    assertJodaConvert(DayCount.class, ACT_365);
+    assertJodaConvert(DayCount.class, ACT_365F);
   }
 
   //-------------------------------------------------------------------------

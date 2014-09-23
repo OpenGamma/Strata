@@ -27,6 +27,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Test {@link BusinessDayConvention}.
@@ -58,7 +59,7 @@ public class BusinessDayConventionTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
   static Object[][] data_types() {
-    BusinessDayConventions.Standard[] conv = BusinessDayConventions.Standard.values();
+    StandardBusinessDayConventions[] conv = StandardBusinessDayConventions.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
       result[i] = new Object[] {conv[i]};
@@ -68,7 +69,7 @@ public class BusinessDayConventionTest {
 
   @Test(dataProvider = "types")
   public void test_null(BusinessDayConvention type) {
-    assertThrows(() -> type.adjust(null, HolidayCalendars.NONE), IllegalArgumentException.class);
+    assertThrows(() -> type.adjust(null, HolidayCalendars.NO_HOLIDAYS), IllegalArgumentException.class);
     assertThrows(() -> type.adjust(FRI_2014_11_14, null), IllegalArgumentException.class);
     assertThrows(() -> type.adjust(null, null), IllegalArgumentException.class);
   }
@@ -175,7 +176,7 @@ public class BusinessDayConventionTest {
   }
 
   public void test_nearest() {
-    HolidayCalendar cal = StandardHolidayCalendar.of("Test", ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
+    HolidayCalendar cal = ImmutableHolidayCalendar.of("Test", ImmutableList.of(MON_2014_07_14), SATURDAY, SUNDAY);
     assertEquals(NEAREST.adjust(FRI_2014_07_11, cal), FRI_2014_07_11);
     assertEquals(NEAREST.adjust(SAT_2014_07_12, cal), FRI_2014_07_11);
     assertEquals(NEAREST.adjust(SUN_2014_07_13, cal), TUE_2014_07_15);
@@ -211,6 +212,12 @@ public class BusinessDayConventionTest {
     assertEquals(BusinessDayConvention.of(name), convention);
   }
 
+  @Test(dataProvider = "name")
+  public void test_extendedEnum(BusinessDayConvention convention, String name) {
+    ImmutableMap<String, BusinessDayConvention> map = BusinessDayConvention.extendedEnum().lookupAll();
+    assertEquals(map.get(name), convention);
+  }
+
   public void test_of_lookup_notFound() {
     assertThrows(() -> BusinessDayConvention.of("Rubbish"), IllegalArgumentException.class);
   }
@@ -222,7 +229,7 @@ public class BusinessDayConventionTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(BusinessDayConventions.class);
-    coverEnum(BusinessDayConventions.Standard.class);
+    coverEnum(StandardBusinessDayConventions.class);
   }
 
   public void test_serialization() {

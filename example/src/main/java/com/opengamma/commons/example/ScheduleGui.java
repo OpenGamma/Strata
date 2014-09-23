@@ -7,11 +7,11 @@ package com.opengamma.commons.example;
 
 import java.time.LocalDate;
 
-import javafx.collections.ObservableList;
 import javafx.application.Application;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -32,8 +32,8 @@ import com.opengamma.basics.date.AdjustableDate;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.BusinessDayConvention;
 import com.opengamma.basics.date.BusinessDayConventions;
-import com.opengamma.basics.date.GlobalHolidayCalendars;
 import com.opengamma.basics.date.HolidayCalendar;
+import com.opengamma.basics.date.HolidayCalendars;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.schedule.PeriodicScheduleDefn;
@@ -114,13 +114,13 @@ public class ScheduleGui extends Application {
     Label holidayLbl = new Label("Holidays:");
     ChoiceBox<HolidayCalendar> holidayInp = new ChoiceBox<>(
         FXCollections.observableArrayList(
-            GlobalHolidayCalendars.CHZU,
-            GlobalHolidayCalendars.GBLO,
-            GlobalHolidayCalendars.EUTA,
-            GlobalHolidayCalendars.FRPA,
-            GlobalHolidayCalendars.USGS));
+            HolidayCalendars.CHZU,
+            HolidayCalendars.GBLO,
+            HolidayCalendars.EUTA,
+            HolidayCalendars.FRPA,
+            HolidayCalendars.USGS));
     holidayLbl.setLabelFor(holidayInp);
-    holidayInp.setValue(GlobalHolidayCalendars.GBLO);
+    holidayInp.setValue(HolidayCalendars.GBLO);
     
     TableView<SchedulePeriod> resultGrid = new TableView<>();
     TableColumn<SchedulePeriod, SchedulePeriodType> typeCol = new TableColumn<>("Type");

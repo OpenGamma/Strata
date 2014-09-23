@@ -18,7 +18,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Test {@link GlobalHolidayCalendars}.
+ * Test {@code GlobalHolidayCalendars}.
  */
 @Test
 public class GlobalHolidayCalendarsTest {

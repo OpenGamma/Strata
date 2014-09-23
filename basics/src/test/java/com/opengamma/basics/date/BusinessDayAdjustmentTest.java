@@ -37,14 +37,14 @@ public class BusinessDayAdjustmentTest {
   public void test_noAdjust_constant() {
     BusinessDayAdjustment test = BusinessDayAdjustment.NONE;
     assertEquals(test.getConvention(), BusinessDayConventions.NO_ADJUST);
-    assertEquals(test.getCalendar(), HolidayCalendars.NONE);
+    assertEquals(test.getCalendar(), HolidayCalendars.NO_HOLIDAYS);
     assertEquals(test.toString(), "NoAdjust");
   }
 
   public void test_noAdjust_factory() {
-    BusinessDayAdjustment test = BusinessDayAdjustment.of(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NONE);
+    BusinessDayAdjustment test = BusinessDayAdjustment.of(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NO_HOLIDAYS);
     assertEquals(test.getConvention(), BusinessDayConventions.NO_ADJUST);
-    assertEquals(test.getCalendar(), HolidayCalendars.NONE);
+    assertEquals(test.getCalendar(), HolidayCalendars.NO_HOLIDAYS);
     assertEquals(test.toString(), "NoAdjust");
   }
 

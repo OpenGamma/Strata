@@ -11,6 +11,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.ExtendedEnum;
 import com.opengamma.collect.named.Named;
 
 /**
@@ -40,7 +41,19 @@ public interface BusinessDayConvention
   @FromString
   public static BusinessDayConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return BusinessDayConventions.of(uniqueName);
+    return extendedEnum().lookup(uniqueName);
+  }
+
+  /**
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of {@code BusinessDayConvention} to be lookup up.
+   * It also provides the complete set of available instances.
+   * 
+   * @return the extended enum helper
+   */
+  public static ExtendedEnum<BusinessDayConvention> extendedEnum() {
+    return BusinessDayConventions.ENUM_LOOKUP;
   }
 
   //-------------------------------------------------------------------------

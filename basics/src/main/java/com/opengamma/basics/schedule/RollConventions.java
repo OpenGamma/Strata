@@ -5,12 +5,11 @@
  */
 package com.opengamma.basics.schedule;
 
-import java.io.Serializable;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 
 import com.opengamma.basics.date.BusinessDayConvention;
+import com.opengamma.basics.schedule.DayRollConventions.Dom;
+import com.opengamma.basics.schedule.DayRollConventions.Dow;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.named.ExtendedEnum;
 
@@ -29,6 +28,12 @@ import com.opengamma.collect.named.ExtendedEnum;
  * input date, thus the day-of-month does not need to be additionally specified.
  */
 public final class RollConventions {
+  // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
+
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  static final ExtendedEnum<RollConvention> ENUM_LOOKUP = ExtendedEnum.of(RollConvention.class);
 
   /**
    * The 'None' roll convention.
@@ -38,7 +43,7 @@ public final class RollConventions {
    * When calculating a schedule, there will be no further adjustment after the
    * periodic frequency is added or subtracted.
    */
-  public static final RollConvention NONE = Standard.NONE;
+  public static final RollConvention NONE = RollConvention.of(StandardRollConventions.NONE.getName());
   /**
    * The 'EOM' roll convention which adjusts the date to the end of the month.
    * <p>
@@ -47,7 +52,7 @@ public final class RollConventions {
    * <p>
    * This convention is intended for use with periods that are a multiple of months.
    */
-  public static final RollConvention EOM = Standard.EOM;
+  public static final RollConvention EOM = RollConvention.of(StandardRollConventions.EOM.getName());
   /**
    * The 'IMM' roll convention which adjusts the date to the third Wednesday.
    * <p>
@@ -56,7 +61,7 @@ public final class RollConventions {
    * <p>
    * This convention is intended for use with periods that are a multiple of months.
    */
-  public static final RollConvention IMM = Standard.IMM;
+  public static final RollConvention IMM = RollConvention.of(StandardRollConventions.IMM.getName());
   /**
    * The 'IMMAUD' roll convention which adjusts the date to the Thursday before the second Friday.
    * <p>
@@ -66,7 +71,7 @@ public final class RollConventions {
    * <p>
    * This convention is intended for use with periods that are a multiple of months.
    */
-  public static final RollConvention IMMAUD = Standard.IMMAUD;
+  public static final RollConvention IMMAUD = RollConvention.of(StandardRollConventions.IMMAUD.getName());
   /**
    * The 'IMMNZD' roll convention which adjusts the date to the first Wednesday
    * on or after the ninth day of the month.
@@ -77,7 +82,7 @@ public final class RollConventions {
    * <p>
    * This convention is intended for use with periods that are a multiple of months.
    */
-  public static final RollConvention IMMNZD = Standard.IMMNZD;
+  public static final RollConvention IMMNZD = RollConvention.of(StandardRollConventions.IMMNZD.getName());
   /**
    * The 'SFE' roll convention which adjusts the date to the second Friday.
    * <p>
@@ -86,7 +91,7 @@ public final class RollConventions {
    * <p>
    * This convention is intended for use with periods that are a multiple of months.
    */
-  public static final RollConvention SFE = Standard.SFE;
+  public static final RollConvention SFE = RollConvention.of(StandardRollConventions.SFE.getName());
 
   /**
    * The 'Day1' roll convention which adjusts the date to day-of-month 1.
@@ -409,11 +414,6 @@ public final class RollConventions {
    */
   public static final RollConvention DAY_SUN = Dow.of(DayOfWeek.SUNDAY);
 
-  /**
-   * The extended enum lookup from name to instance.
-   */
-  private static final ExtendedEnum<RollConvention> ENUM_LOOKUP = ExtendedEnum.of(RollConvention.class);
-
   //-------------------------------------------------------------------------
   /**
    * Obtains a {@code BusinessDayConvention} from a unique name.
@@ -431,228 +431,6 @@ public final class RollConventions {
    * Restricted constructor.
    */
   private RollConventions() {
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Standard roll conventions.
-   */
-  static enum Standard implements RollConvention {
-
-    // no adjustment
-    NONE("None") {
-      @Override
-      public LocalDate adjust(LocalDate date) {
-        return ArgChecker.notNull(date, "date");
-      }
-    },
-    // last day of month
-    EOM("EOM") {
-      @Override
-      public LocalDate adjust(LocalDate date) {
-        ArgChecker.notNull(date, "date");
-        return date.withDayOfMonth(date.lengthOfMonth());
-      }
-    },
-    // 3rd Wednesday
-    IMM("IMM") {
-      @Override
-      public LocalDate adjust(LocalDate date) {
-        ArgChecker.notNull(date, "date");
-        return date.with(TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY));
-      }
-    },
-    // day before 2nd Friday
-    IMMAUD("IMMAUD") {
-      @Override
-      public LocalDate adjust(LocalDate date) {
-        ArgChecker.notNull(date, "date");
-        return date.with(TemporalAdjusters.dayOfWeekInMonth(2, DayOfWeek.FRIDAY)).minusDays(1);
-      }
-    },
-    // Wednesday on or after 9th
-    IMMNZD("IMMNZD") {
-      @Override
-      public LocalDate adjust(LocalDate date) {
-        ArgChecker.notNull(date, "date");
-        return date.withDayOfMonth(9).with(TemporalAdjusters.nextOrSame(DayOfWeek.WEDNESDAY));
-      }
-    },
-    // 2nd Friday
-    SFE("SFE") {
-      @Override
-      public LocalDate adjust(LocalDate date) {
-        ArgChecker.notNull(date, "date");
-        return date.with(TemporalAdjusters.dayOfWeekInMonth(2, DayOfWeek.FRIDAY));
-      }
-    };
-
-    // name
-    private final String name;
-
-    // create
-    private Standard(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Implementation of the day-of-month roll convention.
-   */
-  static final class Dom implements RollConvention, Serializable {
-    // singleton, so no equals/hashCode
-
-    // Serialization version
-    private static final long serialVersionUID = 1L;
-    // cache of conventions
-    private static final RollConvention[] CONVENTIONS = new RollConvention[30];
-    static {
-      for (int i = 0; i < 30; i++) {
-        CONVENTIONS[i] = new Dom(i + 1);
-      }
-    }
-
-    // day-of-month
-    private final int day;
-    // unique name
-    private final String name;
-
-    // obtains instance
-    static RollConvention of(int day) {
-      if (day == 31) {
-        return RollConventions.EOM;
-      } else if (day < 1 || day > 30) {
-        throw new IllegalArgumentException("Invalid day-of-month: " + day);
-      }
-      return CONVENTIONS[day - 1];
-    }
-
-    // create
-    private Dom(int day) {
-      this.day = day;
-      this.name = "Day" + day;
-    }
-
-    private Object readResolve() {
-      return Dom.of(day);
-    }
-
-    @Override
-    public LocalDate adjust(LocalDate date) {
-      ArgChecker.notNull(date, "date");
-      if (day >= 29 && date.getMonthValue() == 2) {
-        return date.withDayOfMonth(date.lengthOfMonth());
-      }
-      return date.withDayOfMonth(day);
-    }
-
-    @Override
-    public boolean matches(LocalDate date) {
-      ArgChecker.notNull(date, "date");
-      return date.getDayOfMonth() == day;
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Implementation of the day-of-week roll convention.
-   */
-  static final class Dow implements RollConvention, Serializable {
-    // singleton, so no equals/hashCode
-
-    // Serialization version
-    private static final long serialVersionUID = 1L;
-    // convention names
-    private static final String NAMES = "DayMonDayTueDayWedDayThuDayFriDaySatDaySun";
-    // cache of conventions
-    private static final RollConvention[] CONVENTIONS = new RollConvention[7];
-    static {
-      for (int i = 0; i < 7; i++) {
-        DayOfWeek dow = DayOfWeek.of(i + 1);
-        String name = NAMES.substring(i * 6, (i + 1) * 6);
-        CONVENTIONS[i] = new Dow(dow, name);
-      }
-    }
-
-    // day-of-week
-    private final DayOfWeek day;
-    // unique name
-    private final String name;
-
-    // obtains instance
-    static RollConvention of(DayOfWeek dayOfWeek) {
-      ArgChecker.notNull(dayOfWeek, "dayOfWeek");
-      return CONVENTIONS[dayOfWeek.getValue() - 1];
-    }
-
-    private Object readResolve() {
-      return Dow.of(day);
-    }
-
-    // create
-    private Dow(DayOfWeek dayOfWeek, String name) {
-      this.day = dayOfWeek;
-      this.name = name;
-    }
-
-    @Override
-    public LocalDate adjust(LocalDate date) {
-      ArgChecker.notNull(date, "date");
-      return date.with(TemporalAdjusters.nextOrSame(day));
-    }
-
-    @Override
-    public boolean matches(LocalDate date) {
-      ArgChecker.notNull(date, "date");
-      return date.getDayOfWeek() == day;
-    }
-
-    @Override
-    public LocalDate next(LocalDate date, Frequency periodicFrequency) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(periodicFrequency, "periodicFrequency");
-      LocalDate calculated = date.plus(periodicFrequency);
-      return calculated.with(TemporalAdjusters.nextOrSame(day));
-    }
-
-    @Override
-    public LocalDate previous(LocalDate date, Frequency periodicFrequency) {
-      ArgChecker.notNull(date, "date");
-      ArgChecker.notNull(periodicFrequency, "periodicFrequency");
-      LocalDate calculated = date.minus(periodicFrequency);
-      return calculated.with(TemporalAdjusters.previousOrSame(day));
-    }
-
-    @Override
-    public String getName() {
-      return name;
-    }
-
-    @Override
-    public String toString() {
-      return name;
-    }
   }
 
 }

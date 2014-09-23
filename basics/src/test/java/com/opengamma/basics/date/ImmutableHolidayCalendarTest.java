@@ -27,10 +27,10 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.collect.range.LocalDateRange;
 
 /**
- * Test {@link StandardHolidayCalendar}.
+ * Test {@link ImmutableHolidayCalendar}.
  */
 @Test
-public class StandardHolidayCalendarTest {
+public class ImmutableHolidayCalendarTest {
 
   private static final LocalDateRange RANGE_2014 = LocalDateRange.ofClosed(
       LocalDate.of(2014,  1, 1), LocalDate.of(2014,  12, 31));
@@ -51,24 +51,24 @@ public class StandardHolidayCalendarTest {
   private static final LocalDate TUE_2014_07_22 = LocalDate.of(2014, 7, 22);
   private static final LocalDate WED_2014_07_23 = LocalDate.of(2014, 7, 23);
 
-  private static final StandardHolidayCalendar HOLCAL_MON_WED =
-      StandardHolidayCalendar.of("Test", Arrays.asList(MON_2014_07_14, WED_2014_07_16), SATURDAY, SUNDAY);
+  private static final ImmutableHolidayCalendar HOLCAL_MON_WED =
+      ImmutableHolidayCalendar.of("Test", Arrays.asList(MON_2014_07_14, WED_2014_07_16), SATURDAY, SUNDAY);
 
   //-------------------------------------------------------------------------
   public void test_of_IterableDayOfWeekDayOfWeek_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
-    assertThrows(() -> StandardHolidayCalendar.of(null, holidays, SATURDAY, SUNDAY), IllegalArgumentException.class);
-    assertThrows(() -> StandardHolidayCalendar.of("Test", null, SATURDAY, SUNDAY), IllegalArgumentException.class);
-    assertThrows(() -> StandardHolidayCalendar.of("Test", holidays, null, SUNDAY), IllegalArgumentException.class);
-    assertThrows(() -> StandardHolidayCalendar.of("Test", holidays, SATURDAY, null), IllegalArgumentException.class);
+    assertThrows(() -> ImmutableHolidayCalendar.of(null, holidays, SATURDAY, SUNDAY), IllegalArgumentException.class);
+    assertThrows(() -> ImmutableHolidayCalendar.of("Test", null, SATURDAY, SUNDAY), IllegalArgumentException.class);
+    assertThrows(() -> ImmutableHolidayCalendar.of("Test", holidays, null, SUNDAY), IllegalArgumentException.class);
+    assertThrows(() -> ImmutableHolidayCalendar.of("Test", holidays, SATURDAY, null), IllegalArgumentException.class);
   }
 
   public void test_of_IterableIterable_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
     Iterable<DayOfWeek> weekendDays = Arrays.asList(THURSDAY, FRIDAY);
-    assertThrows(() -> StandardHolidayCalendar.of(null, holidays, weekendDays), IllegalArgumentException.class);
-    assertThrows(() -> StandardHolidayCalendar.of("Test", null, weekendDays), IllegalArgumentException.class);
-    assertThrows(() -> StandardHolidayCalendar.of("Test", holidays, null), IllegalArgumentException.class);
+    assertThrows(() -> ImmutableHolidayCalendar.of(null, holidays, weekendDays), IllegalArgumentException.class);
+    assertThrows(() -> ImmutableHolidayCalendar.of("Test", null, weekendDays), IllegalArgumentException.class);
+    assertThrows(() -> ImmutableHolidayCalendar.of("Test", holidays, null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -92,7 +92,7 @@ public class StandardHolidayCalendarTest {
   @Test(dataProvider = "createSatSunWeekend")
   public void test_of_IterableDayOfWeekDayOfWeek_satSunWeekend(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test Sat/Sun", holidays, SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test Sat/Sun", holidays, SATURDAY, SUNDAY);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -105,7 +105,7 @@ public class StandardHolidayCalendarTest {
   public void test_of_IterableIterable_satSunWeekend(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
     Iterable<DayOfWeek> weekendDays = Arrays.asList(SATURDAY, SUNDAY);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test", holidays, weekendDays);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test", holidays, weekendDays);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -134,7 +134,7 @@ public class StandardHolidayCalendarTest {
   @Test(dataProvider = "createThuFriWeekend")
   public void test_of_IterableDayOfWeekDayOfWeek_thuFriWeekend(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, SAT_2014_07_19);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test Thu/Fri", holidays, THURSDAY, FRIDAY);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test Thu/Fri", holidays, THURSDAY, FRIDAY);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -147,7 +147,7 @@ public class StandardHolidayCalendarTest {
   public void test_of_IterableIterable_thuFriWeekend(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, SAT_2014_07_19);
     Iterable<DayOfWeek> weekendDays = Arrays.asList(THURSDAY, FRIDAY);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test", holidays, weekendDays);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test", holidays, weekendDays);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -176,7 +176,7 @@ public class StandardHolidayCalendarTest {
   @Test(dataProvider = "createSunWeekend")
   public void test_of_IterableDayOfWeekDayOfWeek_sunWeekend(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, THU_2014_07_17);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test Sun", holidays, SUNDAY, SUNDAY);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test Sun", holidays, SUNDAY, SUNDAY);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -189,7 +189,7 @@ public class StandardHolidayCalendarTest {
   public void test_of_IterableIterable_sunWeekend(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, THU_2014_07_17);
     Iterable<DayOfWeek> weekendDays = Arrays.asList(SUNDAY);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test", holidays, weekendDays);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test", holidays, weekendDays);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -219,7 +219,7 @@ public class StandardHolidayCalendarTest {
   public void test_of_IterableIterable_thuFriSatWeekend(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, TUE_2014_07_15);
     Iterable<DayOfWeek> weekendDays = Arrays.asList(THURSDAY, FRIDAY, SATURDAY);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test Thu/Fri/Sat", holidays, weekendDays);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test Thu/Fri/Sat", holidays, weekendDays);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -250,7 +250,7 @@ public class StandardHolidayCalendarTest {
   public void test_of_IterableIterable_noWeekends(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
     Iterable<DayOfWeek> weekendDays = Arrays.asList();
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test NoWeekends", holidays, weekendDays);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test NoWeekends", holidays, weekendDays);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -281,7 +281,7 @@ public class StandardHolidayCalendarTest {
   public void test_of_IterableIterable_noHolidays(LocalDate date, boolean isBusinessDay) {
     Iterable<LocalDate> holidays = Arrays.asList();
     Iterable<DayOfWeek> weekendDays = Arrays.asList(FRIDAY, SATURDAY);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test Fri/Sat", holidays, weekendDays);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test Fri/Sat", holidays, weekendDays);
     assertEquals(test.isBusinessDay(date), isBusinessDay);
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
@@ -294,10 +294,10 @@ public class StandardHolidayCalendarTest {
   public void test_beanBuilder() {
     ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of(MON_2014_07_14, TUE_2014_07_15);
     ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    StandardHolidayCalendar test = StandardHolidayCalendar.meta().builder()
-        .set(StandardHolidayCalendar.meta().name(), "Test")
-        .set(StandardHolidayCalendar.meta().holidays(), holidays)
-        .set(StandardHolidayCalendar.meta().weekendDays(), weekendDays)
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.meta().builder()
+        .set(ImmutableHolidayCalendar.meta().name(), "Test")
+        .set(ImmutableHolidayCalendar.meta().holidays(), holidays)
+        .set(ImmutableHolidayCalendar.meta().weekendDays(), weekendDays)
         .build();
     assertEquals(test.getHolidays(), holidays);
     assertEquals(test.getWeekendDays(), weekendDays);
@@ -307,10 +307,10 @@ public class StandardHolidayCalendarTest {
   public void test_beanBuilder_noHolidays() {
     ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of();
     ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    StandardHolidayCalendar test = StandardHolidayCalendar.meta().builder()
-        .set(StandardHolidayCalendar.meta().name(), "Test")
-        .set(StandardHolidayCalendar.meta().holidays(), holidays)
-        .set(StandardHolidayCalendar.meta().weekendDays(), weekendDays)
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.meta().builder()
+        .set(ImmutableHolidayCalendar.meta().name(), "Test")
+        .set(ImmutableHolidayCalendar.meta().holidays(), holidays)
+        .set(ImmutableHolidayCalendar.meta().weekendDays(), weekendDays)
         .build();
     assertEquals(test.getHolidays(), holidays);
     assertEquals(test.getWeekendDays(), weekendDays);
@@ -320,7 +320,7 @@ public class StandardHolidayCalendarTest {
   //-------------------------------------------------------------------------
   public void test_isBusinessDay_outOfRange() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, TUE_2014_07_15);
-    StandardHolidayCalendar test = StandardHolidayCalendar.of("Test", holidays, SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test", holidays, SATURDAY, SUNDAY);
     assertThrows(() -> test.isBusinessDay(LocalDate.of(2013, 12, 31)), IllegalArgumentException.class);
     assertThrows(() -> test.isBusinessDay(LocalDate.of(2015, 1, 1)), IllegalArgumentException.class);
   }
@@ -505,9 +505,9 @@ public class StandardHolidayCalendarTest {
   //-------------------------------------------------------------------------
   public void test_combineWith() {
     Iterable<LocalDate> holidays1 = Arrays.asList(WED_2014_07_16);
-    StandardHolidayCalendar base1 = StandardHolidayCalendar.of("Test1", holidays1, SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar base1 = ImmutableHolidayCalendar.of("Test1", holidays1, SATURDAY, SUNDAY);
     Iterable<LocalDate> holidays2 = Arrays.asList(MON_2014_07_14);
-    StandardHolidayCalendar base2 = StandardHolidayCalendar.of("Test2", holidays2, FRIDAY, SATURDAY);
+    ImmutableHolidayCalendar base2 = ImmutableHolidayCalendar.of("Test2", holidays2, FRIDAY, SATURDAY);
     HolidayCalendar test = base1.combineWith(base2);
     assertEquals(test.getName(), "Test1+Test2");
     
@@ -527,21 +527,21 @@ public class StandardHolidayCalendarTest {
 
   public void test_combineWith_same() {
     Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_16);
-    StandardHolidayCalendar base = StandardHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar base = ImmutableHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
     HolidayCalendar test = base.combineWith(base);
     assertSame(test, base);
   }
 
   public void test_combineWith_none() {
     Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_16);
-    StandardHolidayCalendar base = StandardHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
-    HolidayCalendar test = base.combineWith(HolidayCalendars.NONE);
+    ImmutableHolidayCalendar base = ImmutableHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
+    HolidayCalendar test = base.combineWith(HolidayCalendars.NO_HOLIDAYS);
     assertSame(test, base);
   }
 
   public void test_combineWith_satSun() {
     Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_16);
-    StandardHolidayCalendar base = StandardHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar base = ImmutableHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
     HolidayCalendar test = base.combineWith(HolidayCalendars.FRI_SAT);
     assertEquals(test.getName(), "Test1+Fri/Sat");
     
@@ -561,17 +561,17 @@ public class StandardHolidayCalendarTest {
 
   public void test_combineWith_null() {
     Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_16);
-    StandardHolidayCalendar base = StandardHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar base = ImmutableHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
     assertThrows(() -> base.combineWith(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void test_equals() {
-    StandardHolidayCalendar a1 = StandardHolidayCalendar.of("Test1", Arrays.asList(WED_2014_07_16), SATURDAY, SUNDAY);
-    StandardHolidayCalendar a2 = StandardHolidayCalendar.of("Test1", Arrays.asList(WED_2014_07_16), SATURDAY, SUNDAY);
-    StandardHolidayCalendar b = StandardHolidayCalendar.of("Test2", Arrays.asList(WED_2014_07_16), SATURDAY, SUNDAY);
-    StandardHolidayCalendar c = StandardHolidayCalendar.of("Test1", Arrays.asList(THU_2014_07_10), SATURDAY, SUNDAY);
-    StandardHolidayCalendar d = StandardHolidayCalendar.of("Test1", Arrays.asList(WED_2014_07_16), FRIDAY, SATURDAY);
+    ImmutableHolidayCalendar a1 = ImmutableHolidayCalendar.of("Test1", Arrays.asList(WED_2014_07_16), SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar a2 = ImmutableHolidayCalendar.of("Test1", Arrays.asList(WED_2014_07_16), SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar b = ImmutableHolidayCalendar.of("Test2", Arrays.asList(WED_2014_07_16), SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar c = ImmutableHolidayCalendar.of("Test1", Arrays.asList(THU_2014_07_10), SATURDAY, SUNDAY);
+    ImmutableHolidayCalendar d = ImmutableHolidayCalendar.of("Test1", Arrays.asList(WED_2014_07_16), FRIDAY, SATURDAY);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(c), false);

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -13,6 +13,7 @@ import org.joda.convert.ToString;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.named.ExtendedEnum;
 import com.opengamma.collect.named.Named;
 
 /**
@@ -39,7 +40,19 @@ public interface DayCount
   @FromString
   public static DayCount of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return DayCounts.of(uniqueName);
+    return extendedEnum().lookup(uniqueName);
+  }
+
+  /**
+   * Gets the extended enum helper.
+   * <p>
+   * This helper allows instances of {@code DayCount} to be lookup up.
+   * It also provides the complete set of available instances.
+   * 
+   * @return the extended enum helper
+   */
+  public static ExtendedEnum<DayCount> extendedEnum() {
+    return DayCounts.ENUM_LOOKUP;
   }
 
   //-------------------------------------------------------------------------

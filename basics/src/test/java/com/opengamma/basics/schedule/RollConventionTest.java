@@ -44,9 +44,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.base.CaseFormat;
-import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.RollConvention;
-import com.opengamma.basics.schedule.RollConventions;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Test {@link RollConvention}.
@@ -57,7 +55,7 @@ public class RollConventionTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "types")
   static Object[][] data_types() {
-    RollConvention[] conv = RollConventions.Standard.values();
+    RollConvention[] conv = StandardRollConventions.values();
     Object[][] result = new Object[conv.length][];
     for (int i = 0; i < conv.length; i++) {
       result[i] = new Object[] {conv[i]};
@@ -534,6 +532,12 @@ public class RollConventionTest {
     assertEquals(RollConvention.of(name), convention);
   }
 
+  @Test(dataProvider = "name")
+  public void test_extendedEnum(RollConvention convention, String name) {
+    ImmutableMap<String, RollConvention> map = RollConvention.extendedEnum().lookupAll();
+    assertEquals(map.get(name), convention);
+  }
+
   public void test_of_lookup_notFound() {
     assertThrows(() -> RollConvention.of("Rubbish"), IllegalArgumentException.class);
   }
@@ -566,7 +570,7 @@ public class RollConventionTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(RollConventions.class);
-    coverEnum(RollConventions.Standard.class);
+    coverEnum(StandardRollConventions.class);
   }
 
   public void test_serialization() {

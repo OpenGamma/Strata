@@ -127,7 +127,7 @@ public final class DaysAdjustment
    * @return the days adjustment
    */
   public static DaysAdjustment ofCalendarDays(int numberOfDays) {
-    return new DaysAdjustment(numberOfDays, HolidayCalendars.NONE, BusinessDayAdjustment.NONE);
+    return new DaysAdjustment(numberOfDays, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
   }
 
   /**
@@ -143,7 +143,7 @@ public final class DaysAdjustment
    * @return the days adjustment
    */
   public static DaysAdjustment ofCalendarDays(int numberOfDays, BusinessDayAdjustment adjustment) {
-    return new DaysAdjustment(numberOfDays, HolidayCalendars.NONE, adjustment);
+    return new DaysAdjustment(numberOfDays, HolidayCalendars.NO_HOLIDAYS, adjustment);
   }
 
   /**
@@ -214,7 +214,7 @@ public final class DaysAdjustment
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append(days);
-    if (calendar == HolidayCalendars.NONE) {
+    if (calendar == HolidayCalendars.NO_HOLIDAYS) {
       buf.append(" calendar day");
       if (days != 1) {
         buf.append("s");

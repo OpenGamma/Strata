@@ -25,10 +25,10 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class DaysAdjustmentTest {
 
-  private static final HolidayCalendar HOLCAL_NONE = HolidayCalendars.NONE;
+  private static final HolidayCalendar HOLCAL_NONE = HolidayCalendars.NO_HOLIDAYS;
   private static final HolidayCalendar HOLCAL_SAT_SUN = HolidayCalendars.SAT_SUN;
   private static final HolidayCalendar HOLCAL_WED_THU =
-      StandardHolidayCalendar.of("WedThu", ImmutableList.of(), WEDNESDAY, THURSDAY);
+      ImmutableHolidayCalendar.of("WedThu", ImmutableList.of(), WEDNESDAY, THURSDAY);
   private static final BusinessDayAdjustment BDA_NONE = BusinessDayAdjustment.NONE;
   private static final BusinessDayAdjustment BDA_FOLLOW_SAT_SUN =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);

@@ -24,7 +24,7 @@ import java.util.List;
  * derived from a vendor of holiday calendar data.
  * This data may or may not be sufficient for your production needs.
  */
-public final class GlobalHolidayCalendars {
+final class GlobalHolidayCalendars {
 
   /**
    * The holiday calendar for London, United Kingdom, with code 'GBLO'.
@@ -94,7 +94,7 @@ public final class GlobalHolidayCalendars {
   // 1968, 3rd Jun, 2nd Sep - http://hansard.millbanksystems.com/written_answers/1965/jun/03/bank-holidays-1967-and-1968
   // 1969, 26th May, 1st Sep - http://hansard.millbanksystems.com/written_answers/1967/mar/21/bank-holidays-1969-dates
   // 1970, 25th May, 31st Aug - http://hansard.millbanksystems.com/written_answers/1967/jul/28/bank-holidays
-  static StandardHolidayCalendar generateLondon() {
+  static ImmutableHolidayCalendar generateLondon() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
       if (year < 1871) {
@@ -153,7 +153,7 @@ public final class GlobalHolidayCalendars {
         holidays.add(date(1999, 12, 31));
       }
     }
-    return StandardHolidayCalendar.of("GBLO", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of("GBLO", holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -161,7 +161,7 @@ public final class GlobalHolidayCalendars {
   // data sources
   // http://www.legifrance.gouv.fr/affichCodeArticle.do?idArticle=LEGIARTI000006902611&cidTexte=LEGITEXT000006072050
   // http://jollyday.sourceforge.net/data/fr.html
-  static StandardHolidayCalendar generateParis() {
+  static ImmutableHolidayCalendar generateParis() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
       holidays.add(date(year, 1, 1));  // new year
@@ -179,7 +179,7 @@ public final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 25));  // christmas day
     }
     removeSatSun(holidays);
-    return StandardHolidayCalendar.of("FRPA", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of("FRPA", holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -188,7 +188,7 @@ public final class GlobalHolidayCalendars {
   // http://jollyday.sourceforge.net/data/ch.html
   // https://github.com/lballabio/quantlib/blob/master/QuantLib/ql/time/calendars/switzerland.cpp
   // http://www.six-swiss-exchange.com/funds/trading/trading_and_settlement_calendar_en.html
-  static StandardHolidayCalendar generateZurich() {
+  static ImmutableHolidayCalendar generateZurich() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
       holidays.add(date(year, 1, 1));  // new year
@@ -203,7 +203,7 @@ public final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 26));  // saint stephen
     }
     removeSatSun(holidays);
-    return StandardHolidayCalendar.of("CHZU", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of("CHZU", holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
@@ -219,7 +219,7 @@ public final class GlobalHolidayCalendars {
   // http://www.ecb.europa.eu/press/pr/date/2000/html/pr000525_2.en.html
   // from 2002, Jan 1, good friday, easter monday, May 1, christmas day, Dec 26
   // http://www.ecb.europa.eu/press/pr/date/2000/html/pr001214_4.en.html
-  static StandardHolidayCalendar generateEuropeanTarget() {
+  static ImmutableHolidayCalendar generateEuropeanTarget() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1997; year <= 2099; year++) {
       if (year >= 2000) {
@@ -238,13 +238,13 @@ public final class GlobalHolidayCalendars {
       }
     }
     removeSatSun(holidays);
-    return StandardHolidayCalendar.of("EUTA", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of("EUTA", holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
   // generate USGS
   // http://www.sifma.org/services/holiday-schedule/
-  static StandardHolidayCalendar generateUsGovtSecurities() {
+  static ImmutableHolidayCalendar generateUsGovtSecurities() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
       holidays.add(bumpSunToMon(date(year, 1, 1)));  // new year, adjusted if Sunday
@@ -263,7 +263,7 @@ public final class GlobalHolidayCalendars {
       }
     }
     removeSatSun(holidays);
-    return StandardHolidayCalendar.of("USGS", holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of("USGS", holidays, SATURDAY, SUNDAY);
   }
 
   //-------------------------------------------------------------------------
