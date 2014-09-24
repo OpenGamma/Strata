@@ -771,7 +771,16 @@ public final class PeriodicScheduleDefn
    * This will be validated during schedule construction.
    * <p>
    * The convention 'Both' may be used to explicitly indicate there is both an initial and final stub.
+   * The stubs themselves must be specified using explicit dates.
    * This will be validated during schedule construction.
+   * <p>
+   * A null stub convention indicates that the convention should be implied from the actual
+   * explicit dates that have been specified.
+   * <p>
+   * If both a stub convention and explicit dates are specified, then the combination will be
+   * validated during schedule construction. For example, the combination of an explicit dated
+   * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
+   * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
    * @return the value of the property
    */
   public StubConvention getStubConvention() {
