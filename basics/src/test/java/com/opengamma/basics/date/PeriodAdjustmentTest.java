@@ -28,6 +28,14 @@ public class PeriodAdjustmentTest {
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN);
 
   //-------------------------------------------------------------------------
+  public void test_NONE() {
+    PeriodAdjustment test = PeriodAdjustment.NONE;
+    assertEquals(test.getPeriod(), Period.ZERO);
+    assertEquals(test.getAdjustment(), BDA_NONE);
+    assertEquals(test.toString(), "P0D");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_of() {
     PeriodAdjustment test = PeriodAdjustment.of(Period.of(1, 2, 3), BDA_NONE);
     assertEquals(test.getPeriod(), Period.of(1, 2, 3));

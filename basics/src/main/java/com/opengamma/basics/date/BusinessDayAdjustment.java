@@ -47,15 +47,14 @@ import com.opengamma.collect.ArgChecker;
 public final class BusinessDayAdjustment
     implements ImmutableBean, DateAdjuster, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * An instance that performs no adjustment.
-   * The {@linkplain BusinessDayConventions#NO_ADJUST no adjustment convention}.
    */
   public static final BusinessDayAdjustment NONE =
       new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NO_HOLIDAYS);
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The convention used to the adjust the date if it does not fall on a business day.

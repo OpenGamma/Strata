@@ -62,6 +62,11 @@ public final class PeriodAdjustment
   private static final long serialVersionUID = 1L;
 
   /**
+   * An instance that performs no adjustment.
+   */
+  public static final PeriodAdjustment NONE = new PeriodAdjustment(Period.ZERO, BusinessDayAdjustment.NONE);
+
+  /**
    * The period to be added.
    * <p>
    * When the adjustment is performed, this period will be added to the input date.

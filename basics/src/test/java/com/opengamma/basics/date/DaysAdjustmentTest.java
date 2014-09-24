@@ -36,6 +36,15 @@ public class DaysAdjustmentTest {
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HOLCAL_WED_THU);
 
   //-------------------------------------------------------------------------
+  public void test_NONE() {
+    DaysAdjustment test = DaysAdjustment.NONE;
+    assertEquals(test.getDays(), 0);
+    assertEquals(test.getCalendar(), HOLCAL_NONE);
+    assertEquals(test.getAdjustment(), BDA_NONE);
+    assertEquals(test.toString(), "0 calendar days");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_ofCalendarDays1_oneDay() {
     DaysAdjustment test = DaysAdjustment.ofCalendarDays(1);
     assertEquals(test.getDays(), 1);

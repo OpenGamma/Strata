@@ -75,6 +75,12 @@ import com.opengamma.collect.ArgChecker;
 public final class DaysAdjustment
     implements ImmutableBean, DateAdjuster, Serializable {
 
+  /**
+   * An instance that performs no adjustment.
+   */
+  public static final DaysAdjustment NONE =
+      new DaysAdjustment(0, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
+
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
