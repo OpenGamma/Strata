@@ -9,6 +9,8 @@ import static com.opengamma.basics.schedule.Frequency.P1M;
 import static com.opengamma.basics.schedule.Frequency.P3M;
 import static com.opengamma.basics.schedule.RollConventions.DAY_11;
 import static com.opengamma.basics.schedule.RollConventions.DAY_17;
+import static com.opengamma.basics.schedule.RollConventions.EOM;
+import static com.opengamma.basics.schedule.SchedulePeriodType.FINAL;
 import static com.opengamma.basics.schedule.SchedulePeriodType.INITIAL;
 import static com.opengamma.basics.schedule.SchedulePeriodType.NORMAL;
 import static com.opengamma.collect.TestHelper.assertSerialization;
@@ -64,6 +66,26 @@ public class SchedulePeriodTest {
     assertEquals(test.getUnadjustedEndDate(), JUL_18);
     assertEquals(test.getFrequency(), P1M);
     assertEquals(test.getRollConvention(), DAY_17);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_ScheduleInfo_interface_initial_notEom() {
+    SchedulePeriod test = SchedulePeriod.of(INITIAL, JUL_05, JUL_18, P1M, DAY_17);
+    assertEquals(test.isEndOfMonthConvention(), false);
+    assertEquals(test.isScheduleEndDate(JUL_17), false);
+    assertEquals(test.isScheduleEndDate(JUL_18), false);
+  }
+
+  public void test_ScheduleInfo_interface_initial_eom() {
+    SchedulePeriod test = SchedulePeriod.of(INITIAL, JUL_05, JUL_18, P1M, EOM);
+    assertEquals(test.isEndOfMonthConvention(), true);
+  }
+
+  public void test_ScheduleInfo_interface_final_eom() {
+    SchedulePeriod test = SchedulePeriod.of(FINAL, JUL_05, JUL_18, P1M, EOM);
+    assertEquals(test.isEndOfMonthConvention(), true);
+    assertEquals(test.isScheduleEndDate(JUL_17), false);
+    assertEquals(test.isScheduleEndDate(JUL_18), true);
   }
 
   //-------------------------------------------------------------------------
