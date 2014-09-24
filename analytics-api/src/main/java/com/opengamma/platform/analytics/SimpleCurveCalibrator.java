@@ -69,7 +69,7 @@ public class SimpleCurveCalibrator {
   public SimpleCurveCalibrator() {
 
     // TODO -when available use inbuilt holiday information
-    this(DEFAULT_INTERPOLATOR_EXTRAPOLATOR, DayCounts.ACT_365,
+    this(DEFAULT_INTERPOLATOR_EXTRAPOLATOR, DayCounts.ACT_365F,
         BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN));
   }
 
