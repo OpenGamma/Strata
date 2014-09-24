@@ -602,14 +602,16 @@ public final class PeriodicScheduleDefn
   public RollConvention getEffectiveRollConvention() {
     // determine roll convention from stub convention, using EOM as a flag
     if (stubConvention != null) {
-      if (rollConvention == null) {
-        return stubConvention.toRollConvention(
-            getEffectiveFirstRegularStartDate(), getEffectiveLastRegularEndDate(), frequency, false);
-      }
+      // special handling for EOM as it is advisory rather than mandatory
       if (rollConvention == RollConventions.EOM) {
         RollConvention derived = stubConvention.toRollConvention(
             getEffectiveFirstRegularStartDate(), getEffectiveLastRegularEndDate(), frequency, true);
         return (derived == RollConventions.NONE ? RollConventions.EOM : derived);
+      }
+      // avoid RollConventions.NONE if possible
+      if (rollConvention == null || rollConvention == RollConventions.NONE) {
+        return stubConvention.toRollConvention(
+            getEffectiveFirstRegularStartDate(), getEffectiveLastRegularEndDate(), frequency, false);
       }
     }
     // avoid RollConventions.NONE if possible

@@ -355,6 +355,12 @@ public class PeriodicScheduleDefnTest {
         {ad(date(2011, 6, 28)), ad(date(2011, 6, 30)), P1M, SHORT_INITIAL, EOM, null, null,
           ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30)),
           ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30))},
+        {ad(date(2014, 12, 12)), ad(date(2015, 8, 24)), P3M, SHORT_INITIAL, null, null, null,
+          ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 24), date(2015, 8, 24)),
+          ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24))},
+        {ad(date(2014, 12, 12)), ad(date(2015, 8, 24)), P3M, SHORT_INITIAL, RollConventions.NONE, null, null,
+          ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 24), date(2015, 8, 24)),
+          ImmutableList.of(date(2014, 12, 12), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24))},
         
         // stub LONG_INITIAL
         {AD_JUN_04, AD_SEP_17, P1M, LONG_INITIAL, null, null, null,
@@ -383,6 +389,9 @@ public class PeriodicScheduleDefnTest {
         {ad(date(2011, 6, 28)), ad(date(2011, 6, 30)), P1M, SHORT_FINAL, EOM, null, null,
           ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30)),
           ImmutableList.of(date(2011, 6, 28), date(2011, 6, 30))},
+        {ad(date(2014, 11, 29)), ad(date(2015, 9, 2)), P3M, SHORT_FINAL, null, null, null,
+          ImmutableList.of(date(2014, 11, 29), date(2015, 2, 28), date(2015, 5, 29), date(2015, 8, 29), date(2015, 9, 2)),
+          ImmutableList.of(date(2014, 11, 28), date(2015, 2, 27), date(2015, 5, 29), date(2015, 8, 31), date(2015, 9, 2))},
         {ad(date(2014, 11, 29)), ad(date(2015, 9, 2)), P3M, SHORT_FINAL, RollConventions.NONE, null, null,
           ImmutableList.of(date(2014, 11, 29), date(2015, 2, 28), date(2015, 5, 29), date(2015, 8, 29), date(2015, 9, 2)),
           ImmutableList.of(date(2014, 11, 28), date(2015, 2, 27), date(2015, 5, 29), date(2015, 8, 31), date(2015, 9, 2))},
