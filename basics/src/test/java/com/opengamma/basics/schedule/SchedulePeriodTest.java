@@ -13,11 +13,13 @@ import static com.opengamma.basics.schedule.RollConventions.EOM;
 import static com.opengamma.basics.schedule.SchedulePeriodType.FINAL;
 import static com.opengamma.basics.schedule.SchedulePeriodType.INITIAL;
 import static com.opengamma.basics.schedule.SchedulePeriodType.NORMAL;
+import static com.opengamma.basics.schedule.SchedulePeriodType.TERM;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
 import static java.time.Month.JULY;
+import static java.time.Month.JUNE;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -30,6 +32,9 @@ import org.testng.annotations.Test;
 @Test
 public class SchedulePeriodTest {
 
+  private static final LocalDate JUN_16 = date(2014, JUNE, 16);
+  private static final LocalDate JUN_17 = date(2014, JUNE, 17);
+  private static final LocalDate JUN_18 = date(2014, JUNE, 18);
   private static final LocalDate JUL_04 = date(2014, JULY, 4);
   private static final LocalDate JUL_05 = date(2014, JULY, 5);
   private static final LocalDate JUL_17 = date(2014, JULY, 17);
@@ -86,6 +91,20 @@ public class SchedulePeriodTest {
     assertEquals(test.isEndOfMonthConvention(), true);
     assertEquals(test.isScheduleEndDate(JUL_17), false);
     assertEquals(test.isScheduleEndDate(JUL_18), true);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_isStub() {
+    assertEquals(SchedulePeriod.of(INITIAL, JUN_16, JUL_18, JUN_16, JUL_17, P1M, DAY_17).isStub(), true);
+    assertEquals(SchedulePeriod.of(INITIAL, JUN_17, JUL_18, JUN_17, JUL_17, P1M, DAY_17).isStub(), false);
+    assertEquals(SchedulePeriod.of(INITIAL, JUN_18, JUL_18, JUN_18, JUL_17, P1M, DAY_17).isStub(), true);
+    
+    assertEquals(SchedulePeriod.of(FINAL, JUL_17, date(2014, 8, 16), P1M, DAY_17).isStub(), true);
+    assertEquals(SchedulePeriod.of(FINAL, JUL_17, date(2014, 8, 17), P1M, DAY_17).isStub(), false);
+    assertEquals(SchedulePeriod.of(FINAL, JUL_17, date(2014, 8, 18), P1M, DAY_17).isStub(), true);
+    
+    assertEquals(SchedulePeriod.of(NORMAL, JUL_17, date(2014, 8, 16), P1M, DAY_17).isStub(), false);
+    assertEquals(SchedulePeriod.of(TERM, JUL_17, date(2014, 8, 16), P1M, DAY_17).isStub(), false);
   }
 
   //-------------------------------------------------------------------------

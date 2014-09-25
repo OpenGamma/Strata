@@ -191,6 +191,25 @@ public final class SchedulePeriod
     return rollConvention == RollConventions.EOM;
   }
 
+  /**
+   * Checks if this period is an initial or final stub.
+   * <p>
+   * Only an initial or final period can be a stub.
+   * The result true if the length of the period differs from that calculated by
+   * the frequency and roll convention.
+   * 
+   * @return true if the period is an initial or final stub
+   */
+  public boolean isStub() {
+    if (type == SchedulePeriodType.INITIAL) {
+      return !rollConvention.previous(unadjustedEndDate, frequency).equals(unadjustedStartDate);
+    } else if (type == SchedulePeriodType.FINAL) {
+      return !rollConvention.next(unadjustedStartDate, frequency).equals(unadjustedEndDate);
+    } else {
+      return false;
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Compares this period to another by unadjusted start date, then unadjusted end date.
