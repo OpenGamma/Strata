@@ -6,6 +6,7 @@
 package com.opengamma.basics.schedule;
 
 import static com.opengamma.basics.schedule.Frequency.P1M;
+import static com.opengamma.basics.schedule.Frequency.P2M;
 import static com.opengamma.basics.schedule.RollConventions.DAY_17;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
@@ -38,6 +39,8 @@ public class PeriodicScheduleTest {
       SchedulePeriod.of(SchedulePeriodType.NORMAL, JUL_17, AUG_17, JUL_17, AUG_17, P1M, DAY_17);
   private static final SchedulePeriod PERIOD3 =
       SchedulePeriod.of(SchedulePeriodType.FINAL, AUG_17, SEP_17, AUG_17, SEP_17, P1M, DAY_17);
+  private static final SchedulePeriod PERIOD_TERM =
+      SchedulePeriod.of(SchedulePeriodType.TERM, JUL_17, SEP_17, JUL_17, SEP_17, P2M, DAY_17);
 
   //-------------------------------------------------------------------------
   public void test_of_size0() {
@@ -49,6 +52,8 @@ public class PeriodicScheduleTest {
     assertEquals(test.size(), 1);
     assertEquals(test.getPeriods(), ImmutableList.of(PERIOD1));
     assertEquals(test.getPeriod(0), PERIOD1);
+    assertEquals(test.getFirstPeriod(), PERIOD1);
+    assertEquals(test.getLastPeriod(), PERIOD1);
     assertThrows(() -> test.getPeriod(1), IndexOutOfBoundsException.class);
   }
 
@@ -58,6 +63,8 @@ public class PeriodicScheduleTest {
     assertEquals(test.getPeriods(), ImmutableList.of(PERIOD1, PERIOD2));
     assertEquals(test.getPeriod(0), PERIOD1);
     assertEquals(test.getPeriod(1), PERIOD2);
+    assertEquals(test.getFirstPeriod(), PERIOD1);
+    assertEquals(test.getLastPeriod(), PERIOD2);
     assertThrows(() -> test.getPeriod(2), IndexOutOfBoundsException.class);
   }
 
@@ -68,7 +75,17 @@ public class PeriodicScheduleTest {
     assertEquals(test.getPeriod(0), PERIOD1);
     assertEquals(test.getPeriod(1), PERIOD2);
     assertEquals(test.getPeriod(2), PERIOD3);
+    assertEquals(test.getFirstPeriod(), PERIOD1);
+    assertEquals(test.getLastPeriod(), PERIOD3);
     assertThrows(() -> test.getPeriod(3), IndexOutOfBoundsException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_getFrequency() {
+    PeriodicSchedule testNormal = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2, PERIOD3));
+    assertEquals(testNormal.getFrequency(), P1M);
+    PeriodicSchedule testTerm = PeriodicSchedule.of(ImmutableList.of(PERIOD_TERM));
+    assertEquals(testTerm.getFrequency(), P2M);
   }
 
   //-------------------------------------------------------------------------
