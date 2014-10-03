@@ -28,7 +28,6 @@ import javafx.util.Callback;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 
-import com.opengamma.basics.date.AdjustableDate;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.BusinessDayConvention;
 import com.opengamma.basics.date.BusinessDayConventions;
@@ -158,8 +157,8 @@ public class ScheduleGui extends Application {
       BusinessDayConvention bdc = bdcInp.getValue();
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(bdc, holCal);
       PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
-          .startDate(AdjustableDate.of(start, bda))
-          .endDate(AdjustableDate.of(end, bda))
+          .startDate(start)
+          .endDate(end)
           .frequency(freq)
           .businessDayAdjustment(bda)
           .stubConvention(stub)

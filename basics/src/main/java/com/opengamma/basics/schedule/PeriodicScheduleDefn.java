@@ -30,7 +30,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.basics.date.AdjustableDate;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.collect.ArgChecker;
 
@@ -113,7 +112,9 @@ public final class PeriodicScheduleDefn
   /**
    * The start date, which is the start of the first schedule period.
    * <p>
-   * This is the unadjusted date together with any applicable business day adjustment.
+   * This is the start date of the schedule.
+   * It is is unadjusted and as such might be a weekend or holiday.
+   * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted effective date.
    * <p>
    * In most cases, the start date of a financial instrument is just after the trade date,
@@ -121,16 +122,18 @@ public final class PeriodicScheduleDefn
    * to be any date, which includes dates before or after the trade date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final AdjustableDate startDate;
+  private final LocalDate startDate;
   /**
    * The end date, which is the end of the last schedule period.
    * <p>
-   * This is the unadjusted date together with any applicable business day adjustment.
+   * This is the end date of the schedule.
+   * It is is unadjusted and as such might be a weekend or holiday.
+   * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted maturity date or unadjusted termination date.
    * This date must be after the start date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final AdjustableDate endDate;
+  private final LocalDate endDate;
   /**
    * The regular periodic frequency to use.
    * <p>
@@ -142,13 +145,34 @@ public final class PeriodicScheduleDefn
   /**
    * The business day adjustment to apply.
    * <p>
-   * When determining the schedule periods, dates are initially calculated ignoring
-   * business days to create the unadjusted schedule.
-   * This business day adjustment is then used on each date to create the final adjusted schedule.
-   * Note that the start date and end date have their own business day adjustment rules.
+   * Each date in the calculated schedule is determined without taking into account weekends and holidays.
+   * The adjustment specified here is used to convert those dates to valid business days.
+   * <p>
+   * The start date and end date may have their own business day adjustment rules.
+   * If those are null, then this adjustment is used instead.
    */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment businessDayAdjustment;
+  /**
+   * The optional business day adjustment to apply to the start date.
+   * <p>
+   * The start date property is an unadjusted date and as such might be a weekend or holiday.
+   * The adjustment specified here is used to convert the start date to a valid business day.
+   * <p>
+   * If this property is null, the standard {@code businessDayAdjustment} property is used instead.
+   */
+  @PropertyDefinition
+  private final BusinessDayAdjustment startDateBusinessDayAdjustment;
+  /**
+   * The optional business day adjustment to apply to the end date.
+   * <p>
+   * The end date property is an unadjusted date and as such might be a weekend or holiday.
+   * The adjustment specified here is used to convert the end date to a valid business day.
+   * <p>
+   * If this property is null, the standard {@code businessDayAdjustment} property is used instead.
+   */
+  @PropertyDefinition
+  private final BusinessDayAdjustment endDateBusinessDayAdjustment;
   /**
    * The optional convention defining how to handle stubs.
    * <p>
@@ -212,84 +236,15 @@ public final class PeriodicScheduleDefn
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance based on roll and stub conventions.
-   * <p>
-   * The business day adjustment is used for all dates.
-   * The stub convention is used to determine whether there are any stubs.
-   * If the end-of-month flag is true, then in any case of ambiguity the
-   * end-of-month will be chosen.
-   * 
-   * @param unadjustedStartDate  start date, which is the start of the first schedule period
-   * @param unadjustedEndDate  the end date, which is the end of the last schedule period
-   * @param frequency  the regular periodic frequency
-   * @param businessDayAdjustment  the business day adjustment to apply
-   * @param stubConvention  the non-null convention defining how to handle stubs
-   * @param preferEndOfMonth  whether to prefer the end-of-month when rolling
-   * @return the definition
-   */
-  public static PeriodicScheduleDefn of(
-      LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
-      Frequency frequency,
-      BusinessDayAdjustment businessDayAdjustment,
-      StubConvention stubConvention,
-      boolean preferEndOfMonth) {
-    ArgChecker.notNull(unadjustedStartDate, "unadjustedStartDate");
-    ArgChecker.notNull(unadjustedEndDate, "unadjustedEndDate");
-    ArgChecker.notNull(frequency, "frequency");
-    ArgChecker.notNull(businessDayAdjustment, "businessDayAdjustment");
-    ArgChecker.notNull(stubConvention, "stubConvention");
-    return new PeriodicScheduleDefn(
-        AdjustableDate.of(unadjustedStartDate, businessDayAdjustment),
-        AdjustableDate.of(unadjustedEndDate, businessDayAdjustment),
-        frequency, businessDayAdjustment,
-        stubConvention, preferEndOfMonth ? RollConventions.EOM : null, null, null);
-  }
-
-  /**
-   * Obtains an instance based on roll and stub conventions.
-   * <p>
-   * The business day adjustment is used for all dates.
-   * The stub convention is used to determine whether there are any stubs.
-   * The roll convention is used to fine tune each rolled date.
-   * 
-   * @param unadjustedStartDate  start date, which is the start of the first schedule period
-   * @param unadjustedEndDate  the end date, which is the end of the last schedule period
-   * @param frequency  the regular periodic frequency
-   * @param businessDayAdjustment  the business day adjustment to apply
-   * @param stubConvention  the non-null convention defining how to handle stubs
-   * @param rollConvention  the non-null convention defining how to roll dates
-   * @return the definition
-   */
-  public static PeriodicScheduleDefn of(
-      LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
-      Frequency frequency,
-      BusinessDayAdjustment businessDayAdjustment,
-      StubConvention stubConvention,
-      RollConvention rollConvention) {
-    ArgChecker.notNull(unadjustedStartDate, "unadjustedStartDate");
-    ArgChecker.notNull(unadjustedEndDate, "unadjustedEndDate");
-    ArgChecker.notNull(frequency, "frequency");
-    ArgChecker.notNull(businessDayAdjustment, "businessDayAdjustment");
-    ArgChecker.notNull(stubConvention, "stubConvention");
-    ArgChecker.notNull(rollConvention, "rollConvention");
-    return new PeriodicScheduleDefn(
-        AdjustableDate.of(unadjustedStartDate, businessDayAdjustment),
-        AdjustableDate.of(unadjustedEndDate, businessDayAdjustment),
-        frequency, businessDayAdjustment,
-        stubConvention, rollConvention, null, null);
-  }
-
-  /**
    * Obtains an instance based on a stub convention and end-of-month flag.
    * <p>
-   * The stub convention is used to determine the roll convention.
+   * The business day adjustment is used for all dates.
+   * The stub convention is used to determine whether there are any stubs.
    * If the end-of-month flag is true, then in any case of ambiguity the
    * end-of-month will be chosen.
    * 
-   * @param startDate  start date, which is the start of the first schedule period
-   * @param endDate  the end date, which is the end of the last schedule period
+   * @param unadjustedStartDate  start date, which is the start of the first schedule period
+   * @param unadjustedEndDate  the end date, which is the end of the last schedule period
    * @param frequency  the regular periodic frequency
    * @param businessDayAdjustment  the business day adjustment to apply
    * @param stubConvention  the non-null convention defining how to handle stubs
@@ -297,30 +252,36 @@ public final class PeriodicScheduleDefn
    * @return the definition
    */
   public static PeriodicScheduleDefn of(
-      AdjustableDate startDate,
-      AdjustableDate endDate,
+      LocalDate unadjustedStartDate,
+      LocalDate unadjustedEndDate,
       Frequency frequency,
       BusinessDayAdjustment businessDayAdjustment,
       StubConvention stubConvention,
       boolean preferEndOfMonth) {
-    ArgChecker.notNull(startDate, "startDate");
-    ArgChecker.notNull(endDate, "endDate");
+    ArgChecker.notNull(unadjustedStartDate, "unadjustedStartDate");
+    ArgChecker.notNull(unadjustedEndDate, "unadjustedEndDate");
     ArgChecker.notNull(frequency, "frequency");
     ArgChecker.notNull(businessDayAdjustment, "businessDayAdjustment");
     ArgChecker.notNull(stubConvention, "stubConvention");
-    return new PeriodicScheduleDefn(
-        startDate, endDate, frequency, businessDayAdjustment,
-        stubConvention, preferEndOfMonth ? RollConventions.EOM : null, null, null);
+    return PeriodicScheduleDefn.builder()
+        .startDate(unadjustedStartDate)
+        .endDate(unadjustedEndDate)
+        .frequency(frequency)
+        .businessDayAdjustment(businessDayAdjustment)
+        .stubConvention(stubConvention)
+        .rollConvention(preferEndOfMonth ? RollConventions.EOM : null)
+        .build();
   }
 
   /**
    * Obtains an instance based on roll and stub conventions.
    * <p>
+   * The business day adjustment is used for all dates.
    * The stub convention is used to determine whether there are any stubs.
    * The roll convention is used to fine tune each rolled date.
    * 
-   * @param startDate  start date, which is the start of the first schedule period
-   * @param endDate  the end date, which is the end of the last schedule period
+   * @param unadjustedStartDate  start date, which is the start of the first schedule period
+   * @param unadjustedEndDate  the end date, which is the end of the last schedule period
    * @param frequency  the regular periodic frequency
    * @param businessDayAdjustment  the business day adjustment to apply
    * @param stubConvention  the non-null convention defining how to handle stubs
@@ -328,63 +289,36 @@ public final class PeriodicScheduleDefn
    * @return the definition
    */
   public static PeriodicScheduleDefn of(
-      AdjustableDate startDate,
-      AdjustableDate endDate,
+      LocalDate unadjustedStartDate,
+      LocalDate unadjustedEndDate,
       Frequency frequency,
       BusinessDayAdjustment businessDayAdjustment,
       StubConvention stubConvention,
       RollConvention rollConvention) {
-    ArgChecker.notNull(startDate, "startDate");
-    ArgChecker.notNull(endDate, "endDate");
+    ArgChecker.notNull(unadjustedStartDate, "unadjustedStartDate");
+    ArgChecker.notNull(unadjustedEndDate, "unadjustedEndDate");
     ArgChecker.notNull(frequency, "frequency");
     ArgChecker.notNull(businessDayAdjustment, "businessDayAdjustment");
     ArgChecker.notNull(stubConvention, "stubConvention");
     ArgChecker.notNull(rollConvention, "rollConvention");
-    return new PeriodicScheduleDefn(
-        startDate, endDate, frequency, businessDayAdjustment,
-        stubConvention, rollConvention, null, null);
-  }
-
-  /**
-   * Obtains an instance based on all the available parameters.
-   * <p>
-   * This low-level factory allows various combinations of dates and convention to be specified.
-   * As an alternative to this method, consider using the {@linkplain #builder() builder}.
-   * 
-   * @param startDate  start date, which is the start of the first schedule period
-   * @param endDate  the end date, which is the end of the last schedule period
-   * @param frequency  the regular periodic frequency
-   * @param businessDayAdjustment  the business day adjustment to apply
-   * @param stubConvention  the optional convention defining how to handle stubs, may be null
-   * @param rollConvention  the optional convention defining how to roll dates, may be null
-   * @param firstRegularStartDate  the optional start date of the first regular schedule period,
-   *  which is the end date of the initial stub, may be null
-   * @param lastRegularEndDate  the optional end date of the last regular schedule period,
-   *  which is the start date of the final stub, may be null
-   * @return the definition
-   */
-  public static PeriodicScheduleDefn of(
-      AdjustableDate startDate,
-      AdjustableDate endDate,
-      Frequency frequency,
-      BusinessDayAdjustment businessDayAdjustment,
-      StubConvention stubConvention,
-      RollConvention rollConvention,
-      LocalDate firstRegularStartDate,
-      LocalDate lastRegularEndDate) {
-    return new PeriodicScheduleDefn(
-        startDate, endDate, frequency, businessDayAdjustment,
-        stubConvention, rollConvention, firstRegularStartDate, lastRegularEndDate);
+    return PeriodicScheduleDefn.builder()
+        .startDate(unadjustedStartDate)
+        .endDate(unadjustedEndDate)
+        .frequency(frequency)
+        .businessDayAdjustment(businessDayAdjustment)
+        .stubConvention(stubConvention)
+        .rollConvention(rollConvention)
+        .build();
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(
-        startDate.getUnadjusted(), endDate.getUnadjusted(), "startDate.unadjusted", "endDate.unadjusted");
+        startDate, endDate, "startDate", "endDate");
     if (firstRegularStartDate != null) {
       ArgChecker.inOrderOrEqual(
-          startDate.getUnadjusted(), firstRegularStartDate, "startDate.unadjusted", "firstRegularStartDate");
+          startDate, firstRegularStartDate, "unadjusted", "firstRegularStartDate");
       if (lastRegularEndDate != null) {
         ArgChecker.inOrderNotEqual(
             firstRegularStartDate, lastRegularEndDate, "firstRegularStartDate", "lastRegularEndDate");
@@ -392,7 +326,7 @@ public final class PeriodicScheduleDefn
     }
     if (lastRegularEndDate != null) {
       ArgChecker.inOrderOrEqual(
-          lastRegularEndDate, endDate.getUnadjusted(), "lastRegularEndDate", "endDate.unadjusted");
+          lastRegularEndDate, endDate, "lastRegularEndDate", "endDate");
     }
   }
 
@@ -450,18 +384,16 @@ public final class PeriodicScheduleDefn
    * @throws PeriodicScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createUnadjustedDates() {
-    LocalDate start = getStartDate().getUnadjusted();
-    LocalDate end = getEndDate().getUnadjusted();
     LocalDate regStart = getEffectiveFirstRegularStartDate();
     LocalDate regEnd = getEffectiveLastRegularEndDate();
-    boolean explicitInitialStub = !start.equals(regStart);
-    boolean explicitFinalStub = !end.equals(regEnd);
+    boolean explicitInitialStub = !startDate.equals(regStart);
+    boolean explicitFinalStub = !endDate.equals(regEnd);
     // handle TERM frequency
     if (frequency == Frequency.TERM) {
       if (explicitInitialStub || explicitFinalStub) {
         throw new PeriodicScheduleException(this, "Explict stubs must not be specified when using 'Term' frequency");
       }
-      return ImmutableList.of(start, end);
+      return ImmutableList.of(startDate, endDate);
     }
     // calculate base schedule excluding explicit stubs
     RollConvention rollConv = getEffectiveRollConvention();
@@ -471,10 +403,10 @@ public final class PeriodicScheduleDefn
       generateForwards(regStart, regEnd, rollConv, implicitStubConv));
     // add explicit stubs
     if (explicitInitialStub) {
-      unadj.add(0, start);
+      unadj.add(0, startDate);
     }
     if (explicitFinalStub) {
-      unadj.add(end);
+      unadj.add(endDate);
     }
     // sanity check
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
@@ -576,8 +508,12 @@ public final class PeriodicScheduleDefn
     List<LocalDate> adj = unadj.stream()
         .map(businessDayAdjustment::adjust)
         .collect(Collectors.toList());
-    adj.set(0, startDate.adjusted());
-    adj.set(adj.size() - 1, endDate.adjusted());
+    if (startDateBusinessDayAdjustment != null) {
+      adj.set(0, startDateBusinessDayAdjustment.adjust(startDate));
+    }
+    if (endDateBusinessDayAdjustment != null) {
+      adj.set(adj.size() - 1, endDateBusinessDayAdjustment.adjust(endDate));
+    }
     ImmutableSet<LocalDate> deduplicated = ImmutableSet.copyOf(adj);
     if (deduplicated.size() < adj.size()) {
       throw new PeriodicScheduleException(this, "Schedule calculation resulted in duplicate adjusted dates: {}", adj);
@@ -631,7 +567,7 @@ public final class PeriodicScheduleDefn
    * @return the non-null start date of the first regular period
    */
   public LocalDate getEffectiveFirstRegularStartDate() {
-    return Objects.firstNonNull(firstRegularStartDate, startDate.getUnadjusted());
+    return Objects.firstNonNull(firstRegularStartDate, startDate);
   }
 
   /**
@@ -642,7 +578,7 @@ public final class PeriodicScheduleDefn
    * @return the non-null end date of the last regular period
    */
   public LocalDate getEffectiveLastRegularEndDate() {
-    return Objects.firstNonNull(lastRegularEndDate, endDate.getUnadjusted());
+    return Objects.firstNonNull(lastRegularEndDate, endDate);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -668,10 +604,12 @@ public final class PeriodicScheduleDefn
   }
 
   private PeriodicScheduleDefn(
-      AdjustableDate startDate,
-      AdjustableDate endDate,
+      LocalDate startDate,
+      LocalDate endDate,
       Frequency frequency,
       BusinessDayAdjustment businessDayAdjustment,
+      BusinessDayAdjustment startDateBusinessDayAdjustment,
+      BusinessDayAdjustment endDateBusinessDayAdjustment,
       StubConvention stubConvention,
       RollConvention rollConvention,
       LocalDate firstRegularStartDate,
@@ -684,6 +622,8 @@ public final class PeriodicScheduleDefn
     this.endDate = endDate;
     this.frequency = frequency;
     this.businessDayAdjustment = businessDayAdjustment;
+    this.startDateBusinessDayAdjustment = startDateBusinessDayAdjustment;
+    this.endDateBusinessDayAdjustment = endDateBusinessDayAdjustment;
     this.stubConvention = stubConvention;
     this.rollConvention = rollConvention;
     this.firstRegularStartDate = firstRegularStartDate;
@@ -710,7 +650,9 @@ public final class PeriodicScheduleDefn
   /**
    * Gets the start date, which is the start of the first schedule period.
    * <p>
-   * This is the unadjusted date together with any applicable business day adjustment.
+   * This is the start date of the schedule.
+   * It is is unadjusted and as such might be a weekend or holiday.
+   * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted effective date.
    * <p>
    * In most cases, the start date of a financial instrument is just after the trade date,
@@ -718,7 +660,7 @@ public final class PeriodicScheduleDefn
    * to be any date, which includes dates before or after the trade date.
    * @return the value of the property, not null
    */
-  public AdjustableDate getStartDate() {
+  public LocalDate getStartDate() {
     return startDate;
   }
 
@@ -726,12 +668,14 @@ public final class PeriodicScheduleDefn
   /**
    * Gets the end date, which is the end of the last schedule period.
    * <p>
-   * This is the unadjusted date together with any applicable business day adjustment.
+   * This is the end date of the schedule.
+   * It is is unadjusted and as such might be a weekend or holiday.
+   * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted maturity date or unadjusted termination date.
    * This date must be after the start date.
    * @return the value of the property, not null
    */
-  public AdjustableDate getEndDate() {
+  public LocalDate getEndDate() {
     return endDate;
   }
 
@@ -751,14 +695,43 @@ public final class PeriodicScheduleDefn
   /**
    * Gets the business day adjustment to apply.
    * <p>
-   * When determining the schedule periods, dates are initially calculated ignoring
-   * business days to create the unadjusted schedule.
-   * This business day adjustment is then used on each date to create the final adjusted schedule.
-   * Note that the start date and end date have their own business day adjustment rules.
+   * Each date in the calculated schedule is determined without taking into account weekends and holidays.
+   * The adjustment specified here is used to convert those dates to valid business days.
+   * <p>
+   * The start date and end date may have their own business day adjustment rules.
+   * If those are null, then this adjustment is used instead.
    * @return the value of the property, not null
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
     return businessDayAdjustment;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the optional business day adjustment to apply to the start date.
+   * <p>
+   * The start date property is an unadjusted date and as such might be a weekend or holiday.
+   * The adjustment specified here is used to convert the start date to a valid business day.
+   * <p>
+   * If this property is null, the standard {@code businessDayAdjustment} property is used instead.
+   * @return the value of the property
+   */
+  public BusinessDayAdjustment getStartDateBusinessDayAdjustment() {
+    return startDateBusinessDayAdjustment;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the optional business day adjustment to apply to the end date.
+   * <p>
+   * The end date property is an unadjusted date and as such might be a weekend or holiday.
+   * The adjustment specified here is used to convert the end date to a valid business day.
+   * <p>
+   * If this property is null, the standard {@code businessDayAdjustment} property is used instead.
+   * @return the value of the property
+   */
+  public BusinessDayAdjustment getEndDateBusinessDayAdjustment() {
+    return endDateBusinessDayAdjustment;
   }
 
   //-----------------------------------------------------------------------
@@ -857,6 +830,8 @@ public final class PeriodicScheduleDefn
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
           JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
+          JodaBeanUtils.equal(getStartDateBusinessDayAdjustment(), other.getStartDateBusinessDayAdjustment()) &&
+          JodaBeanUtils.equal(getEndDateBusinessDayAdjustment(), other.getEndDateBusinessDayAdjustment()) &&
           JodaBeanUtils.equal(getStubConvention(), other.getStubConvention()) &&
           JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
           JodaBeanUtils.equal(getFirstRegularStartDate(), other.getFirstRegularStartDate()) &&
@@ -872,6 +847,8 @@ public final class PeriodicScheduleDefn
     hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDateBusinessDayAdjustment());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDateBusinessDayAdjustment());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStubConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFirstRegularStartDate());
@@ -881,12 +858,14 @@ public final class PeriodicScheduleDefn
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("PeriodicScheduleDefn{");
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("frequency").append('=').append(getFrequency()).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
+    buf.append("startDateBusinessDayAdjustment").append('=').append(getStartDateBusinessDayAdjustment()).append(',').append(' ');
+    buf.append("endDateBusinessDayAdjustment").append('=').append(getEndDateBusinessDayAdjustment()).append(',').append(' ');
     buf.append("stubConvention").append('=').append(getStubConvention()).append(',').append(' ');
     buf.append("rollConvention").append('=').append(getRollConvention()).append(',').append(' ');
     buf.append("firstRegularStartDate").append('=').append(getFirstRegularStartDate()).append(',').append(' ');
@@ -908,13 +887,13 @@ public final class PeriodicScheduleDefn
     /**
      * The meta-property for the {@code startDate} property.
      */
-    private final MetaProperty<AdjustableDate> startDate = DirectMetaProperty.ofImmutable(
-        this, "startDate", PeriodicScheduleDefn.class, AdjustableDate.class);
+    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
+        this, "startDate", PeriodicScheduleDefn.class, LocalDate.class);
     /**
      * The meta-property for the {@code endDate} property.
      */
-    private final MetaProperty<AdjustableDate> endDate = DirectMetaProperty.ofImmutable(
-        this, "endDate", PeriodicScheduleDefn.class, AdjustableDate.class);
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
+        this, "endDate", PeriodicScheduleDefn.class, LocalDate.class);
     /**
      * The meta-property for the {@code frequency} property.
      */
@@ -925,6 +904,16 @@ public final class PeriodicScheduleDefn
      */
     private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
         this, "businessDayAdjustment", PeriodicScheduleDefn.class, BusinessDayAdjustment.class);
+    /**
+     * The meta-property for the {@code startDateBusinessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> startDateBusinessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "startDateBusinessDayAdjustment", PeriodicScheduleDefn.class, BusinessDayAdjustment.class);
+    /**
+     * The meta-property for the {@code endDateBusinessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> endDateBusinessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "endDateBusinessDayAdjustment", PeriodicScheduleDefn.class, BusinessDayAdjustment.class);
     /**
      * The meta-property for the {@code stubConvention} property.
      */
@@ -954,6 +943,8 @@ public final class PeriodicScheduleDefn
         "endDate",
         "frequency",
         "businessDayAdjustment",
+        "startDateBusinessDayAdjustment",
+        "endDateBusinessDayAdjustment",
         "stubConvention",
         "rollConvention",
         "firstRegularStartDate",
@@ -976,6 +967,10 @@ public final class PeriodicScheduleDefn
           return frequency;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
+        case 429197561:  // startDateBusinessDayAdjustment
+          return startDateBusinessDayAdjustment;
+        case -734327136:  // endDateBusinessDayAdjustment
+          return endDateBusinessDayAdjustment;
         case -31408449:  // stubConvention
           return stubConvention;
         case -10223666:  // rollConvention
@@ -1008,7 +1003,7 @@ public final class PeriodicScheduleDefn
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<AdjustableDate> startDate() {
+    public MetaProperty<LocalDate> startDate() {
       return startDate;
     }
 
@@ -1016,7 +1011,7 @@ public final class PeriodicScheduleDefn
      * The meta-property for the {@code endDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<AdjustableDate> endDate() {
+    public MetaProperty<LocalDate> endDate() {
       return endDate;
     }
 
@@ -1034,6 +1029,22 @@ public final class PeriodicScheduleDefn
      */
     public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
       return businessDayAdjustment;
+    }
+
+    /**
+     * The meta-property for the {@code startDateBusinessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BusinessDayAdjustment> startDateBusinessDayAdjustment() {
+      return startDateBusinessDayAdjustment;
+    }
+
+    /**
+     * The meta-property for the {@code endDateBusinessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BusinessDayAdjustment> endDateBusinessDayAdjustment() {
+      return endDateBusinessDayAdjustment;
     }
 
     /**
@@ -1080,6 +1091,10 @@ public final class PeriodicScheduleDefn
           return ((PeriodicScheduleDefn) bean).getFrequency();
         case -1065319863:  // businessDayAdjustment
           return ((PeriodicScheduleDefn) bean).getBusinessDayAdjustment();
+        case 429197561:  // startDateBusinessDayAdjustment
+          return ((PeriodicScheduleDefn) bean).getStartDateBusinessDayAdjustment();
+        case -734327136:  // endDateBusinessDayAdjustment
+          return ((PeriodicScheduleDefn) bean).getEndDateBusinessDayAdjustment();
         case -31408449:  // stubConvention
           return ((PeriodicScheduleDefn) bean).getStubConvention();
         case -10223666:  // rollConvention
@@ -1109,10 +1124,12 @@ public final class PeriodicScheduleDefn
    */
   public static final class Builder extends DirectFieldsBeanBuilder<PeriodicScheduleDefn> {
 
-    private AdjustableDate startDate;
-    private AdjustableDate endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Frequency frequency;
     private BusinessDayAdjustment businessDayAdjustment;
+    private BusinessDayAdjustment startDateBusinessDayAdjustment;
+    private BusinessDayAdjustment endDateBusinessDayAdjustment;
     private StubConvention stubConvention;
     private RollConvention rollConvention;
     private LocalDate firstRegularStartDate;
@@ -1133,6 +1150,8 @@ public final class PeriodicScheduleDefn
       this.endDate = beanToCopy.getEndDate();
       this.frequency = beanToCopy.getFrequency();
       this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
+      this.startDateBusinessDayAdjustment = beanToCopy.getStartDateBusinessDayAdjustment();
+      this.endDateBusinessDayAdjustment = beanToCopy.getEndDateBusinessDayAdjustment();
       this.stubConvention = beanToCopy.getStubConvention();
       this.rollConvention = beanToCopy.getRollConvention();
       this.firstRegularStartDate = beanToCopy.getFirstRegularStartDate();
@@ -1151,6 +1170,10 @@ public final class PeriodicScheduleDefn
           return frequency;
         case -1065319863:  // businessDayAdjustment
           return businessDayAdjustment;
+        case 429197561:  // startDateBusinessDayAdjustment
+          return startDateBusinessDayAdjustment;
+        case -734327136:  // endDateBusinessDayAdjustment
+          return endDateBusinessDayAdjustment;
         case -31408449:  // stubConvention
           return stubConvention;
         case -10223666:  // rollConvention
@@ -1168,16 +1191,22 @@ public final class PeriodicScheduleDefn
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -2129778896:  // startDate
-          this.startDate = (AdjustableDate) newValue;
+          this.startDate = (LocalDate) newValue;
           break;
         case -1607727319:  // endDate
-          this.endDate = (AdjustableDate) newValue;
+          this.endDate = (LocalDate) newValue;
           break;
         case -70023844:  // frequency
           this.frequency = (Frequency) newValue;
           break;
         case -1065319863:  // businessDayAdjustment
           this.businessDayAdjustment = (BusinessDayAdjustment) newValue;
+          break;
+        case 429197561:  // startDateBusinessDayAdjustment
+          this.startDateBusinessDayAdjustment = (BusinessDayAdjustment) newValue;
+          break;
+        case -734327136:  // endDateBusinessDayAdjustment
+          this.endDateBusinessDayAdjustment = (BusinessDayAdjustment) newValue;
           break;
         case -31408449:  // stubConvention
           this.stubConvention = (StubConvention) newValue;
@@ -1228,6 +1257,8 @@ public final class PeriodicScheduleDefn
           endDate,
           frequency,
           businessDayAdjustment,
+          startDateBusinessDayAdjustment,
+          endDateBusinessDayAdjustment,
           stubConvention,
           rollConvention,
           firstRegularStartDate,
@@ -1240,7 +1271,7 @@ public final class PeriodicScheduleDefn
      * @param startDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder startDate(AdjustableDate startDate) {
+    public Builder startDate(LocalDate startDate) {
       JodaBeanUtils.notNull(startDate, "startDate");
       this.startDate = startDate;
       return this;
@@ -1251,7 +1282,7 @@ public final class PeriodicScheduleDefn
      * @param endDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder endDate(AdjustableDate endDate) {
+    public Builder endDate(LocalDate endDate) {
       JodaBeanUtils.notNull(endDate, "endDate");
       this.endDate = endDate;
       return this;
@@ -1276,6 +1307,26 @@ public final class PeriodicScheduleDefn
     public Builder businessDayAdjustment(BusinessDayAdjustment businessDayAdjustment) {
       JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
       this.businessDayAdjustment = businessDayAdjustment;
+      return this;
+    }
+
+    /**
+     * Sets the {@code startDateBusinessDayAdjustment} property in the builder.
+     * @param startDateBusinessDayAdjustment  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder startDateBusinessDayAdjustment(BusinessDayAdjustment startDateBusinessDayAdjustment) {
+      this.startDateBusinessDayAdjustment = startDateBusinessDayAdjustment;
+      return this;
+    }
+
+    /**
+     * Sets the {@code endDateBusinessDayAdjustment} property in the builder.
+     * @param endDateBusinessDayAdjustment  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder endDateBusinessDayAdjustment(BusinessDayAdjustment endDateBusinessDayAdjustment) {
+      this.endDateBusinessDayAdjustment = endDateBusinessDayAdjustment;
       return this;
     }
 
@@ -1322,12 +1373,14 @@ public final class PeriodicScheduleDefn
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("PeriodicScheduleDefn.Builder{");
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
       buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
+      buf.append("startDateBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(startDateBusinessDayAdjustment)).append(',').append(' ');
+      buf.append("endDateBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(endDateBusinessDayAdjustment)).append(',').append(' ');
       buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(stubConvention)).append(',').append(' ');
       buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
       buf.append("firstRegularStartDate").append('=').append(JodaBeanUtils.toString(firstRegularStartDate)).append(',').append(' ');
