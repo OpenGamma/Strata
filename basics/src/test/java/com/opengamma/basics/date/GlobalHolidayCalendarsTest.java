@@ -425,6 +425,152 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  private static final HolidayCalendar USNY = GlobalHolidayCalendars.generateUsNewYork();
+
+  @DataProvider(name = "usny")
+  Object[][] data_usny() {
+    return new Object[][] {
+        // http://www.cs.ny.gov/attendance_leave/2012_legal_holidays.cfm
+        // change year for other pages
+        {2008, mds(2008, md(1, 1), md(1, 21), md(2, 18), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {2009, mds(2009, md(1, 1), md(1, 19), md(2, 16), md(5, 25), md(7, 4), md(9, 7), md(10, 12), md(11, 11), md(11, 26), md(12, 25))},
+        {2010, mds(2010, md(1, 1), md(1, 18), md(2, 15), md(5, 31), md(7, 5), md(9, 6), md(10, 11), md(11, 11), md(11, 25), md(12, 25))},
+        {2011, mds(2011, md(1, 1), md(1, 17), md(2, 21), md(5, 30), md(7, 4), md(9, 5), md(10, 10), md(11, 11), md(11, 24), md(12, 26))},
+        {2012, mds(2012, md(1, 2), md(1, 16), md(2, 20), md(5, 28), md(7, 4), md(9, 3), md(10, 8), md(11, 12), md(11, 22), md(12, 25))},
+        {2013, mds(2013, md(1, 1), md(1, 21), md(2, 18), md(5, 27), md(7, 4), md(9, 2), md(10, 14), md(11, 11), md(11, 28), md(12, 25))},
+        {2014, mds(2014, md(1, 1), md(1, 20), md(2, 17), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {2015, mds(2015, md(1, 1), md(1, 19), md(2, 16), md(5, 25), md(7, 4), md(9, 7), md(10, 12), md(11, 11), md(11, 26), md(12, 25))},
+    };
+  }
+
+  @Test(dataProvider = "usny")
+  public void test_usny(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(USNY.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar NYFD = GlobalHolidayCalendars.generateNewYorkFed();
+
+  @DataProvider(name = "nyfd")
+  Object[][] data_nyfd() {
+    return new Object[][] {
+        // http://www.ny.frb.org/aboutthefed/holiday_schedule.html
+        // http://web.archive.org/web/20080403230805/http://www.ny.frb.org/aboutthefed/holiday_schedule.html
+        // http://web.archive.org/web/20100827003740/http://www.ny.frb.org/aboutthefed/holiday_schedule.html
+        // http://web.archive.org/web/20031007222458/http://www.ny.frb.org/aboutthefed/holiday_schedule.html
+        // http://www.federalreserve.gov/aboutthefed/k8.htm
+        {2003, mds(2003, md(1, 1), md(1, 20), md(2, 17), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {2004, mds(2004, md(1, 1), md(1, 19), md(2, 16), md(5, 31), md(7, 5), md(9, 6), md(10, 11), md(11, 11), md(11, 25))},
+        {2005, mds(2005,           md(1, 17), md(2, 21), md(5, 30), md(7, 4), md(9, 5), md(10, 10), md(11, 11), md(11, 24), md(12, 26))},
+        {2006, mds(2006, md(1, 2), md(1, 16), md(2, 20), md(5, 29), md(7, 4), md(9, 4), md(10, 9),             md(11, 23), md(12, 25))},
+        {2007, mds(2007, md(1, 1), md(1, 15), md(2, 19), md(5, 28), md(7, 4), md(9, 3), md(10, 8), md(11, 12), md(11, 22), md(12, 25))},
+        {2008, mds(2008, md(1, 1), md(1, 21), md(2, 18), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {2009, mds(2009, md(1, 1), md(1, 19), md(2, 16), md(5, 25),           md(9, 7), md(10, 12), md(11, 11), md(11, 26), md(12, 25))},
+        {2010, mds(2010, md(1, 1), md(1, 18), md(2, 15), md(5, 31), md(7, 5), md(9, 6), md(10, 11), md(11, 11), md(11, 25))},
+        {2011, mds(2011,           md(1, 17), md(2, 21), md(5, 30), md(7, 4), md(9, 5), md(10, 10), md(11, 11), md(11, 24), md(12, 26))},
+        {2012, mds(2012, md(1, 2), md(1, 16), md(2, 20), md(5, 28), md(7, 4), md(9, 3), md(10, 8), md(11, 12), md(11, 22), md(12, 25))},
+        {2013, mds(2013, md(1, 1), md(1, 21), md(2, 18), md(5, 27), md(7, 4), md(9, 2), md(10, 14), md(11, 11), md(11, 28), md(12, 25))},
+        {2014, mds(2014, md(1, 1), md(1, 20), md(2, 17), md(5, 26), md(7, 4), md(9, 1), md(10, 13), md(11, 11), md(11, 27), md(12, 25))},
+        {2015, mds(2015, md(1, 1), md(1, 19), md(2, 16), md(5, 25),           md(9, 7), md(10, 12), md(11, 11), md(11, 26), md(12, 25))},
+        {2016, mds(2016, md(1, 1), md(1, 18), md(2, 15), md(5, 30), md(7, 4), md(9, 5), md(10, 10), md(11, 11), md(11, 24), md(12, 26))},
+        {2017, mds(2017, md(1, 2), md(1, 16), md(2, 20), md(5, 29), md(7, 4), md(9, 4), md(10, 9),              md(11, 23), md(12, 25))},
+        {2018, mds(2018, md(1, 1), md(1, 15), md(2, 19), md(5, 28), md(7, 4), md(9, 3), md(10, 8), md(11, 12), md(11, 22), md(12, 25))},
+    };
+  }
+
+  @Test(dataProvider = "nyfd")
+  public void test_nyfd(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(NYFD.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar NYSE = GlobalHolidayCalendars.generateNewYorkStockExchange();
+
+  @DataProvider(name = "nyse")
+  Object[][] data_nyse() {
+    return new Object[][] {
+        // https://www.nyse.com/markets/hours-calendars
+        // http://web.archive.org/web/20110320011340/http://www.nyse.com/about/newsevents/1176373643795.html?sa_campaign=/internal_ads/homepage/08262008holidays
+        // http://web.archive.org/web/20080901164729/http://www.nyse.com/about/newsevents/1176373643795.html?sa_campaign=/internal_ads/homepage/08262008holidays
+        {2008, mds(2008, md(1, 1), md(1, 21), md(2, 18), md(3, 21), md(5, 26), md(7, 4), md(9, 1), md(11, 27), md(12, 25))},
+        {2009, mds(2009, md(1, 1), md(1, 19), md(2, 16), md(4, 10), md(5, 25), md(7, 3), md(9, 7), md(11, 26), md(12, 25))},
+        {2010, mds(2010, md(1, 1), md(1, 18), md(2, 15), md(4, 2), md(5, 31), md(7, 5), md(9, 6), md(11, 25), md(12, 24))},
+        {2011, mds(2011, md(1, 1), md(1, 17), md(2, 21), md(4, 22), md(5, 30), md(7, 4), md(9, 5), md(11, 24), md(12, 26))},
+        {2012, mds(2012, md(1, 2), md(1, 16), md(2, 20), md(4, 6), md(5, 28), md(7, 4), md(9, 3), md(11, 22), md(12, 25))},
+        {2013, mds(2013, md(1, 1), md(1, 21), md(2, 18), md(3, 29), md(5, 27), md(7, 4), md(9, 2), md(11, 28), md(12, 25))},
+        {2014, mds(2014, md(1, 1), md(1, 20), md(2, 17), md(4, 18), md(5, 26), md(7, 4), md(9, 1), md(11, 27), md(12, 25))},
+        {2015, mds(2015, md(1, 1), md(1, 19), md(2, 16), md(4, 3), md(5, 25), md(7, 3), md(9, 7), md(11, 26), md(12, 25))},
+    };
+  }
+
+  @Test(dataProvider = "nyse")
+  public void test_nyse(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(NYSE.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  private static final HolidayCalendar JPTO = GlobalHolidayCalendars.generateTokyo();
+
+  @DataProvider(name = "jpto")
+  Object[][] data_jpto() {
+    return new Object[][] {
+        // https://www.boj.or.jp/en/about/outline/holi.htm/
+        // http://web.archive.org/web/20110513190217/http://www.boj.or.jp/en/about/outline/holi.htm/
+        {1999, mds(1999, md(1, 1), md(1, 2), md(1, 3), md(1, 15), md(2, 11), md(3, 22), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 20), md(9, 15), md(9, 23), md(10, 11), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
+        {2000, mds(2000, md(1, 1), md(1, 2), md(1, 3), md(1, 10), md(2, 11), md(3, 20), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 20), md(9, 15), md(9, 23), md(10, 9), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
+        {2001, mds(2001, md(1, 1), md(1, 2), md(1, 3), md(1, 8), md(2, 12), md(3, 20), md(4, 30), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 20), md(9, 15), md(9, 24), md(10, 8), md(11, 3), md(11, 23), md(12, 24), md(12, 31))},
+        {2002, mds(2002, md(1, 1), md(1, 2), md(1, 3), md(1, 14), md(2, 11), md(3, 21), md(4, 29), md(5, 3), md(5, 4), md(5, 6),
+            md(7, 20), md(9, 16), md(9, 23), md(10, 14), md(11, 4), md(11, 23), md(12, 23), md(12, 31))},
+        {2003, mds(2003, md(1, 1), md(1, 2), md(1, 3), md(1, 13), md(2, 11), md(3, 21), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 21), md(9, 15), md(9, 23), md(10, 13), md(11, 3), md(11, 24), md(12, 23), md(12, 31))},
+        {2004, mds(2004, md(1, 1), md(1, 2), md(1, 3), md(1, 12), md(2, 11), md(3, 20), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 19), md(9, 20), md(9, 23), md(10, 11), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
+        {2005, mds(2005, md(1, 1), md(1, 2), md(1, 3), md(1, 10), md(2, 11), md(3, 21), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 18), md(9, 19), md(9, 23), md(10, 10), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
+        {2006, mds(2006, md(1, 1), md(1, 2), md(1, 3), md(1, 9), md(2, 11), md(3, 21), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 17), md(9, 18), md(9, 23), md(10, 9), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
+        {2011, mds(2011, md(1, 1), md(1, 2), md(1, 3), md(1, 10), md(2, 11), md(3, 21), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 18), md(9, 19), md(9, 23), md(10, 10), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
+        {2012, mds(2012, md(1, 1), md(1, 2), md(1, 3), md(1, 9), md(2, 11), md(3, 20), md(4, 30), md(5, 3), md(5, 4), md(5, 5),
+            md(7, 16), md(9, 17), md(9, 22), md(10, 8), md(11, 3), md(11, 23), md(12, 24), md(12, 31))},
+        {2013, mds(2013, md(1, 1), md(1, 2), md(1, 3), md(1, 14), md(2, 11), md(3, 20), md(4, 29), md(5, 3), md(5, 4), md(5, 5), md(5, 6),
+            md(7, 15), md(9, 16), md(9, 23), md(10, 14), md(11, 4), md(11, 23), md(12, 23), md(12, 31))},
+        {2014, mds(2014, md(1, 1), md(1, 2), md(1, 3), md(1, 13), md(2, 11), md(3, 21), md(4, 29), md(5, 3), md(5, 4), md(5, 5), md(5, 6),
+            md(7, 21), md(9, 15), md(9, 23), md(10, 13), md(11, 3), md(11, 24), md(12, 23), md(12, 31))},
+        {2015, mds(2015, md(1, 1), md(1, 2), md(1, 3), md(1, 12), md(2, 11), md(3, 21), md(4, 29), md(5, 3), md(5, 4), md(5, 5), md(5, 6),
+            md(7, 20), md(9, 21), md(9, 22), md(9, 23), md(10, 12), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
+    };
+  }
+
+  @Test(dataProvider = "jpto")
+  public void test_jpto(int year, List<LocalDate> holidays) {
+    LocalDate date = LocalDate.of(year, 1, 1);
+    for (int i = 1; i < date.lengthOfYear(); i++) {
+      boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+      assertEquals(JPTO.isHoliday(date), isHoliday, date.toString());
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static List<LocalDate> mds(int year, MonthDay... monthDays) {
     List<LocalDate> holidays = new ArrayList<>();
     for (MonthDay md : monthDays) {
