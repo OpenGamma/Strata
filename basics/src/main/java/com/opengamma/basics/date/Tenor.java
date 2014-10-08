@@ -24,7 +24,7 @@ import com.opengamma.collect.ArgChecker;
 /**
  * A tenor indicating how long it will take for a financial instrument to reach maturity.
  * <p>
- * A tenor is allowed to be any non-negative period of days, weeks, month or years.
+ * A tenor is allowed to be any non-negative non-zero period of days, weeks, month or years.
  * This class provides constants for common tenors which are best used by static import.
  * 
  * <h4>Usage</h4>
@@ -196,7 +196,7 @@ public final class Tenor
    *
    * @param period  the period to convert to a tenor
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative
+   * @throws IllegalArgumentException if the period is negative or zero
    */
   public static Tenor of(Period period) {
     return new Tenor(period);
@@ -207,7 +207,7 @@ public final class Tenor
    *
    * @param days  the number of days
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative
+   * @throws IllegalArgumentException if the period is negative or zero
    */
   public static Tenor ofDays(int days) {
     return of(Period.ofDays(days));
@@ -218,7 +218,7 @@ public final class Tenor
    *
    * @param weeks  the number of weeks
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative
+   * @throws IllegalArgumentException if the period is negative or zero
    */
   public static Tenor ofWeeks(int weeks) {
     return of(Period.ofWeeks(weeks));
@@ -229,7 +229,7 @@ public final class Tenor
    *
    * @param months  the number of months
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative
+   * @throws IllegalArgumentException if the period is negative or zero
    */
   public static Tenor ofMonths(int months) {
     return of(Period.ofMonths(months));
@@ -240,7 +240,7 @@ public final class Tenor
    *
    * @param years  the number of years
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative
+   * @throws IllegalArgumentException if the period is negative or zero
    */
   public static Tenor ofYears(int years) {
     return of(Period.ofYears(years));
@@ -277,6 +277,7 @@ public final class Tenor
   private Tenor(Period period) {
     ArgChecker.notNull(period, "period");
     ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
+    ArgChecker.isFalse(period.isZero(), "Period must not be zero");
     this.period = period;
   }
 

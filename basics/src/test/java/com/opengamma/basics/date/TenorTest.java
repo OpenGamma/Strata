@@ -71,6 +71,14 @@ public class TenorTest {
     assertThrows(() -> Tenor.ofYears(-1), IllegalArgumentException.class);
   }
 
+  public void test_of_notZero() {
+    assertThrows(() -> Tenor.of(Period.ofDays(0)), IllegalArgumentException.class);
+    assertThrows(() -> Tenor.ofDays(0), IllegalArgumentException.class);
+    assertThrows(() -> Tenor.ofWeeks(0), IllegalArgumentException.class);
+    assertThrows(() -> Tenor.ofMonths(0), IllegalArgumentException.class);
+    assertThrows(() -> Tenor.ofYears(0), IllegalArgumentException.class);
+  }
+
   //-------------------------------------------------------------------------
   public void test_parse_String_roundTrip() {
     assertEquals(Tenor.parse(TENOR_10M.toString()), TENOR_10M);
