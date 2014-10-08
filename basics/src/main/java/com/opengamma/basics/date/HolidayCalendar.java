@@ -202,6 +202,35 @@ public interface HolidayCalendar
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if the specified date is the last business day of the month.
+   * <p>
+   * This returns true if the date specified is the last valid business day of the month.
+   * 
+   * @param date  the date to check
+   * @return true if the specified date is the last business day of the month
+   * @throws IllegalArgumentException if the date is outside the supported range
+   */
+  public default boolean isLastBusinessDayOfMonth(LocalDate date) {
+    ArgChecker.notNull(date, "date");
+    return isBusinessDay(date) && next(date).getMonthValue() != date.getMonthValue();
+  }
+
+  /**
+   * Calculates the last business day of the month.
+   * <p>
+   * Given a date, this method returns the date of the last business day of the month.
+   * 
+   * @param date  the date to check
+   * @return true if the specified date is the last business day of the month
+   * @throws IllegalArgumentException if the date is outside the supported range
+   */
+  public default LocalDate lastBusinessDayOfMonth(LocalDate date) {
+    ArgChecker.notNull(date, "date");
+    return previousOrSame(date.withDayOfMonth(date.lengthOfMonth()));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the number of business days between two dates.
    * <p>
    * This calculates the number of business days within the range.

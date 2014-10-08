@@ -10,10 +10,13 @@ import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverEnum;
 import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.collect.TestHelper.date;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static java.time.DayOfWeek.THURSDAY;
+import static java.time.Month.JULY;
+import static java.time.Month.JUNE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -480,6 +483,49 @@ public class HolidayCalendarTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "lastBusinessDayOfMonth")
+  static Object[][] data_lastBusinessDayOfMonth() {
+      return new Object[][] {
+          // June 30th is Monday holiday, June 28/29 is weekend
+          {date(2014, 6, 26), date(2014, 6, 27)},
+          {date(2014, 6, 27), date(2014, 6, 27)},
+          {date(2014, 6, 28), date(2014, 6, 27)},
+          {date(2014, 6, 29), date(2014, 6, 27)},
+          {date(2014, 6, 30), date(2014, 6, 27)},
+          // July 31st is Thursday holiday
+          {date(2014, 7, 29), date(2014, 7, 30)},
+          {date(2014, 7, 30), date(2014, 7, 30)},
+          {date(2014, 7, 31), date(2014, 7, 30)},
+          // August 31st is Sunday weekend
+          {date(2014, 8, 28), date(2014, 8, 29)},
+          {date(2014, 8, 29), date(2014, 8, 29)},
+          {date(2014, 8, 30), date(2014, 8, 29)},
+          {date(2014, 8, 31), date(2014, 8, 29)},
+          // September 30th is Tuesday not holiday
+          {date(2014, 9, 28), date(2014, 9, 30)},
+          {date(2014, 9, 29), date(2014, 9, 30)},
+          {date(2014, 9, 30), date(2014, 9, 30)},
+      };
+  }
+
+  @Test(dataProvider = "lastBusinessDayOfMonth")
+  public void test_lastBusinessDayOfMonth(LocalDate date, LocalDate expectedEom) {
+    HolidayCalendar test = new MockEomHolCal();
+    assertEquals(test.lastBusinessDayOfMonth(date), expectedEom);
+  }
+
+  @Test(dataProvider = "lastBusinessDayOfMonth")
+  public void test_isLastBusinessDayOfMonth(LocalDate date, LocalDate expectedEom) {
+    HolidayCalendar test = new MockEomHolCal();
+    assertEquals(test.isLastBusinessDayOfMonth(date), date.equals(expectedEom));
+  }
+
+  public void test_lastBusinessDayOfMonth_null() {
+    assertThrows(() -> new MockEomHolCal().isLastBusinessDayOfMonth(null), IllegalArgumentException.class);
+    assertThrows(() -> new MockEomHolCal().lastBusinessDayOfMonth(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
   @DataProvider(name = "daysBetween")
   static Object[][] data_daysBetween() {
       return new Object[][] {
@@ -594,6 +640,19 @@ public class HolidayCalendarTest {
     @Override
     public String getName() {
       return "Mock";
+    }
+  }
+
+  static class MockEomHolCal implements HolidayCalendar {
+    @Override
+    public boolean isHoliday(LocalDate date) {
+      return (date.getMonth() == JUNE && date.getDayOfMonth() == 30) ||
+          (date.getMonth() == JULY && date.getDayOfMonth() == 31) ||
+          date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
+    }
+    @Override
+    public String getName() {
+      return "MockEom";
     }
   }
 
