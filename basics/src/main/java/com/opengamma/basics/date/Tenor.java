@@ -298,6 +298,32 @@ public final class Tenor
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if the tenor is week-based.
+   * <p>
+   * A week-based tenor consists of an integral number of weeks.
+   * There must be no day, month or year element.
+   *
+   * @return true if this is week-based
+   */
+  public boolean isWeekBased() {
+    return period.toTotalMonths() == 0 && period.getDays() % 7 == 0;
+  }
+
+  /**
+   * Checks if the tenor is month-based.
+   * <p>
+   * A month-based tenor consists of an integral number of months.
+   * Any year-based tenor is also counted as month-based.
+   * There must be no day or week element.
+   *
+   * @return true if this is month-based
+   */
+  public boolean isMonthBased() {
+    return period.toTotalMonths() > 0 && period.getDays() == 0;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the value of the specified unit.
    * <p>
    * This will return a value for the years, months and days units.

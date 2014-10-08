@@ -132,6 +132,34 @@ public class TenorTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "based")
+  static Object[][] data_based() {
+    return new Object[][] {
+        {Tenor.ofDays(1), false, false},
+        {Tenor.ofDays(2), false, false},
+        {Tenor.ofDays(6), false, false},
+        {Tenor.ofDays(7), true, false},
+        {Tenor.ofWeeks(1), true, false},
+        {Tenor.ofWeeks(3), true, false},
+        {Tenor.ofMonths(1), false, true},
+        {Tenor.ofMonths(3), false, true},
+        {Tenor.ofYears(1), false, true},
+        {Tenor.ofYears(3), false, true},
+        {Tenor.of(Period.of(1, 2, 3)), false, false},
+    };
+  }
+
+  @Test(dataProvider = "based")
+  public void test_isWeekBased(Tenor test, boolean weekBased, boolean monthBased) {
+    assertEquals(test.isWeekBased(), weekBased);
+  }
+
+  @Test(dataProvider = "based")
+  public void test_isMonthBased(Tenor test, boolean weekBased, boolean monthBased) {
+    assertEquals(test.isMonthBased(), monthBased);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_temporalAmount() {
     assertEquals(TENOR_3D.getUnits(), ImmutableList.of(YEARS, MONTHS, DAYS));
     assertEquals(TENOR_3D.get(DAYS), 3);
