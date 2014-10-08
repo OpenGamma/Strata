@@ -289,7 +289,7 @@ final class GlobalHolidayCalendars {
     // new year, adjusted if Sunday
     holidays.add(bumpSunToMon(date(year, 1, 1)));
     // martin luther king
-    if (year > 1983) {
+    if (year >= 1986) {
       holidays.add(date(year, 1, 1).with(dayOfWeekInMonth(3, MONDAY)));
     }
     // washington
