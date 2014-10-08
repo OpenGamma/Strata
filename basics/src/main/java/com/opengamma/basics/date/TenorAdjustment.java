@@ -7,15 +7,15 @@ package com.opengamma.basics.date;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.joda.beans.ImmutableValidator;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -28,9 +28,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * An adjustment that alters a date by adding a period of calendar days, months and years.
+ * An adjustment that alters a date by adding a tenor.
  * <p>
- * This adjustment adds a {@link Period} to the input date using an addition convention,
+ * This adjustment adds a {@link Tenor} to the input date using an addition convention,
  * followed by an adjustment to ensure the result is a valid business day.
  * <p>
  * Addition is performed using standard calendar addition.
@@ -49,31 +49,25 @@ import com.opengamma.collect.ArgChecker;
  * adjusted to be a valid London business day using the 'ModifiedFollowing' convention".
  * 
  * <h4>Usage</h4>
- * {@code PeriodAdjustment} implements {@code TemporalAdjuster} allowing it to directly adjust a date:
+ * {@code TenorAdjustment} implements {@code TemporalAdjuster} allowing it to directly adjust a date:
  * <pre>
- *  LocalDate adjusted = baseDate.with(periodAdjustment);
+ *  LocalDate adjusted = baseDate.with(tenorAdjustment);
  * </pre>
  */
 @BeanDefinition
-public final class PeriodAdjustment
+public final class TenorAdjustment
     implements ImmutableBean, DateAdjuster, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
-   * An instance that performs no adjustment.
-   */
-  public static final PeriodAdjustment NONE = new PeriodAdjustment(
-      Period.ZERO, PeriodAdditionConventions.NONE, BusinessDayAdjustment.NONE);
-
-  /**
-   * The period to be added.
+   * The tenor to be added.
    * <p>
-   * When the adjustment is performed, this period will be added to the input date.
+   * When the adjustment is performed, this tenor will be added to the input date.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Period period;
+  private final Tenor tenor;
   /**
    * The addition convention to apply.
    * <p>
@@ -95,66 +89,66 @@ public final class PeriodAdjustment
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a period adjustment that can adjust a date by the specified period.
+   * Obtains a tenor adjustment that can adjust a date by the specified tenor.
    * <p>
-   * When the adjustment is performed, the period will be added to the input date.
+   * When the adjustment is performed, the tenor will be added to the input date.
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * 
-   * @param period  the period to add to the input date
+   * @param tenor  the tenor to add to the input date
    * @param additionConvention  the convention used to perform the addition
    * @param adjustment  the business day adjustment to apply to the result of the addition
-   * @return the period adjustment
+   * @return the tenor adjustment
    */
-  public static PeriodAdjustment of(
-      Period period, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
-    return new PeriodAdjustment(period, additionConvention, adjustment);
+  public static TenorAdjustment of(
+      Tenor tenor, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
+    return new TenorAdjustment(tenor, additionConvention, adjustment);
   }
 
   /**
-   * Obtains a period adjustment that can adjust a date by the specified period using the
+   * Obtains a tenor adjustment that can adjust a date by the specified tenor using the
    * last day of month convention.
    * <p>
-   * When the adjustment is performed, the period will be added to the input date.
+   * When the adjustment is performed, the tenor will be added to the input date.
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * <p>
    * The period must consist only of months and/or years.
    * 
-   * @param period  the period to add to the input date
+   * @param tenor  the tenor to add to the input date
    * @param adjustment  the business day adjustment to apply to the result of the addition
-   * @return the period adjustment
+   * @return the tenor adjustment
    */
-  public static PeriodAdjustment ofLastDay(Period period, BusinessDayAdjustment adjustment) {
-    return new PeriodAdjustment(period, PeriodAdditionConventions.LAST_DAY, adjustment);
+  public static TenorAdjustment ofLastDay(Tenor tenor, BusinessDayAdjustment adjustment) {
+    return new TenorAdjustment(tenor, PeriodAdditionConventions.LAST_DAY, adjustment);
   }
 
   /**
-   * Obtains a period adjustment that can adjust a date by the specified period using the
+   * Obtains a tenor adjustment that can adjust a date by the specified tenor using the
    * last business day of month convention.
    * <p>
-   * When the adjustment is performed, the period will be added to the input date.
+   * When the adjustment is performed, the tenor will be added to the input date.
    * The business day adjustment will then be used to ensure the result is a valid business day.
    * <p>
    * The period must consist only of months and/or years.
    * 
-   * @param period  the period to add to the input date
+   * @param tenor  the tenor to add to the input date
    * @param adjustment  the business day adjustment to apply to the result of the addition
-   * @return the period adjustment
+   * @return the tenor adjustment
    */
-  public static PeriodAdjustment ofLastBusinessDay(Period period, BusinessDayAdjustment adjustment) {
-    return new PeriodAdjustment(period, PeriodAdditionConventions.LAST_BUSINESS_DAY, adjustment);
+  public static TenorAdjustment ofLastBusinessDay(Tenor tenor, BusinessDayAdjustment adjustment) {
+    return new TenorAdjustment(tenor, PeriodAdditionConventions.LAST_BUSINESS_DAY, adjustment);
   }
 
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    if (additionConvention.isMonthBased() && period.getDays() != 0) {
-      throw new IllegalArgumentException("Period must not contain days when addition convention is month-based");
+    if (additionConvention.isMonthBased() && tenor.isMonthBased() == false) {
+      throw new IllegalArgumentException("Tenor must not contain days when addition convention is month-based");
     }
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Adjusts the date, adding the period and then applying the business day adjustment.
+   * Adjusts the date, adding the tenor and then applying the business day adjustment.
    * <p>
    * The addition is performed by the {@link PeriodAdditionConvention}.
    * 
@@ -164,7 +158,7 @@ public final class PeriodAdjustment
   @Override
   public LocalDate adjust(LocalDate date) {
     ArgChecker.notNull(date, "date");
-    LocalDate unadjusted = additionConvention.adjust(date, period, adjustment.getCalendar());
+    LocalDate unadjusted = additionConvention.adjust(date, tenor.getPeriod(), adjustment.getCalendar());
     return unadjusted.with(adjustment);
   }
 
@@ -177,7 +171,7 @@ public final class PeriodAdjustment
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append(period);
+    buf.append(tenor);
     if (additionConvention != PeriodAdditionConventions.NONE) {
       buf.append(" with ").append(additionConvention);
     }
@@ -190,41 +184,41 @@ public final class PeriodAdjustment
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code PeriodAdjustment}.
+   * The meta-bean for {@code TenorAdjustment}.
    * @return the meta-bean, not null
    */
-  public static PeriodAdjustment.Meta meta() {
-    return PeriodAdjustment.Meta.INSTANCE;
+  public static TenorAdjustment.Meta meta() {
+    return TenorAdjustment.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(PeriodAdjustment.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(TenorAdjustment.Meta.INSTANCE);
   }
 
   /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static PeriodAdjustment.Builder builder() {
-    return new PeriodAdjustment.Builder();
+  public static TenorAdjustment.Builder builder() {
+    return new TenorAdjustment.Builder();
   }
 
-  private PeriodAdjustment(
-      Period period,
+  private TenorAdjustment(
+      Tenor tenor,
       PeriodAdditionConvention additionConvention,
       BusinessDayAdjustment adjustment) {
-    JodaBeanUtils.notNull(period, "period");
+    JodaBeanUtils.notNull(tenor, "tenor");
     JodaBeanUtils.notNull(additionConvention, "additionConvention");
     JodaBeanUtils.notNull(adjustment, "adjustment");
-    this.period = period;
+    this.tenor = tenor;
     this.additionConvention = additionConvention;
     this.adjustment = adjustment;
     validate();
   }
 
   @Override
-  public PeriodAdjustment.Meta metaBean() {
-    return PeriodAdjustment.Meta.INSTANCE;
+  public TenorAdjustment.Meta metaBean() {
+    return TenorAdjustment.Meta.INSTANCE;
   }
 
   @Override
@@ -239,13 +233,13 @@ public final class PeriodAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the period to be added.
+   * Gets the tenor to be added.
    * <p>
-   * When the adjustment is performed, this period will be added to the input date.
+   * When the adjustment is performed, this tenor will be added to the input date.
    * @return the value of the property, not null
    */
-  public Period getPeriod() {
-    return period;
+  public Tenor getTenor() {
+    return tenor;
   }
 
   //-----------------------------------------------------------------------
@@ -289,8 +283,8 @@ public final class PeriodAdjustment
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      PeriodAdjustment other = (PeriodAdjustment) obj;
-      return JodaBeanUtils.equal(getPeriod(), other.getPeriod()) &&
+      TenorAdjustment other = (TenorAdjustment) obj;
+      return JodaBeanUtils.equal(getTenor(), other.getTenor()) &&
           JodaBeanUtils.equal(getAdditionConvention(), other.getAdditionConvention()) &&
           JodaBeanUtils.equal(getAdjustment(), other.getAdjustment());
     }
@@ -300,7 +294,7 @@ public final class PeriodAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPeriod());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
     return hash;
@@ -308,7 +302,7 @@ public final class PeriodAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code PeriodAdjustment}.
+   * The meta-bean for {@code TenorAdjustment}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -317,26 +311,26 @@ public final class PeriodAdjustment
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code period} property.
+     * The meta-property for the {@code tenor} property.
      */
-    private final MetaProperty<Period> period = DirectMetaProperty.ofImmutable(
-        this, "period", PeriodAdjustment.class, Period.class);
+    private final MetaProperty<Tenor> tenor = DirectMetaProperty.ofImmutable(
+        this, "tenor", TenorAdjustment.class, Tenor.class);
     /**
      * The meta-property for the {@code additionConvention} property.
      */
     private final MetaProperty<PeriodAdditionConvention> additionConvention = DirectMetaProperty.ofImmutable(
-        this, "additionConvention", PeriodAdjustment.class, PeriodAdditionConvention.class);
+        this, "additionConvention", TenorAdjustment.class, PeriodAdditionConvention.class);
     /**
      * The meta-property for the {@code adjustment} property.
      */
     private final MetaProperty<BusinessDayAdjustment> adjustment = DirectMetaProperty.ofImmutable(
-        this, "adjustment", PeriodAdjustment.class, BusinessDayAdjustment.class);
+        this, "adjustment", TenorAdjustment.class, BusinessDayAdjustment.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "period",
+        "tenor",
         "additionConvention",
         "adjustment");
 
@@ -349,8 +343,8 @@ public final class PeriodAdjustment
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -991726143:  // period
-          return period;
+        case 110246592:  // tenor
+          return tenor;
         case 1652975501:  // additionConvention
           return additionConvention;
         case 1977085293:  // adjustment
@@ -360,13 +354,13 @@ public final class PeriodAdjustment
     }
 
     @Override
-    public PeriodAdjustment.Builder builder() {
-      return new PeriodAdjustment.Builder();
+    public TenorAdjustment.Builder builder() {
+      return new TenorAdjustment.Builder();
     }
 
     @Override
-    public Class<? extends PeriodAdjustment> beanType() {
-      return PeriodAdjustment.class;
+    public Class<? extends TenorAdjustment> beanType() {
+      return TenorAdjustment.class;
     }
 
     @Override
@@ -376,11 +370,11 @@ public final class PeriodAdjustment
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code period} property.
+     * The meta-property for the {@code tenor} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Period> period() {
-      return period;
+    public MetaProperty<Tenor> tenor() {
+      return tenor;
     }
 
     /**
@@ -403,12 +397,12 @@ public final class PeriodAdjustment
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -991726143:  // period
-          return ((PeriodAdjustment) bean).getPeriod();
+        case 110246592:  // tenor
+          return ((TenorAdjustment) bean).getTenor();
         case 1652975501:  // additionConvention
-          return ((PeriodAdjustment) bean).getAdditionConvention();
+          return ((TenorAdjustment) bean).getAdditionConvention();
         case 1977085293:  // adjustment
-          return ((PeriodAdjustment) bean).getAdjustment();
+          return ((TenorAdjustment) bean).getAdjustment();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -426,11 +420,11 @@ public final class PeriodAdjustment
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code PeriodAdjustment}.
+   * The bean-builder for {@code TenorAdjustment}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<PeriodAdjustment> {
+  public static final class Builder extends DirectFieldsBeanBuilder<TenorAdjustment> {
 
-    private Period period;
+    private Tenor tenor;
     private PeriodAdditionConvention additionConvention;
     private BusinessDayAdjustment adjustment;
 
@@ -444,8 +438,8 @@ public final class PeriodAdjustment
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(PeriodAdjustment beanToCopy) {
-      this.period = beanToCopy.getPeriod();
+    private Builder(TenorAdjustment beanToCopy) {
+      this.tenor = beanToCopy.getTenor();
       this.additionConvention = beanToCopy.getAdditionConvention();
       this.adjustment = beanToCopy.getAdjustment();
     }
@@ -454,8 +448,8 @@ public final class PeriodAdjustment
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -991726143:  // period
-          return period;
+        case 110246592:  // tenor
+          return tenor;
         case 1652975501:  // additionConvention
           return additionConvention;
         case 1977085293:  // adjustment
@@ -468,8 +462,8 @@ public final class PeriodAdjustment
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -991726143:  // period
-          this.period = (Period) newValue;
+        case 110246592:  // tenor
+          this.tenor = (Tenor) newValue;
           break;
         case 1652975501:  // additionConvention
           this.additionConvention = (PeriodAdditionConvention) newValue;
@@ -508,22 +502,22 @@ public final class PeriodAdjustment
     }
 
     @Override
-    public PeriodAdjustment build() {
-      return new PeriodAdjustment(
-          period,
+    public TenorAdjustment build() {
+      return new TenorAdjustment(
+          tenor,
           additionConvention,
           adjustment);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code period} property in the builder.
-     * @param period  the new value, not null
+     * Sets the {@code tenor} property in the builder.
+     * @param tenor  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder period(Period period) {
-      JodaBeanUtils.notNull(period, "period");
-      this.period = period;
+    public Builder tenor(Tenor tenor) {
+      JodaBeanUtils.notNull(tenor, "tenor");
+      this.tenor = tenor;
       return this;
     }
 
@@ -553,8 +547,8 @@ public final class PeriodAdjustment
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
-      buf.append("PeriodAdjustment.Builder{");
-      buf.append("period").append('=').append(JodaBeanUtils.toString(period)).append(',').append(' ');
+      buf.append("TenorAdjustment.Builder{");
+      buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
       buf.append("additionConvention").append('=').append(JodaBeanUtils.toString(additionConvention)).append(',').append(' ');
       buf.append("adjustment").append('=').append(JodaBeanUtils.toString(adjustment));
       buf.append('}');
