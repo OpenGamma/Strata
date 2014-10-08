@@ -139,12 +139,12 @@ public interface HolidayCalendar
   }
 
   /**
-   * Finds the next business day.
+   * Finds the next business day, always returning a later date.
    * <p>
    * Given a date, this method returns the next business day.
    * 
    * @param date  the date to adjust
-   * @return the first business day after this one
+   * @return the first business day after the input date
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate next(LocalDate date) {
@@ -154,18 +154,50 @@ public interface HolidayCalendar
   }
 
   /**
-   * Finds the previous business day.
+   * Finds the next business day, returning the input date if it is a business day.
+   * <p>
+   * Given a date, this method returns a business day.
+   * If the input date is a business day, it is returned.
+   * Otherwise, the next business day is returned.
+   * 
+   * @param date  the date to adjust
+   * @return the input date if it is a business day, or the next business day
+   * @throws IllegalArgumentException if the calculation is outside the supported range
+   */
+  public default LocalDate nextOrSame(LocalDate date) {
+    ArgChecker.notNull(date, "date");
+    return isHoliday(date) ? next(date) : date;
+  }
+
+  /**
+   * Finds the previous business day, always returning an earlier date.
    * <p>
    * Given a date, this method returns the previous business day.
    * 
    * @param date  the date to adjust
-   * @return the first business day before this one
+   * @return the first business day before the input date
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default LocalDate previous(LocalDate date) {
     ArgChecker.notNull(date, "date");
     LocalDate previous = date.minusDays(1);
     return isHoliday(previous) ? previous(previous) : previous;
+  }
+
+  /**
+   * Finds the previous business day, returning the input date if it is a business day.
+   * <p>
+   * Given a date, this method returns a business day.
+   * If the input date is a business day, it is returned.
+   * Otherwise, the previous business day is returned.
+   * 
+   * @param date  the date to adjust
+   * @return the input date if it is a business day, or the previous business day
+   * @throws IllegalArgumentException if the calculation is outside the supported range
+   */
+  public default LocalDate previousOrSame(LocalDate date) {
+    ArgChecker.notNull(date, "date");
+    return isHoliday(date) ? previous(date) : date;
   }
 
   //-------------------------------------------------------------------------

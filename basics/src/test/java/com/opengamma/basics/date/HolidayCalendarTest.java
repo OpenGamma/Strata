@@ -393,6 +393,35 @@ public class HolidayCalendarTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "nextOrSame")
+  static Object[][] data_nextOrSame() {
+      return new Object[][] {
+          {THU_2014_07_10, THU_2014_07_10},
+          {FRI_2014_07_11, FRI_2014_07_11},
+          {SAT_2014_07_12, MON_2014_07_14},
+          {SUN_2014_07_13, MON_2014_07_14},
+          {MON_2014_07_14, MON_2014_07_14},
+          {TUE_2014_07_15, TUE_2014_07_15},
+          {WED_2014_07_16, THU_2014_07_17},
+          {THU_2014_07_17, THU_2014_07_17},
+          {FRI_2014_07_18, MON_2014_07_21},
+          {SAT_2014_07_19, MON_2014_07_21},
+          {SUN_2014_07_20, MON_2014_07_21},
+          {MON_2014_07_21, MON_2014_07_21},
+      };
+  }
+
+  @Test(dataProvider = "nextOrSame")
+  public void test_nextOrSame(LocalDate date, LocalDate expectedNext) {
+    HolidayCalendar test = new MockHolCal();
+    assertEquals(test.nextOrSame(date), expectedNext);
+  }
+
+  public void test_nextOrSame_null() {
+    assertThrows(() -> new MockHolCal().nextOrSame(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
   @DataProvider(name = "previous")
   static Object[][] data_previous() {
       return new Object[][] {
@@ -419,6 +448,35 @@ public class HolidayCalendarTest {
 
   public void test_previous_null() {
     assertThrows(() -> new MockHolCal().previous(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "previousOrSame")
+  static Object[][] data_previousOrSame() {
+      return new Object[][] {
+          {FRI_2014_07_11, FRI_2014_07_11},
+          {SAT_2014_07_12, FRI_2014_07_11},
+          {SUN_2014_07_13, FRI_2014_07_11},
+          {MON_2014_07_14, MON_2014_07_14},
+          {TUE_2014_07_15, TUE_2014_07_15},
+          {WED_2014_07_16, TUE_2014_07_15},
+          {THU_2014_07_17, THU_2014_07_17},
+          {FRI_2014_07_18, THU_2014_07_17},
+          {SAT_2014_07_19, THU_2014_07_17},
+          {SUN_2014_07_20, THU_2014_07_17},
+          {MON_2014_07_21, MON_2014_07_21},
+          {TUE_2014_07_22, TUE_2014_07_22},
+      };
+  }
+
+  @Test(dataProvider = "previousOrSame")
+  public void test_previousOrSame(LocalDate date, LocalDate expectedPrevious) {
+    HolidayCalendar test = new MockHolCal();
+    assertEquals(test.previousOrSame(date), expectedPrevious);
+  }
+
+  public void test_previousOrSame_null() {
+    assertThrows(() -> new MockHolCal().previousOrSame(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
