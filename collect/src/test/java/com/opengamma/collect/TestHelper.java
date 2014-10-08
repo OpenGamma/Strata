@@ -181,6 +181,8 @@ public class TestHelper {
     try {
       runner.run();
       fail("Expected " + expected.getSimpleName() + " but code succeeded normally");
+    } catch (AssertionError ex) {
+      throw ex;
     } catch (Throwable ex) {
       if (expected.isInstance(ex)) {
         return;
