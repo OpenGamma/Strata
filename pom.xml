@@ -67,7 +67,6 @@
   <modules>
     <module>basics</module>
     <module>collect</module>
-    <module>identifier</module>
     <module>example</module>
   </modules>
 
