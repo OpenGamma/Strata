@@ -67,7 +67,6 @@ public final class StandardId implements StandardIdentifiable, Comparable<Standa
   private final String value;
 
   //-------------------------------------------------------------------------
-
   /**
    * Obtains a {@code StandardId} from a scheme and value.
    * <p>
@@ -178,21 +177,19 @@ public final class StandardId implements StandardIdentifiable, Comparable<Standa
   /**
    * Checks if this identifier equals another.
    * 
-   * @param o  the other object
+   * @param obj  the other object
    * @return true if equal
    */
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-
-    StandardId that = (StandardId) o;
-    return scheme.equals(that.scheme) && value.equals(that.value);
-
+    StandardId other = (StandardId) obj;
+    return scheme.equals(other.scheme) && value.equals(other.value);
   }
 
   /**

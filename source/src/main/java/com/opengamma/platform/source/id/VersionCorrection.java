@@ -358,12 +358,12 @@ public final class VersionCorrection
     if (obj == this) {
       return true;
     }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      VersionCorrection other = (VersionCorrection) obj;
-      return JodaBeanUtils.equal(getVersionAsOf(), other.getVersionAsOf()) &&
-          JodaBeanUtils.equal(getCorrectedTo(), other.getCorrectedTo());
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    VersionCorrection other = (VersionCorrection) obj;
+    return JodaBeanUtils.equal(getVersionAsOf(), other.getVersionAsOf()) &&
+        JodaBeanUtils.equal(getCorrectedTo(), other.getCorrectedTo());
   }
 
   @Override

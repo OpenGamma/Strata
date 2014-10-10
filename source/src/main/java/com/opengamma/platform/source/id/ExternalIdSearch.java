@@ -397,12 +397,12 @@ public final class ExternalIdSearch
     if (obj == this) {
       return true;
     }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ExternalIdSearch other = (ExternalIdSearch) obj;
-      return JodaBeanUtils.equal(getExternalIds(), other.getExternalIds()) &&
-          JodaBeanUtils.equal(getSearchType(), other.getSearchType());
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    ExternalIdSearch other = (ExternalIdSearch) obj;
+    return JodaBeanUtils.equal(getExternalIds(), other.getExternalIds()) &&
+        JodaBeanUtils.equal(getSearchType(), other.getSearchType());
   }
 
   @Override
