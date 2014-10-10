@@ -56,8 +56,8 @@ import com.opengamma.collect.ArgChecker;
  *  BusinessDayAdjustment businessDayAdj =
  *    BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, GlobalHolidayCalendars.EUTA);
  *  PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
- *      .startDate(AdjustableDate.of(LocalDate.of(2014, 2, 12), businessDayAdj))
- *      .endDate(AdjustableDate.of(LocalDate.of(2015, 3, 31), businessDayAdj))
+ *      .startDate(LocalDate.of(2014, 2, 12))
+ *      .endDate(LocalDate.of(2015, 3, 31))
  *      .businessDayAdjustment(businessDayAdj)
  *      .frequency(Frequency.P3M)
  *      .stubConvention(StubConvention.LONG_INITIAL)
