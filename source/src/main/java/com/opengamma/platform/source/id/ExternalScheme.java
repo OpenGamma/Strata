@@ -96,11 +96,11 @@ public final class ExternalScheme
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ExternalScheme) {
-      ExternalScheme other = (ExternalScheme) obj;
-      return name.equals(other.name);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    ExternalScheme other = (ExternalScheme) obj;
+    return name.equals(other.name);
   }
 
   /**

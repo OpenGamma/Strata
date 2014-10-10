@@ -371,11 +371,11 @@ public final class ExternalIdBundle
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ExternalIdBundle) {
-      ExternalIdBundle other = (ExternalIdBundle) obj;
-      return externalIds.equals(other.externalIds);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    ExternalIdBundle other = (ExternalIdBundle) obj;
+    return externalIds.equals(other.externalIds);
   }
 
   /**

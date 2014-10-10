@@ -209,12 +209,11 @@ public final class ObjectId
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ObjectId) {
-      ObjectId other = (ObjectId) obj;
-      return scheme.equals(other.scheme) &&
-          value.equals(other.value);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    ObjectId other = (ObjectId) obj;
+    return scheme.equals(other.scheme) && value.equals(other.value);
   }
 
   /**

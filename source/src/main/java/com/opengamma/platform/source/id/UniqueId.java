@@ -296,13 +296,13 @@ public final class UniqueId
     if (this == obj) {
       return true;
     }
-    if (obj instanceof UniqueId) {
-      UniqueId other = (UniqueId) obj;
-      return scheme.equals(other.scheme) &&
-          value.equals(other.value) &&
-          version.equals(other.version);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    UniqueId other = (UniqueId) obj;
+    return scheme.equals(other.scheme) &&
+        value.equals(other.value) &&
+        version.equals(other.version);
   }
 
   /**

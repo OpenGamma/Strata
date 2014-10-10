@@ -209,12 +209,11 @@ public final class ExternalId
     if (this == obj) {
       return true;
     }
-    if (obj instanceof ExternalId) {
-      ExternalId other = (ExternalId) obj;
-      return scheme.equals(other.scheme) &&
-          value.equals(other.value);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    ExternalId other = (ExternalId) obj;
+    return scheme.equals(other.scheme) && value.equals(other.value);
   }
 
   /**

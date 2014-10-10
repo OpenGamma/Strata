@@ -5,7 +5,6 @@
  */
 package com.opengamma.platform.source.id;
 
-
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
