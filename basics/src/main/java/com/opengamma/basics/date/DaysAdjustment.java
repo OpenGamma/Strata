@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -71,7 +70,7 @@ import com.opengamma.collect.ArgChecker;
  *  LocalDate adjusted = baseDate.with(daysAdjustment);
  * </pre>
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition
 public final class DaysAdjustment
     implements ImmutableBean, DateAdjuster, Serializable {
 
@@ -252,6 +251,14 @@ public final class DaysAdjustment
     JodaBeanUtils.registerMetaBean(DaysAdjustment.Meta.INSTANCE);
   }
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static DaysAdjustment.Builder builder() {
+    return new DaysAdjustment.Builder();
+  }
+
   private DaysAdjustment(
       int days,
       HolidayCalendar calendar,
@@ -327,6 +334,14 @@ public final class DaysAdjustment
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -404,7 +419,7 @@ public final class DaysAdjustment
     }
 
     @Override
-    public BeanBuilder<? extends DaysAdjustment> builder() {
+    public DaysAdjustment.Builder builder() {
       return new DaysAdjustment.Builder();
     }
 
@@ -472,7 +487,7 @@ public final class DaysAdjustment
   /**
    * The bean-builder for {@code DaysAdjustment}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<DaysAdjustment> {
+  public static final class Builder extends DirectFieldsBeanBuilder<DaysAdjustment> {
 
     private int days;
     private HolidayCalendar calendar;
@@ -482,6 +497,16 @@ public final class DaysAdjustment
      * Restricted constructor.
      */
     private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(DaysAdjustment beanToCopy) {
+      this.days = beanToCopy.getDays();
+      this.calendar = beanToCopy.getCalendar();
+      this.adjustment = beanToCopy.getAdjustment();
     }
 
     //-----------------------------------------------------------------------
@@ -547,6 +572,40 @@ public final class DaysAdjustment
           days,
           calendar,
           adjustment);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code days} property in the builder.
+     * @param days  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder days(int days) {
+      JodaBeanUtils.notNull(days, "days");
+      this.days = days;
+      return this;
+    }
+
+    /**
+     * Sets the {@code calendar} property in the builder.
+     * @param calendar  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder calendar(HolidayCalendar calendar) {
+      JodaBeanUtils.notNull(calendar, "calendar");
+      this.calendar = calendar;
+      return this;
+    }
+
+    /**
+     * Sets the {@code adjustment} property in the builder.
+     * @param adjustment  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder adjustment(BusinessDayAdjustment adjustment) {
+      JodaBeanUtils.notNull(adjustment, "adjustment");
+      this.adjustment = adjustment;
+      return this;
     }
 
     //-----------------------------------------------------------------------

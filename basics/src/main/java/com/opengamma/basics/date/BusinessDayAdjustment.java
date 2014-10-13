@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -43,7 +42,7 @@ import com.opengamma.collect.ArgChecker;
  *  LocalDate adjusted = baseDate.with(businessDayAdjustment);
  * </pre>
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition
 public final class BusinessDayAdjustment
     implements ImmutableBean, DateAdjuster, Serializable {
 
@@ -129,6 +128,14 @@ public final class BusinessDayAdjustment
     JodaBeanUtils.registerMetaBean(BusinessDayAdjustment.Meta.INSTANCE);
   }
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static BusinessDayAdjustment.Builder builder() {
+    return new BusinessDayAdjustment.Builder();
+  }
+
   private BusinessDayAdjustment(
       BusinessDayConvention convention,
       HolidayCalendar calendar) {
@@ -176,6 +183,14 @@ public final class BusinessDayAdjustment
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -243,7 +258,7 @@ public final class BusinessDayAdjustment
     }
 
     @Override
-    public BeanBuilder<? extends BusinessDayAdjustment> builder() {
+    public BusinessDayAdjustment.Builder builder() {
       return new BusinessDayAdjustment.Builder();
     }
 
@@ -301,7 +316,7 @@ public final class BusinessDayAdjustment
   /**
    * The bean-builder for {@code BusinessDayAdjustment}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<BusinessDayAdjustment> {
+  public static final class Builder extends DirectFieldsBeanBuilder<BusinessDayAdjustment> {
 
     private BusinessDayConvention convention;
     private HolidayCalendar calendar;
@@ -310,6 +325,15 @@ public final class BusinessDayAdjustment
      * Restricted constructor.
      */
     private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(BusinessDayAdjustment beanToCopy) {
+      this.convention = beanToCopy.getConvention();
+      this.calendar = beanToCopy.getCalendar();
     }
 
     //-----------------------------------------------------------------------
@@ -369,6 +393,29 @@ public final class BusinessDayAdjustment
       return new BusinessDayAdjustment(
           convention,
           calendar);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code convention} property in the builder.
+     * @param convention  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder convention(BusinessDayConvention convention) {
+      JodaBeanUtils.notNull(convention, "convention");
+      this.convention = convention;
+      return this;
+    }
+
+    /**
+     * Sets the {@code calendar} property in the builder.
+     * @param calendar  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder calendar(HolidayCalendar calendar) {
+      JodaBeanUtils.notNull(calendar, "calendar");
+      this.calendar = calendar;
+      return this;
     }
 
     //-----------------------------------------------------------------------
