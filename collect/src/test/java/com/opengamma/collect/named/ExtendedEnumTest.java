@@ -26,9 +26,12 @@ public class ExtendedEnumTest {
     assertEquals(test.lookup("Standard"), MockNameds.STANDARD);
     assertEquals(test.lookup("Alternate"), MockNameds.STANDARD);
     assertEquals(test.lookup("More"), MoreMockNameds.MORE);
+    assertEquals(test.lookup("More", MoreMockNameds.class), MoreMockNameds.MORE);
     assertEquals(test.lookup("Other"), OtherMockNameds.OTHER);
+    assertEquals(test.lookup("Other", OtherMockNameds.class), OtherMockNameds.OTHER);
     assertThrows(() -> test.lookup("Rubbish"), IllegalArgumentException.class);
     assertThrows(() -> test.lookup(null), IllegalArgumentException.class);
+    assertThrows(() -> test.lookup("Other", MoreMockNameds.class), IllegalArgumentException.class);
     assertEquals(test.toString(), "ExtendedEnum[MockNamed]");
   }
 

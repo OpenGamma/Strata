@@ -209,7 +209,7 @@ public final class ExtendedEnum<T extends Named> {
   /**
    * Looks up an instance by name.
    * <p>
-   * This find the instance matching the specified name.
+   * This finds the instance matching the specified name.
    * Instances may have alternate names (aliases), thus the returned instance
    * may have a name other than that requested.
    * 
@@ -226,6 +226,26 @@ public final class ExtendedEnum<T extends Named> {
       }
     }
     throw new IllegalArgumentException(type.getSimpleName() + " name not found: " + name);
+  }
+
+  /**
+   * Looks up an instance by name and type.
+   * <p>
+   * This finds the instance matching the specified name, ensuring it is of the specified type.
+   * Instances may have alternate names (aliases), thus the returned instance
+   * may have a name other than that requested.
+   * 
+   * @param <S>  the enum subtype
+   * @param subtype  the enum subtype to match
+   * @param name  the enum name to return
+   * @return the named enum
+   */
+  public <S extends T> S lookup(String name, Class<S> subtype) {
+    T result = lookup(name);
+    if (!subtype.isInstance(result)) {
+      throw new IllegalArgumentException(type.getSimpleName() + " name found but did not match expected type: " + name);
+    }
+    return subtype.cast(result);
   }
 
   //-------------------------------------------------------------------------
