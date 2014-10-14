@@ -97,11 +97,6 @@ public class CountryTest {
     assertSame(test, Country.of("AA"));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_of_String_lowerCase() {
-    Country.of("gbp");
-  }
-
   @DataProvider(name = "ofBad")
   Object[][] data_ofBad() {
     return new Object[][] {
