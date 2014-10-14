@@ -406,10 +406,14 @@ public final class Tenor
    */
   @Override
   public boolean equals(Object obj) {
-    if (obj == null || !(obj instanceof Tenor)) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    return period.equals(((Tenor) obj).period);
+    Tenor other = (Tenor) obj;
+    return period.equals(other.period);
   }
 
   /**

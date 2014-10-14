@@ -356,10 +356,11 @@ public final class Currency
     if (obj == this) {
       return true;
     }
-    if (obj instanceof Currency) {
-      return code.equals(((Currency) obj).code);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    Currency other = (Currency) obj;
+    return code.equals(other.code);
   }
 
   /**

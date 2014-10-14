@@ -462,11 +462,11 @@ public final class Frequency
     if (obj == this) {
       return true;
     }
-    if (obj instanceof Frequency) {
-      Frequency other = (Frequency) obj;
-      return period.equals(other.period);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    Frequency other = (Frequency) obj;
+    return period.equals(other.period);
   }
 
   /**
