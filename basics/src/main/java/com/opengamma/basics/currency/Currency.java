@@ -22,6 +22,7 @@ import com.opengamma.collect.ArgChecker;
  * A unit of currency.
  * <p>
  * This class represents a unit of currency such as the British Pound, Euro or US Dollar.
+ * Any three letter code may be used, however it is intended to use codes based on ISO-4217.
  * <p>
  * This class is immutable and thread-safe.
  */

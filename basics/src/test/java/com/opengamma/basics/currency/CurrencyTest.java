@@ -78,7 +78,7 @@ public class CurrencyTest {
 
   @Test(dataProvider = "ofBad", expectedExceptions = IllegalArgumentException.class)
   public void test_of_String_bad(String input) {
-    CurrencyAmount.parse(input);
+    Currency.of(input);
   }
 
   //-----------------------------------------------------------------------
@@ -126,7 +126,7 @@ public class CurrencyTest {
 
   @Test(dataProvider = "parseBad", expectedExceptions = IllegalArgumentException.class)
   public void test_parse_String_bad(String input) {
-    CurrencyAmount.parse(input);
+    Currency.parse(input);
   }
 
   //-----------------------------------------------------------------------
