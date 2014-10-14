@@ -332,10 +332,11 @@ public final class Country
     if (obj == this) {
       return true;
     }
-    if (obj instanceof Country) {
-      return code.equals(((Country) obj).code);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return false;
+    Country other = (Country) obj;
+    return code.equals(other.code);
   }
 
   /**
