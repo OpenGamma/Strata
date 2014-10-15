@@ -5,9 +5,9 @@
  */
 package com.opengamma.basics.schedule;
 
+import static com.opengamma.basics.schedule.Frequency.P12M;
 import static com.opengamma.basics.schedule.Frequency.P1D;
 import static com.opengamma.basics.schedule.Frequency.P1W;
-import static com.opengamma.basics.schedule.Frequency.P1Y;
 import static com.opengamma.basics.schedule.Frequency.P3M;
 import static com.opengamma.basics.schedule.Frequency.P6M;
 import static com.opengamma.basics.schedule.Frequency.TERM;
@@ -28,7 +28,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.basics.schedule.Frequency;
 
 /**
  * Tests for the frequency class.
@@ -47,9 +46,10 @@ public class FrequencyTest {
         {Frequency.ofWeeks(1), Period.ofDays(7), "P1W"},
         {Frequency.ofWeeks(3), Period.ofDays(21), "P3W"},
         {Frequency.ofMonths(8), Period.ofMonths(8), "P8M"},
-        {Frequency.ofMonths(12), Period.ofYears(1), "P1Y"},
+        {Frequency.ofMonths(12), Period.ofMonths(12), "P12M"},
         {Frequency.ofMonths(18), Period.ofMonths(18), "P18M"},
         {Frequency.ofMonths(24), Period.ofYears(2), "P2Y"},
+        {Frequency.ofMonths(30), Period.of(2, 6, 0), "P2Y6M"},
         {Frequency.of(Period.of(1, 2, 3)), Period.of(1, 2, 3), "P1Y2M3D"},
         {Frequency.P1D, Period.ofDays(1), "P1D"},
         {Frequency.P1W, Period.ofWeeks(1), "P1W"},
@@ -63,7 +63,7 @@ public class FrequencyTest {
         {Frequency.P3M, Period.ofMonths(3), "P3M"},
         {Frequency.P4M, Period.ofMonths(4), "P4M"},
         {Frequency.P6M, Period.ofMonths(6), "P6M"},
-        {Frequency.P1Y, Period.ofYears(1), "P1Y"},
+        {Frequency.P12M, Period.ofMonths(12), "P12M"},
         {Frequency.TERM, Period.ofYears(10000), "Term"},
     };
   }
@@ -124,6 +124,40 @@ public class FrequencyTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "ofMonths")
+  static Object[][] data_ofMonths() {
+    return new Object[][] {
+        {1, Period.ofMonths(1), "P1M"},
+        {2, Period.ofMonths(2), "P2M"},
+        {12, Period.ofMonths(12), "P12M"},
+        {20, Period.ofMonths(20), "P20M"},
+        {24, Period.ofYears(2), "P2Y"},
+        {30, Period.of(2, 6, 0), "P2Y6M"},
+    };
+  }
+
+  @Test(dataProvider = "ofMonths")
+  public void test_ofMonths(int months, Period normalized, String str) {
+    assertEquals(Frequency.ofMonths(months).getPeriod(), normalized);
+    assertEquals(Frequency.ofMonths(months).toString(), str);
+  }
+
+  @DataProvider(name = "ofYears")
+  static Object[][] data_ofYears() {
+    return new Object[][] {
+        {1, Period.ofMonths(12), "P12M"},
+        {2, Period.ofYears(2), "P2Y"},
+        {3, Period.ofYears(3), "P3Y"},
+    };
+  }
+
+  @Test(dataProvider = "ofYears")
+  public void test_ofYears(int years, Period normalized, String str) {
+    assertEquals(Frequency.ofYears(years).getPeriod(), normalized);
+    assertEquals(Frequency.ofYears(years).toString(), str);
+  }
+
+  //-------------------------------------------------------------------------
   @DataProvider(name = "based")
   static Object[][] data_based() {
     return new Object[][] {
@@ -168,7 +202,7 @@ public class FrequencyTest {
         {Frequency.P3M, 4},
         {Frequency.P4M, 3},
         {Frequency.P6M, 2},
-        {Frequency.P1Y, 1},
+        {Frequency.P12M, 1},
         {Frequency.TERM, 0},
     };
   }
@@ -200,8 +234,8 @@ public class FrequencyTest {
         {"2W", Frequency.ofWeeks(2)},
         {"6W", Frequency.ofWeeks(6)},
         {"2M", Frequency.ofMonths(2)},
-        {"12M", Frequency.ofYears(1)},
-        {"1Y", Frequency.ofYears(1)},
+        {"12M", Frequency.ofMonths(12)},
+        {"1Y", Frequency.ofMonths(12)},
     };
   }
 
@@ -277,14 +311,14 @@ public class FrequencyTest {
   public void test_serialization() {
     assertSerialization(P1D);
     assertSerialization(P3M);
-    assertSerialization(P1Y);
+    assertSerialization(P12M);
     assertSerialization(TERM);
   }
 
   public void test_jodaConvert() {
     assertJodaConvert(Frequency.class, P1D);
     assertJodaConvert(Frequency.class, P3M);
-    assertJodaConvert(Frequency.class, P1Y);
+    assertJodaConvert(Frequency.class, P12M);
     assertJodaConvert(Frequency.class, TERM);
   }
 

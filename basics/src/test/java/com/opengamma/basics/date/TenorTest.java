@@ -47,12 +47,60 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class TenorTest {
 
-  public void test_of_Period() {
-    assertEquals(Tenor.of(Period.ofDays(1)), TENOR_1D);
-    assertEquals(Tenor.of(Period.ofDays(7)), TENOR_1W);
-    assertEquals(Tenor.of(Period.ofWeeks(2)), TENOR_2W);
-    assertEquals(Tenor.of(Period.ofMonths(1)), TENOR_1M);
-    assertEquals(Tenor.of(Period.ofYears(1)), TENOR_1Y);
+  @DataProvider(name = "ofPeriod")
+  static Object[][] data_ofPeriod() {
+    return new Object[][] {
+        {Period.ofDays(1), Period.ofDays(1), "1D"},
+        {Period.ofDays(7), Period.ofDays(7), "1W"},
+        {Period.ofDays(10), Period.ofDays(10), "10D"},
+        {Period.ofWeeks(2), Period.ofDays(14), "2W"},
+        {Period.ofMonths(1), Period.ofMonths(1), "1M"},
+        {Period.ofMonths(2), Period.ofMonths(2), "2M"},
+        {Period.ofMonths(12), Period.ofMonths(12), "12M"},
+        {Period.ofYears(1), Period.ofMonths(12), "12M"},
+        {Period.ofMonths(20), Period.ofMonths(20), "20M"},
+        {Period.ofMonths(24), Period.ofYears(2), "2Y"},
+        {Period.ofMonths(30), Period.of(2, 6, 0), "2Y6M"},
+    };
+  }
+
+  @Test(dataProvider = "ofPeriod")
+  public void test_ofPeriod(Period period, Period normalized, String str) {
+    assertEquals(Tenor.of(period).getPeriod(), normalized);
+    assertEquals(Tenor.of(period).toString(), str);
+  }
+
+  @DataProvider(name = "ofMonths")
+  static Object[][] data_ofMonths() {
+    return new Object[][] {
+        {1, Period.ofMonths(1), "1M"},
+        {2, Period.ofMonths(2), "2M"},
+        {12, Period.ofMonths(12), "12M"},
+        {20, Period.ofMonths(20), "20M"},
+        {24, Period.ofYears(2), "2Y"},
+        {30, Period.of(2, 6, 0), "2Y6M"},
+    };
+  }
+
+  @Test(dataProvider = "ofMonths")
+  public void test_ofMonths(int months, Period normalized, String str) {
+    assertEquals(Tenor.ofMonths(months).getPeriod(), normalized);
+    assertEquals(Tenor.ofMonths(months).toString(), str);
+  }
+
+  @DataProvider(name = "ofYears")
+  static Object[][] data_ofYears() {
+    return new Object[][] {
+        {1, Period.ofMonths(12), "12M"},
+        {2, Period.ofYears(2), "2Y"},
+        {3, Period.ofYears(3), "3Y"},
+    };
+  }
+
+  @Test(dataProvider = "ofYears")
+  public void test_ofYears(int years, Period normalized, String str) {
+    assertEquals(Tenor.ofYears(years).getPeriod(), normalized);
+    assertEquals(Tenor.ofYears(years).toString(), str);
   }
 
   public void test_of_int() {
@@ -63,14 +111,6 @@ public class TenorTest {
     assertEquals(Tenor.ofYears(1), TENOR_1Y);
   }
 
-  public void test_of_notNegative() {
-    assertThrows(() -> Tenor.of(Period.ofDays(-1)), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofDays(-1), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofWeeks(-1), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofMonths(-1), IllegalArgumentException.class);
-    assertThrows(() -> Tenor.ofYears(-1), IllegalArgumentException.class);
-  }
-
   public void test_of_notZero() {
     assertThrows(() -> Tenor.of(Period.ofDays(0)), IllegalArgumentException.class);
     assertThrows(() -> Tenor.ofDays(0), IllegalArgumentException.class);
@@ -79,7 +119,15 @@ public class TenorTest {
     assertThrows(() -> Tenor.ofYears(0), IllegalArgumentException.class);
   }
 
-  //-------------------------------------------------------------------------
+  public void test_of_notNegative() {
+    assertThrows(() -> Tenor.of(Period.ofDays(-1)), IllegalArgumentException.class);
+    assertThrows(() -> Tenor.ofDays(-1), IllegalArgumentException.class);
+    assertThrows(() -> Tenor.ofWeeks(-1), IllegalArgumentException.class);
+    assertThrows(() -> Tenor.ofMonths(-1), IllegalArgumentException.class);
+    assertThrows(() -> Tenor.ofYears(-1), IllegalArgumentException.class);
+  }
+
+ //-------------------------------------------------------------------------
   public void test_parse_String_roundTrip() {
     assertEquals(Tenor.parse(TENOR_10M.toString()), TENOR_10M);
   }
@@ -201,7 +249,7 @@ public class TenorTest {
     assertEquals(TENOR_3D.toString(), "3D");
     assertEquals(TENOR_2W.toString(), "2W");
     assertEquals(TENOR_4M.toString(), "4M");
-    assertEquals(TENOR_1Y.toString(), "1Y");
+    assertEquals(TENOR_1Y.toString(), "12M");
     assertEquals(TENOR_12M.toString(), "12M");
     assertEquals(TENOR_18M.toString(), "18M");
     assertEquals(TENOR_4Y.toString(), "4Y");

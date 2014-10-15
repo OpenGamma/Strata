@@ -122,9 +122,9 @@ public final class Tenor
    */
   public static final Tenor TENOR_18M = ofMonths(18);
   /**
-   * A tenor of 1 year.
+   * A tenor of 1 year, which is a synonym for a tenor of 12 months.
    */
-  public static final Tenor TENOR_1Y = ofYears(1);
+  public static final Tenor TENOR_1Y = TENOR_12M;
   /**
    * A tenor of 2 years.
    */
@@ -186,6 +186,10 @@ public final class Tenor
    * The period of the tenor.
    */
   private final Period period;
+  /**
+   * The name of the tenor.
+   */
+  private final String name;
 
   //-------------------------------------------------------------------------
   /**
@@ -199,18 +203,34 @@ public final class Tenor
    * @throws IllegalArgumentException if the period is negative or zero
    */
   public static Tenor of(Period period) {
-    return new Tenor(period);
+    ArgChecker.notNull(period, "period");
+    int days = period.getDays();
+    long months = period.toTotalMonths();
+    if (months > 0 && days > 0) {
+      return new Tenor(period, period.toString().substring(1));
+    } else if (months > 0) {
+      return ofMonths(Math.toIntExact(months));
+    } else if (days > 0) {
+      return ofDays(days);
+    } else {
+      throw new IllegalArgumentException("Period must not be negative or zero");
+    }
   }
 
   /**
    * Returns a tenor backed by a period of days.
+   * <p>
+   * If the number of months is an exact multiple of 7 it will be converted to weeks.
    *
    * @param days  the number of days
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if days is negative or zero
    */
   public static Tenor ofDays(int days) {
-    return of(Period.ofDays(days));
+    if (days % 7 == 0) {
+      return ofWeeks(days / 7);
+    }
+    return new Tenor(Period.ofDays(days), days + "D");
   }
 
   /**
@@ -218,21 +238,28 @@ public final class Tenor
    *
    * @param weeks  the number of weeks
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if weeks is negative or zero
    */
   public static Tenor ofWeeks(int weeks) {
-    return of(Period.ofWeeks(weeks));
+    return new Tenor(Period.ofWeeks(weeks), weeks + "W");
   }
 
   /**
    * Returns a tenor backed by a period of months.
+   * <p>
+   * If the number of months is less than 24 it will be retained as months.
+   * If 24 or greater it will be normalized to years and months.
    *
    * @param months  the number of months
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if months is negative or zero
    */
   public static Tenor ofMonths(int months) {
-    return of(Period.ofMonths(months));
+    if (months < 24) {
+      return new Tenor(Period.ofMonths(months), months + "M");
+    }
+    Period period = Period.of(months / 12, months % 12, 0);
+    return new Tenor(period, period.toString().substring(1));
   }
 
   /**
@@ -240,10 +267,13 @@ public final class Tenor
    *
    * @param years  the number of years
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if years is negative or zero
    */
   public static Tenor ofYears(int years) {
-    return of(Period.ofYears(years));
+    if (years == 1) {
+      return TENOR_12M;
+    }
+    return new Tenor(Period.ofYears(years), years + "Y");
   }
 
   //-------------------------------------------------------------------------
@@ -273,17 +303,19 @@ public final class Tenor
    * Creates a tenor.
    *
    * @param period  the period to represent
+   * @param name  the name
    */
-  private Tenor(Period period) {
+  private Tenor(Period period, String name) {
     ArgChecker.notNull(period, "period");
-    ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
     ArgChecker.isFalse(period.isZero(), "Period must not be zero");
+    ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
     this.period = period;
+    this.name = name;
   }
 
   // safe deserialization
   private Object readResolve() {
-    return new Tenor(period);
+    return new Tenor(period, name);
   }
 
   //-------------------------------------------------------------------------
@@ -436,14 +468,7 @@ public final class Tenor
   @ToString
   @Override
   public String toString() {
-    return representsWeeks() ?
-        (period.getDays() / 7) + "W" :
-        period.toString().substring(1);
-  }
-
-  // Does this period represent an exact number of weeks
-  private boolean representsWeeks() {
-    return period.getDays() > 0 && period.getDays() % 7 == 0;
+    return name;
   }
 
 }

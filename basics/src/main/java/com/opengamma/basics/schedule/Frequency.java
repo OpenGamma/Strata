@@ -119,11 +119,11 @@ public final class Frequency
    */
   public static final Frequency P6M = ofMonths(6);
   /**
-   * A periodic frequency of 1 year.
+   * A periodic frequency of 12 months (1 year).
    * Also known as annual.
    * There is 1 event per year with this frequency.
    */
-  public static final Frequency P1Y = ofYears(1);
+  public static final Frequency P12M = ofMonths(12);
   /**
    * A periodic frequency matching the term.
    * Also known as zero-coupon.
@@ -181,7 +181,7 @@ public final class Frequency
    *
    * @param days  the number of days
    * @return the periodic frequency
-   * @throws IllegalArgumentException if days is negative
+   * @throws IllegalArgumentException if days is negative or zero
    */
   public static Frequency ofDays(int days) {
     if (days % 7 == 0) {
@@ -195,7 +195,7 @@ public final class Frequency
    *
    * @param weeks  the number of weeks
    * @return the periodic frequency
-   * @throws IllegalArgumentException if weeks is negative
+   * @throws IllegalArgumentException if weeks is negative or zero
    */
   public static Frequency ofWeeks(int weeks) {
     return new Frequency(Period.ofWeeks(weeks), "P" + weeks + "W");
@@ -204,20 +204,24 @@ public final class Frequency
   /**
    * Returns a periodic frequency backed by a period of months.
    * <p>
-   * If the number of months is an exact multiple of 12 it will be converted to years.
+   * If the number of months is less than 24 it will be retained as months.
+   * If 24 or greater it will be normalized to years and months.
    *
    * @param months  the number of months
    * @return the periodic frequency
-   * @throws IllegalArgumentException if months is negative or over 12000
+   * @throws IllegalArgumentException if months is negative, zero or over 12000
    */
   public static Frequency ofMonths(int months) {
+    if (months < 24) {
+      return new Frequency(Period.ofMonths(months), "P" + months + "M");
+    }
     if (months > 12000) {
       throw new IllegalArgumentException("Months must not exceed 12000");
     }
     if (months % 12 == 0) {
       return ofYears(months / 12);
     }
-    return new Frequency(Period.ofMonths(months));
+    return new Frequency(Period.of(months / 12, months % 12, 0));
   }
 
   /**
@@ -225,9 +229,12 @@ public final class Frequency
    *
    * @param years  the number of years
    * @return the periodic frequency
-   * @throws IllegalArgumentException if years is negative or over 1000
+   * @throws IllegalArgumentException if years is negative, zero or over 1000
    */
   public static Frequency ofYears(int years) {
+    if (years == 1) {
+      return P12M;
+    }
     if (years > 1000) {
       throw new IllegalArgumentException("Years must not exceed 1000");
     }
