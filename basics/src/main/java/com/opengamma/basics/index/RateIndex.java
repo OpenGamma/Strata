@@ -20,8 +20,8 @@ import com.opengamma.collect.named.Named;
 /**
  * A index of interest rates, such as an Overnight or Inter-Bank rate.
  * <p>
- * Many financial products require knowledge of such as Libor.
- * Implementations of this interface define these rates.
+ * Many financial products require knowledge of interest rate indices, such as Libor.
+ * Implementations of this interface define these indices.
  * <p>
  * The index is defined by four dates.
  * The fixing date is the date on which the index is to be observed.
@@ -101,7 +101,7 @@ public interface RateIndex
    * A few indices, such as the US Fed Fund, publish the rate on the following business day.
    * <p>
    * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next business day and then processed.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
    * 
    * @param fixingDate  the fixing date
    * @return the publication date
@@ -118,7 +118,7 @@ public interface RateIndex
    * For an IBOR-like index, they typically differ by two business days.
    * <p>
    * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next business day and then processed.
+   * Instead, the fixing date is moved to the next valid fixing date and then processed.
    * 
    * @param fixingDate  the fixing date
    * @return the effective date
@@ -135,7 +135,7 @@ public interface RateIndex
    * For an IBOR-like index, they typically differ by two business days.
    * <p>
    * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next business day and then processed.
+   * Instead, the effective date is moved to the next valid effective date and then processed.
    * 
    * @param effectiveDate  the effective date
    * @return the fixing date
@@ -152,7 +152,7 @@ public interface RateIndex
    * For an IBOR-like index, they differ by the tenor.
    * <p>
    * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next business day and then processed.
+   * Instead, the effective date is moved to the next valid effective date and then processed.
    * 
    * @param effectiveDate  the effective date
    * @return the maturity date
