@@ -148,6 +148,21 @@ public class IborIndexTest {
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12)), date(2015, 1, 13));
   }
 
+  public void test_usdLibor_all() {
+    assertEquals(IborIndex.of("USD-LIBOR-1W").getName(), "USD-LIBOR-1W");
+    assertEquals(IborIndex.of("USD-LIBOR-1W"), RateIndices.USD_LIBOR_1W);
+    assertEquals(IborIndex.of("USD-LIBOR-1M").getName(), "USD-LIBOR-1M");
+    assertEquals(IborIndex.of("USD-LIBOR-1M"), RateIndices.USD_LIBOR_1M);
+    assertEquals(IborIndex.of("USD-LIBOR-2M").getName(), "USD-LIBOR-2M");
+    assertEquals(IborIndex.of("USD-LIBOR-2M"), RateIndices.USD_LIBOR_2M);
+    assertEquals(IborIndex.of("USD-LIBOR-3M").getName(), "USD-LIBOR-3M");
+    assertEquals(IborIndex.of("USD-LIBOR-3M"), RateIndices.USD_LIBOR_3M);
+    assertEquals(IborIndex.of("USD-LIBOR-6M").getName(), "USD-LIBOR-6M");
+    assertEquals(IborIndex.of("USD-LIBOR-6M"), RateIndices.USD_LIBOR_6M);
+    assertEquals(IborIndex.of("USD-LIBOR-12M").getName(), "USD-LIBOR-12M");
+    assertEquals(IborIndex.of("USD-LIBOR-12M"), RateIndices.USD_LIBOR_12M);
+  }
+
   //-------------------------------------------------------------------------
   public void test_equals() {
     IborIndex a = IborIndex.builder()
