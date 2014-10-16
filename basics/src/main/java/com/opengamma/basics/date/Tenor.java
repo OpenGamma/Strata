@@ -26,6 +26,11 @@ import com.opengamma.collect.ArgChecker;
  * <p>
  * A tenor is allowed to be any non-negative non-zero period of days, weeks, month or years.
  * This class provides constants for common tenors which are best used by static import.
+ * <p>
+ * Each tenor is based on a {@link Period}. The months and years of the period are not normalized,
+ * thus it is possible to have a tenor of 12 months and a different one of 1 year.
+ * When used, standard date addition rules apply, thus there is no difference between them.
+ * Call {@link #normalized()} to apply normalization.
  * 
  * <h4>Usage</h4>
  * {@code Tenor} implements {@code TemporalAmount} allowing it to be directly added to a date:
@@ -186,6 +191,10 @@ public final class Tenor
    * The period of the tenor.
    */
   private final Period period;
+  /**
+   * The name of the tenor.
+   */
+  private final String name;
 
   //-------------------------------------------------------------------------
   /**
@@ -193,24 +202,38 @@ public final class Tenor
    * <p>
    * The period normally consists of either days and weeks, or months and years.
    * It must also be positive and non-zero.
+   * <p>
+   * If the number of days is an exact multiple of 7 it will be converted to weeks.
+   * Months are not normalized into years.
    *
    * @param period  the period to convert to a tenor
    * @return the tenor
    * @throws IllegalArgumentException if the period is negative or zero
    */
   public static Tenor of(Period period) {
-    return new Tenor(period);
+    ArgChecker.notNull(period, "period");
+    int days = period.getDays();
+    long months = period.toTotalMonths();
+    if (months == 0 && days != 0) {
+      return ofDays(days);
+    }
+    return new Tenor(period, period.toString().substring(1));
   }
 
   /**
    * Returns a tenor backed by a period of days.
+   * <p>
+   * If the number of days is an exact multiple of 7 it will be converted to weeks.
    *
    * @param days  the number of days
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if days is negative or zero
    */
   public static Tenor ofDays(int days) {
-    return of(Period.ofDays(days));
+    if (days % 7 == 0) {
+      return ofWeeks(days / 7);
+    }
+    return new Tenor(Period.ofDays(days), days + "D");
   }
 
   /**
@@ -218,21 +241,23 @@ public final class Tenor
    *
    * @param weeks  the number of weeks
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if weeks is negative or zero
    */
   public static Tenor ofWeeks(int weeks) {
-    return of(Period.ofWeeks(weeks));
+    return new Tenor(Period.ofWeeks(weeks), weeks + "W");
   }
 
   /**
    * Returns a tenor backed by a period of months.
+   * <p>
+   * Months are not normalized into years.
    *
    * @param months  the number of months
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if months is negative or zero
    */
   public static Tenor ofMonths(int months) {
-    return of(Period.ofMonths(months));
+    return new Tenor(Period.ofMonths(months), months + "M");
   }
 
   /**
@@ -240,10 +265,10 @@ public final class Tenor
    *
    * @param years  the number of years
    * @return the tenor
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if years is negative or zero
    */
   public static Tenor ofYears(int years) {
-    return of(Period.ofYears(years));
+    return new Tenor(Period.ofYears(years), years + "Y");
   }
 
   //-------------------------------------------------------------------------
@@ -273,17 +298,19 @@ public final class Tenor
    * Creates a tenor.
    *
    * @param period  the period to represent
+   * @param name  the name
    */
-  private Tenor(Period period) {
+  private Tenor(Period period, String name) {
     ArgChecker.notNull(period, "period");
-    ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
     ArgChecker.isFalse(period.isZero(), "Period must not be zero");
+    ArgChecker.isFalse(period.isNegative(), "Period must not be negative");
     this.period = period;
+    this.name = name;
   }
 
   // safe deserialization
   private Object readResolve() {
-    return new Tenor(period);
+    return new Tenor(period, name);
   }
 
   //-------------------------------------------------------------------------
@@ -294,6 +321,20 @@ public final class Tenor
    */
   public Period getPeriod() {
     return period;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Normalizes the months and years of this tenor.
+   * <p>
+   * This method returns a tenor of an equivalent length but with any number
+   * of months greater than 12 normalized into a combination of months and years.
+   *
+   * @return the normalized tenor
+   */
+  public Tenor normalized() {
+    Period norm = period.normalized();
+    return (norm != period ? Tenor.of(norm) : this);
   }
 
   //-------------------------------------------------------------------------
@@ -360,9 +401,6 @@ public final class Tenor
 
   /**
    * Adds this tenor to the specified date.
-   * <p>
-   * This is an implementation method used by {@link LocalDate#plus(TemporalAmount)}.
-   * See {@link Period#addTo(Temporal)} for more details.
    * <p>
    * This method implements {@link TemporalAmount}.
    * It is not intended to be called directly.
@@ -436,14 +474,7 @@ public final class Tenor
   @ToString
   @Override
   public String toString() {
-    return representsWeeks() ?
-        (period.getDays() / 7) + "W" :
-        period.toString().substring(1);
-  }
-
-  // Does this period represent an exact number of weeks
-  private boolean representsWeeks() {
-    return period.getDays() > 0 && period.getDays() % 7 == 0;
+    return name;
   }
 
 }

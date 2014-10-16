@@ -21,7 +21,7 @@ import static com.opengamma.basics.date.DayCounts.THIRTY_EPLUS_360;
 import static com.opengamma.basics.date.DayCounts.THIRTY_E_360;
 import static com.opengamma.basics.date.DayCounts.THIRTY_E_360_ISDA;
 import static com.opengamma.basics.date.DayCounts.THIRTY_U_360;
-import static com.opengamma.basics.schedule.Frequency.P1Y;
+import static com.opengamma.basics.schedule.Frequency.P12M;
 import static com.opengamma.basics.schedule.Frequency.P3M;
 import static com.opengamma.basics.schedule.Frequency.P6M;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
@@ -86,7 +86,7 @@ public class DayCountTest {
   public void test_halfYear(DayCount type) {
     // sanity check to ensure that half year has fraction close to half
     if (type != ONE_ONE) {
-      ScheduleInfo info = new Info(false, false, P1Y, JAN_01_NEXT, SchedulePeriodType.NORMAL);
+      ScheduleInfo info = new Info(false, false, P12M, JAN_01_NEXT, SchedulePeriodType.NORMAL);
       assertEquals(type.getDayCountFraction(JAN_01, JUL_01, info), 0.5d, 0.01d);
     }
   }
@@ -95,7 +95,7 @@ public class DayCountTest {
   public void test_wholeYear(DayCount type) {
     // sanity check to ensure that one year has fraction close to one
     if (type != ONE_ONE) {
-      ScheduleInfo info = new Info(false, false, P1Y, JAN_01_NEXT, SchedulePeriodType.NORMAL);
+      ScheduleInfo info = new Info(false, false, P12M, JAN_01_NEXT, SchedulePeriodType.NORMAL);
       assertEquals(type.getDayCountFraction(JAN_01, JAN_01_NEXT, info), 1d, 0.02d);
     }
   }
@@ -493,12 +493,12 @@ public class DayCountTest {
   @DataProvider(name = "ACT365L")
   static Object[][] data_ACT365L() {
       return new Object[][] {
-          {2011, 12, 28, 2012, 2, 28, P1Y, 2012, 2, 28, 62d / 365d},
-          {2011, 12, 28, 2012, 2, 28, P1Y, 2012, 2, 29, 62d / 366d},
-          {2011, 12, 28, 2012, 2, 28, P1Y, 2012, 3, 1, 62d / 366d},
+          {2011, 12, 28, 2012, 2, 28, P12M, 2012, 2, 28, 62d / 365d},
+          {2011, 12, 28, 2012, 2, 28, P12M, 2012, 2, 29, 62d / 366d},
+          {2011, 12, 28, 2012, 2, 28, P12M, 2012, 3, 1, 62d / 366d},
           
-          {2011, 12, 28, 2012, 2, 29, P1Y, 2012, 2, 29, 63d / 366d},
-          {2011, 12, 28, 2012, 2, 29, P1Y, 2012, 3, 1, 63d / 366d},
+          {2011, 12, 28, 2012, 2, 29, P12M, 2012, 2, 29, 63d / 366d},
+          {2011, 12, 28, 2012, 2, 29, P12M, 2012, 3, 1, 63d / 366d},
           
           {2011, 12, 28, 2012, 2, 28, P6M, 2012, 2, 28, 62d / 366d},
           {2011, 12, 28, 2012, 2, 28, P6M, 2012, 2, 29, 62d / 366d},
@@ -653,8 +653,8 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(1999, 2, 1);
     LocalDate firstRegular = LocalDate.of(1999, 7, 1);
     LocalDate end = LocalDate.of(2000, 7, 1);
-    ScheduleInfo info1 = new Info(false, true, P1Y, firstRegular, SchedulePeriodType.INITIAL);
-    ScheduleInfo info2 = new Info(true, true, P1Y, end, SchedulePeriodType.NORMAL);
+    ScheduleInfo info1 = new Info(false, true, P12M, firstRegular, SchedulePeriodType.INITIAL);
+    ScheduleInfo info2 = new Info(true, true, P12M, end, SchedulePeriodType.NORMAL);
     assertEquals(ACT_ACT_ISDA.getDayCountFraction(start, firstRegular), (150d / 365d), 0d);
     assertEquals(ACT_ACT_ICMA.getDayCountFraction(start, firstRegular, info1), (150d / (365d * 1d)), 0d);
     assertEquals(ACT_ACT_AFB.getDayCountFraction(start, firstRegular), (150d / (365d)), 0d);
