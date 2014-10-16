@@ -37,9 +37,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * </tr><tr>
  * <td>DeltaAmount</td><td>200</td><td>20</td><td>{@code result = baseValue + modifyingValue = (200 + 20) = 220}</td>
  * </tr><tr>
- * <td>DeltaMultiplier</td><td>200</td><td>0.1</td><td>{@code result = baseValue + modifyingValue = (200 + 200 * 0.1) = 220}</td>
+ * <td>DeltaMultiplier</td><td>200</td><td>0.1</td>
+ * <td>{@code result = baseValue + baseValue * modifyingValue = (200 + 200 * 0.1) = 220}</td>
  * </tr><tr>
- * <td>Multiplier</td><td>200</td><td>1.1</td><td>{@code result = baseValue + modifyingValue = (200 * 1.1) = 220}</td>
+ * <td>Multiplier</td><td>200</td><td>1.1</td><td>{@code result = baseValue * modifyingValue = (200 * 1.1) = 220}</td>
  * </tr>
  * </table>
  */
