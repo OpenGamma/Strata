@@ -192,6 +192,20 @@ public class TestHelper {
   }
 
   /**
+   * Asserts that the lambda-based code throws an {@code IllegalArgumentException}.
+   * <p>
+   * For example:
+   * <pre>
+   *  assertThrows(() -> new Foo(null));
+   * </pre>
+   * 
+   * @param runner  the lambda containing the code to test
+   */
+  public static void assertThrowsIllegalArg(AssertRunnable runner) {
+    assertThrows(runner, IllegalArgumentException.class);
+  }
+
+  /**
    * Ignore any exception thrown by the lambda-based code.
    * <p>
    * For example:
