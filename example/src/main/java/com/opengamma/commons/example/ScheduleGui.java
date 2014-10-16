@@ -73,7 +73,7 @@ public class ScheduleGui extends Application {
     Label freqLbl = new Label("Frequency:");
     ChoiceBox<Frequency> freqInp = new ChoiceBox<>(
         FXCollections.observableArrayList(
-            Frequency.P1M, Frequency.P2M, Frequency.P3M, Frequency.P4M, Frequency.P6M, Frequency.P1Y));
+            Frequency.P1M, Frequency.P2M, Frequency.P3M, Frequency.P4M, Frequency.P6M, Frequency.P12M));
     freqLbl.setLabelFor(freqInp);
     freqInp.setValue(Frequency.P3M);
     
