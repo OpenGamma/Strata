@@ -66,10 +66,6 @@ public final class Frequency
    * The artificial length in years of the 'Term' frequency.
    */
   private static final int TERM_YEARS = 10_000;
-  /**
-   * The artificial length in months of the 'Term' frequency.
-   */
-  private static final int TERM_MONTHS = TERM_YEARS * 12;
 
   /**
    * A periodic frequency of one day.
@@ -185,9 +181,6 @@ public final class Frequency
     long months = period.toTotalMonths();
     if (months == 0 && days != 0) {
       return ofDays(days);
-    }
-    if (months == TERM_MONTHS && days == 0) {
-      return TERM;
     }
     if (months > MAX_MONTHS) {
       throw new IllegalArgumentException("Period must not exceed 1000 years");

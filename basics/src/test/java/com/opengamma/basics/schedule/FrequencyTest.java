@@ -66,7 +66,6 @@ public class FrequencyTest {
         {Frequency.P4M, Period.ofMonths(4), "P4M"},
         {Frequency.P6M, Period.ofMonths(6), "P6M"},
         {Frequency.P12M, Period.ofMonths(12), "P12M"},
-        {Frequency.TERM, Period.ofYears(10000), "Term"},
     };
   }
 
@@ -74,7 +73,7 @@ public class FrequencyTest {
   public void test_of_int(Frequency test, Period period, String toString) {
     assertEquals(test.getPeriod(), period);
     assertEquals(test.toString(), toString);
-    assertEquals(test.isTerm(), test.equals(TERM));
+    assertEquals(test.isTerm(), false);
   }
 
   @Test(dataProvider = "create")
@@ -87,6 +86,13 @@ public class FrequencyTest {
   public void test_parse(Frequency test, Period period, String toString) {
     assertEquals(Frequency.parse(toString), test);
     assertEquals(Frequency.parse(toString).getPeriod(), period);
+  }
+
+  public void test_term() {
+    assertEquals(TERM.getPeriod(), Period.ofYears(10_000));
+    assertEquals(TERM.isTerm(), true);
+    assertEquals(TERM.toString(), "Term");
+    assertEquals(Frequency.parse("Term"), TERM);
   }
 
   public void test_of_notZero() {
