@@ -278,6 +278,7 @@ public class FrequencyTest {
 
   public void test_parse_String_term() {
     assertEquals(Frequency.parse("Term"), Frequency.TERM);
+    assertEquals(Frequency.parse("TERM"), Frequency.TERM);
   }
 
   @DataProvider(name = "parseBad")
