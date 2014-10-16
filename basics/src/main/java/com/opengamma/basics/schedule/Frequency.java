@@ -33,6 +33,11 @@ import com.opengamma.collect.ArgChecker;
  * This is also know as 'zero-coupon' or 'once'. It is represented using the period 10,000 years,
  * which allows addition/subtraction to work, producing a date after the end of the term.
  * <p>
+ * Each frequency is based on a {@link Period}. The months and years of the period are not normalized,
+ * thus it is possible to have a frequency of 12 months and a different one of 1 year.
+ * When used, standard date addition rules apply, thus there is no difference between them.
+ * Call {@link #normalized()} to apply normalization.
+ * <p>
  * The periodic frequency is often expressed as a number of events per year.
  * The {@link #eventsPerYear()} method can be used to obtain this for common frequencies.
  * 
@@ -147,37 +152,34 @@ public final class Frequency
    * <p>
    * The period normally consists of either days and weeks, or months and years.
    * It must also be positive and non-zero.
+   * <p>
+   * If the number of days is an exact multiple of 7 it will be converted to weeks.
+   * Months are not normalized into years.
    *
    * @param period  the period to convert to a periodic frequency
    * @return the periodic frequency
-   * @throws IllegalArgumentException if the period is negative or zero
+   * @throws IllegalArgumentException if the period is negative, zero or over 1000 years
    */
   public static Frequency of(Period period) {
     ArgChecker.notNull(period, "period");
     int days = period.getDays();
     long months = period.toTotalMonths();
+    if (months == 0 && days != 0) {
+      return ofDays(days);
+    }
     if (months == 120000 && days == 0) {
       return TERM;
-    } else if (months != 0) {
-      if (months > 12000) {
-        throw new IllegalArgumentException("Total months must not exceed 12000");
-      }
-      if (days == 0) {
-        return ofMonths(Math.toIntExact(months));
-      } else {
-        return new Frequency(period);
-      }
-    } else if (days != 0) {
-      return ofDays(days);
-    } else {
-      throw new IllegalArgumentException("Period must not be zero");
     }
+    if (months > 12000) {
+      throw new IllegalArgumentException("Total months must not exceed 12000");
+    }
+    return new Frequency(period);
   }
 
   /**
    * Returns a periodic frequency backed by a period of days.
    * <p>
-   * If the number of months is an exact multiple of 7 it will be converted to weeks.
+   * If the number of days is an exact multiple of 7 it will be converted to weeks.
    *
    * @param days  the number of days
    * @return the periodic frequency
@@ -204,24 +206,17 @@ public final class Frequency
   /**
    * Returns a periodic frequency backed by a period of months.
    * <p>
-   * If the number of months is less than 24 it will be retained as months.
-   * If 24 or greater it will be normalized to years and months.
+   * Months are not normalized into years.
    *
    * @param months  the number of months
    * @return the periodic frequency
    * @throws IllegalArgumentException if months is negative, zero or over 12000
    */
   public static Frequency ofMonths(int months) {
-    if (months < 24) {
-      return new Frequency(Period.ofMonths(months), "P" + months + "M");
-    }
     if (months > 12000) {
       throw new IllegalArgumentException("Months must not exceed 12000");
     }
-    if (months % 12 == 0) {
-      return ofYears(months / 12);
-    }
-    return new Frequency(Period.of(months / 12, months % 12, 0));
+    return new Frequency(Period.ofMonths(months));
   }
 
   /**
@@ -232,9 +227,6 @@ public final class Frequency
    * @throws IllegalArgumentException if years is negative, zero or over 1000
    */
   public static Frequency ofYears(int years) {
-    if (years == 1) {
-      return P12M;
-    }
     if (years > 1000) {
       throw new IllegalArgumentException("Years must not exceed 1000");
     }
@@ -257,7 +249,7 @@ public final class Frequency
   @FromString
   public static Frequency parse(String toParse) {
     ArgChecker.notNull(toParse, "toParse");
-    if (toParse.equals("Term")) {
+    if (toParse.equalsIgnoreCase("Term")) {
       return TERM;
     }
     String prefixed = toParse.startsWith("P") ? toParse : "P" + toParse;
@@ -319,6 +311,20 @@ public final class Frequency
    */
   public boolean isTerm() {
     return this == TERM;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Normalizes the months and years of this tenor.
+   * <p>
+   * This method returns a tenor of an equivalent length but with any number
+   * of months greater than 12 normalized into a combination of months and years.
+   *
+   * @return the normalized tenor
+   */
+  public Frequency normalized() {
+    Period norm = period.normalized();
+    return (norm != period ? Frequency.of(norm) : this);
   }
 
   //-------------------------------------------------------------------------

@@ -48,8 +48,10 @@ public class FrequencyTest {
         {Frequency.ofMonths(8), Period.ofMonths(8), "P8M"},
         {Frequency.ofMonths(12), Period.ofMonths(12), "P12M"},
         {Frequency.ofMonths(18), Period.ofMonths(18), "P18M"},
-        {Frequency.ofMonths(24), Period.ofYears(2), "P2Y"},
-        {Frequency.ofMonths(30), Period.of(2, 6, 0), "P2Y6M"},
+        {Frequency.ofMonths(24), Period.ofMonths(24), "P24M"},
+        {Frequency.ofMonths(30), Period.ofMonths(30), "P30M"},
+        {Frequency.ofYears(1), Period.ofYears(1), "P1Y"},
+        {Frequency.ofYears(2), Period.ofYears(2), "P2Y"},
         {Frequency.of(Period.of(1, 2, 3)), Period.of(1, 2, 3), "P1Y2M3D"},
         {Frequency.P1D, Period.ofDays(1), "P1D"},
         {Frequency.P1W, Period.ofWeeks(1), "P1W"},
@@ -131,8 +133,8 @@ public class FrequencyTest {
         {2, Period.ofMonths(2), "P2M"},
         {12, Period.ofMonths(12), "P12M"},
         {20, Period.ofMonths(20), "P20M"},
-        {24, Period.ofYears(2), "P2Y"},
-        {30, Period.of(2, 6, 0), "P2Y6M"},
+        {24, Period.ofMonths(24), "P24M"},
+        {30, Period.ofMonths(30), "P30M"},
     };
   }
 
@@ -145,7 +147,7 @@ public class FrequencyTest {
   @DataProvider(name = "ofYears")
   static Object[][] data_ofYears() {
     return new Object[][] {
-        {1, Period.ofMonths(12), "P12M"},
+        {1, Period.ofYears(1), "P1Y"},
         {2, Period.ofYears(2), "P2Y"},
         {3, Period.ofYears(3), "P3Y"},
     };
@@ -155,6 +157,30 @@ public class FrequencyTest {
   public void test_ofYears(int years, Period normalized, String str) {
     assertEquals(Frequency.ofYears(years).getPeriod(), normalized);
     assertEquals(Frequency.ofYears(years).toString(), str);
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "normalized")
+  static Object[][] data_normalized() {
+    return new Object[][] {
+        {Period.ofDays(1), Period.ofDays(1)},
+        {Period.ofDays(7), Period.ofDays(7)},
+        {Period.ofDays(10), Period.ofDays(10)},
+        {Period.ofWeeks(2), Period.ofDays(14)},
+        {Period.ofMonths(1), Period.ofMonths(1)},
+        {Period.ofMonths(2), Period.ofMonths(2)},
+        {Period.ofMonths(12), Period.ofYears(1)},
+        {Period.ofYears(1), Period.ofYears(1)},
+        {Period.ofMonths(20), Period.of(1, 8, 0)},
+        {Period.ofMonths(24), Period.ofYears(2)},
+        {Period.ofYears(2), Period.ofYears(2)},
+        {Period.ofMonths(30), Period.of(2, 6, 0)},
+    };
+  }
+
+  @Test(dataProvider = "normalized")
+  public void test_normalized(Period period, Period normalized) {
+    assertEquals(Frequency.of(period).normalized().getPeriod(), normalized);
   }
 
   //-------------------------------------------------------------------------
@@ -218,6 +244,7 @@ public class FrequencyTest {
     assertThrows(() -> Frequency.ofWeeks(104).eventsPerYear(), IllegalArgumentException.class);
     assertThrows(() -> Frequency.ofMonths(5).eventsPerYear(), IllegalArgumentException.class);
     assertThrows(() -> Frequency.ofMonths(24).eventsPerYear(), IllegalArgumentException.class);
+    assertThrows(() -> Frequency.of(Period.of(2, 2, 2)).eventsPerYear(), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -235,7 +262,7 @@ public class FrequencyTest {
         {"6W", Frequency.ofWeeks(6)},
         {"2M", Frequency.ofMonths(2)},
         {"12M", Frequency.ofMonths(12)},
-        {"1Y", Frequency.ofMonths(12)},
+        {"1Y", Frequency.ofYears(1)},
     };
   }
 

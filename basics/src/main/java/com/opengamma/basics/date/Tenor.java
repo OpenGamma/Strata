@@ -26,6 +26,11 @@ import com.opengamma.collect.ArgChecker;
  * <p>
  * A tenor is allowed to be any non-negative non-zero period of days, weeks, month or years.
  * This class provides constants for common tenors which are best used by static import.
+ * <p>
+ * Each tenor is based on a {@link Period}. The months and years of the period are not normalized,
+ * thus it is possible to have a tenor of 12 months and a different one of 1 year.
+ * When used, standard date addition rules apply, thus there is no difference between them.
+ * Call {@link #normalized()} to apply normalization.
  * 
  * <h4>Usage</h4>
  * {@code Tenor} implements {@code TemporalAmount} allowing it to be directly added to a date:
@@ -122,9 +127,9 @@ public final class Tenor
    */
   public static final Tenor TENOR_18M = ofMonths(18);
   /**
-   * A tenor of 1 year, which is a synonym for a tenor of 12 months.
+   * A tenor of 1 year.
    */
-  public static final Tenor TENOR_1Y = TENOR_12M;
+  public static final Tenor TENOR_1Y = ofYears(1);
   /**
    * A tenor of 2 years.
    */
@@ -197,6 +202,9 @@ public final class Tenor
    * <p>
    * The period normally consists of either days and weeks, or months and years.
    * It must also be positive and non-zero.
+   * <p>
+   * If the number of days is an exact multiple of 7 it will be converted to weeks.
+   * Months are not normalized into years.
    *
    * @param period  the period to convert to a tenor
    * @return the tenor
@@ -206,21 +214,16 @@ public final class Tenor
     ArgChecker.notNull(period, "period");
     int days = period.getDays();
     long months = period.toTotalMonths();
-    if (months > 0 && days > 0) {
-      return new Tenor(period, period.toString().substring(1));
-    } else if (months > 0) {
-      return ofMonths(Math.toIntExact(months));
-    } else if (days > 0) {
+    if (months == 0 && days != 0) {
       return ofDays(days);
-    } else {
-      throw new IllegalArgumentException("Period must not be negative or zero");
     }
+    return new Tenor(period, period.toString().substring(1));
   }
 
   /**
    * Returns a tenor backed by a period of days.
    * <p>
-   * If the number of months is an exact multiple of 7 it will be converted to weeks.
+   * If the number of days is an exact multiple of 7 it will be converted to weeks.
    *
    * @param days  the number of days
    * @return the tenor
@@ -247,19 +250,14 @@ public final class Tenor
   /**
    * Returns a tenor backed by a period of months.
    * <p>
-   * If the number of months is less than 24 it will be retained as months.
-   * If 24 or greater it will be normalized to years and months.
+   * Months are not normalized into years.
    *
    * @param months  the number of months
    * @return the tenor
    * @throws IllegalArgumentException if months is negative or zero
    */
   public static Tenor ofMonths(int months) {
-    if (months < 24) {
-      return new Tenor(Period.ofMonths(months), months + "M");
-    }
-    Period period = Period.of(months / 12, months % 12, 0);
-    return new Tenor(period, period.toString().substring(1));
+    return new Tenor(Period.ofMonths(months), months + "M");
   }
 
   /**
@@ -270,9 +268,6 @@ public final class Tenor
    * @throws IllegalArgumentException if years is negative or zero
    */
   public static Tenor ofYears(int years) {
-    if (years == 1) {
-      return TENOR_12M;
-    }
     return new Tenor(Period.ofYears(years), years + "Y");
   }
 
@@ -326,6 +321,20 @@ public final class Tenor
    */
   public Period getPeriod() {
     return period;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Normalizes the months and years of this tenor.
+   * <p>
+   * This method returns a tenor of an equivalent length but with any number
+   * of months greater than 12 normalized into a combination of months and years.
+   *
+   * @return the normalized tenor
+   */
+  public Tenor normalized() {
+    Period norm = period.normalized();
+    return (norm != period ? Tenor.of(norm) : this);
   }
 
   //-------------------------------------------------------------------------
@@ -392,9 +401,6 @@ public final class Tenor
 
   /**
    * Adds this tenor to the specified date.
-   * <p>
-   * This is an implementation method used by {@link LocalDate#plus(TemporalAmount)}.
-   * See {@link Period#addTo(Temporal)} for more details.
    * <p>
    * This method implements {@link TemporalAmount}.
    * It is not intended to be called directly.
