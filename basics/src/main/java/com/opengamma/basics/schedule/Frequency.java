@@ -169,7 +169,6 @@ public final class Frequency
    * Months are not normalized into years.
    * <p>
    * The maximum tenor length is 1,000 years.
-   * A special tenor length of 10,000 years is accepted which represents the 'Term' frequency.
    *
    * @param period  the period to convert to a periodic frequency
    * @return the periodic frequency
