@@ -54,6 +54,22 @@ public final class Frequency
    * Serialization version.
    */
   private static final long serialVersionUID = 1;
+  /**
+   * The artificial maximum length of a normal tenor in years.
+   */
+  private static final int MAX_YEARS = 1_000;
+  /**
+   * The artificial maximum length of a normal tenor in months.
+   */
+  private static final int MAX_MONTHS = MAX_YEARS * 12;
+  /**
+   * The artificial length in years of the 'Term' frequency.
+   */
+  private static final int TERM_YEARS = 10_000;
+  /**
+   * The artificial length in months of the 'Term' frequency.
+   */
+  private static final int TERM_MONTHS = TERM_YEARS * 12;
 
   /**
    * A periodic frequency of one day.
@@ -135,7 +151,7 @@ public final class Frequency
    * This is represented using the period 10,000 years.
    * There are no events per year with this frequency.
    */
-  public static final Frequency TERM = new Frequency(Period.ofYears(10000), "Term");
+  public static final Frequency TERM = new Frequency(Period.ofYears(TERM_YEARS), "Term");
 
   /**
    * The period of the frequency.
@@ -155,10 +171,13 @@ public final class Frequency
    * <p>
    * If the number of days is an exact multiple of 7 it will be converted to weeks.
    * Months are not normalized into years.
+   * <p>
+   * The maximum tenor length is 1,000 years.
+   * A special tenor length of 10,000 years is accepted which represents the 'Term' frequency.
    *
    * @param period  the period to convert to a periodic frequency
    * @return the periodic frequency
-   * @throws IllegalArgumentException if the period is negative, zero or over 1000 years
+   * @throws IllegalArgumentException if the period is negative, zero or too large
    */
   public static Frequency of(Period period) {
     ArgChecker.notNull(period, "period");
@@ -167,11 +186,11 @@ public final class Frequency
     if (months == 0 && days != 0) {
       return ofDays(days);
     }
-    if (months == 120000 && days == 0) {
+    if (months == TERM_MONTHS && days == 0) {
       return TERM;
     }
-    if (months > 12000) {
-      throw new IllegalArgumentException("Total months must not exceed 12000");
+    if (months > MAX_MONTHS) {
+      throw new IllegalArgumentException("Period must not exceed 1000 years");
     }
     return new Frequency(period);
   }
@@ -210,11 +229,11 @@ public final class Frequency
    *
    * @param months  the number of months
    * @return the periodic frequency
-   * @throws IllegalArgumentException if months is negative, zero or over 12000
+   * @throws IllegalArgumentException if months is negative, zero or over 12,000
    */
   public static Frequency ofMonths(int months) {
-    if (months > 12000) {
-      throw new IllegalArgumentException("Months must not exceed 12000");
+    if (months > MAX_MONTHS) {
+      throw new IllegalArgumentException("Months must not exceed 12,000");
     }
     return new Frequency(Period.ofMonths(months));
   }
@@ -224,11 +243,11 @@ public final class Frequency
    *
    * @param years  the number of years
    * @return the periodic frequency
-   * @throws IllegalArgumentException if years is negative, zero or over 1000
+   * @throws IllegalArgumentException if years is negative, zero or over 1,000
    */
   public static Frequency ofYears(int years) {
-    if (years > 1000) {
-      throw new IllegalArgumentException("Years must not exceed 1000");
+    if (years > MAX_YEARS) {
+      throw new IllegalArgumentException("Years must not exceed 1,000");
     }
     return new Frequency(Period.ofYears(years));
   }
