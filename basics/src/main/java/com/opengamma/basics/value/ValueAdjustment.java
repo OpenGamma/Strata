@@ -77,7 +77,7 @@ public final class ValueAdjustment
    * @param absoluteAmount  the absolute amount that is the result of the adjustment
    * @return the adjustment
    */
-  public static ValueAdjustment ofAbsolute(double absoluteAmount) {
+  public static ValueAdjustment ofAbsoluteAmount(double absoluteAmount) {
     return new ValueAdjustment(absoluteAmount, ValueAdjustmentType.ABSOLUTE);
   }
 

@@ -126,8 +126,8 @@ public final class ValueStep
    * @param absoluteValue  the absolute value that is the result of the adjustment
    * @return the varying step
    */
-  public static ValueStep ofAbsolute(LocalDate date, double absoluteValue) {
-    return new ValueStep(null, date, ValueAdjustment.ofAbsolute(absoluteValue));
+  public static ValueStep ofAbsoluteAmount(LocalDate date, double absoluteValue) {
+    return new ValueStep(null, date, ValueAdjustment.ofAbsoluteAmount(absoluteValue));
   }
 
   //-------------------------------------------------------------------------

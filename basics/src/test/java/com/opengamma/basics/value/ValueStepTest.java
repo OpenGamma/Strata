@@ -20,7 +20,7 @@ import org.testng.annotations.Test;
 public class ValueStepTest {
 
   private static ValueAdjustment DELTA_MINUS_2000 = ValueAdjustment.ofDeltaAmount(-2000);
-  private static ValueAdjustment ABSOLUTE_100 = ValueAdjustment.ofAbsolute(100);
+  private static ValueAdjustment ABSOLUTE_100 = ValueAdjustment.ofAbsoluteAmount(100);
 
   public void test_of_intAdjustment() {
     ValueStep test = ValueStep.of(2, DELTA_MINUS_2000);
@@ -36,8 +36,8 @@ public class ValueStepTest {
     assertEquals(test.getValue(), DELTA_MINUS_2000);
   }
 
-  public void test_ofAbsolute_dateDouble() {
-    ValueStep test = ValueStep.ofAbsolute(date(2014, 6, 30), 100);
+  public void test_ofAbsoluteAmount_dateDouble() {
+    ValueStep test = ValueStep.ofAbsoluteAmount(date(2014, 6, 30), 100);
     assertEquals(test.getDate(), date(2014, 6, 30));
     assertEquals(test.getPeriodIndex(), null);
     assertEquals(test.getValue(), ABSOLUTE_100);
