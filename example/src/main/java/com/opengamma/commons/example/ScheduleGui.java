@@ -35,10 +35,10 @@ import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.HolidayCalendars;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicScheduleDefn;
-import com.opengamma.basics.schedule.PeriodicScheduleException;
 import com.opengamma.basics.schedule.RollConvention;
 import com.opengamma.basics.schedule.RollConventions;
 import com.opengamma.basics.schedule.Schedule;
+import com.opengamma.basics.schedule.ScheduleException;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.basics.schedule.StubConvention;
@@ -168,7 +168,7 @@ public class ScheduleGui extends Application {
         Schedule schedule = defn.createSchedule();
         System.out.println(schedule);
         resultGrid.setItems(FXCollections.observableArrayList(schedule.getPeriods()));
-      } catch (PeriodicScheduleException ex) {
+      } catch (ScheduleException ex) {
         resultGrid.setItems(FXCollections.emptyObservableList());
         resultGrid.setPlaceholder(new Label(ex.getMessage()));
         System.out.println(ex.getMessage());

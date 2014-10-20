@@ -10,7 +10,7 @@ import com.opengamma.collect.ArgChecker;
 /**
  * Exception thrown when a schedule cannot be calculated.
  */
-public final class PeriodicScheduleException
+public final class ScheduleException
     extends IllegalArgumentException {
 
   /** Serialization version. */
@@ -30,7 +30,7 @@ public final class PeriodicScheduleException
    * @param msgArguments  the message arguments
    * @param definition  the invalid schedule definition, may be null
    */
-  public PeriodicScheduleException(PeriodicScheduleDefn definition, String msgTemplate, Object... msgArguments) {
+  public ScheduleException(PeriodicScheduleDefn definition, String msgTemplate, Object... msgArguments) {
     super(ArgChecker.formatMessage(msgTemplate, msgArguments));
     this.definition = definition;
   }

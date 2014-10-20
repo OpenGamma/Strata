@@ -58,7 +58,7 @@ public enum StubConvention {
     @Override
     StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitInitialStub || explicitFinalStub) {
-        throw new PeriodicScheduleException(
+        throw new ScheduleException(
             definition, "Dates specify an explicit stub, but stub convention is 'None'");
       }
       return NONE;
@@ -84,7 +84,7 @@ public enum StubConvention {
     @Override
     StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitFinalStub) {
-        throw new PeriodicScheduleException(
+        throw new ScheduleException(
             definition, "Dates specify an explicit final stub, but stub convention is 'ShortInitial'");
       }
       return (explicitInitialStub ? NONE : SHORT_INITIAL);
@@ -111,7 +111,7 @@ public enum StubConvention {
     @Override
     StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitFinalStub) {
-        throw new PeriodicScheduleException(
+        throw new ScheduleException(
             definition, "Dates specify an explicit final stub, but stub convention is 'LongInitial'");
       }
       return (explicitInitialStub ? NONE : LONG_INITIAL);
@@ -137,7 +137,7 @@ public enum StubConvention {
     @Override
     StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitInitialStub) {
-        throw new PeriodicScheduleException(
+        throw new ScheduleException(
             definition, "Dates specify an explicit initial stub, but stub convention is 'ShortFinal'");
       }
       return (explicitFinalStub ? NONE : SHORT_FINAL);
@@ -164,7 +164,7 @@ public enum StubConvention {
     @Override
     StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitInitialStub) {
-        throw new PeriodicScheduleException(
+        throw new ScheduleException(
             definition, "Dates specify an explicit initial stub, but stub convention is 'LongFinal'");
       }
       return (explicitFinalStub ? NONE : LONG_FINAL);
@@ -184,7 +184,7 @@ public enum StubConvention {
     @Override
     StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if ((explicitInitialStub && explicitFinalStub) == false) {
-        throw new PeriodicScheduleException(
+        throw new ScheduleException(
             definition, "Stub convention is 'Both' but explicit dates not specified");
       }
       return NONE;
@@ -296,7 +296,7 @@ public enum StubConvention {
    * @param explicitInitialStub  an initial stub has been explicitly defined by dates
    * @param explicitFinalStub  a final stub has been explicitly defined by dates
    * @return the effective stub convention
-   * @throws PeriodicScheduleException if the input data is invalid
+   * @throws ScheduleException if the input data is invalid
    */
   abstract StubConvention toImplicit(
       PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub);

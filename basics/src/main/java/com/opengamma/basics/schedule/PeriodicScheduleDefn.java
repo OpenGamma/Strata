@@ -344,7 +344,7 @@ public final class PeriodicScheduleDefn
    * If the stub convention and stub dates are null, then no stubs are allowed.
    * 
    * @return the schedule
-   * @throws PeriodicScheduleException if the definition is invalid
+   * @throws ScheduleException if the definition is invalid
    */
   public Schedule createSchedule() {
     List<LocalDate> unadj = createUnadjustedDates();
@@ -381,7 +381,7 @@ public final class PeriodicScheduleDefn
    * If the frequency is 'Term' explicit stub dates are disallowed, and the roll and stub convention are ignored.
    * 
    * @return the schedule of unadjusted dates
-   * @throws PeriodicScheduleException if the definition is invalid
+   * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createUnadjustedDates() {
     LocalDate regStart = getEffectiveFirstRegularStartDate();
@@ -391,7 +391,7 @@ public final class PeriodicScheduleDefn
     // handle TERM frequency
     if (frequency == Frequency.TERM) {
       if (explicitInitialStub || explicitFinalStub) {
-        throw new PeriodicScheduleException(this, "Explict stubs must not be specified when using 'Term' frequency");
+        throw new ScheduleException(this, "Explict stubs must not be specified when using 'Term' frequency");
       }
       return ImmutableList.of(startDate, endDate);
     }
@@ -411,7 +411,7 @@ public final class PeriodicScheduleDefn
     // sanity check
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
     if (deduplicated.size() < unadj.size()) {
-      throw new PeriodicScheduleException(this, "Schedule calculation resulted in duplicate unadjusted dates: {}", unadj);
+      throw new ScheduleException(this, "Schedule calculation resulted in duplicate unadjusted dates: {}", unadj);
     }
     return deduplicated;
   }
@@ -431,7 +431,7 @@ public final class PeriodicScheduleDefn
   private List<LocalDate> generateBackwards(LocalDate start, LocalDate end, RollConvention rollConv, StubConvention stubConv) {
     // validate
     if (rollConv.matches(end) == false) {
-      throw new PeriodicScheduleException(
+      throw new ScheduleException(
           this, "Date '{}' does not match roll convention '{}' when starting to roll backwards", end, rollConv);
     }
     // generate
@@ -455,7 +455,7 @@ public final class PeriodicScheduleDefn
   private List<LocalDate> generateForwards(LocalDate start, LocalDate end, RollConvention rollConv, StubConvention stubConv) {
     // validate
     if (rollConv.matches(start) == false) {
-      throw new PeriodicScheduleException(
+      throw new ScheduleException(
           this, "Date '{}' does not match roll convention '{}' when starting to roll forwards", start, rollConv);
     }
     // generate
@@ -471,7 +471,7 @@ public final class PeriodicScheduleDefn
     boolean stub = temp.equals(end) == false;
     if (stub && dates.size() > 2) {
       if (stubConv == StubConvention.NONE) {
-        throw new PeriodicScheduleException(
+        throw new ScheduleException(
             this, "Period '{}' to '{}' resulted in a disallowed stub with frequency '{}'", start, end, frequency);
       }
       if (stubConv.isLong()) {
@@ -496,7 +496,7 @@ public final class PeriodicScheduleDefn
    * If the stub convention and stub dates are null, then no stubs are allowed.
    * 
    * @return the schedule of dates adjusted to valid business days
-   * @throws PeriodicScheduleException if the definition is invalid
+   * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createAdjustedDates() {
     ImmutableList<LocalDate> unadj = createUnadjustedDates();
@@ -516,7 +516,7 @@ public final class PeriodicScheduleDefn
     }
     ImmutableSet<LocalDate> deduplicated = ImmutableSet.copyOf(adj);
     if (deduplicated.size() < adj.size()) {
-      throw new PeriodicScheduleException(this, "Schedule calculation resulted in duplicate adjusted dates: {}", adj);
+      throw new ScheduleException(this, "Schedule calculation resulted in duplicate adjusted dates: {}", adj);
     }
     return adj;
   }

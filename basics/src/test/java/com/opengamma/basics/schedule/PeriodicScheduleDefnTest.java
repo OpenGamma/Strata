@@ -425,7 +425,7 @@ public class PeriodicScheduleDefnTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = PeriodicScheduleException.class)
+  @Test(expectedExceptions = ScheduleException.class)
   public void test_none_badStub() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(JUN_04)
@@ -440,7 +440,7 @@ public class PeriodicScheduleDefnTest {
     defn.createUnadjustedDates();
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class)
+  @Test(expectedExceptions = ScheduleException.class)
   public void test_both_badStub() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(JUN_17)
@@ -455,7 +455,7 @@ public class PeriodicScheduleDefnTest {
     defn.createUnadjustedDates();
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class)
+  @Test(expectedExceptions = ScheduleException.class)
   public void test_backwards_badStub() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(JUN_17)
@@ -470,7 +470,7 @@ public class PeriodicScheduleDefnTest {
     defn.createUnadjustedDates();
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class)
+  @Test(expectedExceptions = ScheduleException.class)
   public void test_forwards_badStub() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(JUN_17)
@@ -486,7 +486,7 @@ public class PeriodicScheduleDefnTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = PeriodicScheduleException.class)
+  @Test(expectedExceptions = ScheduleException.class)
   public void test_termFrequency_badInitialStub() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(JUN_04)
@@ -501,7 +501,7 @@ public class PeriodicScheduleDefnTest {
     defn.createUnadjustedDates();
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class)
+  @Test(expectedExceptions = ScheduleException.class)
   public void test_termFrequency_badFinalStub() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(JUN_04)
@@ -532,7 +532,7 @@ public class PeriodicScheduleDefnTest {
     assertEquals(test, ImmutableList.of(date(2015, 5, 29), date(2015, 5, 31)));
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
+  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
   public void test_emptyWhenAdjusted_term_createAdjustedDates() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(date(2015, 5, 29))
@@ -547,7 +547,7 @@ public class PeriodicScheduleDefnTest {
     defn.createAdjustedDates();
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
+  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
   public void test_emptyWhenAdjusted_term_createSchedule() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(date(2015, 5, 29))
@@ -577,7 +577,7 @@ public class PeriodicScheduleDefnTest {
     assertEquals(test, ImmutableList.of(date(2015, 5, 27), date(2015, 5, 29), date(2015, 5, 31)));
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
+  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
   public void test_emptyWhenAdjusted_twoPeriods_createAdjustedDates() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(date(2015, 5, 27))
@@ -592,7 +592,7 @@ public class PeriodicScheduleDefnTest {
     defn.createAdjustedDates();
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
+  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
   public void test_emptyWhenAdjusted_twoPeriods_createSchedule() {
     PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
         .startDate(date(2015, 5, 27))
@@ -607,7 +607,7 @@ public class PeriodicScheduleDefnTest {
     defn.createSchedule();
   }
 
-  @Test(expectedExceptions = PeriodicScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate unadjusted dates.*")
+  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate unadjusted dates.*")
   public void test_emptyWhenAdjusted_badRoll_createUnadjustedDates() {
     RollConvention roll = new RollConvention() {
       private boolean seen;
