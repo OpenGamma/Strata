@@ -63,7 +63,7 @@ import com.opengamma.collect.ArgChecker;
  *      .stubConvention(StubConvention.LONG_INITIAL)
  *      .rollConvention(RollConventions.EOM)
  *      .build();
- *  PeriodicSchedule schedule = defn.createSchedule();
+ *  Schedule schedule = defn.createSchedule();
  *  
  *  // result
  *  period 1: 2014-02-12 to 2014-06-30
@@ -332,7 +332,7 @@ public final class PeriodicScheduleDefn
 
   //-------------------------------------------------------------------------
   /**
-   * Creates the periodic schedule from the definition.
+   * Creates the schedule from the definition.
    * <p>
    * The schedule consists of an optional initial stub, a number of regular periods
    * and an optional final stub.
@@ -346,7 +346,7 @@ public final class PeriodicScheduleDefn
    * @return the schedule
    * @throws PeriodicScheduleException if the definition is invalid
    */
-  public PeriodicSchedule createSchedule() {
+  public Schedule createSchedule() {
     List<LocalDate> unadj = createUnadjustedDates();
     List<LocalDate> adj = applyBusinessDayAdjustment(unadj);
     RollConvention rollConv = getEffectiveRollConvention();
@@ -363,7 +363,7 @@ public final class PeriodicScheduleDefn
             .rollConvention(rollConv)
             .build());
     }
-    return PeriodicSchedule.of(periods);
+    return Schedule.of(periods);
   }
 
   //-------------------------------------------------------------------------

@@ -351,7 +351,7 @@ public class PeriodicScheduleDefnTest {
         .firstRegularStartDate(firstReg)
         .lastRegularEndDate(lastReg)
         .build();
-    PeriodicSchedule test = defn.createSchedule();
+    Schedule test = defn.createSchedule();
     assertEquals(test.size(), unadjusted.size() - 1);
     for (int i = 0; i < test.size(); i++) {
       SchedulePeriod period = test.getPeriod(i);

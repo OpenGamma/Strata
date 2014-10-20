@@ -24,10 +24,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Test {@link PeriodicSchedule}.
+ * Test {@link Schedule}.
  */
 @Test
-public class PeriodicScheduleTest {
+public class ScheduleTest {
 
   private static final LocalDate JUL_04 = date(2014, JULY, 4);
   private static final LocalDate JUL_17 = date(2014, JULY, 17);
@@ -44,11 +44,11 @@ public class PeriodicScheduleTest {
 
   //-------------------------------------------------------------------------
   public void test_of_size0() {
-    assertThrows(() -> PeriodicSchedule.of(ImmutableList.of()), IllegalArgumentException.class);
+    assertThrows(() -> Schedule.of(ImmutableList.of()), IllegalArgumentException.class);
   }
 
   public void test_of_size1() {
-    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1));
+    Schedule test = Schedule.of(ImmutableList.of(PERIOD1));
     assertEquals(test.size(), 1);
     assertEquals(test.getPeriods(), ImmutableList.of(PERIOD1));
     assertEquals(test.getPeriod(0), PERIOD1);
@@ -58,7 +58,7 @@ public class PeriodicScheduleTest {
   }
 
   public void test_of_size2() {
-    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2));
+    Schedule test = Schedule.of(ImmutableList.of(PERIOD1, PERIOD2));
     assertEquals(test.size(), 2);
     assertEquals(test.getPeriods(), ImmutableList.of(PERIOD1, PERIOD2));
     assertEquals(test.getPeriod(0), PERIOD1);
@@ -69,7 +69,7 @@ public class PeriodicScheduleTest {
   }
 
   public void test_of_size3() {
-    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2, PERIOD3));
+    Schedule test = Schedule.of(ImmutableList.of(PERIOD1, PERIOD2, PERIOD3));
     assertEquals(test.size(), 3);
     assertEquals(test.getPeriods(), ImmutableList.of(PERIOD1, PERIOD2, PERIOD3));
     assertEquals(test.getPeriod(0), PERIOD1);
@@ -82,15 +82,15 @@ public class PeriodicScheduleTest {
 
   //-------------------------------------------------------------------------
   public void test_getFrequency() {
-    PeriodicSchedule testNormal = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2, PERIOD3));
+    Schedule testNormal = Schedule.of(ImmutableList.of(PERIOD1, PERIOD2, PERIOD3));
     assertEquals(testNormal.getFrequency(), P1M);
-    PeriodicSchedule testTerm = PeriodicSchedule.of(ImmutableList.of(PERIOD_TERM));
+    Schedule testTerm = Schedule.of(ImmutableList.of(PERIOD_TERM));
     assertEquals(testTerm.getFrequency(), P2M);
   }
 
   //-------------------------------------------------------------------------
   public void coverage_builder() {
-    PeriodicSchedule.Builder builder = PeriodicSchedule.builder();
+    Schedule.Builder builder = Schedule.builder();
     builder
       .periods(ImmutableList.of(PERIOD1))
       .build();
@@ -98,12 +98,12 @@ public class PeriodicScheduleTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2));
+    Schedule test = Schedule.of(ImmutableList.of(PERIOD1, PERIOD2));
     coverImmutableBean(test);
   }
 
   public void test_serialization() {
-    PeriodicSchedule test = PeriodicSchedule.of(ImmutableList.of(PERIOD1, PERIOD2));
+    Schedule test = Schedule.of(ImmutableList.of(PERIOD1, PERIOD2));
     assertSerialization(test);
   }
 
