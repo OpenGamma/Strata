@@ -195,7 +195,7 @@ public final class SchedulePeriod
    * Checks if this period is an initial or final stub.
    * <p>
    * Only an initial or final period can be a stub.
-   * The result true if the length of the period differs from that calculated by
+   * The result is true if the length of the period differs from that calculated by
    * the frequency and roll convention.
    * 
    * @return true if the period is an initial or final stub
