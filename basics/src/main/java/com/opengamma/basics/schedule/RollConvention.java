@@ -20,7 +20,7 @@ import com.opengamma.collect.named.Named;
 /**
  * A convention defining how to roll dates.
  * <p>
- * A {@linkplain PeriodicScheduleDefn periodic schedule} is determined using a periodic frequency.
+ * A {@linkplain PeriodicSchedule periodic schedule} is determined using a periodic frequency.
  * When applying the frequency, the roll convention is used to fine tune the dates.
  * This might involve selecting the last day of the month, or the third Wednesday.
  * <p>

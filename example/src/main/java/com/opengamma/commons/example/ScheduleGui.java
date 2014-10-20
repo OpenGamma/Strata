@@ -34,7 +34,7 @@ import com.opengamma.basics.date.BusinessDayConventions;
 import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.HolidayCalendars;
 import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.PeriodicScheduleDefn;
+import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.schedule.RollConvention;
 import com.opengamma.basics.schedule.RollConventions;
 import com.opengamma.basics.schedule.Schedule;
@@ -44,7 +44,9 @@ import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.basics.schedule.StubConvention;
 
 /**
- * A simple GUI demonstration of schedule generation using {@link PeriodicScheduleDefn}.
+ * A simple GUI demonstration of schedule generation.
+ * <p>
+ * This provides a GUI based on {@link PeriodicSchedule} and {@link Schedule}.
  * <p>
  * This GUI exists for demonstration purposes to aid with understanding schedule generation.
  * It is not intended that is used in a production environment.
@@ -156,7 +158,7 @@ public class ScheduleGui extends Application {
       HolidayCalendar holCal = holidayInp.getValue();
       BusinessDayConvention bdc = bdcInp.getValue();
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(bdc, holCal);
-      PeriodicScheduleDefn defn = PeriodicScheduleDefn.builder()
+      PeriodicSchedule defn = PeriodicSchedule.builder()
           .startDate(start)
           .endDate(end)
           .frequency(freq)

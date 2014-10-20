@@ -19,7 +19,7 @@ public final class ScheduleException
   /**
    * The invalid schedule definition.
    */
-  private final PeriodicScheduleDefn definition;
+  private final PeriodicSchedule definition;
 
   /**
    * Creates an instance.
@@ -30,7 +30,7 @@ public final class ScheduleException
    * @param msgArguments  the message arguments
    * @param definition  the invalid schedule definition, may be null
    */
-  public ScheduleException(PeriodicScheduleDefn definition, String msgTemplate, Object... msgArguments) {
+  public ScheduleException(PeriodicSchedule definition, String msgTemplate, Object... msgArguments) {
     super(ArgChecker.formatMessage(msgTemplate, msgArguments));
     this.definition = definition;
   }
@@ -41,7 +41,7 @@ public final class ScheduleException
    * 
    * @return the definition, may be null
    */
-  public PeriodicScheduleDefn getDefinition() {
+  public PeriodicSchedule getDefinition() {
     return definition;
   }
 

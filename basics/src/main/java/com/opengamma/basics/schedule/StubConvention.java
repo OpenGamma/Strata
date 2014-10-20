@@ -16,7 +16,7 @@ import com.opengamma.collect.ArgChecker;
 /**
  * A convention defining how to calculate stub periods.
  * <p>
- * A {@linkplain PeriodicScheduleDefn periodic schedule} is determined using a periodic frequency.
+ * A {@linkplain PeriodicSchedule periodic schedule} is determined using a periodic frequency.
  * This splits the schedule into "regular" periods of a fixed length, such as every 3 months.
  * Any remaining days are allocated to irregular "stubs" at the start and/or end.
  * <p>
@@ -56,7 +56,7 @@ public enum StubConvention {
    */
   NONE {
     @Override
-    StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
+    StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitInitialStub || explicitFinalStub) {
         throw new ScheduleException(
             definition, "Dates specify an explicit stub, but stub convention is 'None'");
@@ -82,7 +82,7 @@ public enum StubConvention {
    */
   SHORT_INITIAL {
     @Override
-    StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
+    StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitFinalStub) {
         throw new ScheduleException(
             definition, "Dates specify an explicit final stub, but stub convention is 'ShortInitial'");
@@ -109,7 +109,7 @@ public enum StubConvention {
    */
   LONG_INITIAL {
     @Override
-    StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
+    StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitFinalStub) {
         throw new ScheduleException(
             definition, "Dates specify an explicit final stub, but stub convention is 'LongInitial'");
@@ -135,7 +135,7 @@ public enum StubConvention {
    */
   SHORT_FINAL {
     @Override
-    StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
+    StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitInitialStub) {
         throw new ScheduleException(
             definition, "Dates specify an explicit initial stub, but stub convention is 'ShortFinal'");
@@ -162,7 +162,7 @@ public enum StubConvention {
    */
   LONG_FINAL {
     @Override
-    StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
+    StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitInitialStub) {
         throw new ScheduleException(
             definition, "Dates specify an explicit initial stub, but stub convention is 'LongFinal'");
@@ -182,7 +182,7 @@ public enum StubConvention {
    */
   BOTH {
     @Override
-    StubConvention toImplicit(PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub) {
+    StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if ((explicitInitialStub && explicitFinalStub) == false) {
         throw new ScheduleException(
             definition, "Stub convention is 'Both' but explicit dates not specified");
@@ -299,7 +299,7 @@ public enum StubConvention {
    * @throws ScheduleException if the input data is invalid
    */
   abstract StubConvention toImplicit(
-      PeriodicScheduleDefn definition, boolean explicitInitialStub, boolean explicitFinalStub);
+      PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub);
 
   //-------------------------------------------------------------------------
   /**
