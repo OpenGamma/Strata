@@ -45,10 +45,28 @@ public class ValueScheduleTest {
     assertEquals(test.getSteps(), ImmutableList.of());
   }
 
-  public void test_of_intSteps() {
+  public void test_of_intStepsArray() {
+    ValueSchedule test = ValueSchedule.of(10000d, STEP1, STEP2);
+    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
+    assertEquals(test.getSteps(), ImmutableList.of(STEP1, STEP2));
+  }
+
+  public void test_of_intStepsArray_empty() {
+    ValueSchedule test = ValueSchedule.of(10000d, new ValueStep[0]);
+    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
+    assertEquals(test.getSteps(), ImmutableList.of());
+  }
+
+  public void test_of_intStepsList() {
     ValueSchedule test = ValueSchedule.of(10000d, Lists.newArrayList(STEP1, STEP2));
     assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
     assertEquals(test.getSteps(), ImmutableList.of(STEP1, STEP2));
+  }
+
+  public void test_of_intStepsList_empty() {
+    ValueSchedule test = ValueSchedule.of(10000d, Lists.newArrayList());
+    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
+    assertEquals(test.getSteps(), ImmutableList.of());
   }
 
   public void test_builder_validEmpty() {

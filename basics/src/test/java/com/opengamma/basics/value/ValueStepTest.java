@@ -56,13 +56,19 @@ public class ValueStepTest {
     ValueStep a2 = ValueStep.of(2, DELTA_MINUS_2000);
     ValueStep b = ValueStep.of(1, DELTA_MINUS_2000);
     ValueStep c = ValueStep.of(2, ABSOLUTE_100);
-    ValueStep d = ValueStep.of(date(2014, 6, 30), DELTA_MINUS_2000);
-    ValueStep e = ValueStep.of(date(2014, 7, 30), DELTA_MINUS_2000);
+    assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(c), false);
-    assertEquals(a1.equals(d), false);
-    assertEquals(a1.equals(e), false);
+    
+    ValueStep d1 = ValueStep.of(date(2014, 6, 30), DELTA_MINUS_2000);
+    ValueStep d2 = ValueStep.of(date(2014, 6, 30), DELTA_MINUS_2000);
+    ValueStep e = ValueStep.of(date(2014, 7, 30), DELTA_MINUS_2000);
+    ValueStep f = ValueStep.of(date(2014, 7, 30), ABSOLUTE_100);
+    assertEquals(d1.equals(d1), true);
+    assertEquals(d1.equals(d2), true);
+    assertEquals(d1.equals(e), false);
+    assertEquals(d1.equals(f), false);
   }
 
   //-------------------------------------------------------------------------

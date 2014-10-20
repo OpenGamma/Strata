@@ -51,7 +51,7 @@ public final class ValueSchedule
    * <p>
    * This is used for the lifetime of the trade unless specifically varied.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double initialValue;
   /**
    * The steps defining the change in the value.
@@ -75,7 +75,21 @@ public final class ValueSchedule
   /**
    * Obtains a {@code ValueSchedule} with a list of changes.
    * <p>
-   * Each step fully defines a single change in the spread.
+   * Each step fully defines a single change in the value.
+   * The date of each change can be specified as an absolute date or in relative terms.
+   * 
+   * @param initialValue  the initial value used for the first period
+   * @param steps  the full definition of how the value changes over time
+   * @return the value schedule
+   */
+  public static ValueSchedule of(double initialValue, ValueStep... steps) {
+    return new ValueSchedule(initialValue, ImmutableList.copyOf(steps));
+  }
+
+  /**
+   * Obtains a {@code ValueSchedule} with a list of changes.
+   * <p>
+   * Each step fully defines a single change in the value.
    * The date of each change can be specified as an absolute date or in relative terms.
    * 
    * @param initialValue  the initial value used for the first period
@@ -92,8 +106,9 @@ public final class ValueSchedule
    * <p>
    * This converts a schedule into a list of values, one for each schedule period.
    * <p>
-   * The output list is immutable and matches the input list. The underlying array
-   * of {@code double} can be efficiently accessed using {@link Doubles#toArray}.
+   * The output list is immutable and matches the input list.
+   * Use {@link Doubles#toArray} to efficiently access the list as a {@code double[]}
+   * (without breaking encapsulation or immutability).
    * 
    * @param periods  the list of schedule periods
    * @return the values, one for each schedule period
@@ -106,13 +121,14 @@ public final class ValueSchedule
       Arrays.fill(result, initialValue);
     } else {
       // expand ValueStep to array of adjustments matching the periods
+      // the steps are not sorted, so use fixed size array to absorb incoming data
       ValueAdjustment[] expandedSteps = new ValueAdjustment[size];
       for (ValueStep step : steps) {
         int index = step.findIndex(periods);
         if (index == 0) {
           throw new IllegalArgumentException("ValueStep is not allowed at the start of the schedule");
         }
-        if (expandedSteps[index] != null && expandedSteps[index].equals(step.getValue()) == false) {
+        if (expandedSteps[index] != null && !expandedSteps[index].equals(step.getValue())) {
           throw new IllegalArgumentException("Two ValueStep instances resolve to the same schedule period");
         }
         expandedSteps[index] = step.getValue();
@@ -126,6 +142,7 @@ public final class ValueSchedule
         result[i] = value;
       }
     }
+    // result array is wrapped, not copied, which is OK as scope of result ends here
     return Doubles.asList(result);
   }
 
@@ -154,7 +171,6 @@ public final class ValueSchedule
   private ValueSchedule(
       double initialValue,
       List<ValueStep> steps) {
-    JodaBeanUtils.notNull(initialValue, "initialValue");
     JodaBeanUtils.notNull(steps, "steps");
     this.initialValue = initialValue;
     this.steps = ImmutableList.copyOf(steps);
@@ -180,7 +196,7 @@ public final class ValueSchedule
    * Gets the initial value.
    * <p>
    * This is used for the lifetime of the trade unless specifically varied.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getInitialValue() {
     return initialValue;
@@ -425,11 +441,10 @@ public final class ValueSchedule
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code initialValue} property in the builder.
-     * @param initialValue  the new value, not null
+     * @param initialValue  the new value
      * @return this, for chaining, not null
      */
     public Builder initialValue(double initialValue) {
-      JodaBeanUtils.notNull(initialValue, "initialValue");
       this.initialValue = initialValue;
       return this;
     }
