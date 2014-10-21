@@ -66,6 +66,8 @@
   <!-- ==================================================================== -->
   <modules>
     <module>analytics-api</module>
+    <module>finance</module>
+    <module>pricer</module>
     <module>source</module>
   </modules>
 
