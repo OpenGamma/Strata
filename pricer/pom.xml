@@ -49,6 +49,11 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+    	<groupId>com.opengamma.maths</groupId>
+    	<artifactId>og-maths</artifactId>
+    	<version>0.1.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <!-- ==================================================================== -->
