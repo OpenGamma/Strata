@@ -17,7 +17,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.env.AnalyticsEnvironment;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -58,14 +57,153 @@ public class StandardSwapPricerFn implements SwapPricerFn {
     List<SwapPaymentPeriod> payments = new ArrayList<>();
     payments.addAll(trade.getLeg1().toExpanded().getPaymentPeriods());
     payments.addAll(trade.getLeg2().toExpanded().getPaymentPeriods());
-    MultipleCurrencyAmount pv1 = payments.stream()
-      .map(p -> presentValue(environment, valuationDate, p))
-      .filter(Objects::nonNull)
-      .reduce(MultipleCurrencyAmount.of(), MultipleCurrencyAmount::plus);
-    double amount = pv1.getAmount(com.opengamma.util.money.Currency.USD);
-    return CurrencyAmount.of(Currency.USD, amount);
+//    MultipleCurrencyAmount pv1 = payments.stream()
+//      .map(p -> presentValue(environment, valuationDate, p))
+//      .filter(Objects::nonNull)
+//      .reduce(MultipleCurrencyAmount.of(), MultipleCurrencyAmount::plus);
+//    double amount = pv1.getAmount(com.opengamma.util.money.Currency.USD);
+   
+    List<SwapPaymentPeriod> aggregateFixed= new ArrayList<>();
+    List<SwapPaymentPeriod> aggregateFloating = new ArrayList<>();
+    for (int k = 0; k < payments.size(); k++)
+    {
+    	if(payments.get(k).getAccrualPeriods().get(0) instanceof FixedRateAccrualPeriod)
+    	{
+    		aggregateFixed.add(payments.get(k));
+    	}
+    	else if(payments.get(k).getAccrualPeriods().get(0) instanceof FloatingRateAccrualPeriod)
+    	{
+    		aggregateFloating.add(payments.get(k));
+    	}
+    	else
+    	{
+    		throw new OpenGammaRuntimeException("Unknown accrual period type in aggregation loop");
+    	}
+    }
+    
+    MultipleCurrencyAmount fixedPv = fixedLeg(environment, valuationDate, aggregateFixed.toArray(new SwapPaymentPeriod[0]));
+    MultipleCurrencyAmount floatPv = floatLeg(environment, valuationDate, aggregateFloating.toArray(new SwapPaymentPeriod[0]));
+    
+      
+    double sum = fixedPv.getAmount(com.opengamma.util.money.Currency.USD) + floatPv.getAmount(com.opengamma.util.money.Currency.USD);
+       
+    return CurrencyAmount.of(Currency.USD, sum);
   }
+  
+  
+  MultipleCurrencyAmount fixedLeg(MulticurveProviderInterface environment, LocalDate valuationDate, SwapPaymentPeriod[] paymentPeriods)
+  {
+	  int nPeriods=paymentPeriods.length;
+	  // reduction variable
+	  MultipleCurrencyAmount total = MultipleCurrencyAmount.of(com.opengamma.util.money.Currency.USD,0); 
+	  for(int k = 0; k < nPeriods; k++) {
+		  // local ref to *this* payment period
+		  SwapPaymentPeriod paymentPeriod = paymentPeriods[k];
+		  
+		  // historic payments have zero pv
+		  if (paymentPeriod.getPaymentDate().isBefore(valuationDate)) {
+		    continue;
+		  }
 
+		  AccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
+		  double paymentRelativeTime = relativeTime(valuationDate, paymentPeriod.getPaymentDate());
+		  
+		    // fixed leg stuff
+		  FixedRateAccrualPeriod fixedAccrual = (FixedRateAccrualPeriod) accrualPeriod;
+		  CouponFixed coupon = new CouponFixed(
+		      currency(Currency.USD),
+		      paymentRelativeTime,
+		      fixedAccrual.getYearFraction(),
+		      fixedAccrual.getNotional(),
+		      fixedAccrual.getRate(),
+		      date(accrualPeriod.getStartDate()).atStartOfDay(ZoneOffset.UTC),
+		      date(accrualPeriod.getEndDate()).atStartOfDay(ZoneOffset.UTC));
+		  MultipleCurrencyAmount loopValue = CALCULATOR.visitCouponFixed(coupon, environment);
+		  total = total.plus(loopValue);
+	  }
+	  return total;
+  };
+
+/**
+ * Computes the value of the floating leg.
+ * 
+ * Need to adjust this to take a CCY
+ *  
+ * @param environment void *
+ * @param valuationDate the valuation date
+ * @param paymentPeriods the swap payment periods on this leg
+ * @return the amount
+ */
+  MultipleCurrencyAmount floatLeg(MulticurveProviderInterface environment, LocalDate valuationDate, SwapPaymentPeriod[] paymentPeriods)
+  {
+	  int nPeriods=paymentPeriods.length;
+	  // reduction variable
+	  MultipleCurrencyAmount total = MultipleCurrencyAmount.of(com.opengamma.util.money.Currency.USD,0); 
+	  for(int k = 0; k < nPeriods; k++) {
+		// local ref to *this* payment period
+		SwapPaymentPeriod paymentPeriod = paymentPeriods[k];
+		  
+		// historic payments have zero pv
+		if (paymentPeriod.getPaymentDate().isBefore(valuationDate)) {
+			continue;
+		}
+		// common elements
+		AccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriods().get(0);
+		double paymentRelativeTime = relativeTime(valuationDate, paymentPeriod.getPaymentDate());
+		  
+		FloatingRateAccrualPeriod floatingAccrual = (FloatingRateAccrualPeriod) accrualPeriod;
+		IborIndex index = (IborIndex) floatingAccrual.getIndex();
+		LocalDate fixingDate = floatingAccrual.getFixingDate();
+		LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
+		LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+		
+		// map index
+		com.opengamma.analytics.financial.instrument.index.IborIndex idx =
+		    IndexIborMaster.getInstance().getIndex(IndexIborMaster.USDLIBOR3M);
+		LocalDateDoubleTimeSeries historicLibor = SwapInstrumentsDataSet.TS_USDLIBOR3M;
+		if (index.equals(RateIndices.USD_LIBOR_6M)) {
+		  idx = IndexIborMaster.getInstance().getIndex(IndexIborMaster.USDLIBOR6M);
+		  historicLibor = SwapInstrumentsDataSet.TS_USDLIBOR6M;
+		}
+		// lookup known fixing data
+		if (valuationDate.equals(fixingDate) || valuationDate.isAfter(fixingDate)) {
+		  OptionalDouble fixedRate = historicLibor.get(fixingDate);
+		  if (fixedRate.isPresent()) {
+		    CouponFixed coupon = new CouponFixed(
+		        currency(Currency.USD),
+		        paymentRelativeTime,
+		        floatingAccrual.getYearFraction(),
+		        floatingAccrual.getNotional(),
+		        fixedRate.getAsDouble(),
+		        date(accrualPeriod.getStartDate()).atStartOfDay(ZoneOffset.UTC),
+		        date(accrualPeriod.getEndDate()).atStartOfDay(ZoneOffset.UTC));
+		    System.out.println(coupon);
+		    MultipleCurrencyAmount loopValue = CALCULATOR.visitCouponFixed(coupon, environment);
+		    total = total.plus(loopValue);
+		    continue;
+		  } else if (valuationDate.isAfter(fixingDate)) { // the fixing is required
+			  throw new OpenGammaRuntimeException("Could not get fixing value for date " + fixingDate);
+		  }
+		}
+		// floating Ibor
+		CouponIborSpread coupon = new CouponIborSpread(
+		    currency(Currency.USD),
+		    paymentRelativeTime,
+		    floatingAccrual.getYearFraction(),
+		    floatingAccrual.getNotional(),
+		    relativeTime(valuationDate, fixingDate),
+		    idx,
+		    relativeTime(valuationDate, fixingStartDate),
+		    relativeTime(valuationDate, fixingEndDate),
+		    index.getDayCount().getDayCountFraction(fixingStartDate, fixingEndDate),
+		    floatingAccrual.getSpread());
+		System.out.println(coupon);
+		MultipleCurrencyAmount loopValue = CALCULATOR.visitCouponIborSpread(coupon, environment);
+		total = total.plus(loopValue);
+	  }
+	  return total;
+  };
+  
   // present value
   MultipleCurrencyAmount presentValue(
       MulticurveProviderInterface environment, LocalDate valuationDate, SwapPaymentPeriod paymentPeriod) {
