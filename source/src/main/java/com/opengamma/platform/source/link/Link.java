@@ -5,6 +5,7 @@
  */
 package com.opengamma.platform.source.link;
 
+import com.opengamma.platform.source.Source;
 import com.opengamma.platform.source.id.IdentifiableBean;
 import com.opengamma.platform.source.id.StandardId;
 
@@ -14,7 +15,7 @@ import com.opengamma.platform.source.id.StandardId;
  * references to be made between separate serialized objects.
  * These objects can then be updated independently of each other
  * and the link will point at the correct version (dependent on
- * the link resolution that is performed.
+ * the link resolution that is performed).
  * <p>
  * Links also support a form where the link's target is embedded
  * in the link itself. When these are resolved, the embedded
@@ -32,7 +33,12 @@ import com.opengamma.platform.source.id.StandardId;
 public interface Link<T extends IdentifiableBean> {
 
   /**
-   * Create a link for the specified id and type.
+   * Create a resolvable link for the specified id and type.
+   * <p>
+   * When, at some subsequent point, the {@link #resolve(LinkResolver)}
+   * method is called on the created link, the target for the
+   * link will be looked up (generally from a {@link Source})
+   * and returned to the caller.
    *
    * @param identifier  the identifier for the link's target
    * @param linkType  the type of the link target
@@ -44,6 +50,10 @@ public interface Link<T extends IdentifiableBean> {
 
   /**
    * Create a link with the link target embedded directly.
+   * <p>
+   * When, at some subsequent point, the {@link #resolve(LinkResolver)}
+   * method is called on the created link, the target embedded
+   * in the link will be returned to the caller.
    *
    * @param linkable  the link target
    * @return a new resolved link

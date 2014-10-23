@@ -9,15 +9,19 @@ import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.result.Result;
 import com.opengamma.platform.source.Source;
 import com.opengamma.platform.source.id.IdentifiableBean;
+import com.opengamma.platform.source.id.StandardId;
 
 /**
- * A link resolver backed by a Source. The source is
- * used to get the target of the link.
+ * A link resolver backed by a {@link Source}.
+ * <p>
+ * The source is used to get the target of the link. If
+ * it is not possible to resolve the link using the source
+ * then a {@link LinkResolutionException} will be thrown.
  */
 public class SourceLinkResolver implements LinkResolver {
 
   /**
-   * Source used to retrieve the link target.
+   * The source used to retrieve the link target.
    */
   private final Source source;
 
@@ -30,6 +34,20 @@ public class SourceLinkResolver implements LinkResolver {
     this.source = ArgChecker.notNull(source, "source");
   }
 
+  /**
+   * Resolve the supplied link using the source, returning the
+   * realised target of the link.
+   * <p>
+   * A call is made to {@link Source#get(StandardId, Class)} and
+   * if the returned result indicates a failure, a
+   * {@code LinkResolutionException} will be thrown with the
+   * failure reason taken from the Result.
+   *
+   * @param <T>  the type of the target of the link
+   * @param link  the link to be resolved
+   * @return the resolved target of the link
+   * @throws LinkResolutionException if the link cannot be resolved
+   */
   @Override
   public <T extends IdentifiableBean> T resolve(ResolvableLink<T> link) {
     Result<T> result = source.get(link.getIdentifier(), link.getLinkType());
@@ -38,5 +56,10 @@ public class SourceLinkResolver implements LinkResolver {
     } else {
       throw new LinkResolutionException(link, result.getFailure());
     }
+  }
+
+  @Override
+  public String toString() {
+    return "SourceLinkResolver[source=" + source + "]";
   }
 }

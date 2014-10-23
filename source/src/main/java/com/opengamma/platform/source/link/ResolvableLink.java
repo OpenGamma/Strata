@@ -40,12 +40,17 @@ import com.opengamma.platform.source.id.StandardId;
  * target of the link is available. For this reason, if the
  * target is not found, a {@link LinkResolutionException} will
  * be thrown.
+ * <p>
+ * Package-scoped as creation should be via
+ * {@link Link#resolved(IdentifiableBean)} and usage via the
+ * {@link Link} interface.
  *
  * @param <T> type of the link, which ensures that when the link
  *   is resolved no casting is required by the caller
  */
 @BeanDefinition(builderScope = "private")
-public final class ResolvableLink<T extends IdentifiableBean> implements Link<T>, ImmutableBean {
+final class ResolvableLink<T extends IdentifiableBean>
+    implements Link<T>, ImmutableBean {
 
   /**
    * The identifier for the link target.
