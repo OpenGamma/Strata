@@ -5,12 +5,13 @@
  */
 package com.opengamma.platform.source;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.collect.Guavate;
 import com.opengamma.platform.source.id.IdentifiableBean;
 import com.opengamma.platform.source.id.StandardId;
@@ -18,10 +19,15 @@ import com.opengamma.platform.source.id.StandardIdentifiable;
 
 /**
  * The SourceProvider interface is used to expose a data store.
- * Minimal assumptions are made about the form of the data store
- * (e.g. a key value data store, a relational database etc) and
- * the only method that needs to be implemented is
- * {@link #get(StandardId)}.
+ * <p>
+ * This is intended to be an SPI (service provider interface)
+ * and for this reason minimal assumptions are made about the
+ * form of the data store (for example, a key value data store,
+ * a relational database and so on) and the only method that
+ * needs to be implemented is {@link #get(StandardId)}. Note
+ * that overriding other methods may improve performance,
+ * specifically the {@link #bulkGet(Iterable)} and
+ * {@link #changedSince(Collection, Instant)} methods.
  * <p>
  * This interface is analogous to the {@link Source} interface.
  * The Source interface is provided for use by callers inside
@@ -32,10 +38,10 @@ import com.opengamma.platform.source.id.StandardIdentifiable;
 public interface SourceProvider {
 
   /**
-   * Get an item using one of its external identifiers.
+   * Gets an item using its standard identifier.
    *
    * @param id  the identifier for the item
-   * @return an <code>Optional</code> containing the item if it exists
+   * @return an {@code Optional} containing the item if it exists
    */
   public abstract Optional<IdentifiableBean> get(StandardId id);
 
@@ -51,12 +57,12 @@ public interface SourceProvider {
    * @param ids  the collection of ids to get
    * @return the collection of matching items
    */
-  public default Map<StandardId, IdentifiableBean> bulkGet(Iterable<? extends StandardId> ids) {
+  public default ImmutableMap<StandardId, IdentifiableBean> bulkGet(Iterable<StandardId> ids) {
     return Guavate.stream(ids)
         .map(this::get)
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .collect(Collectors.toMap(StandardIdentifiable::getStandardId, i -> i));
+        .collect(Guavate.toImmutableMap(StandardIdentifiable::getStandardId, i -> i));
   }
 
   /**
@@ -78,8 +84,8 @@ public interface SourceProvider {
    * @return the collection of data items from the initial set of ids
    *   which have been updated since the supplied check point
    */
-  public default Collection<StandardId> changedSince(Collection<StandardId> ids, LocalDateTime checkpoint) {
-    return ids;
+  public default ImmutableCollection<StandardId> changedSince(Collection<StandardId> ids, Instant checkpoint) {
+    return ImmutableSet.copyOf(ids);
   }
 
   public default void registerForUpdates(UpdateNotificationListener listener) {

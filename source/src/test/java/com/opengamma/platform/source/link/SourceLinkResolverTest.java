@@ -1,5 +1,11 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.source.link;
 
+import static com.opengamma.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
@@ -21,23 +27,21 @@ import com.opengamma.platform.source.id.StandardIdentifiable;
 /**
  * Tests the source link resolver using a map-based source.
  */
+@Test
 public class SourceLinkResolverTest {
 
-  @Test(
-      expectedExceptions = LinkResolutionException.class,
-      expectedExceptionsMessageRegExp = ".*Unable to find data.*")
   public void resolutionFailsIfItemNotFound() {
 
     Link<TesterIdentifiable> link =
         Link.resolvable(StandardId.of("some_scheme", "1234"), TesterIdentifiable.class);
 
     SourceLinkResolver resolver = new SourceLinkResolver(new MapSource());
-    link.resolve(resolver);
+    assertThrows(
+        () -> link.resolve(resolver),
+        LinkResolutionException.class,
+        ".*Unable to find data.*");
   }
 
-  @Test(
-      expectedExceptions = LinkResolutionException.class,
-      expectedExceptionsMessageRegExp = ".*but expected type was.*")
   public void resolutionFailsIfWrongType() {
 
     Link<NonTesterIdentifiable> link =
@@ -48,10 +52,12 @@ public class SourceLinkResolverTest {
         .build();
 
     SourceLinkResolver resolver = new SourceLinkResolver(new MapSource(bean));
-    link.resolve(resolver);
+    assertThrows(
+        () -> link.resolve(resolver),
+        LinkResolutionException.class,
+        ".*but expected type was.*");
   }
 
-  @Test
   public void resolutionSuccess() {
 
     Link<TesterIdentifiable> link =

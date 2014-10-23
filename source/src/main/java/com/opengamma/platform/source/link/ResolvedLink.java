@@ -29,13 +29,18 @@ import com.opengamma.platform.source.id.IdentifiableBean;
 /**
  * A link where the link target is directly embedded inside. This
  * type of link is especially useful for testing (as it means
- * sources do not have to be setup with data). However, there are
+ * sources do not have to be set up with data). However, there are
  * uses outside the testing scope too.
+ * <p>
+ * Package-scoped as creation should be via
+ * {@link Link#resolved(IdentifiableBean)} and usage via the
+ * {@link Link} interface.
  *
  * @param <T> the type of the link target
  */
 @BeanDefinition(builderScope = "private")
-public final class ResolvedLink<T extends IdentifiableBean> implements Link<T>, ImmutableBean {
+final class ResolvedLink<T extends IdentifiableBean>
+    implements Link<T>, ImmutableBean {
 
   /**
    * The embedded link target.

@@ -20,7 +20,7 @@ public interface LinkResolver {
   /**
    * Resolve the supplied link, returning the realised target
    * of the link. If the link cannot be resolved a
-   * LinkResolutionException will be thrown.
+   * {@code LinkResolutionException} will be thrown.
    *
    * @param <T>  the type of the target of the link
    * @param link  the link to be resolved
@@ -28,4 +28,5 @@ public interface LinkResolver {
    * @throws LinkResolutionException if the link cannot be resolved
    */
   public abstract <T extends IdentifiableBean> T resolve(ResolvableLink<T> link);
+
 }
