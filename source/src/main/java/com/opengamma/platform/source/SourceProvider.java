@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.collect.Guavate;
@@ -84,7 +83,7 @@ public interface SourceProvider {
    * @return the collection of data items from the initial set of ids
    *   which have been updated since the supplied check point
    */
-  public default ImmutableCollection<StandardId> changedSince(Collection<StandardId> ids, Instant checkpoint) {
+  public default ImmutableSet<StandardId> changedSince(Collection<StandardId> ids, Instant checkpoint) {
     return ImmutableSet.copyOf(ids);
   }
 
