@@ -190,6 +190,12 @@
       <artifactId>testng</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- This may be removed and replaced with AssertJ -->
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -218,7 +224,6 @@
       <dependency>
         <groupId>org.hamcrest</groupId>
         <artifactId>hamcrest-library</artifactId>
-        <scope>test</scope>
         <version>1.3</version>
       </dependency>
     </dependencies>
