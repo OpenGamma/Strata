@@ -50,6 +50,8 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.ImmutableBean;
@@ -176,8 +178,36 @@ public class TestHelper {
    * @param expected  the expected exception
    */
   public static void assertThrows(AssertRunnable runner, Class<? extends Throwable> expected) {
+    assertThrowsImpl(runner, expected, null);
+  }
+
+  /**
+   * Asserts that the lambda-based code throws the specified exception
+   * and that the exception message matches the supplied regular
+   * expression.
+   * <p>
+   * For example:
+   * <pre>
+   *  assertThrows(() -> bean.property(""), NoSuchElementException.class, "Unknown property.*");
+   * </pre>
+   *
+   * @param runner  the lambda containing the code to test
+   * @param expected  the expected exception
+   * @param regex  the regex that the exception message is expected to match
+   */
+  public static void assertThrows(AssertRunnable runner, Class<? extends Throwable> expected, String regex) {
+    assertNotNull(regex, "assertThrows() called with null regex");
+    assertThrowsImpl(runner, expected, regex);
+  }
+
+  private static void assertThrowsImpl(
+      AssertRunnable runner,
+      Class<? extends Throwable> expected,
+      @Nullable String regex) {
+
     assertNotNull(runner, "assertThrows() called with null AssertRunnable");
     assertNotNull(expected, "assertThrows() called with null expected Class");
+
     try {
       runner.run();
       fail("Expected " + expected.getSimpleName() + " but code succeeded normally");
@@ -185,7 +215,12 @@ public class TestHelper {
       throw ex;
     } catch (Throwable ex) {
       if (expected.isInstance(ex)) {
-        return;
+        String message = ex.getMessage();
+        if (regex == null || message.matches(regex)) {
+          return;
+        } else {
+          fail("Expected exception message to match: [" + regex + "] but received: " + message);
+        }
       }
       fail("Expected " + expected.getSimpleName() + " but received " + ex.getClass().getSimpleName());
     }
