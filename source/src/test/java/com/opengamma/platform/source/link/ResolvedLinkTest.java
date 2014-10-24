@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.opengamma.platform.source.TesterIdentifiable;
+import com.opengamma.platform.source.id.StandardId;
 
 /**
  * Simple tests for a resolved link.
@@ -24,12 +25,17 @@ public class ResolvedLinkTest {
   }
 
   public void resolveReturnsOriginalBean() {
-    TesterIdentifiable bean = TesterIdentifiable.builder().build();
+    TesterIdentifiable bean = TesterIdentifiable.builder()
+        .standardId(StandardId.of("test_scheme", "1"))
+        .build();
     Link<TesterIdentifiable> link = Link.resolved(bean);
     assertThat(link.resolve(null)).isSameAs(bean);
   }
 
   public void coverage() {
-    coverImmutableBean(new ResolvedLink<>(TesterIdentifiable.builder().build()));
+    TesterIdentifiable bean = TesterIdentifiable.builder()
+        .standardId(StandardId.of("test_scheme", "1"))
+        .build();
+    coverImmutableBean(new ResolvedLink<>(bean));
   }
 }
