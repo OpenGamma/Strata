@@ -30,7 +30,7 @@ import com.opengamma.platform.source.id.StandardId;
 @BeanDefinition
 public final class TesterIdentifiable implements IdentifiableBean, ImmutableBean, Tester {
 
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final StandardId standardId;
 
   @PropertyDefinition
