@@ -145,9 +145,17 @@ final class ResolvedLink<T extends IdentifiableBean>
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ResolvedLink{");
-    buf.append("linkable").append('=').append(JodaBeanUtils.toString(getLinkable()));
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
     buf.append('}');
     return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("linkable").append('=').append(JodaBeanUtils.toString(getLinkable())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -155,7 +163,7 @@ final class ResolvedLink<T extends IdentifiableBean>
    * The meta-bean for {@code ResolvedLink}.
    * @param <T>  the type
    */
-  public static final class Meta<T extends IdentifiableBean> extends DirectMetaBean {
+  public static class Meta<T extends IdentifiableBean> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -178,7 +186,7 @@ final class ResolvedLink<T extends IdentifiableBean>
     /**
      * Restricted constructor.
      */
-    private Meta() {
+    protected Meta() {
     }
 
     @Override
@@ -211,7 +219,7 @@ final class ResolvedLink<T extends IdentifiableBean>
      * The meta-property for the {@code linkable} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<T> linkable() {
+    public final MetaProperty<T> linkable() {
       return linkable;
     }
 
@@ -241,14 +249,14 @@ final class ResolvedLink<T extends IdentifiableBean>
    * The bean-builder for {@code ResolvedLink}.
    * @param <T>  the type
    */
-  private static final class Builder<T extends IdentifiableBean> extends DirectFieldsBeanBuilder<ResolvedLink<T>> {
+  private static class Builder<T extends IdentifiableBean> extends DirectFieldsBeanBuilder<ResolvedLink<T>> {
 
     private T linkable;
 
     /**
      * Restricted constructor.
      */
-    private Builder() {
+    protected Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -310,9 +318,17 @@ final class ResolvedLink<T extends IdentifiableBean>
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("ResolvedLink.Builder{");
-      buf.append("linkable").append('=').append(JodaBeanUtils.toString(linkable));
+      int len = buf.length();
+      toString(buf);
+      if (buf.length() > len) {
+        buf.setLength(buf.length() - 2);
+      }
       buf.append('}');
       return buf.toString();
+    }
+
+    protected void toString(StringBuilder buf) {
+      buf.append("linkable").append('=').append(JodaBeanUtils.toString(linkable)).append(',').append(' ');
     }
 
   }

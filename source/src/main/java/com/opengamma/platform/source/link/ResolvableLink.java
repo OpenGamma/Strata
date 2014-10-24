@@ -169,10 +169,18 @@ final class ResolvableLink<T extends IdentifiableBean>
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvableLink{");
-    buf.append("identifier").append('=').append(getIdentifier()).append(',').append(' ');
-    buf.append("linkType").append('=').append(JodaBeanUtils.toString(getLinkType()));
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
     buf.append('}');
     return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("identifier").append('=').append(JodaBeanUtils.toString(getIdentifier())).append(',').append(' ');
+    buf.append("linkType").append('=').append(JodaBeanUtils.toString(getLinkType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -180,7 +188,7 @@ final class ResolvableLink<T extends IdentifiableBean>
    * The meta-bean for {@code ResolvableLink}.
    * @param <T>  the type
    */
-  public static final class Meta<T extends IdentifiableBean> extends DirectMetaBean {
+  public static class Meta<T extends IdentifiableBean> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -209,7 +217,7 @@ final class ResolvableLink<T extends IdentifiableBean>
     /**
      * Restricted constructor.
      */
-    private Meta() {
+    protected Meta() {
     }
 
     @Override
@@ -244,7 +252,7 @@ final class ResolvableLink<T extends IdentifiableBean>
      * The meta-property for the {@code identifier} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StandardId> identifier() {
+    public final MetaProperty<StandardId> identifier() {
       return identifier;
     }
 
@@ -252,7 +260,7 @@ final class ResolvableLink<T extends IdentifiableBean>
      * The meta-property for the {@code linkType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Class<T>> linkType() {
+    public final MetaProperty<Class<T>> linkType() {
       return linkType;
     }
 
@@ -284,7 +292,7 @@ final class ResolvableLink<T extends IdentifiableBean>
    * The bean-builder for {@code ResolvableLink}.
    * @param <T>  the type
    */
-  private static final class Builder<T extends IdentifiableBean> extends DirectFieldsBeanBuilder<ResolvableLink<T>> {
+  private static class Builder<T extends IdentifiableBean> extends DirectFieldsBeanBuilder<ResolvableLink<T>> {
 
     private StandardId identifier;
     private Class<T> linkType;
@@ -292,7 +300,7 @@ final class ResolvableLink<T extends IdentifiableBean>
     /**
      * Restricted constructor.
      */
-    private Builder() {
+    protected Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -360,10 +368,18 @@ final class ResolvableLink<T extends IdentifiableBean>
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("ResolvableLink.Builder{");
-      buf.append("identifier").append('=').append(JodaBeanUtils.toString(identifier)).append(',').append(' ');
-      buf.append("linkType").append('=').append(JodaBeanUtils.toString(linkType));
+      int len = buf.length();
+      toString(buf);
+      if (buf.length() > len) {
+        buf.setLength(buf.length() - 2);
+      }
       buf.append('}');
       return buf.toString();
+    }
+
+    protected void toString(StringBuilder buf) {
+      buf.append("identifier").append('=').append(JodaBeanUtils.toString(identifier)).append(',').append(' ');
+      buf.append("linkType").append('=').append(JodaBeanUtils.toString(linkType)).append(',').append(' ');
     }
 
   }

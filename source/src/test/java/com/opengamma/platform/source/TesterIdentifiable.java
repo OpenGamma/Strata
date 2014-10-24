@@ -65,6 +65,7 @@ public final class TesterIdentifiable implements IdentifiableBean, ImmutableBean
       StandardId standardId,
       String name,
       int widgetCount) {
+    JodaBeanUtils.notNull(standardId, "standardId");
     this.standardId = standardId;
     this.name = name;
     this.widgetCount = widgetCount;
@@ -88,7 +89,7 @@ public final class TesterIdentifiable implements IdentifiableBean, ImmutableBean
   //-----------------------------------------------------------------------
   /**
    * Gets the standardId.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public StandardId getStandardId() {
     return standardId;
@@ -367,10 +368,11 @@ public final class TesterIdentifiable implements IdentifiableBean, ImmutableBean
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code standardId} property in the builder.
-     * @param standardId  the new value
+     * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder standardId(StandardId standardId) {
+      JodaBeanUtils.notNull(standardId, "standardId");
       this.standardId = standardId;
       return this;
     }
