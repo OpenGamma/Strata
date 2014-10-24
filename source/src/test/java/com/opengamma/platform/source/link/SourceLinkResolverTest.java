@@ -74,6 +74,11 @@ public class SourceLinkResolverTest {
         .isSameAs(bean);
   }
 
+  public void toStringProducesValue() {
+    SourceLinkResolver resolver = new SourceLinkResolver(new MapSource());
+    assertThat(resolver.toString()).isNotEmpty();
+  }
+
   private static class MapSource implements Source {
 
     private final Map<StandardId, IdentifiableBean> beanMap;
