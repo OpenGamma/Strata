@@ -5,6 +5,7 @@
  */
 package com.opengamma.platform.source.id;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -158,6 +159,22 @@ public class StandardIdTest {
   public void test_getIdentityKey() {
     StandardId test = StandardId.of(SCHEME, "value");
     assertEquals(test.getStandardId(), test);
+  }
+
+  public void test_comparisonByScheme() {
+    StandardId id1 = StandardId.of(SCHEME, "123");
+    StandardId id2 = StandardId.of(OTHER_SCHEME, "234");
+
+    // As schemes are different, will compare by scheme
+    assertThat(id1).isGreaterThan(id2);
+  }
+
+  public void test_comparisonWithSchemeSame() {
+    StandardId id1 = StandardId.of(SCHEME, "123");
+    StandardId id2 = StandardId.of(SCHEME, "234");
+
+    // As schemes are same, will compare by id
+    assertThat(id1).isLessThan(id2);
   }
 
 }
