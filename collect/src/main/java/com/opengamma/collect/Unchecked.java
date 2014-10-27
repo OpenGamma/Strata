@@ -39,6 +39,12 @@ import com.opengamma.collect.function.CheckedUnaryOperator;
  * <pre>
  *  stream.map(Unchecked.function(file -> file.getCanonicalFile())
  * </pre>
+ * <p>
+ * Each method accepts a functional interface that is defined to throw {@link Throwable}.
+ * Catching {@code Throwable} means that any method can be wrapped.
+ * Any {@link IOException} is converted to an {@link UncheckedIOException}.
+ * Any {@link Error} or {@link RuntimeException} is re-thrown without alteration.
+ * Any other exception is wrapped in a {@link RuntimeException}.
  */
 public final class Unchecked {
 
