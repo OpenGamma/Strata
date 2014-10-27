@@ -50,7 +50,7 @@ public final class Unchecked {
 
   //-------------------------------------------------------------------------
   /**
-   * Provides a version of {@code Runnable} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code Runnable} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -73,7 +73,7 @@ public final class Unchecked {
 
   //-------------------------------------------------------------------------
   /**
-   * Provides a version of {@code Function} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code Function} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -95,7 +95,7 @@ public final class Unchecked {
   }
 
   /**
-   * Provides a version of {@code BiFunction} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code BiFunction} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -118,7 +118,7 @@ public final class Unchecked {
 
   //-------------------------------------------------------------------------
   /**
-   * Provides a version of {@code UnaryOperator} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code UnaryOperator} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -140,7 +140,7 @@ public final class Unchecked {
   }
 
   /**
-   * Provides a version of {@code BinaryOperator} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code BinaryOperator} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -163,7 +163,7 @@ public final class Unchecked {
 
   //-------------------------------------------------------------------------
   /**
-   * Provides a version of {@code Predicate} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code Predicate} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -185,7 +185,7 @@ public final class Unchecked {
   }
 
   /**
-   * Provides a version of {@code BiPredicate} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code BiPredicate} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -208,7 +208,7 @@ public final class Unchecked {
 
   //-------------------------------------------------------------------------
   /**
-   * Provides a version of {@code Consumer} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code Consumer} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -230,7 +230,7 @@ public final class Unchecked {
   }
 
   /**
-   * Provides a version of {@code BiConsumer} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code BiConsumer} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
@@ -253,7 +253,7 @@ public final class Unchecked {
 
   //-------------------------------------------------------------------------
   /**
-   * Provides a version of {@code Supplier} that throws checked exceptions.
+   * Converts checked exceptions to unchecked based on the {@code Supplier} interface.
    * <p>
    * This executes the specified block of code.
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
