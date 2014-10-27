@@ -26,7 +26,7 @@ public interface Source {
    * @param id  the identifier for the item
    * @param type  the expected type of the item
    * @param <T>  the expected type of the item
-   * @return a <code>Result</code> containing the item if
+   * @return a {@code Result} containing the item if
    *   it exists and is of the correct type, else the
    *   reason why it cannot be returned
    */
