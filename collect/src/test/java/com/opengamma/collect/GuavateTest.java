@@ -39,6 +39,15 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_not_Predicate() {
+    List<String> data = Arrays.asList("a", "", "c");
+    List<String> test = data.stream()
+        .filter(Guavate.not(String::isEmpty))
+        .collect(Collectors.toList());
+    assertEquals(test, ImmutableList.of("a", "c"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_toImmutableList() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableList<String> test = list.stream()

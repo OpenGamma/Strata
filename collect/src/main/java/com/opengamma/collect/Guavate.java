@@ -7,6 +7,7 @@ package com.opengamma.collect;
 
 import java.util.Comparator;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -52,6 +53,23 @@ public final class Guavate {
    */
   public static <T> Stream<T> stream(Iterable<T> iterable) {
     return StreamSupport.stream(iterable.spliterator(), false);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a predicate that negates the original.
+   * <p>
+   * The JDK provides {@link Predicate#negate()} however this requires a predicate.
+   * Sometimes, it can be useful to have a static method to achieve this.
+   * <pre>
+   *  stream.filter(not(String::isEmpty))
+   * </pre>
+   * 
+   * @param predicate  the predicate to negate
+   * @return the negated predicate
+   */
+  public static <R> Predicate<R> not(Predicate<R> predicate) {
+    return predicate.negate();
   }
 
   //-------------------------------------------------------------------------
