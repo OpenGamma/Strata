@@ -21,7 +21,7 @@ import com.opengamma.platform.source.id.StandardId;
  *   <li>
  *     {@link #idsUpdated(Collection)} is intended for use when
  *     a process is checking for changes (for example, via the
- *     {@link SourceProvider#changedSince(Collection, Instant)}
+ *     {@link SourceProvider#changedSince(Iterable, Instant)}
  *     method and therefore only knows about the ids. In this
  *     case, the listener will need to go and get the data for
  *     the ids.
@@ -43,7 +43,7 @@ public interface UpdateNotificationListener {
    * <p>
    * Intended for use when a process is checking for changes
    * for example, via the
-   * {@link SourceProvider#changedSince(Collection, Instant)}
+   * {@link SourceProvider#changedSince(Iterable, Instant)}
    * method and therefore only knows about the ids. In this case,
    * the listener will need to go and get the data for the ids.
    *

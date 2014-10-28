@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.source;
 
-import static com.opengamma.platform.source.SearchResult.MatchStatus.FULL;
+import static com.opengamma.platform.source.SearchResultStatus.FULL;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -26,7 +26,7 @@ import com.opengamma.platform.source.id.StandardId;
  * and a {@link SourceProvider} to implement the
  * {@link SearchableSource} interface.
  * <p>
- * The {@link #sourceProvider} and {@link #searchProvider} may
+ * The {@code SourceProvider} and {@code SearchProvider} may
  * both be provided by the same instance. However, they are split
  * apart to allow for cases where search and indexing
  * capabilities are provided separately.
@@ -54,7 +54,7 @@ public class DefaultSearchableSource implements SearchableSource {
   }
 
   @Override
-  public ImmutableSet<IdentifiableBean> search(Collection<StandardId> ids) {
+  public ImmutableSet<IdentifiableBean> search(Iterable<StandardId> ids) {
     return ImmutableSet.copyOf(sourceProvider.bulkGet(ids).values());
   }
 
@@ -74,7 +74,7 @@ public class DefaultSearchableSource implements SearchableSource {
     return searchResult.getMatchStatus() == FULL ?
         ImmutableSet.copyOf(beans) :
         beans.stream()
-            .filter(search::validateItem)
+            .filter(search::matches)
             .collect(Guavate.<IdentifiableBean>toImmutableSet());
   }
 
@@ -101,20 +101,29 @@ public class DefaultSearchableSource implements SearchableSource {
   public <T extends IdentifiableBean> Result<T> get(StandardId id, Class<T> type) {
 
     Optional<IdentifiableBean> opt = sourceProvider.get(id);
-    return opt.map(b -> {
-      Class<? extends IdentifiableBean> receivedType = b.getClass();
-      return type.isAssignableFrom(receivedType) ?
-          Result.success(type.cast(b)) :
-          Result.<T>failure(FailureReason.MISSING_DATA,
-              "Found data with id: {} of type: {} but expected type was: {}",
-              id, receivedType.getSimpleName(), type.getSimpleName());
-    }).orElse(Result.<T>failure(FailureReason.MISSING_DATA, "Unable to find data with id: {}", id));
+    return opt
+        .map(b -> attemptTypeConversion(id, type, b))
+        .orElse(createMissingDataFailure(id));
   }
 
-  @Override
-  public Optional<StandardId> convertId() {
-    // TODO - implement when API is stabilized
-    return null;
+  private <T extends IdentifiableBean> Result<T> attemptTypeConversion(
+      StandardId id, Class<T> type, IdentifiableBean bean) {
+
+    Class<? extends IdentifiableBean> receivedType = bean.getClass();
+    return type.isAssignableFrom(receivedType) ?
+        Result.success(type.cast(bean)) :
+        createIncorrectTypeFailure(id, type, receivedType);
+  }
+
+  private <T extends IdentifiableBean> Result<T> createMissingDataFailure(StandardId id) {
+    return Result.<T>failure(FailureReason.MISSING_DATA, "Unable to find data with id: {}", id);
+  }
+
+  private <T extends IdentifiableBean> Result<T> createIncorrectTypeFailure(
+      StandardId id, Class<T> type, Class<? extends IdentifiableBean> receivedType) {
+    return Result.<T>failure(FailureReason.MISSING_DATA,
+        "Found data with id: {} of type: {} but expected type was: {}",
+        id, receivedType.getSimpleName(), type.getSimpleName());
   }
 
 }

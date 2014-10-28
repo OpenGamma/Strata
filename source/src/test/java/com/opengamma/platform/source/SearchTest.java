@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.platform.source.id.IdentifiableBean;
 import com.opengamma.platform.source.id.StandardId;
 import com.opengamma.platform.source.id.StandardIdentifiable;
@@ -13,77 +14,49 @@ import com.opengamma.platform.source.id.StandardIdentifiable;
 @Test
 public class SearchTest {
 
-  public void schemeCannotBeNull() {
-    assertThrows(() -> new SearchBuilder(null), IllegalArgumentException.class);
-  }
-
-  public void matchingTypesAreOk() {
-    Search search = new SearchBuilder("some_scheme")
-        .withSuperType(StandardIdentifiable.class)
-        .withSpecificType(TesterIdentifiable.class)
+  public void specifyingTypeIsOk() {
+    Search search = Search.builder()
+        .categorisingType(StandardIdentifiable.class)
         .build();
     assertThat(search).isNotNull();
   }
 
-  public void nullTypesAreIgnored() {
-    Search search = new SearchBuilder("some_scheme")
-        .withSuperType(null)
-        .withSpecificType(null)
-        .build();
-    assertThat(search).isNotNull();
-  }
-
-  public void specificTypeMustNotBeInterface() {
+  public void typeCannotBeNull() {
     assertThrows(() ->
-        new SearchBuilder("some_scheme")
-            .withSpecificType(IdentifiableBean.class)
-            .build(),
+            Search.builder()
+                .categorisingType(null)
+                .build(),
         IllegalArgumentException.class);
   }
 
-  public void mismatchedTypesThrowException() {
+  public void attributesCannotBeNull() {
     assertThrows(() ->
-        new SearchBuilder("some_scheme")
-            .withSuperType(String.class)
-            .withSpecificType(TesterIdentifiable.class)
-            .build(),
-        IllegalArgumentException.class);
-  }
-
-  public void attributeNameCannotBeNull() {
-    assertThrows(() ->
-        new SearchBuilder("some_scheme")
-            .withAttribute(null, "123")
+        Search.builder()
+            .attributes(null)
             .build(),
         IllegalArgumentException.class);
  }
 
-  public void attributeValueCannotBeNull() {
-    assertThrows(() ->
-        new SearchBuilder("some_scheme")
-             .withAttribute("a1", null)
-             .build(),
-        IllegalArgumentException.class);
-  }
+  public void defaultSearchMatchesAll() {
 
-  public void searchCanValidateAgainstScheme() {
+    Search search = Search.builder().build();
 
-    Search search = new SearchBuilder("some_scheme").build();
     IdentifiableBean ib1 = TesterIdentifiable.builder()
         .standardId(StandardId.of("some_scheme", "1234"))
         .build();
-    IdentifiableBean ib2 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("another_scheme", "1234"))
+
+    IdentifiableBean ib2 = NonTesterIdentifiable.builder()
+        .standardId(StandardId.of("some_scheme", "2345"))
         .build();
 
-    assertThat(search.validateItem(ib1)).isTrue();
-    assertThat(search.validateItem(ib2)).isFalse();
+    assertThat(search.matches(ib1)).isTrue();
+    assertThat(search.matches(ib2)).isTrue();
   }
 
-  public void searchCanValidateAgainstSuperclass() {
+  public void searchCanValidateAgainstSpecificCategorisingType() {
 
-    Search search = new SearchBuilder("some_scheme")
-        .withSuperType(Tester.class)
+    Search search = Search.builder()
+        .categorisingType(NonTesterIdentifiable.class)
         .build();
 
     IdentifiableBean ib1 = TesterIdentifiable.builder()
@@ -91,17 +64,17 @@ public class SearchTest {
         .build();
 
     IdentifiableBean ib2 = NonTesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "2345"))
         .build();
 
-    assertThat(search.validateItem(ib1)).isTrue();
-    assertThat(search.validateItem(ib2)).isFalse();
+    assertThat(search.matches(ib1)).isFalse();
+    assertThat(search.matches(ib2)).isTrue();
   }
 
-  public void searchCanValidateAgainstSpecificClass() {
+  public void searchCanValidateAgainstGeneralCategorisingType() {
 
-    Search search = new SearchBuilder("some_scheme")
-        .withSpecificType(TesterIdentifiable.class)
+    Search search = Search.builder()
+        .categorisingType(Tester.class)
         .build();
 
     IdentifiableBean ib1 = TesterIdentifiable.builder()
@@ -109,36 +82,17 @@ public class SearchTest {
         .build();
 
     IdentifiableBean ib2 = NonTesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "2345"))
         .build();
 
-    assertThat(search.validateItem(ib1)).isTrue();
-    assertThat(search.validateItem(ib2)).isFalse();
-  }
-
-  public void searchCanValidateAgainstSuperclassAndSpecificClass() {
-
-    Search search = new SearchBuilder("some_scheme")
-        .withSuperType(Tester.class)
-        .withSpecificType(TesterIdentifiable.class)
-        .build();
-
-    IdentifiableBean ib1 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
-        .build();
-
-    IdentifiableBean ib2 = NonTesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
-        .build();
-
-    assertThat(search.validateItem(ib1)).isTrue();
-    assertThat(search.validateItem(ib2)).isFalse();
+    assertThat(search.matches(ib1)).isTrue();
+    assertThat(search.matches(ib2)).isFalse();
   }
 
   public void searchCanValidateAgainstSingleAttribute() {
 
-    Search search = new SearchBuilder("some_scheme")
-        .withAttribute("widgetCount", "100")
+    Search search = Search.builder()
+        .attributes(ImmutableMap.of("widgetCount", "100"))
         .build();
 
     IdentifiableBean ib1 = TesterIdentifiable.builder()
@@ -147,24 +101,23 @@ public class SearchTest {
         .build();
 
     IdentifiableBean ib2 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "2345"))
         .widgetCount(150)
         .build();
 
     IdentifiableBean ib3 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "3456"))
         .build();
 
-    assertThat(search.validateItem(ib1)).isTrue();
-    assertThat(search.validateItem(ib2)).isFalse();
-    assertThat(search.validateItem(ib3)).isFalse();
+    assertThat(search.matches(ib1)).isTrue();
+    assertThat(search.matches(ib2)).isFalse();
+    assertThat(search.matches(ib3)).isFalse();
   }
 
   public void searchCanValidateAgainstMultipleAttribute() {
 
-    Search search = new SearchBuilder("some_scheme")
-        .withAttribute("widgetCount", "100")
-        .withAttribute("name", "foo")
+    Search search = Search.builder()
+        .attributes(ImmutableMap.of("widgetCount", "100", "name", "foo"))
         .build();
 
     IdentifiableBean ib1 = TesterIdentifiable.builder()
@@ -174,54 +127,53 @@ public class SearchTest {
         .build();
 
     IdentifiableBean ib2 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "2345"))
         .widgetCount(150)
         .name("bar")
         .build();
 
     IdentifiableBean ib3 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "3456"))
         .widgetCount(100)
         .name("bar")
         .build();
 
     IdentifiableBean ib4 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "4567"))
         .widgetCount(100)
         // no name
         .build();
 
     IdentifiableBean ib5 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "5678"))
         .widgetCount(150)
         .name("foo")
         .build();
 
     IdentifiableBean ib6 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "6789"))
         // no count
         .name("foo")
         .build();
 
     IdentifiableBean ib7 = TesterIdentifiable.builder()
-        .standardId(StandardId.of("some_scheme", "1234"))
+        .standardId(StandardId.of("some_scheme", "7890"))
         // no count
         // no name
         .build();
 
-    assertThat(search.validateItem(ib1)).isTrue();
-    assertThat(search.validateItem(ib2)).isFalse();
-    assertThat(search.validateItem(ib3)).isFalse();
-    assertThat(search.validateItem(ib4)).isFalse();
-    assertThat(search.validateItem(ib5)).isFalse();
-    assertThat(search.validateItem(ib6)).isFalse();
-    assertThat(search.validateItem(ib7)).isFalse();
+    assertThat(search.matches(ib1)).isTrue();
+    assertThat(search.matches(ib2)).isFalse();
+    assertThat(search.matches(ib3)).isFalse();
+    assertThat(search.matches(ib4)).isFalse();
+    assertThat(search.matches(ib5)).isFalse();
+    assertThat(search.matches(ib6)).isFalse();
+    assertThat(search.matches(ib7)).isFalse();
   }
 
   public void coverage() {
-    Search search = new SearchBuilder("some_scheme")
-        .withAttribute("widgetCount", "100")
-        .withAttribute("name", "foo")
+    Search search = Search.builder()
+        .attributes(ImmutableMap.of("widgetCount", "100", "name", "foo"))
         .build();
     coverImmutableBean(search);
   }
