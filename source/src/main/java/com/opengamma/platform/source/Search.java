@@ -9,13 +9,12 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableValidator;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
@@ -28,61 +27,38 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.platform.source.id.IdentifiableBean;
-import com.opengamma.platform.source.id.StandardId;
 
 /**
- * A search object which can be used to search for
+ * A simple search object which can be used to search for
  * objects via the {@link SearchableSource#search(Search)}
- * method. The scheme for the data is mandatory but beyond
- * that there is no minimum number of criteria to specify.
- * However, if no additional criteria are specified and the
- * source contains a large amount of data, the search is
- * likely to be slow.
+ * method. There is no minimum number of criteria to specify.
+ * However, if no criteria are specified and the source
+ * contains a large amount of data, the search is likely
+ * to be slow.
  * <p>
- * A {@link SearchBuilder} helper class is provided which
- * may make creation of instances easier.
+ * Note that future enhancements will likely allow ANDing
+ * and ORing of multiple criteria.
  */
 @BeanDefinition
 public final class Search implements ImmutableBean, Serializable {
 
   /**
-   * The {@link StandardId} scheme to search for. This
-   * effectively specifies the type of data to be
-   * searched for.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final String scheme;
-
-  /**
-   * Optional class that specifies whether to search for
-   * instances that are the same type or subclasses of the
-   * specified type. This is useful if the specific
-   * implementation type is unknown. Note that if the
-   * specified type is too broad, the search is likely
-   * to be slow.
+   * Type that specifies to search for instances that are the
+   * same type or subclasses of the specified type.
    * <p>
-   * If both this and {@link #specificType} are specified,
-   * then the super type will not be used in the search as
-   * it is unnecessary. However, the specified supertype
-   * must be a parent of the specific type else an exception
-   * will be thrown.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final Optional<Class<?>> superType;
-
-  /**
-   * Optional class that specifies whether to search for
-   * instances that are of the same type as the specified
-   * type.
+   * If the specified type is an interface then ideally
+   * the interface should be annotated with
+   * {@link CategorisingType}. This will result in better
+   * performance. Note that if the specified type is too broad,
+   * the search may be slow.
    * <p>
-   * If both this and {@link #superType} are specified,
-   * then the super type will not be used in the search as
-   * it is unnecessary. However, the specified supertype
-   * must be a parent of this type else an exception
-   * will be thrown.
+   * Note that a default value of {@code Object.class} is used,
+   * but this will be ignored when the search is actually
+   * executed. When {@code Optional}s are supported by
+   * Joda beans then this should be an {@code Optional}.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Optional<Class<? extends IdentifiableBean>> specificType;
+  private final Class<?> categorisingType;
 
   /**
    * Specifies attributes to be searched for. All attributes
@@ -100,31 +76,19 @@ public final class Search implements ImmutableBean, Serializable {
    * @param item  the bean to be checked against this search
    * @return true if the supplied bean matches
    */
-  public boolean validateItem(IdentifiableBean item) {
+  public boolean matches(IdentifiableBean item) {
     MetaBean metaBean = item.metaBean();
-    return item.getStandardId().isScheme(scheme) &&
-        superType.map(st -> st.isAssignableFrom(item.getClass())).orElse(true) &&
-        specificType.map(st -> st == item.getClass()).orElse(true) &&
+    return categorisingType.isAssignableFrom(item.getClass()) &&
         attributes.entrySet().stream().allMatch(
             e -> metaBean.metaPropertyExists(e.getKey()) &&
               e.getValue().equals(metaBean.metaProperty(e.getKey()).getString(item)));
   }
 
-  @ImmutableValidator
-  private void check() {
-
-    if (specificType.map(Class::isInterface).orElse(false)) {
-      throw new IllegalArgumentException("Specific type must be a concrete class - " +
-          specificType.get().getSimpleName() + " is an interface");
-    }
-
-    // Check that if both supertype and specific type are set
-    // then we can assign to the supertype from the specific type
-    boolean valid = superType.flatMap(st -> specificType.map(st::isAssignableFrom)).orElse(true);
-    if (!valid) {
-      throw new IllegalArgumentException("Types are not compatible - " + superType.get().getSimpleName() +
-          " is not assignable from " + specificType.get().getSimpleName());
-    }
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder
+        .categorisingType(Object.class)
+        .attributes(ImmutableMap.of());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -150,19 +114,12 @@ public final class Search implements ImmutableBean, Serializable {
   }
 
   private Search(
-      String scheme,
-      Optional<Class<?>> superType,
-      Optional<Class<? extends IdentifiableBean>> specificType,
+      Class<?> categorisingType,
       Map<String, String> attributes) {
-    JodaBeanUtils.notNull(scheme, "scheme");
-    JodaBeanUtils.notNull(superType, "superType");
-    JodaBeanUtils.notNull(specificType, "specificType");
+    JodaBeanUtils.notNull(categorisingType, "categorisingType");
     JodaBeanUtils.notNull(attributes, "attributes");
-    this.scheme = scheme;
-    this.superType = superType;
-    this.specificType = specificType;
+    this.categorisingType = categorisingType;
     this.attributes = ImmutableMap.copyOf(attributes);
-    check();
   }
 
   @Override
@@ -182,50 +139,23 @@ public final class Search implements ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the {@link StandardId} scheme to search for. This
-   * effectively specifies the type of data to be
-   * searched for.
-   * @return the value of the property, not null
-   */
-  public String getScheme() {
-    return scheme;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets optional class that specifies whether to search for
-   * instances that are the same type or subclasses of the
-   * specified type. This is useful if the specific
-   * implementation type is unknown. Note that if the
-   * specified type is too broad, the search is likely
-   * to be slow.
+   * Gets type that specifies to search for instances that are the
+   * same type or subclasses of the specified type.
    * <p>
-   * If both this and {@link #specificType} are specified,
-   * then the super type will not be used in the search as
-   * it is unnecessary. However, the specified supertype
-   * must be a parent of the specific type else an exception
-   * will be thrown.
-   * @return the value of the property, not null
-   */
-  public Optional<Class<?>> getSuperType() {
-    return superType;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets optional class that specifies whether to search for
-   * instances that are of the same type as the specified
-   * type.
+   * If the specified type is an interface then ideally
+   * the interface should be annotated with
+   * {@link CategorisingType}. This will result in better
+   * performance. Note that if the specified type is too broad,
+   * the search may be slow.
    * <p>
-   * If both this and {@link #superType} are specified,
-   * then the super type will not be used in the search as
-   * it is unnecessary. However, the specified supertype
-   * must be a parent of this type else an exception
-   * will be thrown.
+   * Note that a default value of {@code Object.class} is used,
+   * but this will be ignored when the search is actually
+   * executed. When {@code Optional}s are supported by
+   * Joda beans then this should be an {@code Optional}.
    * @return the value of the property, not null
    */
-  public Optional<Class<? extends IdentifiableBean>> getSpecificType() {
-    return specificType;
+  public Class<?> getCategorisingType() {
+    return categorisingType;
   }
 
   //-----------------------------------------------------------------------
@@ -256,9 +186,7 @@ public final class Search implements ImmutableBean, Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Search other = (Search) obj;
-      return JodaBeanUtils.equal(getScheme(), other.getScheme()) &&
-          JodaBeanUtils.equal(getSuperType(), other.getSuperType()) &&
-          JodaBeanUtils.equal(getSpecificType(), other.getSpecificType()) &&
+      return JodaBeanUtils.equal(getCategorisingType(), other.getCategorisingType()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes());
     }
     return false;
@@ -267,20 +195,16 @@ public final class Search implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSuperType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpecificType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCategorisingType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("Search{");
-    buf.append("scheme").append('=').append(getScheme()).append(',').append(' ');
-    buf.append("superType").append('=').append(getSuperType()).append(',').append(' ');
-    buf.append("specificType").append('=').append(getSpecificType()).append(',').append(' ');
+    buf.append("categorisingType").append('=').append(getCategorisingType()).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes()));
     buf.append('}');
     return buf.toString();
@@ -297,22 +221,11 @@ public final class Search implements ImmutableBean, Serializable {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code scheme} property.
-     */
-    private final MetaProperty<String> scheme = DirectMetaProperty.ofImmutable(
-        this, "scheme", Search.class, String.class);
-    /**
-     * The meta-property for the {@code superType} property.
+     * The meta-property for the {@code categorisingType} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Optional<Class<?>>> superType = DirectMetaProperty.ofImmutable(
-        this, "superType", Search.class, (Class) Optional.class);
-    /**
-     * The meta-property for the {@code specificType} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Optional<Class<? extends IdentifiableBean>>> specificType = DirectMetaProperty.ofImmutable(
-        this, "specificType", Search.class, (Class) Optional.class);
+    private final MetaProperty<Class<?>> categorisingType = DirectMetaProperty.ofImmutable(
+        this, "categorisingType", Search.class, (Class) Class.class);
     /**
      * The meta-property for the {@code attributes} property.
      */
@@ -324,9 +237,7 @@ public final class Search implements ImmutableBean, Serializable {
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "scheme",
-        "superType",
-        "specificType",
+        "categorisingType",
         "attributes");
 
     /**
@@ -338,12 +249,8 @@ public final class Search implements ImmutableBean, Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -907987547:  // scheme
-          return scheme;
-        case -332841643:  // superType
-          return superType;
-        case -1205140596:  // specificType
-          return specificType;
+        case 407105879:  // categorisingType
+          return categorisingType;
         case 405645655:  // attributes
           return attributes;
       }
@@ -367,27 +274,11 @@ public final class Search implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code scheme} property.
+     * The meta-property for the {@code categorisingType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<String> scheme() {
-      return scheme;
-    }
-
-    /**
-     * The meta-property for the {@code superType} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Optional<Class<?>>> superType() {
-      return superType;
-    }
-
-    /**
-     * The meta-property for the {@code specificType} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Optional<Class<? extends IdentifiableBean>>> specificType() {
-      return specificType;
+    public MetaProperty<Class<?>> categorisingType() {
+      return categorisingType;
     }
 
     /**
@@ -402,12 +293,8 @@ public final class Search implements ImmutableBean, Serializable {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -907987547:  // scheme
-          return ((Search) bean).getScheme();
-        case -332841643:  // superType
-          return ((Search) bean).getSuperType();
-        case -1205140596:  // specificType
-          return ((Search) bean).getSpecificType();
+        case 407105879:  // categorisingType
+          return ((Search) bean).getCategorisingType();
         case 405645655:  // attributes
           return ((Search) bean).getAttributes();
       }
@@ -431,15 +318,14 @@ public final class Search implements ImmutableBean, Serializable {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Search> {
 
-    private String scheme;
-    private Optional<Class<?>> superType;
-    private Optional<Class<? extends IdentifiableBean>> specificType;
+    private Class<?> categorisingType;
     private Map<String, String> attributes = new HashMap<String, String>();
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -447,9 +333,7 @@ public final class Search implements ImmutableBean, Serializable {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Search beanToCopy) {
-      this.scheme = beanToCopy.getScheme();
-      this.superType = beanToCopy.getSuperType();
-      this.specificType = beanToCopy.getSpecificType();
+      this.categorisingType = beanToCopy.getCategorisingType();
       this.attributes = new HashMap<String, String>(beanToCopy.getAttributes());
     }
 
@@ -457,12 +341,8 @@ public final class Search implements ImmutableBean, Serializable {
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -907987547:  // scheme
-          return scheme;
-        case -332841643:  // superType
-          return superType;
-        case -1205140596:  // specificType
-          return specificType;
+        case 407105879:  // categorisingType
+          return categorisingType;
         case 405645655:  // attributes
           return attributes;
         default:
@@ -474,14 +354,8 @@ public final class Search implements ImmutableBean, Serializable {
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -907987547:  // scheme
-          this.scheme = (String) newValue;
-          break;
-        case -332841643:  // superType
-          this.superType = (Optional<Class<?>>) newValue;
-          break;
-        case -1205140596:  // specificType
-          this.specificType = (Optional<Class<? extends IdentifiableBean>>) newValue;
+        case 407105879:  // categorisingType
+          this.categorisingType = (Class<?>) newValue;
           break;
         case 405645655:  // attributes
           this.attributes = (Map<String, String>) newValue;
@@ -519,43 +393,19 @@ public final class Search implements ImmutableBean, Serializable {
     @Override
     public Search build() {
       return new Search(
-          scheme,
-          superType,
-          specificType,
+          categorisingType,
           attributes);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code scheme} property in the builder.
-     * @param scheme  the new value, not null
+     * Sets the {@code categorisingType} property in the builder.
+     * @param categorisingType  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder scheme(String scheme) {
-      JodaBeanUtils.notNull(scheme, "scheme");
-      this.scheme = scheme;
-      return this;
-    }
-
-    /**
-     * Sets the {@code superType} property in the builder.
-     * @param superType  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder superType(Optional<Class<?>> superType) {
-      JodaBeanUtils.notNull(superType, "superType");
-      this.superType = superType;
-      return this;
-    }
-
-    /**
-     * Sets the {@code specificType} property in the builder.
-     * @param specificType  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder specificType(Optional<Class<? extends IdentifiableBean>> specificType) {
-      JodaBeanUtils.notNull(specificType, "specificType");
-      this.specificType = specificType;
+    public Builder categorisingType(Class<?> categorisingType) {
+      JodaBeanUtils.notNull(categorisingType, "categorisingType");
+      this.categorisingType = categorisingType;
       return this;
     }
 
@@ -573,11 +423,9 @@ public final class Search implements ImmutableBean, Serializable {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("Search.Builder{");
-      buf.append("scheme").append('=').append(JodaBeanUtils.toString(scheme)).append(',').append(' ');
-      buf.append("superType").append('=').append(JodaBeanUtils.toString(superType)).append(',').append(' ');
-      buf.append("specificType").append('=').append(JodaBeanUtils.toString(specificType)).append(',').append(' ');
+      buf.append("categorisingType").append('=').append(JodaBeanUtils.toString(categorisingType)).append(',').append(' ');
       buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
       buf.append('}');
       return buf.toString();

@@ -6,7 +6,6 @@
 package com.opengamma.platform.source;
 
 /**
- *
  * The SearchableProvider interface is used to provide
  * searches for a data store.
  * <p>
@@ -33,4 +32,5 @@ public interface SearchableProvider {
    * @return the result of the search
    */
   public abstract SearchResult search(Search search);
+
 }

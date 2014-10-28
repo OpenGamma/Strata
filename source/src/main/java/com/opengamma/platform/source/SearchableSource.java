@@ -5,9 +5,6 @@
  */
 package com.opengamma.platform.source;
 
-import java.util.Collection;
-import java.util.Optional;
-
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.platform.source.id.IdentifiableBean;
 import com.opengamma.platform.source.id.StandardId;
@@ -46,13 +43,8 @@ public interface SearchableSource extends Source {
    * @return the set of data that matches the search
    *   criteria, may be empty
    */
-  public abstract ImmutableSet<IdentifiableBean> search(Collection<StandardId> ids);
+  public abstract ImmutableSet<IdentifiableBean> search(Iterable<StandardId> ids);
 
-  /**
-   * Cross id lookups.
-   // TODO - implement when API is stabilized
-   */
-  public abstract Optional<StandardId> convertId();
 }
 
 

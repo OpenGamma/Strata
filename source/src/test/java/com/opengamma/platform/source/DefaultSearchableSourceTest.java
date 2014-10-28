@@ -151,8 +151,8 @@ public class DefaultSearchableSourceTest {
     SearchableSource searchableSource =
         createSearchableSource(sourceData, SearchResult.fullMatch(ImmutableSet.of(id1, id2)));
 
-    Set<IdentifiableBean> result =
-        searchableSource.search(new SearchBuilder("some_scheme").withSpecificType(TesterIdentifiable.class).build());
+    Set<IdentifiableBean> result = searchableSource.search(
+        Search.builder().categorisingType(TesterIdentifiable.class).build());
 
     assertThat(result)
         .isNotEmpty()
@@ -183,8 +183,8 @@ public class DefaultSearchableSourceTest {
         createSearchableSource(sourceData, SearchResult.partialMatch(ImmutableSet.of(id1, id2, id3, id4)));
 
     // We expect post get filtering of the results
-    Set<IdentifiableBean> result =
-        searchableSource.search(new SearchBuilder("some_scheme").withSpecificType(TesterIdentifiable.class).build());
+    Set<IdentifiableBean> result = searchableSource.search(
+        Search.builder().categorisingType(TesterIdentifiable.class).build());
 
     assertThat(result)
         .isNotEmpty()
