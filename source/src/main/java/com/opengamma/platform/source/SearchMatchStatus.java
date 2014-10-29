@@ -12,14 +12,14 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * The status of a search result.
+ * The match status of a search result.
  * <p>
  * Indicates whether the results being returned match all of
  * the specified search criteria or only some subset of them.
  * Partial matches will then be subject to filtering to
  * get the correct set of matches.
  */
-public enum SearchResultStatus {
+public enum SearchMatchStatus {
 
   /**
    * Status indicating that the returned results satisfy
@@ -42,7 +42,7 @@ public enum SearchResultStatus {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static SearchResultStatus of(String uniqueName) {
+  public static SearchMatchStatus of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

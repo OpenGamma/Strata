@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.source;
 
-import static com.opengamma.platform.source.SearchResultStatus.FULL;
+import static com.opengamma.platform.source.SearchMatchStatus.FULL;
 
 import java.util.Collection;
 import java.util.Optional;

@@ -5,8 +5,8 @@
  */
 package com.opengamma.platform.source;
 
-import static com.opengamma.platform.source.SearchResultStatus.FULL;
-import static com.opengamma.platform.source.SearchResultStatus.PARTIAL;
+import static com.opengamma.platform.source.SearchMatchStatus.FULL;
+import static com.opengamma.platform.source.SearchMatchStatus.PARTIAL;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -53,7 +53,7 @@ public final class SearchResult implements ImmutableBean {
    * have been satisfied in producing the results.
    */
   @PropertyDefinition(validate = "notNull")
-  private final SearchResultStatus matchStatus;
+  private final SearchMatchStatus matchStatus;
 
   /**
    * Creates a SearchResult with a collection of matching ids and
@@ -97,7 +97,7 @@ public final class SearchResult implements ImmutableBean {
 
   private SearchResult(
       Set<StandardId> matchingIds,
-      SearchResultStatus matchStatus) {
+      SearchMatchStatus matchStatus) {
     JodaBeanUtils.notNull(matchingIds, "matchingIds");
     JodaBeanUtils.notNull(matchStatus, "matchStatus");
     this.matchingIds = ImmutableSet.copyOf(matchingIds);
@@ -135,7 +135,7 @@ public final class SearchResult implements ImmutableBean {
    * have been satisfied in producing the results.
    * @return the value of the property, not null
    */
-  public SearchResultStatus getMatchStatus() {
+  public SearchMatchStatus getMatchStatus() {
     return matchStatus;
   }
 
@@ -190,8 +190,8 @@ public final class SearchResult implements ImmutableBean {
     /**
      * The meta-property for the {@code matchStatus} property.
      */
-    private final MetaProperty<SearchResultStatus> matchStatus = DirectMetaProperty.ofImmutable(
-        this, "matchStatus", SearchResult.class, SearchResultStatus.class);
+    private final MetaProperty<SearchMatchStatus> matchStatus = DirectMetaProperty.ofImmutable(
+        this, "matchStatus", SearchResult.class, SearchMatchStatus.class);
     /**
      * The meta-properties.
      */
@@ -245,7 +245,7 @@ public final class SearchResult implements ImmutableBean {
      * The meta-property for the {@code matchStatus} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SearchResultStatus> matchStatus() {
+    public MetaProperty<SearchMatchStatus> matchStatus() {
       return matchStatus;
     }
 
@@ -279,7 +279,7 @@ public final class SearchResult implements ImmutableBean {
   private static final class Builder extends DirectFieldsBeanBuilder<SearchResult> {
 
     private Set<StandardId> matchingIds = new HashSet<StandardId>();
-    private SearchResultStatus matchStatus;
+    private SearchMatchStatus matchStatus;
 
     /**
      * Restricted constructor.
@@ -308,7 +308,7 @@ public final class SearchResult implements ImmutableBean {
           this.matchingIds = (Set<StandardId>) newValue;
           break;
         case 1644523031:  // matchStatus
-          this.matchStatus = (SearchResultStatus) newValue;
+          this.matchStatus = (SearchMatchStatus) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
