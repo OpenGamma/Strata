@@ -6,7 +6,6 @@
 package com.opengamma.platform.source;
 
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
@@ -26,7 +25,7 @@ import com.opengamma.platform.source.id.StandardIdentifiable;
  * needs to be implemented is {@link #get(StandardId)}. Note
  * that overriding other methods may improve performance,
  * specifically the {@link #bulkGet(Iterable)} and
- * {@link #changedSince(Collection, Instant)} methods.
+ * {@link #changedSince(Iterable, Instant)} methods.
  * <p>
  * This interface is analogous to the {@link Source} interface.
  * The Source interface is provided for use by callers inside
@@ -83,7 +82,7 @@ public interface SourceProvider {
    * @return the collection of data items from the initial set of ids
    *   which have been updated since the supplied check point
    */
-  public default ImmutableSet<StandardId> changedSince(Collection<StandardId> ids, Instant checkpoint) {
+  public default ImmutableSet<StandardId> changedSince(Iterable<StandardId> ids, Instant checkpoint) {
     return ImmutableSet.copyOf(ids);
   }
 
