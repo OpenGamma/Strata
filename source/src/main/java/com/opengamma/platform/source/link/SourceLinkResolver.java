@@ -12,10 +12,10 @@ import com.opengamma.platform.source.id.IdentifiableBean;
 import com.opengamma.platform.source.id.StandardId;
 
 /**
- * A link resolver backed by a {@link Source}.
+ * A link resolver backed by a source.
  * <p>
- * The source is used to get the target of the link. If
- * it is not possible to resolve the link using the source
+ * The {@link Source} is used to get the target of the link.
+ * If it is not possible to resolve the link using the source
  * then a {@link LinkResolutionException} will be thrown.
  */
 public class SourceLinkResolver implements LinkResolver {
@@ -34,9 +34,10 @@ public class SourceLinkResolver implements LinkResolver {
     this.source = ArgChecker.notNull(source, "source");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Resolve the supplied link using the source, returning the
-   * realised target of the link.
+   * realized target of the link.
    * <p>
    * A call is made to {@link Source#get(StandardId, Class)} and
    * if the returned result indicates a failure, a
@@ -62,4 +63,5 @@ public class SourceLinkResolver implements LinkResolver {
   public String toString() {
     return "SourceLinkResolver[source=" + source + "]";
   }
+
 }

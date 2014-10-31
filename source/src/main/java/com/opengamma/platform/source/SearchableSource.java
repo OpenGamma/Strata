@@ -36,10 +36,10 @@ public interface SearchableSource extends Source {
 
   /**
    * Execute a search using the supplied set of identifiers,
-   * returning data with matching ids. If no matching data
+   * returning data with matching identifiers. If no matching data
    * is found then the returned set will be empty.
    *
-   * @param ids  the collection of ids to search for
+   * @param ids  the collection of identifiers to search for
    * @return the set of data that matches the search
    *   criteria, may be empty
    */

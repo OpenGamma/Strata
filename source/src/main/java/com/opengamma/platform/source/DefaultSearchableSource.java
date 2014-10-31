@@ -22,14 +22,13 @@ import com.opengamma.platform.source.id.IdentifiableBean;
 import com.opengamma.platform.source.id.StandardId;
 
 /**
- * A searchable source which wraps a {@link SearchableProvider}
- * and a {@link SourceProvider} to implement the
- * {@link SearchableSource} interface.
+ * A searchable source based on providers
  * <p>
- * The {@code SourceProvider} and {@code SearchProvider} may
- * both be provided by the same instance. However, they are split
- * apart to allow for cases where search and indexing
- * capabilities are provided separately.
+ * This implementation of {@link SearchableSource} wraps {@link SearchableProvider}
+ * and  {@link SourceProvider}.
+ * <p>
+ * The providers may both be provided by the same instance. They are split apart
+ * to allow for cases where search and indexing capabilities are provided separately.
  */
 public class DefaultSearchableSource implements SearchableSource {
 
@@ -40,10 +39,11 @@ public class DefaultSearchableSource implements SearchableSource {
   private final SearchableProvider searchProvider;
 
   /**
-   * Creates the {@code SearchableSource}. The {@code SourceProvider}
-   * is used get the actual data. The {@code SearchableProvider} is
-   * used to lookup standard ids for data, which will be subsequently
-   * retrieved using the {@code SourceProvider}.
+   * Creates the {@code SearchableSource}.
+   * <p>
+   * The {@code SourceProvider} is used get the actual data.
+   * The {@code SearchableProvider} is used to lookup standard identifiers for data,
+   * which will be subsequently retrieved using the {@code SourceProvider}.
    *
    * @param sourceProvider  the source provider
    * @param searchProvider  the search provider
@@ -53,6 +53,7 @@ public class DefaultSearchableSource implements SearchableSource {
     this.searchProvider = ArgChecker.notNull(searchProvider, "searchProvider");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public ImmutableSet<IdentifiableBean> search(Iterable<StandardId> ids) {
     return ImmutableSet.copyOf(sourceProvider.bulkGet(ids).values());
@@ -78,26 +79,26 @@ public class DefaultSearchableSource implements SearchableSource {
             .collect(Guavate.<IdentifiableBean>toImmutableSet());
   }
 
-
-/**
- * Gets an item using its standard identifier.
- * <p>
- * This makes a call to the {@link SourceProvider} but adds a
- * type check ensuring that the returned object is of the
- * expected type.
- * <p>
- * If no object with a matching id can be found, or if one
- * can be found but it has the wrong type, then a failure
- * {@code Result} will be returned.
- *
- * @param id  the identifier for the item
- * @param type  the expected type of the item
- * @param <T>  the expected type of the item
- * @return a {@code Result} containing the item if
- *   it exists and is of the correct type, else the
- *   reason why it cannot be returned
- */
- @Override
+  //-------------------------------------------------------------------------
+  /**
+   * Gets an item using its standard identifier.
+   * <p>
+   * This makes a call to the {@link SourceProvider} but adds a
+   * type check ensuring that the returned object is of the
+   * expected type.
+   * <p>
+   * If no object with a matching identifier can be found, or if one
+   * can be found but it has the wrong type, then a failure
+   * {@code Result} will be returned.
+   *
+   * @param id  the identifier for the item
+   * @param type  the expected type of the item
+   * @param <T>  the expected type of the item
+   * @return a {@code Result} containing the item if
+   *   it exists and is of the correct type, else the
+   *   reason why it cannot be returned
+   */
+  @Override
   public <T extends IdentifiableBean> Result<T> get(StandardId id, Class<T> type) {
 
     Optional<IdentifiableBean> opt = sourceProvider.get(id);
@@ -106,6 +107,7 @@ public class DefaultSearchableSource implements SearchableSource {
         .orElse(createMissingDataFailure(id));
   }
 
+  // try to convert the bean to the specified type, returning an appropriate result
   private <T extends IdentifiableBean> Result<T> attemptTypeConversion(
       StandardId id, Class<T> type, IdentifiableBean bean) {
 
@@ -115,10 +117,12 @@ public class DefaultSearchableSource implements SearchableSource {
         createIncorrectTypeFailure(id, type, receivedType);
   }
 
+  // failure result when the identifier could not be found
   private <T extends IdentifiableBean> Result<T> createMissingDataFailure(StandardId id) {
     return Result.<T>failure(FailureReason.MISSING_DATA, "Unable to find data with id: {}", id);
   }
 
+  // failure result when the identifier returned a type incompatible with the requested type
   private <T extends IdentifiableBean> Result<T> createIncorrectTypeFailure(
       StandardId id, Class<T> type, Class<? extends IdentifiableBean> receivedType) {
     return Result.<T>failure(FailureReason.MISSING_DATA,

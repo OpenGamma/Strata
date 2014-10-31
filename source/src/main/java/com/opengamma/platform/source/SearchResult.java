@@ -30,7 +30,8 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.platform.source.id.StandardId;
 
 /**
- * Represents the result of a search of a SearchableSourceProvider.
+ * The result of a search of a {@code SearchableSourceProvider}
+ * <p>
  * Results can either be an exact match for the search criteria
  * provided or a partial match. The latter is intended for cases
  * where implementers do not have access to all the data needed to do
@@ -42,12 +43,11 @@ import com.opengamma.platform.source.id.StandardId;
 public final class SearchResult implements ImmutableBean {
 
   /**
-   * The collection of ids that match or partially match the
+   * The collection of identifiers that match or partially match the
    * original search request.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<StandardId> matchingIds;
-
   /**
    * The match status indicating whether all the search criteria
    * have been satisfied in producing the results.
@@ -55,12 +55,13 @@ public final class SearchResult implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final SearchMatchStatus matchStatus;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates a SearchResult with a collection of matching ids and
+   * Creates a SearchResult with a collection of matching identifiers and
    * an indication that the results do not satisfy all the specified
    * search criteria.
    *
-   * @param matchingIds  the collections of ids that have been
+   * @param matchingIds  the collections of identifiers that have been
    *   determined to partially match the search criteria
    * @return the new SearchResult
    */
@@ -69,11 +70,11 @@ public final class SearchResult implements ImmutableBean {
   }
 
   /**
-   * Creates a SearchResult with a collection of matching ids and
+   * Creates a SearchResult with a collection of matching identifiers and
    * an indication that the results satisfy all the specified
    * search criteria.
    *
-   * @param matchingIds  the collections of ids that have been
+   * @param matchingIds  the collections of identifiers that have been
    *   determined to fully match the search criteria
    * @return the new SearchResult
    */
@@ -121,7 +122,7 @@ public final class SearchResult implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the collection of ids that match or partially match the
+   * Gets the collection of identifiers that match or partially match the
    * original search request.
    * @return the value of the property, not null
    */

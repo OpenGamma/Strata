@@ -33,7 +33,7 @@ import com.opengamma.platform.source.id.StandardId;
 public interface Link<T extends IdentifiableBean> {
 
   /**
-   * Create a resolvable link for the specified id and type.
+   * Create a resolvable link for the specified identifier and type.
    * <p>
    * When, at some subsequent point, the {@link #resolve(LinkResolver)}
    * method is called on the created link, the target for the
@@ -62,6 +62,7 @@ public interface Link<T extends IdentifiableBean> {
     return new ResolvedLink<>(linkable);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Resolve the link using the supplied resolver.
    *
@@ -70,4 +71,5 @@ public interface Link<T extends IdentifiableBean> {
    * @throws LinkResolutionException if the link cannot be resolved
    */
   public abstract T resolve(LinkResolver linkResolver);
+
 }

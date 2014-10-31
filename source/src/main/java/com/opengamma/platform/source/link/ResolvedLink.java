@@ -48,6 +48,7 @@ final class ResolvedLink<T extends IdentifiableBean>
   @PropertyDefinition(validate = "notNull")
   private final T linkable;
 
+  //-------------------------------------------------------------------------
   /**
    * Creates the link. Not intended to be called directly,
    * use {@link Link#resolved(IdentifiableBean)} instead.
@@ -59,6 +60,7 @@ final class ResolvedLink<T extends IdentifiableBean>
     this.linkable = ArgChecker.notNull(linkable, "linkable");
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Resolve the link, returning the embedded object.
    *

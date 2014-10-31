@@ -44,15 +44,15 @@ public interface SourceProvider {
   public abstract Optional<IdentifiableBean> get(StandardId id);
 
   /**
-   * Retrieve a collection of items from a collection of ids.
-   * Only ids which are found will be in the returned collection.
+   * Retrieve a collection of items from a collection of identifiers.
+   * Only identifiers which are found will be in the returned collection.
    * <p>
    * The default implementation makes multiple calls to the
    * {@link #get(StandardId)} method. This should be overridden
    * if the underlying data store has a more efficient way of
    * performing the operation.
    *
-   * @param ids  the collection of ids to get
+   * @param ids  the collection of identifiers to get
    * @return the collection of matching items
    */
   public default ImmutableMap<StandardId, IdentifiableBean> bulkGet(Iterable<StandardId> ids) {
@@ -70,23 +70,29 @@ public interface SourceProvider {
    * those items which are.
    * <p>
    * The default implementation does no check and returns the input list
-   * of ids. This is safe, in that no data will be stale, however it is
+   * of identifiers. This is safe, in that no data will be stale, however it is
    * inefficient as data which has not actually changed will get
    * refreshed. This should be overridden if the underlying data store
    * has a more efficient way of performing the operation. Alternatively,
    * if the underlying data store content is static, this should be
    * overridden to always return an empty collection.
    *
-   * @param ids  the set of ids to check for staleness
+   * @param ids  the set of identifiers to check for staleness
    * @param checkpoint  the time to check against
-   * @return the collection of data items from the initial set of ids
+   * @return the collection of data items from the initial set of identifiers
    *   which have been updated since the supplied check point
    */
   public default ImmutableSet<StandardId> changedSince(Iterable<StandardId> ids, Instant checkpoint) {
     return ImmutableSet.copyOf(ids);
   }
 
+  /**
+   * Registers a listener to receive update events.
+   * 
+   * @param listener  the listener
+   */
   public default void registerForUpdates(UpdateNotificationListener listener) {
     // do nothing by default
   }
+
 }

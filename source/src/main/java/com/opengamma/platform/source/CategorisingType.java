@@ -11,16 +11,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation declaring an interface that should be
- * stored when indexing objects implementing the
- * interface.
+ * Annotation declaring an interface that should be stored when indexing
+ * objects implementing the interface.
  * <p>
- * This means that the data will be availble to
- * use when searching for objects. For example,
- * search for all objects implementing the
- * {@code SpecialTrade} interface, where
- * {@code SpecialTrade} has been annotated as a
- * CategorisingType.
+ * This means that the data will be available to use when searching for objects.
+ * For example, search for all objects implementing the {@code SpecialTrade} interface,
+ * where {@code SpecialTrade} has been annotated as a {@code CategorisingType}
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

@@ -14,7 +14,7 @@ import com.opengamma.platform.source.id.StandardId;
  * <p>
  * This is intended to be an API (as opposed to an SPI) used
  * within the calculation server. Data can only be retrieved
- * using its standard id. No assumption is made about where
+ * using its standard identifier. No assumption is made about where
  * the data comes from - it may be completely in-memory or
  * be backed by a {@link SourceProvider}.
  */
@@ -22,6 +22,8 @@ public interface Source {
 
   /**
    * Gets an item using its standard identifier.
+   * <p>
+   * The identifier uniquely identifies a single entity.
    *
    * @param id  the identifier for the item
    * @param type  the expected type of the item

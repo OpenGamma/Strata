@@ -34,6 +34,7 @@ public enum SearchMatchStatus {
    */
   PARTIAL;
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains the type from a unique name.
    *

@@ -35,11 +35,9 @@ import com.opengamma.platform.source.id.StandardId;
  * and the link will point at the correct version (dependent on
  * the link resolution that is performed.
  * <p>
- * Links are expected to be resolvable i.e. it is reasonable to
- * expect that when {@link #resolve(LinkResolver)} is called, the
- * target of the link is available. For this reason, if the
- * target is not found, a {@link LinkResolutionException} will
- * be thrown.
+ * Links are expected to be resolvable when calling {@code #resolve(LinkResolver)}.
+ * If the target of the link is not available, a {@link LinkResolutionException}
+ * will be thrown.
  * <p>
  * Package-scoped as creation should be via
  * {@link Link#resolved(IdentifiableBean)} and usage via the
@@ -57,13 +55,13 @@ final class ResolvableLink<T extends IdentifiableBean>
    */
   @PropertyDefinition(validate = "notNull")
   private final StandardId identifier;
-
   /**
    * The type of the link target.
    */
   @PropertyDefinition(validate = "notNull")
   private final Class<T> linkType;
 
+  //-------------------------------------------------------------------------
   /**
    * Creates the link. Not intended to be called directly,
    * use {@link Link#resolvable(StandardId, Class)} instead.
@@ -77,6 +75,7 @@ final class ResolvableLink<T extends IdentifiableBean>
     this.linkType = ArgChecker.notNull(linkType, "linkType");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public T resolve(LinkResolver linkResolver) {
     ArgChecker.notNull(linkResolver, "linkResolver");

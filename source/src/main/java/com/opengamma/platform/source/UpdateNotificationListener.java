@@ -22,9 +22,9 @@ import com.opengamma.platform.source.id.StandardId;
  *     {@link #idsUpdated(Collection)} is intended for use when
  *     a process is checking for changes (for example, via the
  *     {@link SourceProvider#changedSince(Iterable, Instant)}
- *     method and therefore only knows about the ids. In this
- *     case, the listener will need to go and get the data for
- *     the ids.
+ *     method and therefore only knows about the identifiers.
+ *     In this case, the listener will need to go and get the data
+ *     for the identifiers.
  *   </li>
  *   <li>
  *     {@link #dataUpdated(Collection)} is intended for use when
@@ -38,16 +38,16 @@ import com.opengamma.platform.source.id.StandardId;
 public interface UpdateNotificationListener {
 
   /**
-   * Notify that data has been updated, providing the ids
+   * Notify that data has been updated, providing the identifiers
    * of the changed values.
    * <p>
    * Intended for use when a process is checking for changes
    * for example, via the
    * {@link SourceProvider#changedSince(Iterable, Instant)}
-   * method and therefore only knows about the ids. In this case,
-   * the listener will need to go and get the data for the ids.
+   * method and therefore only knows about the identifiers. In this case,
+   * the listener will need to go and get the data for the identifiers.
    *
-   * @param updates  the ids of the updated data
+   * @param updates  the identifiers of the updated data
    */
   public abstract void idsUpdated(Collection<StandardId> updates);
 
@@ -64,4 +64,5 @@ public interface UpdateNotificationListener {
    * @param updates  the updated data
    */
   public abstract void dataUpdated(Collection<IdentifiableBean> updates);
+
 }

@@ -21,7 +21,7 @@ package com.opengamma.platform.source;
 public interface SearchableProvider {
 
   /**
-   * Performs a search returning SearchResults indicating the ids
+   * Performs a search returning SearchResults indicating the identifiers
    * of matching components. Note that the search result does not
    * hold the matching data, just the identifiers. The identifiers
    * can then be used with {@link SourceProvider#bulkGet(Iterable)}
