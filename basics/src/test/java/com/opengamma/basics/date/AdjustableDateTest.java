@@ -6,7 +6,7 @@
 package com.opengamma.basics.date;
 
 import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
@@ -33,24 +33,35 @@ public class AdjustableDateTest {
   private static final LocalDate TUE_2014_07_15 = LocalDate.of(2014, 7, 15);
 
   //-------------------------------------------------------------------------
-  public void test_of_withAdjustment() {
+  public void test_of_1arg() {
+    AdjustableDate test = AdjustableDate.of(FRI_2014_07_11);
+    assertEquals(test.getUnadjusted(), FRI_2014_07_11);
+    assertEquals(test.getAdjustment(), BDA_NONE);
+    assertEquals(test.toString(), "2014-07-11");
+    assertEquals(test.adjusted(), FRI_2014_07_11);
+  }
+
+  public void test_of_2args_withAdjustment() {
     AdjustableDate test = AdjustableDate.of(FRI_2014_07_11, BDA_FOLLOW_SAT_SUN);
     assertEquals(test.getUnadjusted(), FRI_2014_07_11);
     assertEquals(test.getAdjustment(), BDA_FOLLOW_SAT_SUN);
     assertEquals(test.toString(), "2014-07-11 adjusted by Following using calendar Sat/Sun");
+    assertEquals(test.adjusted(), FRI_2014_07_11);
   }
 
-  public void test_of_withNoAdjustment() {
+  public void test_of_2args_withNoAdjustment() {
     AdjustableDate test = AdjustableDate.of(FRI_2014_07_11, BDA_NONE);
     assertEquals(test.getUnadjusted(), FRI_2014_07_11);
     assertEquals(test.getAdjustment(), BDA_NONE);
     assertEquals(test.toString(), "2014-07-11");
+    assertEquals(test.adjusted(), FRI_2014_07_11);
   }
 
   public void test_of_null() {
-    assertThrows(() -> AdjustableDate.of(null, BDA_FOLLOW_SAT_SUN), IllegalArgumentException.class);
-    assertThrows(() -> AdjustableDate.of(FRI_2014_07_11, null), IllegalArgumentException.class);
-    assertThrows(() -> AdjustableDate.of(null, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> AdjustableDate.of(null));
+    assertThrowsIllegalArg(() -> AdjustableDate.of(null, BDA_FOLLOW_SAT_SUN));
+    assertThrowsIllegalArg(() -> AdjustableDate.of(FRI_2014_07_11, null));
+    assertThrowsIllegalArg(() -> AdjustableDate.of(null, null));
   }
 
   //-------------------------------------------------------------------------

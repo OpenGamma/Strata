@@ -61,6 +61,20 @@ public final class AdjustableDate
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains an instance with no business day adjustment.
+   * <p>
+   * This creates an adjustable date from the specified date.
+   * No business day adjustment applies, thus the result of {@link #adjusted()}
+   * is the specified date.
+   * 
+   * @param date  the date
+   * @return the adjustable date
+   */
+  public static AdjustableDate of(LocalDate date) {
+    return new AdjustableDate(date, BusinessDayAdjustment.NONE);
+  }
+
+  /**
    * Obtains an adjustable date.
    * <p>
    * This creates an adjustable date from the unadjusted date and business day adjustment.
