@@ -167,10 +167,6 @@ public class SimpleCurveCalibrator {
         double forwardLength = dayCount.getDayCountFraction(startDate.plus(startTenor.getPeriod()), startDate.plus(endTenor.getPeriod()));
         return (getDiscountFactor(startTenor) / getDiscountFactor(endTenor) - 1) / forwardLength;
       }
-
-      public double getInterestRate(LocalDate date) {
-        return calibratedCurve.getInterestRate(dayCount.getDayCountFraction(startDate, date));
-      }
     };
   }
 

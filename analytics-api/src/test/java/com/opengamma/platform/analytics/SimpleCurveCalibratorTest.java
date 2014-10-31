@@ -12,9 +12,8 @@ import static com.opengamma.basics.date.Tenor.TENOR_4M;
 import static com.opengamma.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.basics.date.Tenor.TENOR_9M;
 import static com.opengamma.platform.analytics.InterpolationMethod.LINEAR;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.IsCloseTo.closeTo;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.testng.Assert.assertNotNull;
 
 import java.time.LocalDate;
@@ -56,7 +55,7 @@ public class SimpleCurveCalibratorTest {
         TENOR_9M, 0.0042);
 
     YieldCurve yieldCurve = curveCalibrator.buildYieldCurve(rates, start);
-    assertThat(yieldCurve.getDiscountFactor(TENOR_4M), is(closeTo(0.999123, 10e-6)));
+    assertThat(yieldCurve.getDiscountFactor(TENOR_4M)).isCloseTo(0.999123, within(10e-6));
   }
 
   @Test
@@ -74,7 +73,8 @@ public class SimpleCurveCalibratorTest {
         TENOR_9M, 0.0042);
 
     YieldCurve yieldCurve = curveCalibrator.buildYieldCurve(rates, start);
-    assertThat(yieldCurve.getForwardRate(TENOR_6M, TENOR_9M), is(closeTo(0.006249, 10e-6)));
+    assertThat(yieldCurve.getForwardRate(TENOR_6M, TENOR_9M)).isCloseTo(0.006249, within(10e-6));
   }
+
 }
 
