@@ -49,17 +49,12 @@
       <artifactId>og-collect</artifactId>
       <version>0.9.0-SNAPSHOT</version>
     </dependency>
+    <!-- testing -->
     <dependency>
       <groupId>com.opengamma.commons</groupId>
       <artifactId>og-collect</artifactId>
       <version>0.9.0-SNAPSHOT</version>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>1.7.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
