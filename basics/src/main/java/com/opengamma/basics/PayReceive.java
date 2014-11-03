@@ -55,8 +55,11 @@ public enum PayReceive {
 
   //-------------------------------------------------------------------------
   /**
-   * Adjusts the specified amount, returning the negative if 'Pay' or the
-   * unaltered value is 'Receive'.
+   * Adjusts the specified positive amount to a signed amount.
+   * <p>
+   * This returns the amount unaltered if this is 'Receive', and the negated
+   * amount if this is 'Pay'. This is most useful to convert a positive notional
+   * amount into a signed notional amount for calculations.
    * 
    * @param amount  the amount to adjust
    * @return the adjusted amount
