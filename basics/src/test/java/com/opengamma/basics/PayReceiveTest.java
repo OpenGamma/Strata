@@ -26,16 +26,16 @@ public class PayReceiveTest {
     assertEquals(PayReceive.ofPay(false), PayReceive.RECEIVE);
   }
 
-  public void test_adjustAmount_pay() {
-    assertEquals(PayReceive.PAY.adjustAmount(1d), -1d, 0d);
-    assertEquals(PayReceive.PAY.adjustAmount(0d), -0d, 0d);
-    assertEquals(PayReceive.PAY.adjustAmount(-1d), 1d, 0d);
+  public void test_normalize_pay() {
+    assertEquals(PayReceive.PAY.normalize(1d), -1d, 0d);
+    assertEquals(PayReceive.PAY.normalize(0d), -0d, 0d);
+    assertEquals(PayReceive.PAY.normalize(-1d), -1d, 0d);
   }
 
-  public void test_adjustAmount_receive() {
-    assertEquals(PayReceive.RECEIVE.adjustAmount(1d), 1d, 0d);
-    assertEquals(PayReceive.RECEIVE.adjustAmount(0d), 0d, 0d);
-    assertEquals(PayReceive.RECEIVE.adjustAmount(-1d), -1d, 0d);
+  public void test_normalize_receive() {
+    assertEquals(PayReceive.RECEIVE.normalize(1d), 1d, 0d);
+    assertEquals(PayReceive.RECEIVE.normalize(0d), 0d, 0d);
+    assertEquals(PayReceive.RECEIVE.normalize(-1d), 1d, 0d);
   }
 
   public void test_isPay() {

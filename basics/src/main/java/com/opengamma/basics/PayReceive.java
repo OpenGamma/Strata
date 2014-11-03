@@ -55,17 +55,18 @@ public enum PayReceive {
 
   //-------------------------------------------------------------------------
   /**
-   * Adjusts the specified positive amount to a signed amount.
+   * Normalizes the specified notional amount using this pay/receive rule.
    * <p>
-   * This returns the amount unaltered if this is 'Receive', and the negated
-   * amount if this is 'Pay'. This is most useful to convert a positive notional
-   * amount into a signed notional amount for calculations.
+   * This returns a negative signed amount if this is 'Receive', and a positive
+   * signed amount if this is 'Pay'. This effectively normalizes the input notional
+   * to the pay/receive sign conventions of this library.
    * 
    * @param amount  the amount to adjust
    * @return the adjusted amount
    */
-  public double adjustAmount(double amount) {
-    return isPay() ? -amount : amount;
+  public double normalize(double amount) {
+    double normalized = Math.abs(amount);
+    return isPay() ? -normalized : normalized;
   }
 
   //-------------------------------------------------------------------------
