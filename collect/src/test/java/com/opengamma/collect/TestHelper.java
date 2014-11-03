@@ -222,7 +222,7 @@ public class TestHelper {
           fail("Expected exception message to match: [" + regex + "] but received: " + message);
         }
       }
-      fail("Expected " + expected.getSimpleName() + " but received " + ex.getClass().getSimpleName());
+      fail("Expected " + expected.getSimpleName() + " but received " + ex.getClass().getSimpleName(), ex);
     }
   }
 
