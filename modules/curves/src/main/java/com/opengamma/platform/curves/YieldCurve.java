@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.analytics;
+package com.opengamma.platform.curves;
 
 import java.time.LocalDate;
 

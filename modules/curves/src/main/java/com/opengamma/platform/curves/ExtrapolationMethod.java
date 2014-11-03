@@ -1,4 +1,4 @@
-package com.opengamma.platform.analytics;
+package com.opengamma.platform.curves;
 
 /**
  * Describes the methods available for extrapolation

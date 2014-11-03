@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.analytics;
+package com.opengamma.platform.curves;
 
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR_INSTANCE;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.NATURAL_CUBIC_SPLINE_INSTANCE;

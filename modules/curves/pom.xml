@@ -7,20 +7,15 @@
   
   <parent>
     <groupId>com.opengamma.platform</groupId>
-    <artifactId>og-platform-parent</artifactId>
+    <artifactId>ogp-core-parent</artifactId>
     <version>3.0.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>  
-  <artifactId>og-analytics-api</artifactId>
+  <artifactId>ogp-curves</artifactId>
   <version>3.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>OG-Analytics-API</name>
-  <description>OpenGamma - API for analytics</description>
-
-  <!-- ==================================================================== -->
-  <scm>
-    <url>https://github.com/OpenGamma/OG-PlatformCore/tree/master/analytics-api</url>
-  </scm>
+  <name>OG-Platform-Curves</name>
+  <description>OpenGamma Platform - API for curves</description>
 
   <!-- ==================================================================== -->
   <dependencies>
@@ -52,8 +47,8 @@
   <!-- ==================================================================== -->
   <properties>
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OG-Analytics-API</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma Platform Analytics API</h1>]]></doctitle>
+    <windowtitle>OG-Platform Curves</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Platform Curves API</h1>]]></doctitle>
   </properties>
 
 </project>

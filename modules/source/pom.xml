@@ -7,20 +7,15 @@
   
   <parent>
     <groupId>com.opengamma.platform</groupId>
-    <artifactId>og-platform-parent</artifactId>
+    <artifactId>ogp-core-parent</artifactId>
     <version>3.0.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>  
-  <artifactId>og-source</artifactId>
+  <artifactId>ogp-source</artifactId>
   <version>3.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>OG-Source</name>
-  <description>Source, entity identifiers and links</description>
-
-  <!-- ==================================================================== -->
-  <scm>
-    <url>https://github.com/OpenGamma/OG-PlatformCore/tree/master/source</url>
-  </scm>
+  <name>OG-Platform-Source</name>
+  <description>OpenGamma Platform - Source, entity identifiers and links</description>
 
   <!-- ==================================================================== -->
   <dependencies>
@@ -58,5 +53,12 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <!-- ==================================================================== -->
+  <properties>
+    <!-- Properties for maven-javadoc-plugin -->
+    <windowtitle>OG-Platform Source</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Platform Source API</h1>]]></doctitle>
+  </properties>
 
 </project>

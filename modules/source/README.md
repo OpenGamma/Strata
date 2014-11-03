@@ -1,6 +1,6 @@
-OG-Source
----------
-This directory contains the `og-source` project.
+OG-Platform-Source
+------------------
+This directory contains the `ogp-source` project.
 
 ### Overview
 
@@ -13,7 +13,7 @@ A *link* is a high level representation of a link between two entities.
 
 ### Source code
 
-OG-Source is released as Open Source Software using the
+This project is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 

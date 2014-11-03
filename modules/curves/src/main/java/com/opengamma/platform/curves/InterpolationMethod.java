@@ -1,4 +1,4 @@
-package com.opengamma.platform.analytics;
+package com.opengamma.platform.curves;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
