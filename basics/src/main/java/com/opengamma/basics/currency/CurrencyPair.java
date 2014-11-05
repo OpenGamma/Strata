@@ -125,7 +125,7 @@ public final class CurrencyPair
    * <p>
    * In the pair 'AAA/BBB' the base is 'AAA'.
    * 
-   * @return the value of the property
+   * @return the base currency
    */
   public Currency getBase() {
     return base;
@@ -136,8 +136,10 @@ public final class CurrencyPair
    * Gets the counter currency of the pair.
    * <p>
    * In the pair 'AAA/BBB' the counter is 'BBB'.
+   * <p>
+   * The counter currency is also known as the <i>quote currency</i> or the <i>variable currency</i>.
    * 
-   * @return the value of the property
+   * @return the counter currency
    */
   public Currency getCounter() {
     return counter;
