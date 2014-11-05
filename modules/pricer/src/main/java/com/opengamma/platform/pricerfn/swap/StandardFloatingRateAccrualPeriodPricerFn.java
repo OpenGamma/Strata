@@ -12,6 +12,7 @@ import java.util.OptionalDouble;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
+import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.basics.index.RateIndex;
 import com.opengamma.basics.index.RateIndexType;
@@ -21,7 +22,15 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.swap.FloatingRateAccrualPeriodPricerFn;
 
 /**
- * Pricer for swap accrual periods.
+ * Pricer implementation for floating rate swap accrual periods.
+ * <p>
+ * Fixed rate accrual periods are calculated by multiplying four elements:
+ * <ul>
+ * <li>the notional
+ * <li>the FX rate, using 1 if there is no FX reset conversion
+ * <li>the interest rate, which can be calculated in various ways
+ * <li>the year fraction, based on the accrual period day count
+ * </ul>
  */
 public class StandardFloatingRateAccrualPeriodPricerFn
     implements FloatingRateAccrualPeriodPricerFn {
@@ -32,7 +41,7 @@ public class StandardFloatingRateAccrualPeriodPricerFn
       LocalDate valuationDate,
       FloatingRateAccrualPeriod period,
       LocalDate paymentDate) {
-    
+    // futureValue * discountFactor
     double df = env.discountFactor(period.getCurrency(), valuationDate, paymentDate);
     return df * futureValue(env, valuationDate, period);
   }
@@ -42,30 +51,43 @@ public class StandardFloatingRateAccrualPeriodPricerFn
       PricingEnvironment env,
       LocalDate valuationDate,
       FloatingRateAccrualPeriod period) {
-    
-    if (period.getIndexInterpolated() != null) {
-      return linearInterpolated(env, valuationDate, period);
-    } else if (period.getIndex().getType() == RateIndexType.OVERNIGHT) {
-      return overnight(env, valuationDate, period);
-    } else {
-      return normal(env, valuationDate, period);
+    // find FX rate, using 1 if no FX reset occurs
+    double fxRate = 1d;
+    if (period.getFxReset() != null) {
+      CurrencyPair pair = CurrencyPair.of(period.getFxReset().getReferenceCurrency(), period.getCurrency());
+      fxRate = env.fxRate(period.getFxReset().getIndex(), pair, valuationDate, period.getFxReset().getFixingDate());
     }
+    // calculated result
+    double unitNotionalFactor;
+    if (period.getIndexInterpolated() != null) {
+      unitNotionalFactor = linearInterpolatedUnitNotional(env, valuationDate, period) * fxRate;
+    } else if (period.getIndex().getType() == RateIndexType.OVERNIGHT) {
+      unitNotionalFactor = overnightUnitNotional(env, valuationDate, period) * fxRate;
+    } else {
+      unitNotionalFactor = normalUnitNotional(env, valuationDate, period) * fxRate;
+    }
+    return period.getNotional() * fxRate * unitNotionalFactor;
   }
 
   // simple floating Ibor
-  private double normal(PricingEnvironment env, LocalDate valuationDate, FloatingRateAccrualPeriod period) {
+  private double normalUnitNotional(
+      PricingEnvironment env,
+      LocalDate valuationDate,
+      FloatingRateAccrualPeriod period) {
+    
     LocalDate fixingDate = period.getFixingDate();
     RateIndex index = period.getIndex();
     double rate = env.indexRate(index, valuationDate, fixingDate);
     double appliedRate = rate * period.getGearing() + period.getSpread();
-    return appliedRate * period.getNotional() * period.getYearFraction();
+    return appliedRate * period.getYearFraction();
   }
 
   // linear interpolation between 2 rates both applicable at the fixing date
-  private double linearInterpolated(
+  private double linearInterpolatedUnitNotional(
       PricingEnvironment env,
       LocalDate valuationDate,
       FloatingRateAccrualPeriod period) {
+    
     LocalDate fixingDate = period.getFixingDate();
     RateIndex index1 = period.getIndex();
     RateIndex index2 = period.getIndexInterpolated();
@@ -82,11 +104,15 @@ public class StandardFloatingRateAccrualPeriodPricerFn
     double weight2 = (daysN - days1) / (days2 - days1);
     double rate = ((rate1 * weight1) + (rate2 * weight2)) / (weight1 + weight2);
     double appliedRate = rate * period.getGearing() + period.getSpread();
-    return appliedRate * period.getNotional() * period.getYearFraction();
+    return appliedRate * period.getYearFraction();
   }
 
   // overnight compounding
-  private double overnight(PricingEnvironment env, LocalDate valuationDate, FloatingRateAccrualPeriod period) {
+  private double overnightUnitNotional(
+      PricingEnvironment env,
+      LocalDate valuationDate,
+      FloatingRateAccrualPeriod period) {
+    
     if (period.getSpread() != 0d || period.getGearing() != 1d) {
       throw new UnsupportedOperationException("Spread and Gearing not supported with overnight compounding");
     }
@@ -102,7 +128,7 @@ public class StandardFloatingRateAccrualPeriodPricerFn
       double fixingAccrualfactor = index.getDayCount().getDayCountFraction(period.getStartDate(), period.getEndDate());
       double rate = env.getMulticurve().getSimplyCompoundForwardRate(
           IndexONMaster.getInstance().getIndex("FED FUND"), fixingStart, fixingEnd, fixingAccrualfactor);
-      return rate * fixingAccrualfactor * period.getNotional();
+      return rate * fixingAccrualfactor;
     }
     // fixing periods, based on business days of the index
     final List<LocalDate> fixingDateList = new ArrayList<>();
@@ -110,7 +136,7 @@ public class StandardFloatingRateAccrualPeriodPricerFn
     LocalDate currentStart = period.getStartDate();
     fixingDateList.add(currentStart);
     while (currentStart.isBefore(period.getEndDate())) {
-      LocalDate currentEnd = ((OvernightIndex) index).getCalendar().next(currentStart);
+      LocalDate currentEnd = index.getFixingCalendar().next(currentStart);
       fixingDateList.add(currentEnd);
       fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentStart, currentEnd));
       currentStart = currentEnd;
@@ -131,14 +157,6 @@ public class StandardFloatingRateAccrualPeriodPricerFn
         if (currentDate1.isAfter(latestDate)) {
           throw new OpenGammaRuntimeException("Could not get fixing value of index " + index.getName() +
               " for date " + currentDate1 + ". The last data is available on " + latestDate);
-        }
-        // TODO: is find previous OK?
-        for (int i = 0; i < 7; i++) {
-          final LocalDate previousDate = currentDate1.minusDays(1);
-          fixedRate = indexFixingDateSeries.get(previousDate);
-          if (fixedRate.isPresent()) {
-            break;
-          }
         }
         if (!fixedRate.isPresent()) {
           throw new OpenGammaRuntimeException("Could not get fixing value of index " + index.getName() +
@@ -169,10 +187,10 @@ public class StandardFloatingRateAccrualPeriodPricerFn
       double rate = env.getMulticurve().getSimplyCompoundForwardRate(
           IndexONMaster.getInstance().getIndex("FED FUND"), fixingStart, fixingEnd, fixingAccrualFactorLeft);
       double ratio = 1d + fixingAccrualFactorLeft * rate;
-      return (accruedUnitNotional * ratio - 1d) * period.getNotional();
+      return (accruedUnitNotional * ratio - 1d);
     }
     // all fixed
-    return (accruedUnitNotional - 1d) * period.getNotional();
+    return (accruedUnitNotional - 1d);
   }
 
 }

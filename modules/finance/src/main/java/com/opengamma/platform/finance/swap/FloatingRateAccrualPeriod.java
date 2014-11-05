@@ -29,10 +29,13 @@ import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.index.RateIndex;
 
 /**
- * Defines the accrual of a single period of a floating rate swap leg.
+ * A period over which a floating interest rate is accrued.
  * <p>
- * This defines the data necessary to calculate the amount of a single swap leg accrual period.
- * The amount is based on the observed value of a floating rate index.
+ * A floating rate swap leg consists of one or more periods that are the basis of accrual.
+ * This class represents one such period.
+ * <p>
+ * This class specifies the data necessary to calculate the amount based on the observed
+ * value of a floating rate index.
  * <p>
  * See {@link FloatingRateCalculation} for more details.
  */
@@ -44,7 +47,7 @@ public final class FloatingRateAccrualPeriod
   private static final long serialVersionUID = 1L;
 
   /**
-   * The start date of the period.
+   * The start date of the accrual period.
    * <p>
    * This is the first date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -52,7 +55,7 @@ public final class FloatingRateAccrualPeriod
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate startDate;
   /**
-   * The end date of the period.
+   * The end date of the accrual period.
    * <p>
    * This is the last date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -60,7 +63,7 @@ public final class FloatingRateAccrualPeriod
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate endDate;
   /**
-   * The primary currency of this period.
+   * The primary currency of the accrual period.
    * <p>
    * This is the currency of the swap leg and the currency that interest calculation is made in.
    * <p>
@@ -70,6 +73,15 @@ public final class FloatingRateAccrualPeriod
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
+  /**
+   * The FX reset definition, optional.
+   * <p>
+   * This property is used when the defined amount of the notional is specified in
+   * a currency other than the currency of the swap leg. When this occurs, the notional
+   * amount has to be converted using an FX rate to the swap leg currency.
+   */
+  @PropertyDefinition
+  private final FxReset fxReset;
   /**
    * The notional amount, positive if receiving, negative if paying.
    * <p>
@@ -127,7 +139,9 @@ public final class FloatingRateAccrualPeriod
 //  @PropertyDefinition(validate = "notEmpty")
 //  private final ImmutableList<LocalDate> fixingDates;
   /**
-   * The fixing date.
+   * The date of the index fixing.
+   * <p>
+   * This is an adjusted date with any business day applied.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate fixingDate;
@@ -197,6 +211,7 @@ public final class FloatingRateAccrualPeriod
       LocalDate startDate,
       LocalDate endDate,
       Currency currency,
+      FxReset fxReset,
       double notional,
       double yearFraction,
       RateIndex index,
@@ -215,6 +230,7 @@ public final class FloatingRateAccrualPeriod
     this.startDate = startDate;
     this.endDate = endDate;
     this.currency = currency;
+    this.fxReset = fxReset;
     this.notional = notional;
     this.yearFraction = yearFraction;
     this.index = index;
@@ -242,7 +258,7 @@ public final class FloatingRateAccrualPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the start date of the period.
+   * Gets the start date of the accrual period.
    * <p>
    * This is the first date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -255,7 +271,7 @@ public final class FloatingRateAccrualPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the end date of the period.
+   * Gets the end date of the accrual period.
    * <p>
    * This is the last date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
@@ -268,7 +284,7 @@ public final class FloatingRateAccrualPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the primary currency of this period.
+   * Gets the primary currency of the accrual period.
    * <p>
    * This is the currency of the swap leg and the currency that interest calculation is made in.
    * <p>
@@ -280,6 +296,19 @@ public final class FloatingRateAccrualPeriod
   @Override
   public Currency getCurrency() {
     return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the FX reset definition, optional.
+   * <p>
+   * This property is used when the defined amount of the notional is specified in
+   * a currency other than the currency of the swap leg. When this occurs, the notional
+   * amount has to be converted using an FX rate to the swap leg currency.
+   * @return the value of the property
+   */
+  public FxReset getFxReset() {
+    return fxReset;
   }
 
   //-----------------------------------------------------------------------
@@ -338,7 +367,9 @@ public final class FloatingRateAccrualPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixing date.
+   * Gets the date of the index fixing.
+   * <p>
+   * This is an adjusted date with any business day applied.
    * @return the value of the property, not null
    */
   public LocalDate getFixingDate() {
@@ -409,6 +440,7 @@ public final class FloatingRateAccrualPeriod
       return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getFxReset(), other.getFxReset()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
           JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
@@ -427,6 +459,7 @@ public final class FloatingRateAccrualPeriod
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFxReset());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
@@ -440,11 +473,12 @@ public final class FloatingRateAccrualPeriod
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(384);
+    StringBuilder buf = new StringBuilder(416);
     buf.append("FloatingRateAccrualPeriod{");
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("fxReset").append('=').append(getFxReset()).append(',').append(' ');
     buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
@@ -482,6 +516,11 @@ public final class FloatingRateAccrualPeriod
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", FloatingRateAccrualPeriod.class, Currency.class);
+    /**
+     * The meta-property for the {@code fxReset} property.
+     */
+    private final MetaProperty<FxReset> fxReset = DirectMetaProperty.ofImmutable(
+        this, "fxReset", FloatingRateAccrualPeriod.class, FxReset.class);
     /**
      * The meta-property for the {@code notional} property.
      */
@@ -530,6 +569,7 @@ public final class FloatingRateAccrualPeriod
         "startDate",
         "endDate",
         "currency",
+        "fxReset",
         "notional",
         "yearFraction",
         "index",
@@ -554,6 +594,8 @@ public final class FloatingRateAccrualPeriod
           return endDate;
         case 575402001:  // currency
           return currency;
+        case -449555555:  // fxReset
+          return fxReset;
         case 1585636160:  // notional
           return notional;
         case -1731780257:  // yearFraction
@@ -612,6 +654,14 @@ public final class FloatingRateAccrualPeriod
      */
     public MetaProperty<Currency> currency() {
       return currency;
+    }
+
+    /**
+     * The meta-property for the {@code fxReset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FxReset> fxReset() {
+      return fxReset;
     }
 
     /**
@@ -688,6 +738,8 @@ public final class FloatingRateAccrualPeriod
           return ((FloatingRateAccrualPeriod) bean).getEndDate();
         case 575402001:  // currency
           return ((FloatingRateAccrualPeriod) bean).getCurrency();
+        case -449555555:  // fxReset
+          return ((FloatingRateAccrualPeriod) bean).getFxReset();
         case 1585636160:  // notional
           return ((FloatingRateAccrualPeriod) bean).getNotional();
         case -1731780257:  // yearFraction
@@ -728,6 +780,7 @@ public final class FloatingRateAccrualPeriod
     private LocalDate startDate;
     private LocalDate endDate;
     private Currency currency;
+    private FxReset fxReset;
     private double notional;
     private double yearFraction;
     private RateIndex index;
@@ -752,6 +805,7 @@ public final class FloatingRateAccrualPeriod
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.currency = beanToCopy.getCurrency();
+      this.fxReset = beanToCopy.getFxReset();
       this.notional = beanToCopy.getNotional();
       this.yearFraction = beanToCopy.getYearFraction();
       this.index = beanToCopy.getIndex();
@@ -772,6 +826,8 @@ public final class FloatingRateAccrualPeriod
           return endDate;
         case 575402001:  // currency
           return currency;
+        case -449555555:  // fxReset
+          return fxReset;
         case 1585636160:  // notional
           return notional;
         case -1731780257:  // yearFraction
@@ -804,6 +860,9 @@ public final class FloatingRateAccrualPeriod
           break;
         case 575402001:  // currency
           this.currency = (Currency) newValue;
+          break;
+        case -449555555:  // fxReset
+          this.fxReset = (FxReset) newValue;
           break;
         case 1585636160:  // notional
           this.notional = (Double) newValue;
@@ -865,6 +924,7 @@ public final class FloatingRateAccrualPeriod
           startDate,
           endDate,
           currency,
+          fxReset,
           notional,
           yearFraction,
           index,
@@ -906,6 +966,16 @@ public final class FloatingRateAccrualPeriod
     public Builder currency(Currency currency) {
       JodaBeanUtils.notNull(currency, "currency");
       this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the {@code fxReset} property in the builder.
+     * @param fxReset  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder fxReset(FxReset fxReset) {
+      this.fxReset = fxReset;
       return this;
     }
 
@@ -996,11 +1066,12 @@ public final class FloatingRateAccrualPeriod
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(384);
+      StringBuilder buf = new StringBuilder(416);
       buf.append("FloatingRateAccrualPeriod.Builder{");
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');

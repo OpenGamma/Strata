@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -55,11 +55,11 @@ public final class NotionalAmount
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
-   * The optional FX reset definition.
+   * The FX reset definition, optional.
    * <p>
    * This property is used when the defined amount of the notional is specified in
    * a currency other than the currency of the swap leg. When this occurs, the notional
-   * amount has to be converted using an FX rate to the payment currency. This conversion
+   * amount has to be converted using an FX rate to the swap leg currency. This conversion
    * occurs at each payment period boundary and usually corresponds to an actual
    * exchange of money between the counterparties.
    * <p>
@@ -206,11 +206,11 @@ public final class NotionalAmount
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional FX reset definition.
+   * Gets the FX reset definition, optional.
    * <p>
    * This property is used when the defined amount of the notional is specified in
    * a currency other than the currency of the swap leg. When this occurs, the notional
-   * amount has to be converted using an FX rate to the payment currency. This conversion
+   * amount has to be converted using an FX rate to the swap leg currency. This conversion
    * occurs at each payment period boundary and usually corresponds to an actual
    * exchange of money between the counterparties.
    * <p>

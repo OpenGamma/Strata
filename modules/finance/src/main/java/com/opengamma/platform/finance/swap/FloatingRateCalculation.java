@@ -240,8 +240,7 @@ public final class FloatingRateCalculation
    * @throws RuntimeException if the swap calculation is invalid
    */
   ImmutableList<AccrualPeriod> createAccrualPeriods(Schedule schedule) {
-    if (notional.getFxReset() != null ||
-        notional.isInitialExchange() ||
+    if (notional.isInitialExchange() ||
         notional.isFinalExchange() ||
         notional.isIntermediateExchange() ||
         resetPeriods != null) {
@@ -267,6 +266,7 @@ public final class FloatingRateCalculation
     List<RateIndex> resolvedIndices = resolveIndices(schedule.size(), hasInitialStub, hasFinalStub);
     List<RateIndex> resolveInterpolated = resolveInterpolatedIndices(schedule.size(), hasInitialStub, hasFinalStub);
     Currency currency = notional.getCurrency();
+    FxResetNotional fxResetNotional = notional.getFxReset();
     // build accrual periods
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
@@ -278,6 +278,7 @@ public final class FloatingRateCalculation
             .endDate(period.getEndDate())
             .yearFraction(createYearFraction(period))
             .currency(currency)
+            .fxReset(createFxReset(fxResetNotional, currency, period))
             .notional(payReceive.normalize(resolvedNotionals.get(i)))
             .rate(negativeRateMethod.adjust(fixedRate * resolvedGearings.get(i) + resolvedSpreads.get(i)))
             .build());
@@ -288,6 +289,7 @@ public final class FloatingRateCalculation
             .endDate(period.getEndDate())
             .yearFraction(createYearFraction(period))
             .currency(currency)
+            .fxReset(createFxReset(fxResetNotional, currency, period))
             .notional(payReceive.normalize(resolvedNotionals.get(i)))
             .index(resolvedIndices.get(i))
             .indexInterpolated(resolveInterpolated.get(i))
@@ -360,6 +362,14 @@ public final class FloatingRateCalculation
   // determine the year fraction
   private double createYearFraction(SchedulePeriod period) {
     return dayCount.getDayCountFraction(period.getStartDate(), period.getEndDate(), period);
+  }
+
+  // determine the FX reset
+  private FxReset createFxReset(FxResetNotional fxResetNotional, Currency currency, SchedulePeriod period) {
+    if (fxResetNotional == null || fxResetNotional.getReferenceCurrency().equals(currency)) {
+      return null;
+    }
+    return fxResetNotional.createFxReset(period);
   }
 
   // determine the fixing date

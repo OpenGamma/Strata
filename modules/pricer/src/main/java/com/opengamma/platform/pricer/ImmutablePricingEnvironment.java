@@ -31,9 +31,13 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.Tenor;
+import com.opengamma.basics.index.FxIndex;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.RateIndex;
+import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -55,7 +59,7 @@ public class ImmutablePricingEnvironment
    * The time-series.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<RateIndex, LocalDateDoubleTimeSeries> timeSeries;
+  private final ImmutableMap<Index, LocalDateDoubleTimeSeries> timeSeries;
   /**
    * The day count applicable to the models.
    */
@@ -64,13 +68,17 @@ public class ImmutablePricingEnvironment
 
   //-------------------------------------------------------------------------
   @Override
-  public LocalDateDoubleTimeSeries getTimeSeries(RateIndex index) {
+  public LocalDateDoubleTimeSeries getTimeSeries(Index index) {
+    ArgChecker.notNull(index, "index");
     return Optional.ofNullable(timeSeries.get(index))
         .orElseThrow(() -> new IllegalArgumentException("Unknown index: " + index.getName()));
   }
 
   @Override
   public double discountFactor(Currency currency, LocalDate valuationDate, LocalDate date) {
+    ArgChecker.notNull(currency, "currency");
+    ArgChecker.notNull(valuationDate, "valuationDate");
+    ArgChecker.notNull(date, "date");
     return multicurve.getDiscountFactor(currency(currency), relativeTime(valuationDate, date));
   }
 
@@ -79,18 +87,13 @@ public class ImmutablePricingEnvironment
   }
 
   @Override
-  public double relativeTime(LocalDate baseDate, LocalDate date) {
-    if (date.isBefore(baseDate)) {
-      return -dayCount.getDayCountFraction(date, baseDate);
-    }
-    return dayCount.getDayCountFraction(baseDate, date);
-  }
-
-  @Override
   public double indexRate(
       RateIndex index,
       LocalDate valuationDate,
       LocalDate fixingDate) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(valuationDate, "valuationDate");
+    ArgChecker.notNull(fixingDate, "fixingDate");
     // historic rate
     if (!fixingDate.isAfter(valuationDate)) {
       OptionalDouble fixedRate = getTimeSeries(index).get(fixingDate);
@@ -120,6 +123,52 @@ public class ImmutablePricingEnvironment
       idx = IndexIborMaster.getInstance().getIndex(IndexIborMaster.USDLIBOR1M);
     }
     return idx;
+  }
+
+  @Override
+  public double fxRate(CurrencyPair currencyPair) {
+    ArgChecker.notNull(currencyPair, "currencyPair");
+    return getMulticurve().getFxRate(currency(currencyPair.getBase()), currency(currencyPair.getCounter()));
+  }
+
+  @Override
+  public double fxRate(FxIndex index, CurrencyPair currencyPair, LocalDate valuationDate, LocalDate fixingDate) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(currencyPair, "currencyPair");
+    ArgChecker.notNull(valuationDate, "valuationDate");
+    ArgChecker.notNull(fixingDate, "fixingDate");
+    ArgChecker.isTrue(currencyPair.equals(index.getCurrencyPair()) || currencyPair.isInverse(index.getCurrencyPair()),
+        "CurrencyPair must match FxIndex");
+    // historic rate
+    if (!fixingDate.isAfter(valuationDate)) {
+      OptionalDouble fixedRate = getTimeSeries(index).get(fixingDate);
+      if (fixedRate.isPresent()) {
+        return fixFxRate(index, currencyPair, fixedRate.getAsDouble());
+      } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + fixingDate);
+      }
+    }
+    // forward rate
+    // derive from discount factors
+    LocalDate maturityDate = index.calculateMaturityFromFixing(fixingDate);
+    double maturityTime = relativeTime(valuationDate, maturityDate);
+    double dfCcyReferenceAtDelivery = multicurve.getDiscountFactor(currency(currencyPair.getBase()), maturityTime);
+    double dfCcyPaymentAtDelivery = multicurve.getDiscountFactor(currency(currencyPair.getCounter()), maturityTime);
+    double fxRate = dfCcyReferenceAtDelivery / dfCcyPaymentAtDelivery;
+    return fixFxRate(index, currencyPair, fxRate);
+  }
+
+  // if the index is the inverse of the desired pair, then invert it
+  private double fixFxRate(FxIndex index, CurrencyPair desiredPair, double fxRate) {
+    return (desiredPair.isInverse(index.getCurrencyPair()) ? 1d / fxRate : fxRate);
+  }
+
+  @Override
+  public double relativeTime(LocalDate baseDate, LocalDate date) {
+    if (date.isBefore(baseDate)) {
+      return -dayCount.getDayCountFraction(date, baseDate);
+    }
+    return dayCount.getDayCountFraction(baseDate, date);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -187,7 +236,7 @@ public class ImmutablePricingEnvironment
    * Gets the time-series.
    * @return the value of the property, not null
    */
-  public ImmutableMap<RateIndex, LocalDateDoubleTimeSeries> getTimeSeries() {
+  public ImmutableMap<Index, LocalDateDoubleTimeSeries> getTimeSeries() {
     return timeSeries;
   }
 
@@ -270,7 +319,7 @@ public class ImmutablePricingEnvironment
      * The meta-property for the {@code timeSeries} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<RateIndex, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableMap<Index, LocalDateDoubleTimeSeries>> timeSeries = DirectMetaProperty.ofImmutable(
         this, "timeSeries", ImmutablePricingEnvironment.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code dayCount} property.
@@ -333,7 +382,7 @@ public class ImmutablePricingEnvironment
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<RateIndex, LocalDateDoubleTimeSeries>> timeSeries() {
+    public final MetaProperty<ImmutableMap<Index, LocalDateDoubleTimeSeries>> timeSeries() {
       return timeSeries;
     }
 
@@ -377,7 +426,7 @@ public class ImmutablePricingEnvironment
   public static class Builder extends DirectFieldsBeanBuilder<ImmutablePricingEnvironment> {
 
     private MulticurveProviderInterface multicurve;
-    private Map<RateIndex, LocalDateDoubleTimeSeries> timeSeries = new HashMap<RateIndex, LocalDateDoubleTimeSeries>();
+    private Map<Index, LocalDateDoubleTimeSeries> timeSeries = new HashMap<Index, LocalDateDoubleTimeSeries>();
     private DayCount dayCount;
 
     /**
@@ -392,7 +441,7 @@ public class ImmutablePricingEnvironment
      */
     protected Builder(ImmutablePricingEnvironment beanToCopy) {
       this.multicurve = beanToCopy.getMulticurve();
-      this.timeSeries = new HashMap<RateIndex, LocalDateDoubleTimeSeries>(beanToCopy.getTimeSeries());
+      this.timeSeries = new HashMap<Index, LocalDateDoubleTimeSeries>(beanToCopy.getTimeSeries());
       this.dayCount = beanToCopy.getDayCount();
     }
 
@@ -419,7 +468,7 @@ public class ImmutablePricingEnvironment
           this.multicurve = (MulticurveProviderInterface) newValue;
           break;
         case 779431844:  // timeSeries
-          this.timeSeries = (Map<RateIndex, LocalDateDoubleTimeSeries>) newValue;
+          this.timeSeries = (Map<Index, LocalDateDoubleTimeSeries>) newValue;
           break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
@@ -476,7 +525,7 @@ public class ImmutablePricingEnvironment
      * @param timeSeries  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder timeSeries(Map<RateIndex, LocalDateDoubleTimeSeries> timeSeries) {
+    public Builder timeSeries(Map<Index, LocalDateDoubleTimeSeries> timeSeries) {
       JodaBeanUtils.notNull(timeSeries, "timeSeries");
       this.timeSeries = timeSeries;
       return this;
