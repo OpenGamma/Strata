@@ -209,6 +209,23 @@ public final class DaysAdjustment
     return adjustment.adjust(added);
   }
 
+  /**
+   * Gets the holiday calendar that will be applied to the result.
+   * <p>
+   * This adjustment may contain more than one holiday calendar.
+   * This method returns the calendar used last.
+   * As such, the adjusted date will always be valid according to this calendar.
+   * 
+   * @return the result holiday calendar
+   */
+  public HolidayCalendar getEffectiveResultCalendar() {
+    HolidayCalendar cal = adjustment.getCalendar();
+    if (cal == HolidayCalendars.NO_HOLIDAYS) {
+      cal = calendar;
+    }
+    return cal;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a string describing the adjustment.

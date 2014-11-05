@@ -152,6 +152,22 @@ public class DaysAdjustmentTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_getEffectiveResultCalendar1() {
+    DaysAdjustment test = DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN);
+    assertEquals(test.getEffectiveResultCalendar(), HOLCAL_SAT_SUN);
+  }
+
+  public void test_getEffectiveResultCalendar2() {
+    DaysAdjustment test = DaysAdjustment.ofBusinessDays(3, HOLCAL_SAT_SUN, BDA_FOLLOW_WED_THU);
+    assertEquals(test.getEffectiveResultCalendar(), HOLCAL_WED_THU);
+  }
+
+  public void test_getEffectiveResultCalendar3() {
+    DaysAdjustment test = DaysAdjustment.ofCalendarDays(3);
+    assertEquals(test.getEffectiveResultCalendar(), HOLCAL_NONE);
+  }
+
+  //-------------------------------------------------------------------------
   public void equals() {
     DaysAdjustment a = DaysAdjustment.ofBusinessDays(3, HOLCAL_NONE, BDA_FOLLOW_SAT_SUN);
     DaysAdjustment b = DaysAdjustment.ofBusinessDays(4, HOLCAL_NONE, BDA_FOLLOW_SAT_SUN);

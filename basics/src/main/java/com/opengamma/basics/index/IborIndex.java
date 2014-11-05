@@ -69,7 +69,7 @@ public final class IborIndex
    * <p>
    * The fixing date is when the rate is determined.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final HolidayCalendar fixingCalendar;
   /**
    * The adjustment applied to the fixing date to obtain the effective date.
@@ -223,12 +223,9 @@ public final class IborIndex
 
   // finds the calendar of the effective date
   private HolidayCalendar effectiveDateCalendar() {
-    HolidayCalendar cal = effectiveDateOffset.getAdjustment().getCalendar();
+    HolidayCalendar cal = effectiveDateOffset.getEffectiveResultCalendar();
     if (cal == HolidayCalendars.NO_HOLIDAYS) {
-      cal = effectiveDateOffset.getCalendar();
-      if (cal == HolidayCalendars.NO_HOLIDAYS) {
-        cal = fixingCalendar;
-      }
+      cal = fixingCalendar;
     }
     return cal;
   }
@@ -323,6 +320,7 @@ public final class IborIndex
    * The fixing date is when the rate is determined.
    * @return the value of the property, not null
    */
+  @Override
   public HolidayCalendar getFixingCalendar() {
     return fixingCalendar;
   }

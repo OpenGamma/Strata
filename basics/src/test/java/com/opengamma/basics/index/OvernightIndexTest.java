@@ -45,7 +45,7 @@ public class OvernightIndexTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getName(), "GBP-SONIA");
     assertEquals(test.getTenor(), TENOR_1D);
-    assertEquals(test.getCalendar(), GBLO);
+    assertEquals(test.getFixingCalendar(), GBLO);
     assertEquals(test.getPublicationDateOffset(), 0);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
@@ -76,7 +76,7 @@ public class OvernightIndexTest {
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getName(), "USD-FED-FUND");
     assertEquals(test.getTenor(), TENOR_1D);
-    assertEquals(test.getCalendar(), NYFD);
+    assertEquals(test.getFixingCalendar(), NYFD);
     assertEquals(test.getPublicationDateOffset(), 1);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_360);
@@ -106,7 +106,7 @@ public class OvernightIndexTest {
     OvernightIndex a = OvernightIndex.builder()
         .currency(Currency.GBP)
         .name("OGIBOR")
-        .calendar(GBLO)
+        .fixingCalendar(GBLO)
         .publicationDateOffset(0)
         .effectiveDateOffset(0)
         .dayCount(ACT_360)
@@ -115,7 +115,7 @@ public class OvernightIndexTest {
     assertEquals(a.equals(b), false);
     b = a.toBuilder().name("Rubbish").build();
     assertEquals(a.equals(b), false);
-    b = a.toBuilder().calendar(USNY).build();
+    b = a.toBuilder().fixingCalendar(USNY).build();
     assertEquals(a.equals(b), false);
     b = a.toBuilder().publicationDateOffset(1).build();
     assertEquals(a.equals(b), false);
@@ -130,7 +130,7 @@ public class OvernightIndexTest {
     OvernightIndex index = OvernightIndex.builder()
         .currency(Currency.GBP)
         .name("OGONIA")
-        .calendar(GBLO)
+        .fixingCalendar(GBLO)
         .publicationDateOffset(0)
         .effectiveDateOffset(0)
         .dayCount(ACT_360)
@@ -147,7 +147,7 @@ public class OvernightIndexTest {
     OvernightIndex index = OvernightIndex.builder()
         .currency(Currency.GBP)
         .name("OGONIA")
-        .calendar(GBLO)
+        .fixingCalendar(GBLO)
         .publicationDateOffset(0)
         .effectiveDateOffset(0)
         .dayCount(ACT_360)

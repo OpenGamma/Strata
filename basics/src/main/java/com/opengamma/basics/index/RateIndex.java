@@ -12,6 +12,7 @@ import org.joda.convert.ToString;
 
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
+import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.Tenor;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.named.ExtendedEnum;
@@ -89,6 +90,15 @@ public interface RateIndex
    * @return the day count convention
    */
   public DayCount getDayCount();
+
+  /**
+   * Gets the fixing calendar of the index.
+   * <p>
+   * The rate will be fixed on each business day in this calendar.
+   * 
+   * @return the currency pair of the index
+   */
+  public abstract HolidayCalendar getFixingCalendar();
 
   //-------------------------------------------------------------------------
   /**
