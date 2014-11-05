@@ -35,7 +35,7 @@ import com.opengamma.collect.named.Named;
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface RateIndex
-    extends Named {
+    extends Index, Named {
 
   /**
    * Obtains a {@code RateIndex} from a unique name.
