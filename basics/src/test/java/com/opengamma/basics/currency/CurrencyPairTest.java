@@ -9,10 +9,12 @@ import static com.opengamma.basics.currency.Currency.AUD;
 import static com.opengamma.basics.currency.Currency.CAD;
 import static com.opengamma.basics.currency.Currency.EUR;
 import static com.opengamma.basics.currency.Currency.GBP;
+import static com.opengamma.basics.currency.Currency.JPY;
 import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -104,7 +106,6 @@ public class CurrencyPairTest {
     assertEquals(test.contains(GBP), true);
     assertEquals(test.contains(USD), true);
     assertEquals(test.contains(EUR), false);
-    assertEquals(test.contains(null), false);
   }
 
   public void test_contains_Currency_same() {
@@ -112,6 +113,47 @@ public class CurrencyPairTest {
     assertEquals(test.contains(GBP), true);
     assertEquals(test.contains(USD), false);
     assertEquals(test.contains(EUR), false);
+  }
+
+  public void test_contains_Currency_null() {
+    CurrencyPair test = CurrencyPair.of(GBP, USD);
+    assertThrowsIllegalArg(() -> test.contains(null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_isInverse_CurrencyPair() {
+    CurrencyPair test = CurrencyPair.of(GBP, USD);
+    assertEquals(test.isInverse(test), false);
+    assertEquals(test.isInverse(CurrencyPair.of(GBP, USD)), false);
+    assertEquals(test.isInverse(CurrencyPair.of(USD, GBP)), true);
+    assertEquals(test.isInverse(CurrencyPair.of(GBP, EUR)), false);
+    assertEquals(test.isInverse(CurrencyPair.of(EUR, GBP)), false);
+    assertEquals(test.isInverse(CurrencyPair.of(USD, EUR)), false);
+    assertEquals(test.isInverse(CurrencyPair.of(EUR, USD)), false);
+  }
+
+  public void test_isInverse_CurrencyPair_null() {
+    CurrencyPair test = CurrencyPair.of(GBP, USD);
+    assertThrowsIllegalArg(() -> test.isInverse(null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_isRelatedTo_CurrencyPair() {
+    CurrencyPair test = CurrencyPair.of(GBP, USD);
+    assertEquals(test.isRelated(test), true);
+    assertEquals(test.isRelated(CurrencyPair.of(GBP, USD)), true);
+    assertEquals(test.isRelated(CurrencyPair.of(USD, GBP)), true);
+    assertEquals(test.isRelated(CurrencyPair.of(GBP, EUR)), true);
+    assertEquals(test.isRelated(CurrencyPair.of(EUR, GBP)), true);
+    assertEquals(test.isRelated(CurrencyPair.of(USD, EUR)), true);
+    assertEquals(test.isRelated(CurrencyPair.of(EUR, USD)), true);
+    assertEquals(test.isRelated(CurrencyPair.of(JPY, EUR)), false);
+    assertEquals(test.isRelated(CurrencyPair.of(EUR, JPY)), false);
+  }
+
+  public void test_isRelatedTo_CurrencyPair_null() {
+    CurrencyPair test = CurrencyPair.of(GBP, USD);
+    assertThrowsIllegalArg(() -> test.isRelated(null));
   }
 
   //-------------------------------------------------------------------------

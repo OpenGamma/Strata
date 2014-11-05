@@ -18,8 +18,6 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -211,7 +209,8 @@ public final class MultiCurrencyAmount
    * @param currency  the currency to find
    * @return true if this amount contains a value for the currency
    */
-  public boolean contains(@Nullable Currency currency) {
+  public boolean contains(Currency currency) {
+    ArgChecker.notNull(currency, "currency");
     return amounts.stream().anyMatch(ca -> ca.getCurrency().equals(currency));
   }
 

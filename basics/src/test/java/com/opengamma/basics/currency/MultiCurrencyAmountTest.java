@@ -7,6 +7,7 @@ package com.opengamma.basics.currency;
 
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
@@ -131,6 +132,12 @@ public class MultiCurrencyAmountTest {
         .set(MultiCurrencyAmount.meta().amounts(),
             ImmutableSortedSet.of(CA1, CA2, CurrencyAmount.of(CA1.getCurrency(), AMT3)));
     assertThrows(() -> test.build(), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_contains_null() {
+    MultiCurrencyAmount base = MultiCurrencyAmount.of(CA1, CA2);
+    assertThrowsIllegalArg(() -> base.contains(null));
   }
 
   //-------------------------------------------------------------------------

@@ -10,8 +10,6 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
-
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -110,13 +108,41 @@ public final class CurrencyPair
   }
 
   /**
-   * Indicates if the currency pair contains the supplied currency as either its base or counter.
+   * Checks if the currency pair contains the supplied currency as either its base or counter.
    * 
    * @param currency  the currency to check against the pair, null returns false
    * @return true if the currency is either the base or counter currency in the pair
    */
-  public boolean contains(@Nullable Currency currency) {
+  public boolean contains(Currency currency) {
+    ArgChecker.notNull(currency, "currency");
     return base.equals(currency) || counter.equals(currency);
+  }
+
+  /**
+   * Checks if this currency pair is the inverse of the specified pair.
+   * <p>
+   * This could be used to check if an FX rate specified in one currency pair needs inverting.
+   * 
+   * @param other  the other currency pair
+   * @return true if the currency is the inverse of the specified pair
+   */
+  public boolean isInverse(CurrencyPair other) {
+    ArgChecker.notNull(other, "currencyPair");
+    return base.equals(other.counter) && counter.equals(other.base);
+  }
+
+  /**
+   * Checks if this currency pair is related to the specified pair.
+   * <p>
+   * Two pairs are related if they have at least one currency in common.
+   * This could be used to check if two FX rates can be combined into a single rate.
+   * 
+   * @param other  the other currency pair
+   * @return true if this pair contains either the base or counter currency of the specified pair
+   */
+  public boolean isRelated(CurrencyPair other) {
+    ArgChecker.notNull(other, "currencyPair");
+    return contains(other.base) || contains(other.counter);
   }
 
   //-----------------------------------------------------------------------
