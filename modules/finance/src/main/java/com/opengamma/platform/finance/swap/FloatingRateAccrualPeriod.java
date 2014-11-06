@@ -92,7 +92,7 @@ public final class FloatingRateAccrualPeriod
   /**
    * The year fraction that the accrual period represents.
    * <p>
-   * The value is usually calculated using a {@link DayCount}.
+   * The value is usually calculated using a {@link DayCount} which may be different to that of the index.
    * Typically the value will be close to 1 for one year and close to 0.5 for six months.
    * The fraction may be greater than 1, but not less than 0.
    */
@@ -326,7 +326,7 @@ public final class FloatingRateAccrualPeriod
   /**
    * Gets the year fraction that the accrual period represents.
    * <p>
-   * The value is usually calculated using a {@link DayCount}.
+   * The value is usually calculated using a {@link DayCount} which may be different to that of the index.
    * Typically the value will be close to 1 for one year and close to 0.5 for six months.
    * The fraction may be greater than 1, but not less than 0.
    * @return the value of the property

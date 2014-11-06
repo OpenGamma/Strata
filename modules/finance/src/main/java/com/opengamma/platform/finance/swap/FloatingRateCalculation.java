@@ -333,10 +333,10 @@ public final class FloatingRateCalculation
         (hasFinalStub && finalStub.isFloatingRate())) {
       result = new ArrayList<>(result);
       if (hasInitialStub && initialStub.isFloatingRate()) {
-        result.set(0, initialStub.getStartIndex());
+        result.set(0, initialStub.getIndex());
       }
       if (hasFinalStub && finalStub.isFloatingRate()) {
-        result.set(size - 1, finalStub.getStartIndex());
+        result.set(size - 1, finalStub.getIndex());
       }
     }
     return result;
@@ -349,10 +349,10 @@ public final class FloatingRateCalculation
         (hasFinalStub && finalStub.isInterpolated())) {
       RateIndex[] rates = new RateIndex[size];
       if (hasInitialStub && initialStub.isInterpolated()) {
-        rates[0] = initialStub.getEndIndex();
+        rates[0] = initialStub.getIndexInterpolated();
       }
       if (hasFinalStub && finalStub.isInterpolated()) {
-        rates[rates.length - 1] = finalStub.getEndIndex();
+        rates[rates.length - 1] = finalStub.getIndexInterpolated();
       }
       return Arrays.asList(rates);
     }

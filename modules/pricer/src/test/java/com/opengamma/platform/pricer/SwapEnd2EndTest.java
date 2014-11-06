@@ -114,8 +114,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), -1003684.8402, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), -1003684.8402, TOLERANCE_PV);
   }
 
   //-----------------------------------------------------------------------
@@ -150,8 +150,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), 7170391.798257509, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), 7170391.798257509, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -186,8 +186,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), 3588376.471608199, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), 3588376.471608199, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -240,9 +240,9 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-//    assertEquals(pv2.getAmount(), -13844.3872, TOLERANCE_PV);
-    assertEquals(pv2.getAmount(), -21875.376339152455, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+//    assertEquals(pv.getAmount(), -13844.3872, TOLERANCE_PV);
+    assertEquals(pv.getAmount(), -21875.376339152455, TOLERANCE_PV);
     
   }
 
@@ -296,9 +296,10 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
     // unable to match existing number
-    // assertEquals(pv2.getAmount(), -340426.6128, TOLERANCE_PV);
+    // assertEquals(pv.getAmount(), -340426.6128, TOLERANCE_PV);
+    assertEquals(pv.getAmount(), -342874.98367929866, TOLERANCE_PV);  // unverified number
   }
 
   //-------------------------------------------------------------------------
@@ -334,8 +335,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), 502890.9443281095, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), 502890.9443281095, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -371,8 +372,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), 463962.5517136799, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), 463962.5517136799, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -409,8 +410,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), 364832.4284058402, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), 364832.4284058402, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -447,8 +448,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), 314215.2347116342, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), 314215.2347116342, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -502,8 +503,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), 7850279.042216873, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), 7850279.042216873, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -562,8 +563,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), -1850080.2895532502, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), -1850080.2895532502, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -615,8 +616,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), -9723.264518929138, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), -9723.264518929138, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -668,8 +669,8 @@ public class SwapEnd2EndTest {
         .build();
     
     SwapPricerFn pricer = swapPricer();
-    CurrencyAmount pv2 = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
-    assertEquals(pv2.getAmount(), -7352.973875972721, TOLERANCE_PV);
+    CurrencyAmount pv = pricer.presentValue(env(), LocalDate.of(2014, 1, 22), trade);
+    assertEquals(pv.getAmount(), -7352.973875972721, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------

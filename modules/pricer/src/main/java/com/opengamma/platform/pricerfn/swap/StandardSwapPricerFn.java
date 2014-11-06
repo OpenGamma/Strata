@@ -44,7 +44,7 @@ public class StandardSwapPricerFn implements SwapPricerFn {
    */
   private final FixedRateAccrualPeriodPricerFn fixedPricerFn;
   /**
-   * Fixed accrual pricer.
+   * Floating accrual pricer.
    */
   private final FloatingRateAccrualPeriodPricerFn floatingPricerFn;
 
@@ -162,34 +162,28 @@ public class StandardSwapPricerFn implements SwapPricerFn {
       }
       return total;
     }
-    AccrualPeriod accrualPeriod = paymentPeriod.getAccrualPeriod(0);
+    // no compounding
+    return paymentPeriod.getAccrualPeriods().stream()
+        .mapToDouble(p -> presentValueAccrualPeriod(env, valuationDate, paymentPeriod, p))
+        .sum();
+  }
+
+  // present value
+  private double presentValueAccrualPeriod(
+      PricingEnvironment env,
+      LocalDate valuationDate,
+      SwapPaymentPeriod paymentPeriod,
+      AccrualPeriod accrualPeriod) {    
     // fixed
     if (accrualPeriod instanceof FixedRateAccrualPeriod) {
-      return fixedAccrual(env, valuationDate, paymentPeriod, (FixedRateAccrualPeriod) accrualPeriod);
+      FixedRateAccrualPeriod fixedPeriod = (FixedRateAccrualPeriod) accrualPeriod;
+      return fixedPricerFn.presentValue(env, valuationDate, fixedPeriod, paymentPeriod.getPaymentDate());
+    } else if (accrualPeriod instanceof FloatingRateAccrualPeriod) {
+      FloatingRateAccrualPeriod floatingPeriod = (FloatingRateAccrualPeriod) accrualPeriod;
+      return floatingPricerFn.presentValue(env, valuationDate, floatingPeriod, paymentPeriod.getPaymentDate());
+    } else {
+      throw new IllegalArgumentException("Unknown AccrualPeriod type");
     }
-    // floating
-    return floatingAccrual(env, valuationDate, paymentPeriod, (FloatingRateAccrualPeriod) accrualPeriod);
-  }
-
-  //-------------------------------------------------------------------------
-  // fixed
-  private double fixedAccrual(
-      PricingEnvironment env,
-      LocalDate valuationDate,
-      SwapPaymentPeriod paymentPeriod,
-      FixedRateAccrualPeriod accrualPeriod) {
-    
-    return fixedPricerFn.presentValue(env, valuationDate, accrualPeriod, paymentPeriod.getPaymentDate());
-  }
-
-  //-------------------------------------------------------------------------
-  private double floatingAccrual(
-      PricingEnvironment env,
-      LocalDate valuationDate,
-      SwapPaymentPeriod paymentPeriod,
-      FloatingRateAccrualPeriod accrualPeriod) {
-    
-    return floatingPricerFn.presentValue(env, valuationDate, accrualPeriod, paymentPeriod.getPaymentDate());
   }
 
   //-------------------------------------------------------------------------
