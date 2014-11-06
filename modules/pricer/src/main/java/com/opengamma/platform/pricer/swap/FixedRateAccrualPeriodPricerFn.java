@@ -12,6 +12,8 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
  * Pricer for fixed rate accrual periods.
+ * <p>
+ * Implementations must be immutable and thread-safe functions.
  */
 public interface FixedRateAccrualPeriodPricerFn {
 
@@ -26,7 +28,7 @@ public interface FixedRateAccrualPeriodPricerFn {
    * @param paymentDate  the date that the accrual will be paid on
    * @return the present value of the period
    */
-  public double presentValue(
+  public abstract double presentValue(
       PricingEnvironment env,
       LocalDate valuationDate,
       FixedRateAccrualPeriod period,
@@ -42,7 +44,7 @@ public interface FixedRateAccrualPeriodPricerFn {
    * @param period  the period to price
    * @return the future value of the period
    */
-  public double futureValue(
+  public abstract double futureValue(
       PricingEnvironment env,
       LocalDate valuationDate,
       FixedRateAccrualPeriod period);

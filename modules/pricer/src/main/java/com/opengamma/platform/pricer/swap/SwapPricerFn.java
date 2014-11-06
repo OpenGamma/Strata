@@ -13,6 +13,8 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
  * Pricer for swaps.
+ * <p>
+ * Implementations must be immutable and thread-safe functions.
  */
 public interface SwapPricerFn {
 
@@ -24,6 +26,9 @@ public interface SwapPricerFn {
    * @param trade  the trade to price
    * @return the present value of the swap
    */
-  public CurrencyAmount presentValue(PricingEnvironment env, LocalDate valuationDate, SwapTrade trade);
+  public abstract CurrencyAmount presentValue(
+      PricingEnvironment env,
+      LocalDate valuationDate,
+      SwapTrade trade);
 
 }

@@ -97,9 +97,10 @@ public class StandardFloatingRateAccrualPeriodPricerFn
     LocalDate fixingEndDate2 = index2.calculateMaturityFromEffective(fixingStartDate2);
     double rate1 = env.indexRate(index1, valuationDate, fixingDate);
     double rate2 = env.indexRate(index2, valuationDate, fixingDate);
-    double days1 = fixingEndDate1.toEpochDay() - fixingDate.toEpochDay();
-    double days2 = fixingEndDate2.toEpochDay() - fixingDate.toEpochDay();
-    double daysN = period.getEndDate().toEpochDay() - fixingDate.toEpochDay();
+    long fixingEpochDay = fixingDate.toEpochDay();
+    double days1 = fixingEndDate1.toEpochDay() - fixingEpochDay;
+    double days2 = fixingEndDate2.toEpochDay() - fixingEpochDay;
+    double daysN = period.getEndDate().toEpochDay() - fixingEpochDay;
     double weight1 = (days2 - daysN) / (days2 - days1);
     double weight2 = (daysN - days1) / (days2 - days1);
     double rate = ((rate1 * weight1) + (rate2 * weight2)) / (weight1 + weight2);

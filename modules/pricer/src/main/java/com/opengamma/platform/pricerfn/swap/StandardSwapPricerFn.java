@@ -48,6 +48,12 @@ public class StandardSwapPricerFn implements SwapPricerFn {
    */
   private final FloatingRateAccrualPeriodPricerFn floatingPricerFn;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param fixedPricerFn  the pricer for {@link FixedRateAccrualPeriod}
+   * @param floatingPricerFn  the pricer for {@link FloatingRateAccrualPeriod}
+   */
   public StandardSwapPricerFn(
       FixedRateAccrualPeriodPricerFn fixedPricerFn,
       FloatingRateAccrualPeriodPricerFn floatingPricerFn) {
