@@ -47,7 +47,7 @@ public enum LongShort {
    * Converts a boolean "is long" flag to the enum value.
    * 
    * @param isLong  the long flag, true for long, false for short
-   * @return the equivalent enum, not null
+   * @return the equivalent enum
    */
   public static LongShort ofLong(boolean isLong) {
     return isLong ? LONG : SHORT;

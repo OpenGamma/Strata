@@ -5,6 +5,8 @@
  */
 package com.opengamma.basics.schedule;
 
+import java.util.Optional;
+
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -28,21 +30,34 @@ public final class ScheduleException
    * 
    * @param msgTemplate  the message template
    * @param msgArguments  the message arguments
-   * @param definition  the invalid schedule definition, may be null
+   */
+  public ScheduleException(String msgTemplate, Object... msgArguments) {
+    super(ArgChecker.formatMessage(msgTemplate, msgArguments));
+    this.definition = null;
+  }
+
+  /**
+   * Creates an instance, specifying the definition that caused the problem.
+   * <p>
+   * The message is formatted using {@link ArgChecker#formatMessage(String, Object...)}.
+   * 
+   * @param definition  the invalid schedule definition
+   * @param msgTemplate  the message template
+   * @param msgArguments  the message arguments
    */
   public ScheduleException(PeriodicSchedule definition, String msgTemplate, Object... msgArguments) {
     super(ArgChecker.formatMessage(msgTemplate, msgArguments));
-    this.definition = definition;
+    this.definition = definition;  // not validating for non-null to avoid exceptions from exceptions
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the invalid schedule definition.
    * 
-   * @return the definition, may be null
+   * @return the optional definition
    */
-  public PeriodicSchedule getDefinition() {
-    return definition;
+  public Optional<PeriodicSchedule> getDefinition() {
+    return Optional.ofNullable(definition);
   }
 
 }

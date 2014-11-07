@@ -47,7 +47,7 @@ public enum PayReceive {
    * Converts a boolean "is pay" flag to the enum value.
    * 
    * @param isPay  the pay flag, true for pay, false for receive
-   * @return the equivalent enum, not null
+   * @return the equivalent enum
    */
   public static PayReceive ofPay(boolean isPay) {
     return isPay ? PAY : RECEIVE;

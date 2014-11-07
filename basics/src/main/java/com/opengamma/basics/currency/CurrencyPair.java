@@ -110,7 +110,7 @@ public final class CurrencyPair
   /**
    * Checks if the currency pair contains the supplied currency as either its base or counter.
    * 
-   * @param currency  the currency to check against the pair, null returns false
+   * @param currency  the currency to check against the pair
    * @return true if the currency is either the base or counter currency in the pair
    */
   public boolean contains(Currency currency) {
