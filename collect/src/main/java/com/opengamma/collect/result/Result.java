@@ -314,6 +314,16 @@ public final class Result<T>
     this.failure = failure;
   }
 
+  @ImmutableValidator
+  private void validate() {
+    if (value == null && failure == null) {
+      throw new IllegalArgumentException("Both value and failure are null");
+    }
+    if (value != null && failure != null) {
+      throw new IllegalArgumentException("Both value and failure are non-null");
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Indicates if this result represents a successful call and has a result available.
@@ -491,16 +501,6 @@ public final class Result<T>
       return Objects.requireNonNull(function.apply(value, other.value));
     } else {
       return Result.failure(this, other);
-    }
-  }
-
-  @ImmutableValidator
-  private void validate() {
-    if (value == null && failure == null) {
-      throw new IllegalArgumentException("Both value and failure are null");
-    }
-    if (value != null && failure != null) {
-      throw new IllegalArgumentException("Both value and failure are non-null");
     }
   }
 
