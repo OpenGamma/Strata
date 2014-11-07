@@ -57,7 +57,7 @@ public interface DayCount
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the day count between the specified dates.
+   * Gets the year fraction between the specified dates.
    * <p>
    * Given two dates, this method returns the fraction of a year between these
    * dates according to the convention.
@@ -65,28 +65,28 @@ public interface DayCount
    * This uses the simple {@link ScheduleInfo} which is insufficient to be able
    * to calculate certain day counts.
    * 
-   * @param firstDate  the earlier date, which should be a schedule period date
-   * @param secondDate  the later date
-   * @return the day count fraction
+   * @param firstDate  the first date
+   * @param secondDate  the second date, on or after the first date
+   * @return the year fraction
    * @throws UnsupportedOperationException if the day count cannot be obtained
    */
-  public default double getDayCountFraction(LocalDate firstDate, LocalDate secondDate) {
-    return getDayCountFraction(firstDate, secondDate, ScheduleInfo.SIMPLE);
+  public default double yearFraction(LocalDate firstDate, LocalDate secondDate) {
+    return yearFraction(firstDate, secondDate, ScheduleInfo.SIMPLE);
   }
 
   /**
-   * Gets the day count between the specified dates.
+   * Gets the year fraction between the specified dates.
    * <p>
    * Given two dates, this method returns the fraction of a year between these
    * dates according to the convention.
    * 
-   * @param firstDate  the earlier date, which should be a schedule period date
-   * @param secondDate  the later date
+   * @param firstDate  the first date
+   * @param secondDate  the second date, on or after the first date
    * @param scheduleInfo  the schedule information
-   * @return the day count fraction
+   * @return the year fraction
    * @throws UnsupportedOperationException if the day count cannot be obtained
    */
-  public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
+  public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
 
   /**
    * Gets the name that uniquely identifies this convention.

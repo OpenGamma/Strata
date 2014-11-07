@@ -114,7 +114,7 @@ public class SchedulePeriodTest {
   //-------------------------------------------------------------------------
   public void test_yearFraction() {
     SchedulePeriod test = SchedulePeriod.of(INITIAL, JUN_16, JUL_18, JUN_16, JUL_17, P1M, DAY_17);
-    assertEquals(test.yearFraction(DayCounts.ACT_360), DayCounts.ACT_360.getDayCountFraction(JUN_16, JUL_18, test), TOLERANCE);
+    assertEquals(test.yearFraction(DayCounts.ACT_360), DayCounts.ACT_360.yearFraction(JUN_16, JUL_18, test), TOLERANCE);
   }
 
   public void test_yearFraction_null() {

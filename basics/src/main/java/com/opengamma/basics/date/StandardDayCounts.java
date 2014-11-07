@@ -21,8 +21,7 @@ enum StandardDayCounts implements DayCount {
   // always one
   ONE_ONE("1/1") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       return 1;
     }
   },
@@ -30,8 +29,7 @@ enum StandardDayCounts implements DayCount {
   // actual days / actual days in year
   ACT_ACT_ISDA("Act/Act ISDA") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       int y1 = firstDate.getYear();
       int y2 = secondDate.getYear();
       double firstYearLength = firstDate.lengthOfYear();
@@ -51,8 +49,7 @@ enum StandardDayCounts implements DayCount {
   // complex ICMA calculation
   ACT_ACT_ICMA("Act/Act ICMA") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       // avoid using ScheduleInfo in this case
       if (firstDate.equals(secondDate)) {
         return 0d;
@@ -124,8 +121,7 @@ enum StandardDayCounts implements DayCount {
   // AFB year-based calculation
   ACT_ACT_AFB("Act/Act AFB") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       // tests show that there is no need to perform an initial check of period less than
       // or equal one year when using the OpenGamma interpretation of end-of-February rule
       // calculate the number of whole years back from the end
@@ -148,8 +144,8 @@ enum StandardDayCounts implements DayCount {
   // actual days / 365 or 366
   ACT_365_ACTUAL("Act/365 Actual") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      long actualDays = actualDays(firstDate, secondDate);
       LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
       return actualDays / (nextLeap.isAfter(secondDate) ? 365d : 366d);
     }
@@ -158,8 +154,8 @@ enum StandardDayCounts implements DayCount {
   // actual days / 365 or 366
   ACT_365L("Act/365L") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      long actualDays = actualDays(firstDate, secondDate);
       // avoid using ScheduleInfo in this case
       if (firstDate.equals(secondDate)) {
         return 0d;
@@ -178,44 +174,40 @@ enum StandardDayCounts implements DayCount {
   // simple actual days / 360
   ACT_360("Act/360") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
-      return actualDays / 360d;
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      return actualDays(firstDate, secondDate) / 360d;
     }
   },
 
   // simple actual days / 364
   ACT_364("Act/364") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
-      return actualDays / 364d;
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      return actualDays(firstDate, secondDate) / 364d;
     }
   },
 
   // simple actual days / 365
   ACT_365F("Act/365F") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
-      return actualDays / 365d;
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      return actualDays(firstDate, secondDate) / 365d;
     }
   },
 
   // simple actual days / 365.25
   ACT_365_25("Act/365.25") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
-      return actualDays / 365.25d;
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      return actualDays(firstDate, secondDate) / 365.25d;
     }
   },
 
   // no leaps / 365
   NL_365("NL/365") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = checkGetActualDays(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+      long actualDays = actualDays(firstDate, secondDate);
       int numberOfLeapDays = 0;
       LocalDate temp = DateAdjusters.nextLeapDay(firstDate);
       while (temp.isAfter(secondDate) == false) {
@@ -229,8 +221,7 @@ enum StandardDayCounts implements DayCount {
   // ISDA thirty day months / 360
   THIRTY_360_ISDA("30/360 ISDA") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       int d1 = firstDate.getDayOfMonth();
       int d2 = secondDate.getDayOfMonth();
       if (d1 == 31) {
@@ -248,8 +239,7 @@ enum StandardDayCounts implements DayCount {
   // US thirty day months / 360
   THIRTY_U_360("30U/360") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       int d1 = firstDate.getDayOfMonth();
       int d2 = secondDate.getDayOfMonth();
       boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
@@ -275,8 +265,7 @@ enum StandardDayCounts implements DayCount {
   // ISDA EU thirty day months / 360
   THIRTY_E_360_ISDA("30E/360 ISDA") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       int d1 = firstDate.getDayOfMonth();
       int d2 = secondDate.getDayOfMonth();
       boolean lastFeb1 = (firstDate.getMonthValue() == 2 && d1 == firstDate.lengthOfMonth());
@@ -296,8 +285,7 @@ enum StandardDayCounts implements DayCount {
   // E thirty day months / 360
   THIRTY_E_360("30E/360") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       int d1 = firstDate.getDayOfMonth();
       int d2 = secondDate.getDayOfMonth();
       if (d1 == 31) {
@@ -315,8 +303,7 @@ enum StandardDayCounts implements DayCount {
   // E+ thirty day months / 360
   THIRTY_EPLUS_360("30E+/360") {
     @Override
-    public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      check(firstDate, secondDate, scheduleInfo);
+    public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
       int d1 = firstDate.getDayOfMonth();
       int d2 = secondDate.getDayOfMonth();
       int m1 = firstDate.getMonthValue();
@@ -347,23 +334,24 @@ enum StandardDayCounts implements DayCount {
     return (360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)) / 360d;
   }
 
-  // validate inputs and return actual days difference
-  private static long checkGetActualDays(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-    ArgChecker.notNull(firstDate, "firstDate");
-    ArgChecker.notNull(secondDate, "secondDate");
-    ArgChecker.notNull(scheduleInfo, "scheduleInfo");
-    long actualDays = secondDate.toEpochDay() - firstDate.toEpochDay();
-    ArgChecker.isTrue(actualDays >= 0, "Dates must be in order");
-    return actualDays;
+  // return actual days difference between the dates
+  private static long actualDays(LocalDate firstDate, LocalDate secondDate) {
+    return secondDate.toEpochDay() - firstDate.toEpochDay();
   }
 
-  // validate inputs
-  private static void check(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+  @Override
+  public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
     ArgChecker.notNull(firstDate, "firstDate");
     ArgChecker.notNull(secondDate, "secondDate");
     ArgChecker.notNull(scheduleInfo, "scheduleInfo");
-    ArgChecker.isFalse(secondDate.isBefore(firstDate), "Dates must be in order");
+    if (secondDate.isBefore(firstDate)) {
+      throw new IllegalArgumentException("Dates must be in time-line order");
+    }
+    return calculateYearFraction(firstDate, secondDate, scheduleInfo);
   }
+
+  // calculate the year fraction, using validated inputs
+  abstract double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
 
   @Override
   public String getName() {

@@ -69,7 +69,7 @@ public final class DayCounts {
    * Due to the way that the nominal periods are determined ignoring business day adjustments,
    * this day count is recommended for use by bonds, not swaps.
    * <p>
-   * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will throw an
+   * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will throw an
    * exception because schedule information is required for this day count.
    * <p>
    * Also known as 'Actual/Actual ICMA' or 'Actual/Actual (Bond)'.
@@ -147,7 +147,7 @@ public final class DayCounts {
    * If the frequency is not annual, the the denominator is 366 if the period end date
    * is in a leap year, if not it is 365.
    * <p>
-   * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will throw an
+   * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will throw an
    * exception because schedule information is required for this day count.
    * <p>
    * Also known as 'Act/365 Leap year'.
@@ -233,7 +233,7 @@ public final class DayCounts {
    * This is the same as '30/360 ISDA' if the EOM convention does not apply
    * but with two additional end of February rules if the EOM does apply.
    * <p>
-   * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will assume
+   * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will assume
    * that the end-of-month rule applies.
    * <p>
    * Also known as '30/360 US', '30US/360' or '30/360 SIA'.
@@ -250,7 +250,7 @@ public final class DayCounts {
    * If the second date is the last day of February and it is not the maturity date,
    * change the second day-of-month to 30.
    * <p>
-   * The method {@link DayCount#getDayCountFraction(LocalDate, LocalDate)} will assume
+   * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will assume
    * that the second date is not the maturity date.
    * <p>
    * Also known as '30E/360 German' or 'German'.
