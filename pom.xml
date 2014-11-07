@@ -201,7 +201,7 @@
       <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
-        <version>1.7.0</version>
+        <version>${assertj.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.code.findbugs</groupId>
@@ -325,6 +325,7 @@
     <guava.version>17.0</guava.version>
     <joda-convert.version>1.7</joda-convert.version>
     <joda-beans.version>1.2</joda-beans.version>
+    <assertj.version>1.7.0</assertj.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma</h1>]]></doctitle>
