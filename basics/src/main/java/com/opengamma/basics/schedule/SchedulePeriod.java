@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
+import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.collect.ArgChecker;
 
@@ -208,6 +209,19 @@ public final class SchedulePeriod
     } else {
       return false;
     }
+  }
+
+  /**
+   * Calculates the year fraction using the specified day count.
+   * <p>
+   * Additional information from this period is made available to the day count algorithm.
+   * 
+   * @param dayCount  the day count convention
+   * @return the year fraction, calculated via the day count
+   */
+  public double yearFraction(DayCount dayCount) {
+    ArgChecker.notNull(dayCount, "dayCount");
+    return dayCount.getDayCountFraction(startDate, endDate, this);
   }
 
   //-------------------------------------------------------------------------

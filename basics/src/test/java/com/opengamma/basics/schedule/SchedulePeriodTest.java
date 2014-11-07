@@ -16,6 +16,7 @@ import static com.opengamma.basics.schedule.SchedulePeriodType.NORMAL;
 import static com.opengamma.basics.schedule.SchedulePeriodType.TERM;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
 import static java.time.Month.JULY;
@@ -25,6 +26,8 @@ import static org.testng.Assert.assertEquals;
 import java.time.LocalDate;
 
 import org.testng.annotations.Test;
+
+import com.opengamma.basics.date.DayCounts;
 
 /**
  * Test {@link SchedulePeriod}.
@@ -39,6 +42,7 @@ public class SchedulePeriodTest {
   private static final LocalDate JUL_05 = date(2014, JULY, 5);
   private static final LocalDate JUL_17 = date(2014, JULY, 17);
   private static final LocalDate JUL_18 = date(2014, JULY, 18);
+  private static final double TOLERANCE = 1.0E-6;
 
   //-------------------------------------------------------------------------
   public void test_of_null() {
@@ -105,6 +109,17 @@ public class SchedulePeriodTest {
     
     assertEquals(SchedulePeriod.of(NORMAL, JUL_17, date(2014, 8, 16), P1M, DAY_17).isStub(), false);
     assertEquals(SchedulePeriod.of(TERM, JUL_17, date(2014, 8, 16), P1M, DAY_17).isStub(), false);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_yearFraction() {
+    SchedulePeriod test = SchedulePeriod.of(INITIAL, JUN_16, JUL_18, JUN_16, JUL_17, P1M, DAY_17);
+    assertEquals(test.yearFraction(DayCounts.ACT_360), DayCounts.ACT_360.getDayCountFraction(JUN_16, JUL_18, test), TOLERANCE);
+  }
+
+  public void test_yearFraction_null() {
+    SchedulePeriod test = SchedulePeriod.of(INITIAL, JUN_16, JUL_18, JUN_16, JUL_17, P1M, DAY_17);
+    assertThrowsIllegalArg(() -> test.yearFraction(null));
   }
 
   //-------------------------------------------------------------------------
