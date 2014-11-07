@@ -88,19 +88,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- fix TestNG -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <properties>
-            <property>
-              <name>reporter</name>
-              <value>org.testng.reporters.XMLReporter</value>
-            </property>
-          </properties>
-        </configuration>
-      </plugin>
       <!-- create and publish test jar files -->
       <!-- include build number in jar files -->
       <plugin>
@@ -124,6 +111,7 @@
           <excludes>
             <exclude>tests.properties</exclude>
           </excludes>
+          <skipIfEmpty>true</skipIfEmpty>
           <archive>
             <manifestEntries>
               <Implementation-Build>${buildNumber}</Implementation-Build>
@@ -145,7 +133,12 @@
               <goal>jar-no-fork</goal>
             </goals>
             <configuration>
+              <skipIfEmpty>true</skipIfEmpty>
               <archive>
+                <manifest>
+                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                </manifest>
                 <manifestEntries>
                   <Implementation-Build>${buildNumber}</Implementation-Build>
                   <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
@@ -321,8 +314,8 @@
     <joda-convert.version>1.7</joda-convert.version>
     <joda-beans.version>1.2</joda-beans.version>
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OpenGamma</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma</h1>]]></doctitle>
+    <windowtitle>OpenGamma Commons</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Commons</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
     <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
     <javadoc.footer.license></javadoc.footer.license>
