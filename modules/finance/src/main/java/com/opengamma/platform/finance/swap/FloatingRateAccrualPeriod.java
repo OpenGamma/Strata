@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
-import com.opengamma.basics.index.RateIndex;
+import com.opengamma.platform.finance.rate.Rate;
 
 /**
  * A period over which a floating interest rate is accrued.
@@ -99,52 +99,15 @@ public final class FloatingRateAccrualPeriod
   @PropertyDefinition
   private final double yearFraction;
   /**
-   * The floating rate index to be used.
+   * The rate of interest accrual.
    * <p>
-   * The rate to be paid is based on this index.
-   * It will be a well known market rate such as 'GBP-LIBOR-3M'.
+   * The value of the period is based on this rate.
+   * Different implementations of the {@code Rate} interface have different
+   * approaches to calculate the rate, including averaging, overnight and interpolation.
+   * For example, it might be a well known market rate such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final RateIndex index;
-  /**
-   * The floating rate index to be used in linear interpolation.
-   * <p>
-   * The rate to be paid is based on this index and {@code index} with linearly interpolation applied.
-   * A fixing will be obtained for both tenors allowing the rate for the period end date to be interpolated.
-   * <p>
-   * This rate will be a well known market rate such as 'GBP-LIBOR-6M'.
-   * It should be in the same currency as {@code index} and for a different tenor.
-   * One of the two tenors should be shorter than period, the other should be longer.
-   * <p>
-   * Defined by the 2006 ISDA definitions article 8.3 as later clarified.
-   */
-  @PropertyDefinition
-  private final RateIndex indexInterpolated;
-//  /**
-//   * The list of reset dates applicable to this accrual period.
-//   * <p>
-//   * A fixing will be taken at each fixing date.
-//   * There is at least one fixing date in the accrual period.
-//   * If there is more than one then averaging will occur.
-//   */
-//  @PropertyDefinition(validate = "notEmpty")
-//  private final ImmutableList<SchedulePeriod> resetPeriods;
-//  /**
-//   * The list of fixing dates applicable to this accrual period.
-//   * <p>
-//   * A fixing will be taken at each fixing date.
-//   * There is at least one fixing date in the accrual period.
-//   * If there is more than one then averaging will occur.
-//   */
-//  @PropertyDefinition(validate = "notEmpty")
-//  private final ImmutableList<LocalDate> fixingDates;
-  /**
-   * The date of the index fixing.
-   * <p>
-   * This is an adjusted date with any business day applied.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate fixingDate;
+  private final Rate rate;
   /**
    * The negative rate method, defaulted to 'AllowNegative'.
    * <p>
@@ -214,9 +177,7 @@ public final class FloatingRateAccrualPeriod
       FxReset fxReset,
       double notional,
       double yearFraction,
-      RateIndex index,
-      RateIndex indexInterpolated,
-      LocalDate fixingDate,
+      Rate rate,
       NegativeRateMethod negativeRateMethod,
       double gearing,
       double spread) {
@@ -224,8 +185,7 @@ public final class FloatingRateAccrualPeriod
     JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(notional, "notional");
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(fixingDate, "fixingDate");
+    JodaBeanUtils.notNull(rate, "rate");
     JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
     this.startDate = startDate;
     this.endDate = endDate;
@@ -233,9 +193,7 @@ public final class FloatingRateAccrualPeriod
     this.fxReset = fxReset;
     this.notional = notional;
     this.yearFraction = yearFraction;
-    this.index = index;
-    this.indexInterpolated = indexInterpolated;
-    this.fixingDate = fixingDate;
+    this.rate = rate;
     this.negativeRateMethod = negativeRateMethod;
     this.gearing = gearing;
     this.spread = spread;
@@ -337,43 +295,16 @@ public final class FloatingRateAccrualPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the floating rate index to be used.
+   * Gets the rate of interest accrual.
    * <p>
-   * The rate to be paid is based on this index.
-   * It will be a well known market rate such as 'GBP-LIBOR-3M'.
+   * The value of the period is based on this rate.
+   * Different implementations of the {@code Rate} interface have different
+   * approaches to calculate the rate, including averaging, overnight and interpolation.
+   * For example, it might be a well known market rate such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
-  public RateIndex getIndex() {
-    return index;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the floating rate index to be used in linear interpolation.
-   * <p>
-   * The rate to be paid is based on this index and {@code index} with linearly interpolation applied.
-   * A fixing will be obtained for both tenors allowing the rate for the period end date to be interpolated.
-   * <p>
-   * This rate will be a well known market rate such as 'GBP-LIBOR-6M'.
-   * It should be in the same currency as {@code index} and for a different tenor.
-   * One of the two tenors should be shorter than period, the other should be longer.
-   * <p>
-   * Defined by the 2006 ISDA definitions article 8.3 as later clarified.
-   * @return the value of the property
-   */
-  public RateIndex getIndexInterpolated() {
-    return indexInterpolated;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the date of the index fixing.
-   * <p>
-   * This is an adjusted date with any business day applied.
-   * @return the value of the property, not null
-   */
-  public LocalDate getFixingDate() {
-    return fixingDate;
+  public Rate getRate() {
+    return rate;
   }
 
   //-----------------------------------------------------------------------
@@ -443,9 +374,7 @@ public final class FloatingRateAccrualPeriod
           JodaBeanUtils.equal(getFxReset(), other.getFxReset()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
-          JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getIndexInterpolated(), other.getIndexInterpolated()) &&
-          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
+          JodaBeanUtils.equal(getRate(), other.getRate()) &&
           JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod()) &&
           JodaBeanUtils.equal(getGearing(), other.getGearing()) &&
           JodaBeanUtils.equal(getSpread(), other.getSpread());
@@ -462,9 +391,7 @@ public final class FloatingRateAccrualPeriod
     hash += hash * 31 + JodaBeanUtils.hashCode(getFxReset());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexInterpolated());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
     hash += hash * 31 + JodaBeanUtils.hashCode(getGearing());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
@@ -473,7 +400,7 @@ public final class FloatingRateAccrualPeriod
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(416);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("FloatingRateAccrualPeriod{");
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
@@ -481,9 +408,7 @@ public final class FloatingRateAccrualPeriod
     buf.append("fxReset").append('=').append(getFxReset()).append(',').append(' ');
     buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
-    buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("indexInterpolated").append('=').append(getIndexInterpolated()).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
+    buf.append("rate").append('=').append(getRate()).append(',').append(' ');
     buf.append("negativeRateMethod").append('=').append(getNegativeRateMethod()).append(',').append(' ');
     buf.append("gearing").append('=').append(getGearing()).append(',').append(' ');
     buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
@@ -532,20 +457,10 @@ public final class FloatingRateAccrualPeriod
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
         this, "yearFraction", FloatingRateAccrualPeriod.class, Double.TYPE);
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code rate} property.
      */
-    private final MetaProperty<RateIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", FloatingRateAccrualPeriod.class, RateIndex.class);
-    /**
-     * The meta-property for the {@code indexInterpolated} property.
-     */
-    private final MetaProperty<RateIndex> indexInterpolated = DirectMetaProperty.ofImmutable(
-        this, "indexInterpolated", FloatingRateAccrualPeriod.class, RateIndex.class);
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     */
-    private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
-        this, "fixingDate", FloatingRateAccrualPeriod.class, LocalDate.class);
+    private final MetaProperty<Rate> rate = DirectMetaProperty.ofImmutable(
+        this, "rate", FloatingRateAccrualPeriod.class, Rate.class);
     /**
      * The meta-property for the {@code negativeRateMethod} property.
      */
@@ -572,9 +487,7 @@ public final class FloatingRateAccrualPeriod
         "fxReset",
         "notional",
         "yearFraction",
-        "index",
-        "indexInterpolated",
-        "fixingDate",
+        "rate",
         "negativeRateMethod",
         "gearing",
         "spread");
@@ -600,12 +513,8 @@ public final class FloatingRateAccrualPeriod
           return notional;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 100346066:  // index
-          return index;
-        case -1934091915:  // indexInterpolated
-          return indexInterpolated;
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case 3493088:  // rate
+          return rate;
         case 1969081334:  // negativeRateMethod
           return negativeRateMethod;
         case -91774989:  // gearing
@@ -681,27 +590,11 @@ public final class FloatingRateAccrualPeriod
     }
 
     /**
-     * The meta-property for the {@code index} property.
+     * The meta-property for the {@code rate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RateIndex> index() {
-      return index;
-    }
-
-    /**
-     * The meta-property for the {@code indexInterpolated} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<RateIndex> indexInterpolated() {
-      return indexInterpolated;
-    }
-
-    /**
-     * The meta-property for the {@code fixingDate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<LocalDate> fixingDate() {
-      return fixingDate;
+    public MetaProperty<Rate> rate() {
+      return rate;
     }
 
     /**
@@ -744,12 +637,8 @@ public final class FloatingRateAccrualPeriod
           return ((FloatingRateAccrualPeriod) bean).getNotional();
         case -1731780257:  // yearFraction
           return ((FloatingRateAccrualPeriod) bean).getYearFraction();
-        case 100346066:  // index
-          return ((FloatingRateAccrualPeriod) bean).getIndex();
-        case -1934091915:  // indexInterpolated
-          return ((FloatingRateAccrualPeriod) bean).getIndexInterpolated();
-        case 1255202043:  // fixingDate
-          return ((FloatingRateAccrualPeriod) bean).getFixingDate();
+        case 3493088:  // rate
+          return ((FloatingRateAccrualPeriod) bean).getRate();
         case 1969081334:  // negativeRateMethod
           return ((FloatingRateAccrualPeriod) bean).getNegativeRateMethod();
         case -91774989:  // gearing
@@ -783,9 +672,7 @@ public final class FloatingRateAccrualPeriod
     private FxReset fxReset;
     private double notional;
     private double yearFraction;
-    private RateIndex index;
-    private RateIndex indexInterpolated;
-    private LocalDate fixingDate;
+    private Rate rate;
     private NegativeRateMethod negativeRateMethod;
     private double gearing;
     private double spread;
@@ -808,9 +695,7 @@ public final class FloatingRateAccrualPeriod
       this.fxReset = beanToCopy.getFxReset();
       this.notional = beanToCopy.getNotional();
       this.yearFraction = beanToCopy.getYearFraction();
-      this.index = beanToCopy.getIndex();
-      this.indexInterpolated = beanToCopy.getIndexInterpolated();
-      this.fixingDate = beanToCopy.getFixingDate();
+      this.rate = beanToCopy.getRate();
       this.negativeRateMethod = beanToCopy.getNegativeRateMethod();
       this.gearing = beanToCopy.getGearing();
       this.spread = beanToCopy.getSpread();
@@ -832,12 +717,8 @@ public final class FloatingRateAccrualPeriod
           return notional;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 100346066:  // index
-          return index;
-        case -1934091915:  // indexInterpolated
-          return indexInterpolated;
-        case 1255202043:  // fixingDate
-          return fixingDate;
+        case 3493088:  // rate
+          return rate;
         case 1969081334:  // negativeRateMethod
           return negativeRateMethod;
         case -91774989:  // gearing
@@ -870,14 +751,8 @@ public final class FloatingRateAccrualPeriod
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
           break;
-        case 100346066:  // index
-          this.index = (RateIndex) newValue;
-          break;
-        case -1934091915:  // indexInterpolated
-          this.indexInterpolated = (RateIndex) newValue;
-          break;
-        case 1255202043:  // fixingDate
-          this.fixingDate = (LocalDate) newValue;
+        case 3493088:  // rate
+          this.rate = (Rate) newValue;
           break;
         case 1969081334:  // negativeRateMethod
           this.negativeRateMethod = (NegativeRateMethod) newValue;
@@ -927,9 +802,7 @@ public final class FloatingRateAccrualPeriod
           fxReset,
           notional,
           yearFraction,
-          index,
-          indexInterpolated,
-          fixingDate,
+          rate,
           negativeRateMethod,
           gearing,
           spread);
@@ -1001,34 +874,13 @@ public final class FloatingRateAccrualPeriod
     }
 
     /**
-     * Sets the {@code index} property in the builder.
-     * @param index  the new value, not null
+     * Sets the {@code rate} property in the builder.
+     * @param rate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder index(RateIndex index) {
-      JodaBeanUtils.notNull(index, "index");
-      this.index = index;
-      return this;
-    }
-
-    /**
-     * Sets the {@code indexInterpolated} property in the builder.
-     * @param indexInterpolated  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder indexInterpolated(RateIndex indexInterpolated) {
-      this.indexInterpolated = indexInterpolated;
-      return this;
-    }
-
-    /**
-     * Sets the {@code fixingDate} property in the builder.
-     * @param fixingDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixingDate(LocalDate fixingDate) {
-      JodaBeanUtils.notNull(fixingDate, "fixingDate");
-      this.fixingDate = fixingDate;
+    public Builder rate(Rate rate) {
+      JodaBeanUtils.notNull(rate, "rate");
+      this.rate = rate;
       return this;
     }
 
@@ -1066,7 +918,7 @@ public final class FloatingRateAccrualPeriod
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(416);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("FloatingRateAccrualPeriod.Builder{");
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
@@ -1074,9 +926,7 @@ public final class FloatingRateAccrualPeriod
       buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
-      buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("indexInterpolated").append('=').append(JodaBeanUtils.toString(indexInterpolated)).append(',').append(' ');
-      buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
+      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
       buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod)).append(',').append(' ');
       buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing)).append(',').append(' ');
       buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));

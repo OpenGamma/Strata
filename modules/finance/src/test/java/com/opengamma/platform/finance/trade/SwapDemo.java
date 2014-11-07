@@ -32,7 +32,6 @@ import com.opengamma.basics.value.ValueStep;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.swap.FixedRateCalculation;
 import com.opengamma.platform.finance.swap.FixedRateSwapLeg;
-import com.opengamma.platform.finance.swap.FixingRelativeTo;
 import com.opengamma.platform.finance.swap.FloatingRateCalculation;
 import com.opengamma.platform.finance.swap.FloatingRateSwapLeg;
 import com.opengamma.platform.finance.swap.NotionalAmount;
@@ -122,7 +121,6 @@ public class SwapDemo {
                 .build())
             .dayCount(DayCounts.ACT_ACT_ISDA)
             .index(RateIndices.EURIBOR_3M)
-            .fixingRelativeTo(FixingRelativeTo.PERIOD_START)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.EUTA))
             .build())
         .build();
@@ -139,7 +137,7 @@ public class SwapDemo {
   }
 
   //-----------------------------------------------------------------------
-  @Test(description = "Demo use of FixedRateSwapLeg")
+  @Test(description = "Demo use of SwapTrade")
   public void test_createVanillaFixedVsLibor3mSwap() {
     BusinessDayAdjustment bda = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY);
     BusinessDayAdjustment bdaPreceding = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.USNY);
@@ -181,7 +179,6 @@ public class SwapDemo {
             .notional(NotionalAmount.of(CurrencyAmount.of(Currency.USD, 100_000_000)))
             .dayCount(DayCounts.ACT_360)
             .index(RateIndices.USD_LIBOR_3M)
-            .fixingRelativeTo(FixingRelativeTo.PERIOD_START)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.USNY, bdaPreceding))
             .build())
         .build();
@@ -194,6 +191,61 @@ public class SwapDemo {
     
     System.out.println("===== Trade =====");
     System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(trade));
+  }
+
+  //-----------------------------------------------------------------------
+  @Test(description = "Demo use of SwapTrade")
+  public void test_createGbpFixedVsLibor3mSwap() {
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.GBLO);
+    
+    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
+        .accrualPeriods(PeriodicSchedule.builder()
+            .startDate(LocalDate.of(2014, 2, 18))
+            .endDate(LocalDate.of(2019, 2, 18))
+            .frequency(Frequency.P3M)
+            .businessDayAdjustment(bda)
+            .build())
+        .paymentPeriods(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P3M)
+            .paymentOffset(DaysAdjustment.NONE)
+            .build())
+        .calculation(FixedRateCalculation.builder()
+            .payReceive(PayReceive.PAY)
+            .notional(NotionalAmount.of(CurrencyAmount.of(Currency.GBP, 1_000_000)))
+            .dayCount(DayCounts.ACT_365F)
+            .rate(ValueSchedule.of(0.02))
+            .build())
+        .build();
+    
+    FloatingRateSwapLeg receiveLeg = FloatingRateSwapLeg.builder()
+        .accrualPeriods(PeriodicSchedule.builder()
+            .startDate(LocalDate.of(2014, 2, 18))
+            .endDate(LocalDate.of(2019, 2, 18))
+            .frequency(Frequency.P3M)
+            .businessDayAdjustment(bda)
+            .build())
+        .paymentPeriods(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.P3M)
+            .paymentOffset(DaysAdjustment.NONE)
+            .build())
+        .calculation(FloatingRateCalculation.builder()
+            .payReceive(PayReceive.RECEIVE)
+            .notional(NotionalAmount.of(CurrencyAmount.of(Currency.GBP, 1_000_000)))
+            .dayCount(DayCounts.ACT_365F)
+            .index(RateIndices.GBP_LIBOR_3M)
+            .fixingOffset(DaysAdjustment.NONE)
+            .build())
+        .build();
+    
+    SwapTrade trade = SwapTrade.builder()
+        .standardId(StandardId.of("OG-Trade", "1"))
+        .tradeDate(LocalDate.of(2014, 2, 16))
+        .swap(Swap.of(payLeg, receiveLeg))
+        .build();
+    
+    System.out.println("===== GBP Trade =====");
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(trade.getSwap().getLeg(0).toExpanded()));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(trade.getSwap().getLeg(1).toExpanded()));
   }
 
   //-----------------------------------------------------------------------

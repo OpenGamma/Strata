@@ -9,9 +9,6 @@ import static com.google.common.base.Objects.firstNonNull;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -35,10 +32,18 @@ import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.DaysAdjustment;
+import com.opengamma.basics.index.IborIndex;
+import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.basics.index.RateIndex;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.basics.value.ValueSchedule;
+import com.opengamma.platform.finance.rate.FixedRate;
+import com.opengamma.platform.finance.rate.IborInterpolatedRate;
+import com.opengamma.platform.finance.rate.IborRate;
+import com.opengamma.platform.finance.rate.OvernightCompoundedRate;
+import com.opengamma.platform.finance.rate.Rate;
 
 /**
  * Defines the calculation of a floating rate swap leg.
@@ -262,101 +267,63 @@ public final class FloatingRateCalculation
     List<Double> resolvedNotionals = notional.getAmount().resolveValues(schedule.getPeriods());
     List<Double> resolvedGearings = firstNonNull(gearing, ValueSchedule.of(1)).resolveValues(schedule.getPeriods());
     List<Double> resolvedSpreads = firstNonNull(spread, ValueSchedule.of(0)).resolveValues(schedule.getPeriods());
-    List<Double> resolvedRates = resolveFixedRates(schedule.size(), hasInitialStub, hasFinalStub);
-    List<RateIndex> resolvedIndices = resolveIndices(schedule.size(), hasInitialStub, hasFinalStub);
-    List<RateIndex> resolveInterpolated = resolveInterpolatedIndices(schedule.size(), hasInitialStub, hasFinalStub);
     Currency currency = notional.getCurrency();
     FxResetNotional fxResetNotional = notional.getFxReset();
     // build accrual periods
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
-      Double fixedRate = resolvedRates.get(i);
-      if (fixedRate != null) {
-        // floating rate overridden by fixed rate
-        accrualPeriods.add(FixedRateAccrualPeriod.builder()
-            .startDate(period.getStartDate())
-            .endDate(period.getEndDate())
-            .yearFraction(createYearFraction(period))
-            .currency(currency)
-            .fxReset(createFxReset(fxResetNotional, currency, period))
-            .notional(payReceive.normalize(resolvedNotionals.get(i)))
-            .rate(negativeRateMethod.adjust(fixedRate * resolvedGearings.get(i) + resolvedSpreads.get(i)))
-            .build());
-      } else {
-        // floating rate needed
-        accrualPeriods.add(FloatingRateAccrualPeriod.builder()
-            .startDate(period.getStartDate())
-            .endDate(period.getEndDate())
-            .yearFraction(createYearFraction(period))
-            .currency(currency)
-            .fxReset(createFxReset(fxResetNotional, currency, period))
-            .notional(payReceive.normalize(resolvedNotionals.get(i)))
-            .index(resolvedIndices.get(i))
-            .indexInterpolated(resolveInterpolated.get(i))
-            .fixingDate(createFixingDate(period))
-            .negativeRateMethod(negativeRateMethod)
-            .gearing(resolvedGearings.get(i))
-            .spread(resolvedSpreads.get(i))
-            .build());
-      }
+      accrualPeriods.add(FloatingRateAccrualPeriod.builder()
+          .startDate(period.getStartDate())
+          .endDate(period.getEndDate())
+          .yearFraction(createYearFraction(period))
+          .currency(currency)
+          .fxReset(createFxReset(period, fxResetNotional, currency))
+          .notional(payReceive.normalize(resolvedNotionals.get(i)))
+          .rate(createRate(period, hasInitialStub, hasFinalStub))
+          .negativeRateMethod(negativeRateMethod)
+          .gearing(resolvedGearings.get(i))
+          .spread(resolvedSpreads.get(i))
+          .build());
     }
     return accrualPeriods.build();
   }
 
-  // resolves any fixed rates, list contains null indicating no fixed rate
-  private List<Double> resolveFixedRates(int size, boolean hasInitialStub, boolean hasFinalStub) {
-    // initialStub and finalStub are not-null at this point
-    if ((hasInitialStub && initialStub.isFixedRate()) ||
-        (hasFinalStub && finalStub.isFixedRate()) ||
-        firstRegularRate != null) {
-      Double[] rates = new Double[size];
-      if (hasInitialStub) {
-        rates[0] = initialStub.getRate();
-        rates[1] = firstRegularRate;
-      } else {
-        rates[0] = firstRegularRate;
-      }
-      if (hasFinalStub) {
-        // this will overwrite firstRegularRate if size = 2 (intentional behavior)
-        rates[rates.length - 1] = finalStub.getRate();
-      }
-      return Arrays.asList(rates);
+  // creates the rate instance
+  private Rate createRate(SchedulePeriod period, boolean hasInitialStub, boolean hasFinalStub) {
+    if (hasInitialStub && period.getType() == SchedulePeriodType.INITIAL) {
+      return createStubRate(initialStub, period);
     }
-    return Collections.nCopies(size, null);
+    if (hasFinalStub && finalStub.isFloatingRate() && period.getType() == SchedulePeriodType.FINAL) {
+      return createStubRate(finalStub, period);
+    }
+    if (index instanceof OvernightIndex) {
+      if (resetPeriods != null) {
+        return OvernightCompoundedRate.of((OvernightIndex) index, firstNonNull(resetPeriods.getRateCutOffDaysOffset(), 0));
+      }
+      return OvernightCompoundedRate.of((OvernightIndex) index);
+    } else if (index instanceof IborIndex) {
+      return IborRate.of((IborIndex) index, createFixingDate(period));
+    } else {
+      throw new IllegalArgumentException("Unknown rate type: " + index.getClass().getName());
+    }
+    // TODO fixed rate for first reset
   }
 
-  // resolves any varying indices, list contains no nulls
-  private List<RateIndex> resolveIndices(int size, boolean hasInitialStub, boolean hasFinalStub) {
-    // initialStub and finalStub are not-null at this point
-    List<RateIndex> result = Collections.nCopies(size, index);
-    if ((hasInitialStub && initialStub.isFloatingRate()) ||
-        (hasFinalStub && finalStub.isFloatingRate())) {
-      result = new ArrayList<>(result);
-      if (hasInitialStub && initialStub.isFloatingRate()) {
-        result.set(0, initialStub.getIndex());
-      }
-      if (hasFinalStub && finalStub.isFloatingRate()) {
-        result.set(size - 1, finalStub.getIndex());
-      }
+  // creates the rate for the stub
+  private Rate createStubRate(FloatingRateStub stub, SchedulePeriod period) {
+    if (stub.isInterpolated()) {
+      // TODO cast
+      return IborInterpolatedRate.of(
+          (IborIndex) stub.getIndex(), stub.getIndexInterpolated(), createFixingDate(period));
+    } else if (stub.isFloatingRate()) {
+      // TODO cast
+      return IborRate.of((IborIndex) stub.getIndex(), createFixingDate(period));
+    } else if (stub.isFixedRate()) {
+      return FixedRate.of(stub.getRate());
+    } else {
+      // TODO cast
+      return IborRate.of((IborIndex) index, createFixingDate(period));
     }
-    return result;
-  }
-
-  // resolves any varying linear interpolated indices, list contains null indicating no interpolation
-  private List<RateIndex> resolveInterpolatedIndices(int size, boolean hasInitialStub, boolean hasFinalStub) {
-    // initialStub and finalStub are not-null at this point
-    if ((hasInitialStub && initialStub.isInterpolated()) ||
-        (hasFinalStub && finalStub.isInterpolated())) {
-      RateIndex[] rates = new RateIndex[size];
-      if (hasInitialStub && initialStub.isInterpolated()) {
-        rates[0] = initialStub.getIndexInterpolated();
-      }
-      if (hasFinalStub && finalStub.isInterpolated()) {
-        rates[rates.length - 1] = finalStub.getIndexInterpolated();
-      }
-      return Arrays.asList(rates);
-    }
-    return Collections.nCopies(size, null);
   }
 
   // determine the year fraction
@@ -365,7 +332,7 @@ public final class FloatingRateCalculation
   }
 
   // determine the FX reset
-  private FxReset createFxReset(FxResetNotional fxResetNotional, Currency currency, SchedulePeriod period) {
+  private FxReset createFxReset(SchedulePeriod period, FxResetNotional fxResetNotional, Currency currency) {
     if (fxResetNotional == null || fxResetNotional.getReferenceCurrency().equals(currency)) {
       return null;
     }

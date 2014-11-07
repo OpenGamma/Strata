@@ -18,6 +18,7 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.date.Tenor;
 import com.opengamma.basics.index.RateIndex;
+import com.opengamma.platform.finance.rate.IborRate;
 import com.opengamma.platform.finance.swap.AccrualPeriod;
 import com.opengamma.platform.finance.swap.CompoundingMethod;
 import com.opengamma.platform.finance.swap.FixedRateAccrualPeriod;
@@ -122,16 +123,17 @@ public class StandardSwapPricerFn implements SwapPricerFn {
         double[] fixingStartTimes = new double[periods2.size()];
         double[] fixingEndTimes = new double[periods2.size()];
         double[] fixingYearFractions = new double[periods2.size()];
-        RateIndex index = periods2.get(0).getIndex();  // TODO only one index here
         for (int i = 0; i < periods2.size(); i++) {
-          LocalDate fixingDate = periods2.get(i).getFixingDate();
-          LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
-          LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+          IborRate rate = (IborRate) periods2.get(i).getRate();  // TODO assumes IBOR
+          LocalDate fixingDate = rate.getFixingDate();
+          LocalDate fixingStartDate = rate.getIndex().calculateEffectiveFromFixing(fixingDate);
+          LocalDate fixingEndDate = rate.getIndex().calculateMaturityFromEffective(fixingStartDate);
           fixingRelativeTimes[i] = env.relativeTime(valuationDate, fixingDate);
           fixingStartTimes[i] = env.relativeTime(valuationDate, fixingStartDate);
           fixingEndTimes[i] = env.relativeTime(valuationDate, fixingEndDate);
-          fixingYearFractions[i] = index.getDayCount().getDayCountFraction(fixingStartDate, fixingEndDate);
+          fixingYearFractions[i] = rate.getIndex().getDayCount().getDayCountFraction(fixingStartDate, fixingEndDate);
         }
+        IborRate rate = (IborRate) periods2.get(0).getRate();  // TODO only one index here
         if (paymentPeriod.getCompoundingMethod() == CompoundingMethod.FLAT) {
           CouponIborCompoundingFlatSpread coupon2 = new CouponIborCompoundingFlatSpread(
               currency(paymentPeriod.getCurrency()),
@@ -139,7 +141,7 @@ public class StandardSwapPricerFn implements SwapPricerFn {
               paymentYearFraction2,
               periods2.get(0).getNotional(),
               0,  // TODO historic accrual
-              index(index),
+              index(rate.getIndex()),
               accrualPeriodYearFractions2,
               fixingRelativeTimes,
               fixingStartTimes,
@@ -155,7 +157,7 @@ public class StandardSwapPricerFn implements SwapPricerFn {
               paymentYearFraction2,
               periods2.get(0).getNotional(),
               periods2.get(0).getNotional(),  // TODO historic accrual
-              index(index),
+              index(rate.getIndex()),
               accrualPeriodYearFractions2,
               fixingRelativeTimes,
               fixingStartTimes,

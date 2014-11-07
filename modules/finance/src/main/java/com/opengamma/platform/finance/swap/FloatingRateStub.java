@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.RateIndex;
 
 /**
@@ -78,7 +79,7 @@ public final class FloatingRateStub
    * If this property is non-null, then {@code rate} must be null and {@code index} must be non-null.
    */
   @PropertyDefinition
-  private final RateIndex indexInterpolated;
+  private final IborIndex indexInterpolated;
 
   //-------------------------------------------------------------------------
   /**
@@ -108,7 +109,7 @@ public final class FloatingRateStub
    * @param endIndex  the index that applies at the end of the stub
    * @return the stub
    */
-  public static FloatingRateStub of(RateIndex startIndex, RateIndex endIndex) {
+  public static FloatingRateStub of(RateIndex startIndex, IborIndex endIndex) {
     return new FloatingRateStub(null, startIndex, endIndex);
   }
 
@@ -190,7 +191,7 @@ public final class FloatingRateStub
   private FloatingRateStub(
       Double rate,
       RateIndex index,
-      RateIndex indexInterpolated) {
+      IborIndex indexInterpolated) {
     this.rate = rate;
     this.index = index;
     this.indexInterpolated = indexInterpolated;
@@ -249,7 +250,7 @@ public final class FloatingRateStub
    * If this property is non-null, then {@code rate} must be null and {@code index} must be non-null.
    * @return the value of the property
    */
-  public RateIndex getIndexInterpolated() {
+  public IborIndex getIndexInterpolated() {
     return indexInterpolated;
   }
 
@@ -319,8 +320,8 @@ public final class FloatingRateStub
     /**
      * The meta-property for the {@code indexInterpolated} property.
      */
-    private final MetaProperty<RateIndex> indexInterpolated = DirectMetaProperty.ofImmutable(
-        this, "indexInterpolated", FloatingRateStub.class, RateIndex.class);
+    private final MetaProperty<IborIndex> indexInterpolated = DirectMetaProperty.ofImmutable(
+        this, "indexInterpolated", FloatingRateStub.class, IborIndex.class);
     /**
      * The meta-properties.
      */
@@ -385,7 +386,7 @@ public final class FloatingRateStub
      * The meta-property for the {@code indexInterpolated} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RateIndex> indexInterpolated() {
+    public MetaProperty<IborIndex> indexInterpolated() {
       return indexInterpolated;
     }
 
@@ -422,7 +423,7 @@ public final class FloatingRateStub
 
     private Double rate;
     private RateIndex index;
-    private RateIndex indexInterpolated;
+    private IborIndex indexInterpolated;
 
     /**
      * Restricted constructor.
@@ -465,7 +466,7 @@ public final class FloatingRateStub
           this.index = (RateIndex) newValue;
           break;
         case -1934091915:  // indexInterpolated
-          this.indexInterpolated = (RateIndex) newValue;
+          this.indexInterpolated = (IborIndex) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -531,7 +532,7 @@ public final class FloatingRateStub
      * @param indexInterpolated  the new value
      * @return this, for chaining, not null
      */
-    public Builder indexInterpolated(RateIndex indexInterpolated) {
+    public Builder indexInterpolated(IborIndex indexInterpolated) {
       this.indexInterpolated = indexInterpolated;
       return this;
     }

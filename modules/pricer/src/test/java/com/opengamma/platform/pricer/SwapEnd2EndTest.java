@@ -399,7 +399,7 @@ public class SwapEnd2EndTest {
             .dayCount(ACT_360)
             .index(USD_LIBOR_6M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
-            .initialStub(FloatingRateStub.of(USD_LIBOR_3M, USD_LIBOR_6M))
+            .initialStub(FloatingRateStub.of(USD_LIBOR_3M, (IborIndex) USD_LIBOR_6M))
             .build())
         .build();
     
@@ -437,7 +437,7 @@ public class SwapEnd2EndTest {
             .dayCount(ACT_360)
             .index(USD_LIBOR_6M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
-            .initialStub(FloatingRateStub.of(USD_LIBOR_3M, USD_LIBOR_6M))
+            .initialStub(FloatingRateStub.of(USD_LIBOR_3M, (IborIndex) USD_LIBOR_6M))
             .build())
         .build();
     
