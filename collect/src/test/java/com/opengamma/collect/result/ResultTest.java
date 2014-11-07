@@ -5,6 +5,8 @@
  */
 package com.opengamma.collect.result;
 
+import static com.opengamma.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.collect.TestHelper.assertThrows;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
@@ -16,7 +18,6 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.joda.beans.ImmutableBean;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -29,8 +30,8 @@ import com.opengamma.collect.TestHelper;
 @Test
 public class ResultTest {
 
-  private static final Function<String, Integer> MAP_STRLEN =
-      input -> input.length();
+  private static final Function<String, Integer> MAP_STRLEN = String::length;
+
   private static final Function<String, Result<Integer>> FUNCTION_STRLEN =
       input -> Result.success(input.length());
   private static final BiFunction<String, String, Result<String>> FUNCTION_MERGE =
@@ -44,10 +45,9 @@ public class ResultTest {
     assertEquals(test.getValue(), "success");
   }
 
-  @Test(expectedExceptions = IllegalStateException.class)
   public void success_getFailure() {
     Result<String> test = Result.success("success");
-    test.getFailure();
+    assertThrows(test::getFailure, IllegalStateException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -382,15 +382,72 @@ public class ResultTest {
     assertEquals(d.equals(d), true);
   }
 
+  // Following are tests for Result using the AssertJ assertions
+  // Primarily a test of the assertions themselves
+
+  public void assert_success() {
+    Result<String> test = Result.success("success");
+    assertThat(test)
+        .isSuccess()
+        .hasValue("success");
+  }
+
+  // We can't use assertThrows as that rethrows AssertionError
+  @Test(expectedExceptions = AssertionError.class)
+  public void assert_success_getFailure() {
+    Result<String> test = Result.success("success");
+    assertThat(test).isFailure();
+  }
+
+  public void assert_success_map() {
+    Result<String> success = Result.success("success");
+    Result<Integer> test = success.map(MAP_STRLEN);
+    assertThat(test).isSuccess().hasValue(7);
+  }
+
+  public void assert_success_flatMap() {
+    Result<String> success = Result.success("success");
+    Result<Integer> test = success.flatMap(FUNCTION_STRLEN);
+    assertThat(test).isSuccess().hasValue(7);
+  }
+
+  public void assert_success_ifSuccess() {
+    Result<String> success = Result.success("success");
+    Result<Integer> test = success.ifSuccess(FUNCTION_STRLEN);
+    assertThat(test).isSuccess().hasValue(7);
+  }
+
+  public void assert_success_combineWith_success() {
+    Result<String> success1 = Result.success("Hello");
+    Result<String> success2 = Result.success("World");
+    Result<String> test = success1.combineWith(success2, FUNCTION_MERGE);
+    assertThat(test).isSuccess().hasValue("Hello World");
+  }
+
+  public void assert_success_combineWith_failure() {
+    Result<String> success = Result.success("Hello");
+    Result<String> failure = Result.failure(new IllegalArgumentException());
+    Result<String> test = success.combineWith(failure, FUNCTION_MERGE);
+    assertThat(test).isFailure(FailureReason.ERROR);
+    assertThat(test.getFailure().getItems().size()).isEqualTo(1);
+  }
+
+  public void assert_failure() {
+    Result<String> test = Result.failure(new IllegalArgumentException("failure"));
+    assertThat(test)
+        .isFailure(FailureReason.ERROR)
+        .hasFailureMessageMatching("failure");
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     Result<Object> failure = Result.failure(FailureReason.MISSING_DATA, "message 1");
-    TestHelper.coverImmutableBean((ImmutableBean) failure);
+    TestHelper.coverImmutableBean(failure);
     TestHelper.coverImmutableBean(failure.getFailure());
     TestHelper.coverImmutableBean(failure.getFailure().getItems().iterator().next());
 
     Result<String> success = Result.success("Hello");
-    TestHelper.coverImmutableBean((ImmutableBean) success);
+    TestHelper.coverImmutableBean(success);
 
     TestHelper.coverEnum(FailureReason.class);
   }
