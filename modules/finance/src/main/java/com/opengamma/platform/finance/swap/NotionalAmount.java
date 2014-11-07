@@ -72,6 +72,7 @@ public final class NotionalAmount
    * The notional amount.
    * <p>
    * This defines the notional as an initial amount and a list of adjustments.
+   * The notional expressed here is intended to always be positive.
    */
   @PropertyDefinition(validate = "notNull")
   private final ValueSchedule amount;
@@ -227,6 +228,7 @@ public final class NotionalAmount
    * Gets the notional amount.
    * <p>
    * This defines the notional as an initial amount and a list of adjustments.
+   * The notional expressed here is intended to always be positive.
    * @return the value of the property, not null
    */
   public ValueSchedule getAmount() {

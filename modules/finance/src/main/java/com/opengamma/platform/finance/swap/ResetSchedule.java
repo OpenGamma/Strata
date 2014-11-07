@@ -64,20 +64,6 @@ public final class ResetSchedule
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment resetBusinessDayAdjustment;
   /**
-   * The number of days to cut-off the rate averaging, optional.
-   * <p>
-   * The number of business days before the end date that cut-off occurs.
-   * If more than one reset period contributes to an accrual period then this offset
-   * applies to the last reset period.
-   * The value should only be present if the reset frequency is one day.
-   * <p>
-   * If this property is null, then no rate cut-off applies.
-   * <p>
-   * Defined by the 2006 ISDA definitions article 6.2d.
-   */
-  @PropertyDefinition
-  private final Integer rateCutOffDaysOffset;
-  /**
    * The rate averaging method, defaulted to 'Unweighted'.
    * <p>
    * This is used when more than one fixing contributes to the accrual period.
@@ -121,14 +107,12 @@ public final class ResetSchedule
   private ResetSchedule(
       Frequency resetFrequency,
       BusinessDayAdjustment resetBusinessDayAdjustment,
-      Integer rateCutOffDaysOffset,
       RateAveragingMethod rateAveragingMethod) {
     JodaBeanUtils.notNull(resetFrequency, "resetFrequency");
     JodaBeanUtils.notNull(resetBusinessDayAdjustment, "resetBusinessDayAdjustment");
     JodaBeanUtils.notNull(rateAveragingMethod, "rateAveragingMethod");
     this.resetFrequency = resetFrequency;
     this.resetBusinessDayAdjustment = resetBusinessDayAdjustment;
-    this.rateCutOffDaysOffset = rateCutOffDaysOffset;
     this.rateAveragingMethod = rateAveragingMethod;
   }
 
@@ -173,24 +157,6 @@ public final class ResetSchedule
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of days to cut-off the rate averaging, optional.
-   * <p>
-   * The number of business days before the end date that cut-off occurs.
-   * If more than one reset period contributes to an accrual period then this offset
-   * applies to the last reset period.
-   * The value should only be present if the reset frequency is one day.
-   * <p>
-   * If this property is null, then no rate cut-off applies.
-   * <p>
-   * Defined by the 2006 ISDA definitions article 6.2d.
-   * @return the value of the property
-   */
-  public Integer getRateCutOffDaysOffset() {
-    return rateCutOffDaysOffset;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the rate averaging method, defaulted to 'Unweighted'.
    * <p>
    * This is used when more than one fixing contributes to the accrual period.
@@ -223,7 +189,6 @@ public final class ResetSchedule
       ResetSchedule other = (ResetSchedule) obj;
       return JodaBeanUtils.equal(getResetFrequency(), other.getResetFrequency()) &&
           JodaBeanUtils.equal(getResetBusinessDayAdjustment(), other.getResetBusinessDayAdjustment()) &&
-          JodaBeanUtils.equal(getRateCutOffDaysOffset(), other.getRateCutOffDaysOffset()) &&
           JodaBeanUtils.equal(getRateAveragingMethod(), other.getRateAveragingMethod());
     }
     return false;
@@ -234,18 +199,16 @@ public final class ResetSchedule
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getResetFrequency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getResetBusinessDayAdjustment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRateCutOffDaysOffset());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRateAveragingMethod());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("ResetSchedule{");
     buf.append("resetFrequency").append('=').append(getResetFrequency()).append(',').append(' ');
     buf.append("resetBusinessDayAdjustment").append('=').append(getResetBusinessDayAdjustment()).append(',').append(' ');
-    buf.append("rateCutOffDaysOffset").append('=').append(getRateCutOffDaysOffset()).append(',').append(' ');
     buf.append("rateAveragingMethod").append('=').append(JodaBeanUtils.toString(getRateAveragingMethod()));
     buf.append('}');
     return buf.toString();
@@ -272,11 +235,6 @@ public final class ResetSchedule
     private final MetaProperty<BusinessDayAdjustment> resetBusinessDayAdjustment = DirectMetaProperty.ofImmutable(
         this, "resetBusinessDayAdjustment", ResetSchedule.class, BusinessDayAdjustment.class);
     /**
-     * The meta-property for the {@code rateCutOffDaysOffset} property.
-     */
-    private final MetaProperty<Integer> rateCutOffDaysOffset = DirectMetaProperty.ofImmutable(
-        this, "rateCutOffDaysOffset", ResetSchedule.class, Integer.class);
-    /**
      * The meta-property for the {@code rateAveragingMethod} property.
      */
     private final MetaProperty<RateAveragingMethod> rateAveragingMethod = DirectMetaProperty.ofImmutable(
@@ -288,7 +246,6 @@ public final class ResetSchedule
         this, null,
         "resetFrequency",
         "resetBusinessDayAdjustment",
-        "rateCutOffDaysOffset",
         "rateAveragingMethod");
 
     /**
@@ -304,8 +261,6 @@ public final class ResetSchedule
           return resetFrequency;
         case -1777046470:  // resetBusinessDayAdjustment
           return resetBusinessDayAdjustment;
-        case -453973897:  // rateCutOffDaysOffset
-          return rateCutOffDaysOffset;
         case 154998811:  // rateAveragingMethod
           return rateAveragingMethod;
       }
@@ -345,14 +300,6 @@ public final class ResetSchedule
     }
 
     /**
-     * The meta-property for the {@code rateCutOffDaysOffset} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> rateCutOffDaysOffset() {
-      return rateCutOffDaysOffset;
-    }
-
-    /**
      * The meta-property for the {@code rateAveragingMethod} property.
      * @return the meta-property, not null
      */
@@ -368,8 +315,6 @@ public final class ResetSchedule
           return ((ResetSchedule) bean).getResetFrequency();
         case -1777046470:  // resetBusinessDayAdjustment
           return ((ResetSchedule) bean).getResetBusinessDayAdjustment();
-        case -453973897:  // rateCutOffDaysOffset
-          return ((ResetSchedule) bean).getRateCutOffDaysOffset();
         case 154998811:  // rateAveragingMethod
           return ((ResetSchedule) bean).getRateAveragingMethod();
       }
@@ -395,7 +340,6 @@ public final class ResetSchedule
 
     private Frequency resetFrequency;
     private BusinessDayAdjustment resetBusinessDayAdjustment;
-    private Integer rateCutOffDaysOffset;
     private RateAveragingMethod rateAveragingMethod;
 
     /**
@@ -412,7 +356,6 @@ public final class ResetSchedule
     private Builder(ResetSchedule beanToCopy) {
       this.resetFrequency = beanToCopy.getResetFrequency();
       this.resetBusinessDayAdjustment = beanToCopy.getResetBusinessDayAdjustment();
-      this.rateCutOffDaysOffset = beanToCopy.getRateCutOffDaysOffset();
       this.rateAveragingMethod = beanToCopy.getRateAveragingMethod();
     }
 
@@ -424,8 +367,6 @@ public final class ResetSchedule
           return resetFrequency;
         case -1777046470:  // resetBusinessDayAdjustment
           return resetBusinessDayAdjustment;
-        case -453973897:  // rateCutOffDaysOffset
-          return rateCutOffDaysOffset;
         case 154998811:  // rateAveragingMethod
           return rateAveragingMethod;
         default:
@@ -441,9 +382,6 @@ public final class ResetSchedule
           break;
         case -1777046470:  // resetBusinessDayAdjustment
           this.resetBusinessDayAdjustment = (BusinessDayAdjustment) newValue;
-          break;
-        case -453973897:  // rateCutOffDaysOffset
-          this.rateCutOffDaysOffset = (Integer) newValue;
           break;
         case 154998811:  // rateAveragingMethod
           this.rateAveragingMethod = (RateAveragingMethod) newValue;
@@ -483,7 +421,6 @@ public final class ResetSchedule
       return new ResetSchedule(
           resetFrequency,
           resetBusinessDayAdjustment,
-          rateCutOffDaysOffset,
           rateAveragingMethod);
     }
 
@@ -511,16 +448,6 @@ public final class ResetSchedule
     }
 
     /**
-     * Sets the {@code rateCutOffDaysOffset} property in the builder.
-     * @param rateCutOffDaysOffset  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder rateCutOffDaysOffset(Integer rateCutOffDaysOffset) {
-      this.rateCutOffDaysOffset = rateCutOffDaysOffset;
-      return this;
-    }
-
-    /**
      * Sets the {@code rateAveragingMethod} property in the builder.
      * @param rateAveragingMethod  the new value, not null
      * @return this, for chaining, not null
@@ -534,11 +461,10 @@ public final class ResetSchedule
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("ResetSchedule.Builder{");
       buf.append("resetFrequency").append('=').append(JodaBeanUtils.toString(resetFrequency)).append(',').append(' ');
       buf.append("resetBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(resetBusinessDayAdjustment)).append(',').append(' ');
-      buf.append("rateCutOffDaysOffset").append('=').append(JodaBeanUtils.toString(rateCutOffDaysOffset)).append(',').append(' ');
       buf.append("rateAveragingMethod").append('=').append(JodaBeanUtils.toString(rateAveragingMethod));
       buf.append('}');
       return buf.toString();

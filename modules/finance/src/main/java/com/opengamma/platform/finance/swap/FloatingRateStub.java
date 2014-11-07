@@ -27,7 +27,7 @@ import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.RateIndex;
 
 /**
- * Defines the rates applicable in the initial or final stub.
+ * Defines the rates applicable in the initial or final stub in an IBOR-like swap leg.
  * <p>
  * A standard swap leg consists of a regular periodic schedule and one or two stub periods at each end.
  * This class defines what floating rate to use during a stub.
@@ -70,7 +70,7 @@ public final class FloatingRateStub
    * If this property is non-null, then {@code rate} must be null.
    */
   @PropertyDefinition
-  private final RateIndex index;
+  private final IborIndex index;
   /**
    * The second floating rate index to be used for the stub, linearly interpolated.
    * <p>
@@ -98,7 +98,7 @@ public final class FloatingRateStub
    * @param index  the index that applies to the stub
    * @return the stub
    */
-  public static FloatingRateStub of(RateIndex index) {
+  public static FloatingRateStub of(IborIndex index) {
     return new FloatingRateStub(null, index, null);
   }
 
@@ -109,7 +109,7 @@ public final class FloatingRateStub
    * @param endIndex  the index that applies at the end of the stub
    * @return the stub
    */
-  public static FloatingRateStub of(RateIndex startIndex, IborIndex endIndex) {
+  public static FloatingRateStub of(IborIndex startIndex, IborIndex endIndex) {
     return new FloatingRateStub(null, startIndex, endIndex);
   }
 
@@ -190,7 +190,7 @@ public final class FloatingRateStub
 
   private FloatingRateStub(
       Double rate,
-      RateIndex index,
+      IborIndex index,
       IborIndex indexInterpolated) {
     this.rate = rate;
     this.index = index;
@@ -237,7 +237,7 @@ public final class FloatingRateStub
    * If this property is non-null, then {@code rate} must be null.
    * @return the value of the property
    */
-  public RateIndex getIndex() {
+  public IborIndex getIndex() {
     return index;
   }
 
@@ -315,8 +315,8 @@ public final class FloatingRateStub
     /**
      * The meta-property for the {@code index} property.
      */
-    private final MetaProperty<RateIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", FloatingRateStub.class, RateIndex.class);
+    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
+        this, "index", FloatingRateStub.class, IborIndex.class);
     /**
      * The meta-property for the {@code indexInterpolated} property.
      */
@@ -378,7 +378,7 @@ public final class FloatingRateStub
      * The meta-property for the {@code index} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RateIndex> index() {
+    public MetaProperty<IborIndex> index() {
       return index;
     }
 
@@ -422,7 +422,7 @@ public final class FloatingRateStub
   public static final class Builder extends DirectFieldsBeanBuilder<FloatingRateStub> {
 
     private Double rate;
-    private RateIndex index;
+    private IborIndex index;
     private IborIndex indexInterpolated;
 
     /**
@@ -463,7 +463,7 @@ public final class FloatingRateStub
           this.rate = (Double) newValue;
           break;
         case 100346066:  // index
-          this.index = (RateIndex) newValue;
+          this.index = (IborIndex) newValue;
           break;
         case -1934091915:  // indexInterpolated
           this.indexInterpolated = (IborIndex) newValue;
@@ -522,7 +522,7 @@ public final class FloatingRateStub
      * @param index  the new value
      * @return this, for chaining, not null
      */
-    public Builder index(RateIndex index) {
+    public Builder index(IborIndex index) {
       this.index = index;
       return this;
     }

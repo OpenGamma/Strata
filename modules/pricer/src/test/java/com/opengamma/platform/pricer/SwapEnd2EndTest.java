@@ -80,7 +80,7 @@ public class SwapEnd2EndTest {
   private static final MulticurveProviderDiscount MULTICURVE_OIS = MULTICURVE_OIS_PAIR.getFirst();
 
   // tolerance
-  private static final double TOLERANCE_PV = 1.0E-3;
+  private static final double TOLERANCE_PV = 1.0E-4;
 
   //-----------------------------------------------------------------------
   public void test_VanillaFixedVsLibor1mSwap() {

@@ -60,7 +60,7 @@ public class StandardOvernightCompoundedRateProviderFn
     while (currentStart.isBefore(endDate)) {
       LocalDate currentEnd = index.getFixingCalendar().next(currentStart);
       fixingDateList.add(currentEnd);
-      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentStart, currentEnd));
+      fixingAccrualFactorList.add(index.getDayCount().yearFraction(currentStart, currentEnd));
       currentStart = currentEnd;
     }
     // try accessing fixing time-series
@@ -98,7 +98,7 @@ public class StandardOvernightCompoundedRateProviderFn
       }
     }
     // use forward curve for remainder
-    double fixingAccrualfactor = index.getDayCount().getDayCountFraction(startDate, endDate);
+    double fixingAccrualfactor = index.getDayCount().yearFraction(startDate, endDate);
     if (fixedPeriod < fixingDateList.size() - 1) {
       // fixing period is the remaining time of the period
       final double fixingStart = env.relativeTime(valuationDate, fixingDateList.get(fixedPeriod));
@@ -126,7 +126,7 @@ public class StandardOvernightCompoundedRateProviderFn
     
     double fixingStart = env.relativeTime(valuationDate, startDate);
     double fixingEnd = env.relativeTime(valuationDate, endDate);
-    double fixingAccrualfactor = index.getDayCount().getDayCountFraction(startDate, endDate);
+    double fixingAccrualfactor = index.getDayCount().yearFraction(startDate, endDate);
     double observedRate = env.getMulticurve().getSimplyCompoundForwardRate(
         IndexONMaster.getInstance().getIndex("FED FUND"), fixingStart, fixingEnd, fixingAccrualfactor);
     return observedRate;

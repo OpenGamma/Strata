@@ -89,19 +89,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- fix TestNG -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <properties>
-            <property>
-              <name>reporter</name>
-              <value>org.testng.reporters.XMLReporter</value>
-            </property>
-          </properties>
-        </configuration>
-      </plugin>
       <!-- create and publish test jar files -->
       <!-- include build number in jar files -->
       <plugin>

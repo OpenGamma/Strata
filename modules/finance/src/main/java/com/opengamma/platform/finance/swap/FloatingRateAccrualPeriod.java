@@ -104,7 +104,7 @@ public final class FloatingRateAccrualPeriod
    * The value of the period is based on this rate.
    * Different implementations of the {@code Rate} interface have different
    * approaches to calculate the rate, including averaging, overnight and interpolation.
-   * For example, it might be a well known market rate such as 'GBP-LIBOR-3M'.
+   * For example, it might be a well known market index such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
   private final Rate rate;
@@ -300,7 +300,7 @@ public final class FloatingRateAccrualPeriod
    * The value of the period is based on this rate.
    * Different implementations of the {@code Rate} interface have different
    * approaches to calculate the rate, including averaging, overnight and interpolation.
-   * For example, it might be a well known market rate such as 'GBP-LIBOR-3M'.
+   * For example, it might be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
   public Rate getRate() {

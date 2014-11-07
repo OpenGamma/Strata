@@ -48,7 +48,7 @@ public final class IborAveragedRate
    * The IBOR-like index.
    * <p>
    * The rate to be paid is based on this index
-   * It will be a well known market rate such as 'GBP-LIBOR-3M'.
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
   private final IborIndex index;
@@ -150,7 +150,7 @@ public final class IborAveragedRate
    * Gets the IBOR-like index.
    * <p>
    * The rate to be paid is based on this index
-   * It will be a well known market rate such as 'GBP-LIBOR-3M'.
+   * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
   public IborIndex getIndex() {

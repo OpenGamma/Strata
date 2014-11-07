@@ -131,7 +131,7 @@ public class StandardSwapPricerFn implements SwapPricerFn {
           fixingRelativeTimes[i] = env.relativeTime(valuationDate, fixingDate);
           fixingStartTimes[i] = env.relativeTime(valuationDate, fixingStartDate);
           fixingEndTimes[i] = env.relativeTime(valuationDate, fixingEndDate);
-          fixingYearFractions[i] = rate.getIndex().getDayCount().getDayCountFraction(fixingStartDate, fixingEndDate);
+          fixingYearFractions[i] = rate.getIndex().getDayCount().yearFraction(fixingStartDate, fixingEndDate);
         }
         IborRate rate = (IborRate) periods2.get(0).getRate();  // TODO only one index here
         if (paymentPeriod.getCompoundingMethod() == CompoundingMethod.FLAT) {

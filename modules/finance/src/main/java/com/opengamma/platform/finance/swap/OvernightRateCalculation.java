@@ -8,7 +8,6 @@ package com.opengamma.platform.finance.swap;
 import static com.google.common.base.Objects.firstNonNull;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -31,43 +30,26 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
-import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.OvernightIndex;
-import com.opengamma.basics.index.RateIndex;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.basics.value.ValueSchedule;
-import com.opengamma.platform.finance.rate.FixedRate;
-import com.opengamma.platform.finance.rate.IborInterpolatedRate;
-import com.opengamma.platform.finance.rate.IborRate;
+import com.opengamma.platform.finance.rate.OvernightAveragedRate;
 import com.opengamma.platform.finance.rate.OvernightCompoundedRate;
 import com.opengamma.platform.finance.rate.Rate;
 
 /**
- * Defines the calculation of a floating rate swap leg.
+ * Defines the calculation of a floating rate swap leg based on an overnight interest rate.
  * <p>
  * This defines the data necessary to calculate the amount payable on the leg.
- * The amount is based on the observed value of a floating rate index.
+ * The amount is based on the observed value of an overnight floating rate index
+ * such as 'GBP-SONIA' or 'USD-FED-FUND'.
  * <p>
- * The rate is observed once for each <i>reset period</i> and referred to as a <i>fixing</i>.
- * The actual date of observation is the <i>fixing date</i>, which is relative to either
- * the start or end of the reset period.
- * <p>
- * The reset period is typically the same as the accrual period.
- * In this case, the floating rate for the accrual period is based directly on the fixing.
- * <p>
- * In some swaps, the reset period is a subdivision of the accrual period.
- * In this case, there are multiple fixings for each accrual period, and the floating rate
- * for the accrual period is based on an average of the fixings.
- * <p>
- * This class contains a number of mandatory elements, supplemented by optional ones.
- * The optional elements allow the specification of gearing, spread, averaging, stub rates
- * and a fixed first rate.
+ * The index is observed for each business day and averaged or compounded to produce a rate.
+ * The reset periods correspond to each business day and are inferred from the accrual period dates.
  */
 @BeanDefinition
-public final class FloatingRateCalculation
+public final class OvernightRateCalculation
     implements ImmutableBean, Serializable {
 
   /** Serialization version. */
@@ -105,31 +87,18 @@ public final class FloatingRateCalculation
    * The floating rate index to be used.
    * <p>
    * The rate to be paid is based on this index
-   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * It will be a well known market index such as 'GBP-SONIA'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final RateIndex index;
+  private final OvernightIndex index;
   /**
-   * The base date that each fixing is made relative to, defaulted to 'PeriodStart'.
+   * The method of accruing overnight interest.
    * <p>
-   * The fixing date is relative to either the start or end of each reset period.
-   * <p>
-   * Note that in most cases, the reset frequency matches the accrual frequency
-   * and thus there is only one fixing for the accrual period.
+   * Two methods of accrual are supported - compounding and averaging.
+   * Averaging is primarily related to the 'USD-FED-FUND' index.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FixingRelativeTo fixingRelativeTo;
-  /**
-   * The offset of the fixing date from each adjusted reset date.
-   * <p>
-   * The offset is applied to the base date specified by {@code fixingRelativeTo}.
-   * The offset is typically a negative number of business days.
-   * <p>
-   * Note that in most cases, the reset frequency matches the accrual frequency
-   * and thus there is only one fixing for the accrual period.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final DaysAdjustment fixingOffset;
+  private final OvernightAccrualMethod accrualMethod;
   /**
    * The negative rate method, defaulted to 'AllowNegative'.
    * <p>
@@ -140,61 +109,26 @@ public final class FloatingRateCalculation
    */
   @PropertyDefinition(validate = "notNull")
   private final NegativeRateMethod negativeRateMethod;
+  /**
+   * The number of business days before the end of the period that the rate is cutoff.
+   * <p>
+   * When a rate cutoff applies, the final daily rate is determined this number of days
+   * before the end of the period, with any subsequent days having the same rate.
+   * <p>
+   * The amount must be zero or positive.
+   * A value of zero or one will have no effect on the standard calculation.
+   * The fixing holiday calendar of the index is used to determine business days.
+   * <p>
+   * For example, a value of {@code 3} means that the rate observed on
+   * {@code (periodEndDate - 3 business days)} is also to be used on
+   * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
+   * <p>
+   * If there are multiple accrual periods in the payment period, then this
+   * will only be applied to the last accrual period.
+   */
+  @PropertyDefinition
+  private final int rateCutoffDaysOffset;
 
-  /**
-   * The reset schedule, used when averaging rates, optional.
-   * <p>
-   * Most swaps have a single fixing for each accrual period.
-   * This property allows multiple fixings to be defined by dividing the accrual periods into reset periods.
-   * <p>
-   * If this property is null, then the reset period is the same as the accrual period.
-   * If this property is non-null, then the accrual period is divided as per the information
-   * in the reset schedule, multiple fixing dates are calculated, and rate averaging performed.
-   */
-  @PropertyDefinition
-  private final ResetSchedule resetPeriods;
-  /**
-   * The first floating rate of the first regular reset period, with a 5% rate expressed as 0.05, optional.
-   * <p>
-   * In certain circumstances two counterparties agree the rate of the first fixing when the contract starts.
-   * The rate is applicable for the first reset period of the first <i>regular</i> accrual period.
-   * It is used in place of an observed fixing.
-   * Other calculation elements, such as gearing or spread, still apply.
-   * After the first reset period, the rate is calculated via the normal fixing process.
-   * <p>
-   * If the first floating rate applies to the initial stub rather than the regular accrual periods
-   * it must be specified using {@code initialStub}.
-   * <p>
-   * If this property is null, then the first floating rate is calculated via the normal fixing process.
-   */
-  @PropertyDefinition
-  private final Double firstRegularRate;
-  /**
-   * The rate to be used in initial stub, optional.
-   * <p>
-   * The initial stub of a swap may have different rate rules to the regular accrual periods.
-   * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
-   * This may be null if there is no initial stub, or if the index during the stub is the same
-   * as the main floating rate index.
-   * <p>
-   * If this property is null, then the main index applies during any initial stub.
-   * If this property is non-null and there is no initial stub, it is ignored.
-   */
-  @PropertyDefinition
-  private final FloatingRateStub initialStub;
-  /**
-   * The rate to be used in final stub, optional.
-   * <p>
-   * The final stub of a swap may have different rate rules to the regular accrual periods.
-   * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
-   * This may be null if there is no final stub, or if the index during the stub is the same
-   * as the main floating rate index.
-   * <p>
-   * If this property is null, then the main index applies during any final stub.
-   * If this property is non-null and there is no final stub, it is ignored.
-   */
-  @PropertyDefinition
-  private final FloatingRateStub finalStub;
   /**
    * The gearing multiplier, optional.
    * <p>
@@ -232,7 +166,7 @@ public final class FloatingRateCalculation
   //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.fixingRelativeTo(FixingRelativeTo.PERIOD_START);
+    builder.accrualMethod(OvernightAccrualMethod.COMPOUNDED);
     builder.negativeRateMethod(NegativeRateMethod.ALLOW_NEGATIVE);
   }
 
@@ -247,20 +181,8 @@ public final class FloatingRateCalculation
   ImmutableList<AccrualPeriod> createAccrualPeriods(Schedule schedule) {
     if (notional.isInitialExchange() ||
         notional.isFinalExchange() ||
-        notional.isIntermediateExchange() ||
-        resetPeriods != null) {
+        notional.isIntermediateExchange()) {
       throw new UnsupportedOperationException();
-    }
-    // avoid null stub definitions if there are stubs
-    boolean hasInitialStub = schedule.getFirstPeriod().isStub();
-    boolean hasFinalStub = schedule.getLastPeriod().isStub();
-    if ((hasInitialStub && initialStub == null) ||
-        (hasFinalStub && finalStub == null)) {
-      return toBuilder()
-          .initialStub(firstNonNull(initialStub, FloatingRateStub.NONE))
-          .finalStub(firstNonNull(finalStub, FloatingRateStub.NONE))
-          .build()
-          .createAccrualPeriods(schedule);
     }
     // resolve data by schedule
     ImmutableList.Builder<AccrualPeriod> accrualPeriods = ImmutableList.builder();
@@ -275,11 +197,11 @@ public final class FloatingRateCalculation
       accrualPeriods.add(FloatingRateAccrualPeriod.builder()
           .startDate(period.getStartDate())
           .endDate(period.getEndDate())
-          .yearFraction(createYearFraction(period))
+          .yearFraction(period.yearFraction(dayCount))
           .currency(currency)
           .fxReset(createFxReset(period, fxResetNotional, currency))
           .notional(payReceive.normalize(resolvedNotionals.get(i)))
-          .rate(createRate(period, hasInitialStub, hasFinalStub))
+          .rate(createRate(period))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
           .spread(resolvedSpreads.get(i))
@@ -289,46 +211,15 @@ public final class FloatingRateCalculation
   }
 
   // creates the rate instance
-  private Rate createRate(SchedulePeriod period, boolean hasInitialStub, boolean hasFinalStub) {
-    if (hasInitialStub && period.getType() == SchedulePeriodType.INITIAL) {
-      return createStubRate(initialStub, period);
+  private Rate createRate(SchedulePeriod period) {
+    // TODO: rate cutoff only for last accrual period in payment period
+    switch (accrualMethod) {
+      case AVERAGED:
+        return OvernightAveragedRate.of(index, rateCutoffDaysOffset);
+      case COMPOUNDED:
+      default:
+        return OvernightCompoundedRate.of(index, rateCutoffDaysOffset);
     }
-    if (hasFinalStub && finalStub.isFloatingRate() && period.getType() == SchedulePeriodType.FINAL) {
-      return createStubRate(finalStub, period);
-    }
-    if (index instanceof OvernightIndex) {
-      if (resetPeriods != null) {
-        return OvernightCompoundedRate.of((OvernightIndex) index);
-      }
-      return OvernightCompoundedRate.of((OvernightIndex) index);
-    } else if (index instanceof IborIndex) {
-      return IborRate.of((IborIndex) index, createFixingDate(period));
-    } else {
-      throw new IllegalArgumentException("Unknown rate type: " + index.getClass().getName());
-    }
-    // TODO fixed rate for first reset
-  }
-
-  // creates the rate for the stub
-  private Rate createStubRate(FloatingRateStub stub, SchedulePeriod period) {
-    if (stub.isInterpolated()) {
-      // TODO cast
-      return IborInterpolatedRate.of(
-          (IborIndex) stub.getIndex(), stub.getIndexInterpolated(), createFixingDate(period));
-    } else if (stub.isFloatingRate()) {
-      // TODO cast
-      return IborRate.of((IborIndex) stub.getIndex(), createFixingDate(period));
-    } else if (stub.isFixedRate()) {
-      return FixedRate.of(stub.getRate());
-    } else {
-      // TODO cast
-      return IborRate.of((IborIndex) index, createFixingDate(period));
-    }
-  }
-
-  // determine the year fraction
-  private double createYearFraction(SchedulePeriod period) {
-    return dayCount.yearFraction(period.getStartDate(), period.getEndDate(), period);
   }
 
   // determine the FX reset
@@ -339,78 +230,58 @@ public final class FloatingRateCalculation
     return fxResetNotional.createFxReset(period);
   }
 
-  // determine the fixing date
-  private LocalDate createFixingDate(SchedulePeriod period) {
-    switch (fixingRelativeTo) {
-      case PERIOD_END:
-        return fixingOffset.adjust(period.getEndDate());
-      case PERIOD_START:
-      default:
-        return fixingOffset.adjust(period.getStartDate());
-    }
-  }
-
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code FloatingRateCalculation}.
+   * The meta-bean for {@code OvernightRateCalculation}.
    * @return the meta-bean, not null
    */
-  public static FloatingRateCalculation.Meta meta() {
-    return FloatingRateCalculation.Meta.INSTANCE;
+  public static OvernightRateCalculation.Meta meta() {
+    return OvernightRateCalculation.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(FloatingRateCalculation.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(OvernightRateCalculation.Meta.INSTANCE);
   }
 
   /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static FloatingRateCalculation.Builder builder() {
-    return new FloatingRateCalculation.Builder();
+  public static OvernightRateCalculation.Builder builder() {
+    return new OvernightRateCalculation.Builder();
   }
 
-  private FloatingRateCalculation(
+  private OvernightRateCalculation(
       PayReceive payReceive,
       NotionalAmount notional,
       DayCount dayCount,
-      RateIndex index,
-      FixingRelativeTo fixingRelativeTo,
-      DaysAdjustment fixingOffset,
+      OvernightIndex index,
+      OvernightAccrualMethod accrualMethod,
       NegativeRateMethod negativeRateMethod,
-      ResetSchedule resetPeriods,
-      Double firstRegularRate,
-      FloatingRateStub initialStub,
-      FloatingRateStub finalStub,
+      int rateCutoffDaysOffset,
       ValueSchedule gearing,
       ValueSchedule spread) {
     JodaBeanUtils.notNull(payReceive, "payReceive");
     JodaBeanUtils.notNull(notional, "notional");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(fixingRelativeTo, "fixingRelativeTo");
-    JodaBeanUtils.notNull(fixingOffset, "fixingOffset");
+    JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
     JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
     this.payReceive = payReceive;
     this.notional = notional;
     this.dayCount = dayCount;
     this.index = index;
-    this.fixingRelativeTo = fixingRelativeTo;
-    this.fixingOffset = fixingOffset;
+    this.accrualMethod = accrualMethod;
     this.negativeRateMethod = negativeRateMethod;
-    this.resetPeriods = resetPeriods;
-    this.firstRegularRate = firstRegularRate;
-    this.initialStub = initialStub;
-    this.finalStub = finalStub;
+    this.rateCutoffDaysOffset = rateCutoffDaysOffset;
     this.gearing = gearing;
     this.spread = spread;
   }
 
   @Override
-  public FloatingRateCalculation.Meta metaBean() {
-    return FloatingRateCalculation.Meta.INSTANCE;
+  public OvernightRateCalculation.Meta metaBean() {
+    return OvernightRateCalculation.Meta.INSTANCE;
   }
 
   @Override
@@ -468,40 +339,23 @@ public final class FloatingRateCalculation
    * Gets the floating rate index to be used.
    * <p>
    * The rate to be paid is based on this index
-   * It will be a well known market index such as 'GBP-LIBOR-3M'.
+   * It will be a well known market index such as 'GBP-SONIA'.
    * @return the value of the property, not null
    */
-  public RateIndex getIndex() {
+  public OvernightIndex getIndex() {
     return index;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the base date that each fixing is made relative to, defaulted to 'PeriodStart'.
+   * Gets the method of accruing overnight interest.
    * <p>
-   * The fixing date is relative to either the start or end of each reset period.
-   * <p>
-   * Note that in most cases, the reset frequency matches the accrual frequency
-   * and thus there is only one fixing for the accrual period.
+   * Two methods of accrual are supported - compounding and averaging.
+   * Averaging is primarily related to the 'USD-FED-FUND' index.
    * @return the value of the property, not null
    */
-  public FixingRelativeTo getFixingRelativeTo() {
-    return fixingRelativeTo;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the offset of the fixing date from each adjusted reset date.
-   * <p>
-   * The offset is applied to the base date specified by {@code fixingRelativeTo}.
-   * The offset is typically a negative number of business days.
-   * <p>
-   * Note that in most cases, the reset frequency matches the accrual frequency
-   * and thus there is only one fixing for the accrual period.
-   * @return the value of the property, not null
-   */
-  public DaysAdjustment getFixingOffset() {
-    return fixingOffset;
+  public OvernightAccrualMethod getAccrualMethod() {
+    return accrualMethod;
   }
 
   //-----------------------------------------------------------------------
@@ -520,72 +374,25 @@ public final class FloatingRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the reset schedule, used when averaging rates, optional.
+   * Gets the number of business days before the end of the period that the rate is cutoff.
    * <p>
-   * Most swaps have a single fixing for each accrual period.
-   * This property allows multiple fixings to be defined by dividing the accrual periods into reset periods.
+   * When a rate cutoff applies, the final daily rate is determined this number of days
+   * before the end of the period, with any subsequent days having the same rate.
    * <p>
-   * If this property is null, then the reset period is the same as the accrual period.
-   * If this property is non-null, then the accrual period is divided as per the information
-   * in the reset schedule, multiple fixing dates are calculated, and rate averaging performed.
+   * The amount must be zero or positive.
+   * A value of zero or one will have no effect on the standard calculation.
+   * The fixing holiday calendar of the index is used to determine business days.
+   * <p>
+   * For example, a value of {@code 3} means that the rate observed on
+   * {@code (periodEndDate - 3 business days)} is also to be used on
+   * {@code (periodEndDate - 2 business days)} and {@code (periodEndDate - 1 business day)}.
+   * <p>
+   * If there are multiple accrual periods in the payment period, then this
+   * will only be applied to the last accrual period.
    * @return the value of the property
    */
-  public ResetSchedule getResetPeriods() {
-    return resetPeriods;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the first floating rate of the first regular reset period, with a 5% rate expressed as 0.05, optional.
-   * <p>
-   * In certain circumstances two counterparties agree the rate of the first fixing when the contract starts.
-   * The rate is applicable for the first reset period of the first <i>regular</i> accrual period.
-   * It is used in place of an observed fixing.
-   * Other calculation elements, such as gearing or spread, still apply.
-   * After the first reset period, the rate is calculated via the normal fixing process.
-   * <p>
-   * If the first floating rate applies to the initial stub rather than the regular accrual periods
-   * it must be specified using {@code initialStub}.
-   * <p>
-   * If this property is null, then the first floating rate is calculated via the normal fixing process.
-   * @return the value of the property
-   */
-  public Double getFirstRegularRate() {
-    return firstRegularRate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the rate to be used in initial stub, optional.
-   * <p>
-   * The initial stub of a swap may have different rate rules to the regular accrual periods.
-   * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
-   * This may be null if there is no initial stub, or if the index during the stub is the same
-   * as the main floating rate index.
-   * <p>
-   * If this property is null, then the main index applies during any initial stub.
-   * If this property is non-null and there is no initial stub, it is ignored.
-   * @return the value of the property
-   */
-  public FloatingRateStub getInitialStub() {
-    return initialStub;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the rate to be used in final stub, optional.
-   * <p>
-   * The final stub of a swap may have different rate rules to the regular accrual periods.
-   * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
-   * This may be null if there is no final stub, or if the index during the stub is the same
-   * as the main floating rate index.
-   * <p>
-   * If this property is null, then the main index applies during any final stub.
-   * If this property is non-null and there is no final stub, it is ignored.
-   * @return the value of the property
-   */
-  public FloatingRateStub getFinalStub() {
-    return finalStub;
+  public int getRateCutoffDaysOffset() {
+    return rateCutoffDaysOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -644,18 +451,14 @@ public final class FloatingRateCalculation
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      FloatingRateCalculation other = (FloatingRateCalculation) obj;
+      OvernightRateCalculation other = (OvernightRateCalculation) obj;
       return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getFixingRelativeTo(), other.getFixingRelativeTo()) &&
-          JodaBeanUtils.equal(getFixingOffset(), other.getFixingOffset()) &&
+          JodaBeanUtils.equal(getAccrualMethod(), other.getAccrualMethod()) &&
           JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod()) &&
-          JodaBeanUtils.equal(getResetPeriods(), other.getResetPeriods()) &&
-          JodaBeanUtils.equal(getFirstRegularRate(), other.getFirstRegularRate()) &&
-          JodaBeanUtils.equal(getInitialStub(), other.getInitialStub()) &&
-          JodaBeanUtils.equal(getFinalStub(), other.getFinalStub()) &&
+          (getRateCutoffDaysOffset() == other.getRateCutoffDaysOffset()) &&
           JodaBeanUtils.equal(getGearing(), other.getGearing()) &&
           JodaBeanUtils.equal(getSpread(), other.getSpread());
     }
@@ -669,13 +472,9 @@ public final class FloatingRateCalculation
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingRelativeTo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingOffset());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualMethod());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriods());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstRegularRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialStub());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFinalStub());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRateCutoffDaysOffset());
     hash += hash * 31 + JodaBeanUtils.hashCode(getGearing());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpread());
     return hash;
@@ -683,19 +482,15 @@ public final class FloatingRateCalculation
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(448);
-    buf.append("FloatingRateCalculation{");
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("OvernightRateCalculation{");
     buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
     buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("fixingRelativeTo").append('=').append(getFixingRelativeTo()).append(',').append(' ');
-    buf.append("fixingOffset").append('=').append(getFixingOffset()).append(',').append(' ');
+    buf.append("accrualMethod").append('=').append(getAccrualMethod()).append(',').append(' ');
     buf.append("negativeRateMethod").append('=').append(getNegativeRateMethod()).append(',').append(' ');
-    buf.append("resetPeriods").append('=').append(getResetPeriods()).append(',').append(' ');
-    buf.append("firstRegularRate").append('=').append(getFirstRegularRate()).append(',').append(' ');
-    buf.append("initialStub").append('=').append(getInitialStub()).append(',').append(' ');
-    buf.append("finalStub").append('=').append(getFinalStub()).append(',').append(' ');
+    buf.append("rateCutoffDaysOffset").append('=').append(getRateCutoffDaysOffset()).append(',').append(' ');
     buf.append("gearing").append('=').append(getGearing()).append(',').append(' ');
     buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread()));
     buf.append('}');
@@ -704,7 +499,7 @@ public final class FloatingRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code FloatingRateCalculation}.
+   * The meta-bean for {@code OvernightRateCalculation}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -716,67 +511,47 @@ public final class FloatingRateCalculation
      * The meta-property for the {@code payReceive} property.
      */
     private final MetaProperty<PayReceive> payReceive = DirectMetaProperty.ofImmutable(
-        this, "payReceive", FloatingRateCalculation.class, PayReceive.class);
+        this, "payReceive", OvernightRateCalculation.class, PayReceive.class);
     /**
      * The meta-property for the {@code notional} property.
      */
     private final MetaProperty<NotionalAmount> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", FloatingRateCalculation.class, NotionalAmount.class);
+        this, "notional", OvernightRateCalculation.class, NotionalAmount.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", FloatingRateCalculation.class, DayCount.class);
+        this, "dayCount", OvernightRateCalculation.class, DayCount.class);
     /**
      * The meta-property for the {@code index} property.
      */
-    private final MetaProperty<RateIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", FloatingRateCalculation.class, RateIndex.class);
+    private final MetaProperty<OvernightIndex> index = DirectMetaProperty.ofImmutable(
+        this, "index", OvernightRateCalculation.class, OvernightIndex.class);
     /**
-     * The meta-property for the {@code fixingRelativeTo} property.
+     * The meta-property for the {@code accrualMethod} property.
      */
-    private final MetaProperty<FixingRelativeTo> fixingRelativeTo = DirectMetaProperty.ofImmutable(
-        this, "fixingRelativeTo", FloatingRateCalculation.class, FixingRelativeTo.class);
-    /**
-     * The meta-property for the {@code fixingOffset} property.
-     */
-    private final MetaProperty<DaysAdjustment> fixingOffset = DirectMetaProperty.ofImmutable(
-        this, "fixingOffset", FloatingRateCalculation.class, DaysAdjustment.class);
+    private final MetaProperty<OvernightAccrualMethod> accrualMethod = DirectMetaProperty.ofImmutable(
+        this, "accrualMethod", OvernightRateCalculation.class, OvernightAccrualMethod.class);
     /**
      * The meta-property for the {@code negativeRateMethod} property.
      */
     private final MetaProperty<NegativeRateMethod> negativeRateMethod = DirectMetaProperty.ofImmutable(
-        this, "negativeRateMethod", FloatingRateCalculation.class, NegativeRateMethod.class);
+        this, "negativeRateMethod", OvernightRateCalculation.class, NegativeRateMethod.class);
     /**
-     * The meta-property for the {@code resetPeriods} property.
+     * The meta-property for the {@code rateCutoffDaysOffset} property.
      */
-    private final MetaProperty<ResetSchedule> resetPeriods = DirectMetaProperty.ofImmutable(
-        this, "resetPeriods", FloatingRateCalculation.class, ResetSchedule.class);
-    /**
-     * The meta-property for the {@code firstRegularRate} property.
-     */
-    private final MetaProperty<Double> firstRegularRate = DirectMetaProperty.ofImmutable(
-        this, "firstRegularRate", FloatingRateCalculation.class, Double.class);
-    /**
-     * The meta-property for the {@code initialStub} property.
-     */
-    private final MetaProperty<FloatingRateStub> initialStub = DirectMetaProperty.ofImmutable(
-        this, "initialStub", FloatingRateCalculation.class, FloatingRateStub.class);
-    /**
-     * The meta-property for the {@code finalStub} property.
-     */
-    private final MetaProperty<FloatingRateStub> finalStub = DirectMetaProperty.ofImmutable(
-        this, "finalStub", FloatingRateCalculation.class, FloatingRateStub.class);
+    private final MetaProperty<Integer> rateCutoffDaysOffset = DirectMetaProperty.ofImmutable(
+        this, "rateCutoffDaysOffset", OvernightRateCalculation.class, Integer.TYPE);
     /**
      * The meta-property for the {@code gearing} property.
      */
     private final MetaProperty<ValueSchedule> gearing = DirectMetaProperty.ofImmutable(
-        this, "gearing", FloatingRateCalculation.class, ValueSchedule.class);
+        this, "gearing", OvernightRateCalculation.class, ValueSchedule.class);
     /**
      * The meta-property for the {@code spread} property.
      */
     private final MetaProperty<ValueSchedule> spread = DirectMetaProperty.ofImmutable(
-        this, "spread", FloatingRateCalculation.class, ValueSchedule.class);
+        this, "spread", OvernightRateCalculation.class, ValueSchedule.class);
     /**
      * The meta-properties.
      */
@@ -786,13 +561,9 @@ public final class FloatingRateCalculation
         "notional",
         "dayCount",
         "index",
-        "fixingRelativeTo",
-        "fixingOffset",
+        "accrualMethod",
         "negativeRateMethod",
-        "resetPeriods",
-        "firstRegularRate",
-        "initialStub",
-        "finalStub",
+        "rateCutoffDaysOffset",
         "gearing",
         "spread");
 
@@ -813,20 +584,12 @@ public final class FloatingRateCalculation
           return dayCount;
         case 100346066:  // index
           return index;
-        case 232554996:  // fixingRelativeTo
-          return fixingRelativeTo;
-        case -317508960:  // fixingOffset
-          return fixingOffset;
+        case -1335729296:  // accrualMethod
+          return accrualMethod;
         case 1969081334:  // negativeRateMethod
           return negativeRateMethod;
-        case -1272973693:  // resetPeriods
-          return resetPeriods;
-        case 570227148:  // firstRegularRate
-          return firstRegularRate;
-        case 1233359378:  // initialStub
-          return initialStub;
-        case 355242820:  // finalStub
-          return finalStub;
+        case -1252935529:  // rateCutoffDaysOffset
+          return rateCutoffDaysOffset;
         case -91774989:  // gearing
           return gearing;
         case -895684237:  // spread
@@ -836,13 +599,13 @@ public final class FloatingRateCalculation
     }
 
     @Override
-    public FloatingRateCalculation.Builder builder() {
-      return new FloatingRateCalculation.Builder();
+    public OvernightRateCalculation.Builder builder() {
+      return new OvernightRateCalculation.Builder();
     }
 
     @Override
-    public Class<? extends FloatingRateCalculation> beanType() {
-      return FloatingRateCalculation.class;
+    public Class<? extends OvernightRateCalculation> beanType() {
+      return OvernightRateCalculation.class;
     }
 
     @Override
@@ -879,24 +642,16 @@ public final class FloatingRateCalculation
      * The meta-property for the {@code index} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RateIndex> index() {
+    public MetaProperty<OvernightIndex> index() {
       return index;
     }
 
     /**
-     * The meta-property for the {@code fixingRelativeTo} property.
+     * The meta-property for the {@code accrualMethod} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FixingRelativeTo> fixingRelativeTo() {
-      return fixingRelativeTo;
-    }
-
-    /**
-     * The meta-property for the {@code fixingOffset} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DaysAdjustment> fixingOffset() {
-      return fixingOffset;
+    public MetaProperty<OvernightAccrualMethod> accrualMethod() {
+      return accrualMethod;
     }
 
     /**
@@ -908,35 +663,11 @@ public final class FloatingRateCalculation
     }
 
     /**
-     * The meta-property for the {@code resetPeriods} property.
+     * The meta-property for the {@code rateCutoffDaysOffset} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ResetSchedule> resetPeriods() {
-      return resetPeriods;
-    }
-
-    /**
-     * The meta-property for the {@code firstRegularRate} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> firstRegularRate() {
-      return firstRegularRate;
-    }
-
-    /**
-     * The meta-property for the {@code initialStub} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<FloatingRateStub> initialStub() {
-      return initialStub;
-    }
-
-    /**
-     * The meta-property for the {@code finalStub} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<FloatingRateStub> finalStub() {
-      return finalStub;
+    public MetaProperty<Integer> rateCutoffDaysOffset() {
+      return rateCutoffDaysOffset;
     }
 
     /**
@@ -960,31 +691,23 @@ public final class FloatingRateCalculation
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -885469925:  // payReceive
-          return ((FloatingRateCalculation) bean).getPayReceive();
+          return ((OvernightRateCalculation) bean).getPayReceive();
         case 1585636160:  // notional
-          return ((FloatingRateCalculation) bean).getNotional();
+          return ((OvernightRateCalculation) bean).getNotional();
         case 1905311443:  // dayCount
-          return ((FloatingRateCalculation) bean).getDayCount();
+          return ((OvernightRateCalculation) bean).getDayCount();
         case 100346066:  // index
-          return ((FloatingRateCalculation) bean).getIndex();
-        case 232554996:  // fixingRelativeTo
-          return ((FloatingRateCalculation) bean).getFixingRelativeTo();
-        case -317508960:  // fixingOffset
-          return ((FloatingRateCalculation) bean).getFixingOffset();
+          return ((OvernightRateCalculation) bean).getIndex();
+        case -1335729296:  // accrualMethod
+          return ((OvernightRateCalculation) bean).getAccrualMethod();
         case 1969081334:  // negativeRateMethod
-          return ((FloatingRateCalculation) bean).getNegativeRateMethod();
-        case -1272973693:  // resetPeriods
-          return ((FloatingRateCalculation) bean).getResetPeriods();
-        case 570227148:  // firstRegularRate
-          return ((FloatingRateCalculation) bean).getFirstRegularRate();
-        case 1233359378:  // initialStub
-          return ((FloatingRateCalculation) bean).getInitialStub();
-        case 355242820:  // finalStub
-          return ((FloatingRateCalculation) bean).getFinalStub();
+          return ((OvernightRateCalculation) bean).getNegativeRateMethod();
+        case -1252935529:  // rateCutoffDaysOffset
+          return ((OvernightRateCalculation) bean).getRateCutoffDaysOffset();
         case -91774989:  // gearing
-          return ((FloatingRateCalculation) bean).getGearing();
+          return ((OvernightRateCalculation) bean).getGearing();
         case -895684237:  // spread
-          return ((FloatingRateCalculation) bean).getSpread();
+          return ((OvernightRateCalculation) bean).getSpread();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1002,21 +725,17 @@ public final class FloatingRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code FloatingRateCalculation}.
+   * The bean-builder for {@code OvernightRateCalculation}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<FloatingRateCalculation> {
+  public static final class Builder extends DirectFieldsBeanBuilder<OvernightRateCalculation> {
 
     private PayReceive payReceive;
     private NotionalAmount notional;
     private DayCount dayCount;
-    private RateIndex index;
-    private FixingRelativeTo fixingRelativeTo;
-    private DaysAdjustment fixingOffset;
+    private OvernightIndex index;
+    private OvernightAccrualMethod accrualMethod;
     private NegativeRateMethod negativeRateMethod;
-    private ResetSchedule resetPeriods;
-    private Double firstRegularRate;
-    private FloatingRateStub initialStub;
-    private FloatingRateStub finalStub;
+    private int rateCutoffDaysOffset;
     private ValueSchedule gearing;
     private ValueSchedule spread;
 
@@ -1031,18 +750,14 @@ public final class FloatingRateCalculation
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(FloatingRateCalculation beanToCopy) {
+    private Builder(OvernightRateCalculation beanToCopy) {
       this.payReceive = beanToCopy.getPayReceive();
       this.notional = beanToCopy.getNotional();
       this.dayCount = beanToCopy.getDayCount();
       this.index = beanToCopy.getIndex();
-      this.fixingRelativeTo = beanToCopy.getFixingRelativeTo();
-      this.fixingOffset = beanToCopy.getFixingOffset();
+      this.accrualMethod = beanToCopy.getAccrualMethod();
       this.negativeRateMethod = beanToCopy.getNegativeRateMethod();
-      this.resetPeriods = beanToCopy.getResetPeriods();
-      this.firstRegularRate = beanToCopy.getFirstRegularRate();
-      this.initialStub = beanToCopy.getInitialStub();
-      this.finalStub = beanToCopy.getFinalStub();
+      this.rateCutoffDaysOffset = beanToCopy.getRateCutoffDaysOffset();
       this.gearing = beanToCopy.getGearing();
       this.spread = beanToCopy.getSpread();
     }
@@ -1059,20 +774,12 @@ public final class FloatingRateCalculation
           return dayCount;
         case 100346066:  // index
           return index;
-        case 232554996:  // fixingRelativeTo
-          return fixingRelativeTo;
-        case -317508960:  // fixingOffset
-          return fixingOffset;
+        case -1335729296:  // accrualMethod
+          return accrualMethod;
         case 1969081334:  // negativeRateMethod
           return negativeRateMethod;
-        case -1272973693:  // resetPeriods
-          return resetPeriods;
-        case 570227148:  // firstRegularRate
-          return firstRegularRate;
-        case 1233359378:  // initialStub
-          return initialStub;
-        case 355242820:  // finalStub
-          return finalStub;
+        case -1252935529:  // rateCutoffDaysOffset
+          return rateCutoffDaysOffset;
         case -91774989:  // gearing
           return gearing;
         case -895684237:  // spread
@@ -1095,28 +802,16 @@ public final class FloatingRateCalculation
           this.dayCount = (DayCount) newValue;
           break;
         case 100346066:  // index
-          this.index = (RateIndex) newValue;
+          this.index = (OvernightIndex) newValue;
           break;
-        case 232554996:  // fixingRelativeTo
-          this.fixingRelativeTo = (FixingRelativeTo) newValue;
-          break;
-        case -317508960:  // fixingOffset
-          this.fixingOffset = (DaysAdjustment) newValue;
+        case -1335729296:  // accrualMethod
+          this.accrualMethod = (OvernightAccrualMethod) newValue;
           break;
         case 1969081334:  // negativeRateMethod
           this.negativeRateMethod = (NegativeRateMethod) newValue;
           break;
-        case -1272973693:  // resetPeriods
-          this.resetPeriods = (ResetSchedule) newValue;
-          break;
-        case 570227148:  // firstRegularRate
-          this.firstRegularRate = (Double) newValue;
-          break;
-        case 1233359378:  // initialStub
-          this.initialStub = (FloatingRateStub) newValue;
-          break;
-        case 355242820:  // finalStub
-          this.finalStub = (FloatingRateStub) newValue;
+        case -1252935529:  // rateCutoffDaysOffset
+          this.rateCutoffDaysOffset = (Integer) newValue;
           break;
         case -91774989:  // gearing
           this.gearing = (ValueSchedule) newValue;
@@ -1155,19 +850,15 @@ public final class FloatingRateCalculation
     }
 
     @Override
-    public FloatingRateCalculation build() {
-      return new FloatingRateCalculation(
+    public OvernightRateCalculation build() {
+      return new OvernightRateCalculation(
           payReceive,
           notional,
           dayCount,
           index,
-          fixingRelativeTo,
-          fixingOffset,
+          accrualMethod,
           negativeRateMethod,
-          resetPeriods,
-          firstRegularRate,
-          initialStub,
-          finalStub,
+          rateCutoffDaysOffset,
           gearing,
           spread);
     }
@@ -1211,31 +902,20 @@ public final class FloatingRateCalculation
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder index(RateIndex index) {
+    public Builder index(OvernightIndex index) {
       JodaBeanUtils.notNull(index, "index");
       this.index = index;
       return this;
     }
 
     /**
-     * Sets the {@code fixingRelativeTo} property in the builder.
-     * @param fixingRelativeTo  the new value, not null
+     * Sets the {@code accrualMethod} property in the builder.
+     * @param accrualMethod  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder fixingRelativeTo(FixingRelativeTo fixingRelativeTo) {
-      JodaBeanUtils.notNull(fixingRelativeTo, "fixingRelativeTo");
-      this.fixingRelativeTo = fixingRelativeTo;
-      return this;
-    }
-
-    /**
-     * Sets the {@code fixingOffset} property in the builder.
-     * @param fixingOffset  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder fixingOffset(DaysAdjustment fixingOffset) {
-      JodaBeanUtils.notNull(fixingOffset, "fixingOffset");
-      this.fixingOffset = fixingOffset;
+    public Builder accrualMethod(OvernightAccrualMethod accrualMethod) {
+      JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
+      this.accrualMethod = accrualMethod;
       return this;
     }
 
@@ -1251,42 +931,12 @@ public final class FloatingRateCalculation
     }
 
     /**
-     * Sets the {@code resetPeriods} property in the builder.
-     * @param resetPeriods  the new value
+     * Sets the {@code rateCutoffDaysOffset} property in the builder.
+     * @param rateCutoffDaysOffset  the new value
      * @return this, for chaining, not null
      */
-    public Builder resetPeriods(ResetSchedule resetPeriods) {
-      this.resetPeriods = resetPeriods;
-      return this;
-    }
-
-    /**
-     * Sets the {@code firstRegularRate} property in the builder.
-     * @param firstRegularRate  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder firstRegularRate(Double firstRegularRate) {
-      this.firstRegularRate = firstRegularRate;
-      return this;
-    }
-
-    /**
-     * Sets the {@code initialStub} property in the builder.
-     * @param initialStub  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder initialStub(FloatingRateStub initialStub) {
-      this.initialStub = initialStub;
-      return this;
-    }
-
-    /**
-     * Sets the {@code finalStub} property in the builder.
-     * @param finalStub  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder finalStub(FloatingRateStub finalStub) {
-      this.finalStub = finalStub;
+    public Builder rateCutoffDaysOffset(int rateCutoffDaysOffset) {
+      this.rateCutoffDaysOffset = rateCutoffDaysOffset;
       return this;
     }
 
@@ -1313,19 +963,15 @@ public final class FloatingRateCalculation
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(448);
-      buf.append("FloatingRateCalculation.Builder{");
+      StringBuilder buf = new StringBuilder(320);
+      buf.append("OvernightRateCalculation.Builder{");
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("fixingRelativeTo").append('=').append(JodaBeanUtils.toString(fixingRelativeTo)).append(',').append(' ');
-      buf.append("fixingOffset").append('=').append(JodaBeanUtils.toString(fixingOffset)).append(',').append(' ');
+      buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
       buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod)).append(',').append(' ');
-      buf.append("resetPeriods").append('=').append(JodaBeanUtils.toString(resetPeriods)).append(',').append(' ');
-      buf.append("firstRegularRate").append('=').append(JodaBeanUtils.toString(firstRegularRate)).append(',').append(' ');
-      buf.append("initialStub").append('=').append(JodaBeanUtils.toString(initialStub)).append(',').append(' ');
-      buf.append("finalStub").append('=').append(JodaBeanUtils.toString(finalStub)).append(',').append(' ');
+      buf.append("rateCutoffDaysOffset").append('=').append(JodaBeanUtils.toString(rateCutoffDaysOffset)).append(',').append(' ');
       buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing)).append(',').append(' ');
       buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
       buf.append('}');

@@ -101,7 +101,7 @@ public final class FixedRateCalculation
     FxResetNotional fxResetNotional = notional.getFxReset();
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
-      double yearFraction = dayCount.getDayCountFraction(
+      double yearFraction = dayCount.yearFraction(
           period.getStartDate(), period.getEndDate(), period);
       accrualPeriods.add(FixedRateAccrualPeriod.builder()
           .startDate(period.getStartDate())

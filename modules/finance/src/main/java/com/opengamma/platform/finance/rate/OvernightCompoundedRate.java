@@ -13,7 +13,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -24,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.index.OvernightIndex;
+import com.opengamma.collect.ArgChecker;
 
 /**
  * Defines the calculation of a rate from a single overnight index that is compounded daily.
@@ -42,16 +42,17 @@ public final class OvernightCompoundedRate
    * The overnight index.
    * <p>
    * The rate to be paid is based on this index
-   * It will be a well known market rate such as 'GBP-SONIA'.
+   * It will be a well known market index such as 'GBP-SONIA'.
    */
   @PropertyDefinition(validate = "notNull")
   private final OvernightIndex index;
   /**
    * The number of business days before the end of the period that the rate is cutoff.
    * <p>
-   * When a rate cutoff applies, the final daily rate is determined this number
-   * of days before the end of the period, with any subsequent days having the
-   * same rate. The amount must be zero or any negative number except {@code -1}.
+   * When a rate cutoff applies, the final daily rate is determined this number of days
+   * before the end of the period, with any subsequent days having the same rate.
+   * <p>
+   * The amount must be zero or positive.
    * A value of zero or one will have no effect on the standard calculation.
    * The fixing holiday calendar of the index is used to determine business days.
    * <p>
@@ -62,16 +63,8 @@ public final class OvernightCompoundedRate
    * If there are multiple accrual periods in the payment period, then this
    * should typically only be non-zero in the last accrual period.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final int rateCutoffDaysOffset;
-
-  //-------------------------------------------------------------------------
-  @ImmutableValidator
-  private void validate() {
-    if (rateCutoffDaysOffset > 0 || rateCutoffDaysOffset == -1) {
-      throw new IllegalArgumentException("Rate cutoff offset must be zero or negative, but not -1");
-    }
-  }
 
   //-------------------------------------------------------------------------
   /**
@@ -127,9 +120,9 @@ public final class OvernightCompoundedRate
       OvernightIndex index,
       int rateCutoffDaysOffset) {
     JodaBeanUtils.notNull(index, "index");
+    ArgChecker.notNegative(rateCutoffDaysOffset, "rateCutoffDaysOffset");
     this.index = index;
     this.rateCutoffDaysOffset = rateCutoffDaysOffset;
-    validate();
   }
 
   @Override
@@ -152,7 +145,7 @@ public final class OvernightCompoundedRate
    * Gets the overnight index.
    * <p>
    * The rate to be paid is based on this index
-   * It will be a well known market rate such as 'GBP-SONIA'.
+   * It will be a well known market index such as 'GBP-SONIA'.
    * @return the value of the property, not null
    */
   public OvernightIndex getIndex() {
@@ -163,9 +156,10 @@ public final class OvernightCompoundedRate
   /**
    * Gets the number of business days before the end of the period that the rate is cutoff.
    * <p>
-   * When a rate cutoff applies, the final daily rate is determined this number
-   * of days before the end of the period, with any subsequent days having the
-   * same rate. The amount must be zero or any negative number except {@code -1}.
+   * When a rate cutoff applies, the final daily rate is determined this number of days
+   * before the end of the period, with any subsequent days having the same rate.
+   * <p>
+   * The amount must be zero or positive.
    * A value of zero or one will have no effect on the standard calculation.
    * The fixing holiday calendar of the index is used to determine business days.
    * <p>
@@ -422,6 +416,7 @@ public final class OvernightCompoundedRate
      * @return this, for chaining, not null
      */
     public Builder rateCutoffDaysOffset(int rateCutoffDaysOffset) {
+      ArgChecker.notNegative(rateCutoffDaysOffset, "rateCutoffDaysOffset");
       this.rateCutoffDaysOffset = rateCutoffDaysOffset;
       return this;
     }
