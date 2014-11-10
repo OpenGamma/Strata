@@ -60,7 +60,8 @@ public class StandardRateAccrualPeriodPricerFn
     double rate = StandardRateProviderFn.DEFAULT.rate(
         env, valuationDate, period.getRate(), period.getStartDate(), period.getEndDate());
     double treatedRate = rate * period.getGearing() + period.getSpread();
-    return period.getNotional() * fxRate * treatedRate * period.getYearFraction();
+    double fv = period.getNotional() * fxRate * treatedRate * period.getYearFraction();
+    return period.getNegativeRateMethod().adjust(fv);
   }
 
 }

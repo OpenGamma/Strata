@@ -96,11 +96,13 @@ public final class FixedRateCalculation
         notional.isIntermediateExchange()) {
       throw new UnsupportedOperationException();
     }
-    ImmutableList.Builder<AccrualPeriod> accrualPeriods = ImmutableList.builder();
+    // resolve data by schedule
     List<Double> resolvedNotionals = notional.getAmount().resolveValues(schedule.getPeriods());
     List<Double> resolvedRates = rate.resolveValues(schedule.getPeriods());
     Currency currency = notional.getCurrency();
     FxResetNotional fxResetNotional = notional.getFxReset();
+    // build accrual periods
+    ImmutableList.Builder<AccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period, dayCount)

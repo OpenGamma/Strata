@@ -6,6 +6,7 @@
 package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,7 +25,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.index.IborIndex;
-import com.opengamma.basics.index.RateIndex;
+import com.opengamma.platform.finance.rate.FixedRate;
+import com.opengamma.platform.finance.rate.IborInterpolatedRate;
+import com.opengamma.platform.finance.rate.IborRate;
+import com.opengamma.platform.finance.rate.Rate;
 
 /**
  * Defines the rates applicable in the initial or final stub in an IBOR-like swap leg.
@@ -61,7 +65,7 @@ public final class StubCalculation
    * If this property is non-null, then {@code index} and {@code indexInterpolated} must be null.
    */
   @PropertyDefinition
-  private final Double rate;
+  private final Double fixedRate;
   /**
    * The IBOR-like index to be used for the stub.
    * <p>
@@ -116,7 +120,7 @@ public final class StubCalculation
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    if (rate != null && index != null) {
+    if (fixedRate != null && index != null) {
       throw new IllegalArgumentException("Either rate or index may be specified, not both");
     }
     if (indexInterpolated != null && index == null) {
@@ -126,24 +130,32 @@ public final class StubCalculation
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if this stub has any special rules.
-   * <p>
-   * This stub has special rules if it has a fixed rate or an index different to that of the regular periods.
+   * Creates the {@code Rate} for the stub.
    * 
-   * @param regularIndex  the index applicable to the regular swap leg periods
-   * @return true if this stub has special rules
+   * @param fixingDate  the fixing date
+   * @param defaultIndex  the default index to use if the stub has no rules
+   * @return the rate
    */
-  boolean hasRules(RateIndex regularIndex) {
-    return (rate != null || !index.equals(regularIndex) || indexInterpolated != null);
+  Rate createRate(LocalDate fixingDate, IborIndex defaultIndex) {
+    if (isInterpolated()) {
+      return IborInterpolatedRate.of(index, getIndexInterpolated(), fixingDate);
+    } else if (isFloatingRate()) {
+      return IborRate.of(index, fixingDate);
+    } else if (isFixedRate()) {
+      return FixedRate.of(fixedRate);
+    } else {
+      return IborRate.of(defaultIndex, fixingDate);
+    }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Checks if the stub has a fixed rate.
    * 
    * @return true if a fixed stub rate applies
    */
   public boolean isFixedRate() {
-    return rate != null;
+    return fixedRate != null;
   }
 
   /**
@@ -189,10 +201,10 @@ public final class StubCalculation
   }
 
   private StubCalculation(
-      Double rate,
+      Double fixedRate,
       IborIndex index,
       IborIndex indexInterpolated) {
-    this.rate = rate;
+    this.fixedRate = fixedRate;
     this.index = index;
     this.indexInterpolated = indexInterpolated;
     validate();
@@ -224,8 +236,8 @@ public final class StubCalculation
    * If this property is non-null, then {@code index} and {@code indexInterpolated} must be null.
    * @return the value of the property
    */
-  public Double getRate() {
-    return rate;
+  public Double getFixedRate() {
+    return fixedRate;
   }
 
   //-----------------------------------------------------------------------
@@ -270,7 +282,7 @@ public final class StubCalculation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       StubCalculation other = (StubCalculation) obj;
-      return JodaBeanUtils.equal(getRate(), other.getRate()) &&
+      return JodaBeanUtils.equal(getFixedRate(), other.getFixedRate()) &&
           JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getIndexInterpolated(), other.getIndexInterpolated());
     }
@@ -280,7 +292,7 @@ public final class StubCalculation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndexInterpolated());
     return hash;
@@ -290,7 +302,7 @@ public final class StubCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("StubCalculation{");
-    buf.append("rate").append('=').append(getRate()).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(getFixedRate()).append(',').append(' ');
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("indexInterpolated").append('=').append(JodaBeanUtils.toString(getIndexInterpolated()));
     buf.append('}');
@@ -308,10 +320,10 @@ public final class StubCalculation
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code rate} property.
+     * The meta-property for the {@code fixedRate} property.
      */
-    private final MetaProperty<Double> rate = DirectMetaProperty.ofImmutable(
-        this, "rate", StubCalculation.class, Double.class);
+    private final MetaProperty<Double> fixedRate = DirectMetaProperty.ofImmutable(
+        this, "fixedRate", StubCalculation.class, Double.class);
     /**
      * The meta-property for the {@code index} property.
      */
@@ -327,7 +339,7 @@ public final class StubCalculation
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "rate",
+        "fixedRate",
         "index",
         "indexInterpolated");
 
@@ -340,8 +352,8 @@ public final class StubCalculation
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3493088:  // rate
-          return rate;
+        case 747425396:  // fixedRate
+          return fixedRate;
         case 100346066:  // index
           return index;
         case -1934091915:  // indexInterpolated
@@ -367,11 +379,11 @@ public final class StubCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code rate} property.
+     * The meta-property for the {@code fixedRate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> rate() {
-      return rate;
+    public MetaProperty<Double> fixedRate() {
+      return fixedRate;
     }
 
     /**
@@ -394,8 +406,8 @@ public final class StubCalculation
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3493088:  // rate
-          return ((StubCalculation) bean).getRate();
+        case 747425396:  // fixedRate
+          return ((StubCalculation) bean).getFixedRate();
         case 100346066:  // index
           return ((StubCalculation) bean).getIndex();
         case -1934091915:  // indexInterpolated
@@ -421,7 +433,7 @@ public final class StubCalculation
    */
   public static final class Builder extends DirectFieldsBeanBuilder<StubCalculation> {
 
-    private Double rate;
+    private Double fixedRate;
     private IborIndex index;
     private IborIndex indexInterpolated;
 
@@ -436,7 +448,7 @@ public final class StubCalculation
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(StubCalculation beanToCopy) {
-      this.rate = beanToCopy.getRate();
+      this.fixedRate = beanToCopy.getFixedRate();
       this.index = beanToCopy.getIndex();
       this.indexInterpolated = beanToCopy.getIndexInterpolated();
     }
@@ -445,8 +457,8 @@ public final class StubCalculation
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3493088:  // rate
-          return rate;
+        case 747425396:  // fixedRate
+          return fixedRate;
         case 100346066:  // index
           return index;
         case -1934091915:  // indexInterpolated
@@ -459,8 +471,8 @@ public final class StubCalculation
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3493088:  // rate
-          this.rate = (Double) newValue;
+        case 747425396:  // fixedRate
+          this.fixedRate = (Double) newValue;
           break;
         case 100346066:  // index
           this.index = (IborIndex) newValue;
@@ -501,19 +513,19 @@ public final class StubCalculation
     @Override
     public StubCalculation build() {
       return new StubCalculation(
-          rate,
+          fixedRate,
           index,
           indexInterpolated);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code rate} property in the builder.
-     * @param rate  the new value
+     * Sets the {@code fixedRate} property in the builder.
+     * @param fixedRate  the new value
      * @return this, for chaining, not null
      */
-    public Builder rate(Double rate) {
-      this.rate = rate;
+    public Builder fixedRate(Double fixedRate) {
+      this.fixedRate = fixedRate;
       return this;
     }
 
@@ -542,7 +554,7 @@ public final class StubCalculation
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("StubCalculation.Builder{");
-      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
+      buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("indexInterpolated").append('=').append(JodaBeanUtils.toString(indexInterpolated));
       buf.append('}');

@@ -385,7 +385,7 @@ public final class RateAccrualPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the gearing multiplier.
+   * Gets the gearing multiplier, defaulted to 1.
    * <p>
    * This defines the gearing as an initial value and a list of adjustments.
    * The gearing is only permitted to change at accrual period boundaries.

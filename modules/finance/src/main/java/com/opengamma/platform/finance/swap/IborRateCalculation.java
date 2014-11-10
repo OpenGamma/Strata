@@ -38,7 +38,6 @@ import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.platform.finance.rate.FixedRate;
-import com.opengamma.platform.finance.rate.IborInterpolatedRate;
 import com.opengamma.platform.finance.rate.IborRate;
 import com.opengamma.platform.finance.rate.Rate;
 
@@ -254,20 +253,20 @@ public final class IborRateCalculation
           .createAccrualPeriods(schedule);
     }
     // resolve data by schedule
-    ImmutableList.Builder<AccrualPeriod> accrualPeriods = ImmutableList.builder();
     List<Double> resolvedNotionals = notional.getAmount().resolveValues(schedule.getPeriods());
     List<Double> resolvedGearings = firstNonNull(gearing, ValueSchedule.of(1)).resolveValues(schedule.getPeriods());
     List<Double> resolvedSpreads = firstNonNull(spread, ValueSchedule.of(0)).resolveValues(schedule.getPeriods());
     Currency currency = notional.getCurrency();
     FxResetNotional fxResetNotional = notional.getFxReset();
     // build accrual periods
+    ImmutableList.Builder<AccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period, dayCount)
           .currency(currency)
           .fxReset(createFxReset(period, fxResetNotional, currency))
           .notional(payReceive.normalize(resolvedNotionals.get(i)))
-          .rate(createRate(period, hasInitialStub, hasFinalStub))
+          .rate(createRate(period, i, hasInitialStub, hasFinalStub))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
           .spread(resolvedSpreads.get(i))
@@ -277,27 +276,30 @@ public final class IborRateCalculation
   }
 
   // creates the rate instance
-  private Rate createRate(SchedulePeriod period, boolean hasInitialStub, boolean hasFinalStub) {
+  private Rate createRate(SchedulePeriod period, int scheduleIndex, boolean hasInitialStub, boolean hasFinalStub) {
     if (hasInitialStub && period.getType() == SchedulePeriodType.INITIAL) {
-      return createStubRate(initialStub, period);
+      return initialStub.createRate(createFixingDate(period), index);
     }
-    if (hasFinalStub && finalStub.isFloatingRate() && period.getType() == SchedulePeriodType.FINAL) {
-      return createStubRate(finalStub, period);
+    if (hasFinalStub && period.getType() == SchedulePeriodType.FINAL) {
+      return finalStub.createRate(createFixingDate(period), index);
+    }
+    if (resetPeriods != null) {
+      // TODO calculate sub-schedule
+//      Schedule schedule = period.
+//      PeriodicSchedule schedule = PeriodicSchedule.of(null, null, null, null, null, hasFinalStub)
+    }
+    if (firstRegularRate != null && isFirstRegular(scheduleIndex, hasInitialStub)) {
+      return FixedRate.of(firstRegularRate);
     }
     return IborRate.of((IborIndex) index, createFixingDate(period));
-    // TODO fixed rate for first reset
   }
 
-  // creates the rate for the stub
-  private Rate createStubRate(StubCalculation stub, SchedulePeriod period) {
-    if (stub.isInterpolated()) {
-      return IborInterpolatedRate.of(stub.getIndex(), stub.getIndexInterpolated(), createFixingDate(period));
-    } else if (stub.isFloatingRate()) {
-      return IborRate.of(stub.getIndex(), createFixingDate(period));
-    } else if (stub.isFixedRate()) {
-      return FixedRate.of(stub.getRate());
+  // is the period the first regular period
+  private boolean isFirstRegular(int scheduleIndex, boolean hasInitialStub) {
+    if (hasInitialStub) {
+      return scheduleIndex == 1;
     } else {
-      return IborRate.of(index, createFixingDate(period));
+      return scheduleIndex == 0;
     }
   }
 

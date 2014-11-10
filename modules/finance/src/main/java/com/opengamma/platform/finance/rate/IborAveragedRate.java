@@ -65,13 +65,13 @@ public final class IborAveragedRate
   @PropertyDefinition(validate = "notNull")
   private final RateAveragingMethod rateAveragingMethod;
   /**
-   * The list of reset periods.
+   * The list of fixings.
    * <p>
    * A fixing will be taken for each reset period, with the final rate
    * being an average of the fixings.
    */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableList<ResetPeriod> resetPeriods;
+  private final ImmutableList<IborAveragedFixing> resetPeriods;
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
@@ -88,7 +88,7 @@ public final class IborAveragedRate
    * @param resetPeriods  the reset periods
    * @return the averaged IBOR rate
    */
-  public static IborAveragedRate of(IborIndex index, RateAveragingMethod averagingMethod, ResetPeriod... resetPeriods) {
+  public static IborAveragedRate of(IborIndex index, RateAveragingMethod averagingMethod, IborAveragedFixing... resetPeriods) {
     return IborAveragedRate.builder()
         .index(index)
         .rateAveragingMethod(averagingMethod)
@@ -121,7 +121,7 @@ public final class IborAveragedRate
   private IborAveragedRate(
       IborIndex index,
       RateAveragingMethod rateAveragingMethod,
-      List<ResetPeriod> resetPeriods) {
+      List<IborAveragedFixing> resetPeriods) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(rateAveragingMethod, "rateAveragingMethod");
     JodaBeanUtils.notEmpty(resetPeriods, "resetPeriods");
@@ -175,13 +175,13 @@ public final class IborAveragedRate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the list of reset periods.
+   * Gets the list of fixings.
    * <p>
    * A fixing will be taken for each reset period, with the final rate
    * being an average of the fixings.
    * @return the value of the property, not empty
    */
-  public ImmutableList<ResetPeriod> getResetPeriods() {
+  public ImmutableList<IborAveragedFixing> getResetPeriods() {
     return resetPeriods;
   }
 
@@ -252,7 +252,7 @@ public final class IborAveragedRate
      * The meta-property for the {@code resetPeriods} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<ResetPeriod>> resetPeriods = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<IborAveragedFixing>> resetPeriods = DirectMetaProperty.ofImmutable(
         this, "resetPeriods", IborAveragedRate.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
@@ -318,7 +318,7 @@ public final class IborAveragedRate
      * The meta-property for the {@code resetPeriods} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<ResetPeriod>> resetPeriods() {
+    public MetaProperty<ImmutableList<IborAveragedFixing>> resetPeriods() {
       return resetPeriods;
     }
 
@@ -355,7 +355,7 @@ public final class IborAveragedRate
 
     private IborIndex index;
     private RateAveragingMethod rateAveragingMethod;
-    private List<ResetPeriod> resetPeriods = new ArrayList<ResetPeriod>();
+    private List<IborAveragedFixing> resetPeriods = new ArrayList<IborAveragedFixing>();
 
     /**
      * Restricted constructor.
@@ -371,7 +371,7 @@ public final class IborAveragedRate
     private Builder(IborAveragedRate beanToCopy) {
       this.index = beanToCopy.getIndex();
       this.rateAveragingMethod = beanToCopy.getRateAveragingMethod();
-      this.resetPeriods = new ArrayList<ResetPeriod>(beanToCopy.getResetPeriods());
+      this.resetPeriods = new ArrayList<IborAveragedFixing>(beanToCopy.getResetPeriods());
     }
 
     //-----------------------------------------------------------------------
@@ -400,7 +400,7 @@ public final class IborAveragedRate
           this.rateAveragingMethod = (RateAveragingMethod) newValue;
           break;
         case -1272973693:  // resetPeriods
-          this.resetPeriods = (List<ResetPeriod>) newValue;
+          this.resetPeriods = (List<IborAveragedFixing>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -468,7 +468,7 @@ public final class IborAveragedRate
      * @param resetPeriods  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder resetPeriods(List<ResetPeriod> resetPeriods) {
+    public Builder resetPeriods(List<IborAveragedFixing> resetPeriods) {
       JodaBeanUtils.notEmpty(resetPeriods, "resetPeriods");
       this.resetPeriods = resetPeriods;
       return this;

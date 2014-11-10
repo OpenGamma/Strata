@@ -184,13 +184,13 @@ public final class OvernightRateCalculation
       throw new UnsupportedOperationException();
     }
     // resolve data by schedule
-    ImmutableList.Builder<AccrualPeriod> accrualPeriods = ImmutableList.builder();
     List<Double> resolvedNotionals = notional.getAmount().resolveValues(schedule.getPeriods());
     List<Double> resolvedGearings = firstNonNull(gearing, ValueSchedule.of(1)).resolveValues(schedule.getPeriods());
     List<Double> resolvedSpreads = firstNonNull(spread, ValueSchedule.of(0)).resolveValues(schedule.getPeriods());
     Currency currency = notional.getCurrency();
     FxResetNotional fxResetNotional = notional.getFxReset();
     // build accrual periods
+    ImmutableList.Builder<AccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period, dayCount)
