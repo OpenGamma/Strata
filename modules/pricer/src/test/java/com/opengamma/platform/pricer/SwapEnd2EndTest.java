@@ -36,7 +36,6 @@ import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.index.IborIndex;
-import com.opengamma.basics.index.RateIndex;
 import com.opengamma.basics.index.RateIndices;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
@@ -67,9 +66,9 @@ import com.opengamma.util.tuple.Pair;
 @Test
 public class SwapEnd2EndTest {
 
-  private static final RateIndex USD_LIBOR_1M = lockIndexCalendar(RateIndices.USD_LIBOR_1M);
-  private static final RateIndex USD_LIBOR_3M = lockIndexCalendar(RateIndices.USD_LIBOR_3M);
-  private static final RateIndex USD_LIBOR_6M = lockIndexCalendar(RateIndices.USD_LIBOR_6M);
+  private static final IborIndex USD_LIBOR_1M = lockIndexCalendar(RateIndices.USD_LIBOR_1M);
+  private static final IborIndex USD_LIBOR_3M = lockIndexCalendar(RateIndices.USD_LIBOR_3M);
+  private static final IborIndex USD_LIBOR_6M = lockIndexCalendar(RateIndices.USD_LIBOR_6M);
   private static final NotionalAmount NOTIONAL = NotionalAmount.of(USD, 100_000_000);
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CalendarUSD.NYC);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CalendarUSD.NYC);
@@ -399,7 +398,7 @@ public class SwapEnd2EndTest {
             .dayCount(ACT_360)
             .index(USD_LIBOR_6M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
-            .initialStub(FloatingRateStub.of(USD_LIBOR_3M, (IborIndex) USD_LIBOR_6M))
+            .initialStub(FloatingRateStub.of(USD_LIBOR_3M, USD_LIBOR_6M))
             .build())
         .build();
     
@@ -437,7 +436,7 @@ public class SwapEnd2EndTest {
             .dayCount(ACT_360)
             .index(USD_LIBOR_6M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
-            .initialStub(FloatingRateStub.of(USD_LIBOR_3M, (IborIndex) USD_LIBOR_6M))
+            .initialStub(FloatingRateStub.of(USD_LIBOR_3M, USD_LIBOR_6M))
             .build())
         .build();
     
@@ -722,7 +721,7 @@ public class SwapEnd2EndTest {
   }
 
   // use a fixed known set of holiday dates to ensure tests produce same numbers
-  private static RateIndex lockIndexCalendar(IborIndex index) {
+  private static IborIndex lockIndexCalendar(IborIndex index) {
     return index.toBuilder()
         .fixingCalendar(CalendarUSD.NYC)
         .effectiveDateOffset(index.getEffectiveDateOffset().toBuilder()
