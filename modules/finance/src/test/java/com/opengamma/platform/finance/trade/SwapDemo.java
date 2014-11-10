@@ -32,8 +32,8 @@ import com.opengamma.basics.value.ValueStep;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.swap.FixedRateCalculation;
 import com.opengamma.platform.finance.swap.FixedRateSwapLeg;
-import com.opengamma.platform.finance.swap.FloatingRateCalculation;
-import com.opengamma.platform.finance.swap.FloatingRateSwapLeg;
+import com.opengamma.platform.finance.swap.IborRateCalculation;
+import com.opengamma.platform.finance.swap.IborRateSwapLeg;
 import com.opengamma.platform.finance.swap.NotionalAmount;
 import com.opengamma.platform.finance.swap.PaymentSchedule;
 import com.opengamma.platform.finance.swap.Swap;
@@ -105,13 +105,13 @@ public class SwapDemo {
         .stubConvention(StubConvention.LONG_INITIAL)
         .rollConvention(RollConventions.EOM)
         .build();
-    FloatingRateSwapLeg swapLeg = FloatingRateSwapLeg.builder()
+    IborRateSwapLeg swapLeg = IborRateSwapLeg.builder()
         .accrualPeriods(accrualSchedule)
         .paymentPeriods(PaymentSchedule.builder()
             .paymentFrequency(Frequency.P6M)
             .paymentOffset(DaysAdjustment.ofCalendarDays(2, paymentBda))
             .build())
-        .calculation(FloatingRateCalculation.builder()
+        .calculation(IborRateCalculation.builder()
             .payReceive(PayReceive.RECEIVE)
             .notional(NotionalAmount.builder()
                 .currency(Currency.GBP)
@@ -162,7 +162,7 @@ public class SwapDemo {
             .build())
         .build();
     
-    FloatingRateSwapLeg receiveLeg = FloatingRateSwapLeg.builder()
+    IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
@@ -174,7 +174,7 @@ public class SwapDemo {
             .paymentFrequency(Frequency.P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
-        .calculation(FloatingRateCalculation.builder()
+        .calculation(IborRateCalculation.builder()
             .payReceive(PayReceive.RECEIVE)
             .notional(NotionalAmount.of(CurrencyAmount.of(Currency.USD, 100_000_000)))
             .dayCount(DayCounts.ACT_360)
@@ -217,7 +217,7 @@ public class SwapDemo {
             .build())
         .build();
     
-    FloatingRateSwapLeg receiveLeg = FloatingRateSwapLeg.builder()
+    IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 18))
             .endDate(LocalDate.of(2019, 2, 18))
@@ -228,7 +228,7 @@ public class SwapDemo {
             .paymentFrequency(Frequency.P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
-        .calculation(FloatingRateCalculation.builder()
+        .calculation(IborRateCalculation.builder()
             .payReceive(PayReceive.RECEIVE)
             .notional(NotionalAmount.of(CurrencyAmount.of(Currency.GBP, 1_000_000)))
             .dayCount(DayCounts.ACT_365F)

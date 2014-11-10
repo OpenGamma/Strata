@@ -29,17 +29,17 @@ public enum CompoundingMethod {
    */
   NONE,
   /**
-   * Flat compounding applies.
-   * <p>
-   * Defined as "Flat Compounding" in the ISDA 2006 definitions.
-   */
-  FLAT,
-  /**
    * Spread inclusive compounding applies.
    * <p>
    * Defined as "Compounding" in the ISDA 2006 definitions.
    */
   STRAIGHT,
+  /**
+   * Flat compounding applies.
+   * <p>
+   * Defined as "Flat Compounding" in the ISDA 2006 definitions.
+   */
+  FLAT,
   /**
    * Spread exclusive compounding applies.
    * <p>

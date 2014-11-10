@@ -68,7 +68,7 @@ public final class ResetPeriod
    * @param startDate  the start date
    * @param endDate  the end date
    * @param fixingDate  the fixing date
-   * @return the IBOR rate
+   * @return the reset period
    */
   public static ResetPeriod of(LocalDate startDate, LocalDate endDate, LocalDate fixingDate) {
     return ResetPeriod.builder()

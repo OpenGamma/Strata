@@ -39,11 +39,10 @@ import com.opengamma.platform.finance.rate.OvernightCompoundedRate;
 import com.opengamma.platform.finance.rate.Rate;
 
 /**
- * Defines the calculation of a floating rate swap leg based on an overnight interest rate.
+ * Defines the calculation of a floating rate swap leg based on an Overnight index.
  * <p>
  * This defines the data necessary to calculate the amount payable on the leg.
- * The amount is based on the observed value of an overnight floating rate index
- * such as 'GBP-SONIA' or 'USD-FED-FUND'.
+ * The amount is based on the observed value of an Overnight index such as 'GBP-SONIA' or 'USD-FED-FUND'.
  * <p>
  * The index is observed for each business day and averaged or compounded to produce a rate.
  * The reset periods correspond to each business day and are inferred from the accrual period dates.
@@ -58,8 +57,8 @@ public final class OvernightRateCalculation
   /**
    * Whether the calculation is pay or receive.
    * <p>
-   * A pay value implies that the resulting amount is paid to the counterparty.
-   * A receive value implies that the resulting amount is received from the counterparty.
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
    * Note that negative interest rates can result in a payment in the opposite
    * direction to that implied by this indicator.
    */
@@ -84,7 +83,7 @@ public final class OvernightRateCalculation
   @PropertyDefinition(validate = "notNull")
   private final DayCount dayCount;
   /**
-   * The floating rate index to be used.
+   * The Overnight index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-SONIA'.
@@ -194,10 +193,7 @@ public final class OvernightRateCalculation
     // build accrual periods
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
-      accrualPeriods.add(FloatingRateAccrualPeriod.builder()
-          .startDate(period.getStartDate())
-          .endDate(period.getEndDate())
-          .yearFraction(period.yearFraction(dayCount))
+      accrualPeriods.add(RateAccrualPeriod.builder(period, dayCount)
           .currency(currency)
           .fxReset(createFxReset(period, fxResetNotional, currency))
           .notional(payReceive.normalize(resolvedNotionals.get(i)))
@@ -298,8 +294,8 @@ public final class OvernightRateCalculation
   /**
    * Gets whether the calculation is pay or receive.
    * <p>
-   * A pay value implies that the resulting amount is paid to the counterparty.
-   * A receive value implies that the resulting amount is received from the counterparty.
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
    * Note that negative interest rates can result in a payment in the opposite
    * direction to that implied by this indicator.
    * @return the value of the property, not null
@@ -336,7 +332,7 @@ public final class OvernightRateCalculation
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the floating rate index to be used.
+   * Gets the Overnight index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-SONIA'.

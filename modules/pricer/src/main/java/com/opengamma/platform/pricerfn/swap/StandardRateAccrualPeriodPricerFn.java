@@ -8,48 +8,59 @@ package com.opengamma.platform.pricerfn.swap;
 import java.time.LocalDate;
 
 import com.opengamma.basics.currency.CurrencyPair;
-import com.opengamma.platform.finance.swap.FixedRateAccrualPeriod;
+import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
-import com.opengamma.platform.pricer.swap.FixedRateAccrualPeriodPricerFn;
+import com.opengamma.platform.pricer.swap.AccrualPeriodPricerFn;
+import com.opengamma.platform.pricerfn.rate.StandardRateProviderFn;
 
 /**
- * Pricer implementation for fixed rate swap accrual periods.
+ * Pricer implementation for swap accrual periods based on a rate.
  * <p>
- * Fixed rate accrual periods are calculated by multiplying four elements:
+ * The value of an accrual period is calculated by multiplying four elements:
  * <ul>
  * <li>the notional
  * <li>the FX rate, using 1 if there is no FX reset conversion
- * <li>the interest rate
+ * <li>the treated interest rate, which can be calculated in various ways
  * <li>the year fraction, based on the accrual period day count
  * </ul>
  */
-public class StandardFixedRateAccrualPeriodPricerFn
-    implements FixedRateAccrualPeriodPricerFn {
+public class StandardRateAccrualPeriodPricerFn
+    implements AccrualPeriodPricerFn<RateAccrualPeriod> {
 
+  /**
+   * Default implementation.
+   */
+  public static final StandardRateAccrualPeriodPricerFn DEFAULT = new StandardRateAccrualPeriodPricerFn();
+
+  //-------------------------------------------------------------------------
   @Override
   public double presentValue(
       PricingEnvironment env,
       LocalDate valuationDate,
-      FixedRateAccrualPeriod period,
+      RateAccrualPeriod period,
       LocalDate paymentDate) {
     // futureValue * discountFactor
     double df = env.discountFactor(period.getCurrency(), valuationDate, paymentDate);
     return df * futureValue(env, valuationDate, period);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public double futureValue(
       PricingEnvironment env,
       LocalDate valuationDate,
-      FixedRateAccrualPeriod period) {
+      RateAccrualPeriod period) {
     // find FX rate, using 1 if no FX reset occurs
     double fxRate = 1d;
     if (period.getFxReset() != null) {
       CurrencyPair pair = CurrencyPair.of(period.getFxReset().getReferenceCurrency(), period.getCurrency());
       fxRate = env.fxRate(period.getFxReset().getIndex(), pair, valuationDate, period.getFxReset().getFixingDate());
     }
-    // notional * fxRate * interestRate * yearFraction
-    return period.getNotional() * fxRate * period.getRate() * period.getYearFraction();
+    // calculated result
+    double rate = StandardRateProviderFn.DEFAULT.rate(
+        env, valuationDate, period.getRate(), period.getStartDate(), period.getEndDate());
+    double treatedRate = rate * period.getGearing() + period.getSpread();
+    return period.getNotional() * fxRate * treatedRate * period.getYearFraction();
   }
 
 }

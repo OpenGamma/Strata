@@ -32,14 +32,18 @@ import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
 
 /**
- * A single payment period in a swap leg.
+ * A period over which a fixed or floating rate is paid.
  * <p>
+ * A swap leg consists of one or more periods that are the basis of accrual.
  * The payment period is formed from one or more accrual periods
- * which may be combined using compounding.
+ * <p>
+ * This class specifies the data necessary to calculate the value of the period.
+ * Any combination of accrual periods is supported in the data model, however
+ * there is no guarantee that exotic combinations will price sensibly.
  */
 @BeanDefinition
-public final class SwapPaymentPeriod
-    implements ImmutableBean, Serializable {
+public final class RatePaymentPeriod
+    implements PaymentPeriod, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -50,7 +54,7 @@ public final class SwapPaymentPeriod
    * The date that payment is made for the accrual periods.
    * If the schedule adjusts for business days, then this is the adjusted date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate paymentDate;
   /**
    * The accrual periods that combine to form the payment period.
@@ -58,7 +62,7 @@ public final class SwapPaymentPeriod
    * If there is more than one accrual period then compounding may apply.
    * All accrual periods must have the same currency.
    */
-  @PropertyDefinition(validate = "notEmpty")
+  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final ImmutableList<AccrualPeriod> accrualPeriods;
   /**
    * The compounding method to use when there is more than one accrual period, default is 'None'.
@@ -78,8 +82,8 @@ public final class SwapPaymentPeriod
    * @param accrualPeriod  the single accrual period forming the payment period
    * @return the payment period
    */
-  public static SwapPaymentPeriod of(LocalDate paymentDate, AccrualPeriod accrualPeriod) {
-    return SwapPaymentPeriod.builder()
+  public static RatePaymentPeriod of(LocalDate paymentDate, AccrualPeriod accrualPeriod) {
+    return RatePaymentPeriod.builder()
         .paymentDate(paymentDate)
         .accrualPeriods(ImmutableList.of(accrualPeriod))
         .build();
@@ -93,9 +97,9 @@ public final class SwapPaymentPeriod
    * @param compoundingMethod  the compounding method
    * @return the payment period
    */
-  public static SwapPaymentPeriod of(
+  public static RatePaymentPeriod of(
       LocalDate paymentDate, List<AccrualPeriod> accrualPeriods, CompoundingMethod compoundingMethod) {
-    return SwapPaymentPeriod.builder()
+    return RatePaymentPeriod.builder()
         .paymentDate(paymentDate)
         .accrualPeriods(accrualPeriods)
         .compoundingMethod(compoundingMethod)
@@ -122,11 +126,39 @@ public final class SwapPaymentPeriod
     return accrualPeriods.get(index);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the start date of the period.
+   * <p>
+   * This is the first accrual date in the period.
+   * This date has been adjusted to be a valid business day.
+   * 
+   * @return the start date of the period
+   */
+  @Override
+  public LocalDate getStartDate() {
+    return getAccrualPeriod(0).getStartDate();
+  }
+
+  /**
+   * Gets the end date of the period.
+   * <p>
+   * This is the last accrual date in the period.
+   * This date has been adjusted to be a valid business day.
+   * 
+   * @return the end date of the period
+   */
+  @Override
+  public LocalDate getEndDate() {
+    return getAccrualPeriod(accrualPeriods.size() - 1).getEndDate();
+  }
+
   /**
    * Gets the currency of the payment period.
    * 
    * @return the currency
    */
+  @Override
   public Currency getCurrency() {
     return Iterables.getOnlyElement(
         accrualPeriods.stream()
@@ -152,23 +184,23 @@ public final class SwapPaymentPeriod
    * The meta-bean for {@code SwapPaymentPeriod}.
    * @return the meta-bean, not null
    */
-  public static SwapPaymentPeriod.Meta meta() {
-    return SwapPaymentPeriod.Meta.INSTANCE;
+  public static RatePaymentPeriod.Meta meta() {
+    return RatePaymentPeriod.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SwapPaymentPeriod.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(RatePaymentPeriod.Meta.INSTANCE);
   }
 
   /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static SwapPaymentPeriod.Builder builder() {
-    return new SwapPaymentPeriod.Builder();
+  public static RatePaymentPeriod.Builder builder() {
+    return new RatePaymentPeriod.Builder();
   }
 
-  private SwapPaymentPeriod(
+  private RatePaymentPeriod(
       LocalDate paymentDate,
       List<AccrualPeriod> accrualPeriods,
       CompoundingMethod compoundingMethod) {
@@ -181,8 +213,8 @@ public final class SwapPaymentPeriod
   }
 
   @Override
-  public SwapPaymentPeriod.Meta metaBean() {
-    return SwapPaymentPeriod.Meta.INSTANCE;
+  public RatePaymentPeriod.Meta metaBean() {
+    return RatePaymentPeriod.Meta.INSTANCE;
   }
 
   @Override
@@ -203,6 +235,7 @@ public final class SwapPaymentPeriod
    * If the schedule adjusts for business days, then this is the adjusted date.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getPaymentDate() {
     return paymentDate;
   }
@@ -215,6 +248,7 @@ public final class SwapPaymentPeriod
    * All accrual periods must have the same currency.
    * @return the value of the property, not empty
    */
+  @Override
   public ImmutableList<AccrualPeriod> getAccrualPeriods() {
     return accrualPeriods;
   }
@@ -245,7 +279,7 @@ public final class SwapPaymentPeriod
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SwapPaymentPeriod other = (SwapPaymentPeriod) obj;
+      RatePaymentPeriod other = (RatePaymentPeriod) obj;
       return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
           JodaBeanUtils.equal(getAccrualPeriods(), other.getAccrualPeriods()) &&
           JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod());
@@ -287,18 +321,18 @@ public final class SwapPaymentPeriod
      * The meta-property for the {@code paymentDate} property.
      */
     private final MetaProperty<LocalDate> paymentDate = DirectMetaProperty.ofImmutable(
-        this, "paymentDate", SwapPaymentPeriod.class, LocalDate.class);
+        this, "paymentDate", RatePaymentPeriod.class, LocalDate.class);
     /**
      * The meta-property for the {@code accrualPeriods} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableList<AccrualPeriod>> accrualPeriods = DirectMetaProperty.ofImmutable(
-        this, "accrualPeriods", SwapPaymentPeriod.class, (Class) ImmutableList.class);
+        this, "accrualPeriods", RatePaymentPeriod.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code compoundingMethod} property.
      */
     private final MetaProperty<CompoundingMethod> compoundingMethod = DirectMetaProperty.ofImmutable(
-        this, "compoundingMethod", SwapPaymentPeriod.class, CompoundingMethod.class);
+        this, "compoundingMethod", RatePaymentPeriod.class, CompoundingMethod.class);
     /**
      * The meta-properties.
      */
@@ -328,13 +362,13 @@ public final class SwapPaymentPeriod
     }
 
     @Override
-    public SwapPaymentPeriod.Builder builder() {
-      return new SwapPaymentPeriod.Builder();
+    public RatePaymentPeriod.Builder builder() {
+      return new RatePaymentPeriod.Builder();
     }
 
     @Override
-    public Class<? extends SwapPaymentPeriod> beanType() {
-      return SwapPaymentPeriod.class;
+    public Class<? extends RatePaymentPeriod> beanType() {
+      return RatePaymentPeriod.class;
     }
 
     @Override
@@ -372,11 +406,11 @@ public final class SwapPaymentPeriod
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1540873516:  // paymentDate
-          return ((SwapPaymentPeriod) bean).getPaymentDate();
+          return ((RatePaymentPeriod) bean).getPaymentDate();
         case -92208605:  // accrualPeriods
-          return ((SwapPaymentPeriod) bean).getAccrualPeriods();
+          return ((RatePaymentPeriod) bean).getAccrualPeriods();
         case -1376171496:  // compoundingMethod
-          return ((SwapPaymentPeriod) bean).getCompoundingMethod();
+          return ((RatePaymentPeriod) bean).getCompoundingMethod();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -396,7 +430,7 @@ public final class SwapPaymentPeriod
   /**
    * The bean-builder for {@code SwapPaymentPeriod}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<SwapPaymentPeriod> {
+  public static final class Builder extends DirectFieldsBeanBuilder<RatePaymentPeriod> {
 
     private LocalDate paymentDate;
     private List<AccrualPeriod> accrualPeriods = new ArrayList<AccrualPeriod>();
@@ -413,7 +447,7 @@ public final class SwapPaymentPeriod
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(SwapPaymentPeriod beanToCopy) {
+    private Builder(RatePaymentPeriod beanToCopy) {
       this.paymentDate = beanToCopy.getPaymentDate();
       this.accrualPeriods = new ArrayList<AccrualPeriod>(beanToCopy.getAccrualPeriods());
       this.compoundingMethod = beanToCopy.getCompoundingMethod();
@@ -478,8 +512,8 @@ public final class SwapPaymentPeriod
     }
 
     @Override
-    public SwapPaymentPeriod build() {
-      return new SwapPaymentPeriod(
+    public RatePaymentPeriod build() {
+      return new RatePaymentPeriod(
           paymentDate,
           accrualPeriods,
           compoundingMethod);

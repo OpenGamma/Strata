@@ -27,9 +27,9 @@ import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * Defines the calculation of a rate from a single overnight index that is averaged.
+ * Defines the calculation of a rate from a single Overnight index that is averaged.
  * <p>
- * An interest rate determined directly from an overnight index by averaging the value
+ * An interest rate determined directly from an Overnight index by averaging the value
  * of each day's rate over the period.
  * For example, a rate determined from 'USD-FED-FUND'.
  */
@@ -41,7 +41,7 @@ public final class OvernightAveragedRate
   private static final long serialVersionUID = 1L;
 
   /**
-   * The overnight index.
+   * The Overnight index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'USD-FED-FUND'.
@@ -73,7 +73,7 @@ public final class OvernightAveragedRate
    * Creates an {@code OvernightAveragedRate} from an index with no rate cutoff.
    * 
    * @param index  the index
-   * @return the overnight compounded rate
+   * @return the Overnight compounded rate
    */
   public static OvernightAveragedRate of(OvernightIndex index) {
     return OvernightAveragedRate.builder()
@@ -87,7 +87,7 @@ public final class OvernightAveragedRate
    * 
    * @param index  the index
    * @param rateCutoffDaysOffset  the rate cutoff days offset, zero or negative but not -1
-   * @return the overnight compounded rate
+   * @return the Overnight compounded rate
    */
   public static OvernightAveragedRate of(OvernightIndex index, int rateCutoffDaysOffset) {
     return OvernightAveragedRate.builder()
@@ -153,7 +153,7 @@ public final class OvernightAveragedRate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the overnight index.
+   * Gets the Overnight index.
    * <p>
    * The rate to be paid is based on this index
    * It will be a well known market index such as 'USD-FED-FUND'.

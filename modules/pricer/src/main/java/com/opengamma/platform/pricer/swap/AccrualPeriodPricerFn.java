@@ -7,15 +7,19 @@ package com.opengamma.platform.pricer.swap;
 
 import java.time.LocalDate;
 
-import com.opengamma.platform.finance.swap.FixedRateAccrualPeriod;
+import com.opengamma.platform.finance.swap.AccrualPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
- * Pricer for fixed rate accrual periods.
+ * Pricer for a single rate accrual period.
+ * <p>
+ * Defines the values that can be calculated on a swap leg accrual period.
  * <p>
  * Implementations must be immutable and thread-safe functions.
+ * 
+ * @param <T>  the type of period
  */
-public interface FixedRateAccrualPeriodPricerFn {
+public interface AccrualPeriodPricerFn<T extends AccrualPeriod> {
 
   /**
    * Calculates the present value of a single accrual period.
@@ -31,7 +35,7 @@ public interface FixedRateAccrualPeriodPricerFn {
   public abstract double presentValue(
       PricingEnvironment env,
       LocalDate valuationDate,
-      FixedRateAccrualPeriod period,
+      T period,
       LocalDate paymentDate);
 
   /**
@@ -47,6 +51,6 @@ public interface FixedRateAccrualPeriodPricerFn {
   public abstract double futureValue(
       PricingEnvironment env,
       LocalDate valuationDate,
-      FixedRateAccrualPeriod period);
+      T period);
 
 }

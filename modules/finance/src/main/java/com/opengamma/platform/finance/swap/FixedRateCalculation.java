@@ -30,11 +30,13 @@ import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueSchedule;
+import com.opengamma.platform.finance.rate.FixedRate;
 
 /**
  * Defines the calculation of a fixed rate swap leg.
  * <p>
- * This defines the data necessary to calculate amounts based on the fixed rate.
+ * This defines the data necessary to calculate the amount payable on the leg.
+ * The amount is based on a fixed rate, which can vary over the lifetime of the leg.
  */
 @BeanDefinition
 public final class FixedRateCalculation
@@ -46,8 +48,8 @@ public final class FixedRateCalculation
   /**
    * Whether the calculation is pay or receive.
    * <p>
-   * A pay value implies that the resulting amount is paid to the counterparty.
-   * A receive value implies that the resulting amount is received from the counterparty.
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
    * Note that negative interest rates can result in a payment in the opposite
    * direction to that implied by this indicator.
    */
@@ -101,16 +103,11 @@ public final class FixedRateCalculation
     FxResetNotional fxResetNotional = notional.getFxReset();
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
-      double yearFraction = dayCount.yearFraction(
-          period.getStartDate(), period.getEndDate(), period);
-      accrualPeriods.add(FixedRateAccrualPeriod.builder()
-          .startDate(period.getStartDate())
-          .endDate(period.getEndDate())
+      accrualPeriods.add(RateAccrualPeriod.builder(period, dayCount)
           .currency(currency)
           .fxReset(createFxReset(fxResetNotional, currency, period))
           .notional(payReceive.normalize(resolvedNotionals.get(i)))
-          .yearFraction(yearFraction)
-          .rate(resolvedRates.get(i))
+          .rate(FixedRate.of(resolvedRates.get(i)))
           .build());
     }
     return accrualPeriods.build();
@@ -180,8 +177,8 @@ public final class FixedRateCalculation
   /**
    * Gets whether the calculation is pay or receive.
    * <p>
-   * A pay value implies that the resulting amount is paid to the counterparty.
-   * A receive value implies that the resulting amount is received from the counterparty.
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
    * Note that negative interest rates can result in a payment in the opposite
    * direction to that implied by this indicator.
    * @return the value of the property, not null

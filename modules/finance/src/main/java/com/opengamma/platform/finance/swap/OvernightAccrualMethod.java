@@ -12,7 +12,7 @@ import com.google.common.base.CaseFormat;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * The method of accruing overnight interest.
+ * The method of accruing interest based on an Overnight index.
  * <p>
  * Two methods of accrual are supported - compounding and averaging.
  * Averaging is primarily related to the 'USD-FED-FUND' index.

@@ -60,6 +60,8 @@ public final class ResetSchedule
   private final Frequency resetFrequency;
   /**
    * The business day adjustment to apply to each reset date.
+   * <p>
+   * This adjustment is applied to each reset date to ensure it is a valid business day.
    */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment resetBusinessDayAdjustment;
@@ -149,6 +151,8 @@ public final class ResetSchedule
   //-----------------------------------------------------------------------
   /**
    * Gets the business day adjustment to apply to each reset date.
+   * <p>
+   * This adjustment is applied to each reset date to ensure it is a valid business day.
    * @return the value of the property, not null
    */
   public BusinessDayAdjustment getResetBusinessDayAdjustment() {

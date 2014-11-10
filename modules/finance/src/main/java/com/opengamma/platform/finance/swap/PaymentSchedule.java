@@ -137,7 +137,7 @@ public final class PaymentSchedule
    * @param schedule  the accrual schedule
    * @return the list of payment periods
    */
-  ImmutableList<SwapPaymentPeriod> createPaymentPeriods(List<AccrualPeriod> accrualPeriods, Schedule schedule) {
+  ImmutableList<PaymentPeriod> createPaymentPeriods(List<AccrualPeriod> accrualPeriods, Schedule schedule) {
     // payment periods contain one accrual period
     Frequency accrualFrequency = schedule.getFrequency();
     if (accrualFrequency.equals(paymentFrequency)) {
@@ -154,7 +154,7 @@ public final class PaymentSchedule
   }
 
   // group accrual periods based on payment schedule
-  private ImmutableList<SwapPaymentPeriod> groupAccrualPeriods(
+  private ImmutableList<PaymentPeriod> groupAccrualPeriods(
       List<AccrualPeriod> accrualPeriods, Schedule schedule, Frequency accrualFrequency) {
     
     int freqMultiple = accrualPeriodsPerPayment(paymentFrequency, accrualFrequency);
@@ -185,12 +185,12 @@ public final class PaymentSchedule
   }
 
   // group accrual periods by initial, multiple and final
-  private ImmutableList<SwapPaymentPeriod> groupAccrualPeriods(
+  private ImmutableList<PaymentPeriod> groupAccrualPeriods(
       List<AccrualPeriod> accrualPeriods, int initialGroup, int multiple, int finalGroup) {
     
     int accrualCount = accrualPeriods.size();
     int finalIndex = accrualCount - finalGroup;
-    ImmutableList.Builder<SwapPaymentPeriod> paymentPeriods = ImmutableList.builder();
+    ImmutableList.Builder<PaymentPeriod> paymentPeriods = ImmutableList.builder();
     if (initialGroup > 0) {
       paymentPeriods.add(createPaymentPeriod(accrualPeriods.subList(0, initialGroup)));
     }
@@ -204,8 +204,8 @@ public final class PaymentSchedule
   }
 
   // create the payment period
-  private SwapPaymentPeriod createPaymentPeriod(List<AccrualPeriod> periods) {
-    return SwapPaymentPeriod.builder()
+  private PaymentPeriod createPaymentPeriod(List<AccrualPeriod> periods) {
+    return RatePaymentPeriod.builder()
         .paymentDate(createPaymentDate(periods))
         .accrualPeriods(periods)
         .compoundingMethod(compoundingMethod)

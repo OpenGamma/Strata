@@ -19,10 +19,9 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.RateProviderFn;
 
 /**
- * Rate provider implementation for an IBOR-like index.
+ * Multiple dispatch for {@code RateProviderFn}.
  * <p>
- * The rate provider examines the historic time-series of known rates and the
- * forward curve to determine the effective annualized rate.
+ * Dispatches the rate request to the correct implementation.
  */
 public class StandardRateProviderFn
     implements RateProviderFn<Rate> {
@@ -103,8 +102,9 @@ public class StandardRateProviderFn
       return overnightCompoundedRateFn.rate(env, valuationDate, (OvernightCompoundedRate) rate, startDate, endDate);
     } else if (rate instanceof OvernightAveragedRate) {
       return overnightAveragedRateFn.rate(env, valuationDate, (OvernightAveragedRate) rate, startDate, endDate);
+    } else {
+      throw new IllegalArgumentException("Unknown Rate type: " + rate.getClass().getSimpleName());
     }
-    throw new IllegalArgumentException("Unknown Rate type: " + rate.getClass().getSimpleName());
   }
 
 }

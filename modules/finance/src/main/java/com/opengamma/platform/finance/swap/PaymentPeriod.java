@@ -9,20 +9,39 @@ import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.Currency;
 
 /**
- * A period over which interest is accrued.
+ * A period over which interest is accrued with a single payment.
  * <p>
  * A swap leg is designed to accrue interest over one or more periods.
  * Each basic period that generates interest is an accrual period.
- * For example, a fixed rate accrual period generates interest based on a fixed rate
- * for the duration of the period.
+ * The accrual periods are combined to form payment periods.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
-public interface AccrualPeriod
+public interface PaymentPeriod
     extends ImmutableBean {
+
+  /**
+   * Gets the date that the payment is made.
+   * <p>
+   * Each payment period has a single payment date.
+   * This date has been adjusted to be a valid business day.
+   * 
+   * @return the start date of the period
+   */
+  public LocalDate getPaymentDate();
+
+  /**
+   * Gets the accrual periods.
+   * <p>
+   * Each payment period is formed from one or more accrual periods.
+   * 
+   * @return the accrual periods
+   */
+  public ImmutableList<AccrualPeriod> getAccrualPeriods();
 
   /**
    * Gets the start date of the period.
