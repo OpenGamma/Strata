@@ -131,7 +131,7 @@ public final class RateAccrualPeriod
   @PropertyDefinition(validate = "notNull")
   private final NegativeRateMethod negativeRateMethod;
   /**
-   * The gearing multiplier.
+   * The gearing multiplier, defaulted to 1.
    * <p>
    * This defines the gearing as an initial value and a list of adjustments.
    * The gearing is only permitted to change at accrual period boundaries.
@@ -159,6 +159,7 @@ public final class RateAccrualPeriod
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.negativeRateMethod(NegativeRateMethod.ALLOW_NEGATIVE);
+    builder.gearing(1d);
   }
 
   //-------------------------------------------------------------------------

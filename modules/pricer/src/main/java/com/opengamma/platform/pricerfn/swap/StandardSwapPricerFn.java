@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -17,6 +18,7 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.date.Tenor;
 import com.opengamma.basics.index.RateIndex;
+import com.opengamma.platform.finance.rate.FixedRate;
 import com.opengamma.platform.finance.rate.IborRate;
 import com.opengamma.platform.finance.swap.AccrualPeriod;
 import com.opengamma.platform.finance.swap.CompoundingMethod;
@@ -82,31 +84,33 @@ public class StandardSwapPricerFn implements SwapPricerFn {
     if (paymentPeriod.isCompounding()) {
       double total = 0;
       // fixed
-//      List<RateAccrualPeriod> periods1 = paymentPeriod.getAccrualPeriods().stream()
-//          .filter(p -> p instanceof RateAccrualPeriod)
-//          .map(p-> (RateAccrualPeriod) p)
-//          .collect(Collectors.toList());
-//      if (periods1.size() > 0) {
-//        double paymentYearFraction1 = periods1.stream()
-//            .mapToDouble(FixedRateAccrualPeriod::getYearFraction)
-//            .sum();
-//        double[] accrualPeriodYearFractions1 = periods1.stream()
-//            .mapToDouble(FixedRateAccrualPeriod::getYearFraction)
-//            .toArray();
-//        CouponFixedCompounding coupon1 = new CouponFixedCompounding(
-//            currency(paymentPeriod.getCurrency()),
-//            env.relativeTime(valuationDate, paymentPeriod.getPaymentDate()),
-//            paymentYearFraction1,
-//            periods1.get(0).getNotional(),  // TODO only one notional
-//            accrualPeriodYearFractions1,
-//            periods1.get(0).getRate());  // TODO only one rate
-//        total += PVDC.visitCouponFixedCompounding(coupon1, env.getMulticurve())
-//            .getAmount(currency(paymentPeriod.getCurrency()));
-//      }
+      List<RateAccrualPeriod> periods1 = paymentPeriod.getAccrualPeriods().stream()
+          .filter(p -> p instanceof RateAccrualPeriod)
+          .map(p-> (RateAccrualPeriod) p)
+          .filter(p -> p.getRate() instanceof FixedRate)
+          .collect(Collectors.toList());
+      if (periods1.size() > 0) {
+        double paymentYearFraction1 = periods1.stream()
+            .mapToDouble(RateAccrualPeriod::getYearFraction)
+            .sum();
+        double[] accrualPeriodYearFractions1 = periods1.stream()
+            .mapToDouble(RateAccrualPeriod::getYearFraction)
+            .toArray();
+        CouponFixedCompounding coupon1 = new CouponFixedCompounding(
+            currency(paymentPeriod.getCurrency()),
+            env.relativeTime(valuationDate, paymentPeriod.getPaymentDate()),
+            paymentYearFraction1,
+            periods1.get(0).getNotional(),  // TODO only one notional
+            accrualPeriodYearFractions1,
+            ((FixedRate) periods1.get(0).getRate()).getRate());  // TODO only one rate
+        total += PVDC.visitCouponFixedCompounding(coupon1, env.getMulticurve())
+            .getAmount(currency(paymentPeriod.getCurrency()));
+      }
       // floating
       List<RateAccrualPeriod> periods2 = paymentPeriod.getAccrualPeriods().stream()
           .filter(p -> p instanceof RateAccrualPeriod)
           .map(p-> (RateAccrualPeriod) p)
+          .filter(p -> p.getRate() instanceof IborRate)
           .collect(Collectors.toList());
       if (periods2.size() > 0) {
         double paymentYearFraction2 = periods2.stream()
@@ -120,7 +124,7 @@ public class StandardSwapPricerFn implements SwapPricerFn {
         double[] fixingEndTimes = new double[periods2.size()];
         double[] fixingYearFractions = new double[periods2.size()];
         for (int i = 0; i < periods2.size(); i++) {
-          IborRate rate = (IborRate) periods2.get(i).getRate();  // TODO assumes IBOR
+          IborRate rate = (IborRate) periods2.get(i).getRate();
           LocalDate fixingDate = rate.getFixingDate();
           LocalDate fixingStartDate = rate.getIndex().calculateEffectiveFromFixing(fixingDate);
           LocalDate fixingEndDate = rate.getIndex().calculateMaturityFromEffective(fixingStartDate);
