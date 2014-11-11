@@ -29,14 +29,14 @@ public interface Security
    * however it is strongly recommended to use an identifier that does not change over time.
    */
   @Override
-  public StandardId getStandardId();
+  public abstract StandardId getStandardId();
 
   /**
    * Gets the security type.
    * 
    * @return the security type, not null
    */
-  public SecurityType getSecurityType();
+  public abstract SecurityType getSecurityType();
 
   /**
    * Gets the entire set of additional attributes.
@@ -46,6 +46,6 @@ public interface Security
    * 
    * @return the complete set of attributes, not null
    */
-  public ImmutableMap<String, String> getAttributes();
+  public abstract ImmutableMap<String, String> getAttributes();
 
 }

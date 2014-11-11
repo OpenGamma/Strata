@@ -26,7 +26,7 @@ public interface SwapLeg {
    * 
    * @return the start date of the period
    */
-  public LocalDate getStartDate();
+  public abstract LocalDate getStartDate();
 
   /**
    * Gets the end date of the leg.
@@ -36,7 +36,7 @@ public interface SwapLeg {
    * 
    * @return the end date of the period
    */
-  public LocalDate getEndDate();
+  public abstract LocalDate getEndDate();
 
   /**
    * Gets the currency of the leg.
@@ -45,7 +45,7 @@ public interface SwapLeg {
    * 
    * @return the currency of the leg
    */
-  public Currency getCurrency();
+  public abstract Currency getCurrency();
 
   /**
    * Converts this swap leg to the equivalent expanded swap leg.
@@ -55,6 +55,6 @@ public interface SwapLeg {
    * @return the equivalent expanded swap leg
    * @throws RuntimeException if the swap leg is invalid
    */
-  public ExpandedSwapLeg toExpanded();
+  public abstract ExpandedSwapLeg toExpanded();
 
 }

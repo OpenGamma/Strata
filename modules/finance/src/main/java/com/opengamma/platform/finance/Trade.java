@@ -33,21 +33,21 @@ public interface Trade
    * however it is strongly recommended to use an identifier that does not change over time.
    */
   @Override
-  public StandardId getStandardId();
+  public abstract StandardId getStandardId();
 
   /**
    * Gets the trade type.
    * 
    * @return the trade type, not null
    */
-  public TradeType getTradeType();
+  public abstract TradeType getTradeType();
 
   /**
    * Gets the trade date.
    * 
    * @return the trade date, not null
    */
-  public LocalDate getTradeDate();
+  public abstract LocalDate getTradeDate();
 
   /**
    * Gets the entire set of additional attributes.
@@ -57,6 +57,6 @@ public interface Trade
    * 
    * @return the complete set of attributes, not null
    */
-  public ImmutableMap<String, String> getAttributes();
+  public abstract ImmutableMap<String, String> getAttributes();
 
 }

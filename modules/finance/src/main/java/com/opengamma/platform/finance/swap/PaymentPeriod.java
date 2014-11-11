@@ -30,7 +30,7 @@ public interface PaymentPeriod
    * 
    * @return the start date of the period
    */
-  public LocalDate getPaymentDate();
+  public abstract LocalDate getPaymentDate();
 
   /**
    * Gets the start date of the period.
@@ -40,7 +40,7 @@ public interface PaymentPeriod
    * 
    * @return the start date of the period
    */
-  public LocalDate getStartDate();
+  public abstract LocalDate getStartDate();
 
   /**
    * Gets the end date of the period.
@@ -50,7 +50,7 @@ public interface PaymentPeriod
    * 
    * @return the end date of the period
    */
-  public LocalDate getEndDate();
+  public abstract LocalDate getEndDate();
 
   /**
    * Gets the currency of the period.
@@ -59,6 +59,6 @@ public interface PaymentPeriod
    * 
    * @return the currency of the period
    */
-  public Currency getCurrency();
+  public abstract Currency getCurrency();
 
 }
