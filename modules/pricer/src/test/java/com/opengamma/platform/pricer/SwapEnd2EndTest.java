@@ -544,7 +544,6 @@ public class SwapEnd2EndTest {
         .paymentPeriods(PaymentSchedule.builder()
             .paymentFrequency(P3M)
             .paymentOffset(DaysAdjustment.NONE)
-            .compoundingMethod(CompoundingMethod.STRAIGHT)
             .build())
         .calculation(IborRateCalculation.builder()
             .payReceive(PAY)

@@ -234,7 +234,7 @@ public final class IborRateCalculation
    * @return the expanded accrual periods
    * @throws RuntimeException if the swap calculation is invalid
    */
-  ImmutableList<AccrualPeriod> createAccrualPeriods(Schedule schedule) {
+  ImmutableList<RateAccrualPeriod> createAccrualPeriods(Schedule schedule) {
     if (notional.isInitialExchange() ||
         notional.isFinalExchange() ||
         notional.isIntermediateExchange() ||
@@ -259,7 +259,7 @@ public final class IborRateCalculation
     Currency currency = notional.getCurrency();
     FxResetNotional fxResetNotional = notional.getFxReset();
     // build accrual periods
-    ImmutableList.Builder<AccrualPeriod> accrualPeriods = ImmutableList.builder();
+    ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period, dayCount)

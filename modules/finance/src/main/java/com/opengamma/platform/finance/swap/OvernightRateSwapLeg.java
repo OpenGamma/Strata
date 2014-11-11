@@ -134,7 +134,7 @@ public final class OvernightRateSwapLeg
   @Override
   public ExpandedSwapLeg toExpanded() {
     Schedule schedule = accrualPeriods.createSchedule();
-    ImmutableList<AccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(schedule);
+    ImmutableList<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(schedule);
     return ExpandedSwapLeg.builder()
         .paymentPeriods(paymentPeriods.createPaymentPeriods(accrualPeriods, schedule))
         .notionalExchange(NotionalExchange.NO_EXCHANGE)  // TODO

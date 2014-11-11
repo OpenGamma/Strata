@@ -63,7 +63,7 @@ public final class RatePaymentPeriod
    * All accrual periods must have the same currency.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
-  private final ImmutableList<AccrualPeriod> accrualPeriods;
+  private final ImmutableList<RateAccrualPeriod> accrualPeriods;
   /**
    * The compounding method to use when there is more than one accrual period, default is 'None'.
    * <p>
@@ -82,7 +82,7 @@ public final class RatePaymentPeriod
    * @param accrualPeriod  the single accrual period forming the payment period
    * @return the payment period
    */
-  public static RatePaymentPeriod of(LocalDate paymentDate, AccrualPeriod accrualPeriod) {
+  public static RatePaymentPeriod of(LocalDate paymentDate, RateAccrualPeriod accrualPeriod) {
     return RatePaymentPeriod.builder()
         .paymentDate(paymentDate)
         .accrualPeriods(ImmutableList.of(accrualPeriod))
@@ -98,7 +98,7 @@ public final class RatePaymentPeriod
    * @return the payment period
    */
   public static RatePaymentPeriod of(
-      LocalDate paymentDate, List<AccrualPeriod> accrualPeriods, CompoundingMethod compoundingMethod) {
+      LocalDate paymentDate, List<RateAccrualPeriod> accrualPeriods, CompoundingMethod compoundingMethod) {
     return RatePaymentPeriod.builder()
         .paymentDate(paymentDate)
         .accrualPeriods(accrualPeriods)
@@ -122,7 +122,7 @@ public final class RatePaymentPeriod
    * @return the accrual period
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  public AccrualPeriod getAccrualPeriod(int index) {
+  public RateAccrualPeriod getAccrualPeriod(int index) {
     return accrualPeriods.get(index);
   }
 
@@ -202,7 +202,7 @@ public final class RatePaymentPeriod
 
   private RatePaymentPeriod(
       LocalDate paymentDate,
-      List<AccrualPeriod> accrualPeriods,
+      List<RateAccrualPeriod> accrualPeriods,
       CompoundingMethod compoundingMethod) {
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notEmpty(accrualPeriods, "accrualPeriods");
@@ -249,7 +249,7 @@ public final class RatePaymentPeriod
    * @return the value of the property, not empty
    */
   @Override
-  public ImmutableList<AccrualPeriod> getAccrualPeriods() {
+  public ImmutableList<RateAccrualPeriod> getAccrualPeriods() {
     return accrualPeriods;
   }
 
@@ -326,7 +326,7 @@ public final class RatePaymentPeriod
      * The meta-property for the {@code accrualPeriods} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<AccrualPeriod>> accrualPeriods = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableList<RateAccrualPeriod>> accrualPeriods = DirectMetaProperty.ofImmutable(
         this, "accrualPeriods", RatePaymentPeriod.class, (Class) ImmutableList.class);
     /**
      * The meta-property for the {@code compoundingMethod} property.
@@ -389,7 +389,7 @@ public final class RatePaymentPeriod
      * The meta-property for the {@code accrualPeriods} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<AccrualPeriod>> accrualPeriods() {
+    public MetaProperty<ImmutableList<RateAccrualPeriod>> accrualPeriods() {
       return accrualPeriods;
     }
 
@@ -433,7 +433,7 @@ public final class RatePaymentPeriod
   public static final class Builder extends DirectFieldsBeanBuilder<RatePaymentPeriod> {
 
     private LocalDate paymentDate;
-    private List<AccrualPeriod> accrualPeriods = new ArrayList<AccrualPeriod>();
+    private List<RateAccrualPeriod> accrualPeriods = new ArrayList<RateAccrualPeriod>();
     private CompoundingMethod compoundingMethod;
 
     /**
@@ -449,7 +449,7 @@ public final class RatePaymentPeriod
      */
     private Builder(RatePaymentPeriod beanToCopy) {
       this.paymentDate = beanToCopy.getPaymentDate();
-      this.accrualPeriods = new ArrayList<AccrualPeriod>(beanToCopy.getAccrualPeriods());
+      this.accrualPeriods = new ArrayList<RateAccrualPeriod>(beanToCopy.getAccrualPeriods());
       this.compoundingMethod = beanToCopy.getCompoundingMethod();
     }
 
@@ -476,7 +476,7 @@ public final class RatePaymentPeriod
           this.paymentDate = (LocalDate) newValue;
           break;
         case -92208605:  // accrualPeriods
-          this.accrualPeriods = (List<AccrualPeriod>) newValue;
+          this.accrualPeriods = (List<RateAccrualPeriod>) newValue;
           break;
         case -1376171496:  // compoundingMethod
           this.compoundingMethod = (CompoundingMethod) newValue;
@@ -536,7 +536,7 @@ public final class RatePaymentPeriod
      * @param accrualPeriods  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder accrualPeriods(List<AccrualPeriod> accrualPeriods) {
+    public Builder accrualPeriods(List<RateAccrualPeriod> accrualPeriods) {
       JodaBeanUtils.notEmpty(accrualPeriods, "accrualPeriods");
       this.accrualPeriods = accrualPeriods;
       return this;

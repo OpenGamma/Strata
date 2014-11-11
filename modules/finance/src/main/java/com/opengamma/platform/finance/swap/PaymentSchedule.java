@@ -137,7 +137,7 @@ public final class PaymentSchedule
    * @param schedule  the accrual schedule
    * @return the list of payment periods
    */
-  ImmutableList<PaymentPeriod> createPaymentPeriods(List<AccrualPeriod> accrualPeriods, Schedule schedule) {
+  ImmutableList<PaymentPeriod> createPaymentPeriods(List<RateAccrualPeriod> accrualPeriods, Schedule schedule) {
     // payment periods contain one accrual period
     Frequency accrualFrequency = schedule.getFrequency();
     if (accrualFrequency.equals(paymentFrequency)) {
@@ -155,7 +155,7 @@ public final class PaymentSchedule
 
   // group accrual periods based on payment schedule
   private ImmutableList<PaymentPeriod> groupAccrualPeriods(
-      List<AccrualPeriod> accrualPeriods, Schedule schedule, Frequency accrualFrequency) {
+      List<RateAccrualPeriod> accrualPeriods, Schedule schedule, Frequency accrualFrequency) {
     
     int freqMultiple = accrualPeriodsPerPayment(paymentFrequency, accrualFrequency);
     int accrualCount = accrualPeriods.size();
@@ -186,7 +186,7 @@ public final class PaymentSchedule
 
   // group accrual periods by initial, multiple and final
   private ImmutableList<PaymentPeriod> groupAccrualPeriods(
-      List<AccrualPeriod> accrualPeriods, int initialGroup, int multiple, int finalGroup) {
+      List<RateAccrualPeriod> accrualPeriods, int initialGroup, int multiple, int finalGroup) {
     
     int accrualCount = accrualPeriods.size();
     int finalIndex = accrualCount - finalGroup;
@@ -204,7 +204,7 @@ public final class PaymentSchedule
   }
 
   // create the payment period
-  private PaymentPeriod createPaymentPeriod(List<AccrualPeriod> periods) {
+  private PaymentPeriod createPaymentPeriod(List<RateAccrualPeriod> periods) {
     return RatePaymentPeriod.builder()
         .paymentDate(createPaymentDate(periods))
         .accrualPeriods(periods)
@@ -213,7 +213,7 @@ public final class PaymentSchedule
   }
 
   // determine the fixing date
-  private LocalDate createPaymentDate(List<AccrualPeriod> periods) {
+  private LocalDate createPaymentDate(List<RateAccrualPeriod> periods) {
     switch (paymentRelativeTo) {
       case PERIOD_END:
         return paymentOffset.adjust(periods.get(periods.size() - 1).getEndDate());

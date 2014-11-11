@@ -41,7 +41,7 @@ public interface PaymentPeriod
    * 
    * @return the accrual periods
    */
-  public ImmutableList<AccrualPeriod> getAccrualPeriods();
+  public ImmutableList<? extends AccrualPeriod> getAccrualPeriods();
 
   /**
    * Gets the start date of the period.

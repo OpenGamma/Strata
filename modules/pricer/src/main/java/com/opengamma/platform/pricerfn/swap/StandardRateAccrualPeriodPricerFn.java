@@ -8,8 +8,11 @@ package com.opengamma.platform.pricerfn.swap;
 import java.time.LocalDate;
 
 import com.opengamma.basics.currency.CurrencyPair;
+import com.opengamma.collect.ArgChecker;
+import com.opengamma.platform.finance.rate.Rate;
 import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.rate.RateProviderFn;
 import com.opengamma.platform.pricer.swap.AccrualPeriodPricerFn;
 import com.opengamma.platform.pricerfn.rate.StandardRateProviderFn;
 
@@ -30,7 +33,23 @@ public class StandardRateAccrualPeriodPricerFn
   /**
    * Default implementation.
    */
-  public static final StandardRateAccrualPeriodPricerFn DEFAULT = new StandardRateAccrualPeriodPricerFn();
+  public static final StandardRateAccrualPeriodPricerFn DEFAULT = new StandardRateAccrualPeriodPricerFn(
+      StandardRateProviderFn.DEFAULT);
+
+  /**
+   * Rate provider.
+   */
+  private final RateProviderFn<Rate> rateProviderFn;
+
+  /**
+   * Creates an instance.
+   * 
+   * @param rateProviderFn  the rate provider
+   */
+  public StandardRateAccrualPeriodPricerFn(
+      RateProviderFn<Rate> rateProviderFn) {
+    this.rateProviderFn = ArgChecker.notNull(rateProviderFn, "rateProviderFn");
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -57,8 +76,7 @@ public class StandardRateAccrualPeriodPricerFn
       fxRate = env.fxRate(period.getFxReset().getIndex(), pair, valuationDate, period.getFxReset().getFixingDate());
     }
     // calculated result
-    double rate = StandardRateProviderFn.DEFAULT.rate(
-        env, valuationDate, period.getRate(), period.getStartDate(), period.getEndDate());
+    double rate = rateProviderFn.rate(env, valuationDate, period.getRate(), period.getStartDate(), period.getEndDate());
     double treatedRate = rate * period.getGearing() + period.getSpread();
     double fv = period.getNotional() * fxRate * treatedRate * period.getYearFraction();
     return period.getNegativeRateMethod().adjust(fv);
