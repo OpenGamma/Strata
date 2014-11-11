@@ -15,6 +15,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -27,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.Rate;
 
 /**
@@ -82,7 +84,7 @@ public final class RateAccrualPeriod
    * Typically the value will be close to 1 for one year and close to 0.5 for six months.
    * The fraction may be greater than 1, but not less than 0.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double yearFraction;
   /**
    * The primary currency of the accrual period.
@@ -93,7 +95,7 @@ public final class RateAccrualPeriod
    * however they can be converted from amounts in a different currency.
    * See the optional {@code fxReset} property.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
    * The FX reset definition, optional.
@@ -162,6 +164,12 @@ public final class RateAccrualPeriod
     builder.gearing(1d);
   }
 
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+    ArgChecker.inOrderNotEqual(unadjustedStartDate, unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a builder used to create an instance of the bean,
@@ -222,6 +230,7 @@ public final class RateAccrualPeriod
     JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(unadjustedStartDate, "unadjustedStartDate");
     JodaBeanUtils.notNull(unadjustedEndDate, "unadjustedEndDate");
+    ArgChecker.notNegative(yearFraction, "yearFraction");
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(notional, "notional");
     JodaBeanUtils.notNull(rate, "rate");
@@ -238,6 +247,7 @@ public final class RateAccrualPeriod
     this.negativeRateMethod = negativeRateMethod;
     this.gearing = gearing;
     this.spread = spread;
+    validate();
   }
 
   @Override
@@ -327,7 +337,6 @@ public final class RateAccrualPeriod
    * See the optional {@code fxReset} property.
    * @return the value of the property, not null
    */
-  @Override
   public Currency getCurrency() {
     return currency;
   }
@@ -980,6 +989,7 @@ public final class RateAccrualPeriod
      * @return this, for chaining, not null
      */
     public Builder yearFraction(double yearFraction) {
+      ArgChecker.notNegative(yearFraction, "yearFraction");
       this.yearFraction = yearFraction;
       return this;
     }

@@ -30,7 +30,8 @@ import com.opengamma.basics.value.ValueSchedule;
  * A notional amount.
  * <p>
  * Interest rate swaps are based on a notional amount of money.
- * The notional can vary during the lifetime of the swap, but only at accrual period boundaries.
+ * The notional can vary during the lifetime of the swap, but only at payment period boundaries.
+ * It is not permitted to vary at an intermediate accrual (compounding) period boundary.
  * <p>
  * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
  * However, in certain cases, initial, final or intermediate amounts are exchanged.
@@ -62,9 +63,6 @@ public final class NotionalAmount
    * amount has to be converted using an FX rate to the swap leg currency. This conversion
    * occurs at each payment period boundary and usually corresponds to an actual
    * exchange of money between the counterparties.
-   * <p>
-   * Note that if this property is non-null, the notional is only permitted to vary
-   * at payment period boundaries, and not at accrual (compounding) period boundaries.
    */
   @PropertyDefinition
   private final FxResetNotional fxReset;
@@ -73,6 +71,9 @@ public final class NotionalAmount
    * <p>
    * This defines the notional as an initial amount and a list of adjustments.
    * The notional expressed here is intended to always be positive.
+   * <p>
+   * The notional is only allowed to change at payment period boundaries.
+   * As such, the {@code ValueSchedule} steps are defined relative to the payment schedule.
    */
   @PropertyDefinition(validate = "notNull")
   private final ValueSchedule amount;
@@ -214,9 +215,6 @@ public final class NotionalAmount
    * amount has to be converted using an FX rate to the swap leg currency. This conversion
    * occurs at each payment period boundary and usually corresponds to an actual
    * exchange of money between the counterparties.
-   * <p>
-   * Note that if this property is non-null, the notional is only permitted to vary
-   * at payment period boundaries, and not at accrual (compounding) period boundaries.
    * @return the value of the property
    */
   public FxResetNotional getFxReset() {
@@ -229,6 +227,9 @@ public final class NotionalAmount
    * <p>
    * This defines the notional as an initial amount and a list of adjustments.
    * The notional expressed here is intended to always be positive.
+   * <p>
+   * The notional is only allowed to change at payment period boundaries.
+   * As such, the {@code ValueSchedule} steps are defined relative to the payment schedule.
    * @return the value of the property, not null
    */
   public ValueSchedule getAmount() {

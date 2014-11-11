@@ -9,8 +9,6 @@ import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
 
-import com.opengamma.basics.currency.Currency;
-
 /**
  * A period over which interest is accrued.
  * <p>
@@ -43,14 +41,5 @@ public interface AccrualPeriod
    * @return the end date of the period
    */
   public LocalDate getEndDate();
-
-  /**
-   * Gets the currency of the period.
-   * <p>
-   * A period has a single currency.
-   * 
-   * @return the currency of the period
-   */
-  public Currency getCurrency();
 
 }

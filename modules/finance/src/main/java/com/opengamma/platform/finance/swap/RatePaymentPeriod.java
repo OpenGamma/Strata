@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -28,7 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
 
 /**
@@ -64,6 +62,42 @@ public final class RatePaymentPeriod
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final ImmutableList<RateAccrualPeriod> accrualPeriods;
+  /**
+   * The primary currency of the payment period.
+   * <p>
+   * This is the currency of the swap leg and the currency that interest calculation is made in.
+   * <p>
+   * The amounts of the notional are usually expressed in terms of this currency,
+   * however they can be converted from amounts in a different currency.
+   * See the optional {@code fxReset} property.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final Currency currency;
+  /**
+   * The FX reset definition, optional.
+   * <p>
+   * This property is used when the defined amount of the notional is specified in
+   * a currency other than the currency of the swap leg. When this occurs, the notional
+   * amount has to be converted using an FX rate to the swap leg currency.
+   */
+  @PropertyDefinition
+  private final FxReset fxReset;
+  /**
+   * The notional amount, positive if receiving, negative if paying.
+   * <p>
+   * The notional amount applicable during the period.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final double notional;
+  /**
+   * The negative rate method, defaulted to 'AllowNegative'.
+   * <p>
+   * This is used when the interest rate, observed or calculated, goes negative.
+   * <p>
+   * Defined by the 2006 ISDA definitions article 6.4.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final NegativeRateMethod negativeRateMethod;
   /**
    * The compounding method to use when there is more than one accrual period, default is 'None'.
    * <p>
@@ -109,6 +143,7 @@ public final class RatePaymentPeriod
   //-------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
+    builder.negativeRateMethod(NegativeRateMethod.ALLOW_NEGATIVE);
     builder.compoundingMethod(CompoundingMethod.NONE);
   }
 
@@ -154,19 +189,6 @@ public final class RatePaymentPeriod
   }
 
   /**
-   * Gets the currency of the payment period.
-   * 
-   * @return the currency
-   */
-  @Override
-  public Currency getCurrency() {
-    return Iterables.getOnlyElement(
-        accrualPeriods.stream()
-          .map(AccrualPeriod::getCurrency)
-          .collect(Collectors.toSet()));
-  }
-
-  /**
    * Checks whether compounding applies.
    * <p>
    * Compounding applies if there is more than one accrual period and the
@@ -203,12 +225,23 @@ public final class RatePaymentPeriod
   private RatePaymentPeriod(
       LocalDate paymentDate,
       List<RateAccrualPeriod> accrualPeriods,
+      Currency currency,
+      FxReset fxReset,
+      double notional,
+      NegativeRateMethod negativeRateMethod,
       CompoundingMethod compoundingMethod) {
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notEmpty(accrualPeriods, "accrualPeriods");
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(notional, "notional");
+    JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
     JodaBeanUtils.notNull(compoundingMethod, "compoundingMethod");
     this.paymentDate = paymentDate;
     this.accrualPeriods = ImmutableList.copyOf(accrualPeriods);
+    this.currency = currency;
+    this.fxReset = fxReset;
+    this.notional = notional;
+    this.negativeRateMethod = negativeRateMethod;
     this.compoundingMethod = compoundingMethod;
   }
 
@@ -255,6 +288,59 @@ public final class RatePaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the primary currency of the payment period.
+   * <p>
+   * This is the currency of the swap leg and the currency that interest calculation is made in.
+   * <p>
+   * The amounts of the notional are usually expressed in terms of this currency,
+   * however they can be converted from amounts in a different currency.
+   * See the optional {@code fxReset} property.
+   * @return the value of the property, not null
+   */
+  @Override
+  public Currency getCurrency() {
+    return currency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the FX reset definition, optional.
+   * <p>
+   * This property is used when the defined amount of the notional is specified in
+   * a currency other than the currency of the swap leg. When this occurs, the notional
+   * amount has to be converted using an FX rate to the swap leg currency.
+   * @return the value of the property
+   */
+  public FxReset getFxReset() {
+    return fxReset;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional amount, positive if receiving, negative if paying.
+   * <p>
+   * The notional amount applicable during the period.
+   * @return the value of the property, not null
+   */
+  public double getNotional() {
+    return notional;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the negative rate method, defaulted to 'AllowNegative'.
+   * <p>
+   * This is used when the interest rate, observed or calculated, goes negative.
+   * <p>
+   * Defined by the 2006 ISDA definitions article 6.4.
+   * @return the value of the property, not null
+   */
+  public NegativeRateMethod getNegativeRateMethod() {
+    return negativeRateMethod;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the compounding method to use when there is more than one accrual period, default is 'None'.
    * <p>
    * Compounding is used when combining accrual periods.
@@ -282,6 +368,10 @@ public final class RatePaymentPeriod
       RatePaymentPeriod other = (RatePaymentPeriod) obj;
       return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
           JodaBeanUtils.equal(getAccrualPeriods(), other.getAccrualPeriods()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getFxReset(), other.getFxReset()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod()) &&
           JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod());
     }
     return false;
@@ -292,16 +382,24 @@ public final class RatePaymentPeriod
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriods());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFxReset());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("RatePaymentPeriod{");
     buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
     buf.append("accrualPeriods").append('=').append(getAccrualPeriods()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("fxReset").append('=').append(getFxReset()).append(',').append(' ');
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
+    buf.append("negativeRateMethod").append('=').append(getNegativeRateMethod()).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(getCompoundingMethod()));
     buf.append('}');
     return buf.toString();
@@ -329,6 +427,26 @@ public final class RatePaymentPeriod
     private final MetaProperty<ImmutableList<RateAccrualPeriod>> accrualPeriods = DirectMetaProperty.ofImmutable(
         this, "accrualPeriods", RatePaymentPeriod.class, (Class) ImmutableList.class);
     /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
+        this, "currency", RatePaymentPeriod.class, Currency.class);
+    /**
+     * The meta-property for the {@code fxReset} property.
+     */
+    private final MetaProperty<FxReset> fxReset = DirectMetaProperty.ofImmutable(
+        this, "fxReset", RatePaymentPeriod.class, FxReset.class);
+    /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", RatePaymentPeriod.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code negativeRateMethod} property.
+     */
+    private final MetaProperty<NegativeRateMethod> negativeRateMethod = DirectMetaProperty.ofImmutable(
+        this, "negativeRateMethod", RatePaymentPeriod.class, NegativeRateMethod.class);
+    /**
      * The meta-property for the {@code compoundingMethod} property.
      */
     private final MetaProperty<CompoundingMethod> compoundingMethod = DirectMetaProperty.ofImmutable(
@@ -340,6 +458,10 @@ public final class RatePaymentPeriod
         this, null,
         "paymentDate",
         "accrualPeriods",
+        "currency",
+        "fxReset",
+        "notional",
+        "negativeRateMethod",
         "compoundingMethod");
 
     /**
@@ -355,6 +477,14 @@ public final class RatePaymentPeriod
           return paymentDate;
         case -92208605:  // accrualPeriods
           return accrualPeriods;
+        case 575402001:  // currency
+          return currency;
+        case -449555555:  // fxReset
+          return fxReset;
+        case 1585636160:  // notional
+          return notional;
+        case 1969081334:  // negativeRateMethod
+          return negativeRateMethod;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
       }
@@ -394,6 +524,38 @@ public final class RatePaymentPeriod
     }
 
     /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
+    /**
+     * The meta-property for the {@code fxReset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FxReset> fxReset() {
+      return fxReset;
+    }
+
+    /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> notional() {
+      return notional;
+    }
+
+    /**
+     * The meta-property for the {@code negativeRateMethod} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<NegativeRateMethod> negativeRateMethod() {
+      return negativeRateMethod;
+    }
+
+    /**
      * The meta-property for the {@code compoundingMethod} property.
      * @return the meta-property, not null
      */
@@ -409,6 +571,14 @@ public final class RatePaymentPeriod
           return ((RatePaymentPeriod) bean).getPaymentDate();
         case -92208605:  // accrualPeriods
           return ((RatePaymentPeriod) bean).getAccrualPeriods();
+        case 575402001:  // currency
+          return ((RatePaymentPeriod) bean).getCurrency();
+        case -449555555:  // fxReset
+          return ((RatePaymentPeriod) bean).getFxReset();
+        case 1585636160:  // notional
+          return ((RatePaymentPeriod) bean).getNotional();
+        case 1969081334:  // negativeRateMethod
+          return ((RatePaymentPeriod) bean).getNegativeRateMethod();
         case -1376171496:  // compoundingMethod
           return ((RatePaymentPeriod) bean).getCompoundingMethod();
       }
@@ -434,6 +604,10 @@ public final class RatePaymentPeriod
 
     private LocalDate paymentDate;
     private List<RateAccrualPeriod> accrualPeriods = new ArrayList<RateAccrualPeriod>();
+    private Currency currency;
+    private FxReset fxReset;
+    private double notional;
+    private NegativeRateMethod negativeRateMethod;
     private CompoundingMethod compoundingMethod;
 
     /**
@@ -450,6 +624,10 @@ public final class RatePaymentPeriod
     private Builder(RatePaymentPeriod beanToCopy) {
       this.paymentDate = beanToCopy.getPaymentDate();
       this.accrualPeriods = new ArrayList<RateAccrualPeriod>(beanToCopy.getAccrualPeriods());
+      this.currency = beanToCopy.getCurrency();
+      this.fxReset = beanToCopy.getFxReset();
+      this.notional = beanToCopy.getNotional();
+      this.negativeRateMethod = beanToCopy.getNegativeRateMethod();
       this.compoundingMethod = beanToCopy.getCompoundingMethod();
     }
 
@@ -461,6 +639,14 @@ public final class RatePaymentPeriod
           return paymentDate;
         case -92208605:  // accrualPeriods
           return accrualPeriods;
+        case 575402001:  // currency
+          return currency;
+        case -449555555:  // fxReset
+          return fxReset;
+        case 1585636160:  // notional
+          return notional;
+        case 1969081334:  // negativeRateMethod
+          return negativeRateMethod;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
         default:
@@ -477,6 +663,18 @@ public final class RatePaymentPeriod
           break;
         case -92208605:  // accrualPeriods
           this.accrualPeriods = (List<RateAccrualPeriod>) newValue;
+          break;
+        case 575402001:  // currency
+          this.currency = (Currency) newValue;
+          break;
+        case -449555555:  // fxReset
+          this.fxReset = (FxReset) newValue;
+          break;
+        case 1585636160:  // notional
+          this.notional = (Double) newValue;
+          break;
+        case 1969081334:  // negativeRateMethod
+          this.negativeRateMethod = (NegativeRateMethod) newValue;
           break;
         case -1376171496:  // compoundingMethod
           this.compoundingMethod = (CompoundingMethod) newValue;
@@ -516,6 +714,10 @@ public final class RatePaymentPeriod
       return new RatePaymentPeriod(
           paymentDate,
           accrualPeriods,
+          currency,
+          fxReset,
+          notional,
+          negativeRateMethod,
           compoundingMethod);
     }
 
@@ -543,6 +745,49 @@ public final class RatePaymentPeriod
     }
 
     /**
+     * Sets the {@code currency} property in the builder.
+     * @param currency  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the {@code fxReset} property in the builder.
+     * @param fxReset  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder fxReset(FxReset fxReset) {
+      this.fxReset = fxReset;
+      return this;
+    }
+
+    /**
+     * Sets the {@code notional} property in the builder.
+     * @param notional  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder notional(double notional) {
+      JodaBeanUtils.notNull(notional, "notional");
+      this.notional = notional;
+      return this;
+    }
+
+    /**
+     * Sets the {@code negativeRateMethod} property in the builder.
+     * @param negativeRateMethod  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder negativeRateMethod(NegativeRateMethod negativeRateMethod) {
+      JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
+      this.negativeRateMethod = negativeRateMethod;
+      return this;
+    }
+
+    /**
      * Sets the {@code compoundingMethod} property in the builder.
      * @param compoundingMethod  the new value, not null
      * @return this, for chaining, not null
@@ -556,10 +801,14 @@ public final class RatePaymentPeriod
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("RatePaymentPeriod.Builder{");
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("accrualPeriods").append('=').append(JodaBeanUtils.toString(accrualPeriods)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod)).append(',').append(' ');
       buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
       buf.append('}');
       return buf.toString();

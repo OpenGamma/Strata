@@ -46,8 +46,8 @@ import com.opengamma.basics.schedule.Schedule;
  * <li>Accrual periods based on a specific roll convention, such as IMM 3rd Wednesday
  * <li>Payment periods longer than accrual periods with compounding
  * <li>Payment offset from start or end of each accrual period
- * <li>Notionals that change at an accrual period boundary
- * <li>Optional FX reset notionals that change at a payment period boundary
+ * <li>Notionals that change at a payment period boundary
+ * <li>Optional FX reset notionals
  * <li>One overnight index, which is also used in the stubs
  * <li>Gearing and spread that change at an accrual period boundary
  * </ul>

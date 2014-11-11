@@ -106,13 +106,13 @@ public final class ExpandedSwapLeg
    * Gets the currency of the swap leg.
    * 
    * @return the currency
+   * @throws IllegalArgumentException if the payment periods have differing currencies
    */
   @Override
   public Currency getCurrency() {
     return Iterables.getOnlyElement(
         paymentPeriods.stream()
-          .flatMap(p -> p.getAccrualPeriods().stream())
-          .map(AccrualPeriod::getCurrency)
+          .map(PaymentPeriod::getCurrency)
           .collect(Collectors.toSet()));
   }
 

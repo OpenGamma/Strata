@@ -48,8 +48,8 @@ import com.opengamma.basics.schedule.Schedule;
  * <li>Payment periods longer than accrual periods with compounding
  * <li>Payment offset from start or end of each accrual period
  * <li>Optional rate averaging across multiple reset periods
- * <li>Notionals that change at an accrual period boundary
- * <li>Optional FX reset notionals that change at a payment period boundary
+ * <li>Notionals that change at a payment period boundary
+ * <li>Optional FX reset notionals
  * <li>One IBOR-like index, optional linear interpolation in stubs
  * <li>Gearing and spread that change at an accrual period boundary
  * </ul>

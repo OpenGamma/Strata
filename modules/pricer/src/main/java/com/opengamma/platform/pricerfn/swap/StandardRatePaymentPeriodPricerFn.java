@@ -6,26 +6,18 @@
 package com.opengamma.platform.pricerfn.swap;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
-import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.date.Tenor;
 import com.opengamma.basics.index.RateIndex;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.rate.FixedRate;
-import com.opengamma.platform.finance.rate.IborRate;
-import com.opengamma.platform.finance.swap.AccrualPeriod;
-import com.opengamma.platform.finance.swap.CompoundingMethod;
+import com.opengamma.platform.finance.rate.Rate;
 import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
-import com.opengamma.platform.pricer.swap.AccrualPeriodPricerFn;
+import com.opengamma.platform.pricer.rate.RateProviderFn;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
 import com.opengamma.platform.pricerfn.rate.StandardRateProviderFn;
 
@@ -42,26 +34,21 @@ public class StandardRatePaymentPeriodPricerFn
    * Default implementation.
    */
   public static final StandardRatePaymentPeriodPricerFn DEFAULT = new StandardRatePaymentPeriodPricerFn(
-      StandardRateAccrualPeriodPricerFn.DEFAULT);
+      StandardRateProviderFn.DEFAULT);
 
   /**
-   * Accrual period pricer.
+   * Rate provider.
    */
-  private final AccrualPeriodPricerFn<RateAccrualPeriod> accrualPeriodPricerFn;
-
-  /**
-   * Present value calculator.
-   */
-  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
+  private final RateProviderFn<Rate> rateProviderFn;
 
   /**
    * Creates an instance.
    * 
-   * @param accrualPeriodPricerFn  the pricer for {@link AccrualPeriod}
+   * @param rateProviderFn  the rate provider
    */
   public StandardRatePaymentPeriodPricerFn(
-      AccrualPeriodPricerFn<RateAccrualPeriod> accrualPeriodPricerFn) {
-    this.accrualPeriodPricerFn = ArgChecker.notNull(accrualPeriodPricerFn, "accrualPeriodPricerFn");
+      RateProviderFn<Rate> rateProviderFn) {
+    this.rateProviderFn = ArgChecker.notNull(rateProviderFn, "rateProviderFn");
   }
 
   //-------------------------------------------------------------------------
@@ -74,41 +61,49 @@ public class StandardRatePaymentPeriodPricerFn
     if (period.getPaymentDate().isBefore(valuationDate)) {
       return 0;
     }
-    // handle compounding
-    if (period.isCompounding()) {
-      return presentValueCompounded(env, valuationDate, period);
-    } else {
-      return presentValueNoCompounding(env, valuationDate, period);
+    // find FX rate, using 1 if no FX reset occurs
+    double fxRate = 1d;
+    if (period.getFxReset() != null) {
+      CurrencyPair pair = CurrencyPair.of(period.getFxReset().getReferenceCurrency(), period.getCurrency());
+      fxRate = env.fxRate(period.getFxReset().getIndex(), pair, valuationDate, period.getFxReset().getFixingDate());
     }
+    double notional = period.getNotional() * fxRate;
+    // handle compounding
+    double unitAccrual; 
+    if (period.isCompounding()) {
+      unitAccrual = unitNotionalCompounded(env, valuationDate, period);
+    } else {
+      unitAccrual = unitNotionalNoCompounding(env, valuationDate, period);
+    }
+    double df = env.discountFactor(period.getCurrency(), valuationDate, period.getPaymentDate());
+    return notional * unitAccrual * df;
   }
 
   // no compounding needed
-  private double presentValueNoCompounding(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
+  private double unitNotionalNoCompounding(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
     return period.getAccrualPeriods().stream()
-        .mapToDouble(accrualPeriod -> accrualPeriodPricerFn.presentValue(
-            env, valuationDate, accrualPeriod, period.getPaymentDate()))
+        .mapToDouble(accrualPeriod -> unitNotionalAccrual(env, valuationDate, accrualPeriod))
         .sum();
   }
 
   // apply compounding
-  private double presentValueCompounded(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
-    
-    double notional = period.getAccrualPeriod(0).getNotional();
+  private double unitNotionalCompounded(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
+    double notional = 1d;
     double notionalAccrued = notional;
     for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
 //      double rate = StandardRateProviderFn.DEFAULT.rate(
 //          env, valuationDate, accrualPeriod.getRate(), period.getStartDate(), period.getEndDate());
 //      double treatedRate = rate * accrualPeriod.getGearing() + accrualPeriod.getSpread();
 //      double investFactor = 1 + (treatedRate * accrualPeriod.getYearFraction());
-      double unitAccrual = accrualPeriodPricerFn.futureValue(env, valuationDate, accrualPeriod) / accrualPeriod.getNotional();  // TODO FX reset
+      double unitAccrual = unitNotionalAccrual(env, valuationDate, accrualPeriod);
       double investFactor = 1 + unitAccrual;
       notionalAccrued *= investFactor;
       System.out.println(notionalAccrued);
     }
-    double accrued = (notionalAccrued - notional);
-    double df = env.discountFactor(period.getCurrency(), valuationDate, period.getPaymentDate());
-    System.out.println(accrued * df);
-    return accrued * df;
+    return (notionalAccrued - notional);
+//    double df = env.discountFactor(period.getCurrency(), valuationDate, period.getPaymentDate());
+////    System.out.println(accrued * df);
+//    return accrued * df;
     
     
 
@@ -236,6 +231,17 @@ public class StandardRatePaymentPeriodPricerFn
       LocalDate valuationDate,
       RatePaymentPeriod period) {
     return 0d;
+  }
+
+  //-------------------------------------------------------------------------
+  // calculate the accrual for a unit notional
+  private double unitNotionalAccrual(
+      PricingEnvironment env,
+      LocalDate valuationDate,
+      RateAccrualPeriod period) {
+    double rate = rateProviderFn.rate(env, valuationDate, period.getRate(), period.getStartDate(), period.getEndDate());
+    double treatedRate = rate * period.getGearing() + period.getSpread();
+    return treatedRate * period.getYearFraction();
   }
 
   //-------------------------------------------------------------------------

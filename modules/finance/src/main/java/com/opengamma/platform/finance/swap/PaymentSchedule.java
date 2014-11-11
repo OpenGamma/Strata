@@ -208,6 +208,10 @@ public final class PaymentSchedule
     return RatePaymentPeriod.builder()
         .paymentDate(createPaymentDate(periods))
         .accrualPeriods(periods)
+        .currency(periods.get(0).getCurrency())
+        .fxReset(periods.get(0).getFxReset())
+        .notional(periods.get(0).getNotional())
+        .negativeRateMethod(periods.get(0).getNegativeRateMethod())
         .compoundingMethod(compoundingMethod)
         .build();
   }
