@@ -133,7 +133,7 @@ public final class FixedRateSwapLeg
     Schedule schedule = accrualPeriods.createSchedule();
     ImmutableList<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(schedule);
     return ExpandedSwapLeg.builder()
-        .paymentPeriods(paymentPeriods.createPaymentPeriods(accrualPeriods, schedule))
+        .paymentPeriods(paymentPeriods.createPaymentPeriods(accrualPeriods, schedule, calculation))
         .notionalExchange(NotionalExchange.NO_EXCHANGE)  // TODO
         .build();
   }

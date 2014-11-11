@@ -58,7 +58,7 @@ import com.opengamma.platform.finance.rate.Rate;
  */
 @BeanDefinition
 public final class IborRateCalculation
-    implements ImmutableBean, Serializable {
+    implements RateCalculation, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -82,7 +82,7 @@ public final class IborRateCalculation
    * <p>
    * The notional expressed here is always positive, see {@code payReceive}.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final NotionalAmount notional;
   /**
    * The day count convention applicable.
@@ -140,7 +140,7 @@ public final class IborRateCalculation
    * <p>
    * Defined by the 2006 ISDA definitions article 6.4.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final NegativeRateMethod negativeRateMethod;
 
   /**
@@ -420,6 +420,7 @@ public final class IborRateCalculation
    * The notional expressed here is always positive, see {@code payReceive}.
    * @return the value of the property, not null
    */
+  @Override
   public NotionalAmount getNotional() {
     return notional;
   }
@@ -502,6 +503,7 @@ public final class IborRateCalculation
    * Defined by the 2006 ISDA definitions article 6.4.
    * @return the value of the property, not null
    */
+  @Override
   public NegativeRateMethod getNegativeRateMethod() {
     return negativeRateMethod;
   }

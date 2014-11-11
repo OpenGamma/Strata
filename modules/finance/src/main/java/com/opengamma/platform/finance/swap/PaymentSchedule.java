@@ -139,25 +139,26 @@ public final class PaymentSchedule
    */
   ImmutableList<PaymentPeriod> createPaymentPeriods(
       List<RateAccrualPeriod> accrualPeriods,
-      Schedule schedule) {
+      Schedule schedule,
+      RateCalculation rateCalculation) {
     // payment periods contain one accrual period
     Frequency accrualFrequency = schedule.getFrequency();
     if (accrualFrequency.equals(paymentFrequency)) {
       return accrualPeriods.stream()
-          .map(accrualPeriod -> createPaymentPeriod(ImmutableList.of(accrualPeriod)))
+          .map(accrualPeriod -> createPaymentPeriod(ImmutableList.of(accrualPeriod), rateCalculation))
           .collect(Guavate.toImmutableList());
     }
     // only one payment
     if (paymentFrequency.equals(Frequency.TERM)) {
-      return ImmutableList.of(createPaymentPeriod(accrualPeriods));
+      return ImmutableList.of(createPaymentPeriod(accrualPeriods, rateCalculation));
     }
     // payment periods contain more than one accrual period
-    return groupAccrualPeriods(accrualPeriods, schedule, accrualFrequency);
+    return groupAccrualPeriods(accrualPeriods, schedule, accrualFrequency, rateCalculation);
   }
 
   // group accrual periods based on payment schedule
   private ImmutableList<PaymentPeriod> groupAccrualPeriods(
-      List<RateAccrualPeriod> accrualPeriods, Schedule schedule, Frequency accrualFrequency) {
+      List<RateAccrualPeriod> accrualPeriods, Schedule schedule, Frequency accrualFrequency, RateCalculation rateCalculation) {
     
     int freqMultiple = accrualPeriodsPerPayment(paymentFrequency, accrualFrequency);
     int accrualCount = accrualPeriods.size();
@@ -170,43 +171,47 @@ public final class PaymentSchedule
             "Payment frequency '{}' must exactly divide remaining accrual periods when specifying " +
             "initialPaymentAccrualPeriods and/or finalPaymentAccrualPeriods", paymentFrequency));
       }
-      return groupAccrualPeriods(accrualPeriods, initialGroup, freqMultiple, finalGroup);
+      return groupAccrualPeriods(accrualPeriods, initialGroup, freqMultiple, finalGroup, rateCalculation);
     }
     // accrual periods divide exactly into payment periods
     int multipleRemainder = accrualCount % freqMultiple;
     if (multipleRemainder == 0) {
-      return groupAccrualPeriods(accrualPeriods, 0, freqMultiple, 0);
+      return groupAccrualPeriods(accrualPeriods, 0, freqMultiple, 0, rateCalculation);
     }
     // determine by stub direction, default is to roll backwards
     boolean finalStub = schedule.getLastPeriod().isStub();
     if (finalStub) {
-      return groupAccrualPeriods(accrualPeriods, 0, freqMultiple, multipleRemainder);
+      return groupAccrualPeriods(accrualPeriods, 0, freqMultiple, multipleRemainder, rateCalculation);
     } else {
-      return groupAccrualPeriods(accrualPeriods, multipleRemainder, freqMultiple, 0);
+      return groupAccrualPeriods(accrualPeriods, multipleRemainder, freqMultiple, 0, rateCalculation);
     }
   }
 
   // group accrual periods by initial, multiple and final
   private ImmutableList<PaymentPeriod> groupAccrualPeriods(
-      List<RateAccrualPeriod> accrualPeriods, int initialGroup, int multiple, int finalGroup) {
+      List<RateAccrualPeriod> accrualPeriods, int initialGroup, int multiple, int finalGroup, RateCalculation rateCalculation) {
     
     int accrualCount = accrualPeriods.size();
     int finalIndex = accrualCount - finalGroup;
     ImmutableList.Builder<PaymentPeriod> paymentPeriods = ImmutableList.builder();
     if (initialGroup > 0) {
-      paymentPeriods.add(createPaymentPeriod(accrualPeriods.subList(0, initialGroup)));
+      paymentPeriods.add(createPaymentPeriod(accrualPeriods.subList(0, initialGroup), rateCalculation));
     }
     for (int i = initialGroup; i < finalIndex; i += multiple) {
-      paymentPeriods.add(createPaymentPeriod(accrualPeriods.subList(i, i + multiple)));
+      paymentPeriods.add(createPaymentPeriod(accrualPeriods.subList(i, i + multiple), rateCalculation));
     }
     if (finalGroup > 0) {
-      paymentPeriods.add(createPaymentPeriod(accrualPeriods.subList(finalIndex, accrualCount)));
+      paymentPeriods.add(createPaymentPeriod(accrualPeriods.subList(finalIndex, accrualCount), rateCalculation));
     }
     return paymentPeriods.build();
   }
 
   // create the payment period
-  private PaymentPeriod createPaymentPeriod(List<RateAccrualPeriod> periods) {
+  private PaymentPeriod createPaymentPeriod(List<RateAccrualPeriod> periods, RateCalculation rateCalculation) {
+//    List<Double> resolvedNotionals = notional.getAmount().resolveValues(schedule.getPeriods());
+//    Currency currency = notional.getCurrency();
+//    FxResetNotional fxResetNotional = notional.getFxReset();
+    
     return RatePaymentPeriod.builder()
         .paymentDate(createPaymentDate(periods))
         .accrualPeriods(periods)
@@ -217,6 +222,14 @@ public final class PaymentSchedule
         .compoundingMethod(compoundingMethod)
         .build();
   }
+
+//  // determine the FX reset
+//  private FxReset createFxReset(SchedulePeriod period, FxResetNotional fxResetNotional, Currency currency) {
+//    if (fxResetNotional == null || fxResetNotional.getReferenceCurrency().equals(currency)) {
+//      return null;
+//    }
+//    return fxResetNotional.createFxReset(period);
+//  }
 
   // determine the fixing date
   private LocalDate createPaymentDate(List<RateAccrualPeriod> periods) {

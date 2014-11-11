@@ -40,7 +40,7 @@ import com.opengamma.platform.finance.rate.FixedRate;
  */
 @BeanDefinition
 public final class FixedRateCalculation
-    implements ImmutableBean, Serializable {
+    implements RateCalculation, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -64,7 +64,7 @@ public final class FixedRateCalculation
    * <p>
    * The notional expressed here is always positive, see {@code payReceive}.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final NotionalAmount notional;
   /**
    * The day count convention applicable.
@@ -200,6 +200,7 @@ public final class FixedRateCalculation
    * The notional expressed here is always positive, see {@code payReceive}.
    * @return the value of the property, not null
    */
+  @Override
   public NotionalAmount getNotional() {
     return notional;
   }
