@@ -60,7 +60,7 @@ public final class RatePaymentPeriod
    * If there is more than one accrual period then compounding may apply.
    * All accrual periods must have the same currency.
    */
-  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
+  @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<RateAccrualPeriod> accrualPeriods;
   /**
    * The primary currency of the payment period.
@@ -281,7 +281,6 @@ public final class RatePaymentPeriod
    * All accrual periods must have the same currency.
    * @return the value of the property, not empty
    */
-  @Override
   public ImmutableList<RateAccrualPeriod> getAccrualPeriods() {
     return accrualPeriods;
   }

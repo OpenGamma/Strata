@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.Rate;
+import com.opengamma.platform.finance.swap.NegativeRateMethod;
 import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
@@ -89,7 +90,7 @@ public class StandardRatePaymentPeriodPricerFn
   // no compounding needed
   private double unitNotionalNoCompounding(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
     return period.getAccrualPeriods().stream()
-        .mapToDouble(accrualPeriod -> unitNotionalAccrual(env, valuationDate, accrualPeriod))
+        .mapToDouble(accrualPeriod -> unitNotionalAccrual(env, valuationDate, accrualPeriod, period.getNegativeRateMethod()))
         .sum();
   }
 
@@ -99,7 +100,7 @@ public class StandardRatePaymentPeriodPricerFn
     double notional = 1d;
     double notionalAccrued = notional;
     for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
-      double unitAccrual = unitNotionalAccrual(env, valuationDate, accrualPeriod);
+      double unitAccrual = unitNotionalAccrual(env, valuationDate, accrualPeriod, period.getNegativeRateMethod());
       double investFactor = 1 + unitAccrual;
       notionalAccrued *= investFactor;
     }
@@ -110,10 +111,11 @@ public class StandardRatePaymentPeriodPricerFn
   private double unitNotionalAccrual(
       PricingEnvironment env,
       LocalDate valuationDate,
-      RateAccrualPeriod period) {
+      RateAccrualPeriod period,
+      NegativeRateMethod negativeRateMethod) {
     double rate = rateProviderFn.rate(env, valuationDate, period.getRate(), period.getStartDate(), period.getEndDate());
     double treatedRate = rate * period.getGearing() + period.getSpread();
-    return treatedRate * period.getYearFraction();
+    return negativeRateMethod.adjust(treatedRate * period.getYearFraction());
   }
 
 }

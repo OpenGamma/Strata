@@ -42,7 +42,7 @@ import com.opengamma.platform.finance.rate.Rate;
  */
 @BeanDefinition
 public final class RateAccrualPeriod
-    implements AccrualPeriod, ImmutableBean, Serializable {
+    implements ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -53,7 +53,7 @@ public final class RateAccrualPeriod
    * This is the first accrual date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final LocalDate startDate;
   /**
    * The end date of the accrual period.
@@ -61,7 +61,7 @@ public final class RateAccrualPeriod
    * This is the last accrual date in the period.
    * If the schedule adjusts for business days, then this is the adjusted date.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
   /**
    * The unadjusted start date.
@@ -273,7 +273,6 @@ public final class RateAccrualPeriod
    * If the schedule adjusts for business days, then this is the adjusted date.
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getStartDate() {
     return startDate;
   }
@@ -286,7 +285,6 @@ public final class RateAccrualPeriod
    * If the schedule adjusts for business days, then this is the adjusted date.
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getEndDate() {
     return endDate;
   }

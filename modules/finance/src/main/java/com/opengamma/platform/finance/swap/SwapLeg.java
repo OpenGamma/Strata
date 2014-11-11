@@ -14,7 +14,7 @@ import com.opengamma.basics.currency.Currency;
  * <p>
  * A swap leg can be expressed in a parameterized form or in an expanded form.
  * All swaps can be converted to the expanded form, which is structured in terms of
- * a list of payment periods consisting of accrual periods.
+ * a list of payment periods.
  */
 public interface SwapLeg {
 

@@ -52,7 +52,7 @@ public class StandardSwapPricerFn implements SwapPricerFn {
     Currency currency = trade.getSwap().getLeg(0).getCurrency();
     double pv = trade.getSwap().getLegs().stream()
       .flatMap(leg -> leg.toExpanded().getPaymentPeriods().stream())
-      .map(p -> (RatePaymentPeriod) p)
+      .map(p -> (RatePaymentPeriod) p)  // TODO
       .mapToDouble(p -> paymentPeriodPricerFn.presentValue(env, valuationDate, p))
       .sum();
     return CurrencyAmount.of(currency, pv);
