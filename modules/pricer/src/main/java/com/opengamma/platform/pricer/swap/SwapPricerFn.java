@@ -7,8 +7,8 @@ package com.opengamma.platform.pricer.swap;
 
 import java.time.LocalDate;
 
-import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.platform.finance.swap.SwapTrade;
+import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
@@ -23,12 +23,12 @@ public interface SwapPricerFn {
    * 
    * @param env  the pricing environment
    * @param valuationDate  the valuation date
-   * @param trade  the trade to price
+   * @param swap  the swap to price
    * @return the present value of the swap
    */
-  public abstract CurrencyAmount presentValue(
+  public abstract MultiCurrencyAmount presentValue(
       PricingEnvironment env,
       LocalDate valuationDate,
-      SwapTrade trade);
+      Swap swap);
 
 }

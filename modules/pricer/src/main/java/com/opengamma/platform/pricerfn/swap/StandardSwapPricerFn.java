@@ -8,11 +8,11 @@ package com.opengamma.platform.pricerfn.swap;
 import java.time.LocalDate;
 
 import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.currency.CurrencyAmount;
+import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.swap.PaymentPeriod;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
-import com.opengamma.platform.finance.swap.SwapTrade;
+import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
 import com.opengamma.platform.pricer.swap.SwapPricerFn;
@@ -45,17 +45,17 @@ public class StandardSwapPricerFn implements SwapPricerFn {
 
   //-------------------------------------------------------------------------
   @Override
-  public CurrencyAmount presentValue(PricingEnvironment env, LocalDate valuationDate, SwapTrade trade) {
-    if (trade.getSwap().isCrossCurrency()) {
+  public MultiCurrencyAmount presentValue(PricingEnvironment env, LocalDate valuationDate, Swap swap) {
+    if (swap.isCrossCurrency()) {
       throw new UnsupportedOperationException();
     }
-    Currency currency = trade.getSwap().getLeg(0).getCurrency();
-    double pv = trade.getSwap().getLegs().stream()
+    Currency currency = swap.getLeg(0).getCurrency();
+    double pv = swap.getLegs().stream()
       .flatMap(leg -> leg.toExpanded().getPaymentPeriods().stream())
       .map(p -> (RatePaymentPeriod) p)  // TODO
       .mapToDouble(p -> paymentPeriodPricerFn.presentValue(env, valuationDate, p))
       .sum();
-    return CurrencyAmount.of(currency, pv);
+    return MultiCurrencyAmount.of(currency, pv);
   }
 
 }

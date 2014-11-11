@@ -137,7 +137,9 @@ public final class PaymentSchedule
    * @param schedule  the accrual schedule
    * @return the list of payment periods
    */
-  ImmutableList<PaymentPeriod> createPaymentPeriods(List<RateAccrualPeriod> accrualPeriods, Schedule schedule) {
+  ImmutableList<PaymentPeriod> createPaymentPeriods(
+      List<RateAccrualPeriod> accrualPeriods,
+      Schedule schedule) {
     // payment periods contain one accrual period
     Frequency accrualFrequency = schedule.getFrequency();
     if (accrualFrequency.equals(paymentFrequency)) {
