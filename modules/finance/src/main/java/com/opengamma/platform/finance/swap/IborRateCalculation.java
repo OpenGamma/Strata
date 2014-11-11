@@ -29,7 +29,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.PayReceive;
-import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.index.IborIndex;
@@ -71,7 +70,7 @@ public final class IborRateCalculation
    * Note that negative interest rates can result in a payment in the opposite
    * direction to that implied by this indicator.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PayReceive payReceive;
   /**
    * The notional amount, always positive.
@@ -140,7 +139,7 @@ public final class IborRateCalculation
    * <p>
    * Defined by the 2006 ISDA definitions article 6.4.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final NegativeRateMethod negativeRateMethod;
 
   /**
@@ -253,19 +252,13 @@ public final class IborRateCalculation
           .createAccrualPeriods(schedule);
     }
     // resolve data by schedule
-    List<Double> resolvedNotionals = notional.getAmount().resolveValues(schedule.getPeriods());
     List<Double> resolvedGearings = firstNonNull(gearing, ValueSchedule.of(1)).resolveValues(schedule.getPeriods());
     List<Double> resolvedSpreads = firstNonNull(spread, ValueSchedule.of(0)).resolveValues(schedule.getPeriods());
-    Currency currency = notional.getCurrency();
-    FxResetNotional fxResetNotional = notional.getFxReset();
     // build accrual periods
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period, dayCount)
-          .currency(currency)
-          .fxReset(createFxReset(period, fxResetNotional, currency))
-          .notional(payReceive.normalize(resolvedNotionals.get(i)))
           .rate(createRate(period, i, hasInitialStub, hasFinalStub))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
@@ -301,14 +294,6 @@ public final class IborRateCalculation
     } else {
       return scheduleIndex == 0;
     }
-  }
-
-  // determine the FX reset
-  private FxReset createFxReset(SchedulePeriod period, FxResetNotional fxResetNotional, Currency currency) {
-    if (fxResetNotional == null || fxResetNotional.getReferenceCurrency().equals(currency)) {
-      return null;
-    }
-    return fxResetNotional.createFxReset(period);
   }
 
   // determine the fixing date
@@ -405,6 +390,7 @@ public final class IborRateCalculation
    * direction to that implied by this indicator.
    * @return the value of the property, not null
    */
+  @Override
   public PayReceive getPayReceive() {
     return payReceive;
   }
@@ -503,7 +489,6 @@ public final class IborRateCalculation
    * Defined by the 2006 ISDA definitions article 6.4.
    * @return the value of the property, not null
    */
-  @Override
   public NegativeRateMethod getNegativeRateMethod() {
     return negativeRateMethod;
   }

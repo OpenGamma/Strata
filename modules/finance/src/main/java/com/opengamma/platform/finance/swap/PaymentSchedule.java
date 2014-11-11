@@ -212,13 +212,14 @@ public final class PaymentSchedule
 //    Currency currency = notional.getCurrency();
 //    FxResetNotional fxResetNotional = notional.getFxReset();
     
+    double notional = rateCalculation.getNotional().getAmount().getInitialValue();  // TODO schedule
+    notional = rateCalculation.getPayReceive().normalize(notional);
     return RatePaymentPeriod.builder()
         .paymentDate(createPaymentDate(periods))
         .accrualPeriods(periods)
-        .currency(periods.get(0).getCurrency())
-        .fxReset(periods.get(0).getFxReset())
-        .notional(periods.get(0).getNotional())
-        .negativeRateMethod(periods.get(0).getNegativeRateMethod())
+        .currency(rateCalculation.getNotional().getCurrency())
+//        .fxReset(periods.get(0).getFxReset())
+        .notional(notional)
         .compoundingMethod(compoundingMethod)
         .build();
   }

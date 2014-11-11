@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.collect.ArgChecker;
@@ -86,33 +85,6 @@ public final class RateAccrualPeriod
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double yearFraction;
-  /**
-   * The primary currency of the accrual period.
-   * <p>
-   * This is the currency of the swap leg and the currency that interest calculation is made in.
-   * <p>
-   * The amounts of the notional are usually expressed in terms of this currency,
-   * however they can be converted from amounts in a different currency.
-   * See the optional {@code fxReset} property.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final Currency currency;
-  /**
-   * The FX reset definition, optional.
-   * <p>
-   * This property is used when the defined amount of the notional is specified in
-   * a currency other than the currency of the swap leg. When this occurs, the notional
-   * amount has to be converted using an FX rate to the swap leg currency.
-   */
-  @PropertyDefinition
-  private final FxReset fxReset;
-  /**
-   * The notional amount, positive if receiving, negative if paying.
-   * <p>
-   * The notional amount applicable during the period.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final double notional;
   /**
    * The rate of interest accrual.
    * <p>
@@ -219,9 +191,6 @@ public final class RateAccrualPeriod
       LocalDate unadjustedStartDate,
       LocalDate unadjustedEndDate,
       double yearFraction,
-      Currency currency,
-      FxReset fxReset,
-      double notional,
       Rate rate,
       NegativeRateMethod negativeRateMethod,
       double gearing,
@@ -231,8 +200,6 @@ public final class RateAccrualPeriod
     JodaBeanUtils.notNull(unadjustedStartDate, "unadjustedStartDate");
     JodaBeanUtils.notNull(unadjustedEndDate, "unadjustedEndDate");
     ArgChecker.notNegative(yearFraction, "yearFraction");
-    JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notNull(notional, "notional");
     JodaBeanUtils.notNull(rate, "rate");
     JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
     this.startDate = startDate;
@@ -240,9 +207,6 @@ public final class RateAccrualPeriod
     this.unadjustedStartDate = unadjustedStartDate;
     this.unadjustedEndDate = unadjustedEndDate;
     this.yearFraction = yearFraction;
-    this.currency = currency;
-    this.fxReset = fxReset;
-    this.notional = notional;
     this.rate = rate;
     this.negativeRateMethod = negativeRateMethod;
     this.gearing = gearing;
@@ -326,45 +290,6 @@ public final class RateAccrualPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the primary currency of the accrual period.
-   * <p>
-   * This is the currency of the swap leg and the currency that interest calculation is made in.
-   * <p>
-   * The amounts of the notional are usually expressed in terms of this currency,
-   * however they can be converted from amounts in a different currency.
-   * See the optional {@code fxReset} property.
-   * @return the value of the property, not null
-   */
-  public Currency getCurrency() {
-    return currency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the FX reset definition, optional.
-   * <p>
-   * This property is used when the defined amount of the notional is specified in
-   * a currency other than the currency of the swap leg. When this occurs, the notional
-   * amount has to be converted using an FX rate to the swap leg currency.
-   * @return the value of the property
-   */
-  public FxReset getFxReset() {
-    return fxReset;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the notional amount, positive if receiving, negative if paying.
-   * <p>
-   * The notional amount applicable during the period.
-   * @return the value of the property, not null
-   */
-  public double getNotional() {
-    return notional;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the rate of interest accrual.
    * <p>
    * The value of the period is based on this rate.
@@ -443,9 +368,6 @@ public final class RateAccrualPeriod
           JodaBeanUtils.equal(getUnadjustedStartDate(), other.getUnadjustedStartDate()) &&
           JodaBeanUtils.equal(getUnadjustedEndDate(), other.getUnadjustedEndDate()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getFxReset(), other.getFxReset()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getRate(), other.getRate()) &&
           JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod()) &&
           JodaBeanUtils.equal(getGearing(), other.getGearing()) &&
@@ -462,9 +384,6 @@ public final class RateAccrualPeriod
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnadjustedStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnadjustedEndDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFxReset());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
     hash += hash * 31 + JodaBeanUtils.hashCode(getGearing());
@@ -474,16 +393,13 @@ public final class RateAccrualPeriod
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(416);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("RateAccrualPeriod{");
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("unadjustedStartDate").append('=').append(getUnadjustedStartDate()).append(',').append(' ');
     buf.append("unadjustedEndDate").append('=').append(getUnadjustedEndDate()).append(',').append(' ');
     buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("fxReset").append('=').append(getFxReset()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("rate").append('=').append(getRate()).append(',').append(' ');
     buf.append("negativeRateMethod").append('=').append(getNegativeRateMethod()).append(',').append(' ');
     buf.append("gearing").append('=').append(getGearing()).append(',').append(' ');
@@ -528,21 +444,6 @@ public final class RateAccrualPeriod
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
         this, "yearFraction", RateAccrualPeriod.class, Double.TYPE);
     /**
-     * The meta-property for the {@code currency} property.
-     */
-    private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
-        this, "currency", RateAccrualPeriod.class, Currency.class);
-    /**
-     * The meta-property for the {@code fxReset} property.
-     */
-    private final MetaProperty<FxReset> fxReset = DirectMetaProperty.ofImmutable(
-        this, "fxReset", RateAccrualPeriod.class, FxReset.class);
-    /**
-     * The meta-property for the {@code notional} property.
-     */
-    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", RateAccrualPeriod.class, Double.TYPE);
-    /**
      * The meta-property for the {@code rate} property.
      */
     private final MetaProperty<Rate> rate = DirectMetaProperty.ofImmutable(
@@ -572,9 +473,6 @@ public final class RateAccrualPeriod
         "unadjustedStartDate",
         "unadjustedEndDate",
         "yearFraction",
-        "currency",
-        "fxReset",
-        "notional",
         "rate",
         "negativeRateMethod",
         "gearing",
@@ -599,12 +497,6 @@ public final class RateAccrualPeriod
           return unadjustedEndDate;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 575402001:  // currency
-          return currency;
-        case -449555555:  // fxReset
-          return fxReset;
-        case 1585636160:  // notional
-          return notional;
         case 3493088:  // rate
           return rate;
         case 1969081334:  // negativeRateMethod
@@ -674,30 +566,6 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * The meta-property for the {@code currency} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Currency> currency() {
-      return currency;
-    }
-
-    /**
-     * The meta-property for the {@code fxReset} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<FxReset> fxReset() {
-      return fxReset;
-    }
-
-    /**
-     * The meta-property for the {@code notional} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> notional() {
-      return notional;
-    }
-
-    /**
      * The meta-property for the {@code rate} property.
      * @return the meta-property, not null
      */
@@ -743,12 +611,6 @@ public final class RateAccrualPeriod
           return ((RateAccrualPeriod) bean).getUnadjustedEndDate();
         case -1731780257:  // yearFraction
           return ((RateAccrualPeriod) bean).getYearFraction();
-        case 575402001:  // currency
-          return ((RateAccrualPeriod) bean).getCurrency();
-        case -449555555:  // fxReset
-          return ((RateAccrualPeriod) bean).getFxReset();
-        case 1585636160:  // notional
-          return ((RateAccrualPeriod) bean).getNotional();
         case 3493088:  // rate
           return ((RateAccrualPeriod) bean).getRate();
         case 1969081334:  // negativeRateMethod
@@ -783,9 +645,6 @@ public final class RateAccrualPeriod
     private LocalDate unadjustedStartDate;
     private LocalDate unadjustedEndDate;
     private double yearFraction;
-    private Currency currency;
-    private FxReset fxReset;
-    private double notional;
     private Rate rate;
     private NegativeRateMethod negativeRateMethod;
     private double gearing;
@@ -808,9 +667,6 @@ public final class RateAccrualPeriod
       this.unadjustedStartDate = beanToCopy.getUnadjustedStartDate();
       this.unadjustedEndDate = beanToCopy.getUnadjustedEndDate();
       this.yearFraction = beanToCopy.getYearFraction();
-      this.currency = beanToCopy.getCurrency();
-      this.fxReset = beanToCopy.getFxReset();
-      this.notional = beanToCopy.getNotional();
       this.rate = beanToCopy.getRate();
       this.negativeRateMethod = beanToCopy.getNegativeRateMethod();
       this.gearing = beanToCopy.getGearing();
@@ -831,12 +687,6 @@ public final class RateAccrualPeriod
           return unadjustedEndDate;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 575402001:  // currency
-          return currency;
-        case -449555555:  // fxReset
-          return fxReset;
-        case 1585636160:  // notional
-          return notional;
         case 3493088:  // rate
           return rate;
         case 1969081334:  // negativeRateMethod
@@ -867,15 +717,6 @@ public final class RateAccrualPeriod
           break;
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
-          break;
-        case 575402001:  // currency
-          this.currency = (Currency) newValue;
-          break;
-        case -449555555:  // fxReset
-          this.fxReset = (FxReset) newValue;
-          break;
-        case 1585636160:  // notional
-          this.notional = (Double) newValue;
           break;
         case 3493088:  // rate
           this.rate = (Rate) newValue;
@@ -927,9 +768,6 @@ public final class RateAccrualPeriod
           unadjustedStartDate,
           unadjustedEndDate,
           yearFraction,
-          currency,
-          fxReset,
-          notional,
           rate,
           negativeRateMethod,
           gearing,
@@ -993,38 +831,6 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code currency} property in the builder.
-     * @param currency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this.currency = currency;
-      return this;
-    }
-
-    /**
-     * Sets the {@code fxReset} property in the builder.
-     * @param fxReset  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder fxReset(FxReset fxReset) {
-      this.fxReset = fxReset;
-      return this;
-    }
-
-    /**
-     * Sets the {@code notional} property in the builder.
-     * @param notional  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder notional(double notional) {
-      JodaBeanUtils.notNull(notional, "notional");
-      this.notional = notional;
-      return this;
-    }
-
-    /**
      * Sets the {@code rate} property in the builder.
      * @param rate  the new value, not null
      * @return this, for chaining, not null
@@ -1069,16 +875,13 @@ public final class RateAccrualPeriod
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(416);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("RateAccrualPeriod.Builder{");
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
       buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
-      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
       buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod)).append(',').append(' ');
       buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing)).append(',').append(' ');
