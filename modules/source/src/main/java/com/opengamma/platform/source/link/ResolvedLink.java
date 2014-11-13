@@ -39,7 +39,7 @@ import com.opengamma.platform.source.id.IdentifiableBean;
  * @param <T> the type of the link target
  */
 @BeanDefinition(builderScope = "private")
-final class ResolvedLink<T extends IdentifiableBean>
+public final class ResolvedLink<T extends IdentifiableBean>
     implements Link<T>, ImmutableBean {
 
   /**

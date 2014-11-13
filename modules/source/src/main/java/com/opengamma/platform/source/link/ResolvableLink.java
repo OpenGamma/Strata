@@ -47,7 +47,7 @@ import com.opengamma.platform.source.id.StandardId;
  *   is resolved no casting is required by the caller
  */
 @BeanDefinition(builderScope = "private")
-final class ResolvableLink<T extends IdentifiableBean>
+public final class ResolvableLink<T extends IdentifiableBean>
     implements Link<T>, ImmutableBean {
 
   /**
