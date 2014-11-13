@@ -32,9 +32,8 @@ import com.opengamma.platform.source.id.IdentifiableBean;
  * sources do not have to be set up with data). However, there are
  * uses outside the testing scope too.
  * <p>
- * Package-scoped as creation should be via
- * {@link Link#resolved(IdentifiableBean)} and usage via the
- * {@link Link} interface.
+ * Creation should generally be via {@link Link#resolved(IdentifiableBean)}
+ * and usage via the {@link Link} interface.
  *
  * @param <T> the type of the link target
  */

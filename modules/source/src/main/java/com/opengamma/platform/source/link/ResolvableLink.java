@@ -39,9 +39,8 @@ import com.opengamma.platform.source.id.StandardId;
  * If the target of the link is not available, a {@link LinkResolutionException}
  * will be thrown.
  * <p>
- * Package-scoped as creation should be via
- * {@link Link#resolved(IdentifiableBean)} and usage via the
- * {@link Link} interface.
+ * Creation should be via {@link Link#resolved(IdentifiableBean)}
+ * and usage via the {@link Link} interface.
  *
  * @param <T> type of the link, which ensures that when the link
  *   is resolved no casting is required by the caller
