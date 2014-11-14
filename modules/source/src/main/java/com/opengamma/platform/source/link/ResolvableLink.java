@@ -39,15 +39,14 @@ import com.opengamma.platform.source.id.StandardId;
  * If the target of the link is not available, a {@link LinkResolutionException}
  * will be thrown.
  * <p>
- * Package-scoped as creation should be via
- * {@link Link#resolved(IdentifiableBean)} and usage via the
- * {@link Link} interface.
+ * Creation should be via {@link Link#resolved(IdentifiableBean)}
+ * and usage via the {@link Link} interface.
  *
  * @param <T> type of the link, which ensures that when the link
  *   is resolved no casting is required by the caller
  */
 @BeanDefinition(builderScope = "private")
-final class ResolvableLink<T extends IdentifiableBean>
+public final class ResolvableLink<T extends IdentifiableBean>
     implements Link<T>, ImmutableBean {
 
   /**
@@ -168,18 +167,10 @@ final class ResolvableLink<T extends IdentifiableBean>
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvableLink{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("identifier").append('=').append(getIdentifier()).append(',').append(' ');
+    buf.append("linkType").append('=').append(JodaBeanUtils.toString(getLinkType()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("identifier").append('=').append(JodaBeanUtils.toString(getIdentifier())).append(',').append(' ');
-    buf.append("linkType").append('=').append(JodaBeanUtils.toString(getLinkType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -187,7 +178,7 @@ final class ResolvableLink<T extends IdentifiableBean>
    * The meta-bean for {@code ResolvableLink}.
    * @param <T>  the type
    */
-  public static class Meta<T extends IdentifiableBean> extends DirectMetaBean {
+  public static final class Meta<T extends IdentifiableBean> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -216,7 +207,7 @@ final class ResolvableLink<T extends IdentifiableBean>
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -251,7 +242,7 @@ final class ResolvableLink<T extends IdentifiableBean>
      * The meta-property for the {@code identifier} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<StandardId> identifier() {
+    public MetaProperty<StandardId> identifier() {
       return identifier;
     }
 
@@ -259,7 +250,7 @@ final class ResolvableLink<T extends IdentifiableBean>
      * The meta-property for the {@code linkType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Class<T>> linkType() {
+    public MetaProperty<Class<T>> linkType() {
       return linkType;
     }
 
@@ -291,7 +282,7 @@ final class ResolvableLink<T extends IdentifiableBean>
    * The bean-builder for {@code ResolvableLink}.
    * @param <T>  the type
    */
-  private static class Builder<T extends IdentifiableBean> extends DirectFieldsBeanBuilder<ResolvableLink<T>> {
+  private static final class Builder<T extends IdentifiableBean> extends DirectFieldsBeanBuilder<ResolvableLink<T>> {
 
     private StandardId identifier;
     private Class<T> linkType;
@@ -299,7 +290,7 @@ final class ResolvableLink<T extends IdentifiableBean>
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -367,18 +358,10 @@ final class ResolvableLink<T extends IdentifiableBean>
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("ResolvableLink.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("identifier").append('=').append(JodaBeanUtils.toString(identifier)).append(',').append(' ');
+      buf.append("linkType").append('=').append(JodaBeanUtils.toString(linkType));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("identifier").append('=').append(JodaBeanUtils.toString(identifier)).append(',').append(' ');
-      buf.append("linkType").append('=').append(JodaBeanUtils.toString(linkType)).append(',').append(' ');
     }
 
   }
