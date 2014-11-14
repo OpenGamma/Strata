@@ -121,7 +121,7 @@ public class ResultAssert extends AbstractAssert<ResultAssert, Result<?>> {
    *   throw an {@code AssertionError}
    */
   public ResultAssert isFailure(FailureReason expected) {
-    isNotNull();
+    isFailure();
 
     FailureReason actualReason = actual.getFailure().getReason();
     if (actualReason != expected) {
