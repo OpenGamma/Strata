@@ -32,14 +32,13 @@ import com.opengamma.platform.source.id.IdentifiableBean;
  * sources do not have to be set up with data). However, there are
  * uses outside the testing scope too.
  * <p>
- * Package-scoped as creation should be via
- * {@link Link#resolved(IdentifiableBean)} and usage via the
- * {@link Link} interface.
+ * Creation should generally be via {@link Link#resolved(IdentifiableBean)}
+ * and usage via the {@link Link} interface.
  *
  * @param <T> the type of the link target
  */
 @BeanDefinition(builderScope = "private")
-final class ResolvedLink<T extends IdentifiableBean>
+public final class ResolvedLink<T extends IdentifiableBean>
     implements Link<T>, ImmutableBean {
 
   /**
@@ -147,17 +146,9 @@ final class ResolvedLink<T extends IdentifiableBean>
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ResolvedLink{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("linkable").append('=').append(JodaBeanUtils.toString(getLinkable()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("linkable").append('=').append(JodaBeanUtils.toString(getLinkable())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -165,7 +156,7 @@ final class ResolvedLink<T extends IdentifiableBean>
    * The meta-bean for {@code ResolvedLink}.
    * @param <T>  the type
    */
-  public static class Meta<T extends IdentifiableBean> extends DirectMetaBean {
+  public static final class Meta<T extends IdentifiableBean> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -188,7 +179,7 @@ final class ResolvedLink<T extends IdentifiableBean>
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -221,7 +212,7 @@ final class ResolvedLink<T extends IdentifiableBean>
      * The meta-property for the {@code linkable} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<T> linkable() {
+    public MetaProperty<T> linkable() {
       return linkable;
     }
 
@@ -251,14 +242,14 @@ final class ResolvedLink<T extends IdentifiableBean>
    * The bean-builder for {@code ResolvedLink}.
    * @param <T>  the type
    */
-  private static class Builder<T extends IdentifiableBean> extends DirectFieldsBeanBuilder<ResolvedLink<T>> {
+  private static final class Builder<T extends IdentifiableBean> extends DirectFieldsBeanBuilder<ResolvedLink<T>> {
 
     private T linkable;
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     //-----------------------------------------------------------------------
@@ -320,17 +311,9 @@ final class ResolvedLink<T extends IdentifiableBean>
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("ResolvedLink.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
+      buf.append("linkable").append('=').append(JodaBeanUtils.toString(linkable));
       buf.append('}');
       return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
-      buf.append("linkable").append('=').append(JodaBeanUtils.toString(linkable)).append(',').append(' ');
     }
 
   }
