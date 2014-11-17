@@ -16,9 +16,9 @@ import java.lang.annotation.Target;
  * <p>
  * This means that the data will be available to use when searching for objects.
  * For example, search for all objects implementing the {@code SpecialTrade} interface,
- * where {@code SpecialTrade} has been annotated as a {@code CategorisingType}
+ * where {@code SpecialTrade} has been annotated as a {@code ClassifyingType}
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface CategorisingType {
+public @interface ClassifyingType {
 }

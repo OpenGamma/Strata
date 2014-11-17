@@ -5,6 +5,10 @@
  */
 package com.opengamma.platform.source.id;
 
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
+
 /**
  * Provides uniform access to objects that can supply a standard identifier.
  * <p>
@@ -18,6 +22,19 @@ public interface StandardIdentifiable {
    *
    * @return the identifier
    */
-  StandardId getStandardId();
+  public abstract StandardId getStandardId();
+
+  /**
+   * Gets secondary identifiers for the instance.
+   * <p>
+   * The default implementation will return an immutable empty set.
+   * This can be overridden to provide a set of ids. Note that the
+   * set should not contain the primary id.
+   *
+   * @return the set of secondary ids
+   */
+  public default Set<StandardId> getSecondaryIds() {
+    return ImmutableSet.of();
+  }
 
 }

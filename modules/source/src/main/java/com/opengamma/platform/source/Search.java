@@ -50,7 +50,7 @@ public final class Search implements ImmutableBean, Serializable {
    * <p>
    * If the specified type is an interface then ideally
    * the interface should be annotated with
-   * {@link CategorisingType}. This will result in better
+   * {@link ClassifyingType}. This will result in better
    * performance. Note that if the specified type is too broad,
    * the search may be slow.
    * <p>
@@ -143,7 +143,7 @@ public final class Search implements ImmutableBean, Serializable {
    * <p>
    * If the specified type is an interface then ideally
    * the interface should be annotated with
-   * {@link CategorisingType}. This will result in better
+   * {@link ClassifyingType}. This will result in better
    * performance. Note that if the specified type is too broad,
    * the search may be slow.
    * <p>
