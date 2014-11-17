@@ -9,6 +9,7 @@ import static com.google.common.base.Objects.firstNonNull;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -29,14 +30,18 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.PayReceive;
+import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.index.IborIndex;
+import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.platform.finance.rate.FixedRate;
+import com.opengamma.platform.finance.rate.IborAveragedFixing;
+import com.opengamma.platform.finance.rate.IborAveragedRate;
 import com.opengamma.platform.finance.rate.IborRate;
 import com.opengamma.platform.finance.rate.Rate;
 
@@ -236,8 +241,7 @@ public final class IborRateCalculation
   ImmutableList<RateAccrualPeriod> createAccrualPeriods(Schedule schedule) {
     if (notional.isInitialExchange() ||
         notional.isFinalExchange() ||
-        notional.isIntermediateExchange() ||
-        resetPeriods != null) {
+        notional.isIntermediateExchange()) {
       throw new UnsupportedOperationException();
     }
     // avoid null stub definitions if there are stubs
@@ -271,25 +275,52 @@ public final class IborRateCalculation
   // creates the rate instance
   private Rate createRate(SchedulePeriod period, int scheduleIndex, boolean hasInitialStub, boolean hasFinalStub) {
     LocalDate fixingDate = fixingOffset.adjust(fixingRelativeTo.selectBaseDate(period));
+    // handle stubs
     if (hasInitialStub && period.getType() == SchedulePeriodType.INITIAL) {
       return initialStub.createRate(fixingDate, index);
     }
     if (hasFinalStub && period.getType() == SchedulePeriodType.FINAL) {
       return finalStub.createRate(fixingDate, index);
     }
+    // handle explicit reset periods, possible averaging
+    boolean firstRegularPeriod = isFirstRegularPeriod(scheduleIndex, hasInitialStub);
     if (resetPeriods != null) {
-      // TODO calculate sub-schedule
-//      Schedule schedule = period.
-//      PeriodicSchedule schedule = PeriodicSchedule.of(null, null, null, null, null, hasFinalStub)
+      return createRateWithResetPeriods(period, firstRegularPeriod);
     }
-    if (firstRegularRate != null && isFirstRegular(scheduleIndex, hasInitialStub)) {
+    // handle possible fixed rate
+    if (firstRegularRate != null && firstRegularPeriod) {
       return FixedRate.of(firstRegularRate);
     }
+    // simple Ibor
     return IborRate.of((IborIndex) index, fixingDate);
   }
 
+  // reset periods have been specified, which may or may not imply averaging
+  private Rate createRateWithResetPeriods(SchedulePeriod period, boolean firstRegularPeriod) {
+    Frequency resetFrequency = resetPeriods.getResetFrequency();
+    BusinessDayAdjustment resetBda = resetPeriods.getResetBusinessDayAdjustment();
+    int numResets = period.getFrequency().exactDivide(resetFrequency);
+    LocalDate unadjStartDate = period.getUnadjustedStartDate();
+    LocalDate unadjEndDate = period.getRollConvention().next(unadjStartDate, resetFrequency);
+    List<IborAveragedFixing> fixings = new ArrayList<>();
+    for (int i = 0; i < numResets; i++) {
+      LocalDate adjStartDate = resetBda.adjust(unadjStartDate);
+      LocalDate adjEndDate = resetBda.adjust(unadjEndDate);
+      LocalDate fixingDate = fixingOffset.adjust(fixingRelativeTo.selectBaseDate(adjStartDate, adjEndDate));
+      Double fixedRate = (firstRegularPeriod && i == 0 ? firstRegularRate : null);
+      if (resetPeriods.getRateAveragingMethod() == RateAveragingMethod.UNWEIGHTED) {
+        fixings.add(IborAveragedFixing.of(fixingDate, firstRegularRate));
+      } else {
+        fixings.add(IborAveragedFixing.ofDaysInResetPeriod(fixingDate, fixedRate, adjStartDate, adjEndDate));
+      }
+      unadjStartDate = unadjEndDate;
+      unadjEndDate = period.getRollConvention().next(unadjStartDate, resetFrequency);
+    }
+    return IborAveragedRate.of(index, fixings);
+  }
+
   // is the period the first regular period
-  private boolean isFirstRegular(int scheduleIndex, boolean hasInitialStub) {
+  private boolean isFirstRegularPeriod(int scheduleIndex, boolean hasInitialStub) {
     if (hasInitialStub) {
       return scheduleIndex == 1;
     } else {

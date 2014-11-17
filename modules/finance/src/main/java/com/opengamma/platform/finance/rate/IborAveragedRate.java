@@ -61,13 +61,27 @@ public final class IborAveragedRate
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an {@code IborAveragedRate} from an index and fixing date.
+   * Creates an {@code IborAveragedRate} from an index and fixings.
    * 
    * @param index  the index
    * @param fixings  the weighted fixings
    * @return the averaged IBOR rate
    */
   public static IborAveragedRate of(IborIndex index, IborAveragedFixing... fixings) {
+    return IborAveragedRate.builder()
+        .index(index)
+        .fixings(ImmutableList.copyOf(fixings))
+        .build();
+  }
+
+  /**
+   * Creates an {@code IborAveragedRate} from an index and fixings.
+   * 
+   * @param index  the index
+   * @param fixings  the weighted fixings
+   * @return the averaged IBOR rate
+   */
+  public static IborAveragedRate of(IborIndex index, List<IborAveragedFixing> fixings) {
     return IborAveragedRate.builder()
         .index(index)
         .fixings(ImmutableList.copyOf(fixings))

@@ -50,9 +50,11 @@ public final class ResetSchedule
   /**
    * The periodic frequency of reset dates.
    * <p>
-   * Reset dates will be calculated within each accrual period.
+   * Reset dates will be calculated within each accrual period based on unadjusted dates.
    * The frequency must be the same as, or smaller than, the accrual periodic frequency.
    * When calculating the reset dates, the roll convention of the accrual periods will be used.
+   * Once the unadjusted date calculation is complete, the business day adjustment specified
+   * here will be used.
    * <p>
    * Averaging applies if the reset frequency does not equal the accrual frequency.
    */
@@ -137,9 +139,11 @@ public final class ResetSchedule
   /**
    * Gets the periodic frequency of reset dates.
    * <p>
-   * Reset dates will be calculated within each accrual period.
+   * Reset dates will be calculated within each accrual period based on unadjusted dates.
    * The frequency must be the same as, or smaller than, the accrual periodic frequency.
    * When calculating the reset dates, the roll convention of the accrual periods will be used.
+   * Once the unadjusted date calculation is complete, the business day adjustment specified
+   * here will be used.
    * <p>
    * Averaging applies if the reset frequency does not equal the accrual frequency.
    * @return the value of the property, not null

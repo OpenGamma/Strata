@@ -53,7 +53,8 @@ public class StandardIborAveragedRateProviderFn
       IborIndex iborIndex,
       IborAveragedFixing fixing) {
     
-    double rate = env.indexRate(iborIndex, valuationDate, fixing.getFixingDate());
+    double rate = (fixing.getFixedRate() != null ?
+        fixing.getFixedRate() : env.indexRate(iborIndex, valuationDate, fixing.getFixingDate()));
     return rate * fixing.getWeight();
   }
 
