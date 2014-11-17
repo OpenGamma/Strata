@@ -54,12 +54,12 @@ public final class ExpandedSwapLeg
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<PaymentPeriod> paymentPeriods;
   /**
-   * Whether the notional amount is exchanged between the counterparties.
+   * The payment events that form part of the swap leg.
+   * <p>
+   * Payment events include notional exchange and fees.
    */
   @PropertyDefinition(validate = "notNull")
-  private final NotionalExchange notionalExchange;
-
-  // TODO: fees
+  private final ImmutableList<PaymentEvent> paymentEvents;
 
   //-------------------------------------------------------------------------
   /**
@@ -150,11 +150,11 @@ public final class ExpandedSwapLeg
 
   private ExpandedSwapLeg(
       List<PaymentPeriod> paymentPeriods,
-      NotionalExchange notionalExchange) {
+      List<PaymentEvent> paymentEvents) {
     JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
-    JodaBeanUtils.notNull(notionalExchange, "notionalExchange");
+    JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
     this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
-    this.notionalExchange = notionalExchange;
+    this.paymentEvents = ImmutableList.copyOf(paymentEvents);
   }
 
   @Override
@@ -185,11 +185,13 @@ public final class ExpandedSwapLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether the notional amount is exchanged between the counterparties.
+   * Gets the payment events that form part of the swap leg.
+   * <p>
+   * Payment events include notional exchange and fees.
    * @return the value of the property, not null
    */
-  public NotionalExchange getNotionalExchange() {
-    return notionalExchange;
+  public ImmutableList<PaymentEvent> getPaymentEvents() {
+    return paymentEvents;
   }
 
   //-----------------------------------------------------------------------
@@ -209,7 +211,7 @@ public final class ExpandedSwapLeg
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedSwapLeg other = (ExpandedSwapLeg) obj;
       return JodaBeanUtils.equal(getPaymentPeriods(), other.getPaymentPeriods()) &&
-          JodaBeanUtils.equal(getNotionalExchange(), other.getNotionalExchange());
+          JodaBeanUtils.equal(getPaymentEvents(), other.getPaymentEvents());
     }
     return false;
   }
@@ -218,7 +220,7 @@ public final class ExpandedSwapLeg
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriods());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotionalExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentEvents());
     return hash;
   }
 
@@ -227,7 +229,7 @@ public final class ExpandedSwapLeg
     StringBuilder buf = new StringBuilder(96);
     buf.append("ExpandedSwapLeg{");
     buf.append("paymentPeriods").append('=').append(getPaymentPeriods()).append(',').append(' ');
-    buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(getNotionalExchange()));
+    buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(getPaymentEvents()));
     buf.append('}');
     return buf.toString();
   }
@@ -249,17 +251,18 @@ public final class ExpandedSwapLeg
     private final MetaProperty<ImmutableList<PaymentPeriod>> paymentPeriods = DirectMetaProperty.ofImmutable(
         this, "paymentPeriods", ExpandedSwapLeg.class, (Class) ImmutableList.class);
     /**
-     * The meta-property for the {@code notionalExchange} property.
+     * The meta-property for the {@code paymentEvents} property.
      */
-    private final MetaProperty<NotionalExchange> notionalExchange = DirectMetaProperty.ofImmutable(
-        this, "notionalExchange", ExpandedSwapLeg.class, NotionalExchange.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableList<PaymentEvent>> paymentEvents = DirectMetaProperty.ofImmutable(
+        this, "paymentEvents", ExpandedSwapLeg.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "paymentPeriods",
-        "notionalExchange");
+        "paymentEvents");
 
     /**
      * Restricted constructor.
@@ -272,8 +275,8 @@ public final class ExpandedSwapLeg
       switch (propertyName.hashCode()) {
         case -1674414612:  // paymentPeriods
           return paymentPeriods;
-        case -159410813:  // notionalExchange
-          return notionalExchange;
+        case 1031856831:  // paymentEvents
+          return paymentEvents;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -303,11 +306,11 @@ public final class ExpandedSwapLeg
     }
 
     /**
-     * The meta-property for the {@code notionalExchange} property.
+     * The meta-property for the {@code paymentEvents} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<NotionalExchange> notionalExchange() {
-      return notionalExchange;
+    public MetaProperty<ImmutableList<PaymentEvent>> paymentEvents() {
+      return paymentEvents;
     }
 
     //-----------------------------------------------------------------------
@@ -316,8 +319,8 @@ public final class ExpandedSwapLeg
       switch (propertyName.hashCode()) {
         case -1674414612:  // paymentPeriods
           return ((ExpandedSwapLeg) bean).getPaymentPeriods();
-        case -159410813:  // notionalExchange
-          return ((ExpandedSwapLeg) bean).getNotionalExchange();
+        case 1031856831:  // paymentEvents
+          return ((ExpandedSwapLeg) bean).getPaymentEvents();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -340,7 +343,7 @@ public final class ExpandedSwapLeg
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedSwapLeg> {
 
     private List<PaymentPeriod> paymentPeriods = new ArrayList<PaymentPeriod>();
-    private NotionalExchange notionalExchange;
+    private List<PaymentEvent> paymentEvents = new ArrayList<PaymentEvent>();
 
     /**
      * Restricted constructor.
@@ -354,7 +357,7 @@ public final class ExpandedSwapLeg
      */
     private Builder(ExpandedSwapLeg beanToCopy) {
       this.paymentPeriods = new ArrayList<PaymentPeriod>(beanToCopy.getPaymentPeriods());
-      this.notionalExchange = beanToCopy.getNotionalExchange();
+      this.paymentEvents = new ArrayList<PaymentEvent>(beanToCopy.getPaymentEvents());
     }
 
     //-----------------------------------------------------------------------
@@ -363,8 +366,8 @@ public final class ExpandedSwapLeg
       switch (propertyName.hashCode()) {
         case -1674414612:  // paymentPeriods
           return paymentPeriods;
-        case -159410813:  // notionalExchange
-          return notionalExchange;
+        case 1031856831:  // paymentEvents
+          return paymentEvents;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -377,8 +380,8 @@ public final class ExpandedSwapLeg
         case -1674414612:  // paymentPeriods
           this.paymentPeriods = (List<PaymentPeriod>) newValue;
           break;
-        case -159410813:  // notionalExchange
-          this.notionalExchange = (NotionalExchange) newValue;
+        case 1031856831:  // paymentEvents
+          this.paymentEvents = (List<PaymentEvent>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -414,7 +417,7 @@ public final class ExpandedSwapLeg
     public ExpandedSwapLeg build() {
       return new ExpandedSwapLeg(
           paymentPeriods,
-          notionalExchange);
+          paymentEvents);
     }
 
     //-----------------------------------------------------------------------
@@ -430,13 +433,13 @@ public final class ExpandedSwapLeg
     }
 
     /**
-     * Sets the {@code notionalExchange} property in the builder.
-     * @param notionalExchange  the new value, not null
+     * Sets the {@code paymentEvents} property in the builder.
+     * @param paymentEvents  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder notionalExchange(NotionalExchange notionalExchange) {
-      JodaBeanUtils.notNull(notionalExchange, "notionalExchange");
-      this.notionalExchange = notionalExchange;
+    public Builder paymentEvents(List<PaymentEvent> paymentEvents) {
+      JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
+      this.paymentEvents = paymentEvents;
       return this;
     }
 
@@ -446,7 +449,7 @@ public final class ExpandedSwapLeg
       StringBuilder buf = new StringBuilder(96);
       buf.append("ExpandedSwapLeg.Builder{");
       buf.append("paymentPeriods").append('=').append(JodaBeanUtils.toString(paymentPeriods)).append(',').append(' ');
-      buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
+      buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(paymentEvents));
       buf.append('}');
       return buf.toString();
     }

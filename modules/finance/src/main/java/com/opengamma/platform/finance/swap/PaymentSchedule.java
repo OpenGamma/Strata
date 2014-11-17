@@ -190,7 +190,7 @@ public final class PaymentSchedule
    * @param accrualPeriods  the list of accrual periods
    * @return the list of payment periods
    */
-  ImmutableList<PaymentPeriod> createPaymentPeriods(
+  ImmutableList<RatePaymentPeriod> createPaymentPeriods(
       Schedule accrualSchedule,
       List<RateAccrualPeriod> accrualPeriods,
       NotionalAmount notionalAmount,
@@ -199,7 +199,7 @@ public final class PaymentSchedule
     Schedule paymentSchedule = createSchedule(accrualSchedule);
     List<Double> notionals = notionalAmount.getAmount().resolveValues(paymentSchedule.getPeriods());
     // build up payment periods using schedule
-    ImmutableList.Builder<PaymentPeriod> paymentPeriods = ImmutableList.builder();
+    ImmutableList.Builder<RatePaymentPeriod> paymentPeriods = ImmutableList.builder();
     for (int paymentIndex = 0; paymentIndex < paymentSchedule.size(); paymentIndex++) {
       SchedulePeriod period = paymentSchedule.getPeriod(paymentIndex);
       double notional = payReceive.normalize(notionals.get(paymentIndex));
@@ -213,7 +213,7 @@ public final class PaymentSchedule
   }
 
   // create the payment period
-  private PaymentPeriod createPaymentPeriod(
+  private RatePaymentPeriod createPaymentPeriod(
       SchedulePeriod paymentPeriod,
       List<RateAccrualPeriod> periods,
       NotionalAmount notionalAmount,

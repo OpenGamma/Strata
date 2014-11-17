@@ -7,6 +7,8 @@ package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -26,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.schedule.Schedule;
 
@@ -139,9 +142,28 @@ public final class RateSwapLeg
   public ExpandedSwapLeg toExpanded() {
     Schedule schedule = accrualPeriods.createSchedule();
     ImmutableList<RateAccrualPeriod> accrualPeriods = calculation.toExpanded(schedule);
+    ImmutableList<RatePaymentPeriod> payPeriods = paymentPeriods.createPaymentPeriods(
+        schedule, accrualPeriods, notional, payReceive);
+    // notional exchange
+    // TODO: intermediate exchange, fx reset exchange, pricing
+    List<PaymentEvent> events = new ArrayList<>();
+    if (notional.isInitialExchange()) {
+      RatePaymentPeriod firstPeriod = payPeriods.get(0);
+      events.add(NotionalExchange.builder()
+          .paymentDate(getStartDate())
+          .paymentAmount(CurrencyAmount.of(firstPeriod.getCurrency(), -firstPeriod.getNotional()))
+          .build());
+    }
+    if (notional.isFinalExchange()) {
+      RatePaymentPeriod lastPeriod = payPeriods.get(payPeriods.size() - 1);
+      events.add(NotionalExchange.builder()
+          .paymentDate(lastPeriod.getPaymentDate())
+          .paymentAmount(CurrencyAmount.of(lastPeriod.getCurrency(), lastPeriod.getNotional()))
+          .build());
+    }
     return ExpandedSwapLeg.builder()
-        .paymentPeriods(paymentPeriods.createPaymentPeriods(schedule, accrualPeriods, notional, payReceive))
-        .notionalExchange(NotionalExchange.NO_EXCHANGE)  // TODO
+        .paymentPeriods(ImmutableList.copyOf(payPeriods))
+        .paymentEvents(events)
         .build();
   }
 
