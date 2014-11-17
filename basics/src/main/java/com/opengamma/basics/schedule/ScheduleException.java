@@ -5,7 +5,9 @@
  */
 package com.opengamma.basics.schedule;
 
-import com.opengamma.collect.ArgChecker;
+import java.util.Optional;
+
+import com.opengamma.collect.Messages;
 
 /**
  * Exception thrown when a schedule cannot be calculated.
@@ -24,14 +26,28 @@ public final class ScheduleException
   /**
    * Creates an instance.
    * <p>
-   * The message is formatted using {@link ArgChecker#formatMessage(String, Object...)}.
+   * The message is formatted using {@link Messages#format(String, Object...)}.
+   * Message formatting is null tolerant to avoid hiding this exception.
    * 
-   * @param msgTemplate  the message template
-   * @param msgArguments  the message arguments
-   * @param definition  the invalid schedule definition, may be null
+   * @param msgTemplate  the message template, null tolerant
+   * @param msgArguments  the message arguments, null tolerant
+   */
+  public ScheduleException(String msgTemplate, Object... msgArguments) {
+    this(null, msgTemplate, msgArguments);
+  }
+
+  /**
+   * Creates an instance, specifying the definition that caused the problem.
+   * <p>
+   * The message is formatted using {@link Messages#format(String, Object...)}.
+   * Message formatting is null tolerant to avoid hiding this exception.
+   * 
+   * @param definition  the invalid schedule definition, null tolerant
+   * @param msgTemplate  the message template, null tolerant
+   * @param msgArguments  the message arguments, null tolerant
    */
   public ScheduleException(PeriodicSchedule definition, String msgTemplate, Object... msgArguments) {
-    super(ArgChecker.formatMessage(msgTemplate, msgArguments));
+    super(Messages.format(msgTemplate, msgArguments));
     this.definition = definition;
   }
 
@@ -39,10 +55,10 @@ public final class ScheduleException
   /**
    * Gets the invalid schedule definition.
    * 
-   * @return the definition, may be null
+   * @return the optional definition
    */
-  public PeriodicSchedule getDefinition() {
-    return definition;
+  public Optional<PeriodicSchedule> getDefinition() {
+    return Optional.ofNullable(definition);
   }
 
 }

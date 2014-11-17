@@ -11,6 +11,9 @@ import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Optional;
+import java.util.OptionalInt;
+
 import org.testng.annotations.Test;
 
 /**
@@ -24,22 +27,22 @@ public class ValueStepTest {
 
   public void test_of_intAdjustment() {
     ValueStep test = ValueStep.of(2, DELTA_MINUS_2000);
-    assertEquals(test.getDate(), null);
-    assertEquals(test.getPeriodIndex(), Integer.valueOf(2));
+    assertEquals(test.getDate(), Optional.empty());
+    assertEquals(test.getPeriodIndex(), OptionalInt.of(2));
     assertEquals(test.getValue(), DELTA_MINUS_2000);
   }
 
   public void test_of_dateAdjustment() {
     ValueStep test = ValueStep.of(date(2014, 6, 30), DELTA_MINUS_2000);
-    assertEquals(test.getDate(), date(2014, 6, 30));
-    assertEquals(test.getPeriodIndex(), null);
+    assertEquals(test.getDate(), Optional.of(date(2014, 6, 30)));
+    assertEquals(test.getPeriodIndex(), OptionalInt.empty());
     assertEquals(test.getValue(), DELTA_MINUS_2000);
   }
 
   public void test_ofAbsoluteAmount_dateDouble() {
     ValueStep test = ValueStep.ofAbsoluteAmount(date(2014, 6, 30), 100);
-    assertEquals(test.getDate(), date(2014, 6, 30));
-    assertEquals(test.getPeriodIndex(), null);
+    assertEquals(test.getDate(), Optional.of(date(2014, 6, 30)));
+    assertEquals(test.getPeriodIndex(), OptionalInt.empty());
     assertEquals(test.getValue(), ABSOLUTE_100);
   }
 

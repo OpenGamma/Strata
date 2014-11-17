@@ -47,7 +47,7 @@ public enum PutCall {
    * Converts a boolean "is put" flag to the enum value.
    * 
    * @param isPut  the put flag, true for put, false for call
-   * @return the equivalent enum, not null
+   * @return the equivalent enum
    */
   public static PutCall ofPut(boolean isPut) {
     return isPut ? PUT : CALL;

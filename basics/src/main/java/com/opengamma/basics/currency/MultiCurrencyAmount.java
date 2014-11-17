@@ -345,7 +345,7 @@ public final class MultiCurrencyAmount
    * This instance is immutable and unaffected by this method. 
    * 
    * @param factor The multiplicative factor.
-   * @return An amount based on this with all the amounts multiplied by the factor. Not null
+   * @return an amount based on this with all the amounts multiplied by the factor
    */
   public MultiCurrencyAmount multipliedBy(double factor) {
     return mapAmounts(a -> a * factor);

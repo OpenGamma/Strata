@@ -73,7 +73,7 @@ public final class ArgChecker {
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
+   * See {@link Messages#format(String, Object...)} for more details.
    * 
    * @param validIfTrue  a boolean resulting from testing an argument
    * @param message  the error message with {} placeholders, not null
@@ -83,7 +83,7 @@ public final class ArgChecker {
   public static void isTrue(boolean validIfTrue, String message, Object... arg) {
     // return void, not the parameter, as no need to check a boolean method parameter
     if (!validIfTrue) {
-      throw new IllegalArgumentException(formatMessage(message, arg));
+      throw new IllegalArgumentException(Messages.format(message, arg));
     }
   }  
 
@@ -129,7 +129,7 @@ public final class ArgChecker {
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
+   * See {@link Messages#format(String, Object...)} for more details.
    * 
    * @param validIfFalse  a boolean resulting from testing an argument
    * @param message  the error message with {} placeholders, not null
@@ -139,7 +139,7 @@ public final class ArgChecker {
   public static void isFalse(boolean validIfFalse, String message, Object... arg) {
     // return void, not the parameter, as no need to check a boolean method parameter
     if (validIfFalse) {
-      throw new IllegalArgumentException(formatMessage(message, arg));
+      throw new IllegalArgumentException(Messages.format(message, arg));
     }
   }
 
@@ -842,56 +842,6 @@ public final class ArgChecker {
       throw new IllegalArgumentException(
           "Invalid order: Expected '" + param1 + "' <= '" + param2 + "', but found: '" + obj1 + "' > '" + obj2);
     }
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Formats a templated message inserting arguments.
-   * <p>
-   * This method combines a template message with a list of specific arguments.
-   * It can be useful to delay string concatenation, which is sometimes a performance issue.
-   * The approach is similar to SLF4J MessageFormat, Guava Preconditions and String format().
-   * <p>
-   * The message template contains zero to many "{}" placeholders.
-   * Each placeholder is replaced by the next available argument.
-   * If there are too few arguments, then the message will be left with placeholders.
-   * If there are too many arguments, then the excess arguments are appended to the
-   * end of the message.
-   * No attempt is made to format the arguments.
-   * 
-   * @param messageTemplate  the message template with "{}" placeholders, not null
-   * @param args  the message arguments, not null
-   * @return the formatted message
-   */
-  public static String formatMessage(String messageTemplate, Object... args) {
-    // this could be located in its own class, such as MessageUtils
-
-    // try to make builder big enough for the message and the args
-    StringBuilder builder = new StringBuilder(messageTemplate.length() + args.length * 20);
-    // insert placeholders
-    int argIndex = 0;
-    int curPos = 0;
-    int nextPlaceholderPos = messageTemplate.indexOf("{}", curPos);
-    while (nextPlaceholderPos >= 0 && argIndex < args.length) {
-      builder.append(messageTemplate.substring(curPos, nextPlaceholderPos)).append(args[argIndex]);
-      argIndex++;
-      curPos = nextPlaceholderPos + 2;
-      nextPlaceholderPos = messageTemplate.indexOf("{}", curPos);
-    }
-    // append remainder of message template
-    builder.append(messageTemplate.substring(curPos));
-    // append remaining args
-    if (argIndex < args.length) {
-      builder.append(" - [");
-      for (int i = argIndex; i < args.length; i++) {
-        if (i > argIndex) {
-          builder.append(", ");
-        }
-        builder.append(args[i]);
-      }
-      builder.append(']');
-    }
-    return builder.toString();
   }
 
 }
