@@ -7,7 +7,7 @@ package com.opengamma.platform.pricerfn.swap;
 
 import java.time.LocalDate;
 
-import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.swap.PaymentPeriod;
@@ -45,15 +45,18 @@ public class StandardSwapPricerFn implements SwapPricerFn {
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount presentValue(PricingEnvironment env, LocalDate valuationDate, Swap swap) {
-    if (swap.isCrossCurrency()) {
-      throw new UnsupportedOperationException();
-    }
-    Currency currency = swap.getLeg(0).getCurrency();
-    double pv = swap.getLegs().stream()
+    return swap.getLegs().stream()
       .flatMap(leg -> leg.toExpanded().getPaymentPeriods().stream())
-      .mapToDouble(p -> paymentPeriodPricerFn.presentValue(env, valuationDate, p))
-      .sum();
-    return MultiCurrencyAmount.of(currency, pv);
+      .map(p -> CurrencyAmount.of(p.getCurrency(), paymentPeriodPricerFn.presentValue(env, valuationDate, p)))
+      .reduce(MultiCurrencyAmount.of(), MultiCurrencyAmount::plus, MultiCurrencyAmount::plus);
+  }
+
+  @Override
+  public MultiCurrencyAmount futureValue(PricingEnvironment env, LocalDate valuationDate, Swap swap) {
+    return swap.getLegs().stream()
+      .flatMap(leg -> leg.toExpanded().getPaymentPeriods().stream())
+      .map(p -> CurrencyAmount.of(p.getCurrency(), paymentPeriodPricerFn.futureValue(env, valuationDate, p)))
+      .reduce(MultiCurrencyAmount.of(), MultiCurrencyAmount::plus, MultiCurrencyAmount::plus);
   }
 
 }

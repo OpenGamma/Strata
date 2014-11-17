@@ -31,4 +31,17 @@ public interface SwapPricerFn {
       LocalDate valuationDate,
       Swap swap);
 
+  /**
+   * Calculates the future value of the swap.
+   * 
+   * @param env  the pricing environment
+   * @param valuationDate  the valuation date
+   * @param swap  the swap to price
+   * @return the future value of the swap
+   */
+  public abstract MultiCurrencyAmount futureValue(
+      PricingEnvironment env,
+      LocalDate valuationDate,
+      Swap swap);
+
 }
