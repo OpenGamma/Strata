@@ -117,6 +117,7 @@ public class ResultAssert extends AbstractAssert<ResultAssert, Result<?>> {
    * Assert that the {@code Result} is a failure with the
    * specified {@link FailureReason}.
    *
+   * @param expected  the expected failure reason
    * @return this if a failure with the specified reason, else
    *   throw an {@code AssertionError}
    */
