@@ -31,10 +31,10 @@ import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
 
 /**
- * An expanded swap leg consisting of payment periods and accrual periods.
+ * An expanded swap leg consisting of a list of payment periods.
  * <p>
  * This defines a single swap leg in the form of a list of payment periods.
- * Each payment period consists of one or more accrual periods.
+ * Each payment period typically consists of one or more accrual periods.
  * <p>
  * Any combination of payment and accrual periods is supported in the data model,
  * however there is no guarantee that exotic combinations will price sensibly.
