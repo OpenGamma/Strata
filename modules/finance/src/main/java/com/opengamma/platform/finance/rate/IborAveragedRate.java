@@ -15,7 +15,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -27,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.index.IborIndex;
-import com.opengamma.platform.finance.swap.RateAveragingMethod;
 
 /**
  * Defines the calculation of a rate based on the average of multiple fixings of a
@@ -53,46 +51,26 @@ public final class IborAveragedRate
   @PropertyDefinition(validate = "notNull")
   private final IborIndex index;
   /**
-   * The rate averaging method, defaulted to 'Unweighted'.
-   * <p>
-   * This is used when more than one fixing contributes to the rate.
-   * <p>
-   * Averaging may be weighted by the number of days that the fixing is applicable for.
-   * The number of days is based on the reset period, not the period between two fixing dates.
-   * <p>
-   * Defined by the 2006 ISDA definitions article 6.2a.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final RateAveragingMethod rateAveragingMethod;
-  /**
    * The list of fixings.
    * <p>
    * A fixing will be taken for each reset period, with the final rate
    * being an average of the fixings.
    */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableList<IborAveragedFixing> resetPeriods;
-
-  //-------------------------------------------------------------------------
-  @ImmutableDefaults
-  private static void applyDefaults(Builder builder) {
-    builder.rateAveragingMethod(RateAveragingMethod.UNWEIGHTED);
-  }
+  private final ImmutableList<IborAveragedFixing> fixings;
 
   //-------------------------------------------------------------------------
   /**
    * Creates an {@code IborAveragedRate} from an index and fixing date.
    * 
    * @param index  the index
-   * @param averagingMethod  the rate averaging method
-   * @param resetPeriods  the reset periods
+   * @param fixings  the weighted fixings
    * @return the averaged IBOR rate
    */
-  public static IborAveragedRate of(IborIndex index, RateAveragingMethod averagingMethod, IborAveragedFixing... resetPeriods) {
+  public static IborAveragedRate of(IborIndex index, IborAveragedFixing... fixings) {
     return IborAveragedRate.builder()
         .index(index)
-        .rateAveragingMethod(averagingMethod)
-        .resetPeriods(ImmutableList.copyOf(resetPeriods))
+        .fixings(ImmutableList.copyOf(fixings))
         .build();
   }
 
@@ -120,14 +98,11 @@ public final class IborAveragedRate
 
   private IborAveragedRate(
       IborIndex index,
-      RateAveragingMethod rateAveragingMethod,
-      List<IborAveragedFixing> resetPeriods) {
+      List<IborAveragedFixing> fixings) {
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(rateAveragingMethod, "rateAveragingMethod");
-    JodaBeanUtils.notEmpty(resetPeriods, "resetPeriods");
+    JodaBeanUtils.notEmpty(fixings, "fixings");
     this.index = index;
-    this.rateAveragingMethod = rateAveragingMethod;
-    this.resetPeriods = ImmutableList.copyOf(resetPeriods);
+    this.fixings = ImmutableList.copyOf(fixings);
   }
 
   @Override
@@ -159,30 +134,14 @@ public final class IborAveragedRate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the rate averaging method, defaulted to 'Unweighted'.
-   * <p>
-   * This is used when more than one fixing contributes to the rate.
-   * <p>
-   * Averaging may be weighted by the number of days that the fixing is applicable for.
-   * The number of days is based on the reset period, not the period between two fixing dates.
-   * <p>
-   * Defined by the 2006 ISDA definitions article 6.2a.
-   * @return the value of the property, not null
-   */
-  public RateAveragingMethod getRateAveragingMethod() {
-    return rateAveragingMethod;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the list of fixings.
    * <p>
    * A fixing will be taken for each reset period, with the final rate
    * being an average of the fixings.
    * @return the value of the property, not empty
    */
-  public ImmutableList<IborAveragedFixing> getResetPeriods() {
-    return resetPeriods;
+  public ImmutableList<IborAveragedFixing> getFixings() {
+    return fixings;
   }
 
   //-----------------------------------------------------------------------
@@ -202,8 +161,7 @@ public final class IborAveragedRate
     if (obj != null && obj.getClass() == this.getClass()) {
       IborAveragedRate other = (IborAveragedRate) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
-          JodaBeanUtils.equal(getRateAveragingMethod(), other.getRateAveragingMethod()) &&
-          JodaBeanUtils.equal(getResetPeriods(), other.getResetPeriods());
+          JodaBeanUtils.equal(getFixings(), other.getFixings());
     }
     return false;
   }
@@ -212,18 +170,16 @@ public final class IborAveragedRate
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRateAveragingMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriods());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixings());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("IborAveragedRate{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
-    buf.append("rateAveragingMethod").append('=').append(getRateAveragingMethod()).append(',').append(' ');
-    buf.append("resetPeriods").append('=').append(JodaBeanUtils.toString(getResetPeriods()));
+    buf.append("fixings").append('=').append(JodaBeanUtils.toString(getFixings()));
     buf.append('}');
     return buf.toString();
   }
@@ -244,24 +200,18 @@ public final class IborAveragedRate
     private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
         this, "index", IborAveragedRate.class, IborIndex.class);
     /**
-     * The meta-property for the {@code rateAveragingMethod} property.
-     */
-    private final MetaProperty<RateAveragingMethod> rateAveragingMethod = DirectMetaProperty.ofImmutable(
-        this, "rateAveragingMethod", IborAveragedRate.class, RateAveragingMethod.class);
-    /**
-     * The meta-property for the {@code resetPeriods} property.
+     * The meta-property for the {@code fixings} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<IborAveragedFixing>> resetPeriods = DirectMetaProperty.ofImmutable(
-        this, "resetPeriods", IborAveragedRate.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<IborAveragedFixing>> fixings = DirectMetaProperty.ofImmutable(
+        this, "fixings", IborAveragedRate.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "index",
-        "rateAveragingMethod",
-        "resetPeriods");
+        "fixings");
 
     /**
      * Restricted constructor.
@@ -274,10 +224,8 @@ public final class IborAveragedRate
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 154998811:  // rateAveragingMethod
-          return rateAveragingMethod;
-        case -1272973693:  // resetPeriods
-          return resetPeriods;
+        case -843784602:  // fixings
+          return fixings;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -307,19 +255,11 @@ public final class IborAveragedRate
     }
 
     /**
-     * The meta-property for the {@code rateAveragingMethod} property.
+     * The meta-property for the {@code fixings} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<RateAveragingMethod> rateAveragingMethod() {
-      return rateAveragingMethod;
-    }
-
-    /**
-     * The meta-property for the {@code resetPeriods} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ImmutableList<IborAveragedFixing>> resetPeriods() {
-      return resetPeriods;
+    public MetaProperty<ImmutableList<IborAveragedFixing>> fixings() {
+      return fixings;
     }
 
     //-----------------------------------------------------------------------
@@ -328,10 +268,8 @@ public final class IborAveragedRate
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return ((IborAveragedRate) bean).getIndex();
-        case 154998811:  // rateAveragingMethod
-          return ((IborAveragedRate) bean).getRateAveragingMethod();
-        case -1272973693:  // resetPeriods
-          return ((IborAveragedRate) bean).getResetPeriods();
+        case -843784602:  // fixings
+          return ((IborAveragedRate) bean).getFixings();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -354,14 +292,12 @@ public final class IborAveragedRate
   public static final class Builder extends DirectFieldsBeanBuilder<IborAveragedRate> {
 
     private IborIndex index;
-    private RateAveragingMethod rateAveragingMethod;
-    private List<IborAveragedFixing> resetPeriods = new ArrayList<IborAveragedFixing>();
+    private List<IborAveragedFixing> fixings = new ArrayList<IborAveragedFixing>();
 
     /**
      * Restricted constructor.
      */
     private Builder() {
-      applyDefaults(this);
     }
 
     /**
@@ -370,8 +306,7 @@ public final class IborAveragedRate
      */
     private Builder(IborAveragedRate beanToCopy) {
       this.index = beanToCopy.getIndex();
-      this.rateAveragingMethod = beanToCopy.getRateAveragingMethod();
-      this.resetPeriods = new ArrayList<IborAveragedFixing>(beanToCopy.getResetPeriods());
+      this.fixings = new ArrayList<IborAveragedFixing>(beanToCopy.getFixings());
     }
 
     //-----------------------------------------------------------------------
@@ -380,10 +315,8 @@ public final class IborAveragedRate
       switch (propertyName.hashCode()) {
         case 100346066:  // index
           return index;
-        case 154998811:  // rateAveragingMethod
-          return rateAveragingMethod;
-        case -1272973693:  // resetPeriods
-          return resetPeriods;
+        case -843784602:  // fixings
+          return fixings;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -396,11 +329,8 @@ public final class IborAveragedRate
         case 100346066:  // index
           this.index = (IborIndex) newValue;
           break;
-        case 154998811:  // rateAveragingMethod
-          this.rateAveragingMethod = (RateAveragingMethod) newValue;
-          break;
-        case -1272973693:  // resetPeriods
-          this.resetPeriods = (List<IborAveragedFixing>) newValue;
+        case -843784602:  // fixings
+          this.fixings = (List<IborAveragedFixing>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -436,8 +366,7 @@ public final class IborAveragedRate
     public IborAveragedRate build() {
       return new IborAveragedRate(
           index,
-          rateAveragingMethod,
-          resetPeriods);
+          fixings);
     }
 
     //-----------------------------------------------------------------------
@@ -453,35 +382,23 @@ public final class IborAveragedRate
     }
 
     /**
-     * Sets the {@code rateAveragingMethod} property in the builder.
-     * @param rateAveragingMethod  the new value, not null
+     * Sets the {@code fixings} property in the builder.
+     * @param fixings  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder rateAveragingMethod(RateAveragingMethod rateAveragingMethod) {
-      JodaBeanUtils.notNull(rateAveragingMethod, "rateAveragingMethod");
-      this.rateAveragingMethod = rateAveragingMethod;
-      return this;
-    }
-
-    /**
-     * Sets the {@code resetPeriods} property in the builder.
-     * @param resetPeriods  the new value, not empty
-     * @return this, for chaining, not null
-     */
-    public Builder resetPeriods(List<IborAveragedFixing> resetPeriods) {
-      JodaBeanUtils.notEmpty(resetPeriods, "resetPeriods");
-      this.resetPeriods = resetPeriods;
+    public Builder fixings(List<IborAveragedFixing> fixings) {
+      JodaBeanUtils.notEmpty(fixings, "fixings");
+      this.fixings = fixings;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("IborAveragedRate.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("rateAveragingMethod").append('=').append(JodaBeanUtils.toString(rateAveragingMethod)).append(',').append(' ');
-      buf.append("resetPeriods").append('=').append(JodaBeanUtils.toString(resetPeriods));
+      buf.append("fixings").append('=').append(JodaBeanUtils.toString(fixings));
       buf.append('}');
       return buf.toString();
     }

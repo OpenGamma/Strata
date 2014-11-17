@@ -7,6 +7,8 @@ package com.opengamma.platform.pricerfn.rate;
 
 import java.time.LocalDate;
 
+import com.opengamma.basics.index.IborIndex;
+import com.opengamma.platform.finance.rate.IborAveragedFixing;
 import com.opengamma.platform.finance.rate.IborAveragedRate;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.rate.RateProviderFn;
@@ -34,25 +36,25 @@ public class StandardIborAveragedRateProviderFn
       IborAveragedRate rate,
       LocalDate startDate,
       LocalDate endDate) {
+    
+    double totalWeight = rate.getFixings().stream()
+        .mapToDouble(IborAveragedFixing::getWeight)
+        .sum();
+    double weightedRate = rate.getFixings().stream()
+        .mapToDouble(fixing -> weightedRate(env, valuationDate, rate.getIndex(), fixing))
+        .sum();
+    return weightedRate / totalWeight;
+  }
 
-    // TODO
-    return 1;
-//    LocalDate fixingDate = rate.getFixingDate();
-//    IborIndex index1 = rate.getShortIndex();
-//    IborIndex index2 = rate.getLongIndex();
-//    LocalDate fixingStartDate1 = index1.calculateEffectiveFromFixing(fixingDate);
-//    LocalDate fixingEndDate1 = index1.calculateMaturityFromEffective(fixingStartDate1);
-//    LocalDate fixingStartDate2 = index2.calculateEffectiveFromFixing(fixingDate);
-//    LocalDate fixingEndDate2 = index2.calculateMaturityFromEffective(fixingStartDate2);
-//    double rate1 = env.indexRate(index1, valuationDate, fixingDate);
-//    double rate2 = env.indexRate(index2, valuationDate, fixingDate);
-//    long fixingEpochDay = fixingDate.toEpochDay();
-//    double days1 = fixingEndDate1.toEpochDay() - fixingEpochDay;
-//    double days2 = fixingEndDate2.toEpochDay() - fixingEpochDay;
-//    double daysN = endDate.toEpochDay() - fixingEpochDay;
-//    double weight1 = (days2 - daysN) / (days2 - days1);
-//    double weight2 = (daysN - days1) / (days2 - days1);
-//    return ((rate1 * weight1) + (rate2 * weight2)) / (weight1 + weight2);
+  // calculate the rate and multiply it by the weight
+  private double weightedRate(
+      PricingEnvironment env,
+      LocalDate valuationDate,
+      IborIndex iborIndex,
+      IborAveragedFixing fixing) {
+    
+    double rate = env.indexRate(iborIndex, valuationDate, fixing.getFixingDate());
+    return rate * fixing.getWeight();
   }
 
 }
