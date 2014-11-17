@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.schedule.Schedule;
@@ -59,6 +60,16 @@ public final class FixedRateSwapLeg
   private static final long serialVersionUID = 1L;
 
   /**
+   * Whether the leg is pay or receive.
+   * <p>
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
+   * Note that negative interest rates can result in a payment in the opposite
+   * direction to that implied by this indicator.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final PayReceive payReceive;
+  /**
    * The accrual periods.
    * <p>
    * This is used to define the accrual periods of the swap.
@@ -74,6 +85,15 @@ public final class FixedRateSwapLeg
    */
   @PropertyDefinition(validate = "notNull")
   private final PaymentSchedule paymentPeriods;
+  /**
+   * The notional of the swap leg.
+   * <p>
+   * The notional amount of the swap leg, which can vary during the lifetime of the swap.
+   * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
+   * However, in certain cases, initial, final or intermediate amounts are exchanged.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final NotionalAmount notional;
   /**
    * The primary calculation of the swap leg based on a fixed rate.
    * <p>
@@ -119,7 +139,7 @@ public final class FixedRateSwapLeg
    */
   @Override
   public Currency getCurrency() {
-    return calculation.getNotional().getCurrency();
+    return notional.getCurrency();
   }
 
   /**
@@ -133,7 +153,7 @@ public final class FixedRateSwapLeg
     Schedule schedule = accrualPeriods.createSchedule();
     ImmutableList<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(schedule);
     return ExpandedSwapLeg.builder()
-        .paymentPeriods(paymentPeriods.createPaymentPeriods(accrualPeriods, schedule, calculation))
+        .paymentPeriods(paymentPeriods.createPaymentPeriods(schedule, accrualPeriods, notional, payReceive))
         .notionalExchange(NotionalExchange.NO_EXCHANGE)  // TODO
         .build();
   }
@@ -161,14 +181,20 @@ public final class FixedRateSwapLeg
   }
 
   private FixedRateSwapLeg(
+      PayReceive payReceive,
       PeriodicSchedule accrualPeriods,
       PaymentSchedule paymentPeriods,
+      NotionalAmount notional,
       FixedRateCalculation calculation) {
+    JodaBeanUtils.notNull(payReceive, "payReceive");
     JodaBeanUtils.notNull(accrualPeriods, "accrualPeriods");
     JodaBeanUtils.notNull(paymentPeriods, "paymentPeriods");
+    JodaBeanUtils.notNull(notional, "notional");
     JodaBeanUtils.notNull(calculation, "calculation");
+    this.payReceive = payReceive;
     this.accrualPeriods = accrualPeriods;
     this.paymentPeriods = paymentPeriods;
+    this.notional = notional;
     this.calculation = calculation;
   }
 
@@ -185,6 +211,20 @@ public final class FixedRateSwapLeg
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether the leg is pay or receive.
+   * <p>
+   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
+   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
+   * Note that negative interest rates can result in a payment in the opposite
+   * direction to that implied by this indicator.
+   * @return the value of the property, not null
+   */
+  public PayReceive getPayReceive() {
+    return payReceive;
   }
 
   //-----------------------------------------------------------------------
@@ -209,6 +249,19 @@ public final class FixedRateSwapLeg
    */
   public PaymentSchedule getPaymentPeriods() {
     return paymentPeriods;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the notional of the swap leg.
+   * <p>
+   * The notional amount of the swap leg, which can vary during the lifetime of the swap.
+   * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
+   * However, in certain cases, initial, final or intermediate amounts are exchanged.
+   * @return the value of the property, not null
+   */
+  public NotionalAmount getNotional() {
+    return notional;
   }
 
   //-----------------------------------------------------------------------
@@ -241,8 +294,10 @@ public final class FixedRateSwapLeg
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedRateSwapLeg other = (FixedRateSwapLeg) obj;
-      return JodaBeanUtils.equal(getAccrualPeriods(), other.getAccrualPeriods()) &&
+      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
+          JodaBeanUtils.equal(getAccrualPeriods(), other.getAccrualPeriods()) &&
           JodaBeanUtils.equal(getPaymentPeriods(), other.getPaymentPeriods()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getCalculation(), other.getCalculation());
     }
     return false;
@@ -251,18 +306,22 @@ public final class FixedRateSwapLeg
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriods());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriods());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCalculation());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("FixedRateSwapLeg{");
+    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
     buf.append("accrualPeriods").append('=').append(getAccrualPeriods()).append(',').append(' ');
     buf.append("paymentPeriods").append('=').append(getPaymentPeriods()).append(',').append(' ');
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("calculation").append('=').append(JodaBeanUtils.toString(getCalculation()));
     buf.append('}');
     return buf.toString();
@@ -279,6 +338,11 @@ public final class FixedRateSwapLeg
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code payReceive} property.
+     */
+    private final MetaProperty<PayReceive> payReceive = DirectMetaProperty.ofImmutable(
+        this, "payReceive", FixedRateSwapLeg.class, PayReceive.class);
+    /**
      * The meta-property for the {@code accrualPeriods} property.
      */
     private final MetaProperty<PeriodicSchedule> accrualPeriods = DirectMetaProperty.ofImmutable(
@@ -289,6 +353,11 @@ public final class FixedRateSwapLeg
     private final MetaProperty<PaymentSchedule> paymentPeriods = DirectMetaProperty.ofImmutable(
         this, "paymentPeriods", FixedRateSwapLeg.class, PaymentSchedule.class);
     /**
+     * The meta-property for the {@code notional} property.
+     */
+    private final MetaProperty<NotionalAmount> notional = DirectMetaProperty.ofImmutable(
+        this, "notional", FixedRateSwapLeg.class, NotionalAmount.class);
+    /**
      * The meta-property for the {@code calculation} property.
      */
     private final MetaProperty<FixedRateCalculation> calculation = DirectMetaProperty.ofImmutable(
@@ -298,8 +367,10 @@ public final class FixedRateSwapLeg
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "payReceive",
         "accrualPeriods",
         "paymentPeriods",
+        "notional",
         "calculation");
 
     /**
@@ -311,10 +382,14 @@ public final class FixedRateSwapLeg
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return payReceive;
         case -92208605:  // accrualPeriods
           return accrualPeriods;
         case -1674414612:  // paymentPeriods
           return paymentPeriods;
+        case 1585636160:  // notional
+          return notional;
         case -934682935:  // calculation
           return calculation;
       }
@@ -338,6 +413,14 @@ public final class FixedRateSwapLeg
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code payReceive} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<PayReceive> payReceive() {
+      return payReceive;
+    }
+
+    /**
      * The meta-property for the {@code accrualPeriods} property.
      * @return the meta-property, not null
      */
@@ -354,6 +437,14 @@ public final class FixedRateSwapLeg
     }
 
     /**
+     * The meta-property for the {@code notional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<NotionalAmount> notional() {
+      return notional;
+    }
+
+    /**
      * The meta-property for the {@code calculation} property.
      * @return the meta-property, not null
      */
@@ -365,10 +456,14 @@ public final class FixedRateSwapLeg
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return ((FixedRateSwapLeg) bean).getPayReceive();
         case -92208605:  // accrualPeriods
           return ((FixedRateSwapLeg) bean).getAccrualPeriods();
         case -1674414612:  // paymentPeriods
           return ((FixedRateSwapLeg) bean).getPaymentPeriods();
+        case 1585636160:  // notional
+          return ((FixedRateSwapLeg) bean).getNotional();
         case -934682935:  // calculation
           return ((FixedRateSwapLeg) bean).getCalculation();
       }
@@ -392,8 +487,10 @@ public final class FixedRateSwapLeg
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FixedRateSwapLeg> {
 
+    private PayReceive payReceive;
     private PeriodicSchedule accrualPeriods;
     private PaymentSchedule paymentPeriods;
+    private NotionalAmount notional;
     private FixedRateCalculation calculation;
 
     /**
@@ -407,8 +504,10 @@ public final class FixedRateSwapLeg
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FixedRateSwapLeg beanToCopy) {
+      this.payReceive = beanToCopy.getPayReceive();
       this.accrualPeriods = beanToCopy.getAccrualPeriods();
       this.paymentPeriods = beanToCopy.getPaymentPeriods();
+      this.notional = beanToCopy.getNotional();
       this.calculation = beanToCopy.getCalculation();
     }
 
@@ -416,10 +515,14 @@ public final class FixedRateSwapLeg
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          return payReceive;
         case -92208605:  // accrualPeriods
           return accrualPeriods;
         case -1674414612:  // paymentPeriods
           return paymentPeriods;
+        case 1585636160:  // notional
+          return notional;
         case -934682935:  // calculation
           return calculation;
         default:
@@ -430,11 +533,17 @@ public final class FixedRateSwapLeg
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case -885469925:  // payReceive
+          this.payReceive = (PayReceive) newValue;
+          break;
         case -92208605:  // accrualPeriods
           this.accrualPeriods = (PeriodicSchedule) newValue;
           break;
         case -1674414612:  // paymentPeriods
           this.paymentPeriods = (PaymentSchedule) newValue;
+          break;
+        case 1585636160:  // notional
+          this.notional = (NotionalAmount) newValue;
           break;
         case -934682935:  // calculation
           this.calculation = (FixedRateCalculation) newValue;
@@ -472,12 +581,25 @@ public final class FixedRateSwapLeg
     @Override
     public FixedRateSwapLeg build() {
       return new FixedRateSwapLeg(
+          payReceive,
           accrualPeriods,
           paymentPeriods,
+          notional,
           calculation);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code payReceive} property in the builder.
+     * @param payReceive  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder payReceive(PayReceive payReceive) {
+      JodaBeanUtils.notNull(payReceive, "payReceive");
+      this.payReceive = payReceive;
+      return this;
+    }
+
     /**
      * Sets the {@code accrualPeriods} property in the builder.
      * @param accrualPeriods  the new value, not null
@@ -501,6 +623,17 @@ public final class FixedRateSwapLeg
     }
 
     /**
+     * Sets the {@code notional} property in the builder.
+     * @param notional  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder notional(NotionalAmount notional) {
+      JodaBeanUtils.notNull(notional, "notional");
+      this.notional = notional;
+      return this;
+    }
+
+    /**
      * Sets the {@code calculation} property in the builder.
      * @param calculation  the new value, not null
      * @return this, for chaining, not null
@@ -514,10 +647,12 @@ public final class FixedRateSwapLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("FixedRateSwapLeg.Builder{");
+      buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("accrualPeriods").append('=').append(JodaBeanUtils.toString(accrualPeriods)).append(',').append(' ');
       buf.append("paymentPeriods").append('=').append(JodaBeanUtils.toString(paymentPeriods)).append(',').append(' ');
+      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation));
       buf.append('}');
       return buf.toString();

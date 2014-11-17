@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.Schedule;
@@ -185,27 +186,28 @@ public final class PaymentSchedule
    * <p>
    * This applies the payment schedule.
    * 
-   * @param accrualPeriods  the list of accrual periods
    * @param accrualSchedule  the accrual schedule
+   * @param accrualPeriods  the list of accrual periods
    * @return the list of payment periods
    */
   ImmutableList<PaymentPeriod> createPaymentPeriods(
-      List<RateAccrualPeriod> accrualPeriods,
       Schedule accrualSchedule,
-      RateCalculation rateCalculation) {
+      List<RateAccrualPeriod> accrualPeriods,
+      NotionalAmount notionalAmount,
+      PayReceive payReceive) {
     // calculate the schedule and apply notionals
     Schedule paymentSchedule = createSchedule(accrualSchedule);
-    List<Double> notionals = rateCalculation.getNotional().getAmount().resolveValues(paymentSchedule.getPeriods());
+    List<Double> notionals = notionalAmount.getAmount().resolveValues(paymentSchedule.getPeriods());
     // build up payment periods using schedule
     ImmutableList.Builder<PaymentPeriod> paymentPeriods = ImmutableList.builder();
     for (int paymentIndex = 0; paymentIndex < paymentSchedule.size(); paymentIndex++) {
       SchedulePeriod period = paymentSchedule.getPeriod(paymentIndex);
-      double notional = rateCalculation.getPayReceive().normalize(notionals.get(paymentIndex));
+      double notional = payReceive.normalize(notionals.get(paymentIndex));
       List<RateAccrualPeriod> paymentAccrualPeriods = accrualPeriods.stream()
           .filter(p -> !p.getStartDate().isBefore(period.getStartDate()))
           .filter(p -> !p.getEndDate().isAfter(period.getEndDate()))
           .collect(Guavate.toImmutableList());
-      paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, rateCalculation, notional));
+      paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, notionalAmount, notional));
     }
     return paymentPeriods.build();
   }
@@ -214,13 +216,13 @@ public final class PaymentSchedule
   private PaymentPeriod createPaymentPeriod(
       SchedulePeriod paymentPeriod,
       List<RateAccrualPeriod> periods,
-      RateCalculation rateCalculation,
+      NotionalAmount notionalAmount,
       double notional) {
     return RatePaymentPeriod.builder()
         .paymentDate(paymentOffset.adjust(paymentRelativeTo.selectBaseDate(paymentPeriod)))
         .accrualPeriods(periods)
-        .currency(rateCalculation.getNotional().getCurrency())
-        .fxReset(createFxReset(rateCalculation.getNotional(), paymentPeriod))
+        .currency(notionalAmount.getCurrency())
+        .fxReset(createFxReset(notionalAmount, paymentPeriod))
         .notional(notional)
         .compoundingMethod(compoundingMethod)
         .build();

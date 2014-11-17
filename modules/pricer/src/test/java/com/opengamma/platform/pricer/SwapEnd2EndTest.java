@@ -87,6 +87,7 @@ public class SwapEnd2EndTest {
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 9, 12), P6M, PAY, NOTIONAL, 0.0125, null);
     
     IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2016, 9, 12))
@@ -97,9 +98,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P1M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_1M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -123,6 +123,7 @@ public class SwapEnd2EndTest {
         LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
     
     IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
@@ -133,9 +134,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -159,6 +159,7 @@ public class SwapEnd2EndTest {
         LocalDate.of(2013, 9, 12), LocalDate.of(2020, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
     
     IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2013, 9, 12))
             .endDate(LocalDate.of(2020, 9, 12))
@@ -169,9 +170,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -192,6 +192,7 @@ public class SwapEnd2EndTest {
   //-------------------------------------------------------------------------
   public void test_BasisLibor3mVsLibor6mSwapWithSpread() {
     IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 8, 29))
             .endDate(LocalDate.of(2024, 8, 29))
@@ -202,9 +203,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(Frequency.P6M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_6M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -212,6 +212,7 @@ public class SwapEnd2EndTest {
         .build();
     
     IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 8, 29))
             .endDate(LocalDate.of(2024, 8, 29))
@@ -222,9 +223,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(Frequency.P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -248,6 +248,7 @@ public class SwapEnd2EndTest {
   //-------------------------------------------------------------------------
   public void test_BasisCompoundedLibor1mVsLibor3mSwap() {
     IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 8, 29))
             .endDate(LocalDate.of(2019, 8, 29))
@@ -259,9 +260,8 @@ public class SwapEnd2EndTest {
             .paymentOffset(DaysAdjustment.NONE)
             .compoundingMethod(CompoundingMethod.FLAT)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_1M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -269,6 +269,7 @@ public class SwapEnd2EndTest {
         .build();
     
     IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 8, 29))
             .endDate(LocalDate.of(2019, 8, 29))
@@ -279,9 +280,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(Frequency.P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -307,6 +307,7 @@ public class SwapEnd2EndTest {
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 6, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
     
     IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2016, 6, 12))
@@ -318,9 +319,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -344,6 +344,7 @@ public class SwapEnd2EndTest {
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 7, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
     
     IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2016, 7, 12))
@@ -355,9 +356,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -381,6 +381,7 @@ public class SwapEnd2EndTest {
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 6, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
     
     IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2016, 6, 12))
@@ -392,9 +393,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P6M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_6M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -419,6 +419,7 @@ public class SwapEnd2EndTest {
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 7, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
     
     IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2016, 7, 12))
@@ -430,9 +431,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P6M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_6M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -454,6 +454,7 @@ public class SwapEnd2EndTest {
   //-------------------------------------------------------------------------
   public void test_ZeroCouponFixedVsLibor3mSwap() {
     FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
@@ -465,15 +466,15 @@ public class SwapEnd2EndTest {
             .paymentOffset(DaysAdjustment.NONE)
             .compoundingMethod(CompoundingMethod.STRAIGHT)
             .build())
+        .notional(NOTIONAL)
         .calculation(FixedRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(THIRTY_U_360)
             .rate(ValueSchedule.of(0.015))
             .build())
         .build();
     
     IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
@@ -486,9 +487,8 @@ public class SwapEnd2EndTest {
             .paymentOffset(DaysAdjustment.NONE)
             .compoundingMethod(CompoundingMethod.STRAIGHT)
             .build())
+        .notional(NOTIONAL)
         .calculation(IborRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -515,6 +515,7 @@ public class SwapEnd2EndTest {
     }
     ValueSchedule notionalSchedule = ValueSchedule.of(100_000_000, steps);
     FixedRateSwapLeg receiveLeg = FixedRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
@@ -525,15 +526,15 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NotionalAmount.of(USD, notionalSchedule))
         .calculation(FixedRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NotionalAmount.of(USD, notionalSchedule))
             .dayCount(THIRTY_U_360)
             .rate(ValueSchedule.of(0.016))
             .build())
         .build();
     
     IborRateSwapLeg payLeg = IborRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
@@ -545,9 +546,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NotionalAmount.of(USD, notionalSchedule))
         .calculation(IborRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NotionalAmount.of(USD, notionalSchedule))
             .dayCount(ACT_360)
             .index(USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
@@ -568,6 +568,7 @@ public class SwapEnd2EndTest {
   //-------------------------------------------------------------------------
   public void test_CompoundingOisFixed2mVsFedFund12mSwap() {
     FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 5))
             .endDate(LocalDate.of(2014, 4, 7))
@@ -578,15 +579,15 @@ public class SwapEnd2EndTest {
             .paymentFrequency(TERM)
             .paymentOffset(DaysAdjustment.ofBusinessDays(2, CalendarUSD.NYC))
             .build())
+        .notional(NOTIONAL)
         .calculation(FixedRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .rate(ValueSchedule.of(0.00123))
             .build())
         .build();
     
     OvernightRateSwapLeg receiveLeg = OvernightRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 5))
             .endDate(LocalDate.of(2014, 4, 7))
@@ -598,9 +599,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(TERM)
             .paymentOffset(DaysAdjustment.ofBusinessDays(2, CalendarUSD.NYC))
             .build())
+        .notional(NOTIONAL)
         .calculation(OvernightRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_FED_FUND)
             .build())
@@ -620,6 +620,7 @@ public class SwapEnd2EndTest {
   //-------------------------------------------------------------------------
   public void test_CompoundingOisFixed2mVsFedFund12mSwapWithFixing() {
     FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
+        .payReceive(PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 17))
             .endDate(LocalDate.of(2014, 3, 17))
@@ -630,15 +631,15 @@ public class SwapEnd2EndTest {
             .paymentFrequency(TERM)
             .paymentOffset(DaysAdjustment.ofBusinessDays(2, CalendarUSD.NYC))
             .build())
+        .notional(NOTIONAL)
         .calculation(FixedRateCalculation.builder()
-            .payReceive(PAY)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .rate(ValueSchedule.of(0.00123))
             .build())
         .build();
     
     OvernightRateSwapLeg receiveLeg = OvernightRateSwapLeg.builder()
+        .payReceive(RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 1, 17))
             .endDate(LocalDate.of(2014, 3, 17))
@@ -650,9 +651,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(TERM)
             .paymentOffset(DaysAdjustment.ofBusinessDays(2, CalendarUSD.NYC))
             .build())
+        .notional(NOTIONAL)
         .calculation(OvernightRateCalculation.builder()
-            .payReceive(RECEIVE)
-            .notional(NOTIONAL)
             .dayCount(ACT_360)
             .index(USD_FED_FUND)
             .build())
@@ -676,6 +676,7 @@ public class SwapEnd2EndTest {
       PayReceive payReceive, NotionalAmount notional, double fixedRate, StubConvention stubConvention) {
     
     return FixedRateSwapLeg.builder()
+        .payReceive(payReceive)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(start)
             .endDate(end)
@@ -687,9 +688,8 @@ public class SwapEnd2EndTest {
             .paymentFrequency(frequency)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(notional)
         .calculation(FixedRateCalculation.builder()
-            .payReceive(payReceive)
-            .notional(notional)
             .dayCount(THIRTY_U_360)
             .rate(ValueSchedule.of(fixedRate))
             .build())

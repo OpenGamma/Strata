@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
@@ -39,32 +38,11 @@ import com.opengamma.platform.finance.rate.FixedRate;
  */
 @BeanDefinition
 public final class FixedRateCalculation
-    implements RateCalculation, ImmutableBean, Serializable {
+    implements ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Whether the calculation is pay or receive.
-   * <p>
-   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
-   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
-   * Note that negative interest rates can result in a payment in the opposite
-   * direction to that implied by this indicator.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final PayReceive payReceive;
-  /**
-   * The notional amount, always positive.
-   * <p>
-   * The notional amount of the swap leg, which can vary during the lifetime of the swap.
-   * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
-   * However, in certain cases, initial, final or intermediate amounts are exchanged.
-   * <p>
-   * The notional expressed here is always positive, see {@code payReceive}.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final NotionalAmount notional;
   /**
    * The day count convention applicable.
    * <p>
@@ -90,11 +68,6 @@ public final class FixedRateCalculation
    * @throws RuntimeException if the swap calculation is invalid
    */
   ImmutableList<RateAccrualPeriod> createAccrualPeriods(Schedule schedule) {
-    if (notional.isInitialExchange() ||
-        notional.isFinalExchange() ||
-        notional.isIntermediateExchange()) {
-      throw new UnsupportedOperationException();
-    }
     // resolve data by schedule
     List<Double> resolvedRates = rate.resolveValues(schedule.getPeriods());
     // build accrual periods
@@ -131,16 +104,10 @@ public final class FixedRateCalculation
   }
 
   private FixedRateCalculation(
-      PayReceive payReceive,
-      NotionalAmount notional,
       DayCount dayCount,
       ValueSchedule rate) {
-    JodaBeanUtils.notNull(payReceive, "payReceive");
-    JodaBeanUtils.notNull(notional, "notional");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(rate, "rate");
-    this.payReceive = payReceive;
-    this.notional = notional;
     this.dayCount = dayCount;
     this.rate = rate;
   }
@@ -158,37 +125,6 @@ public final class FixedRateCalculation
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets whether the calculation is pay or receive.
-   * <p>
-   * A value of 'Pay' implies that the resulting amount is paid to the counterparty.
-   * A value of 'Receive' implies that the resulting amount is received from the counterparty.
-   * Note that negative interest rates can result in a payment in the opposite
-   * direction to that implied by this indicator.
-   * @return the value of the property, not null
-   */
-  @Override
-  public PayReceive getPayReceive() {
-    return payReceive;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the notional amount, always positive.
-   * <p>
-   * The notional amount of the swap leg, which can vary during the lifetime of the swap.
-   * In most cases, the notional amount is not exchanged, with only the net difference being exchanged.
-   * However, in certain cases, initial, final or intermediate amounts are exchanged.
-   * <p>
-   * The notional expressed here is always positive, see {@code payReceive}.
-   * @return the value of the property, not null
-   */
-  @Override
-  public NotionalAmount getNotional() {
-    return notional;
   }
 
   //-----------------------------------------------------------------------
@@ -230,9 +166,7 @@ public final class FixedRateCalculation
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedRateCalculation other = (FixedRateCalculation) obj;
-      return JodaBeanUtils.equal(getPayReceive(), other.getPayReceive()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getRate(), other.getRate());
     }
     return false;
@@ -241,8 +175,6 @@ public final class FixedRateCalculation
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPayReceive());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash;
@@ -250,10 +182,8 @@ public final class FixedRateCalculation
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("FixedRateCalculation{");
-    buf.append("payReceive").append('=').append(getPayReceive()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
     buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
     buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate()));
     buf.append('}');
@@ -271,16 +201,6 @@ public final class FixedRateCalculation
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code payReceive} property.
-     */
-    private final MetaProperty<PayReceive> payReceive = DirectMetaProperty.ofImmutable(
-        this, "payReceive", FixedRateCalculation.class, PayReceive.class);
-    /**
-     * The meta-property for the {@code notional} property.
-     */
-    private final MetaProperty<NotionalAmount> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", FixedRateCalculation.class, NotionalAmount.class);
-    /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
@@ -295,8 +215,6 @@ public final class FixedRateCalculation
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "payReceive",
-        "notional",
         "dayCount",
         "rate");
 
@@ -309,10 +227,6 @@ public final class FixedRateCalculation
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -885469925:  // payReceive
-          return payReceive;
-        case 1585636160:  // notional
-          return notional;
         case 1905311443:  // dayCount
           return dayCount;
         case 3493088:  // rate
@@ -338,22 +252,6 @@ public final class FixedRateCalculation
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code payReceive} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<PayReceive> payReceive() {
-      return payReceive;
-    }
-
-    /**
-     * The meta-property for the {@code notional} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<NotionalAmount> notional() {
-      return notional;
-    }
-
-    /**
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
@@ -373,10 +271,6 @@ public final class FixedRateCalculation
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -885469925:  // payReceive
-          return ((FixedRateCalculation) bean).getPayReceive();
-        case 1585636160:  // notional
-          return ((FixedRateCalculation) bean).getNotional();
         case 1905311443:  // dayCount
           return ((FixedRateCalculation) bean).getDayCount();
         case 3493088:  // rate
@@ -402,8 +296,6 @@ public final class FixedRateCalculation
    */
   public static final class Builder extends DirectFieldsBeanBuilder<FixedRateCalculation> {
 
-    private PayReceive payReceive;
-    private NotionalAmount notional;
     private DayCount dayCount;
     private ValueSchedule rate;
 
@@ -418,8 +310,6 @@ public final class FixedRateCalculation
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FixedRateCalculation beanToCopy) {
-      this.payReceive = beanToCopy.getPayReceive();
-      this.notional = beanToCopy.getNotional();
       this.dayCount = beanToCopy.getDayCount();
       this.rate = beanToCopy.getRate();
     }
@@ -428,10 +318,6 @@ public final class FixedRateCalculation
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -885469925:  // payReceive
-          return payReceive;
-        case 1585636160:  // notional
-          return notional;
         case 1905311443:  // dayCount
           return dayCount;
         case 3493088:  // rate
@@ -444,12 +330,6 @@ public final class FixedRateCalculation
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -885469925:  // payReceive
-          this.payReceive = (PayReceive) newValue;
-          break;
-        case 1585636160:  // notional
-          this.notional = (NotionalAmount) newValue;
-          break;
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
           break;
@@ -489,35 +369,11 @@ public final class FixedRateCalculation
     @Override
     public FixedRateCalculation build() {
       return new FixedRateCalculation(
-          payReceive,
-          notional,
           dayCount,
           rate);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code payReceive} property in the builder.
-     * @param payReceive  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder payReceive(PayReceive payReceive) {
-      JodaBeanUtils.notNull(payReceive, "payReceive");
-      this.payReceive = payReceive;
-      return this;
-    }
-
-    /**
-     * Sets the {@code notional} property in the builder.
-     * @param notional  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder notional(NotionalAmount notional) {
-      JodaBeanUtils.notNull(notional, "notional");
-      this.notional = notional;
-      return this;
-    }
-
     /**
      * Sets the {@code dayCount} property in the builder.
      * @param dayCount  the new value, not null
@@ -543,10 +399,8 @@ public final class FixedRateCalculation
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("FixedRateCalculation.Builder{");
-      buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
-      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("rate").append('=').append(JodaBeanUtils.toString(rate));
       buf.append('}');

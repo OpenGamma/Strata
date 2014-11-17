@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DayCounts;
 import com.opengamma.basics.date.DaysAdjustment;
@@ -59,19 +58,19 @@ public class SwapDemo {
         .rollConvention(RollConventions.EOM)
         .build();
     FixedRateSwapLeg swapLeg = FixedRateSwapLeg.builder()
+        .payReceive(PayReceive.PAY)
         .accrualPeriods(accrualSchedule)
         .paymentPeriods(PaymentSchedule.builder()
             .paymentFrequency(Frequency.P6M)
             .paymentOffset(DaysAdjustment.ofCalendarDays(2, paymentBda))
             .build())
+        .notional(NotionalAmount.builder()
+            .currency(Currency.GBP)
+            .amount(ValueSchedule.of(
+                1_000_000,
+                ImmutableList.of(ValueStep.ofAbsoluteAmount(LocalDate.parse("2014-07-31"), 2_000_000))))
+            .build())
         .calculation(FixedRateCalculation.builder()
-            .payReceive(PayReceive.PAY)
-            .notional(NotionalAmount.builder()
-                .currency(Currency.GBP)
-                .amount(ValueSchedule.of(
-                    1_000_000,
-                    ImmutableList.of(ValueStep.ofAbsoluteAmount(LocalDate.parse("2014-07-31"), 2_000_000))))
-                .build())
             .dayCount(DayCounts.ACT_ACT_ISDA)
             .rate(ValueSchedule.of(
                 0.008,
@@ -106,19 +105,19 @@ public class SwapDemo {
         .rollConvention(RollConventions.EOM)
         .build();
     IborRateSwapLeg swapLeg = IborRateSwapLeg.builder()
+        .payReceive(PayReceive.RECEIVE)
         .accrualPeriods(accrualSchedule)
         .paymentPeriods(PaymentSchedule.builder()
             .paymentFrequency(Frequency.P6M)
             .paymentOffset(DaysAdjustment.ofCalendarDays(2, paymentBda))
             .build())
+        .notional(NotionalAmount.builder()
+            .currency(Currency.GBP)
+            .amount(ValueSchedule.of(
+                1_000_000,
+                ImmutableList.of(ValueStep.ofAbsoluteAmount(LocalDate.parse("2014-07-31"), 2_000_000))))
+            .build())
         .calculation(IborRateCalculation.builder()
-            .payReceive(PayReceive.RECEIVE)
-            .notional(NotionalAmount.builder()
-                .currency(Currency.GBP)
-                .amount(ValueSchedule.of(
-                    1_000_000,
-                    ImmutableList.of(ValueStep.ofAbsoluteAmount(LocalDate.parse("2014-07-31"), 2_000_000))))
-                .build())
             .dayCount(DayCounts.ACT_ACT_ISDA)
             .index(RateIndices.EURIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.EUTA))
@@ -143,6 +142,7 @@ public class SwapDemo {
     BusinessDayAdjustment bdaPreceding = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.USNY);
     
     FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
+        .payReceive(PayReceive.PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
@@ -154,15 +154,18 @@ public class SwapDemo {
             .paymentFrequency(Frequency.P6M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NotionalAmount.builder()
+            .currency(Currency.USD)
+            .amount(ValueSchedule.of(100_000_000))
+            .build())
         .calculation(FixedRateCalculation.builder()
-            .payReceive(PayReceive.PAY)
-            .notional(NotionalAmount.of(CurrencyAmount.of(Currency.USD, 100_000_000)))
             .dayCount(DayCounts.THIRTY_U_360)
             .rate(ValueSchedule.of(0.015))
             .build())
         .build();
     
     IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+        .payReceive(PayReceive.RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
@@ -174,9 +177,11 @@ public class SwapDemo {
             .paymentFrequency(Frequency.P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NotionalAmount.builder()
+            .currency(Currency.USD)
+            .amount(ValueSchedule.of(100_000_000))
+            .build())
         .calculation(IborRateCalculation.builder()
-            .payReceive(PayReceive.RECEIVE)
-            .notional(NotionalAmount.of(CurrencyAmount.of(Currency.USD, 100_000_000)))
             .dayCount(DayCounts.ACT_360)
             .index(RateIndices.USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.USNY, bdaPreceding))
@@ -199,6 +204,7 @@ public class SwapDemo {
     BusinessDayAdjustment bda = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.GBLO);
     
     FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
+        .payReceive(PayReceive.PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 18))
             .endDate(LocalDate.of(2019, 2, 18))
@@ -209,15 +215,18 @@ public class SwapDemo {
             .paymentFrequency(Frequency.P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NotionalAmount.builder()
+            .currency(Currency.GBP)
+            .amount(ValueSchedule.of(1_000_000))
+            .build())
         .calculation(FixedRateCalculation.builder()
-            .payReceive(PayReceive.PAY)
-            .notional(NotionalAmount.of(CurrencyAmount.of(Currency.GBP, 1_000_000)))
             .dayCount(DayCounts.ACT_365F)
             .rate(ValueSchedule.of(0.02))
             .build())
         .build();
     
     IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+        .payReceive(PayReceive.RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 18))
             .endDate(LocalDate.of(2019, 2, 18))
@@ -228,9 +237,11 @@ public class SwapDemo {
             .paymentFrequency(Frequency.P3M)
             .paymentOffset(DaysAdjustment.NONE)
             .build())
+        .notional(NotionalAmount.builder()
+            .currency(Currency.GBP)
+            .amount(ValueSchedule.of(1_000_000))
+            .build())
         .calculation(IborRateCalculation.builder()
-            .payReceive(PayReceive.RECEIVE)
-            .notional(NotionalAmount.of(CurrencyAmount.of(Currency.GBP, 1_000_000)))
             .dayCount(DayCounts.ACT_365F)
             .index(RateIndices.GBP_LIBOR_3M)
             .fixingOffset(DaysAdjustment.NONE)
