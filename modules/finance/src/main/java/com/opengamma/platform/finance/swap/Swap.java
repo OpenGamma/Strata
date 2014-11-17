@@ -27,12 +27,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 
 /**
- * The details of an interest rate swap, separate from a trade.
+ * An interest rate swap, that may or may not have been traded.
  * <p>
  * An swap takes place between two counterparties who agree to exchange streams of payments.
  * In the simplest vanilla swap, there are two legs, one with a fixed rate and the other a floating rate.
  * <p>
- * An instance of {@code Swap} can exist separate from a {@link SwapTrade}.
+ * An instance of {@code Swap} can exist independently from a {@link SwapTrade}.
  */
 @BeanDefinition
 public final class Swap
