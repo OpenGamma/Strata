@@ -5,10 +5,13 @@
  */
 package com.opengamma.platform.finance.swap;
 
+import java.time.LocalDate;
+
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.google.common.base.CaseFormat;
+import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -61,6 +64,18 @@ public enum FixingRelativeTo {
   @Override
   public String toString() {
     return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+  }
+
+  //-------------------------------------------------------------------------
+  // selects the base date for fixing
+  LocalDate selectBaseDate(SchedulePeriod period) {
+    switch (this) {
+      case PERIOD_END:
+        return period.getEndDate();
+      case PERIOD_START:
+      default:
+        return period.getStartDate();
+    }
   }
 
 }

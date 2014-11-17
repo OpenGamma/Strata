@@ -270,11 +270,12 @@ public final class IborRateCalculation
 
   // creates the rate instance
   private Rate createRate(SchedulePeriod period, int scheduleIndex, boolean hasInitialStub, boolean hasFinalStub) {
+    LocalDate fixingDate = fixingOffset.adjust(fixingRelativeTo.selectBaseDate(period));
     if (hasInitialStub && period.getType() == SchedulePeriodType.INITIAL) {
-      return initialStub.createRate(createFixingDate(period), index);
+      return initialStub.createRate(fixingDate, index);
     }
     if (hasFinalStub && period.getType() == SchedulePeriodType.FINAL) {
-      return finalStub.createRate(createFixingDate(period), index);
+      return finalStub.createRate(fixingDate, index);
     }
     if (resetPeriods != null) {
       // TODO calculate sub-schedule
@@ -284,7 +285,7 @@ public final class IborRateCalculation
     if (firstRegularRate != null && isFirstRegular(scheduleIndex, hasInitialStub)) {
       return FixedRate.of(firstRegularRate);
     }
-    return IborRate.of((IborIndex) index, createFixingDate(period));
+    return IborRate.of((IborIndex) index, fixingDate);
   }
 
   // is the period the first regular period
@@ -293,17 +294,6 @@ public final class IborRateCalculation
       return scheduleIndex == 1;
     } else {
       return scheduleIndex == 0;
-    }
-  }
-
-  // determine the fixing date
-  private LocalDate createFixingDate(SchedulePeriod period) {
-    switch (fixingRelativeTo) {
-      case PERIOD_END:
-        return fixingOffset.adjust(period.getEndDate());
-      case PERIOD_START:
-      default:
-        return fixingOffset.adjust(period.getStartDate());
     }
   }
 
