@@ -89,30 +89,76 @@ public class StandardRatePaymentPeriodPricerFn
   // no compounding needed
   private double unitNotionalNoCompounding(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
     return period.getAccrualPeriods().stream()
-        .mapToDouble(accrualPeriod -> unitNotionalAccrual(env, valuationDate, accrualPeriod))
+        .mapToDouble(accrualPeriod -> unitNotionalAccrual(env, valuationDate, accrualPeriod, accrualPeriod.getSpread()))
         .sum();
   }
 
   // apply compounding
   private double unitNotionalCompounded(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
-    // TODO compounding methods
+    switch (period.getCompoundingMethod()) {
+      case STRAIGHT:
+        return compoundedStraight(env, valuationDate, period);
+      case FLAT:
+        return compoundedFlat(env, valuationDate, period);
+      case SPREAD_EXCLUSIVE:
+        return compoundedSpreadExclusive(env, valuationDate, period);
+      case NONE:
+      default:
+        // NONE is handled in unitNotionalNoCompounding()
+        throw new IllegalArgumentException("Unknown CompoundingMethod");
+    }
+  }
+
+  // straight compounding
+  private double compoundedStraight(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
     double notional = 1d;
     double notionalAccrued = notional;
     for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
-      double unitAccrual = unitNotionalAccrual(env, valuationDate, accrualPeriod);
+      double unitAccrual = unitNotionalAccrual(env, valuationDate, accrualPeriod, accrualPeriod.getSpread());
       double investFactor = 1 + unitAccrual;
       notionalAccrued *= investFactor;
     }
     return (notionalAccrued - notional);
   }
 
+  // flat compounding
+  private double compoundedFlat(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
+    // TODO: this is not the correct algorithm
+    double notional = 1d;
+    double notionalAccrued = notional;
+    for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
+      if (accrualPeriod.getSpread() != 0) {
+        throw new UnsupportedOperationException();
+      }
+      double unitAccrual = unitNotionalAccrual(env, valuationDate, accrualPeriod, accrualPeriod.getSpread());
+      double investFactor = 1 + unitAccrual;
+      notionalAccrued *= investFactor;
+    }
+    return (notionalAccrued - notional);
+  }
+
+  // spread exclusive compounding
+  private double compoundedSpreadExclusive(PricingEnvironment env, LocalDate valuationDate, RatePaymentPeriod period) {
+    double notional = 1d;
+    double notionalAccrued = notional;
+    double spreadAccrued = 0;
+    for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
+      double unitAccrual = unitNotionalAccrual(env, valuationDate, accrualPeriod, 0);
+      double investFactor = 1 + unitAccrual;
+      notionalAccrued *= investFactor;
+      spreadAccrued += accrualPeriod.getSpread() * accrualPeriod.getYearFraction();
+    }
+    return (notionalAccrued - notional) + spreadAccrued;
+  }
+
   // calculate the accrual for a unit notional
   private double unitNotionalAccrual(
       PricingEnvironment env,
       LocalDate valuationDate,
-      RateAccrualPeriod period) {
+      RateAccrualPeriod period,
+      double spread) {
     double rate = rateProviderFn.rate(env, valuationDate, period.getRate(), period.getStartDate(), period.getEndDate());
-    double treatedRate = rate * period.getGearing() + period.getSpread();
+    double treatedRate = rate * period.getGearing() + spread;
     return period.getNegativeRateMethod().adjust(treatedRate * period.getYearFraction());
   }
 
