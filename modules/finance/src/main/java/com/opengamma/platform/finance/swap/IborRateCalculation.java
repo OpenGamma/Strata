@@ -241,8 +241,8 @@ public final class IborRateCalculation
       throw new UnsupportedOperationException();
     }
     // avoid null stub definitions if there are stubs
-    boolean hasInitialStub = schedule.getFirstPeriod().isStub();
-    boolean hasFinalStub = schedule.getLastPeriod().isStub();
+    boolean hasInitialStub = schedule.getInitialStub().isPresent();
+    boolean hasFinalStub = schedule.getFinalStub().isPresent();
     if ((hasInitialStub && initialStub == null) ||
         (hasFinalStub && finalStub == null)) {
       return toBuilder()

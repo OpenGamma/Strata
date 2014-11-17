@@ -7,16 +7,17 @@ package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableDefaults;
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -30,6 +31,8 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.Schedule;
+import com.opengamma.basics.schedule.SchedulePeriod;
+import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Guavate;
 
@@ -44,20 +47,18 @@ import com.opengamma.collect.Guavate;
  * This class defines payment periods using a periodic frequency.
  * The frequency must match or be a multiple of the accrual periodic frequency.
  * <p>
- * The initial and final payment period may be shorter or longer than the regular payment period.
- * These may be specified in terms of the number of accrual periods in each period.
+ * If the payment frequency is 'Term' then there is only one payment.
+ * As such, a 'Term' payment frequency causes stubs to be treated solely as accrual periods.
+ * In all other cases, stubs are treated as payment periods in their own right.
  * <p>
  * When applying the frequency, it is converted into an integer value, representing the
- * number of accrual periods per payment period. If one or both of the properties
- * {@code initialPaymentAccrualPeriods} and {@code finalPaymentAccrualPeriods} are non-null
- * then the remaining number of periods must be exactly divisible by the frequency.
- * If both are null then the accrual periods are allocated by rolling forwards or
- * backwards, applying the same direction as accrual schedule generation.
+ * number of accrual periods per payment period. The accrual periods are allocated by rolling
+ * forwards or backwards, applying the same direction as accrual schedule generation,
+ * and using any applicable roll convention.
  */
 @BeanDefinition
 public final class PaymentSchedule
     implements ImmutableBean, Serializable {
-  // may need to add date-based initial/final stubs in future, thus use Integer instead of int now
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -72,22 +73,6 @@ public final class PaymentSchedule
    */
   @PropertyDefinition(validate = "notNull")
   private final Frequency paymentFrequency;
-  /**
-   * The number of accrual periods forming the initial payment period, optional.
-   * <p>
-   * If null or zero then the regular payment period applies from the start of the swap.
-   * This must not be negative.
-   */
-  @PropertyDefinition
-  private final Integer initialPaymentAccrualPeriods;
-  /**
-   * The number of accrual periods forming the final payment period, optional.
-   * <p>
-   * If null or zero then the regular payment period applies up to the end of the swap.
-   * This must not be negative.
-   */
-  @PropertyDefinition
-  private final Integer finalPaymentAccrualPeriods;
   /**
    * The base date that each payment is made relative to, defaulted to 'PeriodEnd'.
    * <p>
@@ -118,31 +103,120 @@ public final class PaymentSchedule
     builder.compoundingMethod(CompoundingMethod.NONE);
   }
 
-  @ImmutableValidator
-  private void validate() {
-    if (initialPaymentAccrualPeriods != null) {
-      ArgChecker.notNegative(initialPaymentAccrualPeriods.intValue(), "initialPaymentAccrualPeriods");
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the payment schedule based on the accrual schedule.
+   * <p>
+   * If the payment frequency matches the accrual frequency, or if there is
+   * only one period in the accrual schedule, the input schedule is returned.
+   * <p>
+   * Only the regular part of the accrual schedule is divided up.
+   * Any initial or final stub will be returned unaltered in the new schedule.
+   * <p>
+   * The payment schedule is based on the payment frequency and the number of
+   * accrual periods in the first and last payment. The roll convention is used
+   * to determine the dates.
+   * 
+   * @param accrualPeriods  the list of accrual periods
+   * @param schedule  the accrual schedule
+   * @return the list of payment periods
+   */
+  Schedule createSchedule(Schedule accrualSchedule) {
+    int size = accrualSchedule.size();
+    // Term or matching frequency means no work to do
+    if (size == 1 || paymentFrequency.equals(accrualSchedule.getFrequency())) {
+      return accrualSchedule;
     }
-    if (finalPaymentAccrualPeriods != null) {
-      ArgChecker.notNegative(finalPaymentAccrualPeriods.intValue(), "finalPaymentAccrualPeriods");
+    // initial
+    List<SchedulePeriod> paymentSchedule = new ArrayList<>();
+    Optional<SchedulePeriod> initialStub = accrualSchedule.getInitialStub();
+    if (initialStub.isPresent()) {
+      paymentSchedule.add(initialStub.get());
+    }
+    // regular
+    paymentSchedule.addAll(
+        splitRegular(accrualSchedule.getRegularPeriods(), accrualSchedule.getFrequency(), initialStub.isPresent()));
+    // final 
+    Optional<SchedulePeriod> finalStub = accrualSchedule.getFinalStub();
+    if (finalStub.isPresent()) {
+      paymentSchedule.add(finalStub.get());
+    }
+    return Schedule.of(paymentSchedule);
+  }
+
+  // split the regular periods
+  private List<SchedulePeriod> splitRegular(
+      ImmutableList<SchedulePeriod> regularPeriods,
+      Frequency accrualFrequency,
+      boolean initialStub) {
+    // may have excess periods at start or end
+    int freqMultiple = accrualPeriodsPerPayment(accrualFrequency);
+    int regularCount = regularPeriods.size();
+    // accrual periods divide exactly into payment periods
+    int multipleRemainder = regularCount % freqMultiple;
+    if (multipleRemainder == 0) {
+      return groupAccrualPeriods(regularPeriods, 0, freqMultiple, 0);
+    }
+    // determine by stub direction, default is to roll backwards
+    if (initialStub) {
+      return groupAccrualPeriods(regularPeriods, multipleRemainder, freqMultiple, 0);
+    } else {
+      return groupAccrualPeriods(regularPeriods, 0, freqMultiple, multipleRemainder);
     }
   }
 
+  // group accrual periods by initial, multiple and final
+  private List<SchedulePeriod> groupAccrualPeriods(
+      List<SchedulePeriod> accrualPeriods,
+      int initialGroup,
+      int multiple,
+      int finalGroup) {
+    
+    int accrualCount = accrualPeriods.size();
+    int finalIndex = accrualCount - finalGroup;
+    List<SchedulePeriod> paymentPeriods = new ArrayList<>();
+    if (initialGroup > 0) {
+      paymentPeriods.add(createSchedulePeriod(accrualPeriods.subList(0, initialGroup)));
+    }
+    for (int i = initialGroup; i < finalIndex; i += multiple) {
+      paymentPeriods.add(createSchedulePeriod(accrualPeriods.subList(i, i + multiple)));
+    }
+    if (finalGroup > 0) {
+      paymentPeriods.add(createSchedulePeriod(accrualPeriods.subList(finalIndex, accrualCount)));
+    }
+    return paymentPeriods;
+  }
+
+  // creates a schedule period
+  private SchedulePeriod createSchedulePeriod(List<SchedulePeriod> accruals) {
+    SchedulePeriod first = accruals.get(0);
+    SchedulePeriod last = accruals.get(accruals.size() - 1);
+    return SchedulePeriod.of(
+        SchedulePeriodType.NORMAL,  // short cut, but accurate value not needed
+        first.getStartDate(),
+        last.getEndDate(),
+        first.getUnadjustedStartDate(),
+        last.getUnadjustedEndDate(),
+        paymentFrequency,  // short cut, but accurate value not needed
+        first.getRollConvention());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Builds the list of payment periods from the list of accrual periods.
    * <p>
    * This applies the payment schedule.
    * 
    * @param accrualPeriods  the list of accrual periods
-   * @param schedule  the accrual schedule
+   * @param accrualSchedule  the accrual schedule
    * @return the list of payment periods
    */
   ImmutableList<PaymentPeriod> createPaymentPeriods(
       List<RateAccrualPeriod> accrualPeriods,
-      Schedule schedule,
+      Schedule accrualSchedule,
       RateCalculation rateCalculation) {
     // payment periods contain one accrual period
-    Frequency accrualFrequency = schedule.getFrequency();
+    Frequency accrualFrequency = accrualSchedule.getFrequency();
     if (accrualFrequency.equals(paymentFrequency)) {
       return accrualPeriods.stream()
           .map(accrualPeriod -> createPaymentPeriod(ImmutableList.of(accrualPeriod), rateCalculation))
@@ -153,43 +227,44 @@ public final class PaymentSchedule
       return ImmutableList.of(createPaymentPeriod(accrualPeriods, rateCalculation));
     }
     // payment periods contain more than one accrual period
-    return groupAccrualPeriods(accrualPeriods, schedule, accrualFrequency, rateCalculation);
+    return groupAccrualPeriods(accrualPeriods, accrualSchedule, accrualFrequency, rateCalculation);
   }
 
   // group accrual periods based on payment schedule
   private ImmutableList<PaymentPeriod> groupAccrualPeriods(
-      List<RateAccrualPeriod> accrualPeriods, Schedule schedule, Frequency accrualFrequency, RateCalculation rateCalculation) {
+      List<RateAccrualPeriod> accrualPeriods,
+      Schedule accrualSchedule,
+      Frequency accrualFrequency,
+      RateCalculation rateCalculation) {
+//    // calculate the schedule
+//    Schedule paymentSchedule = createSchedule(accrualSchedule);
+//    List<Double> notionals = rateCalculation.getNotional().getAmount().resolveValues(paymentSchedule.getPeriods());
     
-    int freqMultiple = accrualPeriodsPerPayment(paymentFrequency, accrualFrequency);
+    
+    
+    int freqMultiple = accrualPeriodsPerPayment(accrualFrequency);
     int accrualCount = accrualPeriods.size();
-    if (initialPaymentAccrualPeriods != null || finalPaymentAccrualPeriods != null) {
-      int initialGroup = (initialPaymentAccrualPeriods != null ? initialPaymentAccrualPeriods.intValue() : 0);
-      int finalGroup = (finalPaymentAccrualPeriods != null ? finalPaymentAccrualPeriods.intValue() : 0);
-      int multipleSize = accrualPeriods.size() - initialGroup - finalGroup;
-      if ((multipleSize % freqMultiple) != 0 || multipleSize < 0) {
-        throw new IllegalArgumentException(ArgChecker.formatMessage(
-            "Payment frequency '{}' must exactly divide remaining accrual periods when specifying " +
-            "initialPaymentAccrualPeriods and/or finalPaymentAccrualPeriods", paymentFrequency));
-      }
-      return groupAccrualPeriods(accrualPeriods, initialGroup, freqMultiple, finalGroup, rateCalculation);
-    }
     // accrual periods divide exactly into payment periods
     int multipleRemainder = accrualCount % freqMultiple;
     if (multipleRemainder == 0) {
       return groupAccrualPeriods(accrualPeriods, 0, freqMultiple, 0, rateCalculation);
     }
     // determine by stub direction, default is to roll backwards
-    boolean finalStub = schedule.getLastPeriod().isStub();
-    if (finalStub) {
-      return groupAccrualPeriods(accrualPeriods, 0, freqMultiple, multipleRemainder, rateCalculation);
-    } else {
+    boolean initialStub = accrualSchedule.getInitialStub().isPresent();
+    if (initialStub) {
       return groupAccrualPeriods(accrualPeriods, multipleRemainder, freqMultiple, 0, rateCalculation);
+    } else {
+      return groupAccrualPeriods(accrualPeriods, 0, freqMultiple, multipleRemainder, rateCalculation);
     }
   }
 
   // group accrual periods by initial, multiple and final
   private ImmutableList<PaymentPeriod> groupAccrualPeriods(
-      List<RateAccrualPeriod> accrualPeriods, int initialGroup, int multiple, int finalGroup, RateCalculation rateCalculation) {
+      List<RateAccrualPeriod> accrualPeriods,
+      int initialGroup,
+      int multiple,
+      int finalGroup,
+      RateCalculation rateCalculation) {
     
     int accrualCount = accrualPeriods.size();
     int finalIndex = accrualCount - finalGroup;
@@ -207,30 +282,32 @@ public final class PaymentSchedule
   }
 
   // create the payment period
-  private PaymentPeriod createPaymentPeriod(List<RateAccrualPeriod> periods, RateCalculation rateCalculation) {
-//    List<Double> resolvedNotionals = notional.getAmount().resolveValues(schedule.getPeriods());
-//    Currency currency = notional.getCurrency();
-//    FxResetNotional fxResetNotional = notional.getFxReset();
-    
+  private PaymentPeriod createPaymentPeriod(
+      List<RateAccrualPeriod> periods,
+      RateCalculation rateCalculation) {
+//    List<Double> resolvedNotionals = rateCalculation.getNotional().getAmount().resolveValues(schedule.getPeriods());
     double notional = rateCalculation.getNotional().getAmount().getInitialValue();  // TODO schedule
     notional = rateCalculation.getPayReceive().normalize(notional);
     return RatePaymentPeriod.builder()
         .paymentDate(createPaymentDate(periods))
         .accrualPeriods(periods)
         .currency(rateCalculation.getNotional().getCurrency())
-//        .fxReset(periods.get(0).getFxReset())
+        .fxReset(createFxReset(rateCalculation.getNotional(), periods))
         .notional(notional)
         .compoundingMethod(compoundingMethod)
         .build();
   }
 
-//  // determine the FX reset
-//  private FxReset createFxReset(SchedulePeriod period, FxResetNotional fxResetNotional, Currency currency) {
-//    if (fxResetNotional == null || fxResetNotional.getReferenceCurrency().equals(currency)) {
-//      return null;
-//    }
-//    return fxResetNotional.createFxReset(period);
-//  }
+  // determine the FX reset
+  private FxReset createFxReset(NotionalAmount notionalAmount, List<RateAccrualPeriod> periods) {
+    if (notionalAmount.getFxReset() == null ||
+        notionalAmount.getFxReset().getReferenceCurrency().equals(notionalAmount.getCurrency())) {
+      return null;
+    }
+    LocalDate startDate = periods.get(0).getStartDate();
+    LocalDate endDate = periods.get(periods.size() - 1).getEndDate();
+    return notionalAmount.getFxReset().createFxReset(startDate, endDate);
+  }
 
   // determine the fixing date
   private LocalDate createPaymentDate(List<RateAccrualPeriod> periods) {
@@ -244,7 +321,7 @@ public final class PaymentSchedule
   }
 
   // how many accrual periods are there per payment
-  private static int accrualPeriodsPerPayment(Frequency paymentFrequency, Frequency accrualFrequency) {
+  private int accrualPeriodsPerPayment(Frequency accrualFrequency) {
     if (paymentFrequency.isMonthBased() && accrualFrequency.isMonthBased()) {
       long paymentMonths = paymentFrequency.getPeriod().toTotalMonths();
       long accrualMonths = accrualFrequency.getPeriod().toTotalMonths();
@@ -286,8 +363,6 @@ public final class PaymentSchedule
 
   private PaymentSchedule(
       Frequency paymentFrequency,
-      Integer initialPaymentAccrualPeriods,
-      Integer finalPaymentAccrualPeriods,
       PaymentRelativeTo paymentRelativeTo,
       DaysAdjustment paymentOffset,
       CompoundingMethod compoundingMethod) {
@@ -296,12 +371,9 @@ public final class PaymentSchedule
     JodaBeanUtils.notNull(paymentOffset, "paymentOffset");
     JodaBeanUtils.notNull(compoundingMethod, "compoundingMethod");
     this.paymentFrequency = paymentFrequency;
-    this.initialPaymentAccrualPeriods = initialPaymentAccrualPeriods;
-    this.finalPaymentAccrualPeriods = finalPaymentAccrualPeriods;
     this.paymentRelativeTo = paymentRelativeTo;
     this.paymentOffset = paymentOffset;
     this.compoundingMethod = compoundingMethod;
-    validate();
   }
 
   @Override
@@ -331,30 +403,6 @@ public final class PaymentSchedule
    */
   public Frequency getPaymentFrequency() {
     return paymentFrequency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the number of accrual periods forming the initial payment period, optional.
-   * <p>
-   * If null or zero then the regular payment period applies from the start of the swap.
-   * This must not be negative.
-   * @return the value of the property
-   */
-  public Integer getInitialPaymentAccrualPeriods() {
-    return initialPaymentAccrualPeriods;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the number of accrual periods forming the final payment period, optional.
-   * <p>
-   * If null or zero then the regular payment period applies up to the end of the swap.
-   * This must not be negative.
-   * @return the value of the property
-   */
-  public Integer getFinalPaymentAccrualPeriods() {
-    return finalPaymentAccrualPeriods;
   }
 
   //-----------------------------------------------------------------------
@@ -408,8 +456,6 @@ public final class PaymentSchedule
     if (obj != null && obj.getClass() == this.getClass()) {
       PaymentSchedule other = (PaymentSchedule) obj;
       return JodaBeanUtils.equal(getPaymentFrequency(), other.getPaymentFrequency()) &&
-          JodaBeanUtils.equal(getInitialPaymentAccrualPeriods(), other.getInitialPaymentAccrualPeriods()) &&
-          JodaBeanUtils.equal(getFinalPaymentAccrualPeriods(), other.getFinalPaymentAccrualPeriods()) &&
           JodaBeanUtils.equal(getPaymentRelativeTo(), other.getPaymentRelativeTo()) &&
           JodaBeanUtils.equal(getPaymentOffset(), other.getPaymentOffset()) &&
           JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod());
@@ -421,8 +467,6 @@ public final class PaymentSchedule
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialPaymentAccrualPeriods());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFinalPaymentAccrualPeriods());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentRelativeTo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentOffset());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
@@ -431,11 +475,9 @@ public final class PaymentSchedule
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("PaymentSchedule{");
     buf.append("paymentFrequency").append('=').append(getPaymentFrequency()).append(',').append(' ');
-    buf.append("initialPaymentAccrualPeriods").append('=').append(getInitialPaymentAccrualPeriods()).append(',').append(' ');
-    buf.append("finalPaymentAccrualPeriods").append('=').append(getFinalPaymentAccrualPeriods()).append(',').append(' ');
     buf.append("paymentRelativeTo").append('=').append(getPaymentRelativeTo()).append(',').append(' ');
     buf.append("paymentOffset").append('=').append(getPaymentOffset()).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(getCompoundingMethod()));
@@ -459,16 +501,6 @@ public final class PaymentSchedule
     private final MetaProperty<Frequency> paymentFrequency = DirectMetaProperty.ofImmutable(
         this, "paymentFrequency", PaymentSchedule.class, Frequency.class);
     /**
-     * The meta-property for the {@code initialPaymentAccrualPeriods} property.
-     */
-    private final MetaProperty<Integer> initialPaymentAccrualPeriods = DirectMetaProperty.ofImmutable(
-        this, "initialPaymentAccrualPeriods", PaymentSchedule.class, Integer.class);
-    /**
-     * The meta-property for the {@code finalPaymentAccrualPeriods} property.
-     */
-    private final MetaProperty<Integer> finalPaymentAccrualPeriods = DirectMetaProperty.ofImmutable(
-        this, "finalPaymentAccrualPeriods", PaymentSchedule.class, Integer.class);
-    /**
      * The meta-property for the {@code paymentRelativeTo} property.
      */
     private final MetaProperty<PaymentRelativeTo> paymentRelativeTo = DirectMetaProperty.ofImmutable(
@@ -489,8 +521,6 @@ public final class PaymentSchedule
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "paymentFrequency",
-        "initialPaymentAccrualPeriods",
-        "finalPaymentAccrualPeriods",
         "paymentRelativeTo",
         "paymentOffset",
         "compoundingMethod");
@@ -506,10 +536,6 @@ public final class PaymentSchedule
       switch (propertyName.hashCode()) {
         case 863656438:  // paymentFrequency
           return paymentFrequency;
-        case 437971173:  // initialPaymentAccrualPeriods
-          return initialPaymentAccrualPeriods;
-        case -336449037:  // finalPaymentAccrualPeriods
-          return finalPaymentAccrualPeriods;
         case -1357627123:  // paymentRelativeTo
           return paymentRelativeTo;
         case 1303406137:  // paymentOffset
@@ -545,22 +571,6 @@ public final class PaymentSchedule
     }
 
     /**
-     * The meta-property for the {@code initialPaymentAccrualPeriods} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> initialPaymentAccrualPeriods() {
-      return initialPaymentAccrualPeriods;
-    }
-
-    /**
-     * The meta-property for the {@code finalPaymentAccrualPeriods} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> finalPaymentAccrualPeriods() {
-      return finalPaymentAccrualPeriods;
-    }
-
-    /**
      * The meta-property for the {@code paymentRelativeTo} property.
      * @return the meta-property, not null
      */
@@ -590,10 +600,6 @@ public final class PaymentSchedule
       switch (propertyName.hashCode()) {
         case 863656438:  // paymentFrequency
           return ((PaymentSchedule) bean).getPaymentFrequency();
-        case 437971173:  // initialPaymentAccrualPeriods
-          return ((PaymentSchedule) bean).getInitialPaymentAccrualPeriods();
-        case -336449037:  // finalPaymentAccrualPeriods
-          return ((PaymentSchedule) bean).getFinalPaymentAccrualPeriods();
         case -1357627123:  // paymentRelativeTo
           return ((PaymentSchedule) bean).getPaymentRelativeTo();
         case 1303406137:  // paymentOffset
@@ -622,8 +628,6 @@ public final class PaymentSchedule
   public static final class Builder extends DirectFieldsBeanBuilder<PaymentSchedule> {
 
     private Frequency paymentFrequency;
-    private Integer initialPaymentAccrualPeriods;
-    private Integer finalPaymentAccrualPeriods;
     private PaymentRelativeTo paymentRelativeTo;
     private DaysAdjustment paymentOffset;
     private CompoundingMethod compoundingMethod;
@@ -641,8 +645,6 @@ public final class PaymentSchedule
      */
     private Builder(PaymentSchedule beanToCopy) {
       this.paymentFrequency = beanToCopy.getPaymentFrequency();
-      this.initialPaymentAccrualPeriods = beanToCopy.getInitialPaymentAccrualPeriods();
-      this.finalPaymentAccrualPeriods = beanToCopy.getFinalPaymentAccrualPeriods();
       this.paymentRelativeTo = beanToCopy.getPaymentRelativeTo();
       this.paymentOffset = beanToCopy.getPaymentOffset();
       this.compoundingMethod = beanToCopy.getCompoundingMethod();
@@ -654,10 +656,6 @@ public final class PaymentSchedule
       switch (propertyName.hashCode()) {
         case 863656438:  // paymentFrequency
           return paymentFrequency;
-        case 437971173:  // initialPaymentAccrualPeriods
-          return initialPaymentAccrualPeriods;
-        case -336449037:  // finalPaymentAccrualPeriods
-          return finalPaymentAccrualPeriods;
         case -1357627123:  // paymentRelativeTo
           return paymentRelativeTo;
         case 1303406137:  // paymentOffset
@@ -674,12 +672,6 @@ public final class PaymentSchedule
       switch (propertyName.hashCode()) {
         case 863656438:  // paymentFrequency
           this.paymentFrequency = (Frequency) newValue;
-          break;
-        case 437971173:  // initialPaymentAccrualPeriods
-          this.initialPaymentAccrualPeriods = (Integer) newValue;
-          break;
-        case -336449037:  // finalPaymentAccrualPeriods
-          this.finalPaymentAccrualPeriods = (Integer) newValue;
           break;
         case -1357627123:  // paymentRelativeTo
           this.paymentRelativeTo = (PaymentRelativeTo) newValue;
@@ -724,8 +716,6 @@ public final class PaymentSchedule
     public PaymentSchedule build() {
       return new PaymentSchedule(
           paymentFrequency,
-          initialPaymentAccrualPeriods,
-          finalPaymentAccrualPeriods,
           paymentRelativeTo,
           paymentOffset,
           compoundingMethod);
@@ -740,26 +730,6 @@ public final class PaymentSchedule
     public Builder paymentFrequency(Frequency paymentFrequency) {
       JodaBeanUtils.notNull(paymentFrequency, "paymentFrequency");
       this.paymentFrequency = paymentFrequency;
-      return this;
-    }
-
-    /**
-     * Sets the {@code initialPaymentAccrualPeriods} property in the builder.
-     * @param initialPaymentAccrualPeriods  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder initialPaymentAccrualPeriods(Integer initialPaymentAccrualPeriods) {
-      this.initialPaymentAccrualPeriods = initialPaymentAccrualPeriods;
-      return this;
-    }
-
-    /**
-     * Sets the {@code finalPaymentAccrualPeriods} property in the builder.
-     * @param finalPaymentAccrualPeriods  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder finalPaymentAccrualPeriods(Integer finalPaymentAccrualPeriods) {
-      this.finalPaymentAccrualPeriods = finalPaymentAccrualPeriods;
       return this;
     }
 
@@ -799,11 +769,9 @@ public final class PaymentSchedule
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("PaymentSchedule.Builder{");
       buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
-      buf.append("initialPaymentAccrualPeriods").append('=').append(JodaBeanUtils.toString(initialPaymentAccrualPeriods)).append(',').append(' ');
-      buf.append("finalPaymentAccrualPeriods").append('=').append(JodaBeanUtils.toString(finalPaymentAccrualPeriods)).append(',').append(' ');
       buf.append("paymentRelativeTo").append('=').append(JodaBeanUtils.toString(paymentRelativeTo)).append(',').append(' ');
       buf.append("paymentOffset").append('=').append(JodaBeanUtils.toString(paymentOffset)).append(',').append(' ');
       buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));

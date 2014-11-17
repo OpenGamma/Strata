@@ -103,17 +103,28 @@ public final class FxResetNotional
    * @return the expanded reset
    */
   FxReset createFxReset(SchedulePeriod period) {
-    return FxReset.of(referenceCurrency, index, createFxFixingDate(period));
+    return createFxReset(period.getStartDate(), period.getEndDate());
+  }
+
+  /**
+   * Creates the {@code FxReset} with fixing date.
+   * 
+   * @param startDate  the schedule period start date
+   * @param endDate  the schedule period end date
+   * @return the expanded reset
+   */
+  FxReset createFxReset(LocalDate startDate, LocalDate endDate) {
+    return FxReset.of(referenceCurrency, index, createFxFixingDate(startDate, endDate));
   }
 
   // determine the fixing date
-  private LocalDate createFxFixingDate(SchedulePeriod period) {
+  private LocalDate createFxFixingDate(LocalDate startDate, LocalDate endDate) {
     switch (fixingRelativeTo) {
       case PERIOD_END:
-        return fixingOffset.adjust(period.getEndDate());
+        return fixingOffset.adjust(endDate);
       case PERIOD_START:
       default:
-        return fixingOffset.adjust(period.getStartDate());
+        return fixingOffset.adjust(startDate);
     }
   }
 
