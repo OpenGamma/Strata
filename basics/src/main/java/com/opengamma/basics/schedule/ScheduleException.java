@@ -33,8 +33,7 @@ public final class ScheduleException
    * @param msgArguments  the message arguments, null tolerant
    */
   public ScheduleException(String msgTemplate, Object... msgArguments) {
-    super(Messages.format(msgTemplate, msgArguments));
-    this.definition = null;
+    this(null, msgTemplate, msgArguments);
   }
 
   /**

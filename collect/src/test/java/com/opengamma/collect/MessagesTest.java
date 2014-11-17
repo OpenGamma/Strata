@@ -8,6 +8,8 @@ package com.opengamma.collect;
 import static com.opengamma.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 
+import java.util.Objects;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -61,17 +63,17 @@ public class MessagesTest {
 
   @Test(dataProvider = "formatMessage")
   public void test_formatMessage_prefix(String template, Object[] args, String expMain, String expExcess) {
-    assertEquals(Messages.format("::" + template, args), "::" + expMain + expExcess);
+    assertEquals(Messages.format("::" + Objects.toString(template, ""), args), "::" + expMain + expExcess);
   }
 
   @Test(dataProvider = "formatMessage")
   public void test_formatMessage_suffix(String template, Object[] args, String expMain, String expExcess) {
-    assertEquals(Messages.format(template + "@@", args), expMain + "@@" + expExcess);
+    assertEquals(Messages.format(Objects.toString(template, "") + "@@", args), expMain + "@@" + expExcess);
   }
 
   @Test(dataProvider = "formatMessage")
   public void test_formatMessage_prefixSuffix(String template, Object[] args, String expMain, String expExcess) {
-    assertEquals(Messages.format("::" + template + "@@", args), "::" + expMain + "@@" + expExcess);
+    assertEquals(Messages.format("::" + Objects.toString(template, "") + "@@", args), "::" + expMain + "@@" + expExcess);
   }
 
   //-------------------------------------------------------------------------
