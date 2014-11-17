@@ -47,7 +47,7 @@ import com.opengamma.platform.finance.rate.Rate;
  */
 @BeanDefinition
 public final class OvernightRateCalculation
-    implements ImmutableBean, Serializable {
+    implements RateCalculation, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -147,14 +147,8 @@ public final class OvernightRateCalculation
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates the matching accrual periods based on this calculation.
-   * 
-   * @param schedule  the schedule
-   * @return the expanded accrual periods
-   * @throws RuntimeException if the swap calculation is invalid
-   */
-  ImmutableList<RateAccrualPeriod> createAccrualPeriods(Schedule schedule) {
+  @Override
+  public ImmutableList<RateAccrualPeriod> toExpanded(Schedule schedule) {
     // resolve data by schedule
     List<Double> resolvedGearings = firstNonNull(gearing, ValueSchedule.of(1)).resolveValues(schedule.getPeriods());
     List<Double> resolvedSpreads = firstNonNull(spread, ValueSchedule.of(0)).resolveValues(schedule.getPeriods());

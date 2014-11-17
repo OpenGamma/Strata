@@ -61,7 +61,7 @@ import com.opengamma.platform.finance.rate.Rate;
  */
 @BeanDefinition
 public final class IborRateCalculation
-    implements ImmutableBean, Serializable {
+    implements RateCalculation, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -209,14 +209,8 @@ public final class IborRateCalculation
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates the matching accrual periods based on this calculation.
-   * 
-   * @param schedule  the schedule
-   * @return the expanded accrual periods
-   * @throws RuntimeException if the swap calculation is invalid
-   */
-  ImmutableList<RateAccrualPeriod> createAccrualPeriods(Schedule schedule) {
+  @Override
+  public ImmutableList<RateAccrualPeriod> toExpanded(Schedule schedule) {
     // avoid null stub definitions if there are stubs
     boolean hasInitialStub = schedule.getInitialStub().isPresent();
     boolean hasFinalStub = schedule.getFinalStub().isPresent();
@@ -226,7 +220,7 @@ public final class IborRateCalculation
           .initialStub(firstNonNull(initialStub, StubCalculation.NONE))
           .finalStub(firstNonNull(finalStub, StubCalculation.NONE))
           .build()
-          .createAccrualPeriods(schedule);
+          .toExpanded(schedule);
     }
     // resolve data by schedule
     List<Double> resolvedGearings = firstNonNull(gearing, ValueSchedule.of(1)).resolveValues(schedule.getPeriods());
@@ -281,7 +275,7 @@ public final class IborRateCalculation
       LocalDate adjEndDate = resetBda.adjust(unadjEndDate);
       LocalDate fixingDate = fixingOffset.adjust(fixingRelativeTo.selectBaseDate(adjStartDate, adjEndDate));
       Double fixedRate = (firstRegularPeriod && i == 0 ? firstRegularRate : null);
-      if (resetPeriods.getRateAveragingMethod() == RateAveragingMethod.UNWEIGHTED) {
+      if (resetPeriods.getRateAveragingMethod() == IborRateAveragingMethod.UNWEIGHTED) {
         fixings.add(IborAveragedFixing.of(fixingDate, firstRegularRate));
       } else {
         fixings.add(IborAveragedFixing.ofDaysInResetPeriod(fixingDate, fixedRate, adjStartDate, adjEndDate));

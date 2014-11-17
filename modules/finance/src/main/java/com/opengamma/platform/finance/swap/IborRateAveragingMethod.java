@@ -15,9 +15,8 @@ import com.opengamma.collect.ArgChecker;
  * A convention defining how to average floating rates.
  * <p>
  * When calculating interest, it may be necessary average a number of different rates.
- * This is often use in Fed Fund legs.
  */
-public enum RateAveragingMethod  {
+public enum IborRateAveragingMethod  {
 
   /**
    * The unweighted method.
@@ -46,7 +45,7 @@ public enum RateAveragingMethod  {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static RateAveragingMethod of(String uniqueName) {
+  public static IborRateAveragingMethod of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return valueOf(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, uniqueName));
   }

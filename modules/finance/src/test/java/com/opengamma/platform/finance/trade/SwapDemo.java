@@ -30,11 +30,10 @@ import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.swap.FixedRateCalculation;
-import com.opengamma.platform.finance.swap.FixedRateSwapLeg;
 import com.opengamma.platform.finance.swap.IborRateCalculation;
-import com.opengamma.platform.finance.swap.IborRateSwapLeg;
 import com.opengamma.platform.finance.swap.NotionalAmount;
 import com.opengamma.platform.finance.swap.PaymentSchedule;
+import com.opengamma.platform.finance.swap.RateSwapLeg;
 import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.finance.swap.SwapTrade;
 import com.opengamma.platform.source.id.StandardId;
@@ -57,7 +56,7 @@ public class SwapDemo {
         .stubConvention(StubConvention.LONG_INITIAL)
         .rollConvention(RollConventions.EOM)
         .build();
-    FixedRateSwapLeg swapLeg = FixedRateSwapLeg.builder()
+    RateSwapLeg swapLeg = RateSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualPeriods(accrualSchedule)
         .paymentPeriods(PaymentSchedule.builder()
@@ -104,7 +103,7 @@ public class SwapDemo {
         .stubConvention(StubConvention.LONG_INITIAL)
         .rollConvention(RollConventions.EOM)
         .build();
-    IborRateSwapLeg swapLeg = IborRateSwapLeg.builder()
+    RateSwapLeg swapLeg = RateSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualPeriods(accrualSchedule)
         .paymentPeriods(PaymentSchedule.builder()
@@ -141,7 +140,7 @@ public class SwapDemo {
     BusinessDayAdjustment bda = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY);
     BusinessDayAdjustment bdaPreceding = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.USNY);
     
-    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
+    RateSwapLeg payLeg = RateSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -164,7 +163,7 @@ public class SwapDemo {
             .build())
         .build();
     
-    IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+    RateSwapLeg receiveLeg = RateSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 9, 12))
@@ -203,7 +202,7 @@ public class SwapDemo {
   public void test_createGbpFixedVsLibor3mSwap() {
     BusinessDayAdjustment bda = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.GBLO);
     
-    FixedRateSwapLeg payLeg = FixedRateSwapLeg.builder()
+    RateSwapLeg payLeg = RateSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 18))
@@ -225,7 +224,7 @@ public class SwapDemo {
             .build())
         .build();
     
-    IborRateSwapLeg receiveLeg = IborRateSwapLeg.builder()
+    RateSwapLeg receiveLeg = RateSwapLeg.builder()
         .payReceive(PayReceive.RECEIVE)
         .accrualPeriods(PeriodicSchedule.builder()
             .startDate(LocalDate.of(2014, 2, 18))

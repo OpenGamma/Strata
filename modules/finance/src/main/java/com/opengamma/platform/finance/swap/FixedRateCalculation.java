@@ -38,7 +38,7 @@ import com.opengamma.platform.finance.rate.FixedRate;
  */
 @BeanDefinition
 public final class FixedRateCalculation
-    implements ImmutableBean, Serializable {
+    implements RateCalculation, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -60,14 +60,8 @@ public final class FixedRateCalculation
   private final ValueSchedule rate;
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates the matching accrual periods based on this calculation.
-   * 
-   * @param schedule  the schedule
-   * @return the expanded accrual periods
-   * @throws RuntimeException if the swap calculation is invalid
-   */
-  ImmutableList<RateAccrualPeriod> createAccrualPeriods(Schedule schedule) {
+  @Override
+  public ImmutableList<RateAccrualPeriod> toExpanded(Schedule schedule) {
     // resolve data by schedule
     List<Double> resolvedRates = rate.resolveValues(schedule.getPeriods());
     // build accrual periods
