@@ -11,7 +11,6 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.swap.PaymentPeriod;
-import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
@@ -52,7 +51,6 @@ public class StandardSwapPricerFn implements SwapPricerFn {
     Currency currency = swap.getLeg(0).getCurrency();
     double pv = swap.getLegs().stream()
       .flatMap(leg -> leg.toExpanded().getPaymentPeriods().stream())
-      .map(p -> (RatePaymentPeriod) p)  // TODO
       .mapToDouble(p -> paymentPeriodPricerFn.presentValue(env, valuationDate, p))
       .sum();
     return MultiCurrencyAmount.of(currency, pv);
