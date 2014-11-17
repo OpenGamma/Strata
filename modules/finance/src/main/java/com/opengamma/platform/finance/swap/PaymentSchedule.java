@@ -128,16 +128,14 @@ public final class PaymentSchedule
     if (paymentFrequency.equals(Frequency.TERM)) {
       return accrualSchedule.mergeToTerm();
     }
+    // derive schedule, retaining stubs as payment periods
     Optional<SchedulePeriod> initialStub = accrualSchedule.getInitialStub();
     Optional<SchedulePeriod> finalStub = accrualSchedule.getFinalStub();
-    // initial
     List<SchedulePeriod> paymentSchedule = new ArrayList<>();
     if (initialStub.isPresent()) {
       paymentSchedule.add(initialStub.get());
     }
-    // regular
     paymentSchedule.addAll(splitRegular(accrualSchedule));
-    // final 
     if (finalStub.isPresent()) {
       paymentSchedule.add(finalStub.get());
     }
@@ -146,39 +144,23 @@ public final class PaymentSchedule
 
   // split the regular periods
   private List<SchedulePeriod> splitRegular(Schedule accrualSchedule) {
-    // accrual periods divide exactly into payment periods
-    ImmutableList<SchedulePeriod> regularPeriods = accrualSchedule.getRegularPeriods();
+    // divide regular accrual periods by payment frequency
     int accrualPeriodsPerPayment = paymentFrequency.exactDivide(accrualSchedule.getFrequency());
-    int multipleRemainder = regularPeriods.size() % accrualPeriodsPerPayment;
-    if (multipleRemainder == 0) {
-      return groupAccrualPeriods(regularPeriods, 0, accrualPeriodsPerPayment, 0);
-    }
-    // determine by stub direction, default is to roll backwards
-    if (accrualSchedule.getFinalStub().isPresent() && !accrualSchedule.getInitialStub().isPresent()) {
-      return groupAccrualPeriods(regularPeriods, 0, accrualPeriodsPerPayment, multipleRemainder);
-    } else {
-      return groupAccrualPeriods(regularPeriods, multipleRemainder, accrualPeriodsPerPayment, 0);
-    }
-  }
-
-  // group accrual periods by initial, multiple and final
-  private List<SchedulePeriod> groupAccrualPeriods(
-      List<SchedulePeriod> accrualPeriods,
-      int initialGroup,
-      int accrualPeriodsPerPayment,
-      int finalGroup) {
-    
-    int accrualCount = accrualPeriods.size();
-    int finalIndex = accrualCount - finalGroup;
+    ImmutableList<SchedulePeriod> regularAccrualPeriods = accrualSchedule.getRegularPeriods();
+    int size = regularAccrualPeriods.size();
+    int multipleRemainder = size % accrualPeriodsPerPayment;
+    // roll as evenly as possible based on direction implied by stub
+    // algorithm rolls forward, explicitly handling short first payment and
+    // using Math.min to handle short final payment
     List<SchedulePeriod> paymentPeriods = new ArrayList<>();
-    if (initialGroup > 0) {
-      paymentPeriods.add(createSchedulePeriod(accrualPeriods.subList(0, initialGroup)));
+    int pos = 0;
+    if (multipleRemainder > 0 && accrualSchedule.getInitialStub().isPresent()) {
+      paymentPeriods.add(createSchedulePeriod(regularAccrualPeriods.subList(0, multipleRemainder)));
+      pos = multipleRemainder;
     }
-    for (int i = initialGroup; i < finalIndex; i += accrualPeriodsPerPayment) {
-      paymentPeriods.add(createSchedulePeriod(accrualPeriods.subList(i, i + accrualPeriodsPerPayment)));
-    }
-    if (finalGroup > 0) {
-      paymentPeriods.add(createSchedulePeriod(accrualPeriods.subList(finalIndex, accrualCount)));
+    for (; pos < size; pos += accrualPeriodsPerPayment) {
+      paymentPeriods.add(createSchedulePeriod(
+          regularAccrualPeriods.subList(pos, Math.min(pos + accrualPeriodsPerPayment, size))));
     }
     return paymentPeriods;
   }

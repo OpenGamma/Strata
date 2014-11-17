@@ -28,6 +28,7 @@ public interface RateCalculation
    * @return the pay/receive flag
    */
   public abstract PayReceive getPayReceive();
+
   /**
    * Gets the notional amount, always positive.
    * <p>
