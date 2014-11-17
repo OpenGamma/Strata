@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Guavate;
+import com.opengamma.collect.Messages;
 
 /**
  * An immutable calculation result.
@@ -92,7 +93,7 @@ public final class Result<T>
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
+   * See {@link Messages#format(String, Object...)} for more details.
    *
    * @param <R> the expected type of the result
    * @param reason  the result reason
@@ -101,7 +102,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(FailureReason reason, String message, Object... messageArgs) {
-    String msg = ArgChecker.formatMessage(message, messageArgs);
+    String msg = Messages.format(message, messageArgs);
     return new Result<>(Failure.of(reason, msg));
   }
 
@@ -128,7 +129,7 @@ public final class Result<T>
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
+   * See {@link Messages#format(String, Object...)} for more details.
    *
    * @param <R> the expected type of the result
    * @param exception  the cause of the failure
@@ -137,7 +138,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(Exception exception, String message, Object... messageArgs) {
-    String msg = ArgChecker.formatMessage(message, messageArgs);
+    String msg = Messages.format(message, messageArgs);
     return new Result<>(Failure.of(FailureReason.ERROR, msg, exception));
   }
 
@@ -161,7 +162,7 @@ public final class Result<T>
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link ArgChecker#formatMessage(String, Object...)} for more details.
+   * See {@link Messages#format(String, Object...)} for more details.
    *
    * @param <R> the expected type of the result
    * @param reason  the result reason
@@ -171,7 +172,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(FailureReason reason, Exception exception, String message, Object... messageArgs) {
-    return new Result<>(Failure.of(reason, ArgChecker.formatMessage(message, messageArgs), exception));
+    return new Result<>(Failure.of(reason, Messages.format(message, messageArgs), exception));
   }
 
   /**
