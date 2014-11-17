@@ -14,6 +14,7 @@ import static com.opengamma.basics.schedule.Frequency.TERM;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static java.time.temporal.ChronoUnit.CENTURIES;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
@@ -251,6 +252,56 @@ public class FrequencyTest {
     assertThrows(() -> Frequency.ofMonths(5).eventsPerYear(), IllegalArgumentException.class);
     assertThrows(() -> Frequency.ofMonths(24).eventsPerYear(), IllegalArgumentException.class);
     assertThrows(() -> Frequency.of(Period.of(2, 2, 2)).eventsPerYear(), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "exactDivide")
+  static Object[][] data_exactDivide() {
+    return new Object[][] {
+        {Frequency.P1D, Frequency.P1D, 1},
+        {Frequency.P1W, Frequency.P1D, 7},
+        {Frequency.P2W, Frequency.P1D, 14},
+
+        {Frequency.P1W, Frequency.P1W, 1},
+        {Frequency.P2W, Frequency.P1W, 2},
+        {Frequency.ofWeeks(3), Frequency.P1W, 3},
+        {Frequency.P4W, Frequency.P1W, 4},
+        {Frequency.P13W, Frequency.P1W, 13},
+        {Frequency.P26W, Frequency.P1W, 26},
+        {Frequency.P26W, Frequency.P2W, 13},
+        {Frequency.P52W, Frequency.P1W, 52},
+        {Frequency.P52W, Frequency.P2W, 26},
+
+        {Frequency.P1M, Frequency.P1M, 1},
+        {Frequency.P2M, Frequency.P1M, 2},
+        {Frequency.P3M, Frequency.P1M, 3},
+        {Frequency.P4M, Frequency.P1M, 4},
+        {Frequency.P6M, Frequency.P1M, 6},
+        {Frequency.P6M, Frequency.P2M, 3},
+        {Frequency.P12M, Frequency.P1M, 12},
+        {Frequency.P12M, Frequency.P2M, 6},
+    };
+  }
+
+  @Test(dataProvider = "exactDivide")
+  public void test_exactDivide(Frequency test, Frequency other, int expected) {
+    assertEquals(test.exactDivide(other), expected);
+  }
+
+  @Test(dataProvider = "exactDivide")
+  public void test_exactDivide_reverse(Frequency test, Frequency other, int expected) {
+    if (!test.equals(other)) {
+      assertThrowsIllegalArg(() -> Frequency.P1W.exactDivide(Frequency.P1M));
+    }
+  }
+
+  public void test_exactDivide_bad() {
+    assertThrowsIllegalArg(() -> Frequency.ofDays(5).exactDivide(Frequency.ofDays(2)));
+    assertThrowsIllegalArg(() -> Frequency.ofMonths(5).exactDivide(Frequency.ofMonths(2)));
+    assertThrowsIllegalArg(() -> Frequency.P1M.exactDivide(Frequency.P1W));
+    assertThrowsIllegalArg(() -> Frequency.P1W.exactDivide(Frequency.P1M));
+    assertThrowsIllegalArg(() -> Frequency.TERM.exactDivide(Frequency.P1W));
+    assertThrowsIllegalArg(() -> Frequency.P12M.exactDivide(Frequency.TERM));
   }
 
   //-------------------------------------------------------------------------
