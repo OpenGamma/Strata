@@ -24,13 +24,13 @@ import com.opengamma.platform.pricer.rate.RateProviderFn;
  * The rate provider examines the historic time-series of known rates and the
  * forward curve to determine the effective annualized rate.
  */
-public class StandardOvernightCompoundedRateProviderFn
+public class DefaultOvernightCompoundedRateProviderFn
     implements RateProviderFn<OvernightCompoundedRate> {
 
   /**
    * Default implementation.
    */
-  public static final StandardOvernightCompoundedRateProviderFn DEFAULT = new StandardOvernightCompoundedRateProviderFn();
+  public static final DefaultOvernightCompoundedRateProviderFn DEFAULT = new DefaultOvernightCompoundedRateProviderFn();
 
   //-------------------------------------------------------------------------
   @Override

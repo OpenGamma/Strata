@@ -55,7 +55,7 @@ import com.opengamma.platform.finance.swap.StubCalculation;
 import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.finance.swap.SwapTrade;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
-import com.opengamma.platform.pricer.impl.StandardTradePricerFn;
+import com.opengamma.platform.pricer.impl.DefaultTradePricerFn;
 import com.opengamma.platform.source.id.StandardId;
 import com.opengamma.util.tuple.Pair;
 
@@ -698,7 +698,7 @@ public class SwapEnd2EndTest {
   //-------------------------------------------------------------------------
   // pricer
   private TradePricerFn<Trade> swapPricer() {
-    return StandardTradePricerFn.DEFAULT;
+    return DefaultTradePricerFn.DEFAULT;
   }
 
   // pricing environment

@@ -20,13 +20,13 @@ import com.opengamma.platform.pricer.rate.RateProviderFn;
  * The rate provider examines the historic time-series of known rates and the
  * forward curve to determine the effective annualized rate.
  */
-public class StandardIborAveragedRateProviderFn
+public class DefaultIborAveragedRateProviderFn
     implements RateProviderFn<IborAveragedRate> {
 
   /**
    * Default implementation.
    */
-  public static final StandardIborAveragedRateProviderFn DEFAULT = new StandardIborAveragedRateProviderFn();
+  public static final DefaultIborAveragedRateProviderFn DEFAULT = new DefaultIborAveragedRateProviderFn();
 
   //-------------------------------------------------------------------------
   @Override

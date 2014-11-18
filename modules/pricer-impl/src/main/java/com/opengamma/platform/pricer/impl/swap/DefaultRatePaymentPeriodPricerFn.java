@@ -13,7 +13,7 @@ import com.opengamma.platform.finance.rate.Rate;
 import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
-import com.opengamma.platform.pricer.impl.rate.StandardRateProviderFn;
+import com.opengamma.platform.pricer.impl.rate.DefaultRateProviderFn;
 import com.opengamma.platform.pricer.rate.RateProviderFn;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
 
@@ -23,14 +23,14 @@ import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
  * The value of a payment period is calculated by combining the value of each accrual period.
  * Where necessary, the accrual periods are compounded.
  */
-public class StandardRatePaymentPeriodPricerFn
+public class DefaultRatePaymentPeriodPricerFn
     implements PaymentPeriodPricerFn<RatePaymentPeriod> {
 
   /**
    * Default implementation.
    */
-  public static final StandardRatePaymentPeriodPricerFn DEFAULT = new StandardRatePaymentPeriodPricerFn(
-      StandardRateProviderFn.DEFAULT);
+  public static final DefaultRatePaymentPeriodPricerFn DEFAULT = new DefaultRatePaymentPeriodPricerFn(
+      DefaultRateProviderFn.DEFAULT);
 
   /**
    * Rate provider.
@@ -42,7 +42,7 @@ public class StandardRatePaymentPeriodPricerFn
    * 
    * @param rateProviderFn  the rate provider
    */
-  public StandardRatePaymentPeriodPricerFn(
+  public DefaultRatePaymentPeriodPricerFn(
       RateProviderFn<Rate> rateProviderFn) {
     this.rateProviderFn = ArgChecker.notNull(rateProviderFn, "rateProviderFn");
   }

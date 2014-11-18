@@ -23,18 +23,18 @@ import com.opengamma.platform.pricer.rate.RateProviderFn;
  * <p>
  * Dispatches the rate request to the correct implementation.
  */
-public class StandardRateProviderFn
+public class DefaultRateProviderFn
     implements RateProviderFn<Rate> {
 
   /**
    * Default implementation.
    */
-  public static final StandardRateProviderFn DEFAULT = new StandardRateProviderFn(
-      StandardIborRateProviderFn.DEFAULT,
-      StandardIborInterpolatedRateProviderFn.DEFAULT,
-      StandardIborAveragedRateProviderFn.DEFAULT,
-      StandardOvernightCompoundedRateProviderFn.DEFAULT,
-      StandardOvernightAveragedRateProviderFn.DEFAULT);
+  public static final DefaultRateProviderFn DEFAULT = new DefaultRateProviderFn(
+      DefaultIborRateProviderFn.DEFAULT,
+      DefaultIborInterpolatedRateProviderFn.DEFAULT,
+      DefaultIborAveragedRateProviderFn.DEFAULT,
+      DefaultOvernightCompoundedRateProviderFn.DEFAULT,
+      DefaultOvernightAveragedRateProviderFn.DEFAULT);
 
   //-------------------------------------------------------------------------
   /**
@@ -67,7 +67,7 @@ public class StandardRateProviderFn
    * @param overnightCompoundedRateFn  the rate provider for {@link OvernightCompoundedRate}
    * @param overnightAveragedRateFn  the rate provider for {@link OvernightAveragedRate}
    */
-  public StandardRateProviderFn(
+  public DefaultRateProviderFn(
       RateProviderFn<IborRate> iborRateFn,
       RateProviderFn<IborInterpolatedRate> iborInterpolatedRateFn,
       RateProviderFn<IborAveragedRate> iborAveragedRateFn,

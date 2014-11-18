@@ -13,21 +13,21 @@ import com.opengamma.platform.finance.Trade;
 import com.opengamma.platform.finance.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.TradePricerFn;
-import com.opengamma.platform.pricer.impl.swap.StandardSwapTradePricerFn;
+import com.opengamma.platform.pricer.impl.swap.DefaultSwapTradePricerFn;
 
 /**
  * Multiple dispatch for {@code AccrualPeriodPricerFn}.
  * <p>
  * Dispatches the pricer request to the correct implementation.
  */
-public class StandardTradePricerFn
+public class DefaultTradePricerFn
     implements TradePricerFn<Trade> {
 
   /**
    * Default implementation.
    */
-  public static final StandardTradePricerFn DEFAULT = new StandardTradePricerFn(
-      StandardSwapTradePricerFn.DEFAULT);
+  public static final DefaultTradePricerFn DEFAULT = new DefaultTradePricerFn(
+      DefaultSwapTradePricerFn.DEFAULT);
 
   //-------------------------------------------------------------------------
   /**
@@ -40,7 +40,7 @@ public class StandardTradePricerFn
    * 
    * @param swapTradePricerFn  the rate provider for {@link SwapTrade}
    */
-  public StandardTradePricerFn(
+  public DefaultTradePricerFn(
       TradePricerFn<SwapTrade> swapTradePricerFn) {
     super();
     this.swapTradePricerFn = ArgChecker.notNull(swapTradePricerFn, "swapTradePricerFn");

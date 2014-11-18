@@ -19,14 +19,14 @@ import com.opengamma.platform.pricer.swap.SwapPricerFn;
  * <p>
  * The value of a swap trade is calculated by examining the embedded swap.
  */
-public class StandardSwapTradePricerFn
+public class DefaultSwapTradePricerFn
     implements TradePricerFn<SwapTrade> {
 
   /**
    * Default implementation.
    */
-  public static final StandardSwapTradePricerFn DEFAULT = new StandardSwapTradePricerFn(
-      StandardSwapPricerFn.DEFAULT);
+  public static final DefaultSwapTradePricerFn DEFAULT = new DefaultSwapTradePricerFn(
+      DefaultSwapPricerFn.DEFAULT);
 
   /**
    * Pricer function.
@@ -38,7 +38,7 @@ public class StandardSwapTradePricerFn
    * 
    * @param swapPricerFn  the swap pricer
    */
-  public StandardSwapTradePricerFn(
+  public DefaultSwapTradePricerFn(
       SwapPricerFn swapPricerFn) {
     this.swapPricerFn = ArgChecker.notNull(swapPricerFn, "swapPricerFn");
   }

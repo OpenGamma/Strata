@@ -18,14 +18,14 @@ import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
  * <p>
  * Dispatches the pricer request to the correct implementation.
  */
-public class StandardPaymentPeriodPricerFn
+public class DefaultPaymentPeriodPricerFn
     implements PaymentPeriodPricerFn<PaymentPeriod> {
 
   /**
    * Default implementation.
    */
-  public static final StandardPaymentPeriodPricerFn DEFAULT = new StandardPaymentPeriodPricerFn(
-      StandardRatePaymentPeriodPricerFn.DEFAULT);
+  public static final DefaultPaymentPeriodPricerFn DEFAULT = new DefaultPaymentPeriodPricerFn(
+      DefaultRatePaymentPeriodPricerFn.DEFAULT);
 
   //-------------------------------------------------------------------------
   /**
@@ -38,7 +38,7 @@ public class StandardPaymentPeriodPricerFn
    * 
    * @param ratePaymentPeriodFn  the rate provider for {@link RatePaymentPeriod}
    */
-  public StandardPaymentPeriodPricerFn(
+  public DefaultPaymentPeriodPricerFn(
       PaymentPeriodPricerFn<RatePaymentPeriod> ratePaymentPeriodFn) {
     super();
     this.ratePaymentPeriodFn = ArgChecker.notNull(ratePaymentPeriodFn, "ratePaymentPeriodFn");

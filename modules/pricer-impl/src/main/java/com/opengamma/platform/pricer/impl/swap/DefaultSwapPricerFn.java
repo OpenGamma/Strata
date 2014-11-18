@@ -19,13 +19,13 @@ import com.opengamma.platform.pricer.swap.SwapPricerFn;
 /**
  * Pricer for swaps.
  */
-public class StandardSwapPricerFn implements SwapPricerFn {
+public class DefaultSwapPricerFn implements SwapPricerFn {
 
   /**
    * Default implementation.
    */
-  public static final StandardSwapPricerFn DEFAULT = new StandardSwapPricerFn(
-      StandardPaymentPeriodPricerFn.DEFAULT);
+  public static final DefaultSwapPricerFn DEFAULT = new DefaultSwapPricerFn(
+      DefaultPaymentPeriodPricerFn.DEFAULT);
 
   /**
    * Payment period pricer.
@@ -37,7 +37,7 @@ public class StandardSwapPricerFn implements SwapPricerFn {
    * 
    * @param paymentPeriodPricerFn  the pricer for {@link PaymentPeriod}
    */
-  public StandardSwapPricerFn(
+  public DefaultSwapPricerFn(
       PaymentPeriodPricerFn<PaymentPeriod> paymentPeriodPricerFn) {
     this.paymentPeriodPricerFn = ArgChecker.notNull(paymentPeriodPricerFn, "paymentPeriodPricerFn");
   }
