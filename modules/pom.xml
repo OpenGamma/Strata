@@ -16,7 +16,7 @@
   <version>3.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>OG-Platform-Core-Parent</name>
-  <description>OpenGamma Platform - Parent</description>
+  <description>OpenGamma Platform - Core Parent</description>
 
   <!-- ==================================================================== -->
   <licenses>
