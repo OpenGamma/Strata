@@ -14,7 +14,7 @@
   <artifactId>ogp-finance</artifactId>
   <version>3.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>OG-Finance</name>
+  <name>OG-Platform-Finance</name>
   <description>OpenGamma Platform - Entities in financial markets</description>
 
   <!-- ==================================================================== -->
@@ -26,7 +26,7 @@
     </dependency>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
-      <artifactId>og-source</artifactId>
+      <artifactId>ogp-source</artifactId>
       <version>3.0.0-SNAPSHOT</version>
     </dependency>
     <!-- testing -->
