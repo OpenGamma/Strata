@@ -20,6 +20,7 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.Messages;
 
 /**
  * A periodic frequency used by financial products that have a specific event every so often.
@@ -372,7 +373,7 @@ public final class Frequency
    * Not all periodic frequency instances can be converted to an integer events per year.
    * All constants declared on this class will return a result.
    * <p>
-   * Month-based periodic frequencies are converted by dividing 12 by the number of months.
+   * Month-based and year-based periodic frequencies are converted by dividing 12 by the number of months.
    * Only the following periodic frequencies return a value - P1M, P2M, P3M, P4M, P6M, P1Y.
    * <p>
    * Day-based and week-based periodic frequencies are converted by dividing 364 by the number of days.
@@ -381,6 +382,7 @@ public final class Frequency
    * The 'Term' periodic frequency returns zero.
    *
    * @return the number of events per year
+   * @throws IllegalArgumentException if unable to calculate the number of events per year
    */
   public int eventsPerYear() {
     if (isTerm()) {
@@ -396,6 +398,44 @@ public final class Frequency
       return (int) (364 / days);
     }
     throw new IllegalArgumentException("Unable to calculate events per year: " + this);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Exactly divides this frequency by another.
+   * <p>
+   * This calculates the integer division of this frequency by the specified frequency.
+   * If the result is not an integer, an exception is thrown.
+   * <p>
+   * Month-based and year-based periodic frequencies are calculated by dividing the total number of months.
+   * For example, P6M divided by P3M results in 2, and P2Y divided by P6M returns 4.
+   * <p>
+   * Day-based and week-based periodic frequencies are calculated by dividing the total number of days.
+   * For example, P26W divided by P13W results in 2, and P2W divided by P1D returns 14.
+   * <p>
+   * The 'Term' frequency throws an exception.
+   *
+   * @param other  the other frequency to divide into this one
+   * @return this frequency divided by the other frequency
+   * @throws IllegalArgumentException if the frequency does not exactly divide into this one
+   */
+  public int exactDivide(Frequency other) {
+    ArgChecker.notNull(other, "other");
+    if (isMonthBased() && other.isMonthBased()) {
+      long paymentMonths = getPeriod().toTotalMonths();
+      long accrualMonths = other.getPeriod().toTotalMonths();
+      if ((paymentMonths % accrualMonths) == 0) {
+        return Math.toIntExact(paymentMonths / accrualMonths);
+      }
+    } else if (period.toTotalMonths() == 0 && other.period.toTotalMonths() == 0) {
+      long paymentDays = getPeriod().getDays();
+      long accrualDays = other.getPeriod().getDays();
+      if ((paymentDays % accrualDays) == 0) {
+        return Math.toIntExact(paymentDays / accrualDays);
+      }
+    }
+    throw new IllegalArgumentException(Messages.format(
+        "Frequency '{}' is not a multiple of '{}'", this, other));
   }
 
   //-------------------------------------------------------------------------
