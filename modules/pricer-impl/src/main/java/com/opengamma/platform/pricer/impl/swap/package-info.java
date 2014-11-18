@@ -5,7 +5,7 @@
  */
 
 /**
- * Pricer functions for swaps.
+ * Standard implementation of pricing for swaps.
  */
 @javax.annotation.ParametersAreNonnullByDefault
-package com.opengamma.platform.pricerfn.swap;
+package com.opengamma.platform.pricer.impl.swap;

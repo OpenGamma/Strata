@@ -1,10 +1,10 @@
-OG-Platform-Pricer
-------------------
-This directory contains the `ogp-pricer` project.
+OG-Platform-Pricer-Impl
+-----------------------
+This directory contains the `ogp-pricer-impl` project.
 
 ### Overview
 
-This project provides a high-level API risk and pricing for financial instruments.
+This project provides standard implementations of risk and pricing for financial instruments.
 
 
 ### Source code

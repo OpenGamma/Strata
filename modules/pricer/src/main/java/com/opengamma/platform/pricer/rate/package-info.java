@@ -5,9 +5,9 @@
  */
 
 /**
- * Swap pricing.
+ * Rate pricing.
  * <p>
- * A high level API for pricing swaps.
+ * A high level API for obtaining the a rate from an index, such as 'GBP-LIBOR-3M'.
  */
 @javax.annotation.ParametersAreNonnullByDefault
-package com.opengamma.platform.pricer.swap;
+package com.opengamma.platform.pricer.rate;

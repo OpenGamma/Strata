@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.pricerfn.rate;
+package com.opengamma.platform.pricer.impl.rate;
 
 import java.time.LocalDate;
 

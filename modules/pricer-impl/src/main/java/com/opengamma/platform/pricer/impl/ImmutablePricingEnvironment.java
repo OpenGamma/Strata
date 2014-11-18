@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.pricer;
+package com.opengamma.platform.pricer.impl;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -39,6 +39,7 @@ import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.RateIndex;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
  * Immutable pricing environment.

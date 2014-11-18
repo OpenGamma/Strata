@@ -5,9 +5,7 @@
  */
 
 /**
- * Swap pricing.
- * <p>
- * A high level API for pricing swaps.
+ * Standard implementation of pricing for rates.
  */
 @javax.annotation.ParametersAreNonnullByDefault
-package com.opengamma.platform.pricer.swap;
+package com.opengamma.platform.pricer.impl.rate;

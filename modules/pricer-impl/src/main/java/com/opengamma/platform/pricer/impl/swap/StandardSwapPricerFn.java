@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.pricerfn.swap;
+package com.opengamma.platform.pricer.impl.swap;
 
 import java.time.LocalDate;
 

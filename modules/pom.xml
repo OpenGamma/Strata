@@ -66,9 +66,10 @@
   <!-- ==================================================================== -->
   <modules>
     <module>curves</module>
+    <module>source</module>
     <module>finance</module>
     <module>pricer</module>
-    <module>source</module>
+    <module>pricer-impl</module>
   </modules>
 
   <!-- ==================================================================== -->

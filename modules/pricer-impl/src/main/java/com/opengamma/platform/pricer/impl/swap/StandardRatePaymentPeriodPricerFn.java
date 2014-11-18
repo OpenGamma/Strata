@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.pricerfn.swap;
+package com.opengamma.platform.pricer.impl.swap;
 
 import java.time.LocalDate;
 
@@ -13,9 +13,9 @@ import com.opengamma.platform.finance.rate.Rate;
 import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.impl.rate.StandardRateProviderFn;
 import com.opengamma.platform.pricer.rate.RateProviderFn;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
-import com.opengamma.platform.pricerfn.rate.StandardRateProviderFn;
 
 /**
  * Pricer implementation for swap payment periods based on a rate.

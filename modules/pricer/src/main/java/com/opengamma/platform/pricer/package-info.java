@@ -5,7 +5,7 @@
  */
 
 /**
- * Pricer package.
+ * Pricer API, providing the high level definition of how to price financial instruments.
  */
 @javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.pricer;
