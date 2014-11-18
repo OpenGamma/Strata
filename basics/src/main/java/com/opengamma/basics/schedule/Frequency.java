@@ -373,7 +373,7 @@ public final class Frequency
    * Not all periodic frequency instances can be converted to an integer events per year.
    * All constants declared on this class will return a result.
    * <p>
-   * Month-based periodic frequencies are converted by dividing 12 by the number of months.
+   * Month-based and year-based periodic frequencies are converted by dividing 12 by the number of months.
    * Only the following periodic frequencies return a value - P1M, P2M, P3M, P4M, P6M, P1Y.
    * <p>
    * Day-based and week-based periodic frequencies are converted by dividing 364 by the number of days.
@@ -407,11 +407,11 @@ public final class Frequency
    * This calculates the integer division of this frequency by the specified frequency.
    * If the result is not an integer, an exception is thrown.
    * <p>
-   * Month-based periodic frequencies are calculated by dividing the total number of months.
-   * For example, P6M divided by P3M results in 2.
+   * Month-based and year-based periodic frequencies are calculated by dividing the total number of months.
+   * For example, P6M divided by P3M results in 2, and P2Y divided by P6M returns 4.
    * <p>
    * Day-based and week-based periodic frequencies are calculated by dividing the total number of days.
-   * For example, P26W divided by P13W results in 2.
+   * For example, P26W divided by P13W results in 2, and P2W divided by P1D returns 14.
    * <p>
    * The 'Term' frequency throws an exception.
    *

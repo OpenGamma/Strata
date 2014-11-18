@@ -280,6 +280,9 @@ public class FrequencyTest {
         {Frequency.P6M, Frequency.P2M, 3},
         {Frequency.P12M, Frequency.P1M, 12},
         {Frequency.P12M, Frequency.P2M, 6},
+        {Frequency.ofYears(1), Frequency.P6M, 2},
+        {Frequency.ofYears(1), Frequency.P3M, 4},
+        {Frequency.ofYears(2), Frequency.P6M, 4},
     };
   }
 
@@ -291,7 +294,7 @@ public class FrequencyTest {
   @Test(dataProvider = "exactDivide")
   public void test_exactDivide_reverse(Frequency test, Frequency other, int expected) {
     if (!test.equals(other)) {
-      assertThrowsIllegalArg(() -> Frequency.P1W.exactDivide(Frequency.P1M));
+      assertThrowsIllegalArg(() -> other.exactDivide(test));
     }
   }
 
@@ -302,6 +305,7 @@ public class FrequencyTest {
     assertThrowsIllegalArg(() -> Frequency.P1W.exactDivide(Frequency.P1M));
     assertThrowsIllegalArg(() -> Frequency.TERM.exactDivide(Frequency.P1W));
     assertThrowsIllegalArg(() -> Frequency.P12M.exactDivide(Frequency.TERM));
+    assertThrowsIllegalArg(() -> Frequency.ofYears(1).exactDivide(Frequency.P1W));
   }
 
   //-------------------------------------------------------------------------
