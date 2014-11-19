@@ -6,6 +6,7 @@
 package com.opengamma.platform.finance.swap;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static com.opengamma.platform.finance.swap.IborRateAveragingMethod.UNWEIGHTED;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -37,6 +38,7 @@ import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.schedule.SchedulePeriodType;
+import com.opengamma.basics.schedule.StubConvention;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.platform.finance.rate.FixedRate;
 import com.opengamma.platform.finance.rate.IborAveragedFixing;
@@ -266,22 +268,16 @@ public final class IborRateCalculation
   private Rate createRateWithResetPeriods(SchedulePeriod period, boolean firstRegularPeriod) {
     Frequency resetFrequency = resetPeriods.getResetFrequency();
     BusinessDayAdjustment resetBda = resetPeriods.getResetBusinessDayAdjustment();
-    int numResets = period.getFrequency().exactDivide(resetFrequency);
-    LocalDate unadjStartDate = period.getUnadjustedStartDate();
-    LocalDate unadjEndDate = period.getRollConvention().next(unadjStartDate, resetFrequency);
+    // reset frequency must divide period exactly
+    Schedule resetSchedule = period.subSchedule(resetFrequency, StubConvention.NONE, resetBda);
     List<IborAveragedFixing> fixings = new ArrayList<>();
-    for (int i = 0; i < numResets; i++) {
-      LocalDate adjStartDate = resetBda.adjust(unadjStartDate);
-      LocalDate adjEndDate = resetBda.adjust(unadjEndDate);
-      LocalDate fixingDate = fixingOffset.adjust(fixingRelativeTo.selectBaseDate(adjStartDate, adjEndDate));
-      Double fixedRate = (firstRegularPeriod && i == 0 ? firstRegularRate : null);
-      if (resetPeriods.getRateAveragingMethod() == IborRateAveragingMethod.UNWEIGHTED) {
-        fixings.add(IborAveragedFixing.of(fixingDate, firstRegularRate));
-      } else {
-        fixings.add(IborAveragedFixing.ofDaysInResetPeriod(fixingDate, fixedRate, adjStartDate, adjEndDate));
-      }
-      unadjStartDate = unadjEndDate;
-      unadjEndDate = period.getRollConvention().next(unadjStartDate, resetFrequency);
+    for (int i = 0; i < resetSchedule.size(); i++) {
+      SchedulePeriod resetPeriod = resetSchedule.getPeriod(i);
+      fixings.add(IborAveragedFixing.builder()
+          .fixingDate(fixingOffset.adjust(fixingRelativeTo.selectBaseDate(resetPeriod)))
+          .fixedRate(firstRegularPeriod && i == 0 ? firstRegularRate : null)
+          .weight(resetPeriods.getRateAveragingMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
+          .build());
     }
     return IborAveragedRate.of(index, fixings);
   }

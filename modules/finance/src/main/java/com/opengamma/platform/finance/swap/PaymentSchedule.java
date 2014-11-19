@@ -6,11 +6,9 @@
 package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -32,7 +30,6 @@ import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.collect.Guavate;
 
 /**
@@ -108,76 +105,27 @@ public final class PaymentSchedule
    * If the payment frequency matches the accrual frequency, or if there is
    * only one period in the accrual schedule, the input schedule is returned.
    * <p>
-   * Only the regular part of the accrual schedule is divided up.
+   * Only the regular part of the accrual schedule is grouped into payment periods.
    * Any initial or final stub will be returned unaltered in the new schedule.
    * <p>
-   * The payment schedule is based on the payment frequency and the number of
-   * accrual periods in the first and last payment. The roll convention is used
-   * to determine the dates.
+   * The grouping is determined by rolling forwards or backwards through the regular accrual periods
+   * Rolling is backwards if there is an initial stub, otherwise rolling is forwards.
+   * Grouping involves merging the existing accrual periods, thus the roll convention
+   * of the accrual periods is implicitly applied.
    * 
-   * @param accrualPeriods  the list of accrual periods
-   * @param schedule  the accrual schedule
-   * @return the list of payment periods
+   * @param accrualSchedule  the accrual schedule
+   * @return the payment schedule
+   * @throws IllegalArgumentException if the accrual frequency does not divide evenly into the payment frequency
    */
-  Schedule createSchedule(Schedule accrualSchedule) {
-    int size = accrualSchedule.size();
-    // Term or matching frequency means no work to do
-    if (size == 1 || paymentFrequency.equals(accrualSchedule.getFrequency())) {
-      return accrualSchedule;
-    }
+  public Schedule createSchedule(Schedule accrualSchedule) {
     // payment frequency of Term absorbs everything
     if (paymentFrequency.equals(Frequency.TERM)) {
       return accrualSchedule.mergeToTerm();
     }
     // derive schedule, retaining stubs as payment periods
-    Optional<SchedulePeriod> initialStub = accrualSchedule.getInitialStub();
-    Optional<SchedulePeriod> finalStub = accrualSchedule.getFinalStub();
-    List<SchedulePeriod> paymentSchedule = new ArrayList<>();
-    if (initialStub.isPresent()) {
-      paymentSchedule.add(initialStub.get());
-    }
-    paymentSchedule.addAll(splitRegular(accrualSchedule));
-    if (finalStub.isPresent()) {
-      paymentSchedule.add(finalStub.get());
-    }
-    return Schedule.of(paymentSchedule);
-  }
-
-  // split the regular periods
-  private List<SchedulePeriod> splitRegular(Schedule accrualSchedule) {
-    // divide regular accrual periods by payment frequency
     int accrualPeriodsPerPayment = paymentFrequency.exactDivide(accrualSchedule.getFrequency());
-    ImmutableList<SchedulePeriod> regularAccrualPeriods = accrualSchedule.getRegularPeriods();
-    int size = regularAccrualPeriods.size();
-    int multipleRemainder = size % accrualPeriodsPerPayment;
-    // roll as evenly as possible based on direction implied by stub
-    // algorithm rolls forward, explicitly handling short first payment and
-    // using Math.min to handle short final payment
-    List<SchedulePeriod> paymentPeriods = new ArrayList<>();
-    int pos = 0;
-    if (multipleRemainder > 0 && accrualSchedule.getInitialStub().isPresent()) {
-      paymentPeriods.add(createSchedulePeriod(regularAccrualPeriods.subList(0, multipleRemainder)));
-      pos = multipleRemainder;
-    }
-    for (; pos < size; pos += accrualPeriodsPerPayment) {
-      paymentPeriods.add(createSchedulePeriod(
-          regularAccrualPeriods.subList(pos, Math.min(pos + accrualPeriodsPerPayment, size))));
-    }
-    return paymentPeriods;
-  }
-
-  // creates a schedule period
-  private SchedulePeriod createSchedulePeriod(List<SchedulePeriod> accruals) {
-    SchedulePeriod first = accruals.get(0);
-    SchedulePeriod last = accruals.get(accruals.size() - 1);
-    return SchedulePeriod.of(
-        SchedulePeriodType.NORMAL,  // short cut, but accurate value not needed
-        first.getStartDate(),
-        last.getEndDate(),
-        first.getUnadjustedStartDate(),
-        last.getUnadjustedEndDate(),
-        paymentFrequency,  // short cut, but accurate value not needed
-        first.getRollConvention());
+    boolean rollForwards = !accrualSchedule.getInitialStub().isPresent();
+    return accrualSchedule.mergeRegular(accrualPeriodsPerPayment, rollForwards);
   }
 
   //-------------------------------------------------------------------------
