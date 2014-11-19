@@ -69,17 +69,12 @@ public enum FixingRelativeTo {
   //-------------------------------------------------------------------------
   // selects the base date for fixing
   LocalDate selectBaseDate(SchedulePeriod period) {
-    return selectBaseDate(period.getStartDate(), period.getEndDate());
-  }
-
-  // selects the base date for fixing
-  LocalDate selectBaseDate(LocalDate startDate, LocalDate endDate) {
     switch (this) {
       case PERIOD_END:
-        return endDate;
+        return period.getEndDate();
       case PERIOD_START:
       default:
-        return startDate;
+        return period.getStartDate();
     }
   }
 
