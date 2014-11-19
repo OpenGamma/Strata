@@ -276,7 +276,7 @@ public final class IborRateCalculation
       fixings.add(IborAveragedFixing.builder()
           .fixingDate(fixingOffset.adjust(fixingRelativeTo.selectBaseDate(resetPeriod)))
           .fixedRate(firstRegularPeriod && i == 0 ? firstRegularRate : null)
-          .weight(resetPeriods.getRateAveragingMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
+          .weight(resetPeriods.getAveragingMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
           .build());
     }
     return IborAveragedRate.of(index, fixings);
