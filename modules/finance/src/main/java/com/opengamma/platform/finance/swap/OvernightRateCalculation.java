@@ -156,7 +156,8 @@ public final class OvernightRateCalculation
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < schedule.size(); i++) {
       SchedulePeriod period = schedule.getPeriod(i);
-      accrualPeriods.add(RateAccrualPeriod.builder(period, dayCount)
+      accrualPeriods.add(RateAccrualPeriod.builder(period)
+          .yearFraction(period.yearFraction(dayCount, schedule))
           .rate(createRate(period))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
