@@ -290,12 +290,12 @@ public class PeriodicScheduleTest {
         {JUN_04, SEP_17, P1M, null, null, JUL_11, AUG_11,
           ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17),
           ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17)},
-        {JUN_17, SEP_17, P1M, null, null, JUN_17, SEP_17,
-          ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
-          ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
         {JUN_04, SEP_17, P1M, STUB_BOTH, null, JUL_11, AUG_11,
           ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17),
           ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17)},
+        {JUN_17, SEP_17, P1M, null, null, JUN_17, SEP_17,
+          ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
+          ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
         
         // near end of month
         // EOM flag false, thus roll on 30th
@@ -355,22 +355,13 @@ public class PeriodicScheduleTest {
     assertEquals(test.size(), unadjusted.size() - 1);
     for (int i = 0; i < test.size(); i++) {
       SchedulePeriod period = test.getPeriod(i);
-      if (test.getPeriods().size() == 1) {
-        assertEquals(period.getType(), SchedulePeriodType.TERM);
-      } else if (i == 0) {
-        assertEquals(period.getType(), SchedulePeriodType.INITIAL);
-      } else if (i == test.getPeriods().size() - 1) {
-        assertEquals(period.getType(), SchedulePeriodType.FINAL);
-      } else {
-        assertEquals(period.getType(), SchedulePeriodType.NORMAL);
-      }
       assertEquals(period.getUnadjustedStartDate(), unadjusted.get(i));
       assertEquals(period.getUnadjustedEndDate(), unadjusted.get(i + 1));
       assertEquals(period.getStartDate(), adjusted.get(i));
       assertEquals(period.getEndDate(), adjusted.get(i + 1));
-      assertEquals(period.getFrequency(), freq);
-      assertEquals(period.getRollConvention(), defn.getEffectiveRollConvention());
     }
+    assertEquals(test.getFrequency(), freq);
+    assertEquals(test.getRollConvention(), defn.getEffectiveRollConvention());
   }
   
   @Test(dataProvider = "generation")

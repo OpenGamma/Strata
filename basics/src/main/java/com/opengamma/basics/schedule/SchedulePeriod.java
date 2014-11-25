@@ -7,6 +7,7 @@ package com.opengamma.basics.schedule;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -25,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ComparisonChain;
+import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DayCount;
-import com.opengamma.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -49,18 +50,11 @@ import com.opengamma.collect.ArgChecker;
  */
 @BeanDefinition
 public final class SchedulePeriod
-    implements ScheduleInfo, ImmutableBean, Comparable<SchedulePeriod>, Serializable {
+    implements ImmutableBean, Comparable<SchedulePeriod>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * The type of this period.
-   * <p>
-   * This defines whether this period is an initial, final, term or normal period.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SchedulePeriodType type;
   /**
    * The start date of this period, used for financial calculations such as interest accrual.
    * <p>
@@ -75,7 +69,7 @@ public final class SchedulePeriod
    * The last date in the schedule period, typically treated as exclusive.
    * If the schedule adjusts for business days, then this is the adjusted date.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
   /**
    * The unadjusted start date.
@@ -95,67 +89,38 @@ public final class SchedulePeriod
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate unadjustedEndDate;
-  /**
-   * The periodic frequency used when building the schedule.
-   * <p>
-   * If the schedule was not built from a regular periodic frequency, then the frequency should
-   * be the period between the unadjusted start and end date.
-   */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final Frequency frequency;
-  /**
-   * The roll convention used when building the schedule.
-   * <p>
-   * If the schedule was not built from a regular periodic frequency, then the convention should be 'None'.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final RollConvention rollConvention;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the adjusted and unadjusted dates.
    * 
-   * @param type  the period type
    * @param startDate  the start date, used for financial calculations such as interest accrual
    * @param endDate  the end date, used for financial calculations such as interest accrual
    * @param unadjustedStartDate  the unadjusted start date
    * @param unadjustedEndDate  the adjusted end date
-   * @param frequency  the frequency used to create the schedule
-   * @param rollConvention  the roll convention used to create the schedule
    * @return the period
    */
   public static SchedulePeriod of(
-      SchedulePeriodType type,
       LocalDate startDate,
       LocalDate endDate,
       LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
-      Frequency frequency,
-      RollConvention rollConvention) {
-    return new SchedulePeriod(
-        type, startDate, endDate, unadjustedStartDate, unadjustedEndDate, frequency, rollConvention);
+      LocalDate unadjustedEndDate) {
+    return new SchedulePeriod(startDate, endDate, unadjustedStartDate, unadjustedEndDate);
   }
 
   /**
-   * Obtains an instance from the dates.
+   * Obtains an instance from two dates.
    * <p>
    * This factory is used when there is no business day adjustment of schedule dates.
    * 
-   * @param type  the period type
    * @param startDate  the start date, used for financial calculations such as interest accrual
    * @param endDate  the end date, used for financial calculations such as interest accrual
-   * @param frequency  the frequency used to create the schedule
-   * @param rollConvention  the roll convention used to create the schedule
    * @return the period
    */
   public static SchedulePeriod of(
-      SchedulePeriodType type,
       LocalDate startDate,
-      LocalDate endDate,
-      Frequency frequency,
-      RollConvention rollConvention) {
-    return new SchedulePeriod(
-        type, startDate, endDate, startDate, endDate, frequency, rollConvention);
+      LocalDate endDate) {
+    return new SchedulePeriod(startDate, endDate, startDate, endDate);
   }
 
   //-------------------------------------------------------------------------
@@ -167,61 +132,115 @@ public final class SchedulePeriod
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if the specified date is the end of the overall schedule.
+   * Returns the length of the period.
    * <p>
-   * This is used to check for the maturity/termination date.
+   * This returns the length of the period, considering the adjusted start and end dates.
+   * The calculation does not involve a day count or holiday calendar.
+   * The period is calculated using {@link Period#between(LocalDate, LocalDate)} and as
+   * such includes the start date and excludes the end date.
    * 
-   * @param date  the date to check
-   * @return true if the date is the last date in the overall schedule
+   * @return the length of the period
    */
-  @Override
-  public boolean isScheduleEndDate(LocalDate date) {
-    return type == SchedulePeriodType.FINAL && date.equals(endDate);
+  public Period length() {
+    return Period.between(startDate, endDate);
   }
 
   /**
-   * Checks if the end of month convention is in use.
+   * Calculates the number of days in the period.
    * <p>
-   * If true then when building a schedule, dates will be at the end-of-month if the
-   * first date in the series is at the end-of-month.
+   * This returns the actual number of days in the period, considering the adjusted start and end dates.
+   * The calculation does not involve a day count or holiday calendar.
+   * The length includes one date and excludes the other.
    * 
-   * @return true if the end of month convention is in use
+   * @return the actual number of days in the period
    */
-  @Override
-  public boolean isEndOfMonthConvention() {
-    return rollConvention == RollConventions.EOM;
+  public int lengthInDays() {
+    return Math.toIntExact(endDate.toEpochDay() - startDate.toEpochDay());
   }
 
-  /**
-   * Checks if this period is an initial or final stub.
-   * <p>
-   * Only an initial or final period can be a stub.
-   * The result is true if the length of the period differs from that calculated by
-   * the frequency and roll convention.
-   * 
-   * @return true if the period is an initial or final stub
-   */
-  public boolean isStub() {
-    if (type == SchedulePeriodType.INITIAL) {
-      return !rollConvention.previous(unadjustedEndDate, frequency).equals(unadjustedStartDate);
-    } else if (type == SchedulePeriodType.FINAL) {
-      return !rollConvention.next(unadjustedStartDate, frequency).equals(unadjustedEndDate);
-    } else {
-      return false;
-    }
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Calculates the year fraction using the specified day count.
    * <p>
-   * Additional information from this period is made available to the day count algorithm.
+   * Additional information from the schedule is made available to the day count algorithm.
    * 
    * @param dayCount  the day count convention
+   * @param schedule  the schedule that contains this period
    * @return the year fraction, calculated via the day count
    */
-  public double yearFraction(DayCount dayCount) {
+  public double yearFraction(DayCount dayCount, Schedule schedule) {
     ArgChecker.notNull(dayCount, "dayCount");
-    return dayCount.yearFraction(startDate, endDate, this);
+    ArgChecker.notNull(schedule, "schedule");
+    return dayCount.yearFraction(startDate, endDate, schedule);
+  }
+
+  /**
+   * Checks if this period is regular according to the specified frequency and roll convention.
+   * <p>
+   * A schedule period is normally created from a frequency and roll convention.
+   * These can therefore be used to determine if the period is regular, which simply
+   * means that the period end date can be generated from the start date and vice versa.
+   * 
+   * @param frequency  the frequency
+   * @param rollConvention  the roll convention
+   * @return true if the period is regular
+   */
+  public boolean isRegular(Frequency frequency, RollConvention rollConvention) {
+    ArgChecker.notNull(frequency, "frequency");
+    ArgChecker.notNull(rollConvention, "rollConvention");
+    return rollConvention.next(unadjustedStartDate, frequency).equals(unadjustedEndDate) &&
+        rollConvention.previous(unadjustedEndDate, frequency).equals(unadjustedStartDate);
+  }
+
+  /**
+   * Checks if this period contains the specified date.
+   * <p>
+   * The adjusted start and end dates are used in the comparison.
+   * The start date is included, the end date is excluded.
+   * 
+   * @param date  the date to check
+   * @return true if this period contains the date
+   */
+  public boolean contains(LocalDate date) {
+    ArgChecker.notNull(date, "date");
+    return !date.isBefore(startDate) && date.isBefore(endDate);
+  }
+
+//-------------------------------------------------------------------------
+  /**
+   * Creates a sub-schedule within this period.
+   * <p>
+   * The sub-schedule will have the one or more periods.
+   * The schedule is bounded by the unadjusted start and end date of this period.
+   * The frequency and roll convention are used to build unadjusted schedule dates.
+   * The stub convention is used to handle any remaining time when the new frequency
+   * does not evenly divide into the period.
+   * 
+   * @param frequency  the frequency of the sub-schedule
+   * @param rollConvention  the roll convention to use for rolling
+   * @param stubConvention  the stub convention to use for any excess
+   * @param adjustment  the business day adjustment to apply to the sub-schedule
+   * @return the sub-schedule
+   * @throws ScheduleException if the schedule cannot be created
+   */
+  public Schedule subSchedule(
+      Frequency frequency,
+      RollConvention rollConvention,
+      StubConvention stubConvention,
+      BusinessDayAdjustment adjustment) {
+    ArgChecker.notNull(frequency, "frequency");
+    ArgChecker.notNull(rollConvention, "rollConvention");
+    ArgChecker.notNull(stubConvention, "stubConvention");
+    ArgChecker.notNull(adjustment, "adjustment");
+    return PeriodicSchedule.builder()
+        .startDate(unadjustedStartDate)
+        .endDate(unadjustedEndDate)
+        .frequency(frequency)
+        .businessDayAdjustment(adjustment)
+        .rollConvention(rollConvention)
+        .stubConvention(stubConvention)
+        .build()
+        .createSchedule();
   }
 
   //-------------------------------------------------------------------------
@@ -262,27 +281,18 @@ public final class SchedulePeriod
   }
 
   private SchedulePeriod(
-      SchedulePeriodType type,
       LocalDate startDate,
       LocalDate endDate,
       LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
-      Frequency frequency,
-      RollConvention rollConvention) {
-    JodaBeanUtils.notNull(type, "type");
+      LocalDate unadjustedEndDate) {
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(unadjustedStartDate, "unadjustedStartDate");
     JodaBeanUtils.notNull(unadjustedEndDate, "unadjustedEndDate");
-    JodaBeanUtils.notNull(frequency, "frequency");
-    JodaBeanUtils.notNull(rollConvention, "rollConvention");
-    this.type = type;
     this.startDate = startDate;
     this.endDate = endDate;
     this.unadjustedStartDate = unadjustedStartDate;
     this.unadjustedEndDate = unadjustedEndDate;
-    this.frequency = frequency;
-    this.rollConvention = rollConvention;
     validate();
   }
 
@@ -299,18 +309,6 @@ public final class SchedulePeriod
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the type of this period.
-   * <p>
-   * This defines whether this period is an initial, final, term or normal period.
-   * @return the value of the property, not null
-   */
-  @Override
-  public SchedulePeriodType getType() {
-    return type;
   }
 
   //-----------------------------------------------------------------------
@@ -333,7 +331,6 @@ public final class SchedulePeriod
    * If the schedule adjusts for business days, then this is the adjusted date.
    * @return the value of the property, not null
    */
-  @Override
   public LocalDate getEndDate() {
     return endDate;
   }
@@ -366,30 +363,6 @@ public final class SchedulePeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the periodic frequency used when building the schedule.
-   * <p>
-   * If the schedule was not built from a regular periodic frequency, then the frequency should
-   * be the period between the unadjusted start and end date.
-   * @return the value of the property, not null
-   */
-  @Override
-  public Frequency getFrequency() {
-    return frequency;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the roll convention used when building the schedule.
-   * <p>
-   * If the schedule was not built from a regular periodic frequency, then the convention should be 'None'.
-   * @return the value of the property, not null
-   */
-  public RollConvention getRollConvention() {
-    return rollConvention;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -404,13 +377,10 @@ public final class SchedulePeriod
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SchedulePeriod other = (SchedulePeriod) obj;
-      return JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
+      return JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getUnadjustedStartDate(), other.getUnadjustedStartDate()) &&
-          JodaBeanUtils.equal(getUnadjustedEndDate(), other.getUnadjustedEndDate()) &&
-          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
-          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention());
+          JodaBeanUtils.equal(getUnadjustedEndDate(), other.getUnadjustedEndDate());
     }
     return false;
   }
@@ -418,27 +388,21 @@ public final class SchedulePeriod
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnadjustedStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnadjustedEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("SchedulePeriod{");
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("unadjustedStartDate").append('=').append(getUnadjustedStartDate()).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(getUnadjustedEndDate()).append(',').append(' ');
-    buf.append("frequency").append('=').append(getFrequency()).append(',').append(' ');
-    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention()));
+    buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(getUnadjustedEndDate()));
     buf.append('}');
     return buf.toString();
   }
@@ -453,11 +417,6 @@ public final class SchedulePeriod
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code type} property.
-     */
-    private final MetaProperty<SchedulePeriodType> type = DirectMetaProperty.ofImmutable(
-        this, "type", SchedulePeriod.class, SchedulePeriodType.class);
     /**
      * The meta-property for the {@code startDate} property.
      */
@@ -479,27 +438,14 @@ public final class SchedulePeriod
     private final MetaProperty<LocalDate> unadjustedEndDate = DirectMetaProperty.ofImmutable(
         this, "unadjustedEndDate", SchedulePeriod.class, LocalDate.class);
     /**
-     * The meta-property for the {@code frequency} property.
-     */
-    private final MetaProperty<Frequency> frequency = DirectMetaProperty.ofImmutable(
-        this, "frequency", SchedulePeriod.class, Frequency.class);
-    /**
-     * The meta-property for the {@code rollConvention} property.
-     */
-    private final MetaProperty<RollConvention> rollConvention = DirectMetaProperty.ofImmutable(
-        this, "rollConvention", SchedulePeriod.class, RollConvention.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "type",
         "startDate",
         "endDate",
         "unadjustedStartDate",
-        "unadjustedEndDate",
-        "frequency",
-        "rollConvention");
+        "unadjustedEndDate");
 
     /**
      * Restricted constructor.
@@ -510,8 +456,6 @@ public final class SchedulePeriod
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3575610:  // type
-          return type;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -520,10 +464,6 @@ public final class SchedulePeriod
           return unadjustedStartDate;
         case 31758114:  // unadjustedEndDate
           return unadjustedEndDate;
-        case -70023844:  // frequency
-          return frequency;
-        case -10223666:  // rollConvention
-          return rollConvention;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -544,14 +484,6 @@ public final class SchedulePeriod
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code type} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<SchedulePeriodType> type() {
-      return type;
-    }
-
     /**
      * The meta-property for the {@code startDate} property.
      * @return the meta-property, not null
@@ -584,28 +516,10 @@ public final class SchedulePeriod
       return unadjustedEndDate;
     }
 
-    /**
-     * The meta-property for the {@code frequency} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Frequency> frequency() {
-      return frequency;
-    }
-
-    /**
-     * The meta-property for the {@code rollConvention} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<RollConvention> rollConvention() {
-      return rollConvention;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3575610:  // type
-          return ((SchedulePeriod) bean).getType();
         case -2129778896:  // startDate
           return ((SchedulePeriod) bean).getStartDate();
         case -1607727319:  // endDate
@@ -614,10 +528,6 @@ public final class SchedulePeriod
           return ((SchedulePeriod) bean).getUnadjustedStartDate();
         case 31758114:  // unadjustedEndDate
           return ((SchedulePeriod) bean).getUnadjustedEndDate();
-        case -70023844:  // frequency
-          return ((SchedulePeriod) bean).getFrequency();
-        case -10223666:  // rollConvention
-          return ((SchedulePeriod) bean).getRollConvention();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -639,13 +549,10 @@ public final class SchedulePeriod
    */
   public static final class Builder extends DirectFieldsBeanBuilder<SchedulePeriod> {
 
-    private SchedulePeriodType type;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate unadjustedStartDate;
     private LocalDate unadjustedEndDate;
-    private Frequency frequency;
-    private RollConvention rollConvention;
 
     /**
      * Restricted constructor.
@@ -658,21 +565,16 @@ public final class SchedulePeriod
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(SchedulePeriod beanToCopy) {
-      this.type = beanToCopy.getType();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.unadjustedStartDate = beanToCopy.getUnadjustedStartDate();
       this.unadjustedEndDate = beanToCopy.getUnadjustedEndDate();
-      this.frequency = beanToCopy.getFrequency();
-      this.rollConvention = beanToCopy.getRollConvention();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3575610:  // type
-          return type;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -681,10 +583,6 @@ public final class SchedulePeriod
           return unadjustedStartDate;
         case 31758114:  // unadjustedEndDate
           return unadjustedEndDate;
-        case -70023844:  // frequency
-          return frequency;
-        case -10223666:  // rollConvention
-          return rollConvention;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -693,9 +591,6 @@ public final class SchedulePeriod
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 3575610:  // type
-          this.type = (SchedulePeriodType) newValue;
-          break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
           break;
@@ -707,12 +602,6 @@ public final class SchedulePeriod
           break;
         case 31758114:  // unadjustedEndDate
           this.unadjustedEndDate = (LocalDate) newValue;
-          break;
-        case -70023844:  // frequency
-          this.frequency = (Frequency) newValue;
-          break;
-        case -10223666:  // rollConvention
-          this.rollConvention = (RollConvention) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -747,27 +636,13 @@ public final class SchedulePeriod
     @Override
     public SchedulePeriod build() {
       return new SchedulePeriod(
-          type,
           startDate,
           endDate,
           unadjustedStartDate,
-          unadjustedEndDate,
-          frequency,
-          rollConvention);
+          unadjustedEndDate);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code type} property in the builder.
-     * @param type  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder type(SchedulePeriodType type) {
-      JodaBeanUtils.notNull(type, "type");
-      this.type = type;
-      return this;
-    }
-
     /**
      * Sets the {@code startDate} property in the builder.
      * @param startDate  the new value, not null
@@ -812,40 +687,15 @@ public final class SchedulePeriod
       return this;
     }
 
-    /**
-     * Sets the {@code frequency} property in the builder.
-     * @param frequency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder frequency(Frequency frequency) {
-      JodaBeanUtils.notNull(frequency, "frequency");
-      this.frequency = frequency;
-      return this;
-    }
-
-    /**
-     * Sets the {@code rollConvention} property in the builder.
-     * @param rollConvention  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder rollConvention(RollConvention rollConvention) {
-      JodaBeanUtils.notNull(rollConvention, "rollConvention");
-      this.rollConvention = rollConvention;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("SchedulePeriod.Builder{");
-      buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
-      buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
-      buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
-      buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention));
+      buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate));
       buf.append('}');
       return buf.toString();
     }
