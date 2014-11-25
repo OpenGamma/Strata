@@ -68,11 +68,11 @@ public interface FxIndex
   public abstract CurrencyPair getCurrencyPair();
 
   /**
-   * Gets the fixing calendar of the index.
+   * Gets the calendar that determines which dates are fixing dates.
    * <p>
    * The rate will be fixed on each business day in this calendar.
    * 
-   * @return the currency pair of the index
+   * @return the calendar used to determine the fixing dates of the index
    */
   public abstract HolidayCalendar getFixingCalendar();
 

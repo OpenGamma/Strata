@@ -27,7 +27,6 @@ import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.HolidayCalendars;
-import com.opengamma.basics.index.FxIndex;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -49,19 +48,23 @@ public final class ImmutableFxIndex
   private static final long serialVersionUID = 1L;
 
   /**
-   * The calendar name.
+   * The FX index name.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final String name;
   /**
    * The currency pair.
    * <p>
-   * When the index is queried, the result equates the this base-counter order.
+   * An index defines an FX rate in a single direction, such as from EUR to USD.
+   * This currency pair defines that direction.
+   * <p>
+   * In most cases, the same index can be used to convert in both directions
+   * by taking the rate or the reciprocal as necessary.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final CurrencyPair currencyPair;
   /**
-   * The calendar that the fixing date follows.
+   * The calendar that determines which dates are fixing dates.
    * <p>
    * The fixing date is when the rate is determined.
    */
@@ -80,16 +83,20 @@ public final class ImmutableFxIndex
   @Override
   public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
     ArgChecker.notNull(fixingDate, "fixingDate");
+    // handle case where the input date is not a valid fixing date
     LocalDate fixingBusinessDay = fixingCalendar.nextOrSame(fixingDate);
+    // find the maturity date using the offset and calendar in DaysAdjustment
     return maturityDateOffset.adjust(fixingBusinessDay);
   }
 
   @Override
   public LocalDate calculateFixingFromMaturity(LocalDate maturityDate) {
     ArgChecker.notNull(maturityDate, "maturityDate");
-    LocalDate effectiveBusinessDay = maturityDateCalendar().nextOrSame(maturityDate);
-    LocalDate fixingDate = effectiveBusinessDay;
-    while (maturityDateOffset.adjust(fixingDate).isAfter(effectiveBusinessDay) || fixingCalendar.isHoliday(fixingDate)) {
+    // handle case where the input date is not a valid maturity date
+    LocalDate maturityBusinessDay = maturityDateCalendar().nextOrSame(maturityDate);
+    // find the fixing date iteratively
+    LocalDate fixingDate = maturityBusinessDay;
+    while (calculateMaturityFromFixing(fixingDate).isAfter(maturityBusinessDay)) {
       fixingDate = fixingDate.minusDays(1);
     }
     return fixingDate;
@@ -98,10 +105,7 @@ public final class ImmutableFxIndex
   // finds the calendar of the maturity date
   private HolidayCalendar maturityDateCalendar() {
     HolidayCalendar cal = maturityDateOffset.getEffectiveResultCalendar();
-    if (cal == HolidayCalendars.NO_HOLIDAYS) {
-      cal = fixingCalendar;
-    }
-    return cal;
+    return (cal == HolidayCalendars.NO_HOLIDAYS ? fixingCalendar : cal);
   }
 
   //-----------------------------------------------------------------------
@@ -169,7 +173,7 @@ public final class ImmutableFxIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calendar name.
+   * Gets the FX index name.
    * @return the value of the property, not null
    */
   @Override
@@ -181,7 +185,11 @@ public final class ImmutableFxIndex
   /**
    * Gets the currency pair.
    * <p>
-   * When the index is queried, the result equates the this base-counter order.
+   * An index defines an FX rate in a single direction, such as from EUR to USD.
+   * This currency pair defines that direction.
+   * <p>
+   * In most cases, the same index can be used to convert in both directions
+   * by taking the rate or the reciprocal as necessary.
    * @return the value of the property, not null
    */
   @Override
@@ -191,7 +199,7 @@ public final class ImmutableFxIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calendar that the fixing date follows.
+   * Gets the calendar that determines which dates are fixing dates.
    * <p>
    * The fixing date is when the rate is determined.
    * @return the value of the property, not null

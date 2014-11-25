@@ -13,6 +13,9 @@ import com.opengamma.collect.named.Named;
  * An index is an agreed mechanism for determining certain financial indicators,
  * such as exchange rate or interest rates. Most common indices are daily.
  * <p>
+ * This is a marker interface, see {@link FxIndex}, {@link IborIndex}
+ * and {@link OvernightIndex} for more information.
+ * <p>
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface Index

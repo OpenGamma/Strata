@@ -43,9 +43,7 @@ final class StandardFxIndices {
   // ecb
   private static FxIndex ecb(
       Currency base, Currency counter, HolidayCalendar baseHoliday, HolidayCalendar counterHoliday) {
-    DaysAdjustment maturity = DaysAdjustment.ofBusinessDays(
-        2,
-        baseHoliday.combineWith(counterHoliday));
+    DaysAdjustment maturity = DaysAdjustment.ofBusinessDays(2, baseHoliday.combineWith(counterHoliday));
     return ImmutableFxIndex.builder()
         .name("ECB-" + base.getCode() + "-" + counter.getCode())
         .currencyPair(CurrencyPair.of(base, counter))
@@ -57,9 +55,7 @@ final class StandardFxIndices {
   // wm
   private static FxIndex wm(
       Currency base, Currency counter, HolidayCalendar baseHoliday, HolidayCalendar counterHoliday) {
-    DaysAdjustment maturity = DaysAdjustment.ofBusinessDays(
-        2,
-        baseHoliday.combineWith(counterHoliday));
+    DaysAdjustment maturity = DaysAdjustment.ofBusinessDays(2, baseHoliday.combineWith(counterHoliday));
     return ImmutableFxIndex.builder()
         .name("WM-" + base.getCode() + "-" + counter.getCode())
         .currencyPair(CurrencyPair.of(base, counter))

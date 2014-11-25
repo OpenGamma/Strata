@@ -90,6 +90,9 @@ public class FxIndexTest {
     // input date is Sunday
     assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 19)), date(2014, 10, 22));
     assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19)), date(2014, 10, 16));
+    // skip maturity over EUR (1st May) and GBP (5th May) holiday
+    assertEquals(test.calculateMaturityFromFixing(date(2014, 4, 30)), date(2014, 5, 6));
+    assertEquals(test.calculateFixingFromMaturity(date(2014, 5, 6)), date(2014, 4, 30));
   }
 
   public void test_dates() {
