@@ -135,7 +135,7 @@ public class SimpleCurveCalibrator {
     Function<Map.Entry<Tenor, Double>, Double> keyMapper = e -> {
       Period period = e.getKey().getPeriod();
       LocalDate rateDate = businessDayAdjustment.adjust(startDate.plus(period));
-      return dayCount.getDayCountFraction(startDate, rateDate);
+      return dayCount.yearFraction(startDate, rateDate);
     };
 
     SortedMap<Double, Double> rateMap = zeroCouponRates.entrySet().stream()
@@ -153,7 +153,7 @@ public class SimpleCurveCalibrator {
 
       @Override
       public double getDiscountFactor(LocalDate date) {
-        return calibratedCurve.getDiscountFactor(dayCount.getDayCountFraction(startDate, date));
+        return calibratedCurve.getDiscountFactor(dayCount.yearFraction(startDate, date));
       }
 
       @Override
@@ -164,7 +164,7 @@ public class SimpleCurveCalibrator {
       @Override
       public double getForwardRate(Tenor startTenor, Tenor endTenor) {
 
-        double forwardLength = dayCount.getDayCountFraction(startDate.plus(startTenor.getPeriod()), startDate.plus(endTenor.getPeriod()));
+        double forwardLength = dayCount.yearFraction(startDate.plus(startTenor.getPeriod()), startDate.plus(endTenor.getPeriod()));
         return (getDiscountFactor(startTenor) / getDiscountFactor(endTenor) - 1) / forwardLength;
       }
     };
