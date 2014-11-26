@@ -21,7 +21,8 @@ import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DayCounts;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.date.HolidayCalendars;
-import com.opengamma.basics.index.RateIndices;
+import com.opengamma.basics.index.IborIndices;
+import com.opengamma.basics.index.ImmutableIborIndex;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.schedule.RollConventions;
@@ -118,7 +119,7 @@ public class SwapDemo {
             .build())
         .calculation(IborRateCalculation.builder()
             .dayCount(DayCounts.ACT_ACT_ISDA)
-            .index(RateIndices.EURIBOR_3M)
+            .index(IborIndices.EUR_EURIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.EUTA))
             .build())
         .build();
@@ -182,7 +183,7 @@ public class SwapDemo {
             .build())
         .calculation(IborRateCalculation.builder()
             .dayCount(DayCounts.ACT_360)
-            .index(RateIndices.USD_LIBOR_3M)
+            .index(IborIndices.USD_LIBOR_3M)
             .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.USNY, bdaPreceding))
             .build())
         .build();
@@ -242,7 +243,7 @@ public class SwapDemo {
             .build())
         .calculation(IborRateCalculation.builder()
             .dayCount(DayCounts.ACT_365F)
-            .index(RateIndices.GBP_LIBOR_3M)
+            .index(IborIndices.GBP_LIBOR_3M)
             .fixingOffset(DaysAdjustment.NONE)
             .build())
         .build();
@@ -262,10 +263,10 @@ public class SwapDemo {
   @Test(description = "Demo use of CHF Libor")
   public void test_chfLibor() {
     System.out.println("===== CHF Libor =====");
-    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(RateIndices.CHF_LIBOR_3M));
+    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write((ImmutableIborIndex) IborIndices.CHF_LIBOR_3M));
     LocalDate fixing = LocalDate.of(2014, 9, 12);
-    LocalDate effective = RateIndices.CHF_LIBOR_3M.calculateEffectiveFromFixing(fixing);
-    LocalDate maturity = RateIndices.CHF_LIBOR_3M.calculateMaturityFromEffective(effective);
+    LocalDate effective = IborIndices.CHF_LIBOR_3M.calculateEffectiveFromFixing(fixing);
+    LocalDate maturity = IborIndices.CHF_LIBOR_3M.calculateMaturityFromEffective(effective);
     System.out.println("    Fixing: " + fixing);
     System.out.println(" Effective: " + effective);
     System.out.println("  Maturity: " + maturity);

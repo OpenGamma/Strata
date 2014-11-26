@@ -13,7 +13,7 @@ import static com.opengamma.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.basics.date.DayCounts.ACT_360;
 import static com.opengamma.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.basics.date.DayCounts.THIRTY_U_360;
-import static com.opengamma.basics.index.RateIndices.USD_FED_FUND;
+import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.basics.schedule.Frequency.P12M;
 import static com.opengamma.basics.schedule.Frequency.P1M;
 import static com.opengamma.basics.schedule.Frequency.P3M;
@@ -36,7 +36,8 @@ import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.index.IborIndex;
-import com.opengamma.basics.index.RateIndices;
+import com.opengamma.basics.index.IborIndices;
+import com.opengamma.basics.index.ImmutableIborIndex;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.schedule.StubConvention;
@@ -54,8 +55,8 @@ import com.opengamma.platform.finance.swap.RateSwapLeg;
 import com.opengamma.platform.finance.swap.StubCalculation;
 import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.finance.swap.SwapTrade;
-import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
 import com.opengamma.platform.pricer.impl.DefaultTradePricerFn;
+import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
 import com.opengamma.platform.source.id.StandardId;
 import com.opengamma.util.tuple.Pair;
 
@@ -65,9 +66,9 @@ import com.opengamma.util.tuple.Pair;
 @Test
 public class SwapEnd2EndTest {
 
-  private static final IborIndex USD_LIBOR_1M = lockIndexCalendar(RateIndices.USD_LIBOR_1M);
-  private static final IborIndex USD_LIBOR_3M = lockIndexCalendar(RateIndices.USD_LIBOR_3M);
-  private static final IborIndex USD_LIBOR_6M = lockIndexCalendar(RateIndices.USD_LIBOR_6M);
+  private static final IborIndex USD_LIBOR_1M = lockIndexCalendar(IborIndices.USD_LIBOR_1M);
+  private static final IborIndex USD_LIBOR_3M = lockIndexCalendar(IborIndices.USD_LIBOR_3M);
+  private static final IborIndex USD_LIBOR_6M = lockIndexCalendar(IborIndices.USD_LIBOR_6M);
   private static final NotionalAmount NOTIONAL = NotionalAmount.of(USD, 100_000_000);
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CalendarUSD.NYC);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CalendarUSD.NYC);
@@ -716,7 +717,7 @@ public class SwapEnd2EndTest {
 
   // use a fixed known set of holiday dates to ensure tests produce same numbers
   private static IborIndex lockIndexCalendar(IborIndex index) {
-    return index.toBuilder()
+    return ((ImmutableIborIndex) index).toBuilder()
         .fixingCalendar(CalendarUSD.NYC)
         .effectiveDateOffset(index.getEffectiveDateOffset().toBuilder()
             .calendar(CalendarUSD.NYC)
