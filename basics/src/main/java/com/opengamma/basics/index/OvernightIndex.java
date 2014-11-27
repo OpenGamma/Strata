@@ -191,7 +191,7 @@ public final class OvernightIndex
    * @return the fixing date
    */
   @Override
-  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate)  {
+  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
     ArgChecker.notNull(effectiveDate, "effectiveDate");
     return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), -effectiveDateOffset);
   }

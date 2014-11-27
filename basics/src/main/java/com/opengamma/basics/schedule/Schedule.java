@@ -144,7 +144,7 @@ public final class Schedule
     return periods.get(periods.size() - 1);
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the start date of the schedule.
    * <p>

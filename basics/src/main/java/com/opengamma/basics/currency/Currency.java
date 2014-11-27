@@ -168,15 +168,15 @@ public final class Currency
   /**
    * The currency 'SKK' - Slovak Korona.
    */
-  public static final Currency SKK = of("SKK"); 
+  public static final Currency SKK = of("SKK");
   /**
    * The currency 'THB' - Thai Baht.
    */
-  public static final Currency THB = of("THB"); 
+  public static final Currency THB = of("THB");
   /**
    * The currency 'TRY' - Turkish Lira.
    */
-  public static final Currency TRY = of("TRY"); 
+  public static final Currency TRY = of("TRY");
   /**
    * The currency 'ZAR' - South African Rand.
    */

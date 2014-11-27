@@ -394,8 +394,8 @@ public final class PeriodicSchedule
     RollConvention rollConv = getEffectiveRollConvention();
     StubConvention implicitStubConv = generateImplicitStubConvention(explicitInitialStub, explicitFinalStub);
     List<LocalDate> unadj = (implicitStubConv.isCalculateBackwards() ?
-      generateBackwards(regStart, regEnd, rollConv, implicitStubConv) :
-      generateForwards(regStart, regEnd, rollConv, implicitStubConv));
+        generateBackwards(regStart, regEnd, rollConv, implicitStubConv) :
+        generateForwards(regStart, regEnd, rollConv, implicitStubConv));
     // add explicit stubs
     if (explicitInitialStub) {
       unadj.add(0, startDate);

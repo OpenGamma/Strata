@@ -192,7 +192,7 @@ public final class IborIndex
    * @return the fixing date
    */
   @Override
-  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate)  {
+  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
     ArgChecker.notNull(effectiveDate, "effectiveDate");
     LocalDate effectiveBusinessDay = effectiveDateCalendar().nextOrSame(effectiveDate);
     LocalDate fixingDate = effectiveBusinessDay;

@@ -437,7 +437,7 @@ final class GlobalHolidayCalendars {
         holidays.add(bumpSunToMon(date(year, 5, 3)));
         holidays.add(bumpSunToMon(date(year, 5, 4)));
         holidays.add(bumpSunToMon(date(year, 5, 5)));
-        if (year >= 2007 &&  (date(year, 5, 3).getDayOfWeek() == SUNDAY || date(year, 5, 4).getDayOfWeek() == SUNDAY)) {
+        if (year >= 2007 && (date(year, 5, 3).getDayOfWeek() == SUNDAY || date(year, 5, 4).getDayOfWeek() == SUNDAY)) {
           holidays.add(date(year, 5, 6));
         }
       } else {
@@ -577,8 +577,8 @@ final class GlobalHolidayCalendars {
     int i = c / 4;
     int k = c % 4;
     int l = (32 + 2 * e + 2 * i - h - k) % 7;
-    int m = (a + 11 * h+ 22 * l) / 451;
-    int month =(h + l - 7 * m + 114) / 31;
+    int m = (a + 11 * h + 22 * l) / 451;
+    int month = (h + l - 7 * m + 114) / 31;
     int day = ((h + l - 7 * m + 114) % 31) + 1;
     return LocalDate.of(year, month, day);
   }

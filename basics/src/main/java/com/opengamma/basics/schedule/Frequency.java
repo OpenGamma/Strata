@@ -280,7 +280,7 @@ public final class Frequency
    */
   private Frequency(Period period) {
     this(period, period.toString());
- }
+  }
 
   /**
    * Creates a periodic frequency.
