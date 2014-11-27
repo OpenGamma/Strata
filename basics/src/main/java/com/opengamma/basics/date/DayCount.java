@@ -11,7 +11,6 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.named.ExtendedEnum;
 import com.opengamma.collect.named.Named;
@@ -62,16 +61,18 @@ public interface DayCount
    * Given two dates, this method returns the fraction of a year between these
    * dates according to the convention.
    * <p>
-   * This uses the simple {@link ScheduleInfo} which is insufficient to be able
-   * to calculate certain day counts.
+   * This uses a simple {@link ScheduleInfo} which has the end-of-month convention
+   * set to false, but throws an exception for other methods.
+   * Certain implementations of {@code DayCount} need the missing information,
+   * and thus will throw an exception.
    * 
    * @param firstDate  the first date
    * @param secondDate  the second date, on or after the first date
    * @return the year fraction
-   * @throws UnsupportedOperationException if the day count cannot be obtained
+   * @throws UnsupportedOperationException if the year fraction cannot be obtained
    */
   public default double yearFraction(LocalDate firstDate, LocalDate secondDate) {
-    return yearFraction(firstDate, secondDate, ScheduleInfo.SIMPLE);
+    return yearFraction(firstDate, secondDate, DayCounts.SIMPLE_SCHEDULE_INFO);
   }
 
   /**
@@ -84,7 +85,7 @@ public interface DayCount
    * @param secondDate  the second date, on or after the first date
    * @param scheduleInfo  the schedule information
    * @return the year fraction
-   * @throws UnsupportedOperationException if the day count cannot be obtained
+   * @throws UnsupportedOperationException if the year fraction cannot be obtained
    */
   public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
 
@@ -109,38 +110,33 @@ public interface DayCount
   public interface ScheduleInfo {
 
     /**
-     * A simple schedule information object.
+     * Gets the start date of the schedule.
      * <p>
-     * The returns false for maturity date, true for end of month and an
-     * exception for all other methods.
-     */
-    public static final ScheduleInfo SIMPLE = new ScheduleInfo() {};
-
-    /**
-     * Checks if the specified date is the end of the whole schedule.
+     * The first date in the schedule.
+     * If the schedule adjusts for business days, then this is the adjusted date.
      * <p>
-     * This is used to check for the maturity/termination date.
-     * <p>
-     * This is false by default.
+     * This throws an exception by default.
      * 
-     * @param date  the date to check
-     * @return true if the date is the maturity or termination date
+     * @return the schedule start date
+     * @throws UnsupportedOperationException if the date cannot be obtained
      */
-    public default boolean isScheduleEndDate(LocalDate date) {
-      return false;
+    public default LocalDate getStartDate() {
+      throw new UnsupportedOperationException("The start date of the schedule is required");
     }
 
     /**
-     * Checks if the end of month convention is in use.
+     * Gets the end date of the schedule.
      * <p>
-     * This is called when a day count needs to know whether the end-of-month convention is in use.
+     * The last date in the schedule.
+     * If the schedule adjusts for business days, then this is the adjusted date.
      * <p>
-     * This is true by default.
+     * This throws an exception by default.
      * 
-     * @return true if the end of month convention is in use
+     * @return the schedule end date
+     * @throws UnsupportedOperationException if the date cannot be obtained
      */
-    public default boolean isEndOfMonthConvention() {
-      return true;
+    public default LocalDate getEndDate() {
+      throw new UnsupportedOperationException("The end date of the schedule is required");
     }
 
     /**
@@ -150,10 +146,11 @@ public interface DayCount
      * <p>
      * This throws an exception by default.
      * 
-     * @return the schedule period end date
+     * @param date  the date to find the period end date for
+     * @return the period end date
      * @throws UnsupportedOperationException if the date cannot be obtained
      */
-    public default LocalDate getEndDate() {
+    public default LocalDate getPeriodEndDate(LocalDate date) {
       throw new UnsupportedOperationException("The end date of the schedule period is required");
     }
 
@@ -172,17 +169,16 @@ public interface DayCount
     }
 
     /**
-     * Gets the type of the schedule period.
+     * Checks if the end of month convention is in use.
      * <p>
-     * This is called when a day count requires the type of the schedule.
+     * This is called when a day count needs to know whether the end-of-month convention is in use.
      * <p>
-     * This throws an exception by default.
+     * This is true by default.
      * 
-     * @return the type of the schedule period
-     * @throws UnsupportedOperationException if the type cannot be obtained
+     * @return true if the end of month convention is in use
      */
-    public default SchedulePeriodType getType() {
-      throw new UnsupportedOperationException("The schedule period type of the schedule is required");
+    public default boolean isEndOfMonthConvention() {
+      return true;
     }
   }
 

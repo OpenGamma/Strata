@@ -39,7 +39,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.SchedulePeriodType;
 
 /**
  * Test {@link DayCount}.
@@ -86,7 +85,7 @@ public class DayCountTest {
   public void test_halfYear(DayCount type) {
     // sanity check to ensure that half year has fraction close to half
     if (type != ONE_ONE) {
-      ScheduleInfo info = new Info(false, false, P12M, JAN_01_NEXT, SchedulePeriodType.NORMAL);
+      ScheduleInfo info = new Info(JAN_01, JAN_01_NEXT, JAN_01_NEXT, false, P12M);
       assertEquals(type.yearFraction(JAN_01, JUL_01, info), 0.5d, 0.01d);
     }
   }
@@ -95,7 +94,7 @@ public class DayCountTest {
   public void test_wholeYear(DayCount type) {
     // sanity check to ensure that one year has fraction close to one
     if (type != ONE_ONE) {
-      ScheduleInfo info = new Info(false, false, P12M, JAN_01_NEXT, SchedulePeriodType.NORMAL);
+      ScheduleInfo info = new Info(JAN_01, JAN_01_NEXT, JAN_01_NEXT, false, P12M);
       assertEquals(type.yearFraction(JAN_01, JAN_01_NEXT, info), 1d, 0.02d);
     }
   }
@@ -324,7 +323,7 @@ public class DayCountTest {
     double expected = (valueNotEOM == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : valueNotEOM);
     LocalDate date1 = LocalDate.of(y1, m1, d1);
     LocalDate date2 = LocalDate.of(y2, m2, d2);
-    ScheduleInfo info = new Info(false, false);
+    ScheduleInfo info = new Info(false);
     assertEquals(THIRTY_U_360.yearFraction(date1, date2, info), expected, 0d);
   }
 
@@ -334,7 +333,7 @@ public class DayCountTest {
     double expected = (valueEOM == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : valueEOM);
     LocalDate date1 = LocalDate.of(y1, m1, d1);
     LocalDate date2 = LocalDate.of(y2, m2, d2);
-    ScheduleInfo info = new Info(false, true);
+    ScheduleInfo info = new Info(true);
     assertEquals(THIRTY_U_360.yearFraction(date1, date2, info), expected, 0d);
   }
 
@@ -372,7 +371,7 @@ public class DayCountTest {
     double expected = (valueNotMaturity == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : valueNotMaturity);
     LocalDate date1 = LocalDate.of(y1, m1, d1);
     LocalDate date2 = LocalDate.of(y2, m2, d2);
-    ScheduleInfo info = new Info(false, false);
+    ScheduleInfo info = new Info(false);
     assertEquals(THIRTY_E_360_ISDA.yearFraction(date1, date2, info), expected, 0d);
   }
 
@@ -382,7 +381,7 @@ public class DayCountTest {
     double expected = (valueMaturity == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : valueMaturity);
     LocalDate date1 = LocalDate.of(y1, m1, d1);
     LocalDate date2 = LocalDate.of(y2, m2, d2);
-    ScheduleInfo info = new Info(true, false);
+    ScheduleInfo info = new Info(null, date2, null, false, P3M);
     assertEquals(THIRTY_E_360_ISDA.yearFraction(date1, date2, info), expected, 0d);
   }
 
@@ -517,16 +516,17 @@ public class DayCountTest {
       int y1, int m1, int d1, int y2, int m2, int d2, Frequency freq, int y3, int m3, int d3, double expected) {
     LocalDate date1 = LocalDate.of(y1, m1, d1);
     LocalDate date2 = LocalDate.of(y2, m2, d2);
-    ScheduleInfo info = new Info(false, false, freq, LocalDate.of(y3, m3, d3), SchedulePeriodType.NORMAL);
+    ScheduleInfo info = new Info(null, null, LocalDate.of(y3, m3, d3), false, freq);
     assertEquals(ACT_365L.yearFraction(date1, date2, info), expected, 0d);
   }
 
   //-------------------------------------------------------------------------
-  public void test_actActIcma_term() {
+  public void test_actActIcma_singlePeriod() {
     LocalDate start = LocalDate.of(2003, 11, 1);
     LocalDate end = LocalDate.of(2004, 5, 1);
-    ScheduleInfo info = new Info(false, true, P6M, end, SchedulePeriodType.TERM);
-    assertThrows(() -> ACT_ACT_ICMA.yearFraction(start, end, info), IllegalArgumentException.class);
+    ScheduleInfo info = new Info(start, end, end, true, P6M);
+    assertEquals(ACT_ACT_ICMA.yearFraction(start, end.minusDays(1), info), (181d / (182d * 2d)), 0d);
+    assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (182d / (182d * 2d)), 0d);
   }
 
   public void test_actActIcma_longInitialStub_eomFlagEom_short() {
@@ -534,7 +534,7 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2011, 10, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
     LocalDate end = LocalDate.of(2011, 11, 12);  // before first nominal
-    ScheduleInfo info = new Info(false, true, P3M, periodEnd, SchedulePeriodType.INITIAL);
+    ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (42d / (91d * 4d)), 0d);
   }
 
@@ -543,7 +543,7 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2011, 10, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
     LocalDate end = LocalDate.of(2012, 1, 12);  // after first nominal
-    ScheduleInfo info = new Info(false, true, P3M, periodEnd, SchedulePeriodType.INITIAL);
+    ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (60d / (91d * 4d)) + (43d / (91d * 4d)), 0d);
   }
 
@@ -552,7 +552,7 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2011, 7, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
     LocalDate end = LocalDate.of(2011, 8, 12);  // before first nominal
-    ScheduleInfo info = new Info(false, true, P3M, periodEnd, SchedulePeriodType.INITIAL);
+    ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (42d / (92d * 4d)), 0d);
   }
 
@@ -561,7 +561,7 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2011, 7, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
     LocalDate end = LocalDate.of(2011, 11, 12);
-    ScheduleInfo info = new Info(false, true, P3M, periodEnd, SchedulePeriodType.INITIAL);
+    ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (61d / (92d * 4d)) + (73d / (91d * 4d)), 0d);
   }
 
@@ -570,7 +570,7 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2011, 10, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
     LocalDate end = LocalDate.of(2011, 11, 12);  // before first nominal
-    ScheduleInfo info = new Info(false, false, P3M, periodEnd, SchedulePeriodType.INITIAL);
+    ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, false, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (42d / (92d * 4d)), 0d);
   }
 
@@ -579,16 +579,17 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2011, 10, 1);
     LocalDate periodEnd = LocalDate.of(2012, 2, 29);
     LocalDate end = LocalDate.of(2012, 1, 12);  // after first nominal
-    ScheduleInfo info = new Info(false, false, P3M, periodEnd, SchedulePeriodType.INITIAL);
+    ScheduleInfo info = new Info(start, periodEnd.plus(P3M), periodEnd, false, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (59d / (92d * 4d)) + (44d / (92d * 4d)), 0d);
   }
 
+  //-------------------------------------------------------------------------
   public void test_actActIcma_longFinalStub_eomFlagEom_short() {
     // nominals, 2011-08-31 (P91D) 2011-11-30 (P91D) 2012-02-29
     LocalDate start = LocalDate.of(2011, 8, 31);
     LocalDate periodEnd = LocalDate.of(2012, 1, 31);
     LocalDate end = LocalDate.of(2011, 11, 12);  // before first nominal
-    ScheduleInfo info = new Info(false, true, P3M, periodEnd, SchedulePeriodType.FINAL);
+    ScheduleInfo info = new Info(start.minus(P3M), periodEnd, periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (73d / (91d * 4d)), 0d);
   }
 
@@ -597,7 +598,7 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2011, 8, 31);
     LocalDate periodEnd = LocalDate.of(2012, 1, 31);
     LocalDate end = LocalDate.of(2012, 1, 12);  // after first nominal
-    ScheduleInfo info = new Info(false, true, P3M, periodEnd, SchedulePeriodType.FINAL);
+    ScheduleInfo info = new Info(start.minus(P3M), periodEnd, periodEnd, true, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (91d / (91d * 4d)) + (43d / (91d * 4d)), 0d);
   }
 
@@ -606,7 +607,7 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2012, 2, 29);
     LocalDate periodEnd = LocalDate.of(2012, 7, 31);
     LocalDate end = LocalDate.of(2012, 4, 1);  // before first nominal
-    ScheduleInfo info = new Info(false, false, P3M, periodEnd, SchedulePeriodType.FINAL);
+    ScheduleInfo info = new Info(start.minus(P3M), periodEnd, periodEnd, false, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (32d / (90d * 4d)), 0d);
   }
 
@@ -615,7 +616,7 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2012, 2, 29);
     LocalDate periodEnd = LocalDate.of(2012, 7, 31);
     LocalDate end = LocalDate.of(2012, 6, 1);  // after first nominal
-    ScheduleInfo info = new Info(false, false, P3M, periodEnd, SchedulePeriodType.FINAL);
+    ScheduleInfo info = new Info(start.minus(P3M), periodEnd, periodEnd, false, P3M);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (90d / (90d * 4d)) + (3d / (92d * 4d)), 0d);
   }
 
@@ -625,25 +626,7 @@ public class DayCountTest {
   public void test_actAct_isdaTestCase_normal() {
     LocalDate start = LocalDate.of(2003, 11, 1);
     LocalDate end = LocalDate.of(2004, 5, 1);
-    ScheduleInfo info = new Info(false, true, P6M, end, SchedulePeriodType.NORMAL);
-    assertEquals(ACT_ACT_ISDA.yearFraction(start, end), (61d / 365d) + (121d / 366d), 0d);
-    assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (182d / (182d * 2d)), 0d);
-    assertEquals(ACT_ACT_AFB.yearFraction(start, end), (182d / 366d), 0d);
-  }
-
-  public void test_actAct_isdaTestCase_initial() {
-    LocalDate start = LocalDate.of(2003, 11, 1);
-    LocalDate end = LocalDate.of(2004, 5, 1);
-    ScheduleInfo info = new Info(false, true, P6M, end, SchedulePeriodType.INITIAL);
-    assertEquals(ACT_ACT_ISDA.yearFraction(start, end), (61d / 365d) + (121d / 366d), 0d);
-    assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (182d / (182d * 2d)), 0d);
-    assertEquals(ACT_ACT_AFB.yearFraction(start, end), (182d / 366d), 0d);
-  }
-
-  public void test_actAct_isdaTestCase_final() {
-    LocalDate start = LocalDate.of(2003, 11, 1);
-    LocalDate end = LocalDate.of(2004, 5, 1);
-    ScheduleInfo info = new Info(false, true, P6M, end, SchedulePeriodType.FINAL);
+    ScheduleInfo info = new Info(start, end.plus(P6M), end, true, P6M);
     assertEquals(ACT_ACT_ISDA.yearFraction(start, end), (61d / 365d) + (121d / 366d), 0d);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (182d / (182d * 2d)), 0d);
     assertEquals(ACT_ACT_AFB.yearFraction(start, end), (182d / 366d), 0d);
@@ -653,8 +636,8 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(1999, 2, 1);
     LocalDate firstRegular = LocalDate.of(1999, 7, 1);
     LocalDate end = LocalDate.of(2000, 7, 1);
-    ScheduleInfo info1 = new Info(false, true, P12M, firstRegular, SchedulePeriodType.INITIAL);
-    ScheduleInfo info2 = new Info(true, true, P12M, end, SchedulePeriodType.NORMAL);
+    ScheduleInfo info1 = new Info(start, end.plus(P12M), firstRegular, true, P12M);  // initial period
+    ScheduleInfo info2 = new Info(start, end.plus(P12M), end, true, P12M);  // regular period
     assertEquals(ACT_ACT_ISDA.yearFraction(start, firstRegular), (150d / 365d), 0d);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, firstRegular, info1), (150d / (365d * 1d)), 0d);
     assertEquals(ACT_ACT_AFB.yearFraction(start, firstRegular), (150d / (365d)), 0d);
@@ -668,8 +651,8 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(2002, 8, 15);
     LocalDate firstRegular = LocalDate.of(2003, 7, 15);
     LocalDate end = LocalDate.of(2004, 1, 15);
-    ScheduleInfo info1 = new Info(false, true, P6M, firstRegular, SchedulePeriodType.INITIAL);
-    ScheduleInfo info2 = new Info(true, true, P6M, end, SchedulePeriodType.NORMAL);
+    ScheduleInfo info1 = new Info(start, end, firstRegular, true, P6M);  // initial period
+    ScheduleInfo info2 = new Info(start, end, end, true, P6M);  // regular period
     assertEquals(ACT_ACT_ISDA.yearFraction(start, firstRegular), (334d / 365d), 0d);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, firstRegular, info1),
         (181d / (181d * 2d)) + (153d / (184d * 2d)), 0d);
@@ -684,8 +667,8 @@ public class DayCountTest {
     LocalDate start = LocalDate.of(1999, 7, 30);
     LocalDate lastRegular = LocalDate.of(2000, 1, 30);
     LocalDate end = LocalDate.of(2000, 6, 30);
-    ScheduleInfo info1 = new Info(false, true, P6M, lastRegular, SchedulePeriodType.NORMAL);
-    ScheduleInfo info2 = new Info(true, true, P6M, end, SchedulePeriodType.FINAL);
+    ScheduleInfo info1 = new Info(start, end, lastRegular, true, P6M);  // regular period
+    ScheduleInfo info2 = new Info(start, end, end, true, P6M);  // final period
     assertEquals(ACT_ACT_ISDA.yearFraction(start, lastRegular), (155d / 365d) + (29d / 366d), 0d);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, lastRegular, info1), (184d / (184d * 2d)), 0d);
     assertEquals(ACT_ACT_AFB.yearFraction(start, lastRegular), (184d / 365d), 0d);
@@ -698,7 +681,7 @@ public class DayCountTest {
   public void test_actAct_isdaTestCase_longFinalStub() {
     LocalDate start = LocalDate.of(1999, 11, 30);
     LocalDate end = LocalDate.of(2000, 4, 30);
-    ScheduleInfo info = new Info(true, true, P3M, end, SchedulePeriodType.FINAL);
+    ScheduleInfo info = new Info(start.minus(P3M), end, end, true, P3M);
     assertEquals(ACT_ACT_ISDA.yearFraction(start, end), (32d / 365d) + (120d / 366d), 0d);
     assertEquals(ACT_ACT_ICMA.yearFraction(start, end, info), (91d / (91d * 4d)) + (61d / (92d * 4)), 0d);
     assertEquals(ACT_ACT_AFB.yearFraction(start, end), (152d / 366d), 0d);
@@ -760,10 +743,10 @@ public class DayCountTest {
   public void test_scheduleInfo() {
     ScheduleInfo test = new ScheduleInfo() {};
     assertEquals(test.isEndOfMonthConvention(), true);
-    assertEquals(test.isScheduleEndDate(null), false);
+    assertThrows(() -> test.getStartDate(), UnsupportedOperationException.class);
     assertThrows(() -> test.getEndDate(), UnsupportedOperationException.class);
     assertThrows(() -> test.getFrequency(), UnsupportedOperationException.class);
-    assertThrows(() -> test.getType(), UnsupportedOperationException.class);
+    assertThrows(() -> test.getPeriodEndDate(JAN_01), UnsupportedOperationException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -783,25 +766,21 @@ public class DayCountTest {
 
   //-------------------------------------------------------------------------
   static class Info implements ScheduleInfo {
-    private final boolean maturity;
+    private final LocalDate start;
+    private final LocalDate end;
+    private final LocalDate periodEnd;
     private final boolean eom;
     private final Frequency frequency;
-    private final LocalDate periodEnd;
-    private final SchedulePeriodType type;
     
-    public Info(boolean maturity, boolean eom) {
-      this(maturity, eom, null, null, null);
+    public Info(boolean eom) {
+      this(null, null, null, eom, null);
     }
-    public Info(boolean maturity, boolean eom, Frequency frequency, LocalDate periodEnd, SchedulePeriodType type) {
-      this.maturity = maturity;
+    public Info(LocalDate start, LocalDate end, LocalDate periodEnd, boolean eom, Frequency frequency) {
+      this.start = start;
+      this.end = end;
+      this.periodEnd = periodEnd;
       this.eom = eom;
       this.frequency = frequency;
-      this.periodEnd = periodEnd;
-      this.type = type;
-    }
-    @Override
-    public boolean isScheduleEndDate(LocalDate date) {
-      return maturity;
     }
     @Override
     public boolean isEndOfMonthConvention() {
@@ -812,12 +791,16 @@ public class DayCountTest {
       return frequency;
     }
     @Override
-    public LocalDate getEndDate() {
-      return periodEnd;
+    public LocalDate getStartDate() {
+      return start;
     }
     @Override
-    public SchedulePeriodType getType() {
-      return type;
+    public LocalDate getEndDate() {
+      return end;
+    }
+    @Override
+    public LocalDate getPeriodEndDate(LocalDate date) {
+      return periodEnd;
     }
   };
 

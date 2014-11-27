@@ -144,7 +144,6 @@ public interface RollConvention
    * @param date  the date to adjust
    * @param periodicFrequency  the periodic frequency of the schedule
    * @return the adjusted date
-   * @throws IllegalStateException if the convention needs to be implied
    */
   public default LocalDate next(LocalDate date, Frequency periodicFrequency) {
     ArgChecker.notNull(date, "date");
@@ -169,7 +168,6 @@ public interface RollConvention
    * @param date  the date to adjust
    * @param periodicFrequency  the periodic frequency of the schedule
    * @return the adjusted date
-   * @throws IllegalStateException if the convention needs to be implied
    */
   public default LocalDate previous(LocalDate date, Frequency periodicFrequency) {
     ArgChecker.notNull(date, "date");

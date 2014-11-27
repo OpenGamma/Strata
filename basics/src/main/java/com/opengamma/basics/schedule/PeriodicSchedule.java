@@ -352,18 +352,13 @@ public final class PeriodicSchedule
     RollConvention rollConv = getEffectiveRollConvention();
     List<SchedulePeriod> periods = new ArrayList<>();
     for (int i = 0; i < unadj.size() - 1; i++) {
-      periods.add(
-          SchedulePeriod.builder()
-            .type(SchedulePeriodType.of(i, unadj.size()))
-            .startDate(adj.get(i))
-            .endDate(adj.get(i + 1))
-            .unadjustedStartDate(unadj.get(i))
-            .unadjustedEndDate(unadj.get(i + 1))
-            .frequency(frequency)
-            .rollConvention(rollConv)
-            .build());
+      periods.add(SchedulePeriod.of(adj.get(i), adj.get(i + 1), unadj.get(i), unadj.get(i + 1)));
     }
-    return Schedule.of(periods);
+    return Schedule.builder()
+        .periods(periods)
+        .frequency(frequency)
+        .rollConvention(rollConv)
+        .build();
   }
 
   //-------------------------------------------------------------------------

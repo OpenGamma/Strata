@@ -6,12 +6,12 @@
 package com.opengamma.basics.schedule;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -27,18 +27,20 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Guavate;
 
 /**
  * A complete schedule of periods (date ranges), with both unadjusted and adjusted dates.
  * <p>
  * The schedule consists of one or more adjacent periods (date ranges).
  * This is typically used as the basis for financial calculations, such as accrual of interest.
+ * <p>
+ * It is recommended to create a {@link Schedule} using a {@link PeriodicSchedule}.
  */
 @BeanDefinition
 public final class Schedule
-    implements ImmutableBean, Serializable {
+    implements ScheduleInfo, ImmutableBean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -53,26 +55,38 @@ public final class Schedule
    */
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<SchedulePeriod> periods;
+  /**
+   * The periodic frequency used when building the schedule.
+   * <p>
+   * If the schedule was not built from a regular periodic frequency,
+   * then the frequency should be a suitable estimate.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final Frequency frequency;
+  /**
+   * The roll convention used when building the schedule.
+   * <p>
+   * If the schedule was not built from a regular periodic frequency, then the convention should be 'None'.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final RollConvention rollConvention;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from a collection of schedule periods.
+   * Create a 'Term' schedule from a single period.
    * <p>
-   * There must be at least one period.
-   * The periods will be sorted from earliest to latest.
-   * <p>
-   * It is intended that each period is adjacent to the next one, however each
-   * period is independent and non-adjacent periods are allowed.
+   * A 'Term' schedule has one period with a frequency of 'Term'.
    * 
-   * @param periods  the list of schedule periods, not empty
-   * @return the periods
+   * @param period  the single period
+   * @return the merged 'Term' schedule
    */
-  public static Schedule of(Collection<SchedulePeriod> periods) {
-    ArgChecker.notEmpty(periods, "periods");
-    ImmutableList<SchedulePeriod> sorted = periods.stream()
-        .sorted(Comparator.naturalOrder())
-        .collect(Guavate.toImmutableList());
-    return new Schedule(sorted);
+  public static Schedule ofTerm(SchedulePeriod period) {
+    ArgChecker.notNull(period, "period");
+    return Schedule.builder()
+        .periods(ImmutableList.of(period))
+        .frequency(Frequency.TERM)
+        .rollConvention(RollConventions.NONE)
+        .build();
   }
 
   //-------------------------------------------------------------------------
@@ -87,6 +101,18 @@ public final class Schedule
     return periods.size();
   }
 
+  /**
+   * Checks if this schedule represents a single 'Term' period.
+   * <p>
+   * A 'Term' schedule has one period.
+   * 
+   * @return true if this is a 'Term' schedule
+   */
+  public boolean isTerm() {
+    return size() == 1;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets a schedule period by index.
    * <p>
@@ -118,21 +144,213 @@ public final class Schedule
     return periods.get(periods.size() - 1);
   }
 
+  //-----------------------------------------------------------------------
   /**
-   * Gets the periodic frequency of the schedule.
+   * Gets the start date of the schedule.
    * <p>
-   * This returns the periodic frequency of the first normal period.
-   * If there is no normal period then the frequency of the first period is returned.
+   * The first date in the schedule, typically treated as inclusive.
+   * If the schedule adjusts for business days, then this is the adjusted date.
    * 
-   * @return the periodic frequency
+   * @return the schedule start date
    */
-  public Frequency getFrequency() {
-    for (SchedulePeriod period : periods) {
-      if (period.getType() == SchedulePeriodType.NORMAL) {
-        return period.getFrequency();
-      }
+  @Override
+  public LocalDate getStartDate() {
+    return getFirstPeriod().getStartDate();
+  }
+
+  /**
+   * Gets the end date of the schedule.
+   * <p>
+   * The last date in the schedule, typically treated as exclusive.
+   * If the schedule adjusts for business days, then this is the adjusted date.
+   * 
+   * @return the schedule end date
+   */
+  @Override
+  public LocalDate getEndDate() {
+    return getLastPeriod().getEndDate();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the initial stub if it exists.
+   * <p>
+   * There is an initial stub if there is more than one period and the first
+   * period is a stub.
+   * 
+   * @return the initial stub, empty if no initial stub
+   */
+  public Optional<SchedulePeriod> getInitialStub() {
+    return (isInitialStub() ? Optional.of(getFirstPeriod()) : Optional.empty());
+  }
+
+  // checks if there is an initial stub
+  private boolean isInitialStub() {
+    return !isTerm() && !getFirstPeriod().isRegular(frequency, rollConvention);
+  }
+
+  /**
+   * Gets the final stub if it exists.
+   * <p>
+   * There is a final stub if there is more than one period and the last
+   * period is a stub.
+   * 
+   * @return the final stub, empty if no final stub
+   */
+  public Optional<SchedulePeriod> getFinalStub() {
+    return (isFinalStub() ? Optional.of(getLastPeriod()) : Optional.empty());
+  }
+
+  // checks if there is a final stub
+  private boolean isFinalStub() {
+    return !isTerm() && !getLastPeriod().isRegular(frequency, rollConvention);
+  }
+
+  /**
+   * Gets the regular schedule periods.
+   * <p>
+   * The regular periods exclude any initial or final stub.
+   * In most cases, the periods returned will be regular, corresponding to the periodic
+   * frequency and roll convention, however there are cases when this is not true.
+   * See {@link SchedulePeriod#isRegular(Frequency, RollConvention)}.
+   * 
+   * @return the non-stub schedule periods
+   */
+  public ImmutableList<SchedulePeriod> getRegularPeriods() {
+    if (isTerm()) {
+      return periods;
     }
-    return getPeriod(0).getFrequency();
+    int startStub = isInitialStub() ? 1 : 0;
+    int endStub = isFinalStub() ? 1 : 0;
+    return (startStub == 0 && endStub == 0 ? periods : periods.subList(startStub, periods.size() - endStub));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the end of month convention is in use.
+   * <p>
+   * If true then when building a schedule, dates will be at the end-of-month if the
+   * first date in the series is at the end-of-month.
+   * 
+   * @return true if the end of month convention is in use
+   */
+  @Override
+  public boolean isEndOfMonthConvention() {
+    return rollConvention == RollConventions.EOM;
+  }
+
+  /**
+   * Finds the period end date given a date in the period.
+   * <p>
+   * The first matching period is returned.
+   * The adjusted start and end dates of each period are used in the comparison.
+   * The start date is included, the end date is excluded.
+   * 
+   * @param date  the date to find
+   * @return the end date of the period that includes the specified date
+   */
+  @Override
+  public LocalDate getPeriodEndDate(LocalDate date) {
+    return periods.stream()
+        .filter(p -> p.contains(date))
+        .map(p -> p.getEndDate())
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Date is not contained in any period"));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Merges this schedule to form a new schedule with a single 'Term' period.
+   * <p>
+   * The result will have one period of type 'Term', with dates matching this schedule.
+   * 
+   * @return the merged 'Term' schedule
+   */
+  public Schedule mergeToTerm() {
+    if (isTerm()) {
+      return this;
+    }
+    SchedulePeriod first = getFirstPeriod();
+    SchedulePeriod last = getLastPeriod();
+    return Schedule.ofTerm(SchedulePeriod.of(
+        first.getStartDate(),
+        last.getEndDate(),
+        first.getUnadjustedStartDate(),
+        last.getUnadjustedEndDate()));
+  }
+
+  /**
+   * Merges this schedule to form a new schedule by combining the regular schedule periods.
+   * <p>
+   * This produces a schedule where some periods are merged together.
+   * For example, this could be used to convert a 3 monthly schedule into a 6 monthly schedule.
+   * <p>
+   * The merging is controlled by the group size, which defines the number of periods
+   * to merge together in the result. For example, to convert a 3 monthly schedule into
+   * a 6 monthly schedule the group size would be 2 (6 divided by 3).
+   * <p>
+   * A group size of zero or less will throw an exception.
+   * A group size of 1 will return this schedule.
+   * A larger group size will return a schedule where each group of regular periods are merged.
+   * The roll flag is used to determine the direction in which grouping occurs.
+   * <p>
+   * Any existing stub periods are considered to be special, and are not merged.
+   * Even if the grouping results in an excess period, such as 10 periods with a group size
+   * of 3, the excess period will not be merged with a stub.
+   * <p>
+   * If this period is a 'Term' period, this schedule is returned.
+   * 
+   * @param groupSize  the group size
+   * @param rollForwards  whether to roll forwards (true) or backwards (false)
+   * @return the merged schedule
+   * @throws IllegalArgumentException if the group size is zero or less
+   */
+  public Schedule mergeRegular(int groupSize, boolean rollForwards) {
+    ArgChecker.notNegativeOrZero(groupSize, "groupSize");
+    if (isTerm() || groupSize == 1) {
+      return this;
+    }
+    List<SchedulePeriod> newSchedule = new ArrayList<>();
+    // retain initial stub
+    Optional<SchedulePeriod> initialStub = getInitialStub();
+    if (initialStub.isPresent()) {
+      newSchedule.add(initialStub.get());
+    }
+    // merge regular, handling stubs via min/max
+    ImmutableList<SchedulePeriod> regularPeriods = getRegularPeriods();
+    int regularSize = regularPeriods.size();
+    int remainder = regularSize % groupSize;
+    int startIndex = (rollForwards || remainder == 0 ? 0 : -(groupSize - remainder));
+    for (int i = startIndex; i < regularSize; i += groupSize) {
+      int from = Math.max(i, 0);
+      int to = Math.min(i + groupSize, regularSize);
+      newSchedule.add(createSchedulePeriod(regularPeriods.subList(from, to)));
+    }
+    // retain final stub
+    Optional<SchedulePeriod> finalStub = getFinalStub();
+    if (finalStub.isPresent()) {
+      newSchedule.add(finalStub.get());
+    }
+    // build schedule
+    return Schedule.builder()
+        .periods(newSchedule)
+        .frequency(Frequency.of(frequency.getPeriod().multipliedBy(groupSize)))
+        .rollConvention(rollConvention)
+        .build();
+  }
+
+  // creates a schedule period
+  private SchedulePeriod createSchedulePeriod(List<SchedulePeriod> accruals) {
+    SchedulePeriod first = accruals.get(0);
+    if (accruals.size() == 1) {
+      return first;
+    }
+    SchedulePeriod last = accruals.get(accruals.size() - 1);
+    return SchedulePeriod.of(
+        first.getStartDate(),
+        last.getEndDate(),
+        first.getUnadjustedStartDate(),
+        last.getUnadjustedEndDate());
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -158,9 +376,15 @@ public final class Schedule
   }
 
   private Schedule(
-      List<SchedulePeriod> periods) {
+      List<SchedulePeriod> periods,
+      Frequency frequency,
+      RollConvention rollConvention) {
     JodaBeanUtils.notEmpty(periods, "periods");
+    JodaBeanUtils.notNull(frequency, "frequency");
+    JodaBeanUtils.notNull(rollConvention, "rollConvention");
     this.periods = ImmutableList.copyOf(periods);
+    this.frequency = frequency;
+    this.rollConvention = rollConvention;
   }
 
   @Override
@@ -194,6 +418,30 @@ public final class Schedule
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the periodic frequency used when building the schedule.
+   * <p>
+   * If the schedule was not built from a regular periodic frequency,
+   * then the frequency should be a suitable estimate.
+   * @return the value of the property, not null
+   */
+  @Override
+  public Frequency getFrequency() {
+    return frequency;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the roll convention used when building the schedule.
+   * <p>
+   * If the schedule was not built from a regular periodic frequency, then the convention should be 'None'.
+   * @return the value of the property, not null
+   */
+  public RollConvention getRollConvention() {
+    return rollConvention;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -208,7 +456,9 @@ public final class Schedule
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Schedule other = (Schedule) obj;
-      return JodaBeanUtils.equal(getPeriods(), other.getPeriods());
+      return JodaBeanUtils.equal(getPeriods(), other.getPeriods()) &&
+          JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
+          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention());
     }
     return false;
   }
@@ -217,14 +467,18 @@ public final class Schedule
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getPeriods());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("Schedule{");
-    buf.append("periods").append('=').append(JodaBeanUtils.toString(getPeriods()));
+    buf.append("periods").append('=').append(getPeriods()).append(',').append(' ');
+    buf.append("frequency").append('=').append(getFrequency()).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention()));
     buf.append('}');
     return buf.toString();
   }
@@ -246,11 +500,23 @@ public final class Schedule
     private final MetaProperty<ImmutableList<SchedulePeriod>> periods = DirectMetaProperty.ofImmutable(
         this, "periods", Schedule.class, (Class) ImmutableList.class);
     /**
+     * The meta-property for the {@code frequency} property.
+     */
+    private final MetaProperty<Frequency> frequency = DirectMetaProperty.ofImmutable(
+        this, "frequency", Schedule.class, Frequency.class);
+    /**
+     * The meta-property for the {@code rollConvention} property.
+     */
+    private final MetaProperty<RollConvention> rollConvention = DirectMetaProperty.ofImmutable(
+        this, "rollConvention", Schedule.class, RollConvention.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "periods");
+        "periods",
+        "frequency",
+        "rollConvention");
 
     /**
      * Restricted constructor.
@@ -263,6 +529,10 @@ public final class Schedule
       switch (propertyName.hashCode()) {
         case -678739246:  // periods
           return periods;
+        case -70023844:  // frequency
+          return frequency;
+        case -10223666:  // rollConvention
+          return rollConvention;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -291,12 +561,32 @@ public final class Schedule
       return periods;
     }
 
+    /**
+     * The meta-property for the {@code frequency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Frequency> frequency() {
+      return frequency;
+    }
+
+    /**
+     * The meta-property for the {@code rollConvention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<RollConvention> rollConvention() {
+      return rollConvention;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -678739246:  // periods
           return ((Schedule) bean).getPeriods();
+        case -70023844:  // frequency
+          return ((Schedule) bean).getFrequency();
+        case -10223666:  // rollConvention
+          return ((Schedule) bean).getRollConvention();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -319,6 +609,8 @@ public final class Schedule
   public static final class Builder extends DirectFieldsBeanBuilder<Schedule> {
 
     private List<SchedulePeriod> periods = new ArrayList<SchedulePeriod>();
+    private Frequency frequency;
+    private RollConvention rollConvention;
 
     /**
      * Restricted constructor.
@@ -332,6 +624,8 @@ public final class Schedule
      */
     private Builder(Schedule beanToCopy) {
       this.periods = new ArrayList<SchedulePeriod>(beanToCopy.getPeriods());
+      this.frequency = beanToCopy.getFrequency();
+      this.rollConvention = beanToCopy.getRollConvention();
     }
 
     //-----------------------------------------------------------------------
@@ -340,6 +634,10 @@ public final class Schedule
       switch (propertyName.hashCode()) {
         case -678739246:  // periods
           return periods;
+        case -70023844:  // frequency
+          return frequency;
+        case -10223666:  // rollConvention
+          return rollConvention;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -351,6 +649,12 @@ public final class Schedule
       switch (propertyName.hashCode()) {
         case -678739246:  // periods
           this.periods = (List<SchedulePeriod>) newValue;
+          break;
+        case -70023844:  // frequency
+          this.frequency = (Frequency) newValue;
+          break;
+        case -10223666:  // rollConvention
+          this.rollConvention = (RollConvention) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -385,7 +689,9 @@ public final class Schedule
     @Override
     public Schedule build() {
       return new Schedule(
-          periods);
+          periods,
+          frequency,
+          rollConvention);
     }
 
     //-----------------------------------------------------------------------
@@ -400,12 +706,36 @@ public final class Schedule
       return this;
     }
 
+    /**
+     * Sets the {@code frequency} property in the builder.
+     * @param frequency  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder frequency(Frequency frequency) {
+      JodaBeanUtils.notNull(frequency, "frequency");
+      this.frequency = frequency;
+      return this;
+    }
+
+    /**
+     * Sets the {@code rollConvention} property in the builder.
+     * @param rollConvention  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder rollConvention(RollConvention rollConvention) {
+      JodaBeanUtils.notNull(rollConvention, "rollConvention");
+      this.rollConvention = rollConvention;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(64);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("Schedule.Builder{");
-      buf.append("periods").append('=').append(JodaBeanUtils.toString(periods));
+      buf.append("periods").append('=').append(JodaBeanUtils.toString(periods)).append(',').append(' ');
+      buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
+      buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention));
       buf.append('}');
       return buf.toString();
     }

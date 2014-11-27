@@ -8,7 +8,6 @@ package com.opengamma.basics.date;
 import java.time.LocalDate;
 
 import com.opengamma.basics.schedule.Frequency;
-import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -55,25 +54,23 @@ enum StandardDayCounts implements DayCount {
         return 0d;
       }
       // calculation is based on the schedule period, firstDate assumed to be the start of the period
-      LocalDate nextCouponDate = scheduleInfo.getEndDate();
+      LocalDate scheduleStartDate = scheduleInfo.getStartDate();
+      LocalDate scheduleEndDate = scheduleInfo.getEndDate();
+      LocalDate nextCouponDate = scheduleInfo.getPeriodEndDate(firstDate);
       Frequency freq = scheduleInfo.getFrequency();
-      SchedulePeriodType type = scheduleInfo.getType();
-      switch (type) {
-        case NORMAL: {
-          double actualDays = secondDate.toEpochDay() - firstDate.toEpochDay();
-          double periodDays = nextCouponDate.toEpochDay() - firstDate.toEpochDay();
-          return actualDays / (freq.eventsPerYear() * periodDays);
-        }
-        case INITIAL: {
-          return initPeriod(firstDate, secondDate, nextCouponDate, freq, scheduleInfo.isEndOfMonthConvention());
-        }
-        case FINAL: {
-          return finalPeriod(firstDate, secondDate, freq, scheduleInfo.isEndOfMonthConvention());
-        }
-        case TERM:
-        default:
-          throw new IllegalArgumentException("Unable to calculate Act/Act ICMA day count for TERM period");
+      boolean eom = scheduleInfo.isEndOfMonthConvention();
+      // final period, also handling single period schedules
+      if (nextCouponDate.equals(scheduleEndDate)) {
+        return finalPeriod(firstDate, secondDate, freq, eom);
       }
+      // initial period
+      if (firstDate.equals(scheduleStartDate)) {
+        return initPeriod(firstDate, secondDate, nextCouponDate, freq, eom);
+      }
+      long firstEpochDay = firstDate.toEpochDay();
+      double actualDays = secondDate.toEpochDay() - firstEpochDay;
+      double periodDays = nextCouponDate.toEpochDay() - firstEpochDay;
+      return actualDays / (freq.eventsPerYear() * periodDays);
     }
     // calculate nominal periods backwards from couponDate
     private double initPeriod(LocalDate startDate, LocalDate endDate, LocalDate couponDate, Frequency freq, boolean eom) {
@@ -161,7 +158,7 @@ enum StandardDayCounts implements DayCount {
         return 0d;
       }
       // calculation is based on the end of the schedule period (next coupon date) and annual/non-annual frequency
-      LocalDate nextCouponDate = scheduleInfo.getEndDate();
+      LocalDate nextCouponDate = scheduleInfo.getPeriodEndDate(firstDate);
       if (scheduleInfo.getFrequency().eventsPerYear() == 1) {
         LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
         return actualDays / (nextLeap.isAfter(nextCouponDate) ? 365d : 366d);
@@ -273,7 +270,7 @@ enum StandardDayCounts implements DayCount {
       if (d1 == 31 || lastFeb1) {
         d1 = 30;
       }
-      if (d2 == 31 || (lastFeb2 && !scheduleInfo.isScheduleEndDate(secondDate))) {
+      if (d2 == 31 || (lastFeb2 && !secondDate.equals(scheduleInfo.getEndDate()))) {
         d2 = 30;
       }
       return thirty360(

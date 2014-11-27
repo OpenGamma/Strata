@@ -40,7 +40,6 @@ import com.opengamma.basics.schedule.RollConventions;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.ScheduleException;
 import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.basics.schedule.SchedulePeriodType;
 import com.opengamma.basics.schedule.StubConvention;
 
 /**
@@ -124,26 +123,33 @@ public class ScheduleGui extends Application {
     holidayInp.setValue(HolidayCalendars.GBLO);
     
     TableView<SchedulePeriod> resultGrid = new TableView<>();
-    TableColumn<SchedulePeriod, SchedulePeriodType> typeCol = new TableColumn<>("Type");
-    typeCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().type()));
     TableColumn<SchedulePeriod, LocalDate> unadjustedCol = new TableColumn<>("Unadjusted dates");
     TableColumn<SchedulePeriod, LocalDate> adjustedCol = new TableColumn<>("Adjusted dates");
+    
     TableColumn<SchedulePeriod, LocalDate> resultUnadjStartCol = new TableColumn<>("Start");
     resultUnadjStartCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().unadjustedStartDate()));
     TableColumn<SchedulePeriod, LocalDate> resultUnadjEndCol = new TableColumn<>("End");
     resultUnadjEndCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().unadjustedEndDate()));
+    
     TableColumn<SchedulePeriod, LocalDate> resultStartCol = new TableColumn<>("Start");
     resultStartCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().startDate()));
     TableColumn<SchedulePeriod, LocalDate> resultEndCol = new TableColumn<>("End");
     resultEndCol.setCellValueFactory(new TableCallback<>(SchedulePeriod.meta().endDate()));
+    
     unadjustedCol.getColumns().add(resultUnadjStartCol);
     unadjustedCol.getColumns().add(resultUnadjEndCol);
     adjustedCol.getColumns().add(resultStartCol);
     adjustedCol.getColumns().add(resultEndCol);
-    resultGrid.getColumns().add(typeCol);
     resultGrid.getColumns().add(unadjustedCol);
     resultGrid.getColumns().add(adjustedCol);
     resultGrid.setPlaceholder(new Label("Schedule not yet generated"));
+    
+    unadjustedCol.prefWidthProperty().bind(resultGrid.widthProperty().divide(2));
+    adjustedCol.prefWidthProperty().bind(resultGrid.widthProperty().divide(2));
+    resultUnadjStartCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(2));
+    resultUnadjEndCol.prefWidthProperty().bind(unadjustedCol.widthProperty().divide(2));
+    resultStartCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(2));
+    resultEndCol.prefWidthProperty().bind(adjustedCol.widthProperty().divide(2));
     
     // setup generation button
     // this uses the GUI thread which is not the best idea

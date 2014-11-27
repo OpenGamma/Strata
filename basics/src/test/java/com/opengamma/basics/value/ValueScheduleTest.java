@@ -5,16 +5,12 @@
  */
 package com.opengamma.basics.value;
 
-import static com.opengamma.basics.schedule.Frequency.P1M;
-import static com.opengamma.basics.schedule.RollConventions.DAY_1;
-import static com.opengamma.basics.schedule.SchedulePeriodType.FINAL;
-import static com.opengamma.basics.schedule.SchedulePeriodType.INITIAL;
-import static com.opengamma.basics.schedule.SchedulePeriodType.NORMAL;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -31,12 +27,10 @@ public class ValueScheduleTest {
   private static ValueStep STEP1 = ValueStep.ofAbsoluteAmount(date(2014, 6, 30), 2000d);
   private static ValueStep STEP2 = ValueStep.ofAbsoluteAmount(date(2014, 7, 30), 3000d);
 
-  private static SchedulePeriod PERIOD1 = SchedulePeriod.of(
-      INITIAL, date(2014, 1, 1), date(2014, 2, 1), P1M, DAY_1);
-  private static SchedulePeriod PERIOD2 = SchedulePeriod.of(
-      NORMAL, date(2014, 2, 1), date(2014, 3, 1), P1M, DAY_1);
+  private static SchedulePeriod PERIOD1 = SchedulePeriod.of(date(2014, 1, 1), date(2014, 2, 1));
+  private static SchedulePeriod PERIOD2 = SchedulePeriod.of(date(2014, 2, 1), date(2014, 3, 1));
   private static SchedulePeriod PERIOD3 = SchedulePeriod.of(
-      FINAL, date(2014, 3, 1), date(2014, 4, 1), date(2014, 3, 2), date(2014, 4, 1), P1M, DAY_1);
+      date(2014, 3, 1), date(2014, 4, 1), date(2014, 3, 2), date(2014, 4, 1));
   private static ImmutableList<SchedulePeriod> PERIODS = ImmutableList.of(PERIOD1, PERIOD2, PERIOD3);
   
   public void test_of_int() {
