@@ -262,7 +262,7 @@ public final class CurrencyAmount
     return new CurrencyAmount(currency, mapper.applyAsDouble(amount));
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Compares this currency amount to another.
    * <p>
@@ -308,7 +308,7 @@ public final class CurrencyAmount
     return currency.hashCode() * 31 + JodaBeanUtils.hashCode(amount);
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the amount as a string.
    * <p>

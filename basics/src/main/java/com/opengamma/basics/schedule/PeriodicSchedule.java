@@ -516,7 +516,7 @@ public final class PeriodicSchedule
     return adj;
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the effective roll convention defining how to roll dates.
    * <p>

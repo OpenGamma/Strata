@@ -406,7 +406,7 @@ public final class MultiCurrencyAmount
         .collect(Guavate.toImmutableSortedMap(CurrencyAmount::getCurrency, CurrencyAmount::getAmount));
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the amount as a string.
    * <p>

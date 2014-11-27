@@ -44,7 +44,9 @@ import com.opengamma.collect.ArgChecker;
 public final class ImmutableFxIndex
     implements FxIndex, ImmutableBean, Serializable {
 
-  /** Serialization version. */
+  /**
+   * Serialization version.
+   */
   private static final long serialVersionUID = 1L;
 
   /**
@@ -79,7 +81,7 @@ public final class ImmutableFxIndex
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment maturityDateOffset;
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
     ArgChecker.notNull(fixingDate, "fixingDate");
@@ -108,11 +110,11 @@ public final class ImmutableFxIndex
     return (cal == HolidayCalendars.NO_HOLIDAYS ? fixingCalendar : cal);
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
-   * Returns the name of the calendar.
+   * Returns the name of the index.
    * 
-   * @return the descriptive string
+   * @return the name of the index
    */
   @Override
   public String toString() {

@@ -145,7 +145,7 @@ public final class CurrencyPair
     return contains(other.base) || contains(other.counter);
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the base currency of the pair.
    * <p>
@@ -157,7 +157,7 @@ public final class CurrencyPair
     return base;
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the counter currency of the pair.
    * <p>
@@ -171,7 +171,7 @@ public final class CurrencyPair
     return counter;
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Checks if this currency pair equals another.
    * <p>

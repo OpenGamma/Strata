@@ -147,7 +147,7 @@ public final class ValueAdjustment
     return buf.toString();
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Adjusts the base value based on the criteria of this adjustment.
    * <p>

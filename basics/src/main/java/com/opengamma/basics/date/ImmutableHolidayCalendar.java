@@ -198,7 +198,7 @@ public final class ImmutableHolidayCalendar
     return HolidayCalendar.super.combineWith(other);
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Returns the name of the calendar.
    * 

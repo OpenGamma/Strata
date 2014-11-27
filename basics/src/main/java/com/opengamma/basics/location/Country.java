@@ -229,7 +229,7 @@ public final class Country
    */
   private final String code;
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Obtains the set of available countries.
    * <p>
@@ -242,7 +242,7 @@ public final class Country
     return ImmutableSet.copyOf(CACHE.values());
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance of {@code Country} for the specified ISO-3166-1 alpha-2
    * two letter country code dynamically creating a country if necessary.
@@ -305,7 +305,7 @@ public final class Country
     return code;
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Compares this country to another.
    * <p>
@@ -349,7 +349,7 @@ public final class Country
     return code.hashCode();
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Returns a string representation of the country, which is the two letter code.
    * 

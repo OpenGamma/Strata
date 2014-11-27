@@ -182,7 +182,7 @@ public final class ValueStep
     }
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the index of the schedule period boundary at which the change occurs.
    * <p>
@@ -201,7 +201,7 @@ public final class ValueStep
     return periodIndex != null ? OptionalInt.of(periodIndex) : OptionalInt.empty();
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the date of the schedule period boundary at which the change occurs.
    * <p>

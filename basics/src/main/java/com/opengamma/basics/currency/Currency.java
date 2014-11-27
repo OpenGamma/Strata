@@ -225,7 +225,7 @@ public final class Currency
    */
   private final String code;
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Obtains the set of available currencies.
    * <p>
@@ -238,7 +238,7 @@ public final class Currency
     return ImmutableSet.copyOf(CACHE.values());
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance of {@code Currency} for the specified ISO-4217
    * three letter currency code dynamically creating a currency if necessary.
@@ -316,7 +316,7 @@ public final class Currency
     return code;
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Gets the JDK currency instance equivalent to this currency.
    * <p>
@@ -329,7 +329,7 @@ public final class Currency
     return java.util.Currency.getInstance(code);
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Compares this currency to another.
    * <p>
@@ -373,7 +373,7 @@ public final class Currency
     return code.hashCode();
   }
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Returns a string representation of the currency, which is the three letter code.
    * 

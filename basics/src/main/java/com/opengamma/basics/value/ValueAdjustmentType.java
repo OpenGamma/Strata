@@ -83,7 +83,7 @@ public enum ValueAdjustmentType {
     }
   };
 
-  //-----------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   /**
    * Adjusts the base value based on the type and the modifying value.
    * 
