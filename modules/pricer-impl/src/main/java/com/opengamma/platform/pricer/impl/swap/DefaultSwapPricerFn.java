@@ -10,10 +10,10 @@ import java.time.LocalDate;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.swap.PaymentPeriod;
 import com.opengamma.platform.finance.swap.Swap;
+import com.opengamma.platform.finance.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
-import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
+import com.opengamma.platform.pricer.swap.SwapLegPricerFn;
 import com.opengamma.platform.pricer.swap.SwapPricerFn;
 
 /**
@@ -25,38 +25,36 @@ public class DefaultSwapPricerFn implements SwapPricerFn {
    * Default implementation.
    */
   public static final DefaultSwapPricerFn DEFAULT = new DefaultSwapPricerFn(
-      DefaultPaymentPeriodPricerFn.DEFAULT);
+      DefaultSwapLegPricerFn.DEFAULT);
 
   /**
    * Payment period pricer.
    */
-  private final PaymentPeriodPricerFn<PaymentPeriod> paymentPeriodPricerFn;
+  private final SwapLegPricerFn<SwapLeg> swapLegPricerFn;
 
   /**
    * Creates an instance.
    * 
-   * @param paymentPeriodPricerFn  the pricer for {@link PaymentPeriod}
+   * @param swapLegPricerFn  the pricer for {@link SwapLeg}
    */
   public DefaultSwapPricerFn(
-      PaymentPeriodPricerFn<PaymentPeriod> paymentPeriodPricerFn) {
-    this.paymentPeriodPricerFn = ArgChecker.notNull(paymentPeriodPricerFn, "paymentPeriodPricerFn");
+      SwapLegPricerFn<SwapLeg> swapLegPricerFn) {
+    this.swapLegPricerFn = ArgChecker.notNull(swapLegPricerFn, "swapLegPricerFn");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount presentValue(PricingEnvironment env, LocalDate valuationDate, Swap swap) {
     return swap.getLegs().stream()
-      .flatMap(leg -> leg.toExpanded().getPaymentPeriods().stream())
-      .map(p -> CurrencyAmount.of(p.getCurrency(), paymentPeriodPricerFn.presentValue(env, valuationDate, p)))
+      .map(leg -> CurrencyAmount.of(leg.getCurrency(), swapLegPricerFn.presentValue(env, valuationDate, leg)))
       .reduce(MultiCurrencyAmount.of(), MultiCurrencyAmount::plus, MultiCurrencyAmount::plus);
   }
 
   @Override
   public MultiCurrencyAmount futureValue(PricingEnvironment env, LocalDate valuationDate, Swap swap) {
     return swap.getLegs().stream()
-      .flatMap(leg -> leg.toExpanded().getPaymentPeriods().stream())
-      .map(p -> CurrencyAmount.of(p.getCurrency(), paymentPeriodPricerFn.futureValue(env, valuationDate, p)))
-      .reduce(MultiCurrencyAmount.of(), MultiCurrencyAmount::plus, MultiCurrencyAmount::plus);
+        .map(leg -> CurrencyAmount.of(leg.getCurrency(), swapLegPricerFn.futureValue(env, valuationDate, leg)))
+        .reduce(MultiCurrencyAmount.of(), MultiCurrencyAmount::plus, MultiCurrencyAmount::plus);
   }
 
 }
