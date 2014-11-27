@@ -35,8 +35,8 @@ import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.Tenor;
 import com.opengamma.basics.index.FxIndex;
+import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.Index;
-import com.opengamma.basics.index.RateIndex;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.pricer.PricingEnvironment;
@@ -89,7 +89,7 @@ public class ImmutablePricingEnvironment
 
   @Override
   public double indexRate(
-      RateIndex index,
+      IborIndex index,
       LocalDate valuationDate,
       LocalDate fixingDate) {
     ArgChecker.notNull(index, "index");
@@ -115,7 +115,7 @@ public class ImmutablePricingEnvironment
         fixingYearFraction);
   }
 
-  private static com.opengamma.analytics.financial.instrument.index.IborIndex index(RateIndex index) {
+  private static com.opengamma.analytics.financial.instrument.index.IborIndex index(IborIndex index) {
     com.opengamma.analytics.financial.instrument.index.IborIndex idx =
         IndexIborMaster.getInstance().getIndex(IndexIborMaster.USDLIBOR3M);
     if (index.getTenor().equals(Tenor.TENOR_6M)) {

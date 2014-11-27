@@ -11,8 +11,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.index.FxIndex;
+import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.Index;
-import com.opengamma.basics.index.RateIndex;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -56,7 +56,7 @@ public interface PricingEnvironment {
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
    */
-  public double indexRate(RateIndex index, LocalDate valuationDate, LocalDate fixingDate);
+  public double indexRate(IborIndex index, LocalDate valuationDate, LocalDate fixingDate);
 
   //-------------------------------------------------------------------------
   /**
