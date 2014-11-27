@@ -40,7 +40,7 @@ import com.opengamma.collect.ArgChecker;
  * As such, it is recommended to use the {@code FxIndex} interface in application
  * code rather than directly referring to this class.
  */
-@BeanDefinition
+@BeanDefinition(cacheHashCode = true)
 public final class ImmutableFxIndex
     implements FxIndex, ImmutableBean, Serializable {
 
@@ -134,6 +134,11 @@ public final class ImmutableFxIndex
   static {
     JodaBeanUtils.registerMetaBean(ImmutableFxIndex.Meta.INSTANCE);
   }
+
+  /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private int cachedHashCode;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -249,11 +254,15 @@ public final class ImmutableFxIndex
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDateOffset());
+    int hash = cachedHashCode;
+    if (hash == 0) {
+      hash = getClass().hashCode();
+      hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+      hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
+      hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
+      hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDateOffset());
+      cachedHashCode = hash;
+    }
     return hash;
   }
 

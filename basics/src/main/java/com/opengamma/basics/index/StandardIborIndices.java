@@ -60,7 +60,7 @@ final class StandardIborIndices {
   // settlement date equals fixing date
   // maturity date last business day rule, modified following, GBLO
   private static IborIndex gbpLibor(Tenor tenor) {
-    return IborIndex.builder()
+    return ImmutableIborIndex.builder()
         .name("GBP-LIBOR-" + tenor)
         .currency(GBP)
         .fixingCalendar(GBLO)
@@ -84,7 +84,7 @@ final class StandardIborIndices {
   // maturity date last business day rule, modified following, GBLO+CHZU
   private static IborIndex chfLibor(Tenor tenor) {
     HolidayCalendar cal = GBLO.combineWith(CHZU);
-    return IborIndex.builder()
+    return ImmutableIborIndex.builder()
         .name("CHF-LIBOR-" + tenor)
         .currency(CHF)
         .fixingCalendar(GBLO)
@@ -107,7 +107,7 @@ final class StandardIborIndices {
   // settlement date two EUTA business days after fixing date
   // maturity date last business day rule, modified following, EUTA
   private static IborIndex eurLibor(Tenor tenor) {
-    return IborIndex.builder()
+    return ImmutableIborIndex.builder()
         .name("EUR-LIBOR-" + tenor)
         .currency(EUR)
         .fixingCalendar(GBLO)
@@ -131,7 +131,7 @@ final class StandardIborIndices {
   // maturity date last business day rule, modified following, GBLO+JPTO
   private static IborIndex jpyLibor(Tenor tenor) {
     HolidayCalendar cal = GBLO.combineWith(JPTO);
-    return IborIndex.builder()
+    return ImmutableIborIndex.builder()
         .name("JPY-LIBOR-" + tenor)
         .currency(JPY)
         .fixingCalendar(GBLO)
@@ -155,7 +155,7 @@ final class StandardIborIndices {
   // maturity date last business day rule, modified following, GBLO+USNY
   private static IborIndex usdLibor(Tenor tenor) {
     HolidayCalendar cal = GBLO.combineWith(USNY);
-    return IborIndex.builder()
+    return ImmutableIborIndex.builder()
         .name("USD-LIBOR-" + tenor)
         .currency(USD)
         .fixingCalendar(GBLO)
@@ -167,19 +167,19 @@ final class StandardIborIndices {
 
   //-------------------------------------------------------------------------
   // Euribor
-  public static final IborIndex EURIBOR_1W = euribor(TENOR_1W);
-  public static final IborIndex EURIBOR_2W = euribor(TENOR_2W);
-  public static final IborIndex EURIBOR_1M = euribor(TENOR_1M);
-  public static final IborIndex EURIBOR_2M = euribor(TENOR_2M);
-  public static final IborIndex EURIBOR_3M = euribor(TENOR_3M);
-  public static final IborIndex EURIBOR_6M = euribor(TENOR_6M);
-  public static final IborIndex EURIBOR_9M = euribor(TENOR_9M);
-  public static final IborIndex EURIBOR_12M = euribor(TENOR_12M);
+  public static final IborIndex EUR_EURIBOR_1W = euribor(TENOR_1W);
+  public static final IborIndex EUR_EURIBOR_2W = euribor(TENOR_2W);
+  public static final IborIndex EUR_EURIBOR_1M = euribor(TENOR_1M);
+  public static final IborIndex EUR_EURIBOR_2M = euribor(TENOR_2M);
+  public static final IborIndex EUR_EURIBOR_3M = euribor(TENOR_3M);
+  public static final IborIndex EUR_EURIBOR_6M = euribor(TENOR_6M);
+  public static final IborIndex EUR_EURIBOR_9M = euribor(TENOR_9M);
+  public static final IborIndex EUR_EURIBOR_12M = euribor(TENOR_12M);
 
   // conventions for euribor
   private static IborIndex euribor(Tenor tenor) {
-    return IborIndex.builder()
-        .name("EURIBOR-" + tenor)
+    return ImmutableIborIndex.builder()
+        .name("EUR-EURIBOR-" + tenor)
         .currency(EUR)
         .fixingCalendar(EUTA)
         .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA))
@@ -200,7 +200,7 @@ final class StandardIborIndices {
 
   // conventions for tibor
   private static IborIndex tiborJapan(Tenor tenor) {
-    return IborIndex.builder()
+    return ImmutableIborIndex.builder()
         .name("JPY-TIBOR-JAPAN-" + tenor)
         .currency(JPY)
         .fixingCalendar(JPTO)
@@ -222,7 +222,7 @@ final class StandardIborIndices {
 
   // conventions for tibor
   private static IborIndex tiborEuroyen(Tenor tenor) {
-    return IborIndex.builder()
+    return ImmutableIborIndex.builder()
         .name("JPY-TIBOR-EUROYEN-" + tenor)
         .currency(JPY)
         .fixingCalendar(JPTO)

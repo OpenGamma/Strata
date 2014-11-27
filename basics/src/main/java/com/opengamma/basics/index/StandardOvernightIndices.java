@@ -27,7 +27,7 @@ final class StandardOvernightIndices {
   // http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
 
   // GBP SONIA
-  public static final OvernightIndex GBP_SONIA = OvernightIndex.builder()
+  public static final OvernightIndex GBP_SONIA = ImmutableOvernightIndex.builder()
       .name("GBP-SONIA")
       .currency(GBP)
       .fixingCalendar(GBLO)
@@ -37,7 +37,7 @@ final class StandardOvernightIndices {
       .build();
 
   // CHF TOIS
-  public static final OvernightIndex CHF_TOIS = OvernightIndex.builder()
+  public static final OvernightIndex CHF_TOIS = ImmutableOvernightIndex.builder()
       .name("CHF-TOIS")
       .currency(CHF)
       .fixingCalendar(CHZU)
@@ -47,7 +47,7 @@ final class StandardOvernightIndices {
       .build();
 
   // EUR EONIA
-  public static final OvernightIndex EUR_EONIA = OvernightIndex.builder()
+  public static final OvernightIndex EUR_EONIA = ImmutableOvernightIndex.builder()
       .name("EUR-EONIA")
       .currency(EUR)
       .fixingCalendar(EUTA)
@@ -57,7 +57,7 @@ final class StandardOvernightIndices {
       .build();
 
   // JPY TONAR
-  public static final OvernightIndex JPY_TONAR = OvernightIndex.builder()
+  public static final OvernightIndex JPY_TONAR = ImmutableOvernightIndex.builder()
       .name("JPY-TONAR")
       .currency(JPY)
       .fixingCalendar(JPTO)
@@ -67,7 +67,7 @@ final class StandardOvernightIndices {
       .build();
 
   // USD FedFund
-  public static final OvernightIndex USD_FED_FUND = OvernightIndex.builder()
+  public static final OvernightIndex USD_FED_FUND = ImmutableOvernightIndex.builder()
       .name("USD-FED-FUND")
       .currency(USD)
       .fixingCalendar(NYFD)

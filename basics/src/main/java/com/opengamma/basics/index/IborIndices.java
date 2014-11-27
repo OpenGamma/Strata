@@ -8,48 +8,17 @@ package com.opengamma.basics.index;
 import com.opengamma.collect.named.ExtendedEnum;
 
 /**
- * Constants and implementations for standard rate indices.
+ * Constants and implementations for standard Ibor indices.
  * <p>
  * Each constant returns a standard definition of the specified index.
  */
-public final class RateIndices {
+public final class IborIndices {
   // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
 
   /**
    * The extended enum lookup from name to instance.
    */
-  static final ExtendedEnum<RateIndex> ENUM_LOOKUP = ExtendedEnum.of(RateIndex.class);
-
-  /**
-   * The SONIA index for GBP.
-   * <p>
-   * SONIA is an "Overnight" index.
-   */
-  public static final OvernightIndex GBP_SONIA = OvernightIndex.of(StandardOvernightIndices.GBP_SONIA.getName());
-  /**
-   * The TOIS index for CHF.
-   * <p>
-   * TOIS is a "Tomorrow/Next" index.
-   */
-  public static final OvernightIndex CHF_TOIS = OvernightIndex.of(StandardOvernightIndices.CHF_TOIS.getName());
-  /**
-   * The EONIA index for EUR.
-   * <p>
-   * EONIA is an "Overnight" index.
-   */
-  public static final OvernightIndex EUR_EONIA = OvernightIndex.of(StandardOvernightIndices.EUR_EONIA.getName());
-  /**
-   * The TONAR index for JPY.
-   * <p>
-   * TONAR is an "Overnight" index.
-   */
-  public static final OvernightIndex JPY_TONAR = OvernightIndex.of(StandardOvernightIndices.JPY_TONAR.getName());
-  /**
-   * The FED_FUND index for USD.
-   * <p>
-   * FED_FUND is an "Overnight" index.
-   */
-  public static final OvernightIndex USD_FED_FUND = OvernightIndex.of(StandardOvernightIndices.USD_FED_FUND.getName());
+  static final ExtendedEnum<IborIndex> ENUM_LOOKUP = ExtendedEnum.of(IborIndex.class);
 
   //-------------------------------------------------------------------------
   /**
@@ -247,49 +216,49 @@ public final class RateIndices {
    * <p>
    * The "Euro Interbank Offered Rate".
    */
-  public static final IborIndex EURIBOR_1W = IborIndex.of(StandardIborIndices.EURIBOR_1W.getName());
+  public static final IborIndex EUR_EURIBOR_1W = IborIndex.of(StandardIborIndices.EUR_EURIBOR_1W.getName());
   /**
    * The 2 week EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
    */
-  public static final IborIndex EURIBOR_2W = IborIndex.of(StandardIborIndices.EURIBOR_2W.getName());
+  public static final IborIndex EUR_EURIBOR_2W = IborIndex.of(StandardIborIndices.EUR_EURIBOR_2W.getName());
   /**
    * The 1 month EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
    */
-  public static final IborIndex EURIBOR_1M = IborIndex.of(StandardIborIndices.EURIBOR_1M.getName());
+  public static final IborIndex EUR_EURIBOR_1M = IborIndex.of(StandardIborIndices.EUR_EURIBOR_1M.getName());
   /**
    * The 2 month EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
    */
-  public static final IborIndex EURIBOR_2M = IborIndex.of(StandardIborIndices.EURIBOR_2M.getName());
+  public static final IborIndex EUR_EURIBOR_2M = IborIndex.of(StandardIborIndices.EUR_EURIBOR_2M.getName());
   /**
    * The 3 month EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
    */
-  public static final IborIndex EURIBOR_3M = IborIndex.of(StandardIborIndices.EURIBOR_3M.getName());
+  public static final IborIndex EUR_EURIBOR_3M = IborIndex.of(StandardIborIndices.EUR_EURIBOR_3M.getName());
   /**
    * The 6 month EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
    */
-  public static final IborIndex EURIBOR_6M = IborIndex.of(StandardIborIndices.EURIBOR_6M.getName());
+  public static final IborIndex EUR_EURIBOR_6M = IborIndex.of(StandardIborIndices.EUR_EURIBOR_6M.getName());
   /**
    * The 9 month EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
    */
-  public static final IborIndex EURIBOR_9M = IborIndex.of(StandardIborIndices.EURIBOR_9M.getName());
+  public static final IborIndex EUR_EURIBOR_9M = IborIndex.of(StandardIborIndices.EUR_EURIBOR_9M.getName());
   /**
    * The 12 month EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
    */
-  public static final IborIndex EURIBOR_12M = IborIndex.of(StandardIborIndices.EURIBOR_12M.getName());
+  public static final IborIndex EUR_EURIBOR_12M = IborIndex.of(StandardIborIndices.EUR_EURIBOR_12M.getName());
 
   //-------------------------------------------------------------------------
   /**
@@ -371,7 +340,7 @@ public final class RateIndices {
   /**
    * Restricted constructor.
    */
-  private RateIndices() {
+  private IborIndices() {
   }
 
 }

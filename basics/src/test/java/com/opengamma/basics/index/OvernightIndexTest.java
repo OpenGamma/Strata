@@ -21,8 +21,10 @@ import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.basics.currency.Currency;
 
 /**
@@ -41,7 +43,6 @@ public class OvernightIndexTest {
 
   public void test_gbpSonia() {
     OvernightIndex test = OvernightIndex.of("GBP-SONIA");
-    assertEquals(test.getType(), RateIndexType.OVERNIGHT);
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getName(), "GBP-SONIA");
     assertEquals(test.getTenor(), TENOR_1D);
@@ -72,7 +73,6 @@ public class OvernightIndexTest {
 
   public void test_usdFedFund3m() {
     OvernightIndex test = OvernightIndex.of("USD-FED-FUND");
-    assertEquals(test.getType(), RateIndexType.OVERNIGHT);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getName(), "USD-FED-FUND");
     assertEquals(test.getTenor(), TENOR_1D);
@@ -102,8 +102,49 @@ public class OvernightIndexTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "name")
+  static Object[][] data_name() {
+      return new Object[][] {
+          {OvernightIndices.GBP_SONIA, "GBP-SONIA"},
+          {OvernightIndices.CHF_TOIS, "CHF-TOIS"},
+          {OvernightIndices.EUR_EONIA, "EUR-EONIA"},
+          {OvernightIndices.JPY_TONAR, "JPY-TONAR"},
+          {OvernightIndices.USD_FED_FUND, "USD-FED-FUND"},
+      };
+  }
+
+  @Test(dataProvider = "name")
+  public void test_name(OvernightIndex convention, String name) {
+    assertEquals(convention.getName(), name);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_toString(OvernightIndex convention, String name) {
+    assertEquals(convention.toString(), name);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_of_lookup(OvernightIndex convention, String name) {
+    assertEquals(OvernightIndex.of(name), convention);
+  }
+
+  @Test(dataProvider = "name")
+  public void test_extendedEnum(OvernightIndex convention, String name) {
+    ImmutableMap<String, OvernightIndex> map = OvernightIndex.extendedEnum().lookupAll();
+    assertEquals(map.get(name), convention);
+  }
+
+  public void test_of_lookup_notFound() {
+    assertThrows(() -> OvernightIndex.of("Rubbish"), IllegalArgumentException.class);
+  }
+
+  public void test_of_lookup_null() {
+    assertThrows(() -> OvernightIndex.of(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_equals() {
-    OvernightIndex a = OvernightIndex.builder()
+    ImmutableOvernightIndex a = ImmutableOvernightIndex.builder()
         .currency(Currency.GBP)
         .name("OGIBOR")
         .fixingCalendar(GBLO)
@@ -127,7 +168,7 @@ public class OvernightIndexTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    OvernightIndex index = OvernightIndex.builder()
+    ImmutableOvernightIndex index = ImmutableOvernightIndex.builder()
         .currency(Currency.GBP)
         .name("OGONIA")
         .fixingCalendar(GBLO)
@@ -136,15 +177,16 @@ public class OvernightIndexTest {
         .dayCount(ACT_360)
         .build();
     coverImmutableBean(index);
+    coverPrivateConstructor(OvernightIndices.class);
     coverPrivateConstructor(StandardOvernightIndices.class);
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(RateIndex.class, RateIndices.GBP_SONIA);
+    assertJodaConvert(OvernightIndex.class, OvernightIndices.GBP_SONIA);
   }
 
   public void test_serialization() {
-    OvernightIndex index = OvernightIndex.builder()
+    OvernightIndex index = ImmutableOvernightIndex.builder()
         .currency(Currency.GBP)
         .name("OGONIA")
         .fixingCalendar(GBLO)
