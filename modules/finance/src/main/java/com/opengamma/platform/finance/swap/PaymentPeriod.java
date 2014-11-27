@@ -28,9 +28,18 @@ public interface PaymentPeriod
    * Each payment period has a single payment date.
    * This date has been adjusted to be a valid business day.
    * 
-   * @return the start date of the period
+   * @return the payment date of the period
    */
   public abstract LocalDate getPaymentDate();
+
+  /**
+   * Gets the currency of the period.
+   * <p>
+   * A period has a single currency.
+   * 
+   * @return the currency of the period
+   */
+  public abstract Currency getCurrency();
 
   /**
    * Gets the start date of the period.
@@ -51,14 +60,5 @@ public interface PaymentPeriod
    * @return the end date of the period
    */
   public abstract LocalDate getEndDate();
-
-  /**
-   * Gets the currency of the period.
-   * <p>
-   * A period has a single currency.
-   * 
-   * @return the currency of the period
-   */
-  public abstract Currency getCurrency();
 
 }

@@ -13,10 +13,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -38,6 +40,8 @@ import com.opengamma.basics.currency.Currency;
  * <p>
  * Any combination of payment and accrual periods is supported in the data model,
  * however there is no guarantee that exotic combinations will price sensibly.
+ * <p>
+ * All periods and events must be in the same currency.
  */
 @BeanDefinition
 public final class ExpandedSwapLeg
@@ -60,6 +64,27 @@ public final class ExpandedSwapLeg
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableList<PaymentEvent> paymentEvents;
+  /**
+   * The currency of the leg.
+   */
+  private final Currency currency;  // not a property, derived from input data
+
+  //-------------------------------------------------------------------------
+  @ImmutableConstructor
+  private ExpandedSwapLeg(
+      List<PaymentPeriod> paymentPeriods,
+      List<PaymentEvent> paymentEvents) {
+    JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
+    JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
+    this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
+    this.paymentEvents = ImmutableList.copyOf(paymentEvents);
+    // determine and validate currency
+    Stream<Currency> periodCurrencies = paymentPeriods.stream().map(PaymentPeriod::getCurrency);
+    Stream<Currency> eventCurrencies = paymentEvents.stream().map(PaymentEvent::getCurrency);
+    this.currency = Iterables.getOnlyElement(
+      Stream.concat(periodCurrencies, eventCurrencies)
+        .collect(Collectors.toSet()));
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -106,14 +131,10 @@ public final class ExpandedSwapLeg
    * Gets the currency of the swap leg.
    * 
    * @return the currency
-   * @throws IllegalArgumentException if the payment periods have differing currencies
    */
   @Override
   public Currency getCurrency() {
-    return Iterables.getOnlyElement(
-        paymentPeriods.stream()
-          .map(PaymentPeriod::getCurrency)
-          .collect(Collectors.toSet()));
+    return currency;
   }
 
   /**
@@ -146,15 +167,6 @@ public final class ExpandedSwapLeg
    */
   public static ExpandedSwapLeg.Builder builder() {
     return new ExpandedSwapLeg.Builder();
-  }
-
-  private ExpandedSwapLeg(
-      List<PaymentPeriod> paymentPeriods,
-      List<PaymentEvent> paymentEvents) {
-    JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
-    JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
-    this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
-    this.paymentEvents = ImmutableList.copyOf(paymentEvents);
   }
 
   @Override

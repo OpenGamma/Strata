@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
 
-import com.opengamma.basics.currency.CurrencyAmount;
+import com.opengamma.basics.currency.Currency;
 
 /**
  * A payment event, where a single payment is made between two counterparties.
@@ -25,20 +25,20 @@ public interface PaymentEvent
   /**
    * Gets the date that the payment is made.
    * <p>
-   * Each payment period has a single payment date.
+   * Each payment event has a single payment date.
    * This date has been adjusted to be a valid business day.
    * 
-   * @return the start date of the period
+   * @return the payment date
    */
   public abstract LocalDate getPaymentDate();
 
   /**
-   * Gets the amount of the payment, positive if receiving, negative if paying.
+   * Gets the currency of the event.
    * <p>
-   * This is the monetary value of the payment.
+   * An event has a single currency.
    * 
-   * @return the payment amount
+   * @return the currency of the event
    */
-  public abstract CurrencyAmount getPaymentAmount();
+  public abstract Currency getCurrency();
 
 }
