@@ -67,8 +67,9 @@ enum StandardDayCounts implements DayCount {
       if (firstDate.equals(scheduleStartDate)) {
         return initPeriod(firstDate, secondDate, nextCouponDate, freq, eom);
       }
-      double actualDays = secondDate.toEpochDay() - firstDate.toEpochDay();
-      double periodDays = nextCouponDate.toEpochDay() - firstDate.toEpochDay();
+      long firstEpochDay = firstDate.toEpochDay();
+      double actualDays = secondDate.toEpochDay() - firstEpochDay;
+      double periodDays = nextCouponDate.toEpochDay() - firstEpochDay;
       return actualDays / (freq.eventsPerYear() * periodDays);
     }
     // calculate nominal periods backwards from couponDate

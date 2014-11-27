@@ -7,6 +7,7 @@ package com.opengamma.basics.date;
 
 import java.time.LocalDate;
 
+import com.opengamma.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.collect.named.ExtendedEnum;
 
 /**
@@ -22,6 +23,14 @@ public final class DayCounts {
    * The extended enum lookup from name to instance.
    */
   static final ExtendedEnum<DayCount> ENUM_LOOKUP = ExtendedEnum.of(DayCount.class);
+
+  /**
+   * A simple schedule information object.
+   * <p>
+   * The returns true for end of month and an exception for all other methods.
+   */
+  static final ScheduleInfo SIMPLE_SCHEDULE_INFO = new ScheduleInfo() {
+  };
 
   /**
    * The '1/1' day count, which always returns a day count of 1.

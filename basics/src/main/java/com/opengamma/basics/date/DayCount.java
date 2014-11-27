@@ -61,16 +61,18 @@ public interface DayCount
    * Given two dates, this method returns the fraction of a year between these
    * dates according to the convention.
    * <p>
-   * This uses the simple {@link ScheduleInfo} which is insufficient to be able
-   * to calculate certain day counts.
+   * This uses a simple {@link ScheduleInfo} which has the end-of-month convention
+   * set to false, but throws an exception for other methods.
+   * Certain implementations of {@code DayCount} need the missing information,
+   * and thus will throw an exception.
    * 
    * @param firstDate  the first date
    * @param secondDate  the second date, on or after the first date
    * @return the year fraction
-   * @throws UnsupportedOperationException if the day count cannot be obtained
+   * @throws UnsupportedOperationException if the year fraction cannot be obtained
    */
   public default double yearFraction(LocalDate firstDate, LocalDate secondDate) {
-    return yearFraction(firstDate, secondDate, SIMPLE);
+    return yearFraction(firstDate, secondDate, DayCounts.SIMPLE_SCHEDULE_INFO);
   }
 
   /**
@@ -83,7 +85,7 @@ public interface DayCount
    * @param secondDate  the second date, on or after the first date
    * @param scheduleInfo  the schedule information
    * @return the year fraction
-   * @throws UnsupportedOperationException if the day count cannot be obtained
+   * @throws UnsupportedOperationException if the year fraction cannot be obtained
    */
   public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
 
@@ -99,13 +101,6 @@ public interface DayCount
   public String getName();
 
   //-------------------------------------------------------------------------
-  /**
-   * A simple schedule information object.
-   * <p>
-   * The returns true for end of month and an exception for all other methods.
-   */
-  static final ScheduleInfo SIMPLE = new ScheduleInfo() {};
-
   /**
    * Information about the schedule necessary to calculate the day count.
    * <p>

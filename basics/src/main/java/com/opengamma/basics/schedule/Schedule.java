@@ -104,7 +104,7 @@ public final class Schedule
   /**
    * Checks if this schedule represents a single 'Term' period.
    * <p>
-   * A 'Term' schedule has one period, or type 'Term'.
+   * A 'Term' schedule has one period.
    * 
    * @return true if this is a 'Term' schedule
    */
@@ -181,12 +181,12 @@ public final class Schedule
    * @return the initial stub, empty if no initial stub
    */
   public Optional<SchedulePeriod> getInitialStub() {
-    SchedulePeriod firstPeriod = getFirstPeriod();
-    if (!isTerm() && !firstPeriod.isRegular(frequency, rollConvention)) {
-      return Optional.of(firstPeriod);
-    } else {
-      return Optional.empty();
-    }
+    return (isInitialStub() ? Optional.of(getFirstPeriod()) : Optional.empty());
+  }
+
+  // checks if there is an initial stub
+  private boolean isInitialStub() {
+    return !isTerm() && !getFirstPeriod().isRegular(frequency, rollConvention);
   }
 
   /**
@@ -198,12 +198,12 @@ public final class Schedule
    * @return the final stub, empty if no final stub
    */
   public Optional<SchedulePeriod> getFinalStub() {
-    SchedulePeriod lastPeriod = getLastPeriod();
-    if (!isTerm() && !lastPeriod.isRegular(frequency, rollConvention)) {
-      return Optional.of(lastPeriod);
-    } else {
-      return Optional.empty();
-    }
+    return (isFinalStub() ? Optional.of(getLastPeriod()) : Optional.empty());
+  }
+
+  // checks if there is a final stub
+  private boolean isFinalStub() {
+    return !isTerm() && !getLastPeriod().isRegular(frequency, rollConvention);
   }
 
   /**
@@ -220,17 +220,9 @@ public final class Schedule
     if (isTerm()) {
       return periods;
     }
-    Optional<SchedulePeriod> initialStub = getInitialStub();
-    Optional<SchedulePeriod> finalStub = getFinalStub();
-    if (initialStub.isPresent() && finalStub.isPresent()) {
-      return periods.subList(1, periods.size() - 1);
-    } else if (initialStub.isPresent()) {
-      return periods.subList(1, periods.size());
-    } else if (finalStub.isPresent()) {
-      return periods.subList(0, periods.size() - 1);
-    } else {
-      return periods;
-    }
+    int startStub = isInitialStub() ? 1 : 0;
+    int endStub = isFinalStub() ? 1 : 0;
+    return (startStub == 0 && endStub == 0 ? periods : periods.subList(startStub, periods.size() - endStub));
   }
 
   //-------------------------------------------------------------------------
@@ -270,7 +262,7 @@ public final class Schedule
   /**
    * Merges this schedule to form a new schedule with a single 'Term' period.
    * <p>
-   * The result will have one period of type 'Term', with dates matching this period.
+   * The result will have one period of type 'Term', with dates matching this schedule.
    * 
    * @return the merged 'Term' schedule
    */
@@ -301,7 +293,10 @@ public final class Schedule
    * A group size of 1 will return this schedule.
    * A larger group size will return a schedule where each group of regular periods are merged.
    * The roll flag is used to determine the direction in which grouping occurs.
-   * If there is an initial or final stub, it will not be merged.
+   * <p>
+   * Any existing stub periods are considered to be special, and are not merged.
+   * Even if the grouping results in an excess period, such as 10 periods with a group size
+   * of 3, the excess period will not be merged with a stub.
    * <p>
    * If this period is a 'Term' period, this schedule is returned.
    * 
