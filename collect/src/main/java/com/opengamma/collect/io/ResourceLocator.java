@@ -76,10 +76,7 @@ public final class ResourceLocator {
   }
 
   /**
-   * Creates a resource from a string location.
-   * <p>
-   * This accepts locations starting with "classpath:" or "file:".
-   * It also accepts plain locations, treated as "file:".
+   * Creates a resource from a {@code File}.
    * 
    * @param file  the file to wrap
    * @return the resource
@@ -93,10 +90,7 @@ public final class ResourceLocator {
   }
 
   /**
-   * Creates a resource from a string location.
-   * <p>
-   * This accepts locations starting with "classpath:" or "file:".
-   * It also accepts plain locations, treated as "file:".
+   * Creates a resource from a {@code URL}.
    * 
    * @param url  the URL to wrap
    * @return the resource
