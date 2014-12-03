@@ -5,6 +5,7 @@
  */
 package com.opengamma.platform.source.link;
 
+import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +31,13 @@ public class ResolvedLinkTest {
         .build();
     Link<TesterIdentifiable> link = Link.resolved(bean);
     assertThat(link.resolve(null)).isSameAs(bean);
+  }
+
+  public void serializable() {
+    TesterIdentifiable bean = TesterIdentifiable.builder()
+        .standardId(StandardId.of("test_scheme", "1"))
+        .build();
+    assertSerialization(new ResolvedLink<>(bean));
   }
 
   public void coverage() {

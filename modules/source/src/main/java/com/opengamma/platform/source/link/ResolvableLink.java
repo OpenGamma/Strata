@@ -5,6 +5,7 @@
  */
 package com.opengamma.platform.source.link;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -47,7 +48,10 @@ import com.opengamma.platform.source.id.StandardId;
  */
 @BeanDefinition(builderScope = "private")
 public final class ResolvableLink<T extends IdentifiableBean>
-    implements Link<T>, ImmutableBean {
+    implements Link<T>, ImmutableBean, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The identifier for the link target.

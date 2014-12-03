@@ -5,6 +5,7 @@
  */
 package com.opengamma.platform.source;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -28,7 +29,11 @@ import com.opengamma.platform.source.id.StandardId;
  * Simple bean for testing.
  */
 @BeanDefinition
-public final class TesterIdentifiable implements IdentifiableBean, ImmutableBean, Tester {
+public final class TesterIdentifiable
+    implements IdentifiableBean, ImmutableBean, Tester, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final StandardId standardId;
