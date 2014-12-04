@@ -35,8 +35,9 @@ public interface Security
    * The standard identifier is used to identify the security.
    * It will typically be an identifier in an external data system.
    * <p>
-   * A security may have multiple active identifiers. Any identifier may be chosen here,
-   * however it is strongly recommended to use an identifier that does not change over time.
+   * A security may have multiple active identifiers. Any identifier may be chosen here.
+   * Certain uses of the identifier, such as storage in a database, require that the
+   * identifier does not change over time, and this should be considered best practice.
    */
   @Override
   public abstract StandardId getStandardId();

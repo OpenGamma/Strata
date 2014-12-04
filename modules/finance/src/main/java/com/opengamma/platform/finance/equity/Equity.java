@@ -38,7 +38,7 @@ import com.opengamma.platform.source.id.StandardIdentifiable;
  * For example, a single share of IBM.
  */
 @BeanDefinition
-public class Equity
+public final class Equity
     implements Security, StandardIdentifiable, ImmutableBean, Serializable {
 
   /**
@@ -72,7 +72,7 @@ public class Equity
   @PropertyDefinition(validate = "notNull")
   private final String companyName;
   /**
-   * The currency that the equity is priced in.
+   * The currency that the equity is quoted in.
    */
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
@@ -111,19 +111,19 @@ public class Equity
     return new Equity.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected Equity(Equity.Builder builder) {
-    JodaBeanUtils.notNull(builder.standardId, "standardId");
-    JodaBeanUtils.notNull(builder.attributes, "attributes");
-    JodaBeanUtils.notNull(builder.companyName, "companyName");
-    JodaBeanUtils.notNull(builder.currency, "currency");
-    this.standardId = builder.standardId;
-    this.attributes = ImmutableMap.copyOf(builder.attributes);
-    this.companyName = builder.companyName;
-    this.currency = builder.currency;
+  private Equity(
+      StandardId standardId,
+      Map<String, String> attributes,
+      String companyName,
+      Currency currency) {
+    JodaBeanUtils.notNull(standardId, "standardId");
+    JodaBeanUtils.notNull(attributes, "attributes");
+    JodaBeanUtils.notNull(companyName, "companyName");
+    JodaBeanUtils.notNull(currency, "currency");
+    this.standardId = standardId;
+    this.attributes = ImmutableMap.copyOf(attributes);
+    this.companyName = companyName;
+    this.currency = currency;
   }
 
   @Override
@@ -178,7 +178,7 @@ public class Equity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency that the equity is priced in.
+   * Gets the currency that the equity is quoted in.
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
@@ -225,28 +225,20 @@ public class Equity
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("Equity{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
+    buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
+    buf.append("companyName").append('=').append(getCompanyName()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("standardId").append('=').append(JodaBeanUtils.toString(getStandardId())).append(',').append(' ');
-    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
-    buf.append("companyName").append('=').append(JodaBeanUtils.toString(getCompanyName())).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
-    buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code Equity}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -292,7 +284,7 @@ public class Equity
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -332,7 +324,7 @@ public class Equity
      * The meta-property for the {@code standardId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<StandardId> standardId() {
+    public MetaProperty<StandardId> standardId() {
       return standardId;
     }
 
@@ -340,7 +332,7 @@ public class Equity
      * The meta-property for the {@code attributes} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<String, String>> attributes() {
+    public MetaProperty<ImmutableMap<String, String>> attributes() {
       return attributes;
     }
 
@@ -348,7 +340,7 @@ public class Equity
      * The meta-property for the {@code companyName} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> companyName() {
+    public MetaProperty<String> companyName() {
       return companyName;
     }
 
@@ -356,7 +348,7 @@ public class Equity
      * The meta-property for the {@code currency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Currency> currency() {
+    public MetaProperty<Currency> currency() {
       return currency;
     }
 
@@ -364,7 +356,7 @@ public class Equity
      * The meta-property for the {@code securityType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SecurityType> securityType() {
+    public MetaProperty<SecurityType> securityType() {
       return securityType;
     }
 
@@ -401,7 +393,7 @@ public class Equity
   /**
    * The bean-builder for {@code Equity}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<Equity> {
+  public static final class Builder extends DirectFieldsBeanBuilder<Equity> {
 
     private StandardId standardId;
     private Map<String, String> attributes = new HashMap<String, String>();
@@ -411,14 +403,14 @@ public class Equity
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(Equity beanToCopy) {
+    private Builder(Equity beanToCopy) {
       this.standardId = beanToCopy.getStandardId();
       this.attributes = new HashMap<String, String>(beanToCopy.getAttributes());
       this.companyName = beanToCopy.getCompanyName();
@@ -490,7 +482,11 @@ public class Equity
 
     @Override
     public Equity build() {
-      return new Equity(this);
+      return new Equity(
+          standardId,
+          attributes,
+          companyName,
+          currency);
     }
 
     //-----------------------------------------------------------------------
@@ -543,20 +539,12 @@ public class Equity
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("Equity.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes)).append(',').append(' ');
       buf.append("companyName").append('=').append(JodaBeanUtils.toString(companyName)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

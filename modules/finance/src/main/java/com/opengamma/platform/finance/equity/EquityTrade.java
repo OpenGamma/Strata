@@ -89,7 +89,7 @@ public final class EquityTrade
    * Amount paid for the equity at time of purchase, optional.
    * <p>
    * This will be negative if buying and positive if selling.
-   * If the amount is not known, it is set to null.
+   * This is an optional value that will not be present if the amount is not known.
    */
   @PropertyDefinition(get = "field")
   private final CurrencyAmount paymentAmount;
@@ -99,11 +99,11 @@ public final class EquityTrade
    * Gets amount paid for the equity at time of purchase, optional.
    * <p>
    * This will be negative if buying and positive if selling.
-   * If the amount is not known, it is set to null.
+   * This is an optional value that will not be present if the amount is not known.
    * 
    * @return the payment amount
    */
-  public Optional<CurrencyAmount> getPayment() {
+  public Optional<CurrencyAmount> getPaymentAmount() {
     return Optional.ofNullable(paymentAmount);
   }
 
