@@ -361,6 +361,62 @@ public class TestHelper {
     coverBean(bean);
   }
 
+  /**
+   * Test a bean equals method for the primary purpose of increasing test coverage.
+   * <p>
+   * The two beans passed in should contain a different value for each property.
+   * The method creates a cross-product to ensure test coverage of equals.
+   * 
+   * @param bean1  the first bean to test
+   * @param bean2  the second bean to test
+   */
+  public static void coverBeanEquals(Bean bean1, Bean bean2) {
+    assertNotNull(bean1, "coverBeanEquals() called with null bean");
+    assertNotNull(bean2, "coverBeanEquals() called with null bean");
+    assertFalse(bean1.equals(null));
+    assertFalse(bean1.equals("NonBean"));
+    assertTrue(bean1.equals(bean1));
+    assertTrue(bean2.equals(bean2));
+    assertEquals(bean1, JodaBeanUtils.cloneAlways(bean1));
+    assertEquals(bean2, JodaBeanUtils.cloneAlways(bean2));
+    assertTrue(bean1.hashCode() == bean1.hashCode());
+    assertTrue(bean2.hashCode() == bean2.hashCode());
+    if (bean1.equals(bean2) || bean1.getClass() != bean2.getClass()) {
+      return;
+    }
+    MetaBean metaBean = bean1.metaBean();
+    List<MetaProperty<?>> buildableProps = metaBean.metaPropertyMap().values().stream()
+        .filter(mp -> mp.style().isBuildable())
+        .collect(Collectors.toList());
+    Set<Bean> builtBeansSet = new HashSet<>();
+    builtBeansSet.add(bean1);
+    builtBeansSet.add(bean2);
+    for (int i = 0; i < buildableProps.size(); i++) {
+      for (int j = 0; j < 2; j++) {
+        try {
+          BeanBuilder<? extends Bean> bld = metaBean.builder();
+          for (int k = 0; k < buildableProps.size(); k++) {
+            MetaProperty<?> mp = buildableProps.get(k);
+            if (j == 0) {
+              bld.set(mp, mp.get(k < i ? bean1 : bean2));
+            } else {
+              bld.set(mp, mp.get(i <= k ? bean1 : bean2));
+            }
+          }
+          builtBeansSet.add(bld.build());
+        } catch (RuntimeException ex) {
+          // ignore
+        }
+      }
+    }
+    List<Bean> builtBeansList = new ArrayList<>(builtBeansSet);
+    for (int i = 0; i < builtBeansList.size() - 1; i++) {
+      for (int j = i + 1; j < builtBeansList.size(); j++) {
+        builtBeansList.get(i).equals(builtBeansList.get(j));
+      }
+    }
+  }
+
   // provide test coverage to all beans
   private static void coverBean(Bean bean) {
     coverProperties(bean);
@@ -498,6 +554,7 @@ public class TestHelper {
           }
         }
         Bean built = bld.build();
+        coverBeanEquals(bean, built);
         assertEquals(built, built);
         assertEquals(built.hashCode(), built.hashCode());
       } catch (RuntimeException ex) {
