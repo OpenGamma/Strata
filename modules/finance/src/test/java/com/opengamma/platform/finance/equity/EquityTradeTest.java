@@ -37,7 +37,7 @@ public class EquityTradeTest {
         .paymentAmount(CurrencyAmount.of(Currency.GBP, -1000))
         .build();
     assertEquals(test.getTradeType(), TradeType.of("Equity"));
-    assertEquals(test.getPayment(), Optional.of(CurrencyAmount.of(Currency.GBP, -1000)));
+    assertEquals(test.getPaymentAmount(), Optional.of(CurrencyAmount.of(Currency.GBP, -1000)));
   }
 
   public void test_of_noPayment() {
@@ -48,7 +48,7 @@ public class EquityTradeTest {
         .quantity(60)
         .build();
     assertEquals(test.getTradeType(), TradeType.of("Equity"));
-    assertEquals(test.getPayment(), Optional.empty());
+    assertEquals(test.getPaymentAmount(), Optional.empty());
   }
 
   //-------------------------------------------------------------------------
