@@ -240,6 +240,42 @@ public class TestHelper {
     assertThrows(runner, IllegalArgumentException.class);
   }
 
+
+  /**
+   * Asserts that the lambda-based code throws an exception
+   * and that the cause of the exception is the supplied cause.
+   * <p>
+   * For example:
+   * <pre>
+   *  assertThrows(() ->
+   *    executeSql("INSERT DATA THAT ALREADY EXISTS"), SQLIntegrityConstraintViolationException.class);
+   * </pre>
+   *
+   * @param runner  the lambda containing the code to test
+   * @param cause  the expected cause of the exception thrown
+   */
+  public static void assertThrowsWithCause(
+      AssertRunnable runner, Class<? extends Throwable> cause) {
+    assertNotNull(runner, "assertThrowsWithCause() called with null AssertRunnable");
+    assertNotNull(cause, "assertThrowsWithCause() called with null expected cause");
+
+    try {
+      runner.run();
+      fail("Expected " + cause.getSimpleName() + " but code succeeded normally");
+    } catch (AssertionError ex) {
+      throw ex;
+    } catch (Throwable ex) {
+      Throwable ex2 = ex;
+      while (ex2 != null && !cause.isInstance(ex2)) {
+        ex2 = ex2.getCause();
+      }
+
+      if (ex2 == null) {
+        fail("Expected cause of exception to be: " + cause.getSimpleName() + " but got different exception", ex);
+      }
+    }
+  }
+
   /**
    * Ignore any exception thrown by the lambda-based code.
    * <p>
