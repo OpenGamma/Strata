@@ -67,22 +67,6 @@ public final class IborAveragedRate
    * @param fixings  the weighted fixings
    * @return the averaged IBOR rate
    */
-  public static IborAveragedRate of(IborIndex index, IborAveragedFixing... fixings) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(fixings, "fixings");
-    return IborAveragedRate.builder()
-        .index(index)
-        .fixings(ImmutableList.copyOf(fixings))
-        .build();
-  }
-
-  /**
-   * Creates an {@code IborAveragedRate} from an index and fixings.
-   * 
-   * @param index  the index
-   * @param fixings  the weighted fixings
-   * @return the averaged IBOR rate
-   */
   public static IborAveragedRate of(IborIndex index, List<IborAveragedFixing> fixings) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(fixings, "fixings");

@@ -31,21 +31,6 @@ public class IborAveragedRateTest {
       IborAveragedFixing.of(date(2014, 6, 30)),
       IborAveragedFixing.of(date(2014, 7, 30)));
 
-  public void test_of_varargs() {
-    IborAveragedRate test = IborAveragedRate.of(GBP_LIBOR_3M, FIXINGS.toArray(new IborAveragedFixing[2]));
-    IborAveragedRate expected = IborAveragedRate.builder()
-        .index(IborIndices.GBP_LIBOR_3M)
-        .fixings(FIXINGS)
-        .build();
-    assertEquals(test, expected);
-  }
-
-  public void test_of_varargs_null() {
-    assertThrowsIllegalArg(() -> IborAveragedRate.of(null, FIXINGS));
-    assertThrowsIllegalArg(() -> IborAveragedRate.of(GBP_LIBOR_3M, (IborAveragedFixing[]) null));
-    assertThrowsIllegalArg(() -> IborAveragedRate.of(null, (IborAveragedFixing[]) null));
-  }
-
   public void test_of_List() {
     IborAveragedRate test = IborAveragedRate.of(GBP_LIBOR_3M, FIXINGS);
     IborAveragedRate expected = IborAveragedRate.builder()
