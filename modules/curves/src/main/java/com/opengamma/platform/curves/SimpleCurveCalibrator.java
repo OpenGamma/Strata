@@ -29,9 +29,10 @@ import com.opengamma.basics.date.Tenor;
 import com.opengamma.collect.Guavate;
 
 /**
- * Builds yield curves from a set of zero-coupon rates. This provides a
- * very straightforward way to create yield curves in order to test
- * out other aspects of analytics.
+ * Builds yield curves from a set of zero-coupon rates.
+ * <p>
+ * This provides a very straightforward way to create yield curves in order to
+ * test out other aspects of analytics.
  */
 public class SimpleCurveCalibrator {
 

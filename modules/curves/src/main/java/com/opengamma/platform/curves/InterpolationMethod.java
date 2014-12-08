@@ -1,15 +1,21 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.curves;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
 /**
- * Describes the methods available for interpolation
- * of curve data. Each value is associated with an
- * interpolator instance which will perform the
+ * Describes the methods available for interpolation of curve data.
+ * <p>
+ * Each value is associated with an interpolator instance which will perform the
  * interpolation when required.
  */
 public enum InterpolationMethod {
+
   /**
    * A one-dimensional linear interpolator. The interpolated value of the function
    * <i>y</i> at <i>x</i> between two data points <i>(x<sub>1</sub>,
@@ -54,4 +60,5 @@ public enum InterpolationMethod {
   public Interpolator1D getInterpolator() {
     return interpolator;
   }
+
 }

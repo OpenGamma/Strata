@@ -1,10 +1,15 @@
+/**
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.curves;
 
 /**
- * Describes the methods available for extrapolation
- * of curve data.
+ * Describes the methods available for extrapolation of curve data.
  */
 public enum ExtrapolationMethod {
+
   /**
    * Flat extrapolation: the extrapolant will have the same
    * value as the nearest pont in the data range.
@@ -29,5 +34,6 @@ public enum ExtrapolationMethod {
    *   <li>on the right: exp(m * data.lastKey()) = data.lastValue()</li>
    *  </ul>
    */
-  EXPONENTIAL
+  EXPONENTIAL;
+
 }
