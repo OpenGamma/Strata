@@ -5,7 +5,10 @@
  */
 package com.opengamma.platform.finance.rate;
 
+import static com.opengamma.basics.index.IborIndices.EUR_EURIBOR_1W;
+import static com.opengamma.basics.index.IborIndices.EUR_EURIBOR_2W;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
+import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1W;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.basics.index.IborIndices.USD_LIBOR_1M;
 import static com.opengamma.basics.index.IborIndices.USD_LIBOR_3M;
@@ -18,19 +21,37 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.index.IborIndices;
-
 /**
  * Test.
  */
 @Test
 public class IborInterpolatedRateTest {
 
-  public void test_of() {
+  public void test_of_monthly() {
     IborInterpolatedRate test = IborInterpolatedRate.of(GBP_LIBOR_1M, GBP_LIBOR_3M, date(2014, 6, 30));
     IborInterpolatedRate expected = IborInterpolatedRate.builder()
-        .shortIndex(IborIndices.GBP_LIBOR_1M)
-        .longIndex(IborIndices.GBP_LIBOR_3M)
+        .shortIndex(GBP_LIBOR_1M)
+        .longIndex(GBP_LIBOR_3M)
+        .fixingDate(date(2014, 6, 30))
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void test_of_weekly() {
+    IborInterpolatedRate test = IborInterpolatedRate.of(EUR_EURIBOR_1W, EUR_EURIBOR_2W, date(2014, 6, 30));
+    IborInterpolatedRate expected = IborInterpolatedRate.builder()
+        .shortIndex(EUR_EURIBOR_1W)
+        .longIndex(EUR_EURIBOR_2W)
+        .fixingDate(date(2014, 6, 30))
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void test_of_weekMonthCombination() {
+    IborInterpolatedRate test = IborInterpolatedRate.of(GBP_LIBOR_1W, GBP_LIBOR_1M, date(2014, 6, 30));
+    IborInterpolatedRate expected = IborInterpolatedRate.builder()
+        .shortIndex(GBP_LIBOR_1W)
+        .longIndex(GBP_LIBOR_1M)
         .fixingDate(date(2014, 6, 30))
         .build();
     assertEquals(test, expected);
@@ -38,6 +59,18 @@ public class IborInterpolatedRateTest {
 
   public void test_of_sameIndex() {
     assertThrowsIllegalArg(() -> IborInterpolatedRate.of(GBP_LIBOR_1M, GBP_LIBOR_1M, date(2014, 6, 30)));
+  }
+
+  public void test_of_indexOrderMonthly() {
+    assertThrowsIllegalArg(() -> IborInterpolatedRate.of(GBP_LIBOR_3M, GBP_LIBOR_1M, date(2014, 6, 30)));
+  }
+
+  public void test_of_indexOrderWeekly() {
+    assertThrowsIllegalArg(() -> IborInterpolatedRate.of(EUR_EURIBOR_2W, EUR_EURIBOR_1W, date(2014, 6, 30)));
+  }
+
+  public void test_of_differentCurrencies() {
+    assertThrowsIllegalArg(() -> IborInterpolatedRate.of(EUR_EURIBOR_2W, GBP_LIBOR_1M, date(2014, 6, 30)));
   }
 
   public void test_of_null() {

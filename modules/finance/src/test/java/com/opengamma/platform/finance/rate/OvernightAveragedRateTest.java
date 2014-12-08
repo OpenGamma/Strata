@@ -28,7 +28,7 @@ public class OvernightAveragedRateTest {
         .index(USD_FED_FUND)
         .startDate(date(2014, 6, 1))
         .endDate(date(2014, 7, 1))
-        .rateCutoffDays(0)
+        .rateCutOffDays(0)
         .build();
     assertEquals(test, expected);
   }
@@ -39,7 +39,7 @@ public class OvernightAveragedRateTest {
         .index(USD_FED_FUND)
         .startDate(date(2014, 6, 1))
         .endDate(date(2014, 7, 1))
-        .rateCutoffDays(0)
+        .rateCutOffDays(0)
         .build();
     assertEquals(test, expected);
   }
@@ -50,7 +50,7 @@ public class OvernightAveragedRateTest {
         .index(USD_FED_FUND)
         .startDate(date(2014, 6, 1))
         .endDate(date(2014, 7, 1))
-        .rateCutoffDays(2)
+        .rateCutOffDays(2)
         .build();
     assertEquals(test, expected);
   }

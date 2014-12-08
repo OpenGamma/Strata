@@ -65,9 +65,9 @@ public final class OvernightAveragedRate
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
   /**
-   * The number of business days before the end of the period that the rate is cutoff.
+   * The number of business days before the end of the period that the rate is cut off.
    * <p>
-   * When a rate cutoff applies, the final daily rate is determined this number of days
+   * When a rate cut-off applies, the final daily rate is determined this number of days
    * before the end of the period, with any subsequent days having the same rate.
    * <p>
    * The amount must be zero or positive.
@@ -82,13 +82,13 @@ public final class OvernightAveragedRate
    * should typically only be non-zero in the last accrual period.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final int rateCutoffDays;
+  private final int rateCutOffDays;
 
   //-------------------------------------------------------------------------
   /**
    * Creates an {@code OvernightAveragedRate} from an index and period dates
    * <p>
-   * No rate cutoff applies.
+   * No rate cut-off applies.
    * 
    * @param index  the index
    * @param startDate  the first date of the period
@@ -100,26 +100,26 @@ public final class OvernightAveragedRate
   }
 
   /**
-   * Creates an {@code OvernightAveragedRate} from an index, period dates and rate cutoff.
+   * Creates an {@code OvernightAveragedRate} from an index, period dates and rate cut-off.
    * <p>
-   * Rate cutoff applies if the cutoff is 2 or greater.
+   * Rate cut-off applies if the cut-off is 2 or greater.
    * 
    * @param index  the index
    * @param startDate  the first date of the period
    * @param endDate  the last date of the period
-   * @param rateCutoffDays  the rate cutoff days offset, not negative
+   * @param rateCutOffDays  the rate cut-off days offset, not negative
    * @return the Overnight compounded rate
    */
   public static OvernightAveragedRate of(
       OvernightIndex index,
       LocalDate startDate,
       LocalDate endDate,
-      int rateCutoffDays) {
+      int rateCutOffDays) {
     return OvernightAveragedRate.builder()
         .index(index)
         .startDate(startDate)
         .endDate(endDate)
-        .rateCutoffDays(rateCutoffDays)
+        .rateCutOffDays(rateCutOffDays)
         .build();
   }
 
@@ -155,15 +155,15 @@ public final class OvernightAveragedRate
       OvernightIndex index,
       LocalDate startDate,
       LocalDate endDate,
-      int rateCutoffDays) {
+      int rateCutOffDays) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
-    ArgChecker.notNegative(rateCutoffDays, "rateCutoffDays");
+    ArgChecker.notNegative(rateCutOffDays, "rateCutOffDays");
     this.index = index;
     this.startDate = startDate;
     this.endDate = endDate;
-    this.rateCutoffDays = rateCutoffDays;
+    this.rateCutOffDays = rateCutOffDays;
     validate();
   }
 
@@ -219,9 +219,9 @@ public final class OvernightAveragedRate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of business days before the end of the period that the rate is cutoff.
+   * Gets the number of business days before the end of the period that the rate is cut off.
    * <p>
-   * When a rate cutoff applies, the final daily rate is determined this number of days
+   * When a rate cut-off applies, the final daily rate is determined this number of days
    * before the end of the period, with any subsequent days having the same rate.
    * <p>
    * The amount must be zero or positive.
@@ -236,8 +236,8 @@ public final class OvernightAveragedRate
    * should typically only be non-zero in the last accrual period.
    * @return the value of the property
    */
-  public int getRateCutoffDays() {
-    return rateCutoffDays;
+  public int getRateCutOffDays() {
+    return rateCutOffDays;
   }
 
   //-----------------------------------------------------------------------
@@ -259,7 +259,7 @@ public final class OvernightAveragedRate
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
-          (getRateCutoffDays() == other.getRateCutoffDays());
+          (getRateCutOffDays() == other.getRateCutOffDays());
     }
     return false;
   }
@@ -270,7 +270,7 @@ public final class OvernightAveragedRate
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRateCutoffDays());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRateCutOffDays());
     return hash;
   }
 
@@ -281,7 +281,7 @@ public final class OvernightAveragedRate
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("rateCutoffDays").append('=').append(JodaBeanUtils.toString(getRateCutoffDays()));
+    buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(getRateCutOffDays()));
     buf.append('}');
     return buf.toString();
   }
@@ -312,10 +312,10 @@ public final class OvernightAveragedRate
     private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
         this, "endDate", OvernightAveragedRate.class, LocalDate.class);
     /**
-     * The meta-property for the {@code rateCutoffDays} property.
+     * The meta-property for the {@code rateCutOffDays} property.
      */
-    private final MetaProperty<Integer> rateCutoffDays = DirectMetaProperty.ofImmutable(
-        this, "rateCutoffDays", OvernightAveragedRate.class, Integer.TYPE);
+    private final MetaProperty<Integer> rateCutOffDays = DirectMetaProperty.ofImmutable(
+        this, "rateCutOffDays", OvernightAveragedRate.class, Integer.TYPE);
     /**
      * The meta-properties.
      */
@@ -324,7 +324,7 @@ public final class OvernightAveragedRate
         "index",
         "startDate",
         "endDate",
-        "rateCutoffDays");
+        "rateCutOffDays");
 
     /**
      * Restricted constructor.
@@ -341,8 +341,8 @@ public final class OvernightAveragedRate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case -1756749084:  // rateCutoffDays
-          return rateCutoffDays;
+        case -92095804:  // rateCutOffDays
+          return rateCutOffDays;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -388,11 +388,11 @@ public final class OvernightAveragedRate
     }
 
     /**
-     * The meta-property for the {@code rateCutoffDays} property.
+     * The meta-property for the {@code rateCutOffDays} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Integer> rateCutoffDays() {
-      return rateCutoffDays;
+    public MetaProperty<Integer> rateCutOffDays() {
+      return rateCutOffDays;
     }
 
     //-----------------------------------------------------------------------
@@ -405,8 +405,8 @@ public final class OvernightAveragedRate
           return ((OvernightAveragedRate) bean).getStartDate();
         case -1607727319:  // endDate
           return ((OvernightAveragedRate) bean).getEndDate();
-        case -1756749084:  // rateCutoffDays
-          return ((OvernightAveragedRate) bean).getRateCutoffDays();
+        case -92095804:  // rateCutOffDays
+          return ((OvernightAveragedRate) bean).getRateCutOffDays();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -431,7 +431,7 @@ public final class OvernightAveragedRate
     private OvernightIndex index;
     private LocalDate startDate;
     private LocalDate endDate;
-    private int rateCutoffDays;
+    private int rateCutOffDays;
 
     /**
      * Restricted constructor.
@@ -447,7 +447,7 @@ public final class OvernightAveragedRate
       this.index = beanToCopy.getIndex();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
-      this.rateCutoffDays = beanToCopy.getRateCutoffDays();
+      this.rateCutOffDays = beanToCopy.getRateCutOffDays();
     }
 
     //-----------------------------------------------------------------------
@@ -460,8 +460,8 @@ public final class OvernightAveragedRate
           return startDate;
         case -1607727319:  // endDate
           return endDate;
-        case -1756749084:  // rateCutoffDays
-          return rateCutoffDays;
+        case -92095804:  // rateCutOffDays
+          return rateCutOffDays;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -479,8 +479,8 @@ public final class OvernightAveragedRate
         case -1607727319:  // endDate
           this.endDate = (LocalDate) newValue;
           break;
-        case -1756749084:  // rateCutoffDays
-          this.rateCutoffDays = (Integer) newValue;
+        case -92095804:  // rateCutOffDays
+          this.rateCutOffDays = (Integer) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -518,7 +518,7 @@ public final class OvernightAveragedRate
           index,
           startDate,
           endDate,
-          rateCutoffDays);
+          rateCutOffDays);
     }
 
     //-----------------------------------------------------------------------
@@ -556,13 +556,13 @@ public final class OvernightAveragedRate
     }
 
     /**
-     * Sets the {@code rateCutoffDays} property in the builder.
-     * @param rateCutoffDays  the new value
+     * Sets the {@code rateCutOffDays} property in the builder.
+     * @param rateCutOffDays  the new value
      * @return this, for chaining, not null
      */
-    public Builder rateCutoffDays(int rateCutoffDays) {
-      ArgChecker.notNegative(rateCutoffDays, "rateCutoffDays");
-      this.rateCutoffDays = rateCutoffDays;
+    public Builder rateCutOffDays(int rateCutOffDays) {
+      ArgChecker.notNegative(rateCutOffDays, "rateCutOffDays");
+      this.rateCutOffDays = rateCutOffDays;
       return this;
     }
 
@@ -574,7 +574,7 @@ public final class OvernightAveragedRate
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
-      buf.append("rateCutoffDays").append('=').append(JodaBeanUtils.toString(rateCutoffDays));
+      buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(rateCutOffDays));
       buf.append('}');
       return buf.toString();
     }

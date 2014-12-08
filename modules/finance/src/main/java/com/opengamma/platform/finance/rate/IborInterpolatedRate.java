@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -25,12 +25,13 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.index.IborIndex;
+import com.opengamma.collect.Messages;
 
 /**
  * Defines the calculation of a rate of interest interpolated from two IBOR-like indices.
  * <p>
  * An interest rate determined from two IBOR-like indices by linear interpolation.
- * Both indices are observed on the same fixing date.
+ * Both indices are observed on the same fixing date and they must have the same currency.
  * For example, linear interpolation between 'GBP-LIBOR-1M' and 'GBP-LIBOR-3M'.
  */
 @BeanDefinition
@@ -85,8 +86,15 @@ public final class IborInterpolatedRate
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
+    if (!shortIndex.getCurrency().equals(longIndex.getCurrency())) {
+      throw new IllegalArgumentException("Interpolation requires two indices in the same currency");
+    }
     if (shortIndex.equals(longIndex)) {
       throw new IllegalArgumentException("Interpolation requires two different indices");
+    }
+    if (fixingDate.plus(shortIndex.getTenor()).isAfter(fixingDate.plus(longIndex.getTenor()))) {
+      throw new IllegalArgumentException(
+          Messages.format("Interpolation indices passed in wrong order: {} {}", shortIndex, longIndex));
     }
   }
 

@@ -37,7 +37,7 @@ public final class FixedRate
   /**
    * The fixed rate to be paid, with a 5% rate expressed as 0.05.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final double rate;
 
   //-------------------------------------------------------------------------
@@ -77,7 +77,6 @@ public final class FixedRate
 
   private FixedRate(
       double rate) {
-    JodaBeanUtils.notNull(rate, "rate");
     this.rate = rate;
   }
 
@@ -99,7 +98,7 @@ public final class FixedRate
   //-----------------------------------------------------------------------
   /**
    * Gets the fixed rate to be paid, with a 5% rate expressed as 0.05.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public double getRate() {
     return rate;
@@ -302,11 +301,10 @@ public final class FixedRate
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code rate} property in the builder.
-     * @param rate  the new value, not null
+     * @param rate  the new value
      * @return this, for chaining, not null
      */
     public Builder rate(double rate) {
-      JodaBeanUtils.notNull(rate, "rate");
       this.rate = rate;
       return this;
     }
