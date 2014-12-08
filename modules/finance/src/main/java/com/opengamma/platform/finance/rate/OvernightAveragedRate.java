@@ -50,17 +50,25 @@ public final class OvernightAveragedRate
   @PropertyDefinition(validate = "notNull")
   private final OvernightIndex index;
   /**
-   * The first date in the period.
+   * The first date in the fixing period.
    * <p>
    * The overnight rate is calculated from this date onwards.
+   * <p>
+   * In general, the fixing dates and accrual dates are the same for an overnight index.
+   * However, in the case of a Tomorrow/Next index, the fixing period is one business day
+   * before the accrual period.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate startDate;
   /**
-   * The last date in the period.
+   * The last date in the fixing period.
    * <p>
    * The overnight rate is calculated until this date.
    * The last fixing date will be one business day before this date.
+   * <p>
+   * In general, the fixing dates and accrual dates are the same for an overnight index.
+   * However, in the case of a Tomorrow/Next index, the fixing period is one business day
+   * before the accrual period.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
@@ -196,9 +204,13 @@ public final class OvernightAveragedRate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the first date in the period.
+   * Gets the first date in the fixing period.
    * <p>
    * The overnight rate is calculated from this date onwards.
+   * <p>
+   * In general, the fixing dates and accrual dates are the same for an overnight index.
+   * However, in the case of a Tomorrow/Next index, the fixing period is one business day
+   * before the accrual period.
    * @return the value of the property, not null
    */
   public LocalDate getStartDate() {
@@ -207,10 +219,14 @@ public final class OvernightAveragedRate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the last date in the period.
+   * Gets the last date in the fixing period.
    * <p>
    * The overnight rate is calculated until this date.
    * The last fixing date will be one business day before this date.
+   * <p>
+   * In general, the fixing dates and accrual dates are the same for an overnight index.
+   * However, in the case of a Tomorrow/Next index, the fixing period is one business day
+   * before the accrual period.
    * @return the value of the property, not null
    */
   public LocalDate getEndDate() {
