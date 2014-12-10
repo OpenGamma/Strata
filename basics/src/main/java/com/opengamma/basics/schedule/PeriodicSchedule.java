@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -77,15 +78,16 @@ import com.opengamma.collect.ArgChecker;
  * The stubs are specified using a combination of the {@link StubConvention}, {@link RollConvention} and dates.
  * <p>
  * The explicit stub dates are checked first. An explicit stub occurs if 'firstRegularStartDate' or
- * 'lastRegularEndDate' is non-null and they differ from 'startDate' and 'endDate'.
+ * 'lastRegularEndDate' is present and they differ from 'startDate' and 'endDate'.
  * <p>
  * If explicit stub dates are specified then they are used to lock the initial or final stub.
- * If the stub convention is non-null, it is matched and validated against the locked stub.
+ * If the stub convention is present, it is matched and validated against the locked stub.
  * For example, if an initial stub is specified by dates and the stub convention is 'ShortInitial'
  * or 'LongInitial' then the convention is considered to be matched, thus the periodic frequency is
  * applied using the implicit stub convention 'None'.
  * If the stub convention does not match the dates, then an exception will be thrown during schedule creation.
- * If the stub convention is null, then the periodic frequency is applied using the implicit stub convention 'None'.
+ * If the stub convention is not present, then the periodic frequency is applied
+ * using the implicit stub convention 'None'.
  * <p>
  * If explicit stub dates are not specified then the stub convention is used.
  * The convention selects whether to use the start date or the end date as the beginning of the schedule calculation.
@@ -93,7 +95,7 @@ import com.opengamma.collect.ArgChecker;
  * in which case 'EOM' is only applied if the calculation starts at the end of the month.
  * <p>
  * In all cases, the roll convention is used to fine-tune the dates.
- * If null or 'None', the convention is effectively implied from the first date of the calculation.
+ * If not present or 'None', the convention is effectively implied from the first date of the calculation.
  * All calculated dates will match the roll convention.
  * If this is not possible due to the dates specified then an exception will be thrown during schedule creation.
  * <p>
@@ -105,9 +107,6 @@ import com.opengamma.collect.ArgChecker;
 @BeanDefinition
 public final class PeriodicSchedule
     implements ImmutableBean, Serializable {
-
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
 
   /**
    * The start date, which is the start of the first schedule period.
@@ -149,7 +148,7 @@ public final class PeriodicSchedule
    * The adjustment specified here is used to convert those dates to valid business days.
    * <p>
    * The start date and end date may have their own business day adjustment rules.
-   * If those are null, then this adjustment is used instead.
+   * If those are not present, then this adjustment is used instead.
    */
   @PropertyDefinition(validate = "notNull")
   private final BusinessDayAdjustment businessDayAdjustment;
@@ -159,9 +158,9 @@ public final class PeriodicSchedule
    * The start date property is an unadjusted date and as such might be a weekend or holiday.
    * The adjustment specified here is used to convert the start date to a valid business day.
    * <p>
-   * If this property is null, the standard {@code businessDayAdjustment} property is used instead.
+   * If this property is not present, the standard {@code businessDayAdjustment} property is used instead.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   private final BusinessDayAdjustment startDateBusinessDayAdjustment;
   /**
    * The optional business day adjustment to apply to the end date.
@@ -169,9 +168,9 @@ public final class PeriodicSchedule
    * The end date property is an unadjusted date and as such might be a weekend or holiday.
    * The adjustment specified here is used to convert the end date to a valid business day.
    * <p>
-   * If this property is null, the standard {@code businessDayAdjustment} property is used instead.
+   * If this property is not present, the standard {@code businessDayAdjustment} property is used instead.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   private final BusinessDayAdjustment endDateBusinessDayAdjustment;
   /**
    * The optional convention defining how to handle stubs.
@@ -187,7 +186,7 @@ public final class PeriodicSchedule
    * The stubs themselves must be specified using explicit dates.
    * This will be validated during schedule construction.
    * <p>
-   * A null stub convention indicates that the convention should be implied from the actual
+   * If the stub convention is not present, then the convention will be implied from the actual
    * explicit dates that have been specified.
    * <p>
    * If both a stub convention and explicit dates are specified, then the combination will be
@@ -195,7 +194,7 @@ public final class PeriodicSchedule
    * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
    * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   private final StubConvention stubConvention;
   /**
    * The optional convention defining how to roll dates.
@@ -203,8 +202,11 @@ public final class PeriodicSchedule
    * The schedule periods are determined at the high level by repeatedly adding
    * the frequency to the start date, or subtracting it from the end date.
    * The roll convention provides the detailed rule to adjust the day-of-month or day-of-week.
+   * <p>
+   * During schedule generation, if this is present it will be used to determine the schedule.
+   * If not present, then the roll convention will be implied.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   private final RollConvention rollConvention;
   /**
    * The optional start date of the first regular schedule period, which is the end date of the initial stub.
@@ -214,10 +216,10 @@ public final class PeriodicSchedule
    * This is an unadjusted date, and as such it might not be a valid business day.
    * This date must be on or after 'startDate'.
    * <p>
-   * During schedule construction, if this is non-null it will be used to determine the schedule.
-   * If null, then the overall schedule start date will be used instead, resulting in no initial stub.
+   * During schedule generation, if this is present it will be used to determine the schedule.
+   * If not present, then the overall schedule start date will be used instead, resulting in no initial stub.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   private final LocalDate firstRegularStartDate;
   /**
    * The optional end date of the last regular schedule period, which is the start date of the final stub.
@@ -228,10 +230,10 @@ public final class PeriodicSchedule
    * This date must be after 'startDate' and after 'firstRegularStartDate'.
    * This date must be on or before 'endDate'.
    * <p>
-   * During schedule construction, if this is non-null it will be used to determine the schedule.
-   * If null, then the overall schedule end date will be used instead, resulting in no final stub.
+   * During schedule generation, if this is present it will be used to determine the schedule.
+   * If not present, then the overall schedule end date will be used instead, resulting in no final stub.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   private final LocalDate lastRegularEndDate;
 
   //-------------------------------------------------------------------------
@@ -338,10 +340,10 @@ public final class PeriodicSchedule
    * and an optional final stub.
    * <p>
    * The roll convention, stub convention and additional dates are all used to determine the schedule.
-   * If the roll convention is null it will be defaulted from the stub convention, with 'None' as the default.
+   * If the roll convention is not present it will be defaulted from the stub convention, with 'None' as the default.
    * If there are explicit stub dates then they will be used.
-   * If the stub convention is non-null, then it will be validated against the stub dates.
-   * If the stub convention and stub dates are null, then no stubs are allowed.
+   * If the stub convention is present, then it will be validated against the stub dates.
+   * If the stub convention and stub dates are not present, then no stubs are allowed.
    * 
    * @return the schedule
    * @throws ScheduleException if the definition is invalid
@@ -369,10 +371,10 @@ public final class PeriodicSchedule
    * Between those dates will be the calculated periodic schedule.
    * <p>
    * The roll convention, stub convention and additional dates are all used to determine the schedule.
-   * If the roll convention is null it will be defaulted from the stub convention, with 'None' as the default.
+   * If the roll convention is not present it will be defaulted from the stub convention, with 'None' as the default.
    * If there are explicit stub dates then they will be used.
-   * If the stub convention is non-null, then it will be validated against the stub dates.
-   * If the stub convention and stub dates are null, then no stubs are allowed.
+   * If the stub convention is present, then it will be validated against the stub dates.
+   * If the stub convention and stub dates are not present, then no stubs are allowed.
    * If the frequency is 'Term' explicit stub dates are disallowed, and the roll and stub convention are ignored.
    * 
    * @return the schedule of unadjusted dates
@@ -485,10 +487,10 @@ public final class PeriodicSchedule
    * Each date will be a valid business day as per the appropriate business day adjustment.
    * <p>
    * The roll convention, stub convention and additional dates are all used to determine the schedule.
-   * If the roll convention is null it will be defaulted from the stub convention, with 'None' as the default.
+   * If the roll convention is not present it will be defaulted from the stub convention, with 'None' as the default.
    * If there are explicit stub dates then they will be used.
-   * If the stub convention is non-null, then it will be validated against the stub dates.
-   * If the stub convention and stub dates are null, then no stubs are allowed.
+   * If the stub convention is present, then it will be validated against the stub dates.
+   * If the stub convention and stub dates are not present, then no stubs are allowed.
    * 
    * @return the schedule of dates adjusted to valid business days
    * @throws ScheduleException if the definition is invalid
@@ -525,7 +527,7 @@ public final class PeriodicSchedule
    * The roll convention provides the detailed rule to adjust the day-of-month or day-of-week.
    * <p>
    * The effective roll convention is a non-null value.
-   * If the roll convention property is null, this is determined from the
+   * If the roll convention property is not present, this is determined from the
    * stub convention, dates and frequency, defaulting to 'None' if necessary.
    * 
    * @return the non-null roll convention
@@ -589,6 +591,11 @@ public final class PeriodicSchedule
   static {
     JodaBeanUtils.registerMetaBean(PeriodicSchedule.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -694,7 +701,7 @@ public final class PeriodicSchedule
    * The adjustment specified here is used to convert those dates to valid business days.
    * <p>
    * The start date and end date may have their own business day adjustment rules.
-   * If those are null, then this adjustment is used instead.
+   * If those are not present, then this adjustment is used instead.
    * @return the value of the property, not null
    */
   public BusinessDayAdjustment getBusinessDayAdjustment() {
@@ -708,11 +715,11 @@ public final class PeriodicSchedule
    * The start date property is an unadjusted date and as such might be a weekend or holiday.
    * The adjustment specified here is used to convert the start date to a valid business day.
    * <p>
-   * If this property is null, the standard {@code businessDayAdjustment} property is used instead.
-   * @return the value of the property
+   * If this property is not present, the standard {@code businessDayAdjustment} property is used instead.
+   * @return the optional value of the property, not null
    */
-  public BusinessDayAdjustment getStartDateBusinessDayAdjustment() {
-    return startDateBusinessDayAdjustment;
+  public Optional<BusinessDayAdjustment> getStartDateBusinessDayAdjustment() {
+    return Optional.ofNullable(startDateBusinessDayAdjustment);
   }
 
   //-----------------------------------------------------------------------
@@ -722,11 +729,11 @@ public final class PeriodicSchedule
    * The end date property is an unadjusted date and as such might be a weekend or holiday.
    * The adjustment specified here is used to convert the end date to a valid business day.
    * <p>
-   * If this property is null, the standard {@code businessDayAdjustment} property is used instead.
-   * @return the value of the property
+   * If this property is not present, the standard {@code businessDayAdjustment} property is used instead.
+   * @return the optional value of the property, not null
    */
-  public BusinessDayAdjustment getEndDateBusinessDayAdjustment() {
-    return endDateBusinessDayAdjustment;
+  public Optional<BusinessDayAdjustment> getEndDateBusinessDayAdjustment() {
+    return Optional.ofNullable(endDateBusinessDayAdjustment);
   }
 
   //-----------------------------------------------------------------------
@@ -744,17 +751,17 @@ public final class PeriodicSchedule
    * The stubs themselves must be specified using explicit dates.
    * This will be validated during schedule construction.
    * <p>
-   * A null stub convention indicates that the convention should be implied from the actual
+   * If the stub convention is not present, then the convention will be implied from the actual
    * explicit dates that have been specified.
    * <p>
    * If both a stub convention and explicit dates are specified, then the combination will be
    * validated during schedule construction. For example, the combination of an explicit dated
    * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
    * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
-   * @return the value of the property
+   * @return the optional value of the property, not null
    */
-  public StubConvention getStubConvention() {
-    return stubConvention;
+  public Optional<StubConvention> getStubConvention() {
+    return Optional.ofNullable(stubConvention);
   }
 
   //-----------------------------------------------------------------------
@@ -764,10 +771,13 @@ public final class PeriodicSchedule
    * The schedule periods are determined at the high level by repeatedly adding
    * the frequency to the start date, or subtracting it from the end date.
    * The roll convention provides the detailed rule to adjust the day-of-month or day-of-week.
-   * @return the value of the property
+   * <p>
+   * During schedule generation, if this is present it will be used to determine the schedule.
+   * If not present, then the roll convention will be implied.
+   * @return the optional value of the property, not null
    */
-  public RollConvention getRollConvention() {
-    return rollConvention;
+  public Optional<RollConvention> getRollConvention() {
+    return Optional.ofNullable(rollConvention);
   }
 
   //-----------------------------------------------------------------------
@@ -779,12 +789,12 @@ public final class PeriodicSchedule
    * This is an unadjusted date, and as such it might not be a valid business day.
    * This date must be on or after 'startDate'.
    * <p>
-   * During schedule construction, if this is non-null it will be used to determine the schedule.
-   * If null, then the overall schedule start date will be used instead, resulting in no initial stub.
-   * @return the value of the property
+   * During schedule generation, if this is present it will be used to determine the schedule.
+   * If not present, then the overall schedule start date will be used instead, resulting in no initial stub.
+   * @return the optional value of the property, not null
    */
-  public LocalDate getFirstRegularStartDate() {
-    return firstRegularStartDate;
+  public Optional<LocalDate> getFirstRegularStartDate() {
+    return Optional.ofNullable(firstRegularStartDate);
   }
 
   //-----------------------------------------------------------------------
@@ -797,12 +807,12 @@ public final class PeriodicSchedule
    * This date must be after 'startDate' and after 'firstRegularStartDate'.
    * This date must be on or before 'endDate'.
    * <p>
-   * During schedule construction, if this is non-null it will be used to determine the schedule.
-   * If null, then the overall schedule end date will be used instead, resulting in no final stub.
-   * @return the value of the property
+   * During schedule generation, if this is present it will be used to determine the schedule.
+   * If not present, then the overall schedule end date will be used instead, resulting in no final stub.
+   * @return the optional value of the property, not null
    */
-  public LocalDate getLastRegularEndDate() {
-    return lastRegularEndDate;
+  public Optional<LocalDate> getLastRegularEndDate() {
+    return Optional.ofNullable(lastRegularEndDate);
   }
 
   //-----------------------------------------------------------------------
@@ -825,12 +835,12 @@ public final class PeriodicSchedule
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getFrequency(), other.getFrequency()) &&
           JodaBeanUtils.equal(getBusinessDayAdjustment(), other.getBusinessDayAdjustment()) &&
-          JodaBeanUtils.equal(getStartDateBusinessDayAdjustment(), other.getStartDateBusinessDayAdjustment()) &&
-          JodaBeanUtils.equal(getEndDateBusinessDayAdjustment(), other.getEndDateBusinessDayAdjustment()) &&
-          JodaBeanUtils.equal(getStubConvention(), other.getStubConvention()) &&
-          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
-          JodaBeanUtils.equal(getFirstRegularStartDate(), other.getFirstRegularStartDate()) &&
-          JodaBeanUtils.equal(getLastRegularEndDate(), other.getLastRegularEndDate());
+          JodaBeanUtils.equal(startDateBusinessDayAdjustment, other.startDateBusinessDayAdjustment) &&
+          JodaBeanUtils.equal(endDateBusinessDayAdjustment, other.endDateBusinessDayAdjustment) &&
+          JodaBeanUtils.equal(stubConvention, other.stubConvention) &&
+          JodaBeanUtils.equal(rollConvention, other.rollConvention) &&
+          JodaBeanUtils.equal(firstRegularStartDate, other.firstRegularStartDate) &&
+          JodaBeanUtils.equal(lastRegularEndDate, other.lastRegularEndDate);
     }
     return false;
   }
@@ -838,16 +848,16 @@ public final class PeriodicSchedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDateBusinessDayAdjustment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDateBusinessDayAdjustment());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirstRegularStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLastRegularEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBusinessDayAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDateBusinessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDateBusinessDayAdjustment);
+    hash = hash * 31 + JodaBeanUtils.hashCode(stubConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(rollConvention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(firstRegularStartDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(lastRegularEndDate);
     return hash;
   }
 
@@ -859,12 +869,12 @@ public final class PeriodicSchedule
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
     buf.append("frequency").append('=').append(getFrequency()).append(',').append(' ');
     buf.append("businessDayAdjustment").append('=').append(getBusinessDayAdjustment()).append(',').append(' ');
-    buf.append("startDateBusinessDayAdjustment").append('=').append(getStartDateBusinessDayAdjustment()).append(',').append(' ');
-    buf.append("endDateBusinessDayAdjustment").append('=').append(getEndDateBusinessDayAdjustment()).append(',').append(' ');
-    buf.append("stubConvention").append('=').append(getStubConvention()).append(',').append(' ');
-    buf.append("rollConvention").append('=').append(getRollConvention()).append(',').append(' ');
-    buf.append("firstRegularStartDate").append('=').append(getFirstRegularStartDate()).append(',').append(' ');
-    buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(getLastRegularEndDate()));
+    buf.append("startDateBusinessDayAdjustment").append('=').append(startDateBusinessDayAdjustment).append(',').append(' ');
+    buf.append("endDateBusinessDayAdjustment").append('=').append(endDateBusinessDayAdjustment).append(',').append(' ');
+    buf.append("stubConvention").append('=').append(stubConvention).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(rollConvention).append(',').append(' ');
+    buf.append("firstRegularStartDate").append('=').append(firstRegularStartDate).append(',').append(' ');
+    buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(lastRegularEndDate));
     buf.append('}');
     return buf.toString();
   }
@@ -1087,17 +1097,17 @@ public final class PeriodicSchedule
         case -1065319863:  // businessDayAdjustment
           return ((PeriodicSchedule) bean).getBusinessDayAdjustment();
         case 429197561:  // startDateBusinessDayAdjustment
-          return ((PeriodicSchedule) bean).getStartDateBusinessDayAdjustment();
+          return ((PeriodicSchedule) bean).startDateBusinessDayAdjustment;
         case -734327136:  // endDateBusinessDayAdjustment
-          return ((PeriodicSchedule) bean).getEndDateBusinessDayAdjustment();
+          return ((PeriodicSchedule) bean).endDateBusinessDayAdjustment;
         case -31408449:  // stubConvention
-          return ((PeriodicSchedule) bean).getStubConvention();
+          return ((PeriodicSchedule) bean).stubConvention;
         case -10223666:  // rollConvention
-          return ((PeriodicSchedule) bean).getRollConvention();
+          return ((PeriodicSchedule) bean).rollConvention;
         case 2011803076:  // firstRegularStartDate
-          return ((PeriodicSchedule) bean).getFirstRegularStartDate();
+          return ((PeriodicSchedule) bean).firstRegularStartDate;
         case -1540679645:  // lastRegularEndDate
-          return ((PeriodicSchedule) bean).getLastRegularEndDate();
+          return ((PeriodicSchedule) bean).lastRegularEndDate;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1145,12 +1155,12 @@ public final class PeriodicSchedule
       this.endDate = beanToCopy.getEndDate();
       this.frequency = beanToCopy.getFrequency();
       this.businessDayAdjustment = beanToCopy.getBusinessDayAdjustment();
-      this.startDateBusinessDayAdjustment = beanToCopy.getStartDateBusinessDayAdjustment();
-      this.endDateBusinessDayAdjustment = beanToCopy.getEndDateBusinessDayAdjustment();
-      this.stubConvention = beanToCopy.getStubConvention();
-      this.rollConvention = beanToCopy.getRollConvention();
-      this.firstRegularStartDate = beanToCopy.getFirstRegularStartDate();
-      this.lastRegularEndDate = beanToCopy.getLastRegularEndDate();
+      this.startDateBusinessDayAdjustment = beanToCopy.startDateBusinessDayAdjustment;
+      this.endDateBusinessDayAdjustment = beanToCopy.endDateBusinessDayAdjustment;
+      this.stubConvention = beanToCopy.stubConvention;
+      this.rollConvention = beanToCopy.rollConvention;
+      this.firstRegularStartDate = beanToCopy.firstRegularStartDate;
+      this.lastRegularEndDate = beanToCopy.lastRegularEndDate;
     }
 
     //-----------------------------------------------------------------------

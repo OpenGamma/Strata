@@ -56,9 +56,6 @@ public final class LocalDateDoubleTimeSeries
   /** Empty instance. */
   public static final LocalDateDoubleTimeSeries EMPTY_SERIES = createUnsafe(new LocalDate[0], new double[0]);
 
-  /** Serialization version. */
-  private static final long serialVersionUID = -43654613865187568L;
-
   /**
    * The dates in the series.
    * The dates are ordered from earliest to latest.
@@ -683,6 +680,11 @@ public final class LocalDateDoubleTimeSeries
   static {
     JodaBeanUtils.registerMetaBean(LocalDateDoubleTimeSeries.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   @Override
   public LocalDateDoubleTimeSeries.Meta metaBean() {

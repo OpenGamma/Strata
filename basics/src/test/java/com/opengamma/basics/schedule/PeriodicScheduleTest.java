@@ -36,6 +36,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -84,10 +85,12 @@ public class PeriodicScheduleTest {
     assertEquals(test.getEndDate(), SEP_17);
     assertEquals(test.getFrequency(), P1M);
     assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getStubConvention(), SHORT_INITIAL);
-    assertEquals(test.getRollConvention(), null);
-    assertEquals(test.getFirstRegularStartDate(), null);
-    assertEquals(test.getLastRegularEndDate(), null);
+    assertEquals(test.getStartDateBusinessDayAdjustment(), Optional.empty());
+    assertEquals(test.getEndDateBusinessDayAdjustment(), Optional.empty());
+    assertEquals(test.getStubConvention(), Optional.of(SHORT_INITIAL));
+    assertEquals(test.getRollConvention(), Optional.empty());
+    assertEquals(test.getFirstRegularStartDate(), Optional.empty());
+    assertEquals(test.getLastRegularEndDate(), Optional.empty());
     assertEquals(test.getEffectiveRollConvention(), DAY_17);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
     assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
@@ -99,10 +102,12 @@ public class PeriodicScheduleTest {
     assertEquals(test.getEndDate(), SEP_17);
     assertEquals(test.getFrequency(), P1M);
     assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getStubConvention(), SHORT_FINAL);
-    assertEquals(test.getRollConvention(), EOM);
-    assertEquals(test.getFirstRegularStartDate(), null);
-    assertEquals(test.getLastRegularEndDate(), null);
+    assertEquals(test.getStartDateBusinessDayAdjustment(), Optional.empty());
+    assertEquals(test.getEndDateBusinessDayAdjustment(), Optional.empty());
+    assertEquals(test.getStubConvention(), Optional.of(SHORT_FINAL));
+    assertEquals(test.getRollConvention(), Optional.of(EOM));
+    assertEquals(test.getFirstRegularStartDate(), Optional.empty());
+    assertEquals(test.getLastRegularEndDate(), Optional.empty());
     assertEquals(test.getEffectiveRollConvention(), DAY_4);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
     assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
@@ -128,10 +133,12 @@ public class PeriodicScheduleTest {
     assertEquals(test.getEndDate(), SEP_17);
     assertEquals(test.getFrequency(), P1M);
     assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getStubConvention(), SHORT_INITIAL);
-    assertEquals(test.getRollConvention(), DAY_17);
-    assertEquals(test.getFirstRegularStartDate(), null);
-    assertEquals(test.getLastRegularEndDate(), null);
+    assertEquals(test.getStartDateBusinessDayAdjustment(), Optional.empty());
+    assertEquals(test.getEndDateBusinessDayAdjustment(), Optional.empty());
+    assertEquals(test.getStubConvention(), Optional.of(SHORT_INITIAL));
+    assertEquals(test.getRollConvention(), Optional.of(DAY_17));
+    assertEquals(test.getFirstRegularStartDate(), Optional.empty());
+    assertEquals(test.getLastRegularEndDate(), Optional.empty());
     assertEquals(test.getEffectiveRollConvention(), DAY_17);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
     assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);

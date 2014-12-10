@@ -5,6 +5,7 @@
  */
 package com.opengamma.collect.result;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -40,7 +41,7 @@ import com.opengamma.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class Failure
-    implements ImmutableBean {
+    implements ImmutableBean, Serializable {
 
   /**
    * The reason associated with the failure.
@@ -155,6 +156,11 @@ public final class Failure
     JodaBeanUtils.registerMetaBean(Failure.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private Failure(
       FailureReason reason,
       String message,
@@ -228,9 +234,9 @@ public final class Failure
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReason());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getItems());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReason());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getItems());
     return hash;
   }
 

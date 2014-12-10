@@ -55,9 +55,6 @@ public final class LocalDateRange
    */
   public static final LocalDateRange ALL = new LocalDateRange(LocalDate.MIN, LocalDate.MAX);
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The start date, inclusive.
    */
@@ -474,6 +471,11 @@ public final class LocalDateRange
   static {
     JodaBeanUtils.registerMetaBean(LocalDateRange.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private LocalDateRange(
       LocalDate start,

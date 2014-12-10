@@ -193,10 +193,10 @@ public class MockSerBean implements Bean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBdConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayCalendar());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjects());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getBdConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidayCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getObjects());
     return hash;
   }
 

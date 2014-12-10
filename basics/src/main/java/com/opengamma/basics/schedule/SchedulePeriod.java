@@ -15,6 +15,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutablePreBuild;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -52,9 +53,6 @@ import com.opengamma.collect.ArgChecker;
 public final class SchedulePeriod
     implements ImmutableBean, Comparable<SchedulePeriod>, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The start date of this period, used for financial calculations such as interest accrual.
    * <p>
@@ -77,6 +75,8 @@ public final class SchedulePeriod
    * The start date before any business day adjustment.
    * If the schedule adjusts for business days, then this is typically the regular periodic date.
    * If the schedule does not adjust for business days, then this is the same as the start date.
+   * <p>
+   * When building, this will default to the start date is not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate unadjustedStartDate;
@@ -86,6 +86,8 @@ public final class SchedulePeriod
    * The end date before any business day adjustment.
    * If the schedule adjusts for business days, then this is typically the regular periodic date.
    * If the schedule does not adjust for business days, then this is the same as the end date.
+   * <p>
+   * When building, this will default to the end date is not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate unadjustedEndDate;
@@ -128,6 +130,16 @@ public final class SchedulePeriod
   private void validate() {
     ArgChecker.inOrderNotEqual(unadjustedStartDate, unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+  }
+
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.unadjustedStartDate == null) {
+      builder.unadjustedStartDate = builder.startDate;
+    }
+    if (builder.unadjustedEndDate == null) {
+      builder.unadjustedEndDate = builder.endDate;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -273,6 +285,11 @@ public final class SchedulePeriod
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -342,6 +359,8 @@ public final class SchedulePeriod
    * The start date before any business day adjustment.
    * If the schedule adjusts for business days, then this is typically the regular periodic date.
    * If the schedule does not adjust for business days, then this is the same as the start date.
+   * <p>
+   * When building, this will default to the start date is not specified.
    * @return the value of the property, not null
    */
   public LocalDate getUnadjustedStartDate() {
@@ -355,6 +374,8 @@ public final class SchedulePeriod
    * The end date before any business day adjustment.
    * If the schedule adjusts for business days, then this is typically the regular periodic date.
    * If the schedule does not adjust for business days, then this is the same as the end date.
+   * <p>
+   * When building, this will default to the end date is not specified.
    * @return the value of the property, not null
    */
   public LocalDate getUnadjustedEndDate() {
@@ -388,10 +409,10 @@ public final class SchedulePeriod
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnadjustedStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnadjustedEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedEndDate());
     return hash;
   }
 
@@ -635,6 +656,7 @@ public final class SchedulePeriod
 
     @Override
     public SchedulePeriod build() {
+      preBuild(this);
       return new SchedulePeriod(
           startDate,
           endDate,

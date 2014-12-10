@@ -41,9 +41,6 @@ import com.opengamma.collect.ArgChecker;
 public final class DoublesPair
     implements ImmutableBean, Tuple, Comparable<DoublesPair>, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The first element in this pair.
    */
@@ -212,6 +209,11 @@ public final class DoublesPair
   static {
     JodaBeanUtils.registerMetaBean(DoublesPair.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private DoublesPair(
       double first,

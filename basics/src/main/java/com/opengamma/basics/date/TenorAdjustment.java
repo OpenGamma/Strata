@@ -11,11 +11,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.joda.beans.ImmutableValidator;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -57,9 +56,6 @@ import com.opengamma.collect.ArgChecker;
 @BeanDefinition
 public final class TenorAdjustment
     implements ImmutableBean, DateAdjuster, Serializable {
-
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
 
   /**
    * The tenor to be added.
@@ -196,6 +192,11 @@ public final class TenorAdjustment
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -294,9 +295,9 @@ public final class TenorAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTenor());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
     return hash;
   }
 

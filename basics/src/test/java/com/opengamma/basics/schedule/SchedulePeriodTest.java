@@ -71,6 +71,17 @@ public class SchedulePeriodTest {
     assertEquals(test.getUnadjustedEndDate(), JUL_18);
   }
 
+  public void test_builder_defaults() {
+    SchedulePeriod test = SchedulePeriod.builder()
+      .startDate(JUL_05)
+      .endDate(JUL_18)
+      .build();
+    assertEquals(test.getStartDate(), JUL_05);
+    assertEquals(test.getEndDate(), JUL_18);
+    assertEquals(test.getUnadjustedStartDate(), JUL_05);
+    assertEquals(test.getUnadjustedEndDate(), JUL_18);
+  }
+
   //-------------------------------------------------------------------------
   public void test_yearFraction() {
     SchedulePeriod test = SchedulePeriod.of(JUN_16, JUL_18, JUN_16, JUL_17);

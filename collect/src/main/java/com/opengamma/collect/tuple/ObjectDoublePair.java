@@ -40,9 +40,6 @@ import com.opengamma.collect.ArgChecker;
 public final class ObjectDoublePair<A>
     implements ImmutableBean, Tuple, Comparable<ObjectDoublePair<A>>, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The first element in this pair.
    */
@@ -175,6 +172,11 @@ public final class ObjectDoublePair<A>
     JodaBeanUtils.registerMetaBean(ObjectDoublePair.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private ObjectDoublePair(
       A first,
       double second) {
@@ -234,8 +236,8 @@ public final class ObjectDoublePair<A>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirst());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecond());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirst());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecond());
     return hash;
   }
 

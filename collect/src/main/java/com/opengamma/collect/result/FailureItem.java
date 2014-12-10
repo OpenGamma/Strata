@@ -5,6 +5,7 @@
  */
 package com.opengamma.collect.result;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -38,7 +39,7 @@ import com.google.common.collect.Interners;
  */
 @BeanDefinition(builderScope = "private")
 public final class FailureItem
-    implements ImmutableBean {
+    implements ImmutableBean, Serializable {
 
   /**
    * Stack traces can take up a lot of memory if a large number of failures are stored.
@@ -113,6 +114,11 @@ public final class FailureItem
     JodaBeanUtils.registerMetaBean(FailureItem.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   @Override
   public FailureItem.Meta metaBean() {
     return FailureItem.Meta.INSTANCE;
@@ -185,10 +191,10 @@ public final class FailureItem
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReason());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMessage());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCauseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getReason());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCauseType());
     return hash;
   }
 
