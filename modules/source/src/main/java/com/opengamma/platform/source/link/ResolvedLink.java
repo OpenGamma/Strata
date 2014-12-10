@@ -42,9 +42,6 @@ import com.opengamma.platform.source.id.IdentifiableBean;
 public final class ResolvedLink<T extends IdentifiableBean>
     implements Link<T>, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The embedded link target.
    */
@@ -101,6 +98,11 @@ public final class ResolvedLink<T extends IdentifiableBean>
     JodaBeanUtils.registerMetaBean(ResolvedLink.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   @SuppressWarnings("unchecked")
   @Override
   public ResolvedLink.Meta<T> metaBean() {
@@ -142,7 +144,7 @@ public final class ResolvedLink<T extends IdentifiableBean>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLinkable());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getLinkable());
     return hash;
   }
 

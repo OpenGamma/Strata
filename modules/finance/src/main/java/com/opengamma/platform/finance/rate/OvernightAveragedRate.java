@@ -38,9 +38,6 @@ import com.opengamma.collect.ArgChecker;
 public final class OvernightAveragedRate
     implements Rate, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The Overnight index.
    * <p>
@@ -150,6 +147,11 @@ public final class OvernightAveragedRate
   static {
     JodaBeanUtils.registerMetaBean(OvernightAveragedRate.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -283,10 +285,10 @@ public final class OvernightAveragedRate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRateCutOffDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRateCutOffDays());
     return hash;
   }
 

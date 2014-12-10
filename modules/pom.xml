@@ -342,7 +342,7 @@
   <properties>
     <guava.version>17.0</guava.version>
     <joda-convert.version>1.7</joda-convert.version>
-    <joda-beans.version>1.2</joda-beans.version>
+    <joda-beans.version>1.4</joda-beans.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Platform Core</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Platform Core</h1>]]></doctitle>

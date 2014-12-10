@@ -46,9 +46,6 @@ public final class Equity
    */
   public static final SecurityType TYPE = SecurityType.of("Equity");
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The primary standard identifier for the security.
    * <p>
@@ -102,6 +99,11 @@ public final class Equity
   static {
     JodaBeanUtils.registerMetaBean(Equity.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -204,8 +206,7 @@ public final class Equity
       return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
           JodaBeanUtils.equal(getCompanyName(), other.getCompanyName()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType());
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency());
     }
     return false;
   }
@@ -213,11 +214,10 @@ public final class Equity
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCompanyName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     return hash;
   }
 

@@ -52,9 +52,6 @@ import com.opengamma.collect.ArgChecker;
 public final class ExternalIdBundle
     implements ImmutableBean, Iterable<ExternalId>, Serializable, ExternalBundleIdentifiable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * Singleton empty bundle.
    */
@@ -420,6 +417,11 @@ public final class ExternalIdBundle
   static {
     JodaBeanUtils.registerMetaBean(ExternalIdBundle.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private ExternalIdBundle(
       SortedSet<ExternalId> externalIds) {

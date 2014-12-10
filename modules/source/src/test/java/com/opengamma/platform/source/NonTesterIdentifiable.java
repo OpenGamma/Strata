@@ -139,9 +139,9 @@ public final class NonTesterIdentifiable implements IdentifiableBean, ImmutableB
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWidgetCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWidgetCount());
     return hash;
   }
 

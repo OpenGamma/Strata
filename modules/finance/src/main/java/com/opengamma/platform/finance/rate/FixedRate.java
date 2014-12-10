@@ -31,9 +31,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class FixedRate
     implements Rate, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The fixed rate to be paid, with a 5% rate expressed as 0.05.
    */
@@ -66,6 +63,11 @@ public final class FixedRate
   static {
     JodaBeanUtils.registerMetaBean(FixedRate.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -128,7 +130,7 @@ public final class FixedRate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash;
   }
 

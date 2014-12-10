@@ -42,9 +42,6 @@ import com.opengamma.collect.ArgChecker;
 public final class ExternalIdSearch
     implements ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The set of identifiers.
    */
@@ -349,6 +346,11 @@ public final class ExternalIdSearch
     JodaBeanUtils.registerMetaBean(ExternalIdSearch.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private ExternalIdSearch(
       Set<ExternalId> externalIds,
       ExternalIdSearchType searchType) {
@@ -408,8 +410,8 @@ public final class ExternalIdSearch
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSearchType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getExternalIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSearchType());
     return hash;
   }
 
