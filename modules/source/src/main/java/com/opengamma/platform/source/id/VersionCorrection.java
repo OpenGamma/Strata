@@ -57,9 +57,6 @@ import com.opengamma.collect.ArgChecker;
 public final class VersionCorrection
     implements ImmutableBean, Comparable<VersionCorrection>, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * Version-correction instance representing the latest version and correction.
    */
@@ -310,6 +307,11 @@ public final class VersionCorrection
     JodaBeanUtils.registerMetaBean(VersionCorrection.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private VersionCorrection(
       Instant versionAsOf,
       Instant correctedTo) {
@@ -369,8 +371,8 @@ public final class VersionCorrection
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionAsOf());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrectedTo());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getVersionAsOf());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCorrectedTo());
     return hash;
   }
 

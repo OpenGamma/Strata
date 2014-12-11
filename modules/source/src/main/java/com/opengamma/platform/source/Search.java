@@ -39,10 +39,8 @@ import com.opengamma.platform.source.id.IdentifiableBean;
  * and ORing of multiple criteria.
  */
 @BeanDefinition
-public final class Search implements ImmutableBean, Serializable {
-
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
+public final class Search
+    implements ImmutableBean, Serializable {
 
   /**
    * Type that specifies to search for instances that are the
@@ -103,6 +101,11 @@ public final class Search implements ImmutableBean, Serializable {
   static {
     JodaBeanUtils.registerMetaBean(Search.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -192,8 +195,8 @@ public final class Search implements ImmutableBean, Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCategorisingType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCategorisingType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     return hash;
   }
 

@@ -8,6 +8,7 @@ package com.opengamma.platform.source;
 import static com.opengamma.platform.source.SearchMatchStatus.FULL;
 import static com.opengamma.platform.source.SearchMatchStatus.PARTIAL;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -40,7 +41,8 @@ import com.opengamma.platform.source.id.StandardId;
  * to refine the results to the correct set.
  */
 @BeanDefinition(builderScope = "private")
-public final class SearchResult implements ImmutableBean {
+public final class SearchResult
+    implements ImmutableBean, Serializable {
 
   /**
    * The collection of identifiers that match or partially match the
@@ -95,6 +97,11 @@ public final class SearchResult implements ImmutableBean {
   static {
     JodaBeanUtils.registerMetaBean(SearchResult.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private SearchResult(
       Set<StandardId> matchingIds,
@@ -157,8 +164,8 @@ public final class SearchResult implements ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMatchingIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMatchStatus());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMatchingIds());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getMatchStatus());
     return hash;
   }
 

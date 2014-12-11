@@ -32,9 +32,6 @@ import com.opengamma.platform.source.id.StandardId;
 public final class TesterIdentifiable
     implements IdentifiableBean, ImmutableBean, Tester, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final StandardId standardId;
 
@@ -57,6 +54,11 @@ public final class TesterIdentifiable
   static {
     JodaBeanUtils.registerMetaBean(TesterIdentifiable.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -145,9 +147,9 @@ public final class TesterIdentifiable
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWidgetCount());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWidgetCount());
     return hash;
   }
 

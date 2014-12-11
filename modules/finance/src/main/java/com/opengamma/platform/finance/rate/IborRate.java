@@ -35,9 +35,6 @@ import com.opengamma.basics.index.IborIndex;
 public final class IborRate
     implements Rate, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The IBOR-like index.
    * <p>
@@ -83,6 +80,11 @@ public final class IborRate
   static {
     JodaBeanUtils.registerMetaBean(IborRate.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -165,8 +167,8 @@ public final class IborRate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndex());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
     return hash;
   }
 

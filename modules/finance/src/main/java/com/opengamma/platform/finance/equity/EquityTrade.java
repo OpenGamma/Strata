@@ -48,9 +48,6 @@ public final class EquityTrade
    */
   public static final TradeType TYPE = TradeType.of("Equity");
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The primary standard identifier for the trade.
    * <p>
@@ -91,21 +88,8 @@ public final class EquityTrade
    * This will be negative if buying and positive if selling.
    * This is an optional value that will not be present if the amount is not known.
    */
-  @PropertyDefinition(get = "field")
+  @PropertyDefinition(get = "optional")
   private final CurrencyAmount paymentAmount;
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets amount paid for the equity at time of purchase, optional.
-   * <p>
-   * This will be negative if buying and positive if selling.
-   * This is an optional value that will not be present if the amount is not known.
-   * 
-   * @return the payment amount
-   */
-  public Optional<CurrencyAmount> getPaymentAmount() {
-    return Optional.ofNullable(paymentAmount);
-  }
 
   //-------------------------------------------------------------------------
   /**
@@ -132,6 +116,11 @@ public final class EquityTrade
   static {
     JodaBeanUtils.registerMetaBean(EquityTrade.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -233,6 +222,18 @@ public final class EquityTrade
 
   //-----------------------------------------------------------------------
   /**
+   * Gets amount paid for the equity at time of purchase, optional.
+   * <p>
+   * This will be negative if buying and positive if selling.
+   * This is an optional value that will not be present if the amount is not known.
+   * @return the optional value of the property, not null
+   */
+  public Optional<CurrencyAmount> getPaymentAmount() {
+    return Optional.ofNullable(paymentAmount);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -252,8 +253,7 @@ public final class EquityTrade
           JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
           JodaBeanUtils.equal(getEquityLink(), other.getEquityLink()) &&
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(paymentAmount, other.paymentAmount) &&
-          JodaBeanUtils.equal(getTradeType(), other.getTradeType());
+          JodaBeanUtils.equal(paymentAmount, other.paymentAmount);
     }
     return false;
   }
@@ -261,13 +261,12 @@ public final class EquityTrade
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStandardId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEquityLink());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(paymentAmount);
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getEquityLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash = hash * 31 + JodaBeanUtils.hashCode(paymentAmount);
     return hash;
   }
 
