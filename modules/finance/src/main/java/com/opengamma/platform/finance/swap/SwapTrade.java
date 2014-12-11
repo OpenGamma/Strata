@@ -184,7 +184,7 @@ public final class SwapTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the swap that agreed when the trade occurred.
+   * Gets the swap that was agreed when the trade occurred.
    * <p>
    * The swap typically has a start date shortly after the trade date,
    * however this is not required. Swaps that start before the trade date
