@@ -12,7 +12,7 @@ import org.joda.beans.ImmutableBean;
 import com.opengamma.basics.currency.Currency;
 
 /**
- * A single leg of a swap trade.
+ * A single leg of a swap.
  * <p>
  * A swap leg is one element of a {@link Swap}.
  * In most cases, a swap has two legs, one expressing the obligations of the seller

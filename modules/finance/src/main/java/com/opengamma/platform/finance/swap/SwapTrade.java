@@ -33,7 +33,7 @@ import com.opengamma.platform.source.id.StandardId;
 /**
  * A trade representing an interest rate swap.
  * <p>
- * A trade in an underlying {@link Swap}.
+ * A trade in a {@link Swap}.
  * For example, a trade involving a fixed vs 3 month Libor interest rate swap.
  */
 @BeanDefinition
@@ -68,7 +68,11 @@ public final class SwapTrade
   private final LocalDate tradeDate;
 
   /**
-   * The swap that was traded.
+   * The swap that agreed when the trade occurred.
+   * <p>
+   * The swap typically has a start date shortly after the trade date,
+   * however this is not required. Swaps that start before the trade date
+   * or in the future are also supported by the data model.
    */
   @PropertyDefinition(validate = "notNull")
   private final Swap swap;
@@ -180,7 +184,11 @@ public final class SwapTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the swap that was traded.
+   * Gets the swap that agreed when the trade occurred.
+   * <p>
+   * The swap typically has a start date shortly after the trade date,
+   * however this is not required. Swaps that start before the trade date
+   * or in the future are also supported by the data model.
    * @return the value of the property, not null
    */
   public Swap getSwap() {

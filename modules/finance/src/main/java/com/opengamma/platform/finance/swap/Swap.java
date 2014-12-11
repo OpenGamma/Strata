@@ -6,9 +6,9 @@
 package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -25,18 +25,20 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.collect.ArgChecker;
 
 /**
  * An interest rate swap, that may or may not have been traded.
  * <p>
- * A swap takes place between two counterparties who agree to exchange streams of payments.
- * In the simplest vanilla swap, there are two legs, one with a fixed rate and the other a floating rate.
+ * A swap is a financial instrument that represents the exchange of streams of payments.
+ * The swap is formed of legs, where each leg typically represents the obligations
+ * of the seller or buyer of the swap. In the simplest vanilla swap, there are two legs,
+ * one with a fixed rate and the other a floating rate.
  * Many other more complex swaps can also be represented.
  * <p>
  * An instance of {@code Swap} can exist independently from a {@link SwapTrade}.
- * This would occur if the swap has actually been traded, such as the underlying on a swaption.
+ * This would occur if the swap has not actually been traded, such as the underlying on a swaption.
  */
 @BeanDefinition
 public final class Swap
@@ -44,9 +46,17 @@ public final class Swap
 
   /**
    * The legs of the swap.
+   * <p>
+   * A swap consists of one or more legs.
+   * <p>
+   * The legs of a swap are essentially unordered and it is desirable to have
+   * two swaps with the same legs be considered equal no matter what order the
+   * legs were passed in during construction. The use of {@link ImmutableSet}
+   * ensures that the order remains consistent during processing without
+   * compromising the definition of equals.
    */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableList<SwapLeg> legs;
+  private final ImmutableSet<SwapLeg> legs;
 
   //-------------------------------------------------------------------------
   /**
@@ -58,24 +68,8 @@ public final class Swap
    * @return the swap
    */
   public static Swap of(SwapLeg... legs) {
-    ArgChecker.notNull(legs, "legs");
-    return Swap.builder()
-        .legs(ImmutableList.copyOf(legs))
-        .build();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets a swap leg by index.
-   * <p>
-   * This returns a leg using a zero-based index.
-   * 
-   * @param index  the zero-based period index
-   * @return the swap leg
-   * @throws IndexOutOfBoundsException if the index is invalid
-   */
-  public SwapLeg getLeg(int index) {
-    return legs.get(index);
+    ArgChecker.notEmpty(legs, "legs");
+    return new Swap(ImmutableSet.copyOf(legs));
   }
 
   //-------------------------------------------------------------------------
@@ -121,9 +115,9 @@ public final class Swap
   }
 
   private Swap(
-      List<SwapLeg> legs) {
+      Set<SwapLeg> legs) {
     JodaBeanUtils.notEmpty(legs, "legs");
-    this.legs = ImmutableList.copyOf(legs);
+    this.legs = ImmutableSet.copyOf(legs);
   }
 
   @Override
@@ -144,9 +138,17 @@ public final class Swap
   //-----------------------------------------------------------------------
   /**
    * Gets the legs of the swap.
+   * <p>
+   * A swap consists of one or more legs.
+   * <p>
+   * The legs of a swap are essentially unordered and it is desirable to have
+   * two swaps with the same legs be considered equal no matter what order the
+   * legs were passed in during construction. The use of {@link ImmutableSet}
+   * ensures that the order remains consistent during processing without
+   * compromising the definition of equals.
    * @return the value of the property, not empty
    */
-  public ImmutableList<SwapLeg> getLegs() {
+  public ImmutableSet<SwapLeg> getLegs() {
     return legs;
   }
 
@@ -201,8 +203,8 @@ public final class Swap
      * The meta-property for the {@code legs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<SwapLeg>> legs = DirectMetaProperty.ofImmutable(
-        this, "legs", Swap.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableSet<SwapLeg>> legs = DirectMetaProperty.ofImmutable(
+        this, "legs", Swap.class, (Class) ImmutableSet.class);
     /**
      * The meta-properties.
      */
@@ -245,7 +247,7 @@ public final class Swap
      * The meta-property for the {@code legs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<SwapLeg>> legs() {
+    public MetaProperty<ImmutableSet<SwapLeg>> legs() {
       return legs;
     }
 
@@ -276,7 +278,7 @@ public final class Swap
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Swap> {
 
-    private List<SwapLeg> legs = new ArrayList<SwapLeg>();
+    private Set<SwapLeg> legs = new HashSet<SwapLeg>();
 
     /**
      * Restricted constructor.
@@ -289,7 +291,7 @@ public final class Swap
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Swap beanToCopy) {
-      this.legs = new ArrayList<SwapLeg>(beanToCopy.getLegs());
+      this.legs = new HashSet<SwapLeg>(beanToCopy.getLegs());
     }
 
     //-----------------------------------------------------------------------
@@ -308,7 +310,7 @@ public final class Swap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
-          this.legs = (List<SwapLeg>) newValue;
+          this.legs = (Set<SwapLeg>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -352,7 +354,7 @@ public final class Swap
      * @param legs  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder legs(List<SwapLeg> legs) {
+    public Builder legs(Set<SwapLeg> legs) {
       JodaBeanUtils.notEmpty(legs, "legs");
       this.legs = legs;
       return this;
@@ -365,7 +367,7 @@ public final class Swap
      * @return this, for chaining, not null
      */
     public Builder legs(SwapLeg... legs) {
-      return legs(Arrays.asList(legs));
+      return legs(new LinkedHashSet<SwapLeg>(Arrays.asList(legs)));
     }
 
     //-----------------------------------------------------------------------

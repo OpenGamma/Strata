@@ -17,6 +17,7 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Test.
@@ -26,27 +27,23 @@ public class SwapTest {
 
   public void test_builder_list() {
     Swap test = Swap.builder()
-        .legs(ImmutableList.of(MOCK_GBP1, MOCK_USD1))
+        .legs(ImmutableSet.of(MOCK_GBP1, MOCK_USD1))
         .build();
-    assertEquals(test.getLegs(), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
-    assertEquals(test.getLeg(0), MOCK_GBP1);
-    assertEquals(test.getLeg(1), MOCK_USD1);
+    assertEquals(test.getLegs(), ImmutableSet.of(MOCK_GBP1, MOCK_USD1));
   }
 
   public void test_builder_varargs() {
     Swap test = Swap.builder()
         .legs(MOCK_GBP1, MOCK_USD1)
         .build();
-    assertEquals(test.getLegs(), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
-    assertEquals(test.getLeg(0), MOCK_GBP1);
-    assertEquals(test.getLeg(1), MOCK_USD1);
+    assertEquals(test.getLegs(), ImmutableSet.of(MOCK_GBP1, MOCK_USD1));
   }
 
   public void test_of_varargs() {
     Swap test = Swap.of(MOCK_GBP1, MOCK_USD1);
-    assertEquals(test.getLegs(), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
-    assertEquals(test.getLeg(0), MOCK_GBP1);
-    assertEquals(test.getLeg(1), MOCK_USD1);
+    assertEquals(test.getLegs(), ImmutableSet.of(MOCK_GBP1, MOCK_USD1));
+    // ensure order retained indirectly via ImmutableSet
+    assertEquals(ImmutableList.copyOf(test.getLegs()), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
   }
 
   public void test_of_null() {

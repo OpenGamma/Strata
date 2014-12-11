@@ -27,7 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.currency.Currency;
 
-
 /**
  * Mock.
  */
