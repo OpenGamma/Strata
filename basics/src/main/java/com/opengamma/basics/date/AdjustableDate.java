@@ -40,9 +40,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class AdjustableDate
     implements ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The unadjusted date.
    * <p>
@@ -132,6 +129,11 @@ public final class AdjustableDate
     JodaBeanUtils.registerMetaBean(AdjustableDate.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private AdjustableDate(
       LocalDate unadjusted,
       BusinessDayAdjustment adjustment) {
@@ -196,8 +198,8 @@ public final class AdjustableDate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnadjusted());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjusted());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
     return hash;
   }
 

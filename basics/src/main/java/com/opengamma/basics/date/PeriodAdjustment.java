@@ -58,9 +58,6 @@ import com.opengamma.collect.ArgChecker;
 public final class PeriodAdjustment
     implements ImmutableBean, DateAdjuster, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * An instance that performs no adjustment.
    */
@@ -202,6 +199,11 @@ public final class PeriodAdjustment
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -300,9 +302,9 @@ public final class PeriodAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPeriod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriod());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdditionConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
     return hash;
   }
 

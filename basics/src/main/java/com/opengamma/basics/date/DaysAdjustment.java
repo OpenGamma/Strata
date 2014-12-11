@@ -80,9 +80,6 @@ public final class DaysAdjustment
   public static final DaysAdjustment NONE =
       new DaysAdjustment(0, HolidayCalendars.NO_HOLIDAYS, BusinessDayAdjustment.NONE);
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The number of days to be added.
    * <p>
@@ -269,6 +266,11 @@ public final class DaysAdjustment
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -376,9 +378,9 @@ public final class DaysAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendar());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAdjustment());
     return hash;
   }
 

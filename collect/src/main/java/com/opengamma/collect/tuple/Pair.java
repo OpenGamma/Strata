@@ -47,9 +47,6 @@ import com.google.common.collect.ImmutableList;
 public final class Pair<A, B>
     implements ImmutableBean, Tuple, Comparable<Pair<A, B>>, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The first element in this pair.
    */
@@ -162,6 +159,11 @@ public final class Pair<A, B>
     JodaBeanUtils.registerMetaBean(Pair.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private Pair(
       A first,
       B second) {
@@ -222,8 +224,8 @@ public final class Pair<A, B>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirst());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecond());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirst());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecond());
     return hash;
   }
 

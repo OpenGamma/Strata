@@ -45,8 +45,6 @@ import com.opengamma.collect.ArgChecker;
 public final class FxRate
     implements ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
   /**
    * Regular expression to parse the textual format.
    */
@@ -172,6 +170,11 @@ public final class FxRate
     JodaBeanUtils.registerMetaBean(FxRate.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private FxRate(
       CurrencyPair pair,
       double rate) {
@@ -235,8 +238,8 @@ public final class FxRate
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPair());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPair());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
     return hash;
   }
 

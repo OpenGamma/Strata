@@ -53,9 +53,6 @@ public final class ValueAdjustment
    */
   public static final ValueAdjustment NONE = ValueAdjustment.ofDeltaAmount(0);
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The value used to modify the base value.
    * This value is given meaning by the associated type.
@@ -175,6 +172,11 @@ public final class ValueAdjustment
     JodaBeanUtils.registerMetaBean(ValueAdjustment.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private ValueAdjustment(
       double modifyingValue,
       ValueAdjustmentType type) {
@@ -234,8 +236,8 @@ public final class ValueAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getModifyingValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getModifyingValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getType());
     return hash;
   }
 

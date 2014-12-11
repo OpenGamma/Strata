@@ -41,9 +41,6 @@ import com.opengamma.collect.ArgChecker;
 public final class IntDoublePair
     implements ImmutableBean, Tuple, Comparable<IntDoublePair>, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The first element in this pair.
    */
@@ -213,6 +210,11 @@ public final class IntDoublePair
   static {
     JodaBeanUtils.registerMetaBean(IntDoublePair.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   private IntDoublePair(
       int first,

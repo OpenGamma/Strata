@@ -56,9 +56,6 @@ public final class MultiCurrencyAmount
   // would duplicate the currency in the serialized form
   // a set was chosen as a suitable middle ground
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The set of currency amounts.
    * Each currency will occur only once, as per a map keyed by currency.
@@ -433,6 +430,11 @@ public final class MultiCurrencyAmount
     JodaBeanUtils.registerMetaBean(MultiCurrencyAmount.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private MultiCurrencyAmount(
       SortedSet<CurrencyAmount> amounts) {
     JodaBeanUtils.notNull(amounts, "amounts");
@@ -481,7 +483,7 @@ public final class MultiCurrencyAmount
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAmounts());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAmounts());
     return hash;
   }
 

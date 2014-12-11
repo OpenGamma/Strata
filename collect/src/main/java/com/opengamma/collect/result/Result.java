@@ -5,6 +5,7 @@
  */
 package com.opengamma.collect.result;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -51,7 +52,7 @@ import com.opengamma.collect.Messages;
  */
 @BeanDefinition(builderScope = "private")
 public final class Result<T>
-    implements ImmutableBean {
+    implements ImmutableBean, Serializable {
   // two properties are used where one might do to reduce serialized data size
 
   /**
@@ -531,6 +532,11 @@ public final class Result<T>
     JodaBeanUtils.registerMetaBean(Result.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private Result(
       T value,
       Failure failure) {
@@ -572,8 +578,8 @@ public final class Result<T>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(value);
-    hash += hash * 31 + JodaBeanUtils.hashCode(failure);
+    hash = hash * 31 + JodaBeanUtils.hashCode(value);
+    hash = hash * 31 + JodaBeanUtils.hashCode(failure);
     return hash;
   }
 

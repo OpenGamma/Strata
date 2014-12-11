@@ -43,9 +43,6 @@ import com.opengamma.basics.schedule.SchedulePeriod;
 public final class ValueSchedule
     implements ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The initial value.
    * <p>
@@ -161,6 +158,11 @@ public final class ValueSchedule
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -238,8 +240,8 @@ public final class ValueSchedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInitialValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSteps());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInitialValue());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSteps());
     return hash;
   }
 
@@ -458,6 +460,16 @@ public final class ValueSchedule
       JodaBeanUtils.notNull(steps, "steps");
       this.steps = steps;
       return this;
+    }
+
+    /**
+     * Sets the {@code steps} property in the builder
+     * from an array of objects.
+     * @param steps  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder steps(ValueStep... steps) {
+      return steps(Arrays.asList(steps));
     }
 
     //-----------------------------------------------------------------------

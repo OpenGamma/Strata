@@ -46,11 +46,6 @@ public final class ImmutableOvernightIndex
     implements OvernightIndex, ImmutableBean, Serializable {
 
   /**
-   * Serialization version.
-   */
-  private static final long serialVersionUID = 1;
-
-  /**
    * The index name, such as 'GBP-SONIA'.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
@@ -200,6 +195,11 @@ public final class ImmutableOvernightIndex
   static {
     JodaBeanUtils.registerMetaBean(ImmutableOvernightIndex.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The cached hash code, using the racy single-check idiom.
@@ -352,12 +352,12 @@ public final class ImmutableOvernightIndex
     int hash = cachedHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
-      hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getPublicationDateOffset());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDateOffset());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getPublicationDateOffset());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDateOffset());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
       cachedHashCode = hash;
     }
     return hash;

@@ -48,11 +48,6 @@ public final class ImmutableIborIndex
     implements IborIndex, ImmutableBean, Serializable {
 
   /**
-   * Serialization version.
-   */
-  private static final long serialVersionUID = 1;
-
-  /**
    * The index name, such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notEmpty", overrideGet = true)
@@ -198,6 +193,11 @@ public final class ImmutableIborIndex
   static {
     JodaBeanUtils.registerMetaBean(ImmutableIborIndex.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The cached hash code, using the racy single-check idiom.
@@ -348,12 +348,12 @@ public final class ImmutableIborIndex
     int hash = cachedHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
-      hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDateOffset());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDateOffset());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDateOffset());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDateOffset());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
       cachedHashCode = hash;
     }
     return hash;

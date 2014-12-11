@@ -45,11 +45,6 @@ public final class ImmutableFxIndex
     implements FxIndex, ImmutableBean, Serializable {
 
   /**
-   * Serialization version.
-   */
-  private static final long serialVersionUID = 1L;
-
-  /**
    * The FX index name.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -134,6 +129,11 @@ public final class ImmutableFxIndex
   static {
     JodaBeanUtils.registerMetaBean(ImmutableFxIndex.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The cached hash code, using the racy single-check idiom.
@@ -257,10 +257,10 @@ public final class ImmutableFxIndex
     int hash = cachedHashCode;
     if (hash == 0) {
       hash = getClass().hashCode();
-      hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
-      hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDateOffset());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
+      hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDateOffset());
       cachedHashCode = hash;
     }
     return hash;

@@ -46,9 +46,6 @@ import com.google.common.collect.ImmutableList;
 public final class Triple<A, B, C>
     implements ImmutableBean, Tuple, Comparable<Triple<A, B, C>>, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The first element in this pair.
    */
@@ -174,6 +171,11 @@ public final class Triple<A, B, C>
     JodaBeanUtils.registerMetaBean(Triple.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   private Triple(
       A first,
       B second,
@@ -247,9 +249,9 @@ public final class Triple<A, B, C>
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFirst());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecond());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getThird());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFirst());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecond());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getThird());
     return hash;
   }
 

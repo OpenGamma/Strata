@@ -54,9 +54,6 @@ import com.opengamma.collect.range.LocalDateRange;
 public final class ImmutableHolidayCalendar
     implements HolidayCalendar, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The calendar name.
    */
@@ -223,6 +220,11 @@ public final class ImmutableHolidayCalendar
     JodaBeanUtils.registerMetaBean(ImmutableHolidayCalendar.Meta.INSTANCE);
   }
 
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
   @Override
   public ImmutableHolidayCalendar.Meta metaBean() {
     return ImmutableHolidayCalendar.Meta.INSTANCE;
@@ -288,9 +290,9 @@ public final class ImmutableHolidayCalendar
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getWeekendDays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidays());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getWeekendDays());
     return hash;
   }
 

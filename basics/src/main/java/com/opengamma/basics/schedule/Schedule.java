@@ -8,6 +8,7 @@ package com.opengamma.basics.schedule;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -41,9 +42,6 @@ import com.opengamma.collect.ArgChecker;
 @BeanDefinition
 public final class Schedule
     implements ScheduleInfo, ImmutableBean, Serializable {
-
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
 
   /**
    * The schedule periods.
@@ -368,6 +366,11 @@ public final class Schedule
   }
 
   /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
@@ -466,9 +469,9 @@ public final class Schedule
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPeriods());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFrequency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getPeriods());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFrequency());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
     return hash;
   }
 
@@ -704,6 +707,16 @@ public final class Schedule
       JodaBeanUtils.notEmpty(periods, "periods");
       this.periods = periods;
       return this;
+    }
+
+    /**
+     * Sets the {@code periods} property in the builder
+     * from an array of objects.
+     * @param periods  the new value, not empty
+     * @return this, for chaining, not null
+     */
+    public Builder periods(SchedulePeriod... periods) {
+      return periods(Arrays.asList(periods));
     }
 
     /**

@@ -52,9 +52,6 @@ public final class BusinessDayAdjustment
   public static final BusinessDayAdjustment NONE =
       new BusinessDayAdjustment(BusinessDayConventions.NO_ADJUST, HolidayCalendars.NO_HOLIDAYS);
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The convention used to the adjust the date if it does not fall on a business day.
    * <p>
@@ -127,6 +124,11 @@ public final class BusinessDayAdjustment
   static {
     JodaBeanUtils.registerMetaBean(BusinessDayAdjustment.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -207,8 +209,8 @@ public final class BusinessDayAdjustment
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCalendar());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getCalendar());
     return hash;
   }
 
