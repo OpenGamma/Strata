@@ -14,6 +14,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -260,9 +261,12 @@ public class ResultTest {
   public void failure_fromResults_collection() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
-    Result<Object> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
-    Result<Object> test = Result.failure(Arrays.asList(success1, success2, failure1, failure2));
+    Result<String> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
+    Result<String> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+
+    // Exposing collection explicitly shows why signature of failure is as it is
+    List<Result<String>> results = Arrays.asList(success1, success2, failure1, failure2);
+    Result<String> test = Result.failure(results);
     Set<FailureItem> expected = new HashSet<>();
     expected.addAll(failure1.getFailure().getItems());
     expected.addAll(failure2.getFailure().getItems());
