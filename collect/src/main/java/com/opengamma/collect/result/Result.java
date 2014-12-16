@@ -241,7 +241,7 @@ public final class Result<T>
    * @return a failed result wrapping multiple other failed results
    * @throws IllegalArgumentException if results is empty or contains nothing but successes
    */
-  public static <R> Result<R> failure(Iterable<Result<?>> results) {
+  public static <R> Result<R> failure(Iterable<? extends Result<?>> results) {
     ArgChecker.notEmpty(results, "results");
     ImmutableSet<FailureItem> items = Guavate.stream(results)
         .filter(Result::isFailure)
