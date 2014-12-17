@@ -7,6 +7,7 @@ package com.opengamma.collect.result;
 
 import static com.opengamma.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.result.FailureReason.CALCULATION_FAILED;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
@@ -227,6 +228,76 @@ public class ResultTest {
   }
 
   //-------------------------------------------------------------------------
+  public void combine_iterableWithFailures() {
+    Result<String> success1 = Result.success("success 1");
+    Result<String> success2 = Result.success("success 2");
+    Result<String> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
+    Result<String> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Set<Result<String>> results = ImmutableSet.of(success1, success2, failure1, failure2);
+
+    assertThat(Result.combine(results, s -> s))
+        .isFailure(FailureReason.MULTIPLE);
+  }
+  public void combine_iterableWithSuccesses() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+    Result<Integer> success4 = Result.success(4);
+    Set<Result<Integer>> results = ImmutableSet.of(success1, success2, success3, success4);
+
+    Result<String> combined = Result.combine(
+        results,
+        s -> "res" + s.reduce(1, (i1, i2) -> i1 * i2));
+    assertThat(combined)
+        .isSuccess()
+        .hasValue("res24");
+  }
+  //-------------------------------------------------------------------------
+
+  public void flatCombine_iterableWithFailures() {
+    Result<String> success1 = Result.success("success 1");
+    Result<String> success2 = Result.success("success 2");
+    Result<String> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
+    Result<String> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Set<Result<String>> results = ImmutableSet.of(success1, success2, failure1, failure2);
+
+    assertThat(Result.flatCombine(results, Result::success))
+        .isFailure(FailureReason.MULTIPLE);
+  }
+
+  public void flatCombine_iterableWithSuccesses_combineFails() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+    Result<Integer> success4 = Result.success(4);
+    Set<Result<Integer>> results = ImmutableSet.of(success1, success2, success3, success4);
+
+    Result<String> combined = Result.flatCombine(
+        results,
+        s -> Result.failure(CALCULATION_FAILED, "Could not do it"));
+
+    assertThat(combined)
+        .isFailure(CALCULATION_FAILED);
+  }
+
+  public void flatCombine_iterableWithSuccesses_combineSucceeds() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+    Result<Integer> success4 = Result.success(4);
+    Set<Result<Integer>> results = ImmutableSet.of(success1, success2, success3, success4);
+
+    Result<String> combined = Result.flatCombine(
+        results,
+        s -> Result.success("res" + s.reduce(1, (i1, i2) -> i1 * i2)));
+
+    assertThat(combined)
+        .isSuccess()
+        .hasValue("res24");
+  }
+
+  //-------------------------------------------------------------------------
+
   public void failure_fromResults_varargs1() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
@@ -331,7 +402,7 @@ public class ResultTest {
 
   public void failureDifferentTypes() {
     Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "message 1");
-    Result<Object> failure2 = Result.failure(FailureReason.CALCULATION_FAILED, "message 2");
+    Result<Object> failure2 = Result.failure(CALCULATION_FAILED, "message 2");
     Result<Object> failure3 = Result.failure(FailureReason.ERROR, "message 3");
     Result<?> composite = Result.failure(failure1, failure2, failure3);
     assertEquals(composite.getFailure().getReason(), FailureReason.MULTIPLE);
@@ -348,7 +419,7 @@ public class ResultTest {
   public void createByBuilder_bothValueAndFailure() {
     Result.meta().builder()
         .set("value", "A")
-        .set("failure", Failure.of(FailureReason.CALCULATION_FAILED, "Fail"))
+        .set("failure", Failure.of(CALCULATION_FAILED, "Fail"))
         .build();    
   }
 
