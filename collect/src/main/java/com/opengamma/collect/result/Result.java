@@ -200,11 +200,11 @@ public final class Result<T>
    * <p>
    * The input results can be successes or failures, only the failures will be included in the created result.
    * Intended to be used with {@link #anyFailures(Result...)}.
-   * <code>
+   * <pre>
    *   if (Result.anyFailures(result1, result2, result3) {
    *     return Result.failure(result1, result2, result3);
    *   }
-   * </code>
+   * </pre>
    *
    * @param <R> the expected type of the result
    * @param result1  the first result
@@ -230,11 +230,11 @@ public final class Result<T>
    * <p>
    * The input results can be successes or failures, only the failures will be included in the created result.
    * Intended to be used with {@link #anyFailures(Iterable)}.
-   * <code>
+   * <pre>
    *   if (Result.anyFailures(results) {
    *     return Result.failure(results);
    *   }
-   * </code>
+   * </pre>
    *
    * @param <R> the expected type of the result
    * @param results  multiple results, of which at least one must be a failure, not empty
@@ -293,6 +293,109 @@ public final class Result<T>
    */
   public static boolean anyFailures(Iterable<? extends Result<?>> results) {
     return Guavate.stream(results).anyMatch(Result::isFailure);
+  }
+
+  /**
+   * Takes a collection of results, checks if all of them are successes
+   * and then applies the supplied function to the successes wrapping
+   * the result in a success result. If any of the initial results was
+   * a failure, then a failure result reflecting the failures in the
+   * initial results is returned.
+   * <p>
+   * The following code shows where this method can be used. The code:
+   * <pre>{@code
+   *   Set<Result<MyData>> results = goAndGatherData();
+   *   if (Result.anyFailures(results)) {
+   *     return Result.failure(results);
+   *   } else {
+   *     Set<FooData> combined =
+   *         results.stream()
+   *             .map(Result::getValue)
+   *             .map(MyData::transformToFoo)
+   *             .collect(toSet());
+   *     return Result.success(combined);
+   *   }
+   * }
+   * </pre>
+   * can be replaced with:
+   * <pre>{@code
+   *   Set<Result<MyData>> results = goAndGatherData();
+   *   return Result.combine(results, myDataStream ->
+   *       myDataStream
+   *           .map(MyData::transformToFoo)
+   *           .collect(toSet())
+   *   );
+   * }
+   * </pre>
+   *
+   * @param results  the results to be transformed if they are all successes
+   * @param function  the function to apply to the stream of results if they were all successes
+   * @param <T>  the type of the values held in the input results
+   * @param <R>  the type of the values held in the transformed results
+   * @return a success result holding the result of applying the function to the
+   *   input results if they were all successes, a failure otherwise
+   */
+  public static <T, R> Result<R> combine(
+      Iterable<? extends Result<T>> results,
+      Function<Stream<T>, R> function) {
+
+    return allSuccessful(results) ?
+        success(function.apply(extractSuccesses(results))) :
+        failure(results);
+  }
+
+  /**
+   * Takes a collection of results, checks if all of them are successes
+   * and then applies the supplied function to the successes. If any of
+   * the initial results was a failure, then a failure result reflecting
+   * the failures in the initial results is returned.
+   * <p>
+   * The following code shows where this method can be used. The code:
+   * <pre>{@code
+   *   Set<Result<MyData>> results = goAndGatherData();
+   *   if (Result.anyFailures(results)) {
+   *     return Result.failure(results);
+   *   } else {
+   *     Set<FooData> combined =
+   *         results.stream()
+   *             .map(Result::getValue)
+   *             .map(MyData::transformToFoo)
+   *             .collect(toSet());
+   *     return doSomethingReturningResult(combined); // this could fail
+   *   }
+   * }
+   * </pre>
+   * can be replaced with:
+   * <pre>{@code
+   *   Set<Result<MyData>> results = goAndGatherData();
+   *   return Result.flatCombine(results, myDataStream -> {
+   *     Set<CombinedData> combined =
+   *         myDataStream
+   *             .map(MyData::transformToFoo)
+   *             .collect(toSet());
+   *     return doSomethingReturningResult(combined); // this could fail
+   *   });
+   * }
+   * </pre>
+   *
+   * @param results  the results to be transformed if they are all successes
+   * @param function  the function to apply to the stream of results if they were all successes
+   * @param <T>  the type of the values held in the input results
+   * @param <R>  the type of the values held in the transformed results
+   * @return a result holding the result of applying the function to the
+   *   input results if they were all successes, a failure otherwise
+   */
+  public static <T, R> Result<R> flatCombine(
+      Iterable<? extends Result<T>> results,
+      Function<Stream<T>, Result<R>> function) {
+
+    return allSuccessful(results) ?
+        function.apply(extractSuccesses(results)) :
+        failure(results);
+  }
+
+  private static <T> Stream<T> extractSuccesses(Iterable<? extends Result<T>> results) {
+    return Guavate.stream(results).map(Result::getValue);
   }
 
   //-------------------------------------------------------------------------

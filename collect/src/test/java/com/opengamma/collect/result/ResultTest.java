@@ -7,6 +7,10 @@ package com.opengamma.collect.result;
 
 import static com.opengamma.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.result.FailureReason.CALCULATION_FAILED;
+import static com.opengamma.collect.result.FailureReason.ERROR;
+import static com.opengamma.collect.result.FailureReason.MISSING_DATA;
+import static com.opengamma.collect.result.FailureReason.PERMISSION_DENIED;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
@@ -86,7 +90,7 @@ public class ResultTest {
     Result<String> failure = Result.failure(new IllegalArgumentException());
     Result<String> test = success.combineWith(failure, FUNCTION_MERGE);
     assertEquals(test.isSuccess(), false);
-    assertEquals(test.getFailure().getReason(), FailureReason.ERROR);
+    assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getItems().size(), 1);
   }
 
@@ -95,7 +99,7 @@ public class ResultTest {
     Result<String> test = Result.failure(new IllegalArgumentException("failure"));
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
-    assertEquals(test.getFailure().getReason(), FailureReason.ERROR);
+    assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure");
     assertEquals(test.getFailure().getItems().size(), 1);
     Result<Integer> test1 = test.map(MAP_STRLEN);
@@ -116,7 +120,7 @@ public class ResultTest {
     Result<String> failure = Result.failure(new IllegalArgumentException("failure"));
     Result<String> success = Result.success("World");
     Result<String> test = failure.combineWith(success, FUNCTION_MERGE);
-    assertEquals(test.getFailure().getReason(), FailureReason.ERROR);
+    assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure");
   }
 
@@ -124,48 +128,48 @@ public class ResultTest {
     Result<String> failure1 = Result.failure(new IllegalArgumentException("failure"));
     Result<String> failure2 = Result.failure(new IllegalArgumentException("fail"));
     Result<String> test = failure1.combineWith(failure2, FUNCTION_MERGE);
-    assertEquals(test.getFailure().getReason(), FailureReason.ERROR);
+    assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure, fail");
   }
 
   //-------------------------------------------------------------------------
   public void failure_fromStatusMessageArgs_placeholdersMatchArgs1() {
-    Result<String> failure = Result.failure(FailureReason.ERROR, "my {} failure", "blue");
+    Result<String> failure = Result.failure(ERROR, "my {} failure", "blue");
     Result<Integer> test = Result.failure(failure);
     assertTrue(test.isFailure());
     assertEquals(test.getFailure().getMessage(), "my blue failure");
   }
 
   public void failure_fromStatusMessageArgs_placeholdersMatchArgs2() {
-    Result<String> failure = Result.failure(FailureReason.ERROR, "my {} {} failure", "blue", "rabbit");
+    Result<String> failure = Result.failure(ERROR, "my {} {} failure", "blue", "rabbit");
     Result<Integer> test = Result.failure(failure);
     assertTrue(test.isFailure());
     assertEquals(test.getFailure().getMessage(), "my blue rabbit failure");
   }
 
   public void failure_fromStatusMessageArgs_placeholdersExceedArgs() {
-    Result<String> failure = Result.failure(FailureReason.ERROR, "my {} {} failure", "blue");
+    Result<String> failure = Result.failure(ERROR, "my {} {} failure", "blue");
     Result<Integer> test = Result.failure(failure);
     assertTrue(test.isFailure());
     assertEquals(test.getFailure().getMessage(), "my blue {} failure");
   }
 
   public void failure_fromStatusMessageArgs_placeholdersLessThanArgs1() {
-    Result<String> failure = Result.failure(FailureReason.ERROR, "my {} failure", "blue", "rabbit");
+    Result<String> failure = Result.failure(ERROR, "my {} failure", "blue", "rabbit");
     Result<Integer> test = Result.failure(failure);
     assertTrue(test.isFailure());
     assertEquals(test.getFailure().getMessage(), "my blue failure - [rabbit]");
   }
 
   public void failure_fromStatusMessageArgs_placeholdersLessThanArgs2() {
-    Result<String> failure = Result.failure(FailureReason.ERROR, "my {} failure", "blue", "rabbit", "carrot");
+    Result<String> failure = Result.failure(ERROR, "my {} failure", "blue", "rabbit", "carrot");
     Result<Integer> test = Result.failure(failure);
     assertTrue(test.isFailure());
     assertEquals(test.getFailure().getMessage(), "my blue failure - [rabbit, carrot]");
   }
 
   public void failure_fromStatusMessageArgs_placeholdersLessThanArgs3() {
-    Result<String> failure = Result.failure(FailureReason.ERROR, "my failure", "blue", "rabbit", "carrot");
+    Result<String> failure = Result.failure(ERROR, "my failure", "blue", "rabbit", "carrot");
     Result<Integer> test = Result.failure(failure);
     assertTrue(test.isFailure());
     assertEquals(test.getFailure().getMessage(), "my failure - [blue, rabbit, carrot]");
@@ -173,7 +177,7 @@ public class ResultTest {
 
   //-------------------------------------------------------------------------
   public void failure_fromResult_failure() {
-    Result<String> failure = Result.failure(FailureReason.ERROR, "my failure");
+    Result<String> failure = Result.failure(ERROR, "my failure");
     Result<Integer> test = Result.failure(failure);
     assertTrue(test.isFailure());
     assertEquals(test.getFailure().getMessage(), "my failure");
@@ -189,8 +193,8 @@ public class ResultTest {
   public void anyFailures_varargs() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
-    Result<Object> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(ERROR, "failure 2");
     assertTrue(Result.anyFailures(failure1, failure2));
     assertTrue(Result.anyFailures(failure1, success1));
     assertFalse(Result.anyFailures(success1, success2));
@@ -199,8 +203,8 @@ public class ResultTest {
   public void anyFailures_collection() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
-    Result<Object> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(ERROR, "failure 2");
     assertTrue(Result.anyFailures(ImmutableList.of(failure1, failure2)));
     assertTrue(Result.anyFailures(ImmutableList.of(failure1, success1)));
     assertFalse(Result.anyFailures(ImmutableList.of(success1, success2)));
@@ -209,8 +213,8 @@ public class ResultTest {
   public void allSuccess_varargs() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
-    Result<Object> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(ERROR, "failure 2");
     assertFalse(Result.allSuccessful(failure1, failure2));
     assertFalse(Result.allSuccessful(failure1, success1));
     assertTrue(Result.allSuccessful(success1, success2));
@@ -219,19 +223,89 @@ public class ResultTest {
   public void allSuccess_collection() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
-    Result<Object> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(ERROR, "failure 2");
     assertFalse(Result.allSuccessful(ImmutableList.of(failure1, failure2)));
     assertFalse(Result.allSuccessful(ImmutableList.of(failure1, success1)));
     assertTrue(Result.allSuccessful(ImmutableList.of(success1, success2)));
   }
 
   //-------------------------------------------------------------------------
+  public void combine_iterableWithFailures() {
+    Result<String> success1 = Result.success("success 1");
+    Result<String> success2 = Result.success("success 2");
+    Result<String> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<String> failure2 = Result.failure(ERROR, "failure 2");
+    Set<Result<String>> results = ImmutableSet.of(success1, success2, failure1, failure2);
+
+    assertThat(Result.combine(results, s -> s))
+        .isFailure(FailureReason.MULTIPLE);
+  }
+  public void combine_iterableWithSuccesses() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+    Result<Integer> success4 = Result.success(4);
+    Set<Result<Integer>> results = ImmutableSet.of(success1, success2, success3, success4);
+
+    Result<String> combined = Result.combine(
+        results,
+        s -> "res" + s.reduce(1, (i1, i2) -> i1 * i2));
+    assertThat(combined)
+        .isSuccess()
+        .hasValue("res24");
+  }
+  //-------------------------------------------------------------------------
+
+  public void flatCombine_iterableWithFailures() {
+    Result<String> success1 = Result.success("success 1");
+    Result<String> success2 = Result.success("success 2");
+    Result<String> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<String> failure2 = Result.failure(ERROR, "failure 2");
+    Set<Result<String>> results = ImmutableSet.of(success1, success2, failure1, failure2);
+
+    assertThat(Result.flatCombine(results, Result::success))
+        .isFailure(FailureReason.MULTIPLE);
+  }
+
+  public void flatCombine_iterableWithSuccesses_combineFails() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+    Result<Integer> success4 = Result.success(4);
+    Set<Result<Integer>> results = ImmutableSet.of(success1, success2, success3, success4);
+
+    Result<String> combined = Result.flatCombine(
+        results,
+        s -> Result.failure(CALCULATION_FAILED, "Could not do it"));
+
+    assertThat(combined)
+        .isFailure(CALCULATION_FAILED);
+  }
+
+  public void flatCombine_iterableWithSuccesses_combineSucceeds() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+    Result<Integer> success4 = Result.success(4);
+    Set<Result<Integer>> results = ImmutableSet.of(success1, success2, success3, success4);
+
+    Result<String> combined = Result.flatCombine(
+        results,
+        s -> Result.success("res" + s.reduce(1, (i1, i2) -> i1 * i2)));
+
+    assertThat(combined)
+        .isSuccess()
+        .hasValue("res24");
+  }
+
+  //-------------------------------------------------------------------------
+
   public void failure_fromResults_varargs1() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
-    Result<Object> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(ERROR, "failure 2");
     Result<Object> test = Result.failure(success1, success2, failure1, failure2);
     Set<FailureItem> expected = new HashSet<>();
     expected.addAll(failure1.getFailure().getItems());
@@ -242,8 +316,8 @@ public class ResultTest {
   public void failure_fromResults_varargs2() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
-    Result<Object> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(ERROR, "failure 2");
     Result<Object> test = Result.failure(success1, failure1, success2, failure2);
     Set<FailureItem> expected = new HashSet<>();
     expected.addAll(failure1.getFailure().getItems());
@@ -261,8 +335,8 @@ public class ResultTest {
   public void failure_fromResults_collection() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
-    Result<String> failure1 = Result.failure(FailureReason.MISSING_DATA, "failure 1");
-    Result<String> failure2 = Result.failure(FailureReason.ERROR, "failure 2");
+    Result<String> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<String> failure2 = Result.failure(ERROR, "failure 2");
 
     // Exposing collection explicitly shows why signature of failure is as it is
     List<Result<String>> results = Arrays.asList(success1, success2, failure1, failure2);
@@ -284,34 +358,34 @@ public class ResultTest {
   public void generateFailureFromException() {
     Exception exception = new Exception("something went wrong");
     Result<Object> test = Result.failure(exception);
-    assertEquals(test.getFailure().getReason(), FailureReason.ERROR);
+    assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "something went wrong");
   }
 
   public void generateFailureFromExceptionWithMessage() {
     Exception exception = new Exception("something went wrong");
     Result<Object> test = Result.failure(exception, "my message");
-    assertEquals(test.getFailure().getReason(), FailureReason.ERROR);
+    assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "my message");
   }
 
   public void generateFailureFromExceptionWithCustomStatus() {
     Exception exception = new Exception("something went wrong");
-    Result<Object> test = Result.failure(FailureReason.PERMISSION_DENIED, exception);
-    assertEquals(test.getFailure().getReason(), FailureReason.PERMISSION_DENIED);
+    Result<Object> test = Result.failure(PERMISSION_DENIED, exception);
+    assertEquals(test.getFailure().getReason(), PERMISSION_DENIED);
     assertEquals(test.getFailure().getMessage(), "something went wrong");
   }
 
   public void generateFailureFromExceptionWithCustomStatusAndMessage() {
     Exception exception = new Exception("something went wrong");
-    Result<Object> test = Result.failure(FailureReason.PERMISSION_DENIED, exception, "my message");
-    assertEquals(test.getFailure().getReason(), FailureReason.PERMISSION_DENIED);
+    Result<Object> test = Result.failure(PERMISSION_DENIED, exception, "my message");
+    assertEquals(test.getFailure().getReason(), PERMISSION_DENIED);
     assertEquals(test.getFailure().getMessage(), "my message");
   }
 
   //-------------------------------------------------------------------------
   public void failureDeduplicateFailure() {
-    Result<Object> result = Result.failure(FailureReason.MISSING_DATA, "failure");
+    Result<Object> result = Result.failure(MISSING_DATA, "failure");
     FailureItem failure = result.getFailure().getItems().iterator().next();
 
     Result<Object> test = Result.failure(result, result);
@@ -321,18 +395,18 @@ public class ResultTest {
   }
 
   public void failureSameType() {
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "message 1");
-    Result<Object> failure2 = Result.failure(FailureReason.MISSING_DATA, "message 2");
-    Result<Object> failure3 = Result.failure(FailureReason.MISSING_DATA, "message 3");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "message 1");
+    Result<Object> failure2 = Result.failure(MISSING_DATA, "message 2");
+    Result<Object> failure3 = Result.failure(MISSING_DATA, "message 3");
     Result<?> composite = Result.failure(failure1, failure2, failure3);
-    assertEquals(composite.getFailure().getReason(), FailureReason.MISSING_DATA);
+    assertEquals(composite.getFailure().getReason(), MISSING_DATA);
     assertEquals(composite.getFailure().getMessage(), "message 1, message 2, message 3");
   }
 
   public void failureDifferentTypes() {
-    Result<Object> failure1 = Result.failure(FailureReason.MISSING_DATA, "message 1");
-    Result<Object> failure2 = Result.failure(FailureReason.CALCULATION_FAILED, "message 2");
-    Result<Object> failure3 = Result.failure(FailureReason.ERROR, "message 3");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "message 1");
+    Result<Object> failure2 = Result.failure(CALCULATION_FAILED, "message 2");
+    Result<Object> failure3 = Result.failure(ERROR, "message 3");
     Result<?> composite = Result.failure(failure1, failure2, failure3);
     assertEquals(composite.getFailure().getReason(), FailureReason.MULTIPLE);
     assertEquals(composite.getFailure().getMessage(), "message 1, message 2, message 3");
@@ -348,16 +422,16 @@ public class ResultTest {
   public void createByBuilder_bothValueAndFailure() {
     Result.meta().builder()
         .set("value", "A")
-        .set("failure", Failure.of(FailureReason.CALCULATION_FAILED, "Fail"))
+        .set("failure", Failure.of(CALCULATION_FAILED, "Fail"))
         .build();    
   }
 
   //------------------------------------------------------------------------
   public void equalsHashCode() {
     Exception ex = new Exception("Problem");
-    Result<Object> a1 = Result.failure(FailureReason.MISSING_DATA, ex);
-    Result<Object> a2 = Result.failure(FailureReason.MISSING_DATA, ex);
-    Result<Object> b = Result.failure(FailureReason.ERROR, "message 2");
+    Result<Object> a1 = Result.failure(MISSING_DATA, ex);
+    Result<Object> a2 = Result.failure(MISSING_DATA, ex);
+    Result<Object> b = Result.failure(ERROR, "message 2");
     Result<Object> c = Result.success("Foo");
     Result<Object> d = Result.success("Bar");
     
@@ -432,20 +506,20 @@ public class ResultTest {
     Result<String> success = Result.success("Hello");
     Result<String> failure = Result.failure(new IllegalArgumentException());
     Result<String> test = success.combineWith(failure, FUNCTION_MERGE);
-    assertThat(test).isFailure(FailureReason.ERROR);
+    assertThat(test).isFailure(ERROR);
     assertThat(test.getFailure().getItems().size()).isEqualTo(1);
   }
 
   public void assert_failure() {
     Result<String> test = Result.failure(new IllegalArgumentException("failure"));
     assertThat(test)
-        .isFailure(FailureReason.ERROR)
+        .isFailure(ERROR)
         .hasFailureMessageMatching("failure");
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    Result<Object> failure = Result.failure(FailureReason.MISSING_DATA, "message 1");
+    Result<Object> failure = Result.failure(MISSING_DATA, "message 1");
     TestHelper.coverImmutableBean(failure);
     TestHelper.coverImmutableBean(failure.getFailure());
     TestHelper.coverImmutableBean(failure.getFailure().getItems().iterator().next());
