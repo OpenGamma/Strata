@@ -76,7 +76,7 @@ public final class SchedulePeriod
    * If the schedule adjusts for business days, then this is typically the regular periodic date.
    * If the schedule does not adjust for business days, then this is the same as the start date.
    * <p>
-   * When building, this will default to the start date is not specified.
+   * When building, this will default to the start date if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate unadjustedStartDate;
@@ -87,7 +87,7 @@ public final class SchedulePeriod
    * If the schedule adjusts for business days, then this is typically the regular periodic date.
    * If the schedule does not adjust for business days, then this is the same as the end date.
    * <p>
-   * When building, this will default to the end date is not specified.
+   * When building, this will default to the end date if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate unadjustedEndDate;
@@ -360,7 +360,7 @@ public final class SchedulePeriod
    * If the schedule adjusts for business days, then this is typically the regular periodic date.
    * If the schedule does not adjust for business days, then this is the same as the start date.
    * <p>
-   * When building, this will default to the start date is not specified.
+   * When building, this will default to the start date if not specified.
    * @return the value of the property, not null
    */
   public LocalDate getUnadjustedStartDate() {
@@ -375,7 +375,7 @@ public final class SchedulePeriod
    * If the schedule adjusts for business days, then this is typically the regular periodic date.
    * If the schedule does not adjust for business days, then this is the same as the end date.
    * <p>
-   * When building, this will default to the end date is not specified.
+   * When building, this will default to the end date if not specified.
    * @return the value of the property, not null
    */
   public LocalDate getUnadjustedEndDate() {
