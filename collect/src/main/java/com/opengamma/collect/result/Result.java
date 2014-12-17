@@ -308,11 +308,10 @@ public final class Result<T>
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
    *   } else {
-   *     MyOtherData other = getOtherData();
    *     Set<CombinedData> combined =
    *         results.stream()
    *             .map(Result::getValue)
-   *             .map(md -> combine(md, other))
+   *             .map(md -> md.toUpperCase())
    *             .collect(Collectors.toSet());
    *     return Result.success(combined);
    *   }
@@ -321,12 +320,11 @@ public final class Result<T>
    * can be replaced with:
    * <pre>{@code
    *   Set<Result<MyData>> results = goAndGatherData();
-   *   return Result.combine(results, myDataStream -> {
-   *     MyOtherData other = getOtherData();
-   *     return myDataStream
-   *         .map(md -> combine(md, other))
+   *   return Result.combine(results, myDataStream ->
+   *     myDataStream
+   *         .map(md -> md.toUpperCase())
    *         .collect(Collectors.toSet());
-   *   });
+   *   );
    * }
    * </pre>
    *
@@ -358,29 +356,24 @@ public final class Result<T>
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
    *   } else {
-   *     Result<MyOtherData> other = getOtherData(); // this could fail
-   *     if (other.isFailure()) {
-   *       return Result.failure(other);
-   *     }
-   *     MyOtherData otherData = other.getValue();
    *     Set<CombinedData> combined =
    *         results.stream()
    *             .map(Result::getValue)
-   *             .map(md -> combine(md, other))
+   *             .map(md -> md.toUpperCase())
    *             .collect(Collectors.toSet());
-   *     return Result.success(combined);
+   *     return doSomethingReturningResult(combined); // this could fail
    *   }
    * }
    * </pre>
    * can be replaced with:
    * <pre>{@code
    *   Set<Result<MyData>> results = goAndGatherData();
-   *   return Result.flatCombine(results, myDataStream ->
-   *       getOtherData().flatMap(otherData ->
-   *           Result.success(
-   *               myDataStream
-   *                 .map(md -> combine(md, otherData))
-   *                 .collect(Collectors.toSet()));
+   *   return Result.flatCombine(results, myDataStream -> {
+   *     Set<CombinedData> combined =
+   *         myDataStream
+   *             .map(md -> md.toUpperCase())
+   *             .collect(Collectors.toSet());
+   *     return doSomethingReturningResult(combined); // this could fail
    *   });
    * }
    * </pre>
