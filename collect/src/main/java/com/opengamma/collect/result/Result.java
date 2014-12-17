@@ -311,8 +311,8 @@ public final class Result<T>
    *     Set<FooData> combined =
    *         results.stream()
    *             .map(Result::getValue)
-   *             .map(md -> md.transformToFoo())
-   *             .collect(Collectors.toSet());
+   *             .map(MyData::transformToFoo)
+   *             .collect(toSet());
    *     return Result.success(combined);
    *   }
    * }
@@ -322,8 +322,8 @@ public final class Result<T>
    *   Set<Result<MyData>> results = goAndGatherData();
    *   return Result.combine(results, myDataStream ->
    *       myDataStream
-   *           .map(md -> md.transformToFoo())
-   *           .collect(Collectors.toSet())
+   *           .map(MyData::transformToFoo)
+   *           .collect(toSet())
    *   );
    * }
    * </pre>
@@ -359,8 +359,8 @@ public final class Result<T>
    *     Set<FooData> combined =
    *         results.stream()
    *             .map(Result::getValue)
-   *             .map(md -> md.transformToFoo())
-   *             .collect(Collectors.toSet());
+   *             .map(MyData::transformToFoo)
+   *             .collect(toSet());
    *     return doSomethingReturningResult(combined); // this could fail
    *   }
    * }
@@ -371,8 +371,8 @@ public final class Result<T>
    *   return Result.flatCombine(results, myDataStream -> {
    *     Set<CombinedData> combined =
    *         myDataStream
-   *             .map(md -> md.transformToFoo())
-   *             .collect(Collectors.toSet());
+   *             .map(MyData::transformToFoo)
+   *             .collect(toSet());
    *     return doSomethingReturningResult(combined); // this could fail
    *   });
    * }
