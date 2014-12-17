@@ -308,10 +308,10 @@ public final class Result<T>
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
    *   } else {
-   *     Set<CombinedData> combined =
+   *     Set<FooData> combined =
    *         results.stream()
    *             .map(Result::getValue)
-   *             .map(md -> md.toUpperCase())
+   *             .map(md -> md.transformToFoo())
    *             .collect(Collectors.toSet());
    *     return Result.success(combined);
    *   }
@@ -321,9 +321,9 @@ public final class Result<T>
    * <pre>{@code
    *   Set<Result<MyData>> results = goAndGatherData();
    *   return Result.combine(results, myDataStream ->
-   *     myDataStream
-   *         .map(md -> md.toUpperCase())
-   *         .collect(Collectors.toSet());
+   *       myDataStream
+   *           .map(md -> md.transformToFoo())
+   *           .collect(Collectors.toSet())
    *   );
    * }
    * </pre>
@@ -356,10 +356,10 @@ public final class Result<T>
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
    *   } else {
-   *     Set<CombinedData> combined =
+   *     Set<FooData> combined =
    *         results.stream()
    *             .map(Result::getValue)
-   *             .map(md -> md.toUpperCase())
+   *             .map(md -> md.transformToFoo())
    *             .collect(Collectors.toSet());
    *     return doSomethingReturningResult(combined); // this could fail
    *   }
@@ -371,7 +371,7 @@ public final class Result<T>
    *   return Result.flatCombine(results, myDataStream -> {
    *     Set<CombinedData> combined =
    *         myDataStream
-   *             .map(md -> md.toUpperCase())
+   *             .map(md -> md.transformToFoo())
    *             .collect(Collectors.toSet());
    *     return doSomethingReturningResult(combined); // this could fail
    *   });
