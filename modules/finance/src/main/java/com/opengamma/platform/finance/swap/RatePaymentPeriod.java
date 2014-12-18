@@ -38,7 +38,7 @@ import com.opengamma.collect.Messages;
  * <p>
  * A swap leg consists of one or more periods that are the basis of accrual.
  * The payment period is formed from one or more accrual periods which
- * detail the type of interest to be accrued, fixing or floating.
+ * detail the type of interest to be accrued, fixed or floating.
  * <p>
  * This class specifies the data necessary to calculate the value of the period.
  * Any combination of accrual periods is supported in the data model, however
@@ -120,12 +120,12 @@ public final class RatePaymentPeriod
     if (fxReset != null) {
       if (fxReset.getReferenceCurrency().equals(currency)) {
         throw new IllegalArgumentException(
-            Messages.format("Currency must not equal FxReset reference currency: {} {}",
+            Messages.format("Currency {} must not equal FxReset reference currency {}",
                 currency, fxReset.getReferenceCurrency()));
       }
       if (!fxReset.getIndex().getCurrencyPair().contains(currency)) {
         throw new IllegalArgumentException(
-            Messages.format("Currency must be one of those in the FxReset index: {} {}",
+            Messages.format("Currency {} must be one of those in the FxReset index {}",
                 currency, fxReset.getIndex()));
       }
     }
@@ -166,7 +166,7 @@ public final class RatePaymentPeriod
    * 
    * @return true if compounding applies
    */
-  public boolean isCompounding() {
+  public boolean isCompoundingApplicable() {
     return accrualPeriods.size() > 1 && compoundingMethod != CompoundingMethod.NONE;
   }
 

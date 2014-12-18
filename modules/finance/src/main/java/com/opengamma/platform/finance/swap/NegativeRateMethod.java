@@ -44,8 +44,7 @@ public enum NegativeRateMethod {
   NOT_NEGATIVE {
     @Override
     public double adjust(double rate) {
-      // Math.max has additional complications, so inline the logic
-      return (rate > 0d ? rate : 0d);
+      return Math.max(rate, 0);
     }
   };
 
@@ -79,7 +78,7 @@ public enum NegativeRateMethod {
    * Adjusts the specified rate according to the rate method rule.
    * <p>
    * Given a rate, the result will be either the same rate, or zero,
-   * depending on the enum constant teh method is called on.
+   * depending on the enum constant the method is called on.
    * 
    * @param rate  the rate to adjust
    * @return the adjusted result

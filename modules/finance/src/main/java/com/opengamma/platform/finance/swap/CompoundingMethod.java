@@ -17,6 +17,8 @@ import com.opengamma.collect.ArgChecker;
  * When calculating interest, it may be necessary to apply compounding.
  * Compound interest occurs where the basic interest is collected over one period but paid over a longer period.
  * For example, interest may be collected every three months but only paid every year. 
+ * <p>
+ * For more information see this <a href="http://www.isda.org/c_and_a/pdf/ISDA-Compounding-memo.pdf">ISDA note</a>.
  */
 public enum CompoundingMethod {
 
@@ -29,7 +31,9 @@ public enum CompoundingMethod {
    */
   NONE,
   /**
-   * Spread inclusive compounding applies.
+   * Straight compounding applies, which is inclusive of the spread.
+   * <p>
+   * Compounding is based on the total of the observed rate and the spread.
    * <p>
    * Defined as "Compounding" in the ISDA 2006 definitions.
    */
@@ -37,11 +41,16 @@ public enum CompoundingMethod {
   /**
    * Flat compounding applies.
    * <p>
+   * Compounding is based on the total of the observed rate and the spread in the
+   * first period, but only the observed rate in subsequent periods.
+   * <p>
    * Defined as "Flat Compounding" in the ISDA 2006 definitions.
    */
   FLAT,
   /**
    * Spread exclusive compounding applies.
+   * <p>
+   * Compounding is based only on the observed rate, with the spread treated as simple interest.
    * <p>
    * Defined as "Compounding treating Spread as simple interest" in the ISDA definitions.
    */

@@ -76,7 +76,8 @@ public final class FxReset
   /**
    * The date of the FX reset fixing.
    * <p>
-   * This is an adjusted date with any business day applied.
+   * This is an adjusted date with any business day rule applied.
+   * Valid business days are defined by {@link FxIndex#getFixingCalendar()}.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate fixingDate;
@@ -103,7 +104,7 @@ public final class FxReset
   private void validate() {
     if (!index.getCurrencyPair().contains(referenceCurrency)) {
       throw new IllegalArgumentException(
-          Messages.format("Reference currency must be one of those in the FxIndex: {} {}", referenceCurrency, index));
+          Messages.format("Reference currency {} must be one of those in the FxIndex {}", referenceCurrency, index));
     }
   }
 
@@ -192,7 +193,8 @@ public final class FxReset
   /**
    * Gets the date of the FX reset fixing.
    * <p>
-   * This is an adjusted date with any business day applied.
+   * This is an adjusted date with any business day rule applied.
+   * Valid business days are defined by {@link FxIndex#getFixingCalendar()}.
    * @return the value of the property, not null
    */
   public LocalDate getFixingDate() {

@@ -47,7 +47,8 @@ public final class IborAveragedFixing
   @PropertyDefinition(validate = "notNull")
   private final LocalDate fixingDate;
   /**
-   * The fixed rate for the fixing date, with a 5% rate expressed as 0.05, optional.
+   * The fixed rate for the fixing date, optional.
+   * A 5% rate will be expressed as 0.05.
    * <p>
    * In certain circumstances two counterparties agree the rate of a fixing when the contract starts.
    * It is used in place of an observed fixing.
@@ -210,7 +211,8 @@ public final class IborAveragedFixing
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixed rate for the fixing date, with a 5% rate expressed as 0.05, optional.
+   * Gets the fixed rate for the fixing date, optional.
+   * A 5% rate will be expressed as 0.05.
    * <p>
    * In certain circumstances two counterparties agree the rate of a fixing when the contract starts.
    * It is used in place of an observed fixing.

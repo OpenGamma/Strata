@@ -37,7 +37,7 @@ public interface PaymentPeriod
   public abstract LocalDate getPaymentDate();
 
   /**
-   * Gets the currency of the period.
+   * Gets the currency of the payment resulting from the period.
    * <p>
    * This is the currency of the generated payment.
    * A period has a single currency.

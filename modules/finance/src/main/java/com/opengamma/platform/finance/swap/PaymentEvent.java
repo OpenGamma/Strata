@@ -36,7 +36,7 @@ public interface PaymentEvent
   public abstract LocalDate getPaymentDate();
 
   /**
-   * Gets the currency of the event.
+   * Gets the currency of the payment resulting from the event.
    * <p>
    * This is the currency of the generated payment.
    * An event has a single currency.

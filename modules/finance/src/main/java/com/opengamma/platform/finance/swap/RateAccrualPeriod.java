@@ -114,7 +114,8 @@ public final class RateAccrualPeriod
   @PropertyDefinition
   private final double gearing;
   /**
-   * The spread rate, with a 5% rate expressed as 0.05, defaulted to 0.
+   * The spread rate, defaulted to 0.
+   * A 5% rate will be expressed as 0.05.
    * <p>
    * This defines the spread, which is used to add an amount the observed rate.
    * <p>
@@ -342,7 +343,8 @@ public final class RateAccrualPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the spread rate, with a 5% rate expressed as 0.05, defaulted to 0.
+   * Gets the spread rate, defaulted to 0.
+   * A 5% rate will be expressed as 0.05.
    * <p>
    * This defines the spread, which is used to add an amount the observed rate.
    * <p>

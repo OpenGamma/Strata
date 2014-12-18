@@ -67,7 +67,7 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getFxReset(), Optional.empty());
     assertEquals(test.getNotional(), 1000d, 0d);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.STRAIGHT);
-    assertEquals(test.isCompounding(), false);
+    assertEquals(test.isCompoundingApplicable(), false);
   }
 
   public void test_builder_twoAccrualPeriods() {
@@ -86,7 +86,7 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getFxReset(), Optional.empty());
     assertEquals(test.getNotional(), 1000d, 0d);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.STRAIGHT);
-    assertEquals(test.isCompounding(), true);
+    assertEquals(test.isCompoundingApplicable(), true);
   }
 
   public void test_builder_twoAccrualPeriods_compoundingDefaultedToNone_fxReset() {
@@ -105,7 +105,7 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFxReset(), Optional.of(FX_RESET_USD));
     assertEquals(test.getNotional(), 1000d, 0d);
-    assertEquals(test.isCompounding(), false);
+    assertEquals(test.isCompoundingApplicable(), false);
   }
 
   public void test_builder_badFxReset() {

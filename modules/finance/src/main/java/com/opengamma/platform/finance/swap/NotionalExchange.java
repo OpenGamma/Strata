@@ -33,7 +33,7 @@ import com.opengamma.basics.currency.CurrencyAmount;
  * However, in certain cases, initial, final or intermediate amounts are exchanged.
  * In this case, the notional can be referred to as the principal.
  * <p>
- * This class represents a notional exchange where the amount is known up front.
+ * This class represents a notional exchange where the amount is known in advance.
  */
 @BeanDefinition
 public final class NotionalExchange

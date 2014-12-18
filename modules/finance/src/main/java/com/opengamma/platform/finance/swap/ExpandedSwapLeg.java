@@ -55,7 +55,8 @@ public final class ExpandedSwapLeg
    * The payment periods that combine to form the swap leg.
    * <p>
    * Each payment period represents part of the life-time of the leg.
-   * It is expected that the periods do not overlap, however this is not validated.
+   * In most cases, the periods do not overlap. However, since each payment period
+   * is essentially independent the data model allows overlapping periods.
    */
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<PaymentPeriod> paymentPeriods;
@@ -97,7 +98,7 @@ public final class ExpandedSwapLeg
    * This is the first accrual date in the leg, often known as the effective date.
    * This date has been adjusted to be a valid business day.
    * 
-   * @return the start date of the period
+   * @return the start date of the leg
    */
   @Override
   public LocalDate getStartDate() {
@@ -110,7 +111,7 @@ public final class ExpandedSwapLeg
    * This is the last accrual date in the leg, often known as the maturity date.
    * This date has been adjusted to be a valid business day.
    * 
-   * @return the end date of the period
+   * @return the end date of the leg
    */
   @Override
   public LocalDate getEndDate() {
@@ -171,7 +172,8 @@ public final class ExpandedSwapLeg
    * Gets the payment periods that combine to form the swap leg.
    * <p>
    * Each payment period represents part of the life-time of the leg.
-   * It is expected that the periods do not overlap, however this is not validated.
+   * In most cases, the periods do not overlap. However, since each payment period
+   * is essentially independent the data model allows overlapping periods.
    * @return the value of the property, not empty
    */
   public ImmutableList<PaymentPeriod> getPaymentPeriods() {

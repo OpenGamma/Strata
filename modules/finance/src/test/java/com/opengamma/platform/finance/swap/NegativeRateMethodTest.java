@@ -22,15 +22,27 @@ public class NegativeRateMethodTest {
 
   //-------------------------------------------------------------------------
   public void adjust_allowNegative() {
-    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(1d), 1d);
-    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(0d), 0d);
-    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(-1d), -1d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(1d), 1d, 0d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(0d), 0d, 0d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(-0d), -0d, 0d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(-1d), -1d, 0d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.MAX_VALUE), Double.MAX_VALUE, 0d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.MIN_VALUE), Double.MIN_VALUE, 0d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.POSITIVE_INFINITY), Double.POSITIVE_INFINITY, 0d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.NEGATIVE_INFINITY), Double.NEGATIVE_INFINITY, 0d);
+    assertEquals(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.NaN), Double.NaN);  // force to Double for comparison
   }
 
   public void adjust_notNegative() {
-    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(1d), 1d);
-    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(0d), 0d);
-    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(-1d), 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(1d), 1d, 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(0d), 0d, 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(-0d), 0d, 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(-1d), 0d, 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.MAX_VALUE), Double.MAX_VALUE, 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.MIN_VALUE), Double.MIN_VALUE, 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.POSITIVE_INFINITY), Double.POSITIVE_INFINITY, 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.NEGATIVE_INFINITY), 0d, 0d);
+    assertEquals(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.NaN), Double.NaN);  // force to Double for comparison
   }
 
   //-------------------------------------------------------------------------
