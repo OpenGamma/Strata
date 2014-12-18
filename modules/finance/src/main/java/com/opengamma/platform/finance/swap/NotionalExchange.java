@@ -39,9 +39,6 @@ import com.opengamma.basics.currency.CurrencyAmount;
 public final class NotionalExchange
     implements PaymentEvent, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The date that the payment is made.
    * <p>
@@ -99,6 +96,11 @@ public final class NotionalExchange
   static {
     JodaBeanUtils.registerMetaBean(NotionalExchange.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

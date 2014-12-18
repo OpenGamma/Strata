@@ -48,9 +48,6 @@ import com.opengamma.collect.Messages;
 public final class RatePaymentPeriod
     implements PaymentPeriod, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The date that payment occurs.
    * <p>
@@ -183,6 +180,11 @@ public final class RatePaymentPeriod
   static {
     JodaBeanUtils.registerMetaBean(RatePaymentPeriod.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

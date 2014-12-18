@@ -44,9 +44,6 @@ import com.opengamma.platform.finance.rate.Rate;
 public final class RateAccrualPeriod
     implements ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The start date of the accrual period.
    * <p>
@@ -194,6 +191,11 @@ public final class RateAccrualPeriod
   static {
     JodaBeanUtils.registerMetaBean(RateAccrualPeriod.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.

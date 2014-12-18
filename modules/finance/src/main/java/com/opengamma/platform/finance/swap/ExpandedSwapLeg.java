@@ -48,9 +48,6 @@ import com.opengamma.basics.currency.Currency;
 public final class ExpandedSwapLeg
     implements SwapLeg, ImmutableBean, Serializable {
 
-  /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-
   /**
    * The payment periods that combine to form the swap leg.
    * <p>
@@ -143,6 +140,11 @@ public final class ExpandedSwapLeg
   static {
     JodaBeanUtils.registerMetaBean(ExpandedSwapLeg.Meta.INSTANCE);
   }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
 
   /**
    * Returns a builder used to create an instance of the bean.
