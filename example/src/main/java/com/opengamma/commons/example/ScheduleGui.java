@@ -52,7 +52,11 @@ import com.opengamma.basics.schedule.StubConvention;
  */
 public class ScheduleGui extends Application {
 
-  // launch GUI, no arguments needed
+  /**
+   * Launch GUI, no arguments needed.
+   * 
+   * @param args  no arguments needed
+   */
   public static void main(String[] args) {
     launch(args);
   }
@@ -216,15 +220,15 @@ public class ScheduleGui extends Application {
 
   //-------------------------------------------------------------------------
   // link Joda-Bean meta property to JavaFX
-  static class TableCallback<S extends Bean, T> implements Callback<CellDataFeatures<S,T>, ObservableValue<T>> {
+  static class TableCallback<S extends Bean, T> implements Callback<CellDataFeatures<S, T>, ObservableValue<T>> {
     private final MetaProperty<T> property;
 
     public TableCallback(MetaProperty<T> property) {
-        this.property = property;
+      this.property = property;
     }
 
     @Override
-    public ObservableValue<T> call(CellDataFeatures<S,T> param) {
+    public ObservableValue<T> call(CellDataFeatures<S, T> param) {
       return getCellDataReflectively(param.getValue());
     }
 

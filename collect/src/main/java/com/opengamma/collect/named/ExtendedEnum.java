@@ -77,6 +77,7 @@ public final class ExtendedEnum<T extends Named> {
    * {@linkplain PropertiesFile properties file} with the suffix '.properties'.
    * See class-level documentation for more information.
    * 
+   * @param <R>  the type of the enum
    * @param type  the type to load
    * @return the extended enum
    */
@@ -131,7 +132,7 @@ public final class ExtendedEnum<T extends Named> {
             result.add(parseConstants(enumType, cls));
           }
         } catch (Exception ex) {
-            throw new IllegalArgumentException("Unable to interpret enum provider: " + providerStr, ex);
+          throw new IllegalArgumentException("Unable to interpret enum provider: " + providerStr, ex);
         }
       }
     }

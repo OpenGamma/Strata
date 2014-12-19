@@ -38,8 +38,8 @@ public interface ObjLongPredicate<T> {
    * @throws NullPointerException if the other predicate is null
    */
   default ObjLongPredicate<T> and(ObjLongPredicate<? super T> other) {
-      Objects.requireNonNull(other);
-      return (obj, value) -> test(obj, value) && other.test(obj, value);
+    Objects.requireNonNull(other);
+    return (obj, value) -> test(obj, value) && other.test(obj, value);
   }
 
   /**
@@ -52,8 +52,8 @@ public interface ObjLongPredicate<T> {
    * @throws NullPointerException if the other predicate is null
    */
   default ObjLongPredicate<T> or(ObjLongPredicate<? super T> other) {
-      Objects.requireNonNull(other);
-      return (obj, value) -> test(obj, value) || other.test(obj, value);
+    Objects.requireNonNull(other);
+    return (obj, value) -> test(obj, value) || other.test(obj, value);
   }
 
   /**
@@ -62,7 +62,7 @@ public interface ObjLongPredicate<T> {
    * @return the predicate, "NOT this"
    */
   default ObjLongPredicate<T> negate() {
-      return (obj, value) -> !test(obj, value);
+    return (obj, value) -> !test(obj, value);
   }
 
 }

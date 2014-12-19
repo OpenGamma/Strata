@@ -200,11 +200,11 @@ public final class Result<T>
    * <p>
    * The input results can be successes or failures, only the failures will be included in the created result.
    * Intended to be used with {@link #anyFailures(Result...)}.
-   * <pre>
+   * <blockquote><pre>
    *   if (Result.anyFailures(result1, result2, result3) {
    *     return Result.failure(result1, result2, result3);
    *   }
-   * </pre>
+   * </pre></blockquote>
    *
    * @param <R> the expected type of the result
    * @param result1  the first result
@@ -218,10 +218,10 @@ public final class Result<T>
     ArgChecker.notNull(result2, "result2");
     ArgChecker.notNull(results, "results");
     ImmutableList<Result<?>> list = ImmutableList.<Result<?>>builder()
-      .add(result1)
-      .add(result2)
-      .addAll(Arrays.asList(results))
-      .build();
+        .add(result1)
+        .add(result2)
+        .addAll(Arrays.asList(results))
+        .build();
     return failure(list);
   }
 
@@ -230,11 +230,11 @@ public final class Result<T>
    * <p>
    * The input results can be successes or failures, only the failures will be included in the created result.
    * Intended to be used with {@link #anyFailures(Iterable)}.
-   * <pre>
+   * <blockquote><pre>
    *   if (Result.anyFailures(results) {
    *     return Result.failure(results);
    *   }
-   * </pre>
+   * </pre></blockquote>
    *
    * @param <R> the expected type of the result
    * @param results  multiple results, of which at least one must be a failure, not empty
@@ -303,7 +303,7 @@ public final class Result<T>
    * initial results is returned.
    * <p>
    * The following code shows where this method can be used. The code:
-   * <pre>{@code
+   * <blockquote><pre>
    *   Set<Result<MyData>> results = goAndGatherData();
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
@@ -315,18 +315,16 @@ public final class Result<T>
    *             .collect(toSet());
    *     return Result.success(combined);
    *   }
-   * }
-   * </pre>
+   * </pre></blockquote>
    * can be replaced with:
-   * <pre>{@code
+   * <blockquote><pre>
    *   Set<Result<MyData>> results = goAndGatherData();
    *   return Result.combine(results, myDataStream ->
    *       myDataStream
    *           .map(MyData::transformToFoo)
    *           .collect(toSet())
    *   );
-   * }
-   * </pre>
+   * </pre></blockquote>
    *
    * @param results  the results to be transformed if they are all successes
    * @param function  the function to apply to the stream of results if they were all successes
@@ -351,7 +349,7 @@ public final class Result<T>
    * the failures in the initial results is returned.
    * <p>
    * The following code shows where this method can be used. The code:
-   * <pre>{@code
+   * <blockquote><pre>
    *   Set<Result<MyData>> results = goAndGatherData();
    *   if (Result.anyFailures(results)) {
    *     return Result.failure(results);
@@ -363,10 +361,9 @@ public final class Result<T>
    *             .collect(toSet());
    *     return doSomethingReturningResult(combined); // this could fail
    *   }
-   * }
-   * </pre>
+   * </pre></blockquote>
    * can be replaced with:
-   * <pre>{@code
+   * <blockquote><pre>
    *   Set<Result<MyData>> results = goAndGatherData();
    *   return Result.flatCombine(results, myDataStream -> {
    *     Set<CombinedData> combined =
@@ -375,8 +372,7 @@ public final class Result<T>
    *             .collect(toSet());
    *     return doSomethingReturningResult(combined); // this could fail
    *   });
-   * }
-   * </pre>
+   * </pre></blockquote>
    *
    * @param results  the results to be transformed if they are all successes
    * @param function  the function to apply to the stream of results if they were all successes
@@ -499,10 +495,10 @@ public final class Result<T>
    * The specified function is not invoked.
    * <p>
    * For example, it allows a {@code double} to be converted to a string:
-   * <pre>
+   * <blockquote><pre>
    *   result = ...
    *   return result.map(value -> Double.toString(value));
-   * </pre>
+   * </pre></blockquote>
    *
    * @param <R>  the type of the value in the returned result
    * @param function  the function to transform the value with
@@ -530,10 +526,10 @@ public final class Result<T>
    * The specified function is not invoked.
    * <p>
    * For example,
-   * <pre>{@code
+   * <blockquote><pre>
    *   result = ...
    *   return result.flatMap(value -> doSomething(value));
-   * }</pre>
+   * </pre></blockquote>
    * Identical to {@link #ifSuccess}.
    *
    * @param <R>  the type of the value in the returned result
@@ -562,10 +558,10 @@ public final class Result<T>
    * The specified function is not invoked.
    * <p>
    * For example,
-   * <pre>{@code
+   * <blockquote><pre>
    *   result = ...
    *   return result.ifSuccess(value -> doSomething(value));
-   * }</pre>
+   * </pre></blockquote>
    * Identical to {@link #flatMap}.
    *
    * @param <R>  the type of the value in the returned result
@@ -587,11 +583,11 @@ public final class Result<T>
    * <p>
    * If either result is a failure, then a combination failure is returned.
    * The specified function is not invoked.
-   * <pre>
+   * <blockquote><pre>
    *   result1 = ...
    *   result2 = ...
    *   return result1.combineWith(result2, (value1, value2) -> doSomething(value1, value2));
-   * </pre>
+   * </pre></blockquote>
    *
    * @param other  another result
    * @param function  a function for combining values from two results

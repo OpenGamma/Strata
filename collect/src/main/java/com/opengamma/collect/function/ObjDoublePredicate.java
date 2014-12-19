@@ -38,8 +38,8 @@ public interface ObjDoublePredicate<T> {
    * @throws NullPointerException if the other predicate is null
    */
   default ObjDoublePredicate<T> and(ObjDoublePredicate<? super T> other) {
-      Objects.requireNonNull(other);
-      return (obj, value) -> test(obj, value) && other.test(obj, value);
+    Objects.requireNonNull(other);
+    return (obj, value) -> test(obj, value) && other.test(obj, value);
   }
 
   /**
@@ -52,8 +52,8 @@ public interface ObjDoublePredicate<T> {
    * @throws NullPointerException if the other predicate is null
    */
   default ObjDoublePredicate<T> or(ObjDoublePredicate<? super T> other) {
-      Objects.requireNonNull(other);
-      return (obj, value) -> test(obj, value) || other.test(obj, value);
+    Objects.requireNonNull(other);
+    return (obj, value) -> test(obj, value) || other.test(obj, value);
   }
 
   /**
@@ -62,7 +62,7 @@ public interface ObjDoublePredicate<T> {
    * @return the predicate, "NOT this"
    */
   default ObjDoublePredicate<T> negate() {
-      return (obj, value) -> !test(obj, value);
+    return (obj, value) -> !test(obj, value);
   }
 
 }

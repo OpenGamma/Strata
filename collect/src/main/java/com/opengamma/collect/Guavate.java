@@ -65,6 +65,7 @@ public final class Guavate {
    *  stream.filter(not(String::isEmpty))
    * </pre>
    * 
+   * @param <R>  the type of the object the predicate works on
    * @param predicate  the predicate to negate
    * @return the negated predicate
    */
@@ -214,7 +215,7 @@ public final class Guavate {
    * @return the immutable map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <T, K, V> Collector<T, ?, ImmutableMap<K,V>> toImmutableMap(
+  public static <T, K, V> Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(
       Function<? super T, ? extends K> keyExtractor,
       Function<? super T, ? extends V> valueExtractor) {
 
@@ -270,7 +271,7 @@ public final class Guavate {
    * @return the immutable sorted map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <T, K extends Comparable<?>, V> Collector<T, ?, ImmutableSortedMap<K,V>> toImmutableSortedMap(
+  public static <T, K extends Comparable<?>, V> Collector<T, ?, ImmutableSortedMap<K, V>> toImmutableSortedMap(
       Function<? super T, ? extends K> keyExtractor,
       Function<? super T, ? extends V> valueExtractor) {
 
@@ -323,7 +324,7 @@ public final class Guavate {
    * @param valueExtractor  function to produce values from stream elements
    * @return the immutable multimap collector
    */
-  public static <T, K, V> Collector<T, ?, ImmutableListMultimap<K,V>> toImmutableListMultimap(
+  public static <T, K, V> Collector<T, ?, ImmutableListMultimap<K, V>> toImmutableListMultimap(
       Function<? super T, ? extends K> keyExtractor,
       Function<? super T, ? extends V> valueExtractor) {
 
@@ -376,7 +377,7 @@ public final class Guavate {
    * @param valueExtractor  function to produce values from stream elements
    * @return the immutable multimap collector
    */
-  public static <T, K, V> Collector<T, ?, ImmutableSetMultimap<K,V>> toImmutableSetMultimap(
+  public static <T, K, V> Collector<T, ?, ImmutableSetMultimap<K, V>> toImmutableSetMultimap(
       Function<? super T, ? extends K> keyExtractor,
       Function<? super T, ? extends V> valueExtractor) {
 

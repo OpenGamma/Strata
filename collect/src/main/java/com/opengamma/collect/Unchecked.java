@@ -85,6 +85,8 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <T>  the input type of the function
+   * @param <R>  the return type of the function
    * @param function  the function to be decorated
    * @return the function instance that handles checked exceptions
    */
@@ -107,6 +109,9 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <T>  the first input type of the function
+   * @param <U>  the second input type of the function
+   * @param <R>  the return type of the function
    * @param function  the function to be decorated
    * @return the function instance that handles checked exceptions
    */
@@ -130,6 +135,7 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <T>  the type of the operator
    * @param function  the function to be decorated
    * @return the function instance that handles checked exceptions
    */
@@ -152,6 +158,7 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <T>  the type of the operator
    * @param function  the function to be decorated
    * @return the function instance that handles checked exceptions
    */
@@ -175,6 +182,7 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <T>  the type of the predicate
    * @param predicate  the predicate to be decorated
    * @return the predicate instance that handles checked exceptions
    */
@@ -197,6 +205,8 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <T>  the first type of the predicate
+   * @param <U>  the second type of the predicate
    * @param predicate  the predicate to be decorated
    * @return the predicate instance that handles checked exceptions
    */
@@ -220,6 +230,7 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <T>  the type of the consumer
    * @param consumer  the consumer to be decorated
    * @return the consumer instance that handles checked exceptions
    */
@@ -242,6 +253,8 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <T>  the first type of the consumer
+   * @param <U>  the second type of the consumer
    * @param consumer  the consumer to be decorated
    * @return the consumer instance that handles checked exceptions
    */
@@ -265,6 +278,7 @@ public final class Unchecked {
    * If a checked exception is thrown it is converted to an {@link UncheckedIOException}
    * or {@link RuntimeException} as appropriate.
    * 
+   * @param <R>  the result type of the supplier
    * @param supplier  the supplier to be decorated
    * @return the supplier instance that handles checked exceptions
    */

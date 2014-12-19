@@ -122,10 +122,6 @@ public final class ValueAdjustment
     StringBuilder buf = new StringBuilder(96);
     buf.append("ValueAdjustment[result = ");
     switch (type) {
-      case ABSOLUTE:
-      default:
-        buf.append(modifyingValue);
-        break;
       case DELTA_AMOUNT:
         if (this == NONE) {
           buf.append("input");
@@ -138,6 +134,10 @@ public final class ValueAdjustment
         break;
       case MULTIPLIER:
         buf.append("input * ").append(modifyingValue);
+        break;
+      case ABSOLUTE:
+      default:
+        buf.append(modifyingValue);
         break;
     }
     buf.append(']');
