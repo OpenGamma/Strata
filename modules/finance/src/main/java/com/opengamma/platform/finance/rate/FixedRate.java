@@ -32,7 +32,8 @@ public final class FixedRate
     implements Rate, ImmutableBean, Serializable {
 
   /**
-   * The fixed rate to be paid, with a 5% rate expressed as 0.05.
+   * The fixed rate to be paid.
+   * A 5% rate will be expressed as 0.05.
    */
   @PropertyDefinition
   private final double rate;
@@ -99,7 +100,8 @@ public final class FixedRate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the fixed rate to be paid, with a 5% rate expressed as 0.05.
+   * Gets the fixed rate to be paid.
+   * A 5% rate will be expressed as 0.05.
    * @return the value of the property
    */
   public double getRate() {
