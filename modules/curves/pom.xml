@@ -19,6 +19,7 @@
 
   <!-- ==================================================================== -->
   <dependencies>
+    <!-- OpenGamma -->
     <dependency>
       <groupId>com.opengamma.commons</groupId>
       <artifactId>og-basics</artifactId>
@@ -29,7 +30,7 @@
       <artifactId>og-analytics</artifactId>
       <version>2.6.0</version>
     </dependency>
-    <!-- testing -->
+    <!-- Testing -->
     <dependency>
       <groupId>com.opengamma.commons</groupId>
       <artifactId>og-collect</artifactId>
