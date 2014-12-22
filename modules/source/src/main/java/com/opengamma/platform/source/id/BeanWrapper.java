@@ -187,7 +187,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
      * The meta-property for the {@code additionalIdentifiers} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<StandardId>> additionalIdentifier = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<ImmutableSet<StandardId>> additionalIdentifiers = DirectMetaProperty.ofImmutable(
         this, "additionalIdentifiers", BeanWrapper.class, (Class) ImmutableSet.class);
     /**
      * The meta-properties.
@@ -208,8 +208,8 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
       switch (propertyName.hashCode()) {
         case 3019696:  // bean
           return bean;
-        case 1195162672:  // additionalIdentifiers
-          return additionalIdentifier;
+        case -1604662717:  // additionalIdentifiers
+          return additionalIdentifiers;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -242,8 +242,8 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
      * The meta-property for the {@code additionalIdentifiers} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<StandardId>> additionalIdentifier() {
-      return additionalIdentifier;
+    public MetaProperty<ImmutableSet<StandardId>> additionalIdentifiers() {
+      return additionalIdentifiers;
     }
 
     //-----------------------------------------------------------------------
@@ -252,7 +252,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
       switch (propertyName.hashCode()) {
         case 3019696:  // bean
           return ((BeanWrapper) bean).getBean();
-        case 1195162672:  // additionalIdentifiers
+        case -1604662717:  // additionalIdentifiers
           return ((BeanWrapper) bean).getAdditionalIdentifiers();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -276,7 +276,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
   public static final class Builder extends DirectFieldsBeanBuilder<BeanWrapper> {
 
     private IdentifiableBean bean;
-    private Set<StandardId> additionalIdentifier = new HashSet<StandardId>();
+    private Set<StandardId> additionalIdentifiers = new HashSet<StandardId>();
 
     /**
      * Restricted constructor.
@@ -290,7 +290,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
      */
     private Builder(BeanWrapper beanToCopy) {
       this.bean = beanToCopy.getBean();
-      this.additionalIdentifier = new HashSet<StandardId>(beanToCopy.getAdditionalIdentifiers());
+      this.additionalIdentifiers = new HashSet<StandardId>(beanToCopy.getAdditionalIdentifiers());
     }
 
     //-----------------------------------------------------------------------
@@ -299,8 +299,8 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
       switch (propertyName.hashCode()) {
         case 3019696:  // bean
           return bean;
-        case 1195162672:  // additionalIdentifiers
-          return additionalIdentifier;
+        case -1604662717:  // additionalIdentifiers
+          return additionalIdentifiers;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -313,8 +313,8 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
         case 3019696:  // bean
           this.bean = (IdentifiableBean) newValue;
           break;
-        case 1195162672:  // additionalIdentifiers
-          this.additionalIdentifier = (Set<StandardId>) newValue;
+        case -1604662717:  // additionalIdentifiers
+          this.additionalIdentifiers = (Set<StandardId>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -350,7 +350,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
     public BeanWrapper build() {
       return new BeanWrapper(
           bean,
-          additionalIdentifier);
+          additionalIdentifiers);
     }
 
     //-----------------------------------------------------------------------
@@ -367,23 +367,23 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
 
     /**
      * Sets the {@code additionalIdentifiers} property in the builder.
-     * @param additionalIdentifier  the new value, not null
+     * @param additionalIdentifiers  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder additionalIdentifier(Set<StandardId> additionalIdentifier) {
-      JodaBeanUtils.notNull(additionalIdentifier, "additionalIdentifiers");
-      this.additionalIdentifier = additionalIdentifier;
+    public Builder additionalIdentifiers(Set<StandardId> additionalIdentifiers) {
+      JodaBeanUtils.notNull(additionalIdentifiers, "additionalIdentifiers");
+      this.additionalIdentifiers = additionalIdentifiers;
       return this;
     }
 
     /**
      * Sets the {@code additionalIdentifiers} property in the builder
      * from an array of objects.
-     * @param additionalIdentifier  the new value, not null
+     * @param additionalIdentifiers  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder additionalIdentifier(StandardId... additionalIdentifier) {
-      return additionalIdentifier(new LinkedHashSet<StandardId>(Arrays.asList(additionalIdentifier)));
+    public Builder additionalIdentifiers(StandardId... additionalIdentifiers) {
+      return additionalIdentifiers(new LinkedHashSet<StandardId>(Arrays.asList(additionalIdentifiers)));
     }
 
     //-----------------------------------------------------------------------
@@ -392,7 +392,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
       StringBuilder buf = new StringBuilder(96);
       buf.append("BeanWrapper.Builder{");
       buf.append("bean").append('=').append(JodaBeanUtils.toString(bean)).append(',').append(' ');
-      buf.append("additionalIdentifiers").append('=').append(JodaBeanUtils.toString(additionalIdentifier));
+      buf.append("additionalIdentifiers").append('=').append(JodaBeanUtils.toString(additionalIdentifiers));
       buf.append('}');
       return buf.toString();
     }
