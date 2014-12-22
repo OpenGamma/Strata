@@ -19,6 +19,13 @@
 
   <!-- ==================================================================== -->
   <dependencies>
+    <!-- OpenGamma -->
+    <dependency>
+      <groupId>com.opengamma.commons</groupId>
+      <artifactId>og-collect</artifactId>
+      <version>0.9.0-SNAPSHOT</version>
+    </dependency>
+    <!-- Third Party -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -39,12 +46,7 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.opengamma.commons</groupId>
-      <artifactId>og-collect</artifactId>
-      <version>0.9.0-SNAPSHOT</version>
-    </dependency>
-    <!-- testing -->
+    <!-- Testing -->
     <dependency>
       <groupId>com.opengamma.commons</groupId>
       <artifactId>og-collect</artifactId>

@@ -16,7 +16,7 @@
   <version>3.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>OG-Platform-Core-Root</name>
-  <description>Parent for OpenGamma Platform Core</description>
+  <description>OpenGamma Platform Core root</description>
 
   <!-- ==================================================================== -->
   <licenses>
@@ -29,8 +29,8 @@
 
   <!-- ==================================================================== -->
   <issueManagement>
-    <system>Jira</system>
-    <url>http://jira.opengamma.com/browse/PLT</url>
+    <system>GitHub</system>
+    <url>https://github.com/OpenGamma/OG-PlatformCore/issues</url>
   </issueManagement>
   <inceptionYear>2009</inceptionYear>
   <mailingLists>
