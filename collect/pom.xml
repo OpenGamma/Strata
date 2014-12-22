@@ -18,12 +18,8 @@
   <description>Common collection implementations</description>
 
   <!-- ==================================================================== -->
-  <scm>
-    <url>https://github.com/OpenGamma/OG-Commons/tree/master/collect</url>
-  </scm>
-
-  <!-- ==================================================================== -->
   <dependencies>
+    <!-- Third party -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -40,6 +36,7 @@
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
     </dependency>
+    <!-- Testing -->
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
