@@ -14,7 +14,7 @@ import com.opengamma.collect.ArgChecker;
 /**
  * The method of accruing interest based on an Overnight index.
  * <p>
- * Two methods of accrual are supported - compounding and averaging.
+ * Two methods of accrual are supported - compounded and averaged.
  * Averaging is primarily related to the 'USD-FED-FUND' index.
  */
 public enum OvernightAccrualMethod {

@@ -14,7 +14,8 @@ import com.opengamma.collect.ArgChecker;
 /**
  * A convention defining how to average floating rates.
  * <p>
- * When calculating interest, it may be necessary average a number of different rates.
+ * When calculating interest, it may be necessary to average a number of different rates.
+ * This method defines how to perform the averaging.
  */
 public enum IborRateAveragingMethod {
 

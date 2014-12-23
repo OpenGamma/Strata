@@ -184,12 +184,10 @@ public final class OvernightRateCalculation
     int effectiveRateCutOffDaysOffset = (isLastAccrualInPaymentPeriod(period, paymentSchedule) ? rateCutOffDays : 0);
     LocalDate startDate = index.calculateFixingFromEffective(period.getStartDate());
     LocalDate endDate = index.calculateFixingFromEffective(period.getEndDate());
-    switch (accrualMethod) {
-      case AVERAGED:
-        return OvernightAveragedRate.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
-      case COMPOUNDED:
-      default:
-        return OvernightCompoundedRate.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
+    if (accrualMethod == OvernightAccrualMethod.AVERAGED) {
+      return OvernightAveragedRate.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
+    } else {
+      return OvernightCompoundedRate.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
     }
   }
 

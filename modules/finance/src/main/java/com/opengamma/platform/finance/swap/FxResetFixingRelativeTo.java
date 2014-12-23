@@ -65,13 +65,7 @@ public enum FxResetFixingRelativeTo {
   //-------------------------------------------------------------------------
   // selects the base date for fixing
   LocalDate selectBaseDate(SchedulePeriod period) {
-    switch (this) {
-      case PERIOD_END:
-        return period.getEndDate();
-      case PERIOD_START:
-      default:
-        return period.getStartDate();
-    }
+    return (this == PERIOD_END ? period.getEndDate() : period.getStartDate());
   }
 
 }
