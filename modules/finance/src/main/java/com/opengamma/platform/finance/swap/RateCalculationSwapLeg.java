@@ -102,9 +102,7 @@ public final class RateCalculationSwapLeg
    */
   @Override
   public LocalDate getStartDate() {
-    return accrualSchedule.getStartDateBusinessDayAdjustment()
-        .orElse(accrualSchedule.getBusinessDayAdjustment())
-        .adjust(accrualSchedule.getStartDate());
+    return accrualSchedule.getAdjustedStartDate();
   }
 
   /**
@@ -117,9 +115,7 @@ public final class RateCalculationSwapLeg
    */
   @Override
   public LocalDate getEndDate() {
-    return accrualSchedule.getEndDateBusinessDayAdjustment()
-        .orElse(accrualSchedule.getBusinessDayAdjustment())
-        .adjust(accrualSchedule.getEndDate());
+    return accrualSchedule.getAdjustedEndDate();
   }
 
   /**
@@ -147,10 +143,9 @@ public final class RateCalculationSwapLeg
     List<RateAccrualPeriod> accrualPeriods = calculation.expand(resolvedAccruals, resolvedPayments);
     List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
         resolvedPayments, accrualPeriods, notionalSchedule, payReceive);
-    List<PaymentEvent> events = createEvents(payPeriods);
     return ExpandedSwapLeg.builder()
-        .paymentPeriods(ImmutableList.copyOf(payPeriods))
-        .paymentEvents(events)
+        .paymentPeriods(ImmutableList.copyOf(payPeriods))  // copyOf changes generics of list without an actual copy
+        .paymentEvents(createEvents(payPeriods))
         .build();
   }
 
