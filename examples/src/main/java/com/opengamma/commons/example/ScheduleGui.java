@@ -48,7 +48,7 @@ import com.opengamma.basics.schedule.StubConvention;
  * This provides a GUI based on {@link PeriodicSchedule} and {@link Schedule}.
  * <p>
  * This GUI exists for demonstration purposes to aid with understanding schedule generation.
- * It is not intended that is used in a production environment.
+ * It is not intended to be used in a production environment.
  */
 public class ScheduleGui extends Application {
 

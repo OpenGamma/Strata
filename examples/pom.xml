@@ -9,21 +9,17 @@
     <groupId>com.opengamma.commons</groupId>
     <artifactId>og-commons-parent</artifactId>
     <version>0.9.0-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath></relativePath>
   </parent>  
-  <artifactId>og-commons-example</artifactId>
+  <artifactId>og-commons-examples</artifactId>
   <version>0.9.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>OG-Commons-Example</name>
+  <name>OG-Commons-Examples</name>
   <description>Example code to demonstrate use of OG-Commons</description>
 
   <!-- ==================================================================== -->
-  <scm>
-    <url>https://github.com/OpenGamma/OG-Commons/tree/master/examples</url>
-  </scm>
-
-  <!-- ==================================================================== -->
   <dependencies>
+    <!-- OpenGamma, relying on transitive dependencies -->
     <dependency>
       <groupId>com.opengamma.commons</groupId>
       <artifactId>og-basics</artifactId>
@@ -33,13 +29,12 @@
 
   <!-- ==================================================================== -->
   <properties>
-    <!-- Properties for maven-install-plugin -->
+    <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
-    <!-- Properties for maven-deploy-plugin -->
     <maven.deploy.skip>true</maven.deploy.skip>
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OG-Commons-Example</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma Commons Example API</h1>]]></doctitle>
+    <windowtitle>OG-Commons-Examples</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Commons Examples</h1>]]></doctitle>
   </properties>
 
 </project>

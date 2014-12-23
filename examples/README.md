@@ -1,6 +1,6 @@
-OG-Commons-Example
-------------------
-This directory contains the `og-commons-example` project.
+OG-Commons-Examples
+-------------------
+This directory contains the `og-commons-examples` project.
 
 ### Overview
 
