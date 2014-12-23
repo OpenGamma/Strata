@@ -23,7 +23,6 @@
     <dependency>
       <groupId>com.opengamma.commons</groupId>
       <artifactId>og-collect</artifactId>
-      <version>0.9.0-SNAPSHOT</version>
     </dependency>
     <!-- Third Party -->
     <dependency>
@@ -50,7 +49,6 @@
     <dependency>
       <groupId>com.opengamma.commons</groupId>
       <artifactId>og-collect</artifactId>
-      <version>0.9.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
