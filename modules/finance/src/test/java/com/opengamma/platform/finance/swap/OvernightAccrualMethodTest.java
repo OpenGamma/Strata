@@ -18,48 +18,46 @@ import org.testng.annotations.Test;
  * Test.
  */
 @Test
-public class CompoundingMethodTest {
+public class OvernightAccrualMethodTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {CompoundingMethod.NONE, "None" },
-      {CompoundingMethod.STRAIGHT, "Straight" },
-      {CompoundingMethod.FLAT, "Flat" },
-      {CompoundingMethod.SPREAD_EXCLUSIVE, "SpreadExclusive" },
+      {OvernightAccrualMethod.AVERAGED, "Averaged" },
+      {OvernightAccrualMethod.COMPOUNDED, "Compounded" },
     };
   }
 
   @Test(dataProvider = "name")
-  public void test_toString(CompoundingMethod convention, String name) {
+  public void test_toString(OvernightAccrualMethod convention, String name) {
     assertEquals(convention.toString(), name);
   }
 
   @Test(dataProvider = "name")
-  public void test_of_lookup(CompoundingMethod convention, String name) {
-    assertEquals(CompoundingMethod.of(name), convention);
+  public void test_of_lookup(OvernightAccrualMethod convention, String name) {
+    assertEquals(OvernightAccrualMethod.of(name), convention);
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> CompoundingMethod.of("Rubbish"), IllegalArgumentException.class);
+    assertThrows(() -> OvernightAccrualMethod.of("Rubbish"), IllegalArgumentException.class);
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> CompoundingMethod.of(null), IllegalArgumentException.class);
+    assertThrows(() -> OvernightAccrualMethod.of(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverEnum(CompoundingMethod.class);
+    coverEnum(OvernightAccrualMethod.class);
   }
 
   public void test_serialization() {
-    assertSerialization(CompoundingMethod.STRAIGHT);
+    assertSerialization(OvernightAccrualMethod.AVERAGED);
   }
 
   public void test_jodaConvert() {
-    assertJodaConvert(CompoundingMethod.class, CompoundingMethod.STRAIGHT);
+    assertJodaConvert(OvernightAccrualMethod.class, OvernightAccrualMethod.AVERAGED);
   }
 
 }
