@@ -6,6 +6,7 @@
 package com.opengamma.basics.schedule;
 
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_PRECEDING;
 import static com.opengamma.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.basics.schedule.Frequency.P1M;
 import static com.opengamma.basics.schedule.Frequency.P2M;
@@ -94,6 +95,10 @@ public class PeriodicScheduleTest {
     assertEquals(test.getEffectiveRollConvention(), DAY_17);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
     assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
+    assertEquals(test.getEffectiveStartDateBusinessDayAdjustment(), BDA);
+    assertEquals(test.getEffectiveEndDateBusinessDayAdjustment(), BDA);
+    assertEquals(test.getAdjustedStartDate(), JUN_04);
+    assertEquals(test.getAdjustedEndDate(), SEP_17);
   }
 
   public void test_of_LocalDateEomTrue() {
@@ -111,6 +116,10 @@ public class PeriodicScheduleTest {
     assertEquals(test.getEffectiveRollConvention(), DAY_4);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
     assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
+    assertEquals(test.getEffectiveStartDateBusinessDayAdjustment(), BDA);
+    assertEquals(test.getEffectiveEndDateBusinessDayAdjustment(), BDA);
+    assertEquals(test.getAdjustedStartDate(), JUN_04);
+    assertEquals(test.getAdjustedEndDate(), SEP_17);
   }
 
   public void test_of_LocalDateEom_null() {
@@ -142,6 +151,10 @@ public class PeriodicScheduleTest {
     assertEquals(test.getEffectiveRollConvention(), DAY_17);
     assertEquals(test.getEffectiveFirstRegularStartDate(), JUN_04);
     assertEquals(test.getEffectiveLastRegularEndDate(), SEP_17);
+    assertEquals(test.getEffectiveStartDateBusinessDayAdjustment(), BDA);
+    assertEquals(test.getEffectiveEndDateBusinessDayAdjustment(), BDA);
+    assertEquals(test.getAdjustedStartDate(), JUN_04);
+    assertEquals(test.getAdjustedEndDate(), SEP_17);
   }
 
   public void test_of_LocalDateRoll_null() {
@@ -409,17 +422,23 @@ public class PeriodicScheduleTest {
 
   //-------------------------------------------------------------------------
   public void test_startEndAdjust() {
-    PeriodicSchedule defn = PeriodicSchedule.builder()
+    BusinessDayAdjustment bda1 = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.SAT_SUN);
+    BusinessDayAdjustment bda2 = BusinessDayAdjustment.of(MODIFIED_PRECEDING, HolidayCalendars.SAT_SUN);
+    PeriodicSchedule test = PeriodicSchedule.builder()
         .startDate(date(2014, 10, 4))
         .endDate(date(2015, 4, 4))
         .frequency(P3M)
         .businessDayAdjustment(BDA)
-        .startDateBusinessDayAdjustment(BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.SAT_SUN))
-        .endDateBusinessDayAdjustment(BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.SAT_SUN))
+        .startDateBusinessDayAdjustment(bda1)
+        .endDateBusinessDayAdjustment(bda2)
         .stubConvention(STUB_NONE)
         .build();
-    assertEquals(defn.createUnadjustedDates(), ImmutableList.of(date(2014, 10, 4), date(2015, 1, 4), date(2015, 4, 4)));
-    assertEquals(defn.createAdjustedDates(), ImmutableList.of(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3)));
+    assertEquals(test.getEffectiveStartDateBusinessDayAdjustment(), bda1);
+    assertEquals(test.getEffectiveEndDateBusinessDayAdjustment(), bda2);
+    assertEquals(test.getAdjustedStartDate(), date(2014, 10, 3));
+    assertEquals(test.getAdjustedEndDate(), date(2015, 4, 3));
+    assertEquals(test.createUnadjustedDates(), ImmutableList.of(date(2014, 10, 4), date(2015, 1, 4), date(2015, 4, 4)));
+    assertEquals(test.createAdjustedDates(), ImmutableList.of(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3)));
   }
 
   //-------------------------------------------------------------------------
