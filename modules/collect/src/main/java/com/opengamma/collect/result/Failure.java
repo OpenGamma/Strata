@@ -6,7 +6,6 @@
 package com.opengamma.collect.result;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -378,7 +377,7 @@ public final class Failure
 
     private FailureReason reason;
     private String message;
-    private Set<FailureItem> items = new HashSet<FailureItem>();
+    private Set<FailureItem> items = ImmutableSet.of();
 
     /**
      * Restricted constructor.

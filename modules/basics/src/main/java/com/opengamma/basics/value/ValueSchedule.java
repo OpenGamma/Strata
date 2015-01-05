@@ -6,7 +6,6 @@
 package com.opengamma.basics.value;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -363,7 +362,7 @@ public final class ValueSchedule
   public static final class Builder extends DirectFieldsBeanBuilder<ValueSchedule> {
 
     private double initialValue;
-    private List<ValueStep> steps = new ArrayList<ValueStep>();
+    private List<ValueStep> steps = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -377,7 +376,7 @@ public final class ValueSchedule
      */
     private Builder(ValueSchedule beanToCopy) {
       this.initialValue = beanToCopy.getInitialValue();
-      this.steps = new ArrayList<ValueStep>(beanToCopy.getSteps());
+      this.steps = ImmutableList.copyOf(beanToCopy.getSteps());
     }
 
     //-----------------------------------------------------------------------
@@ -469,7 +468,7 @@ public final class ValueSchedule
      * @return this, for chaining, not null
      */
     public Builder steps(ValueStep... steps) {
-      return steps(Arrays.asList(steps));
+      return steps(ImmutableList.copyOf(steps));
     }
 
     //-----------------------------------------------------------------------

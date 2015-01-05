@@ -9,12 +9,10 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -423,8 +421,8 @@ public final class ImmutableHolidayCalendar
   private static final class Builder extends DirectFieldsBeanBuilder<ImmutableHolidayCalendar> {
 
     private String name;
-    private SortedSet<LocalDate> holidays = new TreeSet<LocalDate>();
-    private Set<DayOfWeek> weekendDays = new HashSet<DayOfWeek>();
+    private SortedSet<LocalDate> holidays = ImmutableSortedSet.of();
+    private Set<DayOfWeek> weekendDays = ImmutableSet.of();
 
     /**
      * Restricted constructor.

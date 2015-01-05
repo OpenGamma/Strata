@@ -8,7 +8,6 @@ package com.opengamma.basics.schedule;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -611,7 +610,7 @@ public final class Schedule
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Schedule> {
 
-    private List<SchedulePeriod> periods = new ArrayList<SchedulePeriod>();
+    private List<SchedulePeriod> periods = ImmutableList.of();
     private Frequency frequency;
     private RollConvention rollConvention;
 
@@ -626,7 +625,7 @@ public final class Schedule
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Schedule beanToCopy) {
-      this.periods = new ArrayList<SchedulePeriod>(beanToCopy.getPeriods());
+      this.periods = beanToCopy.getPeriods();
       this.frequency = beanToCopy.getFrequency();
       this.rollConvention = beanToCopy.getRollConvention();
     }
@@ -716,7 +715,7 @@ public final class Schedule
      * @return this, for chaining, not null
      */
     public Builder periods(SchedulePeriod... periods) {
-      return periods(Arrays.asList(periods));
+      return periods(ImmutableList.copyOf(periods));
     }
 
     /**
