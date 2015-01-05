@@ -6,7 +6,6 @@
 package com.opengamma.platform.finance.swap;
 
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.basics.date.BusinessDayConventions.PRECEDING;
 
 import java.time.LocalDate;
 
@@ -53,7 +52,7 @@ public class SwapDemo {
     // - interest is accrued every 3 months from 2014-02-12 to 2014-07-31
     // - accrual period dates are adjusted "modified following" using the "GBLO" holiday calendar
     // - there will be a long initial stub
-    // - the regular accrual period dates will at the end-of-month
+    // - the regular accrual period dates will be at the end-of-month
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(LocalDate.of(2014, 2, 12))
         .endDate(LocalDate.of(2016, 7, 31))
@@ -73,13 +72,8 @@ public class SwapDemo {
         .compoundingMethod(CompoundingMethod.STRAIGHT)
         .build();
     // a NotionalSchedule generates a schedule of notional amounts, based on the payment schedule
-    // - the notional starts at 1 million GBP and increases to 2 million GBP
-    NotionalSchedule notionalSchedule = NotionalSchedule.builder()
-        .currency(Currency.GBP)
-        .amount(ValueSchedule.of(
-            1_000_000,
-            ValueStep.ofAbsoluteAmount(LocalDate.of(2015, 1, 31), 2_000_000)))
-        .build();
+    // - in this simple case the notional is 1 million GBP and does not change
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(Currency.GBP, 1_000_000);
     // a RateCalculationSwapLeg can represent a fixed or floating swap leg
     // - a FixedRateCalculation is used to represent a fixed rate
     // - the "Act/Act ISDA" day count is used
@@ -114,7 +108,7 @@ public class SwapDemo {
     // - interest is accrued every 6 months from 2014-02-12 to 2014-07-31
     // - accrual period dates are adjusted "modified following" using the "GBLO" holiday calendar
     // - there will be a long initial stub
-    // - the regular accrual period dates will at the end-of-month
+    // - the regular accrual period dates will be at the end-of-month
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
         .startDate(LocalDate.of(2014, 2, 12))
         .endDate(LocalDate.of(2016, 7, 31))
@@ -133,13 +127,8 @@ public class SwapDemo {
         .paymentOffset(DaysAdjustment.ofBusinessDays(2, HolidayCalendars.GBLO))
         .build();
     // a NotionalSchedule generates a schedule of notional amounts, based on the payment schedule
-    // - the notional starts at 1 million GBP and increases to 2 million GBP
-    NotionalSchedule notionalSchedule = NotionalSchedule.builder()
-        .currency(Currency.GBP)
-        .amount(ValueSchedule.of(
-            1_000_000,
-            ValueStep.ofAbsoluteAmount(LocalDate.of(2015, 1, 31), 2_000_000)))
-        .build();
+    // - in this simple case the notional is 1 million GBP and does not change
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(Currency.GBP, 1_000_000);
     // a RateCalculationSwapLeg can represent a fixed or floating swap leg
     // - an IborRateCalculation is used to represent a floating IBOR-like rate
     // - the "Act/Act ISDA" day count is used
@@ -171,9 +160,6 @@ public class SwapDemo {
 
   //-----------------------------------------------------------------------
   public void vanillaFixedVsLibor3mSwap() {
-    // a BusinessDayAdjustment converts a date to a valid business day
-    BusinessDayAdjustment bda = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY);
-    BusinessDayAdjustment bdaPreceding = BusinessDayAdjustment.of(PRECEDING, HolidayCalendars.USNY);
     // we are paying a fixed rate every 3 months at 1.5% with a 100 million notional
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.PAY)
@@ -181,7 +167,7 @@ public class SwapDemo {
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
             .frequency(Frequency.P3M)
-            .businessDayAdjustment(bda)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY))
             .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
@@ -204,7 +190,7 @@ public class SwapDemo {
             .startDate(LocalDate.of(2014, 9, 12))
             .endDate(LocalDate.of(2021, 9, 12))
             .frequency(Frequency.P3M)
-            .businessDayAdjustment(bda)
+            .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendars.USNY))
             .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
@@ -218,7 +204,7 @@ public class SwapDemo {
         .calculation(IborRateCalculation.builder()
             .dayCount(DayCounts.ACT_360)
             .index(IborIndices.USD_LIBOR_3M)
-            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.USNY, bdaPreceding))
+            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendars.USNY))
             .build())
         .build();
     // a SwapTrade combines the two legs
