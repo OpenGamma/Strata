@@ -35,9 +35,9 @@ import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.rate.OvernightAveragedRate;
-import com.opengamma.platform.finance.rate.OvernightCompoundedRate;
-import com.opengamma.platform.finance.rate.Rate;
+import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
+import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
+import com.opengamma.platform.finance.observation.RateObservation;
 
 /**
  * Defines the calculation of a floating rate swap leg based on an Overnight index.
@@ -170,7 +170,7 @@ public final class OvernightRateCalculation
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rate(createRate(period, paymentSchedule))
+          .rateObservation(createRateObservation(period, paymentSchedule))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
           .spread(resolvedSpreads.get(i))
@@ -179,15 +179,15 @@ public final class OvernightRateCalculation
     return accrualPeriods.build();
   }
 
-  // creates the rate instance
-  private Rate createRate(SchedulePeriod period, Schedule paymentSchedule) {
+  // creates the rate observation
+  private RateObservation createRateObservation(SchedulePeriod period, Schedule paymentSchedule) {
     int effectiveRateCutOffDaysOffset = (isLastAccrualInPaymentPeriod(period, paymentSchedule) ? rateCutOffDays : 0);
     LocalDate startDate = index.calculateFixingFromEffective(period.getStartDate());
     LocalDate endDate = index.calculateFixingFromEffective(period.getEndDate());
     if (accrualMethod == OvernightAccrualMethod.AVERAGED) {
-      return OvernightAveragedRate.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
+      return OvernightAveragedRateObservation.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
     } else {
-      return OvernightCompoundedRate.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
+      return OvernightCompoundedRateObservation.of(index, startDate, endDate, effectiveRateCutOffDaysOffset);
     }
   }
 

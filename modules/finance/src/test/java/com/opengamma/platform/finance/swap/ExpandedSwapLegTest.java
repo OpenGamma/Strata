@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.platform.finance.rate.IborRate;
+import com.opengamma.platform.finance.observation.IborRateObservation;
 
 /**
  * Test.
@@ -32,14 +32,14 @@ public class ExpandedSwapLegTest {
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_09_30 = date(2014, 9, 30);
   private static final LocalDate DATE_2014_10_01 = date(2014, 10, 1);
-  private static final IborRate GBP_LIBOR_3M_2014_06_28 = IborRate.of(GBP_LIBOR_3M, date(2014, 6, 28));
+  private static final IborRateObservation GBP_LIBOR_3M_2014_06_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 28));
   private static final NotionalExchange NOTIONAL_EXCHANGE =
       NotionalExchange.of(DATE_2014_10_01, CurrencyAmount.of(GBP, 2000d));
   private static final RateAccrualPeriod RAP = RateAccrualPeriod.builder()
       .startDate(DATE_2014_06_30)
       .endDate(DATE_2014_09_30)
       .yearFraction(0.25d)
-      .rate(GBP_LIBOR_3M_2014_06_28)
+      .rateObservation(GBP_LIBOR_3M_2014_06_28)
       .build();
   private static final RatePaymentPeriod RPP1 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)

@@ -29,7 +29,7 @@ import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.rate.FixedRate;
+import com.opengamma.platform.finance.observation.FixedRateObservation;
 
 /**
  * Defines the calculation of a fixed rate swap leg.
@@ -71,7 +71,7 @@ public final class FixedRateCalculation
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rate(FixedRate.of(resolvedRates.get(i)))
+          .rateObservation(FixedRateObservation.of(resolvedRates.get(i)))
           .build());
     }
     return accrualPeriods.build();

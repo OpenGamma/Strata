@@ -40,11 +40,11 @@ import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.rate.FixedRate;
-import com.opengamma.platform.finance.rate.IborAveragedFixing;
-import com.opengamma.platform.finance.rate.IborAveragedRate;
-import com.opengamma.platform.finance.rate.IborRate;
-import com.opengamma.platform.finance.rate.Rate;
+import com.opengamma.platform.finance.observation.FixedRateObservation;
+import com.opengamma.platform.finance.observation.IborAveragedFixing;
+import com.opengamma.platform.finance.observation.IborAveragedRateObservation;
+import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.observation.RateObservation;
 
 /**
  * Defines the calculation of a floating rate swap leg based on an IBOR-like index.
@@ -142,12 +142,12 @@ public final class IborRateCalculation
    * The rate is applicable for the first reset period of the first <i>regular</i> accrual period.
    * It is used in place of an observed fixing.
    * Other calculation elements, such as gearing or spread, still apply.
-   * After the first reset period, the rate is calculated via the normal fixing process.
+   * After the first reset period, the rate is observed via the normal fixing process.
    * <p>
    * If the first floating rate applies to the initial stub rather than the regular accrual periods
    * it must be specified using {@code initialStub}.
    * <p>
-   * If this property is not present, then the first rate is calculated via the normal fixing process.
+   * If this property is not present, then the first rate is observed via the normal fixing process.
    */
   @PropertyDefinition(get = "optional")
   private final Double firstRegularRate;
@@ -243,7 +243,7 @@ public final class IborRateCalculation
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rate(createRate(period, accrualSchedule.getRollConvention(), i, scheduleInitialStub, scheduleFinalStub))
+          .rateObservation(createRateObservation(period, accrualSchedule.getRollConvention(), i, scheduleInitialStub, scheduleFinalStub))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
           .spread(resolvedSpreads.get(i))
@@ -252,8 +252,8 @@ public final class IborRateCalculation
     return accrualPeriods.build();
   }
 
-  // creates the rate instance
-  private Rate createRate(
+  // creates the rate observation
+  private RateObservation createRateObservation(
       SchedulePeriod period,
       RollConvention rollConvention,
       int scheduleIndex,
@@ -263,25 +263,30 @@ public final class IborRateCalculation
     LocalDate fixingDate = fixingOffset.adjust(fixingRelativeTo.selectBaseDate(period));
     // handle stubs
     if (scheduleInitialStub.isPresent() && scheduleInitialStub.get() == period) {
-      return initialStub.createRate(fixingDate, index);
+      return initialStub.createRateObservation(fixingDate, index);
     }
     if (scheduleFinalStub.isPresent() && scheduleFinalStub.get() == period) {
-      return finalStub.createRate(fixingDate, index);
+      return finalStub.createRateObservation(fixingDate, index);
     }
     // handle explicit reset periods, possible averaging
     if (resetPeriods != null) {
-      return createRateWithResetPeriods(period, rollConvention, isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent()));
+      return createRateObservationWithResetPeriods(
+          period, rollConvention, isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent()));
     }
     // handle possible fixed rate
     if (firstRegularRate != null && isFirstRegularPeriod(scheduleIndex, scheduleInitialStub.isPresent())) {
-      return FixedRate.of(firstRegularRate);
+      return FixedRateObservation.of(firstRegularRate);
     }
     // simple Ibor
-    return IborRate.of((IborIndex) index, fixingDate);
+    return IborRateObservation.of((IborIndex) index, fixingDate);
   }
 
   // reset periods have been specified, which may or may not imply averaging
-  private Rate createRateWithResetPeriods(SchedulePeriod period, RollConvention rollConvention, boolean firstRegular) {
+  private RateObservation createRateObservationWithResetPeriods(
+      SchedulePeriod period,
+      RollConvention rollConvention,
+      boolean firstRegular) {
+
     Schedule resetSchedule = resetPeriods.createSchedule(period, rollConvention);
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < resetSchedule.size(); i++) {
@@ -292,7 +297,7 @@ public final class IborRateCalculation
           .weight(resetPeriods.getAveragingMethod() == UNWEIGHTED ? 1 : resetPeriod.lengthInDays())
           .build());
     }
-    return IborAveragedRate.of(index, fixings);
+    return IborAveragedRateObservation.of(index, fixings);
   }
 
   // is the period the first regular period
@@ -467,12 +472,12 @@ public final class IborRateCalculation
    * The rate is applicable for the first reset period of the first <i>regular</i> accrual period.
    * It is used in place of an observed fixing.
    * Other calculation elements, such as gearing or spread, still apply.
-   * After the first reset period, the rate is calculated via the normal fixing process.
+   * After the first reset period, the rate is observed via the normal fixing process.
    * <p>
    * If the first floating rate applies to the initial stub rather than the regular accrual periods
    * it must be specified using {@code initialStub}.
    * <p>
-   * If this property is not present, then the first rate is calculated via the normal fixing process.
+   * If this property is not present, then the first rate is observed via the normal fixing process.
    * @return the optional value of the property, not null
    */
   public OptionalDouble getFirstRegularRate() {

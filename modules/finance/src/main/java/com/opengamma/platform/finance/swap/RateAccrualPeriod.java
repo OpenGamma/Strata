@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.rate.Rate;
+import com.opengamma.platform.finance.observation.RateObservation;
 
 /**
  * A period over which a fixed or floating rate is accrued.
@@ -38,7 +38,8 @@ import com.opengamma.platform.finance.rate.Rate;
  * This class represents one such period.
  * <p>
  * This class specifies the data necessary to calculate the value of the period.
- * The key property is the {@link #getRate() rate} which defines how the rate is calculated.
+ * The key property is the {@link #getRateObservation() rateObservation} which defines
+ * how the rate is observed.
  */
 @BeanDefinition
 public final class RateAccrualPeriod
@@ -91,12 +92,12 @@ public final class RateAccrualPeriod
    * The rate to be observed.
    * <p>
    * The value of the period is based on this rate.
-   * Different implementations of the {@code Rate} interface have different
-   * approaches to calculate the rate, including averaging, overnight and interpolation.
+   * Different implementations of the {@code RateObservation} interface have different
+   * approaches to observing the rate, including averaging, overnight and interpolation.
    * For example, it might be a well known market index such as 'GBP-LIBOR-3M'.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Rate rate;
+  private final RateObservation rateObservation;
   /**
    * The gearing multiplier, defaulted to 1.
    * <p>
@@ -211,7 +212,7 @@ public final class RateAccrualPeriod
       LocalDate unadjustedStartDate,
       LocalDate unadjustedEndDate,
       double yearFraction,
-      Rate rate,
+      RateObservation rateObservation,
       double gearing,
       double spread,
       NegativeRateMethod negativeRateMethod) {
@@ -220,14 +221,14 @@ public final class RateAccrualPeriod
     JodaBeanUtils.notNull(unadjustedStartDate, "unadjustedStartDate");
     JodaBeanUtils.notNull(unadjustedEndDate, "unadjustedEndDate");
     ArgChecker.notNegative(yearFraction, "yearFraction");
-    JodaBeanUtils.notNull(rate, "rate");
+    JodaBeanUtils.notNull(rateObservation, "rateObservation");
     JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
     this.startDate = startDate;
     this.endDate = endDate;
     this.unadjustedStartDate = unadjustedStartDate;
     this.unadjustedEndDate = unadjustedEndDate;
     this.yearFraction = yearFraction;
-    this.rate = rate;
+    this.rateObservation = rateObservation;
     this.gearing = gearing;
     this.spread = spread;
     this.negativeRateMethod = negativeRateMethod;
@@ -317,13 +318,13 @@ public final class RateAccrualPeriod
    * Gets the rate to be observed.
    * <p>
    * The value of the period is based on this rate.
-   * Different implementations of the {@code Rate} interface have different
-   * approaches to calculate the rate, including averaging, overnight and interpolation.
+   * Different implementations of the {@code RateObservation} interface have different
+   * approaches to observing the rate, including averaging, overnight and interpolation.
    * For example, it might be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
-  public Rate getRate() {
-    return rate;
+  public RateObservation getRateObservation() {
+    return rateObservation;
   }
 
   //-----------------------------------------------------------------------
@@ -399,7 +400,7 @@ public final class RateAccrualPeriod
           JodaBeanUtils.equal(getUnadjustedStartDate(), other.getUnadjustedStartDate()) &&
           JodaBeanUtils.equal(getUnadjustedEndDate(), other.getUnadjustedEndDate()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
-          JodaBeanUtils.equal(getRate(), other.getRate()) &&
+          JodaBeanUtils.equal(getRateObservation(), other.getRateObservation()) &&
           JodaBeanUtils.equal(getGearing(), other.getGearing()) &&
           JodaBeanUtils.equal(getSpread(), other.getSpread()) &&
           JodaBeanUtils.equal(getNegativeRateMethod(), other.getNegativeRateMethod());
@@ -415,7 +416,7 @@ public final class RateAccrualPeriod
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnadjustedEndDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getYearFraction());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getRate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRateObservation());
     hash = hash * 31 + JodaBeanUtils.hashCode(getGearing());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSpread());
     hash = hash * 31 + JodaBeanUtils.hashCode(getNegativeRateMethod());
@@ -431,7 +432,7 @@ public final class RateAccrualPeriod
     buf.append("unadjustedStartDate").append('=').append(getUnadjustedStartDate()).append(',').append(' ');
     buf.append("unadjustedEndDate").append('=').append(getUnadjustedEndDate()).append(',').append(' ');
     buf.append("yearFraction").append('=').append(getYearFraction()).append(',').append(' ');
-    buf.append("rate").append('=').append(getRate()).append(',').append(' ');
+    buf.append("rateObservation").append('=').append(getRateObservation()).append(',').append(' ');
     buf.append("gearing").append('=').append(getGearing()).append(',').append(' ');
     buf.append("spread").append('=').append(getSpread()).append(',').append(' ');
     buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(getNegativeRateMethod()));
@@ -475,10 +476,10 @@ public final class RateAccrualPeriod
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
         this, "yearFraction", RateAccrualPeriod.class, Double.TYPE);
     /**
-     * The meta-property for the {@code rate} property.
+     * The meta-property for the {@code rateObservation} property.
      */
-    private final MetaProperty<Rate> rate = DirectMetaProperty.ofImmutable(
-        this, "rate", RateAccrualPeriod.class, Rate.class);
+    private final MetaProperty<RateObservation> rateObservation = DirectMetaProperty.ofImmutable(
+        this, "rateObservation", RateAccrualPeriod.class, RateObservation.class);
     /**
      * The meta-property for the {@code gearing} property.
      */
@@ -504,7 +505,7 @@ public final class RateAccrualPeriod
         "unadjustedStartDate",
         "unadjustedEndDate",
         "yearFraction",
-        "rate",
+        "rateObservation",
         "gearing",
         "spread",
         "negativeRateMethod");
@@ -528,8 +529,8 @@ public final class RateAccrualPeriod
           return unadjustedEndDate;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 3493088:  // rate
-          return rate;
+        case 535324460:  // rateObservation
+          return rateObservation;
         case -91774989:  // gearing
           return gearing;
         case -895684237:  // spread
@@ -597,11 +598,11 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * The meta-property for the {@code rate} property.
+     * The meta-property for the {@code rateObservation} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Rate> rate() {
-      return rate;
+    public MetaProperty<RateObservation> rateObservation() {
+      return rateObservation;
     }
 
     /**
@@ -642,8 +643,8 @@ public final class RateAccrualPeriod
           return ((RateAccrualPeriod) bean).getUnadjustedEndDate();
         case -1731780257:  // yearFraction
           return ((RateAccrualPeriod) bean).getYearFraction();
-        case 3493088:  // rate
-          return ((RateAccrualPeriod) bean).getRate();
+        case 535324460:  // rateObservation
+          return ((RateAccrualPeriod) bean).getRateObservation();
         case -91774989:  // gearing
           return ((RateAccrualPeriod) bean).getGearing();
         case -895684237:  // spread
@@ -676,7 +677,7 @@ public final class RateAccrualPeriod
     private LocalDate unadjustedStartDate;
     private LocalDate unadjustedEndDate;
     private double yearFraction;
-    private Rate rate;
+    private RateObservation rateObservation;
     private double gearing;
     private double spread;
     private NegativeRateMethod negativeRateMethod;
@@ -698,7 +699,7 @@ public final class RateAccrualPeriod
       this.unadjustedStartDate = beanToCopy.getUnadjustedStartDate();
       this.unadjustedEndDate = beanToCopy.getUnadjustedEndDate();
       this.yearFraction = beanToCopy.getYearFraction();
-      this.rate = beanToCopy.getRate();
+      this.rateObservation = beanToCopy.getRateObservation();
       this.gearing = beanToCopy.getGearing();
       this.spread = beanToCopy.getSpread();
       this.negativeRateMethod = beanToCopy.getNegativeRateMethod();
@@ -718,8 +719,8 @@ public final class RateAccrualPeriod
           return unadjustedEndDate;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 3493088:  // rate
-          return rate;
+        case 535324460:  // rateObservation
+          return rateObservation;
         case -91774989:  // gearing
           return gearing;
         case -895684237:  // spread
@@ -749,8 +750,8 @@ public final class RateAccrualPeriod
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
           break;
-        case 3493088:  // rate
-          this.rate = (Rate) newValue;
+        case 535324460:  // rateObservation
+          this.rateObservation = (RateObservation) newValue;
           break;
         case -91774989:  // gearing
           this.gearing = (Double) newValue;
@@ -800,7 +801,7 @@ public final class RateAccrualPeriod
           unadjustedStartDate,
           unadjustedEndDate,
           yearFraction,
-          rate,
+          rateObservation,
           gearing,
           spread,
           negativeRateMethod);
@@ -863,13 +864,13 @@ public final class RateAccrualPeriod
     }
 
     /**
-     * Sets the {@code rate} property in the builder.
-     * @param rate  the new value, not null
+     * Sets the {@code rateObservation} property in the builder.
+     * @param rateObservation  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder rate(Rate rate) {
-      JodaBeanUtils.notNull(rate, "rate");
-      this.rate = rate;
+    public Builder rateObservation(RateObservation rateObservation) {
+      JodaBeanUtils.notNull(rateObservation, "rateObservation");
+      this.rateObservation = rateObservation;
       return this;
     }
 
@@ -914,7 +915,7 @@ public final class RateAccrualPeriod
       buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
       buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
-      buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
+      buf.append("rateObservation").append('=').append(JodaBeanUtils.toString(rateObservation)).append(',').append(' ');
       buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing)).append(',').append(' ');
       buf.append("spread").append('=').append(JodaBeanUtils.toString(spread)).append(',').append(' ');
       buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod));

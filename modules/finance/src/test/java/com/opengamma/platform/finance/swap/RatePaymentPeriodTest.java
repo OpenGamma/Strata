@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.platform.finance.rate.IborRate;
+import com.opengamma.platform.finance.observation.IborRateObservation;
 
 /**
  * Test.
@@ -35,20 +35,20 @@ public class RatePaymentPeriodTest {
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_09_30 = date(2014, 9, 30);
   private static final LocalDate DATE_2014_10_01 = date(2014, 10, 1);
-  private static final IborRate GBP_LIBOR_3M_2014_03_28 = IborRate.of(GBP_LIBOR_3M, date(2014, 3, 28));
-  private static final IborRate GBP_LIBOR_3M_2014_06_28 = IborRate.of(GBP_LIBOR_3M, date(2014, 6, 28));
+  private static final IborRateObservation GBP_LIBOR_3M_2014_03_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 3, 28));
+  private static final IborRateObservation GBP_LIBOR_3M_2014_06_28 = IborRateObservation.of(GBP_LIBOR_3M, date(2014, 6, 28));
   private static final FxReset FX_RESET_USD = FxReset.of(WM_GBP_USD, USD, date(2014, 3, 28));
   private static final RateAccrualPeriod RAP1 = RateAccrualPeriod.builder()
       .startDate(DATE_2014_03_30)
       .endDate(DATE_2014_06_30)
       .yearFraction(0.25d)
-      .rate(GBP_LIBOR_3M_2014_03_28)
+      .rateObservation(GBP_LIBOR_3M_2014_03_28)
       .build();
   private static final RateAccrualPeriod RAP2 = RateAccrualPeriod.builder()
       .startDate(DATE_2014_06_30)
       .endDate(DATE_2014_09_30)
       .yearFraction(0.25d)
-      .rate(GBP_LIBOR_3M_2014_06_28)
+      .rateObservation(GBP_LIBOR_3M_2014_06_28)
       .build();
 
   public void test_builder_oneAccrualPeriod() {

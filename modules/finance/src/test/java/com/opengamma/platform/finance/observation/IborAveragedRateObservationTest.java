@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.rate;
+package com.opengamma.platform.finance.observation;
 
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -25,15 +25,15 @@ import com.opengamma.basics.index.IborIndices;
  * Test.
  */
 @Test
-public class IborAveragedRateTest {
+public class IborAveragedRateObservationTest {
 
   ImmutableList<IborAveragedFixing> FIXINGS = ImmutableList.of(
       IborAveragedFixing.of(date(2014, 6, 30)),
       IborAveragedFixing.of(date(2014, 7, 30)));
 
   public void test_of_List() {
-    IborAveragedRate test = IborAveragedRate.of(GBP_LIBOR_3M, FIXINGS);
-    IborAveragedRate expected = IborAveragedRate.builder()
+    IborAveragedRateObservation test = IborAveragedRateObservation.of(GBP_LIBOR_3M, FIXINGS);
+    IborAveragedRateObservation expected = IborAveragedRateObservation.builder()
         .index(IborIndices.GBP_LIBOR_3M)
         .fixings(FIXINGS)
         .build();
@@ -41,21 +41,21 @@ public class IborAveragedRateTest {
   }
 
   public void test_of_List_null() {
-    assertThrowsIllegalArg(() -> IborAveragedRate.of(null, FIXINGS));
-    assertThrowsIllegalArg(() -> IborAveragedRate.of(GBP_LIBOR_3M, (List<IborAveragedFixing>) null));
-    assertThrowsIllegalArg(() -> IborAveragedRate.of(null, (List<IborAveragedFixing>) null));
+    assertThrowsIllegalArg(() -> IborAveragedRateObservation.of(null, FIXINGS));
+    assertThrowsIllegalArg(() -> IborAveragedRateObservation.of(GBP_LIBOR_3M, (List<IborAveragedFixing>) null));
+    assertThrowsIllegalArg(() -> IborAveragedRateObservation.of(null, (List<IborAveragedFixing>) null));
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    IborAveragedRate test = IborAveragedRate.of(GBP_LIBOR_3M, FIXINGS);
+    IborAveragedRateObservation test = IborAveragedRateObservation.of(GBP_LIBOR_3M, FIXINGS);
     coverImmutableBean(test);
-    IborAveragedRate test2 = IborAveragedRate.of(GBP_LIBOR_1M, FIXINGS.subList(0, 1));
+    IborAveragedRateObservation test2 = IborAveragedRateObservation.of(GBP_LIBOR_1M, FIXINGS.subList(0, 1));
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    IborAveragedRate test = IborAveragedRate.of(GBP_LIBOR_3M, FIXINGS);
+    IborAveragedRateObservation test = IborAveragedRateObservation.of(GBP_LIBOR_3M, FIXINGS);
     assertSerialization(test);
   }
 

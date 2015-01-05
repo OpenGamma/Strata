@@ -37,8 +37,8 @@ import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueAdjustment;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
-import com.opengamma.platform.finance.rate.FixedRate;
-import com.opengamma.platform.finance.rate.IborRate;
+import com.opengamma.platform.finance.observation.FixedRateObservation;
+import com.opengamma.platform.finance.observation.IborRateObservation;
 
 /**
  * Test.
@@ -132,7 +132,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_02_05)
             .unadjustedStartDate(DATE_01_05)
             .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-            .rate(FixedRate.of(0.025d))
+            .rateObservation(FixedRateObservation.of(0.025d))
             .build())
         .currency(GBP)
         .notional(-1000d)
@@ -143,7 +143,7 @@ public class RateCalculationSwapLegTest {
             .startDate(DATE_02_05)
             .endDate(DATE_03_05)
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-            .rate(FixedRate.of(0.025d))
+            .rateObservation(FixedRateObservation.of(0.025d))
             .build())
         .currency(GBP)
         .notional(-1000d)
@@ -155,7 +155,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_04_07)
             .unadjustedEndDate(DATE_04_05)
             .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-            .rate(FixedRate.of(0.025d))
+            .rateObservation(FixedRateObservation.of(0.025d))
             .build())
         .currency(GBP)
         .notional(-1000d)
@@ -203,13 +203,13 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_02_05)
                 .unadjustedStartDate(DATE_01_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-                .rate(IborRate.of(GBP_LIBOR_1M, DATE_01_02))
+                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_01_02))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_02_05)
                 .endDate(DATE_03_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-                .rate(IborRate.of(GBP_LIBOR_1M, DATE_02_03))
+                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_02_03))
                 .build())
         .currency(GBP)
         .notional(-1000d)
@@ -223,7 +223,7 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_04_07)
                 .unadjustedEndDate(DATE_04_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-                .rate(IborRate.of(GBP_LIBOR_1M, DATE_03_03))
+                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_03_03))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_04_07)
@@ -231,7 +231,7 @@ public class RateCalculationSwapLegTest {
                 .unadjustedStartDate(DATE_04_05)
                 .unadjustedEndDate(DATE_05_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_04_07, DATE_05_06))
-                .rate(IborRate.of(GBP_LIBOR_1M, DATE_04_03))
+                .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_04_03))
                 .build())
         .currency(GBP)
         .notional(-1500d)
@@ -244,7 +244,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_06_05)
             .unadjustedStartDate(DATE_05_05)
             .yearFraction(ACT_365F.yearFraction(DATE_05_06, DATE_06_05))
-            .rate(IborRate.of(GBP_LIBOR_1M, DATE_05_01))
+            .rateObservation(IborRateObservation.of(GBP_LIBOR_1M, DATE_05_01))
             .build())
         .currency(GBP)
         .notional(-1500d)
@@ -291,20 +291,20 @@ public class RateCalculationSwapLegTest {
                 .endDate(DATE_02_05)
                 .unadjustedStartDate(DATE_01_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-                .rate(FixedRate.of(0.025d))
+                .rateObservation(FixedRateObservation.of(0.025d))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_02_05)
                 .endDate(DATE_03_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-                .rate(FixedRate.of(0.025d))
+                .rateObservation(FixedRateObservation.of(0.025d))
                 .build(),
             RateAccrualPeriod.builder()
                 .startDate(DATE_03_05)
                 .endDate(DATE_04_07)
                 .unadjustedEndDate(DATE_04_05)
                 .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-                .rate(FixedRate.of(0.025d))
+                .rateObservation(FixedRateObservation.of(0.025d))
                 .build())
         .currency(GBP)
         .notional(-1000d)
@@ -353,7 +353,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_02_05)
             .unadjustedStartDate(DATE_01_05)
             .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_02_05))
-            .rate(FixedRate.of(0.025d))
+            .rateObservation(FixedRateObservation.of(0.025d))
             .build())
         .currency(GBP)
         .notional(-1000d)
@@ -365,7 +365,7 @@ public class RateCalculationSwapLegTest {
             .startDate(DATE_02_05)
             .endDate(DATE_03_05)
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_03_05))
-            .rate(FixedRate.of(0.025d))
+            .rateObservation(FixedRateObservation.of(0.025d))
             .build())
         .currency(GBP)
         .notional(-1000d)
@@ -378,7 +378,7 @@ public class RateCalculationSwapLegTest {
             .endDate(DATE_04_07)
             .unadjustedEndDate(DATE_04_05)
             .yearFraction(ACT_365F.yearFraction(DATE_03_05, DATE_04_07))
-            .rate(FixedRate.of(0.025d))
+            .rateObservation(FixedRateObservation.of(0.025d))
             .build())
         .currency(GBP)
         .notional(-1000d)

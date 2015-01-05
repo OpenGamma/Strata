@@ -34,8 +34,8 @@ import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueAdjustment;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
-import com.opengamma.platform.finance.rate.OvernightAveragedRate;
-import com.opengamma.platform.finance.rate.OvernightCompoundedRate;
+import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
+import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
 
 /**
  * Test.
@@ -87,15 +87,15 @@ public class OvernightRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_01_06, DATE_02_05, 0))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_01_06, DATE_02_05, 0))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_02_05, DATE_03_05, 0))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_02_05, DATE_03_05, 0))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_03_05, DATE_04_07, 0))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 0))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -108,15 +108,15 @@ public class OvernightRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_360, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(CHF_TOIS, date(2014, 1, 3), date(2014, 2, 4), 0))
+        .rateObservation(OvernightCompoundedRateObservation.of(CHF_TOIS, date(2014, 1, 3), date(2014, 2, 4), 0))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_360, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(CHF_TOIS, date(2014, 2, 4), date(2014, 3, 4), 0))
+        .rateObservation(OvernightCompoundedRateObservation.of(CHF_TOIS, date(2014, 2, 4), date(2014, 3, 4), 0))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_360, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(CHF_TOIS, date(2014, 3, 4), date(2014, 4, 4), 0))
+        .rateObservation(OvernightCompoundedRateObservation.of(CHF_TOIS, date(2014, 3, 4), date(2014, 4, 4), 0))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -130,15 +130,15 @@ public class OvernightRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_01_06, DATE_02_05, 2))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_01_06, DATE_02_05, 2))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_02_05, DATE_03_05, 2))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_02_05, DATE_03_05, 2))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -152,15 +152,15 @@ public class OvernightRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_01_06, DATE_02_05, 0))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_01_06, DATE_02_05, 0))
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_02_05, DATE_03_05, 0))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_02_05, DATE_03_05, 0))
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightCompoundedRate.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2))
+        .rateObservation(OvernightCompoundedRateObservation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.expand(ACCRUAL_SCHEDULE, PAYMENT_SCHEDULE);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
@@ -178,18 +178,18 @@ public class OvernightRateCalculationTest {
         .build();
     RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1)
         .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightAveragedRate.of(GBP_SONIA, DATE_01_06, DATE_02_05, 0))
+        .rateObservation(OvernightAveragedRateObservation.of(GBP_SONIA, DATE_01_06, DATE_02_05, 0))
         .negativeRateMethod(NOT_NEGATIVE)
         .build();
     RateAccrualPeriod rap2 = RateAccrualPeriod.builder(ACCRUAL2)
         .yearFraction(ACCRUAL2.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightAveragedRate.of(GBP_SONIA, DATE_02_05, DATE_03_05, 0))
+        .rateObservation(OvernightAveragedRateObservation.of(GBP_SONIA, DATE_02_05, DATE_03_05, 0))
         .negativeRateMethod(NOT_NEGATIVE)
         .spread(-0.025d)
         .build();
     RateAccrualPeriod rap3 = RateAccrualPeriod.builder(ACCRUAL3)
         .yearFraction(ACCRUAL3.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
-        .rate(OvernightAveragedRate.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2))
+        .rateObservation(OvernightAveragedRateObservation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2))
         .negativeRateMethod(NOT_NEGATIVE)
         .gearing(2d)
         .spread(-0.025d)

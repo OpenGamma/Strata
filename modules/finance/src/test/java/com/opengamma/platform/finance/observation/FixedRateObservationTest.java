@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.rate;
+package com.opengamma.platform.finance.observation;
 
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
@@ -15,11 +15,11 @@ import org.testng.annotations.Test;
  * Test.
  */
 @Test
-public class FixedRateTest {
+public class FixedRateObservationTest {
 
   public void test_of() {
-    FixedRate test = FixedRate.of(0.05);
-    FixedRate expected = FixedRate.builder()
+    FixedRateObservation test = FixedRateObservation.of(0.05);
+    FixedRateObservation expected = FixedRateObservation.builder()
         .rate(0.05)
         .build();
     assertEquals(test, expected);
@@ -27,12 +27,12 @@ public class FixedRateTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    FixedRate test = FixedRate.of(0.05);
+    FixedRateObservation test = FixedRateObservation.of(0.05);
     coverImmutableBean(test);
   }
 
   public void test_serialization() {
-    FixedRate test = FixedRate.of(0.05);
+    FixedRateObservation test = FixedRateObservation.of(0.05);
     assertSerialization(test);
   }
 

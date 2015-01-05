@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.rate;
+package com.opengamma.platform.finance.observation;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -29,14 +29,14 @@ import com.opengamma.basics.index.IborIndex;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * A single fixing of an index that is observed by {@code IborAveragedRate}.
+ * A single fixing of an index that is observed by {@code IborAveragedRateObservation}.
  * <p>
  * The interest rate is determined for each reset period, with the weight used
  * to create a weighted average.
  */
 @BeanDefinition
 public final class IborAveragedFixing
-    implements Rate, ImmutableBean, Serializable {
+    implements RateObservation, ImmutableBean, Serializable {
 
   /**
    * The fixing date to use to determine a rate for the reset period.
@@ -55,7 +55,7 @@ public final class IborAveragedFixing
    * Other calculation elements, such as gearing or spread, still apply.
    * <p>
    * If the value not present, which is the normal case, then the rate is
-   * calculated via the normal fixing process.
+   * observed via the normal fixing process.
    */
   @PropertyDefinition(get = "optional")
   private final Double fixedRate;
@@ -219,7 +219,7 @@ public final class IborAveragedFixing
    * Other calculation elements, such as gearing or spread, still apply.
    * <p>
    * If the value not present, which is the normal case, then the rate is
-   * calculated via the normal fixing process.
+   * observed via the normal fixing process.
    * @return the optional value of the property, not null
    */
   public OptionalDouble getFixedRate() {
