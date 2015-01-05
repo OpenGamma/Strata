@@ -7,7 +7,6 @@ package com.opengamma.platform.finance.equity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -484,7 +483,7 @@ public final class EquityTrade
   public static final class Builder extends DirectFieldsBeanBuilder<EquityTrade> {
 
     private StandardId standardId;
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, String> attributes = ImmutableMap.of();
     private LocalDate tradeDate;
     private Link<Equity> equityLink;
     private double quantity;
@@ -502,7 +501,7 @@ public final class EquityTrade
      */
     private Builder(EquityTrade beanToCopy) {
       this.standardId = beanToCopy.getStandardId();
-      this.attributes = new HashMap<String, String>(beanToCopy.getAttributes());
+      this.attributes = beanToCopy.getAttributes();
       this.tradeDate = beanToCopy.getTradeDate();
       this.equityLink = beanToCopy.getEquityLink();
       this.quantity = beanToCopy.getQuantity();

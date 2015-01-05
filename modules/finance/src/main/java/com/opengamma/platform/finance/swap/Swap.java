@@ -6,9 +6,6 @@
 package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -278,7 +275,7 @@ public final class Swap
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Swap> {
 
-    private Set<SwapLeg> legs = new HashSet<SwapLeg>();
+    private Set<SwapLeg> legs = ImmutableSet.of();
 
     /**
      * Restricted constructor.
@@ -291,7 +288,7 @@ public final class Swap
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Swap beanToCopy) {
-      this.legs = new HashSet<SwapLeg>(beanToCopy.getLegs());
+      this.legs = beanToCopy.getLegs();
     }
 
     //-----------------------------------------------------------------------
@@ -367,7 +364,7 @@ public final class Swap
      * @return this, for chaining, not null
      */
     public Builder legs(SwapLeg... legs) {
-      return legs(new LinkedHashSet<SwapLeg>(Arrays.asList(legs)));
+      return legs(ImmutableSet.copyOf(legs));
     }
 
     //-----------------------------------------------------------------------

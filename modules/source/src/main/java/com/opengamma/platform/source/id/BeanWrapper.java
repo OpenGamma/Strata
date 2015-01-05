@@ -6,9 +6,6 @@
 package com.opengamma.platform.source.id;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -276,7 +273,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
   public static final class Builder extends DirectFieldsBeanBuilder<BeanWrapper> {
 
     private IdentifiableBean bean;
-    private Set<StandardId> additionalIdentifiers = new HashSet<StandardId>();
+    private Set<StandardId> additionalIdentifiers = ImmutableSet.of();
 
     /**
      * Restricted constructor.
@@ -290,7 +287,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
      */
     private Builder(BeanWrapper beanToCopy) {
       this.bean = beanToCopy.getBean();
-      this.additionalIdentifiers = new HashSet<StandardId>(beanToCopy.getAdditionalIdentifiers());
+      this.additionalIdentifiers = beanToCopy.getAdditionalIdentifiers();
     }
 
     //-----------------------------------------------------------------------
@@ -383,7 +380,7 @@ public final class BeanWrapper implements ImmutableBean, Serializable {
      * @return this, for chaining, not null
      */
     public Builder additionalIdentifiers(StandardId... additionalIdentifiers) {
-      return additionalIdentifiers(new LinkedHashSet<StandardId>(Arrays.asList(additionalIdentifiers)));
+      return additionalIdentifiers(ImmutableSet.copyOf(additionalIdentifiers));
     }
 
     //-----------------------------------------------------------------------

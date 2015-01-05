@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -545,7 +544,7 @@ public final class ExternalIdBundle
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ExternalIdBundle> {
 
-    private SortedSet<ExternalId> externalIds = new TreeSet<ExternalId>();
+    private SortedSet<ExternalId> externalIds = ImmutableSortedSet.of();
 
     /**
      * Restricted constructor.

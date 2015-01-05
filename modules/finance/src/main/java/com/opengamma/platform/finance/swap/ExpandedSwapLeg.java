@@ -7,8 +7,6 @@ package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -341,8 +339,8 @@ public final class ExpandedSwapLeg
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedSwapLeg> {
 
-    private List<PaymentPeriod> paymentPeriods = new ArrayList<PaymentPeriod>();
-    private List<PaymentEvent> paymentEvents = new ArrayList<PaymentEvent>();
+    private List<PaymentPeriod> paymentPeriods = ImmutableList.of();
+    private List<PaymentEvent> paymentEvents = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -355,8 +353,8 @@ public final class ExpandedSwapLeg
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ExpandedSwapLeg beanToCopy) {
-      this.paymentPeriods = new ArrayList<PaymentPeriod>(beanToCopy.getPaymentPeriods());
-      this.paymentEvents = new ArrayList<PaymentEvent>(beanToCopy.getPaymentEvents());
+      this.paymentPeriods = beanToCopy.getPaymentPeriods();
+      this.paymentEvents = beanToCopy.getPaymentEvents();
     }
 
     //-----------------------------------------------------------------------
@@ -438,7 +436,7 @@ public final class ExpandedSwapLeg
      * @return this, for chaining, not null
      */
     public Builder paymentPeriods(PaymentPeriod... paymentPeriods) {
-      return paymentPeriods(Arrays.asList(paymentPeriods));
+      return paymentPeriods(ImmutableList.copyOf(paymentPeriods));
     }
 
     /**
@@ -459,7 +457,7 @@ public final class ExpandedSwapLeg
      * @return this, for chaining, not null
      */
     public Builder paymentEvents(PaymentEvent... paymentEvents) {
-      return paymentEvents(Arrays.asList(paymentEvents));
+      return paymentEvents(ImmutableList.copyOf(paymentEvents));
     }
 
     //-----------------------------------------------------------------------

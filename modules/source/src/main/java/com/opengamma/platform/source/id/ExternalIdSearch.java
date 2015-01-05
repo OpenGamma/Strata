@@ -532,7 +532,7 @@ public final class ExternalIdSearch
    */
   private static final class Builder extends DirectFieldsBeanBuilder<ExternalIdSearch> {
 
-    private Set<ExternalId> externalIds = new HashSet<ExternalId>();
+    private Set<ExternalId> externalIds = ImmutableSet.of();
     private ExternalIdSearchType searchType;
 
     /**

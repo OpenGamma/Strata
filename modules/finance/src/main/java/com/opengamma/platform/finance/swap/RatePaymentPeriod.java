@@ -7,8 +7,6 @@ package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -544,7 +542,7 @@ public final class RatePaymentPeriod
   public static final class Builder extends DirectFieldsBeanBuilder<RatePaymentPeriod> {
 
     private LocalDate paymentDate;
-    private List<RateAccrualPeriod> accrualPeriods = new ArrayList<RateAccrualPeriod>();
+    private List<RateAccrualPeriod> accrualPeriods = ImmutableList.of();
     private Currency currency;
     private FxReset fxReset;
     private double notional;
@@ -563,7 +561,7 @@ public final class RatePaymentPeriod
      */
     private Builder(RatePaymentPeriod beanToCopy) {
       this.paymentDate = beanToCopy.getPaymentDate();
-      this.accrualPeriods = new ArrayList<RateAccrualPeriod>(beanToCopy.getAccrualPeriods());
+      this.accrualPeriods = beanToCopy.getAccrualPeriods();
       this.currency = beanToCopy.getCurrency();
       this.fxReset = beanToCopy.fxReset;
       this.notional = beanToCopy.getNotional();
@@ -684,7 +682,7 @@ public final class RatePaymentPeriod
      * @return this, for chaining, not null
      */
     public Builder accrualPeriods(RateAccrualPeriod... accrualPeriods) {
-      return accrualPeriods(Arrays.asList(accrualPeriods));
+      return accrualPeriods(ImmutableList.copyOf(accrualPeriods));
     }
 
     /**

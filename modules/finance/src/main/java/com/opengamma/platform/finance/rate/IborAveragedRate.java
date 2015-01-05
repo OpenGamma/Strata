@@ -6,8 +6,6 @@
 package com.opengamma.platform.finance.rate;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -297,7 +295,7 @@ public final class IborAveragedRate
   public static final class Builder extends DirectFieldsBeanBuilder<IborAveragedRate> {
 
     private IborIndex index;
-    private List<IborAveragedFixing> fixings = new ArrayList<IborAveragedFixing>();
+    private List<IborAveragedFixing> fixings = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -311,7 +309,7 @@ public final class IborAveragedRate
      */
     private Builder(IborAveragedRate beanToCopy) {
       this.index = beanToCopy.getIndex();
-      this.fixings = new ArrayList<IborAveragedFixing>(beanToCopy.getFixings());
+      this.fixings = beanToCopy.getFixings();
     }
 
     //-----------------------------------------------------------------------
@@ -404,7 +402,7 @@ public final class IborAveragedRate
      * @return this, for chaining, not null
      */
     public Builder fixings(IborAveragedFixing... fixings) {
-      return fixings(Arrays.asList(fixings));
+      return fixings(ImmutableList.copyOf(fixings));
     }
 
     //-----------------------------------------------------------------------

@@ -9,7 +9,6 @@ import static com.opengamma.platform.source.SearchMatchStatus.FULL;
 import static com.opengamma.platform.source.SearchMatchStatus.PARTIAL;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -286,7 +285,7 @@ public final class SearchResult
    */
   private static final class Builder extends DirectFieldsBeanBuilder<SearchResult> {
 
-    private Set<StandardId> matchingIds = new HashSet<StandardId>();
+    private Set<StandardId> matchingIds = ImmutableSet.of();
     private SearchMatchStatus matchStatus;
 
     /**

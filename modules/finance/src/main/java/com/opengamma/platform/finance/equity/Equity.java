@@ -6,7 +6,6 @@
 package com.opengamma.platform.finance.equity;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -396,7 +395,7 @@ public final class Equity
   public static final class Builder extends DirectFieldsBeanBuilder<Equity> {
 
     private StandardId standardId;
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, String> attributes = ImmutableMap.of();
     private String companyName;
     private Currency currency;
 
@@ -412,7 +411,7 @@ public final class Equity
      */
     private Builder(Equity beanToCopy) {
       this.standardId = beanToCopy.getStandardId();
-      this.attributes = new HashMap<String, String>(beanToCopy.getAttributes());
+      this.attributes = beanToCopy.getAttributes();
       this.companyName = beanToCopy.getCompanyName();
       this.currency = beanToCopy.getCurrency();
     }

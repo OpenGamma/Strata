@@ -6,7 +6,6 @@
 package com.opengamma.platform.source;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -319,7 +318,7 @@ public final class Search
   public static final class Builder extends DirectFieldsBeanBuilder<Search> {
 
     private Class<?> categorisingType;
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, String> attributes = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -334,7 +333,7 @@ public final class Search
      */
     private Builder(Search beanToCopy) {
       this.categorisingType = beanToCopy.getCategorisingType();
-      this.attributes = new HashMap<String, String>(beanToCopy.getAttributes());
+      this.attributes = beanToCopy.getAttributes();
     }
 
     //-----------------------------------------------------------------------

@@ -354,7 +354,7 @@
     <!-- Versions -->
     <guava.version>17.0</guava.version>
     <joda-convert.version>1.7</joda-convert.version>
-    <joda-beans.version>1.4</joda-beans.version>
+    <joda-beans.version>1.5</joda-beans.version>
     <findbugs.version>1.3.9</findbugs.version>
     <slf4j.version>1.7.5</slf4j.version>
     <assertj.version>1.7.0</assertj.version>

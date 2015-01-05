@@ -7,7 +7,6 @@ package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -404,7 +403,7 @@ public final class SwapTrade
   public static final class Builder extends DirectFieldsBeanBuilder<SwapTrade> {
 
     private StandardId standardId;
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, String> attributes = ImmutableMap.of();
     private LocalDate tradeDate;
     private Swap swap;
 
@@ -420,7 +419,7 @@ public final class SwapTrade
      */
     private Builder(SwapTrade beanToCopy) {
       this.standardId = beanToCopy.getStandardId();
-      this.attributes = new HashMap<String, String>(beanToCopy.getAttributes());
+      this.attributes = beanToCopy.getAttributes();
       this.tradeDate = beanToCopy.getTradeDate();
       this.swap = beanToCopy.getSwap();
     }
