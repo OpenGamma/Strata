@@ -41,8 +41,10 @@ public enum CompoundingMethod {
   /**
    * Flat compounding applies.
    * <p>
-   * Compounding is based on the total of the observed rate and the spread in the
-   * first period, but only the observed rate in subsequent periods.
+   * For interest on the notional, known as the <i>Basic Compounding Period Amount</i>,
+   * compounding is based on the total of the observed rate and the spread.
+   * For interest on previously accrued interest, known as the <i>Additional Compounding Period Amount</i>,
+   * compounding is based only on the observed rate, excluding the spread.
    * <p>
    * Defined as "Flat Compounding" in the ISDA 2006 definitions.
    */
