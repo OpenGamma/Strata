@@ -46,7 +46,7 @@ import com.opengamma.platform.pricer.PricingEnvironment;
  * This includes FX rates, discount factors and forward curves.
  */
 @BeanDefinition
-public class ImmutablePricingEnvironment
+public final class ImmutablePricingEnvironment
     implements PricingEnvironment, ImmutableBean, Serializable {
 
   /** Serialization version. */
@@ -56,23 +56,23 @@ public class ImmutablePricingEnvironment
    * The valuation date.
    * All curves and other data items in this environment are calibrated for this date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate valuationDate;
   /**
    * The multi-curve bundle.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", get = "private")
   private final MulticurveProviderInterface multicurve;
   /**
    * The time-series.
    * The historic data associated with each index.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", get = "private")
   private final ImmutableMap<Index, LocalDateDoubleTimeSeries> timeSeries;
   /**
    * The day count applicable to the models.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", get = "private")
   private final DayCount dayCount;
 
   //-------------------------------------------------------------------------
@@ -202,19 +202,19 @@ public class ImmutablePricingEnvironment
     return new ImmutablePricingEnvironment.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected ImmutablePricingEnvironment(ImmutablePricingEnvironment.Builder builder) {
-    JodaBeanUtils.notNull(builder.valuationDate, "valuationDate");
-    JodaBeanUtils.notNull(builder.multicurve, "multicurve");
-    JodaBeanUtils.notNull(builder.timeSeries, "timeSeries");
-    JodaBeanUtils.notNull(builder.dayCount, "dayCount");
-    this.valuationDate = builder.valuationDate;
-    this.multicurve = builder.multicurve;
-    this.timeSeries = ImmutableMap.copyOf(builder.timeSeries);
-    this.dayCount = builder.dayCount;
+  private ImmutablePricingEnvironment(
+      LocalDate valuationDate,
+      MulticurveProviderInterface multicurve,
+      Map<Index, LocalDateDoubleTimeSeries> timeSeries,
+      DayCount dayCount) {
+    JodaBeanUtils.notNull(valuationDate, "valuationDate");
+    JodaBeanUtils.notNull(multicurve, "multicurve");
+    JodaBeanUtils.notNull(timeSeries, "timeSeries");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    this.valuationDate = valuationDate;
+    this.multicurve = multicurve;
+    this.timeSeries = ImmutableMap.copyOf(timeSeries);
+    this.dayCount = dayCount;
   }
 
   @Override
@@ -238,6 +238,7 @@ public class ImmutablePricingEnvironment
    * All curves and other data items in this environment are calibrated for this date.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getValuationDate() {
     return valuationDate;
   }
@@ -247,7 +248,7 @@ public class ImmutablePricingEnvironment
    * Gets the multi-curve bundle.
    * @return the value of the property, not null
    */
-  public MulticurveProviderInterface getMulticurve() {
+  private MulticurveProviderInterface getMulticurve() {
     return multicurve;
   }
 
@@ -257,7 +258,7 @@ public class ImmutablePricingEnvironment
    * The historic data associated with each index.
    * @return the value of the property, not null
    */
-  public ImmutableMap<Index, LocalDateDoubleTimeSeries> getTimeSeries() {
+  private ImmutableMap<Index, LocalDateDoubleTimeSeries> getTimeSeries() {
     return timeSeries;
   }
 
@@ -266,7 +267,7 @@ public class ImmutablePricingEnvironment
    * Gets the day count applicable to the models.
    * @return the value of the property, not null
    */
-  public DayCount getDayCount() {
+  private DayCount getDayCount() {
     return dayCount;
   }
 
@@ -308,27 +309,19 @@ public class ImmutablePricingEnvironment
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ImmutablePricingEnvironment{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
+    buf.append("multicurve").append('=').append(getMulticurve()).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount()));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(getValuationDate())).append(',').append(' ');
-    buf.append("multicurve").append('=').append(JodaBeanUtils.toString(getMulticurve())).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries())).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ImmutablePricingEnvironment}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -368,7 +361,7 @@ public class ImmutablePricingEnvironment
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -406,7 +399,7 @@ public class ImmutablePricingEnvironment
      * The meta-property for the {@code valuationDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> valuationDate() {
+    public MetaProperty<LocalDate> valuationDate() {
       return valuationDate;
     }
 
@@ -414,7 +407,7 @@ public class ImmutablePricingEnvironment
      * The meta-property for the {@code multicurve} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<MulticurveProviderInterface> multicurve() {
+    public MetaProperty<MulticurveProviderInterface> multicurve() {
       return multicurve;
     }
 
@@ -422,7 +415,7 @@ public class ImmutablePricingEnvironment
      * The meta-property for the {@code timeSeries} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ImmutableMap<Index, LocalDateDoubleTimeSeries>> timeSeries() {
+    public MetaProperty<ImmutableMap<Index, LocalDateDoubleTimeSeries>> timeSeries() {
       return timeSeries;
     }
 
@@ -430,7 +423,7 @@ public class ImmutablePricingEnvironment
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DayCount> dayCount() {
+    public MetaProperty<DayCount> dayCount() {
       return dayCount;
     }
 
@@ -465,7 +458,7 @@ public class ImmutablePricingEnvironment
   /**
    * The bean-builder for {@code ImmutablePricingEnvironment}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<ImmutablePricingEnvironment> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ImmutablePricingEnvironment> {
 
     private LocalDate valuationDate;
     private MulticurveProviderInterface multicurve;
@@ -475,14 +468,14 @@ public class ImmutablePricingEnvironment
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ImmutablePricingEnvironment beanToCopy) {
+    private Builder(ImmutablePricingEnvironment beanToCopy) {
       this.valuationDate = beanToCopy.getValuationDate();
       this.multicurve = beanToCopy.getMulticurve();
       this.timeSeries = beanToCopy.getTimeSeries();
@@ -554,7 +547,11 @@ public class ImmutablePricingEnvironment
 
     @Override
     public ImmutablePricingEnvironment build() {
-      return new ImmutablePricingEnvironment(this);
+      return new ImmutablePricingEnvironment(
+          valuationDate,
+          multicurve,
+          timeSeries,
+          dayCount);
     }
 
     //-----------------------------------------------------------------------
@@ -607,20 +604,12 @@ public class ImmutablePricingEnvironment
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("ImmutablePricingEnvironment.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
       buf.append("multicurve").append('=').append(JodaBeanUtils.toString(multicurve)).append(',').append(' ');
       buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
-      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+      buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

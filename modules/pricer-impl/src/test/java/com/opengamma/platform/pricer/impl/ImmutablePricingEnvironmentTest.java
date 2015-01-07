@@ -53,9 +53,9 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getMulticurve(), SwapMockData.MULTICURVE_OIS);
-    assertEquals(test.getTimeSeries(), SwapMockData.TIME_SERIES);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
+    assertEquals(ImmutablePricingEnvironment.meta().multicurve().get(test), SwapMockData.MULTICURVE_OIS);
+    assertEquals(ImmutablePricingEnvironment.meta().timeSeries().get(test), SwapMockData.TIME_SERIES);
+    assertEquals(ImmutablePricingEnvironment.meta().dayCount().get(test), ACT_ACT_ISDA);
   }
 
   //-------------------------------------------------------------------------

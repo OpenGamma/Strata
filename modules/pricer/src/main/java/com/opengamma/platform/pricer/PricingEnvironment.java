@@ -27,6 +27,15 @@ import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 public interface PricingEnvironment {
 
   /**
+   * Gets the valuation date.
+   * <p>
+   * The raw data in this environment is calibrated for this date.
+   * 
+   * @return the valuation date
+   */
+  public abstract LocalDate getValuationDate();
+
+  /**
    * Gets the raw pricing data.
    * <p>
    * This method allows for raw data to be obtained without adding to this interface.
@@ -34,7 +43,7 @@ public interface PricingEnvironment {
    * @param cls  the type of raw data to retrieve
    * @return the raw data
    */
-  public <T> T rawData(Class<T> cls);
+  public abstract <T> T rawData(Class<T> cls);
 
   /**
    * Gets the time series of an index.
@@ -44,7 +53,7 @@ public interface PricingEnvironment {
    * @param index  the index to find a time series for
    * @return the time series of an index
    */
-  public LocalDateDoubleTimeSeries timeSeries(Index index);
+  public abstract LocalDateDoubleTimeSeries timeSeries(Index index);
 
   //-------------------------------------------------------------------------
   /**
@@ -59,11 +68,11 @@ public interface PricingEnvironment {
    * @param date  the date to discount to
    * @return the discount factor
    */
-  public double discountFactor(Currency currency, LocalDate date);
+  public abstract double discountFactor(Currency currency, LocalDate date);
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the current FX rate for a currency pair.
+   * Gets the FX rate for a currency pair on the valuation date.
    * <p>
    * The rate returned is the rate from the base to counter as defined by the
    * specified currency pair - {@code 1 * base = fxRate * counter}.
@@ -71,7 +80,7 @@ public interface PricingEnvironment {
    * @param currencyPair  the ordered currency pair defining the rate required
    * @return the current FX rate for the currency pair
    */
-  public double fxRate(CurrencyPair currencyPair);
+  public abstract double fxRate(CurrencyPair currencyPair);
 
   /**
    * Converts the currency of an amount.
@@ -84,7 +93,7 @@ public interface PricingEnvironment {
    * @param currency  the currency to convert to
    * @return the converted amount
    */
-  public CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency currency);
+  public abstract CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency currency);
 
   //-------------------------------------------------------------------------
   /**
@@ -107,7 +116,7 @@ public interface PricingEnvironment {
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
    */
-  public double fxIndexRate(FxIndex index, CurrencyPair currencyPair, LocalDate fixingDate);
+  public abstract double fxIndexRate(FxIndex index, CurrencyPair currencyPair, LocalDate fixingDate);
 
   //-------------------------------------------------------------------------
   /**
@@ -124,7 +133,7 @@ public interface PricingEnvironment {
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
    */
-  public double iborIndexRate(IborIndex index, LocalDate fixingDate);
+  public abstract double iborIndexRate(IborIndex index, LocalDate fixingDate);
 
   //-------------------------------------------------------------------------
   /**
@@ -135,6 +144,6 @@ public interface PricingEnvironment {
    * @param date  the date to find the relative time of
    * @return the relative time
    */
-  public double relativeTime(LocalDate date);
+  public abstract double relativeTime(LocalDate date);
 
 }
