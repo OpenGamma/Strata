@@ -69,27 +69,27 @@ public class ForwardIborRateObservationFnTest {
     LocalDate fixingStartDate = IBOR_TODAY.getIndex().calculateEffectiveFromFixing(IBOR_TODAY.getFixingDate());
     LocalDate fixingEndDate = IBOR_TODAY.getIndex().calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = IBOR_TODAY.getIndex().getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    double rateTodayWithoutFixingExpected = MULTICURVE_OIS.getSimplyCompoundForwardRate(USD_LIBOR_3M_OGA,
+    double rateValuationDateWithoutFixingExpected = MULTICURVE_OIS.getSimplyCompoundForwardRate(USD_LIBOR_3M_OGA,
         ENV_WITHOUTTODAY.relativeTime(fixingStartDate),
         ENV_WITHOUTTODAY.relativeTime(fixingEndDate), fixingYearFraction);
-    assertEquals(rateTodayWithoutFixingExpected, rateIborTodayWithoutFixingComputed, TOLERANCE_RATE,
+    assertEquals(rateValuationDateWithoutFixingExpected, rateIborTodayWithoutFixingComputed, TOLERANCE_RATE,
         "DefaultIborRateProviderFn: rate on fixing date");
-    double rateGenTodayWithoutFixingComputed =
+    double rateGenericComputed =
         RATE_PROVIDER.rate(ENV_WITHOUTTODAY, IBOR_TODAY, VALUATION_DATE, VALUATION_DATE);
-    assertEquals(rateGenTodayWithoutFixingComputed, rateIborTodayWithoutFixingComputed, TOLERANCE_RATE,
+    assertEquals(rateGenericComputed, rateIborTodayWithoutFixingComputed, TOLERANCE_RATE,
         "DefaultIborRateProviderFn: rate on fixing date");
   }
 
   @Test
-  public void rateTodayWithFixing() {
+  public void rateValuationDateWithFixing() {
     double rateIborTodayWithFixingComputed =
         IBOR_RATE_PROVIDER.rate(ENV_WITHTODAY, IBOR_TODAY, VALUATION_DATE, VALUATION_DATE);
-    double rateTodayWithFixingExpected = FIXING_TODAY;
-    assertEquals(rateTodayWithFixingExpected, rateIborTodayWithFixingComputed, TOLERANCE_RATE,
+    double rateValuationDateWithFixingExpected = FIXING_TODAY;
+    assertEquals(rateValuationDateWithFixingExpected, rateIborTodayWithFixingComputed, TOLERANCE_RATE,
         "DefaultIborRateProviderFn: rate on fixing date");
-    double rateGenTodayWithFixingComputed =
+    double rateGenericComputed =
         RATE_PROVIDER.rate(ENV_WITHTODAY, IBOR_TODAY, VALUATION_DATE, VALUATION_DATE);
-    assertEquals(rateGenTodayWithFixingComputed, rateIborTodayWithFixingComputed, TOLERANCE_RATE,
+    assertEquals(rateGenericComputed, rateIborTodayWithFixingComputed, TOLERANCE_RATE,
         "DefaultIborRateProviderFn: rate on fixing date");
   }
 
@@ -111,13 +111,13 @@ public class ForwardIborRateObservationFnTest {
           IBOR_RATE_PROVIDER.rate(ENV_WITHTODAY, ibor, VALUATION_DATE, VALUATION_DATE);
       assertEquals(rateExpected, rateIborWithFixingComputed, TOLERANCE_RATE,
           "DefaultIborRateProviderFn: rate forward");
-      double rateGenWithoutFixingComputed =
+      double rateGenericWithoutFixingComputed =
           RATE_PROVIDER.rate(ENV_WITHOUTTODAY, ibor, VALUATION_DATE, VALUATION_DATE);
-      assertEquals(rateGenWithoutFixingComputed, rateIborWithoutFixingComputed, TOLERANCE_RATE,
+      assertEquals(rateGenericWithoutFixingComputed, rateIborWithoutFixingComputed, TOLERANCE_RATE,
           "DefaultIborRateProviderFn: rate forward");
-      double rateGenWithFixingComputed =
+      double rateGenericWithFixingComputed =
           RATE_PROVIDER.rate(ENV_WITHTODAY, ibor, VALUATION_DATE, VALUATION_DATE);
-      assertEquals(rateGenWithFixingComputed, rateIborWithFixingComputed, TOLERANCE_RATE,
+      assertEquals(rateGenericWithFixingComputed, rateIborWithFixingComputed, TOLERANCE_RATE,
           "DefaultIborRateProviderFn: rate forward");
     }
   }
