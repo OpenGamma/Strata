@@ -6,6 +6,7 @@
 package com.opengamma.platform.pricer.impl.observation;
 
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
+import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.platform.finance.observation.FixedRateObservation;
+import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
@@ -42,11 +44,24 @@ public class DispatchingRateObservationFnTest {
   public void test_IborRateObservation() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     RateObservationFn<IborRateObservation> mockIbor = mock(RateObservationFn.class);
+    RateObservationFn<IborInterpolatedRateObservation> mockIborInt = mock(RateObservationFn.class);
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     when(mockIbor.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE))
         .thenReturn(0.0123d);
-    DispatchingRateObservationFn test = new DispatchingRateObservationFn(mockIbor);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(mockIbor, mockIborInt);
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), 0.0123d, 0d);
+  }
+
+  public void test_IborInterpolatedRateObservation() {
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    double mockRate = 0.0123d;
+    RateObservationFn<IborRateObservation> mockIbor = mock(RateObservationFn.class);
+    RateObservationFn<IborInterpolatedRateObservation> mockIborInt = mock(RateObservationFn.class);
+    IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
+    when(mockIborInt.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE))
+        .thenReturn(mockRate);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(mockIbor, mockIborInt);
+    assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), mockRate, 0d);
   }
 
   public void test_RateObservation_unknownType() {
