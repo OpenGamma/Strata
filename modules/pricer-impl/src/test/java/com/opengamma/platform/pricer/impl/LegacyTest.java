@@ -77,6 +77,7 @@ public class LegacyTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(Legacy.class);
+    coverPrivateConstructor(LegacyIndices.class);
   }
 
 }
