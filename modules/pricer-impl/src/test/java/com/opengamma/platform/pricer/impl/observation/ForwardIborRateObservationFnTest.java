@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.interestrate.datasets.StandardDataSetsMulticurveUSD;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -24,11 +23,12 @@ import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
+import com.opengamma.platform.pricer.impl.LegacyIndices;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test {@link ForwardIborRateObservationFn}.
+ * Test.
  */
 public class ForwardIborRateObservationFnTest {
 
@@ -36,8 +36,6 @@ public class ForwardIborRateObservationFnTest {
   private static final IborIndex USD_LIBOR_1M = IborIndices.USD_LIBOR_1M;
   private static final IborIndex USD_LIBOR_3M = IborIndices.USD_LIBOR_3M;
   private static final IborIndex USD_LIBOR_6M = IborIndices.USD_LIBOR_6M;
-  private static final com.opengamma.analytics.financial.instrument.index.IborIndex USD_LIBOR_3M_OGA =
-      IndexIborMaster.getInstance().getIndex(IndexIborMaster.USDLIBOR3M);
   public static final LocalDateDoubleTimeSeries TS_USDLIBOR3M_WITHOUTTODAY =
       LocalDateDoubleTimeSeries.builder()
           .put(LocalDate.of(2014, 11, 24), 0.00123)
@@ -53,9 +51,9 @@ public class ForwardIborRateObservationFnTest {
   private static final MulticurveProviderDiscount MULTICURVE_OIS = MULTICURVE_OIS_PAIR.getFirst();
   private static final ImmutablePricingEnvironment ENV_WITHOUTTODAY = env(TS_USDLIBOR3M_WITHOUTTODAY);
   private static final ImmutablePricingEnvironment ENV_WITHTODAY = env(TS_USDLIBOR3M_WITHTODAY);
-  private static final LocalDate[] FIXING_DATES_TESTED = new LocalDate[]
-  {LocalDate.of(2014, 11, 26), LocalDate.of(2014, 12, 2), LocalDate.of(2014, 12, 23), LocalDate.of(2015, 11, 25),
-    LocalDate.of(2016, 11, 25) };
+  private static final LocalDate[] FIXING_DATES_TESTED = new LocalDate[] {
+    LocalDate.of(2014, 11, 26), LocalDate.of(2014, 12, 2), LocalDate.of(2014, 12, 23),
+    LocalDate.of(2015, 11, 25), LocalDate.of(2016, 11, 25) };
   private static final int NB_TESTS = FIXING_DATES_TESTED.length;
   private static final RateObservationFn<IborRateObservation> IBOR_RATE_PROVIDER = new ForwardIborRateObservationFn();
   private static final RateObservationFn<RateObservation> RATE_PROVIDER = DefaultRateObservationFn.FORWARD;
@@ -69,7 +67,8 @@ public class ForwardIborRateObservationFnTest {
     LocalDate fixingStartDate = IBOR_TODAY.getIndex().calculateEffectiveFromFixing(IBOR_TODAY.getFixingDate());
     LocalDate fixingEndDate = IBOR_TODAY.getIndex().calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = IBOR_TODAY.getIndex().getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-    double rateValuationDateWithoutFixingExpected = MULTICURVE_OIS.getSimplyCompoundForwardRate(USD_LIBOR_3M_OGA,
+    double rateValuationDateWithoutFixingExpected = MULTICURVE_OIS.getSimplyCompoundForwardRate(
+        LegacyIndices.USDLIBOR3M,
         ENV_WITHOUTTODAY.relativeTime(fixingStartDate),
         ENV_WITHOUTTODAY.relativeTime(fixingEndDate), fixingYearFraction);
     assertEquals(rateValuationDateWithoutFixingExpected, rateIborTodayWithoutFixingComputed, TOLERANCE_RATE,
@@ -100,7 +99,8 @@ public class ForwardIborRateObservationFnTest {
       LocalDate fixingStartDate = USD_LIBOR_3M.calculateEffectiveFromFixing(FIXING_DATES_TESTED[i]);
       LocalDate fixingEndDate = USD_LIBOR_3M.calculateMaturityFromEffective(fixingStartDate);
       double fixingYearFraction = USD_LIBOR_3M.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
-      double rateExpected = MULTICURVE_OIS.getSimplyCompoundForwardRate(USD_LIBOR_3M_OGA,
+      double rateExpected = MULTICURVE_OIS.getSimplyCompoundForwardRate(
+          LegacyIndices.USDLIBOR3M,
           ENV_WITHOUTTODAY.relativeTime(fixingStartDate),
           ENV_WITHOUTTODAY.relativeTime(fixingEndDate), fixingYearFraction);
       double rateIborWithoutFixingComputed =

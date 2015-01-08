@@ -14,21 +14,29 @@ import com.opengamma.platform.pricer.observation.RateObservationFn;
 /**
 * Rate observation implementation for an IBOR-like index.
 * <p>
-* The rate observation simply return the Ibor rate from the PricingEnvironment.
+* The implementation simply returns the rate from the {@code PricingEnvironment}.
 */
-public class ForwardIborRateObservationFn 
+public class ForwardIborRateObservationFn
     implements RateObservationFn<IborRateObservation> {
-  
+
   /**
-   * Default instance.
+   * Default implementation.
    */
   public static final ForwardIborRateObservationFn DEFAULT = new ForwardIborRateObservationFn();
 
+  /**
+   * Creates an instance.
+   */
+  public ForwardIborRateObservationFn() {
+    super();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public double rate(
-      PricingEnvironment env, 
-      IborRateObservation observation, 
-      LocalDate startDate, 
+      PricingEnvironment env,
+      IborRateObservation observation,
+      LocalDate startDate,
       LocalDate endDate) {
     return env.iborIndexRate(observation.getIndex(), observation.getFixingDate());
   }

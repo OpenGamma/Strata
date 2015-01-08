@@ -15,41 +15,42 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
 
 /**
- * Multiple dispatch for {@code RateObservationFn}.
+ * Rate observation implementation using multiple dispatch.
  * <p>
- * Dispatches the rate request to the correct implementation.
+ * Dispatches the request to the correct implementation.
  */
 public class DefaultRateObservationFn
     implements RateObservationFn<RateObservation> {
-  
+
   /**
-   * Forward implementation.
+   * Default implementation.
    */
-  public static final DefaultRateObservationFn FORWARD = new DefaultRateObservationFn(
+  public static final DefaultRateObservationFn DEFAULT = new DefaultRateObservationFn(
       ForwardIborRateObservationFn.DEFAULT);
 
   /**
-   * Handle {@link IborRateObservation}.
+   * Rate provider for {@link IborRateObservation}.
    */
   private RateObservationFn<IborRateObservation> iborRateObservationFn;
 
   /**
    * Creates an instance.
    *
-   * @param iborRateObservationFn the rate provider for {@link IborRateObservation}
+   * @param iborRateObservationFn  the rate provider for {@link IborRateObservation}
    */
   public DefaultRateObservationFn(
       RateObservationFn<IborRateObservation> iborRateObservationFn) {
     this.iborRateObservationFn = ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public double rate(
       PricingEnvironment env,
       RateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
-    //dispatch by runtime type
+    // dispatch by runtime type
     if (observation instanceof FixedRateObservation) {
       return ((FixedRateObservation) observation).getRate();
     } else if (observation instanceof IborRateObservation) {
