@@ -31,7 +31,7 @@ public class DispatchingRateObservationFn
   /**
    * Rate provider for {@link IborRateObservation}.
    */
-  private RateObservationFn<IborRateObservation> iborRateObservationFn;
+  private final RateObservationFn<IborRateObservation> iborRateObservationFn;
 
   /**
    * Creates an instance.
@@ -52,6 +52,7 @@ public class DispatchingRateObservationFn
       LocalDate endDate) {
     // dispatch by runtime type
     if (observation instanceof FixedRateObservation) {
+      // inline code (performance) avoiding need for FixedRateObservationFn implementation
       return ((FixedRateObservation) observation).getRate();
     } else if (observation instanceof IborRateObservation) {
       return iborRateObservationFn.rate(env, (IborRateObservation) observation, startDate, endDate);
