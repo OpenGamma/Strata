@@ -28,7 +28,6 @@ public class ForwardIborRateObservationFn
    * Creates an instance.
    */
   public ForwardIborRateObservationFn() {
-    super();
   }
 
   //-------------------------------------------------------------------------
