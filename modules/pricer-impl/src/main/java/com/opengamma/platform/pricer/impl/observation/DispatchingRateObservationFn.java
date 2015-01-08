@@ -19,13 +19,13 @@ import com.opengamma.platform.pricer.observation.RateObservationFn;
  * <p>
  * Dispatches the request to the correct implementation.
  */
-public class DefaultRateObservationFn
+public class DispatchingRateObservationFn
     implements RateObservationFn<RateObservation> {
 
   /**
    * Default implementation.
    */
-  public static final DefaultRateObservationFn DEFAULT = new DefaultRateObservationFn(
+  public static final DispatchingRateObservationFn DEFAULT = new DispatchingRateObservationFn(
       ForwardIborRateObservationFn.DEFAULT);
 
   /**
@@ -38,7 +38,7 @@ public class DefaultRateObservationFn
    *
    * @param iborRateObservationFn  the rate provider for {@link IborRateObservation}
    */
-  public DefaultRateObservationFn(
+  public DispatchingRateObservationFn(
       RateObservationFn<IborRateObservation> iborRateObservationFn) {
     this.iborRateObservationFn = ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
   }

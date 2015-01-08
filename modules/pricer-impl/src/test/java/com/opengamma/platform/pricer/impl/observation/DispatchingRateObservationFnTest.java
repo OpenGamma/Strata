@@ -26,7 +26,7 @@ import com.opengamma.platform.pricer.observation.RateObservationFn;
  * Test.
  */
 @Test
-public class DefaultRateObservationFnTest {
+public class DispatchingRateObservationFnTest {
 
   private static final LocalDate FIXING_DATE = date(2014, 6, 30);
   private static final LocalDate ACCRUAL_START_DATE = date(2014, 7, 2);
@@ -35,7 +35,7 @@ public class DefaultRateObservationFnTest {
   public void test_FixedRateObservation() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     FixedRateObservation ro = FixedRateObservation.of(0.0123d);
-    DefaultRateObservationFn test = DefaultRateObservationFn.DEFAULT;
+    DispatchingRateObservationFn test = DispatchingRateObservationFn.DEFAULT;
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), 0.0123d, 0d);
   }
 
@@ -45,14 +45,14 @@ public class DefaultRateObservationFnTest {
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     when(mockIbor.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE))
         .thenReturn(0.0123d);
-    DefaultRateObservationFn test = new DefaultRateObservationFn(mockIbor);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(mockIbor);
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), 0.0123d, 0d);
   }
 
   public void test_RateObservation_unknownType() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     RateObservation mockObservation = mock(RateObservation.class);
-    DefaultRateObservationFn test = DefaultRateObservationFn.DEFAULT;
+    DispatchingRateObservationFn test = DispatchingRateObservationFn.DEFAULT;
     assertThrowsIllegalArg(() -> test.rate(mockEnv, mockObservation, ACCRUAL_START_DATE, ACCRUAL_END_DATE));
   }
 
