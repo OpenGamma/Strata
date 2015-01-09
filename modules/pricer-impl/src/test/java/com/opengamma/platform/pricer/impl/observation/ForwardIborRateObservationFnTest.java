@@ -28,7 +28,7 @@ public class ForwardIborRateObservationFnTest {
   private static final LocalDate ACCRUAL_START_DATE = date(2014, 7, 2);
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 10, 2);
 
-  public void test_FixedRateObservation() {
+  public void test_rate() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE))
         .thenReturn(0.0123d);

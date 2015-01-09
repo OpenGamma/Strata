@@ -30,7 +30,7 @@ public class ForwardIborInterpolatedRateObservationFnTest {
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 11, 2);
   private static final double TOLERANCE_RATE = 1.0E-10;
 
-  public void test_IborInterpolatedRateObservation() {
+  public void test_rate() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     double rate3M = 0.0123d;
     double rate6M = 0.0234d;
