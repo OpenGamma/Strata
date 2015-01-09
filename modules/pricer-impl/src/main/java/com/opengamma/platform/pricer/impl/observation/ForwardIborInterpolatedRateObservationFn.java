@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
@@ -41,14 +40,18 @@ public class ForwardIborInterpolatedRateObservationFn
       LocalDate startDate,
       LocalDate endDate) {
     LocalDate fixingDate = observation.getFixingDate();
+    // computes the dates related to the underlying deposits associated to the indices
     IborIndex index1 = observation.getShortIndex();
     IborIndex index2 = observation.getLongIndex();
     LocalDate fixingStartDate1 = index1.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate1 = index1.calculateMaturityFromEffective(fixingStartDate1);
     LocalDate fixingStartDate2 = index2.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate2 = index2.calculateMaturityFromEffective(fixingStartDate2);
+    // rate is the weighted average of the two rates related to the underlying indices
     double rate1 = env.iborIndexRate(index1, fixingDate);
     double rate2 = env.iborIndexRate(index2, fixingDate);
+    // weights: linear interpolation on the number of days between the fixing date and the maturity dates of the 
+    //   actual coupons on one side and the maturity dates of the underlying deposit on the other side.
     long fixingEpochDay = fixingDate.toEpochDay();
     double days1 = fixingEndDate1.toEpochDay() - fixingEpochDay;
     double days2 = fixingEndDate2.toEpochDay() - fixingEpochDay;

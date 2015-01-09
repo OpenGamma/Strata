@@ -35,20 +35,22 @@ public class DispatchingRateObservationFn
    */
   private final RateObservationFn<IborRateObservation> iborRateObservationFn;
   /**
-   * Rate provider for {@link IborRateObservation}.
+   * Rate provider for {@link IborInterpolatedRateObservation}.
    */
   private final RateObservationFn<IborInterpolatedRateObservation> iborInterpolatedRateObservationFn;
 
   /**
    * Creates an instance.
    *
-   * @param iborRateObservationFn  the rate provider for {@link IborRateObservation}
+   * @param iborRateObservationFn The rate provider for {@link IborRateObservation}
+   * @param iborInterpolatedRateObservationFn The rate observation for {@link IborInterpolatedRateObservation}.
    */
   public DispatchingRateObservationFn(
       RateObservationFn<IborRateObservation> iborRateObservationFn,
       RateObservationFn<IborInterpolatedRateObservation> iborInterpolatedRateObservationFn) {
     this.iborRateObservationFn = ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
-    this.iborInterpolatedRateObservationFn = ArgChecker.notNull(iborInterpolatedRateObservationFn, "iborInterpolatedRateObservationFn");
+    this.iborInterpolatedRateObservationFn = 
+        ArgChecker.notNull(iborInterpolatedRateObservationFn, "iborInterpolatedRateObservationFn");
   }
 
   //-------------------------------------------------------------------------
@@ -65,7 +67,8 @@ public class DispatchingRateObservationFn
     } else if (observation instanceof IborRateObservation) {
       return iborRateObservationFn.rate(env, (IborRateObservation) observation, startDate, endDate);
     } else if (observation instanceof IborInterpolatedRateObservation) {
-      return iborInterpolatedRateObservationFn.rate(env, (IborInterpolatedRateObservation) observation, startDate, endDate);
+      return iborInterpolatedRateObservationFn.rate(
+          env, (IborInterpolatedRateObservation) observation, startDate, endDate);
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
     }

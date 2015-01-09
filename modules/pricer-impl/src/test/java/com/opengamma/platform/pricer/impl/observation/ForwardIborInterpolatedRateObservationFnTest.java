@@ -50,8 +50,7 @@ public class ForwardIborInterpolatedRateObservationFnTest {
     double weight6M = (daysCpn - days3M) / (days6M - days3M);
     double rateExpected = (weight3M * rate3M + weight6M * rate6M);
     double rateComputed = obs.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
-    assertEquals(rateExpected, rateComputed, TOLERANCE_RATE,
-        "DefaultIborInterpolatedRateProviderFn: rate on fixing date");
+    assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
   
 }
