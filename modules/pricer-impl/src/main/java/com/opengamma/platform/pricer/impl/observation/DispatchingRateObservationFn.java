@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
+import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
@@ -26,21 +27,30 @@ public class DispatchingRateObservationFn
    * Default implementation.
    */
   public static final DispatchingRateObservationFn DEFAULT = new DispatchingRateObservationFn(
-      ForwardIborRateObservationFn.DEFAULT);
+      ForwardIborRateObservationFn.DEFAULT,
+      ForwardIborInterpolatedRateObservationFn.DEFAULT);
 
   /**
    * Rate provider for {@link IborRateObservation}.
    */
   private final RateObservationFn<IborRateObservation> iborRateObservationFn;
+  /**
+   * Rate provider for {@link IborInterpolatedRateObservation}.
+   */
+  private final RateObservationFn<IborInterpolatedRateObservation> iborInterpolatedRateObservationFn;
 
   /**
    * Creates an instance.
    *
-   * @param iborRateObservationFn  the rate provider for {@link IborRateObservation}
+   * @param iborRateObservationFn The rate provider for {@link IborRateObservation}
+   * @param iborInterpolatedRateObservationFn The rate observation for {@link IborInterpolatedRateObservation}.
    */
   public DispatchingRateObservationFn(
-      RateObservationFn<IborRateObservation> iborRateObservationFn) {
+      RateObservationFn<IborRateObservation> iborRateObservationFn,
+      RateObservationFn<IborInterpolatedRateObservation> iborInterpolatedRateObservationFn) {
     this.iborRateObservationFn = ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
+    this.iborInterpolatedRateObservationFn = 
+        ArgChecker.notNull(iborInterpolatedRateObservationFn, "iborInterpolatedRateObservationFn");
   }
 
   //-------------------------------------------------------------------------
@@ -56,6 +66,9 @@ public class DispatchingRateObservationFn
       return ((FixedRateObservation) observation).getRate();
     } else if (observation instanceof IborRateObservation) {
       return iborRateObservationFn.rate(env, (IborRateObservation) observation, startDate, endDate);
+    } else if (observation instanceof IborInterpolatedRateObservation) {
+      return iborInterpolatedRateObservationFn.rate(
+          env, (IborInterpolatedRateObservation) observation, startDate, endDate);
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
     }
