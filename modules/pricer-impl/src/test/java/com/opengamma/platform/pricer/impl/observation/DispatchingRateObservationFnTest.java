@@ -34,14 +34,14 @@ public class DispatchingRateObservationFnTest {
   private static final LocalDate ACCRUAL_START_DATE = date(2014, 7, 2);
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 10, 2);
 
-  public void test_FixedRateObservation() {
+  public void test_rate_FixedRateObservation() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     FixedRateObservation ro = FixedRateObservation.of(0.0123d);
     DispatchingRateObservationFn test = DispatchingRateObservationFn.DEFAULT;
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), 0.0123d, 0d);
   }
 
-  public void test_IborRateObservation() {
+  public void test_rate_IborRateObservation() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     RateObservationFn<IborRateObservation> mockIbor = mock(RateObservationFn.class);
     RateObservationFn<IborInterpolatedRateObservation> mockIborInt = mock(RateObservationFn.class);
@@ -52,7 +52,7 @@ public class DispatchingRateObservationFnTest {
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), 0.0123d, 0d);
   }
 
-  public void test_IborInterpolatedRateObservation() {
+  public void test_rate_IborInterpolatedRateObservation() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     double mockRate = 0.0123d;
     RateObservationFn<IborRateObservation> mockIbor = mock(RateObservationFn.class);
@@ -64,7 +64,7 @@ public class DispatchingRateObservationFnTest {
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), mockRate, 0d);
   }
 
-  public void test_RateObservation_unknownType() {
+  public void test_rate_unknownType() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     RateObservation mockObservation = mock(RateObservation.class);
     DispatchingRateObservationFn test = DispatchingRateObservationFn.DEFAULT;
