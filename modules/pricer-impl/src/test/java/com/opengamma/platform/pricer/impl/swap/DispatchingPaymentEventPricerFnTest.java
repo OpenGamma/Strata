@@ -21,7 +21,7 @@ import com.opengamma.platform.pricer.swap.PaymentEventPricerFn;
  * Test.
  */
 @Test
-public class DispatchingPaymentEventFnTest {
+public class DispatchingPaymentEventPricerFnTest {
 
   private final PricingEnvironment mockEnv = mock(PricingEnvironment.class);
 
