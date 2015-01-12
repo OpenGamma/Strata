@@ -17,34 +17,39 @@ import com.opengamma.platform.pricer.observation.RateObservationFn;
  * Rate observation implementation for a rate based on the average of multiple fixings of a
  * single IBOR-like floating rate index.
  * <p>
- * The rate observation query the rates from the PricingEnvironment and weighted-average them.
+ * The rate observation query the rates from the {@code PricingEnvironment} and weighted-average them.
  * There is no convexity adjustment computed in this implementation.
  */
 public class ForwardIborAveragedRateObservationFn 
     implements RateObservationFn<IborAveragedRateObservation> {
-  
+
   /**
    * Default instance.
    */
   public static final ForwardIborAveragedRateObservationFn DEFAULT = new ForwardIborAveragedRateObservationFn();
 
+  /**
+   * Creates an instance.
+   */
+  public ForwardIborAveragedRateObservationFn() {
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public double rate(
       PricingEnvironment env,
       IborAveragedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
+    // take (rate * weight) for each fixing and divide by total weight
     double weightedRate = observation.getFixings().stream()
         .mapToDouble(fixing -> weightedRate(env, observation.getIndex(), fixing))
         .sum();
     return weightedRate / observation.getTotalWeight();
   }
-  
+
   // Compute the rate adjusted by the weight for one IborAverageFixing.
-  private double weightedRate(
-      PricingEnvironment env,
-      IborIndex iborIndex,
-      IborAveragedFixing fixing) {
+  private double weightedRate(PricingEnvironment env, IborIndex iborIndex, IborAveragedFixing fixing) {
     double rate = fixing.getFixedRate().orElse(env.iborIndexRate(iborIndex, fixing.getFixingDate()));
     return rate * fixing.getWeight();
   }

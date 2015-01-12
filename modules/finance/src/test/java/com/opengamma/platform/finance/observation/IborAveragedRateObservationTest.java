@@ -38,6 +38,7 @@ public class IborAveragedRateObservationTest {
         .fixings(FIXINGS)
         .build();
     assertEquals(test, expected);
+    assertEquals(test.getTotalWeight(), 2d, 0d);
   }
 
   public void test_of_List_null() {

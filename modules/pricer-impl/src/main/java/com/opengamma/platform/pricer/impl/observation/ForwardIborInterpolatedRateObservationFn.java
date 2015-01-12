@@ -16,12 +16,12 @@ import com.opengamma.platform.pricer.observation.RateObservationFn;
  * Rate observation implementation for rate based on the weighted average of the fixing
  * on a single date of two IBOR-like indices.
  * <p>
- * The rate observation query the rates from the PricingEnvironment and average them.
+ * The rate observation query the rates from the {@code PricingEnvironment} and average them.
  * There is no convexity adjustment computed in this implementation.
  */
 public class ForwardIborInterpolatedRateObservationFn
     implements RateObservationFn<IborInterpolatedRateObservation> {
-  
+
   /**
    * Default instance.
    */
@@ -32,7 +32,8 @@ public class ForwardIborInterpolatedRateObservationFn
    */
   public ForwardIborInterpolatedRateObservationFn() {
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public double rate(
       PricingEnvironment env,

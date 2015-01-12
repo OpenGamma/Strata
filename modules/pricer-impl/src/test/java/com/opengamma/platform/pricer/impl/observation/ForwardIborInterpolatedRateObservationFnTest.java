@@ -20,7 +20,7 @@ import com.opengamma.platform.finance.observation.IborInterpolatedRateObservatio
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
-* Test {@link ForwardIborInterpolatedRateObservationFn}.
+* Test.
 */
 @Test
 public class ForwardIborInterpolatedRateObservationFnTest {
