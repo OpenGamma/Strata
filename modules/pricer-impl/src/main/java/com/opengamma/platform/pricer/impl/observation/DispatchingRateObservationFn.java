@@ -43,23 +43,24 @@ public class DispatchingRateObservationFn
   /**
    * Rate provider for {@link IborAveragedRateObservation}.
    */
-  private final RateObservationFn<IborAveragedRateObservation> iborAverageRateObservationFn;
+  private final RateObservationFn<IborAveragedRateObservation> iborAveragedRateObservationFn;
 
   /**
    * Creates an instance.
    *
    * @param iborRateObservationFn The rate provider for {@link IborRateObservation}
    * @param iborInterpolatedRateObservationFn The rate observation for {@link IborInterpolatedRateObservation}.
+   * @param iborAveragedRateObservationFn The rate observation for {@link IborAveragedRateObservation}.
    */
   public DispatchingRateObservationFn(
       RateObservationFn<IborRateObservation> iborRateObservationFn,
       RateObservationFn<IborInterpolatedRateObservation> iborInterpolatedRateObservationFn,
-      RateObservationFn<IborAveragedRateObservation> iborAverageRateObservationFn) {
+      RateObservationFn<IborAveragedRateObservation> iborAveragedRateObservationFn) {
     this.iborRateObservationFn = ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
     this.iborInterpolatedRateObservationFn = 
         ArgChecker.notNull(iborInterpolatedRateObservationFn, "iborInterpolatedRateObservationFn");
-    this.iborAverageRateObservationFn = 
-        ArgChecker.notNull(iborAverageRateObservationFn, "iborAverageRateObservationFn");
+    this.iborAveragedRateObservationFn = 
+        ArgChecker.notNull(iborAveragedRateObservationFn, "iborAverageRateObservationFn");
   }
 
   //-------------------------------------------------------------------------
@@ -79,7 +80,7 @@ public class DispatchingRateObservationFn
       return iborInterpolatedRateObservationFn.rate(
           env, (IborInterpolatedRateObservation) observation, startDate, endDate);
     } else if (observation instanceof IborAveragedRateObservation) {
-      return iborAverageRateObservationFn.rate(env, (IborAveragedRateObservation) observation, startDate, endDate);
+      return iborAveragedRateObservationFn.rate(env, (IborAveragedRateObservation) observation, startDate, endDate);
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
     }

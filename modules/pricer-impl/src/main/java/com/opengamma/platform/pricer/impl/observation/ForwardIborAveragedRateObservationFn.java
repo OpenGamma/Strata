@@ -30,32 +30,22 @@ public class ForwardIborAveragedRateObservationFn
 
   @Override
   public double rate(
-      PricingEnvironment env, 
-      IborAveragedRateObservation observation, 
-      LocalDate startDate, 
+      PricingEnvironment env,
+      IborAveragedRateObservation observation,
+      LocalDate startDate,
       LocalDate endDate) {
-    double totalWeight = observation.getFixings().stream()
-        .mapToDouble(IborAveragedFixing::getWeight)
-        .sum();
-        double weightedRate = observation.getFixings().stream()
+    double weightedRate = observation.getFixings().stream()
         .mapToDouble(fixing -> weightedRate(env, observation.getIndex(), fixing))
         .sum();
-        return weightedRate / totalWeight;
+    return weightedRate / observation.getTotalWeight();
   }
   
-  /**
-   * Compute the rate adjusted by the weight for one IborAverageFixing.
-   * @param env The pricing environment. 
-   * @param iborIndex The Ibor index for the fixing.
-   * @param fixing The fixing observation used in the average.
-   * @return The weighted rate.
-   */
+  // Compute the rate adjusted by the weight for one IborAverageFixing.
   private double weightedRate(
       PricingEnvironment env,
       IborIndex iborIndex,
       IborAveragedFixing fixing) {
-    double rate = (fixing.getFixedRate().isPresent() ?
-        fixing.getFixedRate().getAsDouble() : env.iborIndexRate(iborIndex, fixing.getFixingDate()));
+    double rate = fixing.getFixedRate().orElse(env.iborIndexRate(iborIndex, fixing.getFixingDate()));
     return rate * fixing.getWeight();
   }
 

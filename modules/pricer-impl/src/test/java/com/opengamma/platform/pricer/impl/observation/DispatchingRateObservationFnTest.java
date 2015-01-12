@@ -38,9 +38,12 @@ public class DispatchingRateObservationFnTest {
   private static final LocalDate ACCRUAL_START_DATE = date(2014, 7, 2);
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 10, 2);
 
-  private static final RateObservationFn<IborRateObservation> MOCK_IBOR_EMPTY = mock(RateObservationFn.class);
-  private static final RateObservationFn<IborInterpolatedRateObservation> MOCK_IBOR_INT_EMPTY = mock(RateObservationFn.class);
-  private static final RateObservationFn<IborAveragedRateObservation> MOCK_IBOR_AVE_EMPTY = mock(RateObservationFn.class);
+  private static final RateObservationFn<IborRateObservation> MOCK_IBOR_EMPTY = 
+      mock(RateObservationFn.class);
+  private static final RateObservationFn<IborInterpolatedRateObservation> MOCK_IBOR_INT_EMPTY = 
+      mock(RateObservationFn.class);
+  private static final RateObservationFn<IborAveragedRateObservation> MOCK_IBOR_AVE_EMPTY = 
+      mock(RateObservationFn.class);
 
   public void test_FixedRateObservation() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
