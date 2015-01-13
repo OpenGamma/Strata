@@ -33,13 +33,4 @@ public class DefaultSwapTradePricerFnTest {
     assertEquals(test.presentValue(mockEnv, SwapDummyData.SWAP_TRADE), expected);
   }
 
-  public void test_futureValue() {
-    MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 500d);
-    SwapPricerFn mockSwapFn = mock(SwapPricerFn.class);
-    when(mockSwapFn.futureValue(mockEnv, SwapDummyData.SWAP))
-        .thenReturn(expected);
-    DefaultSwapTradePricerFn test = new DefaultSwapTradePricerFn(mockSwapFn);
-    assertEquals(test.futureValue(mockEnv, SwapDummyData.SWAP_TRADE), expected);
-  }
-
 }

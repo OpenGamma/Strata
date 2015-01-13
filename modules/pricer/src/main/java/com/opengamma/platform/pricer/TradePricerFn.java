@@ -22,28 +22,18 @@ public interface TradePricerFn<T extends Trade> {
   /**
    * Calculates the present value of the trade.
    * <p>
-   * The present value is the current value of the trade.
-   * Present value expresses the notion that a trade that pays USD 1000 in 6 months
-   * time is worth less than a similar trade that pays USD 1000 tomorrow.
+   * The present value of the trade is the value on the valuation date.
    * <p>
-   * Present value is typically calculated by applying a discount rate to each future cash flow.
+   * Present value expresses the time value of money and the uncertainty about the amount of cash flows.
+   * In classical quantitative finance, present value is computed as the expected value of the discounted cash flows.
+   * <p>
+   * For simple instruments, present value is typically calculated by applying
+   * a discount rate to each future cash flow.
    * 
    * @param env  the pricing environment
    * @param trade  the trade to price
    * @return the present value of the trade
    */
   public abstract MultiCurrencyAmount presentValue(PricingEnvironment env, T trade);
-
-  /**
-   * Calculates the future value of the trade.
-   * <p>
-   * The future value is the sum of all future cash flows.
-   * This is expressed without present value discounting.
-   * 
-   * @param env  the pricing environment
-   * @param trade  the trade to price
-   * @return the future value of the trade
-   */
-  public abstract MultiCurrencyAmount futureValue(PricingEnvironment env, T trade);
 
 }

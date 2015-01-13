@@ -48,10 +48,4 @@ public class DefaultSwapTradePricerFn
     return swapPricerFn.presentValue(env, trade.getSwap());
   }
 
-  //-------------------------------------------------------------------------
-  @Override
-  public MultiCurrencyAmount futureValue(PricingEnvironment env, SwapTrade trade) {
-    return swapPricerFn.futureValue(env, trade.getSwap());
-  }
-
 }

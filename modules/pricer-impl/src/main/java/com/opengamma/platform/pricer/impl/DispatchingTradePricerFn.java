@@ -53,14 +53,4 @@ public class DispatchingTradePricerFn
     }
   }
 
-  @Override
-  public MultiCurrencyAmount futureValue(PricingEnvironment env, Trade trade) {
-    // dispatch by runtime type
-    if (trade instanceof SwapTrade) {
-      return swapTradePricerFn.futureValue(env, (SwapTrade) trade);
-    } else {
-      throw new IllegalArgumentException("Unknown Trade type: " + trade.getClass().getSimpleName());
-    }
-  }
-
 }
