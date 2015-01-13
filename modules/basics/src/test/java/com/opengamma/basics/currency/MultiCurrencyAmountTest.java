@@ -13,12 +13,14 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.joda.beans.BeanBuilder;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
@@ -117,6 +119,29 @@ public class MultiCurrencyAmountTest {
   public void test_total_Iterable_containsNull() {
     Iterable<CurrencyAmount> iterable = Arrays.asList(CA1, null, CA2);
     assertThrows(() -> MultiCurrencyAmount.total(iterable), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collector() {
+    List<CurrencyAmount> amount = ImmutableList.of(
+        CurrencyAmount.of(CCY1, 100), CurrencyAmount.of(CCY1, 150), CurrencyAmount.of(CCY2, 100));
+    MultiCurrencyAmount test = amount.stream().collect(MultiCurrencyAmount.collector());
+    MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(CCY1, 250), CurrencyAmount.of(CCY2, 100));
+    assertEquals(test, expected);
+  }
+
+  public void test_collector_parallel() {
+    List<CurrencyAmount> amount = ImmutableList.of(
+        CurrencyAmount.of(CCY1, 100), CurrencyAmount.of(CCY1, 150), CurrencyAmount.of(CCY2, 100));
+    MultiCurrencyAmount test = amount.parallelStream().collect(MultiCurrencyAmount.collector());
+    MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(CCY1, 250), CurrencyAmount.of(CCY2, 100));
+    assertEquals(test, expected);
+  }
+
+  public void test_collector_null() {
+    List<CurrencyAmount> amount = Arrays.asList(
+        CurrencyAmount.of(CCY1, 100), null, CurrencyAmount.of(CCY2, 100));
+    assertThrowsIllegalArg(() -> amount.stream().collect(MultiCurrencyAmount.collector()));
   }
 
   //-------------------------------------------------------------------------
