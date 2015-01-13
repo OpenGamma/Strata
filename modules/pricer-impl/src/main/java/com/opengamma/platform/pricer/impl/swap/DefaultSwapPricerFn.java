@@ -65,7 +65,7 @@ public class DefaultSwapPricerFn
     if (swap.isCrossCurrency()) {
       return swap.getLegs().stream()
           .map(leg -> CurrencyAmount.of(leg.getCurrency(), valueFn.applyAsDouble(env, leg)))
-          .reduce(MultiCurrencyAmount.of(), MultiCurrencyAmount::plus, MultiCurrencyAmount::plus);
+          .collect(MultiCurrencyAmount.collector());
     } else {
       Currency currency = swap.getLegs().iterator().next().getCurrency();
       double pv = swap.getLegs().stream()
