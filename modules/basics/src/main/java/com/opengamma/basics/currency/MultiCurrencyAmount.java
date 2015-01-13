@@ -5,6 +5,8 @@
  */
 package com.opengamma.basics.currency;
 
+import static java.util.stream.Collector.Characteristics.UNORDERED;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,11 +33,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Iterables;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Guavate;
 
@@ -61,19 +61,6 @@ public final class MultiCurrencyAmount
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableSortedSet<CurrencyAmount> amounts;
-
-  //-------------------------------------------------------------------------
-  /**
-   * Returns a collector that can be used to create an multi-currency amount
-   * from a stream of amounts.
-   *
-   * @return the collecor
-   */
-  public static Collector<CurrencyAmount, ?, MultiCurrencyAmount> collector() {
-    return Collectors.collectingAndThen(
-        Guavate.toImmutableSortedSet(),
-        MultiCurrencyAmount::new);
-  }
 
   //-------------------------------------------------------------------------
   /**
@@ -130,7 +117,7 @@ public final class MultiCurrencyAmount
     ArgChecker.noNulls(map, "map");
     return map.entrySet().stream()
         .map(entry -> CurrencyAmount.of(entry.getKey(), entry.getValue()))
-        .collect(MultiCurrencyAmount.collector());
+        .collect(MultiCurrencyAmount.collectorInternal());
   }
 
   //-------------------------------------------------------------------------
@@ -145,12 +132,47 @@ public final class MultiCurrencyAmount
    */
   public static MultiCurrencyAmount total(Iterable<CurrencyAmount> amounts) {
     ArgChecker.notNull(amounts, "amounts");
-    Map<Currency, CurrencyAmount> map = new HashMap<Currency, CurrencyAmount>();
-    for (CurrencyAmount currencyAmount : amounts) {
-      ArgChecker.notNull(currencyAmount, "amount");
-      map.merge(currencyAmount.getCurrency(), currencyAmount, CurrencyAmount::plus);
-    }
-    return new MultiCurrencyAmount(ImmutableSortedSet.copyOf(map.values()));
+    return Guavate.stream(amounts).collect(collector());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a collector that can be used to create a multi-currency amount from a stream of amounts.
+   * <p>
+   * If the input contains the same currency more than once, the amounts are added together.
+   * For example, an input of (EUR 100, EUR 200, CAD 100) would result in (EUR 300, CAD 100).
+   *
+   * @return the collector
+   */
+  public static Collector<CurrencyAmount, ?, MultiCurrencyAmount> collector() {
+    return Collector.<CurrencyAmount, Map<Currency, CurrencyAmount>, MultiCurrencyAmount>of(
+            // accumulate into a map
+            HashMap::new,
+            // merge two CurrencyAmounts if same currency
+            (map, ca) -> map.merge(ArgChecker.notNull(ca, "amount").getCurrency(), ca, CurrencyAmount::plus),
+            // combine two maps
+            (map1, map2) -> {
+              map1.putAll(map2);
+              return map1;
+            },
+            // convert to MultiCurrencyAmount
+            (map) -> new MultiCurrencyAmount(ImmutableSortedSet.copyOf(map.values())),
+            UNORDERED);
+  }
+
+  /**
+   * Returns a collector that can be used to create a multi-currency amount
+   * from a stream of amounts where each amount has a different currency.
+   * <p>
+   * Each amount in the stream must have a different currency.
+   *
+   * @return the collector
+   */
+  private static Collector<CurrencyAmount, ?, MultiCurrencyAmount> collectorInternal() {
+    // this method must not be exposed publicly as misuse creates an instance with invalid state
+    return Collectors.collectingAndThen(
+        Guavate.toImmutableSortedSet(),
+        MultiCurrencyAmount::new);
   }
 
   //-------------------------------------------------------------------------
@@ -258,7 +280,7 @@ public final class MultiCurrencyAmount
    */
   public MultiCurrencyAmount plus(CurrencyAmount amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
-    return MultiCurrencyAmount.total(Iterables.concat(amounts, ImmutableList.of(amountToAdd)));
+    return Stream.concat(amounts.stream(), Stream.of(amountToAdd)).collect(collector());
   }
 
   /**
@@ -276,7 +298,7 @@ public final class MultiCurrencyAmount
    */
   public MultiCurrencyAmount plus(MultiCurrencyAmount amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
-    return MultiCurrencyAmount.total(Iterables.concat(amounts, amountToAdd.amounts));
+    return Stream.concat(amounts.stream(), amountToAdd.stream()).collect(collector());
   }
 
   //-------------------------------------------------------------------------
@@ -388,7 +410,7 @@ public final class MultiCurrencyAmount
     ArgChecker.notNull(mapper, "mapper");
     return amounts.stream()
         .map(ca -> ca.mapAmount(mapper))
-        .collect(MultiCurrencyAmount.collector());
+        .collect(MultiCurrencyAmount.collectorInternal());
   }
 
   //-------------------------------------------------------------------------
