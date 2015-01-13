@@ -152,7 +152,7 @@ public final class MultiCurrencyAmount
             (map, ca) -> map.merge(ArgChecker.notNull(ca, "amount").getCurrency(), ca, CurrencyAmount::plus),
             // combine two maps
             (map1, map2) -> {
-              map1.putAll(map2);
+              map2.values().forEach((ca2) -> map1.merge(ca2.getCurrency(), ca2, CurrencyAmount::plus));
               return map1;
             },
             // convert to MultiCurrencyAmount
@@ -170,6 +170,7 @@ public final class MultiCurrencyAmount
    */
   private static Collector<CurrencyAmount, ?, MultiCurrencyAmount> collectorInternal() {
     // this method must not be exposed publicly as misuse creates an instance with invalid state
+    // it exists because when used internally it offers better performance than collector()
     return Collectors.collectingAndThen(
         Guavate.toImmutableSortedSet(),
         MultiCurrencyAmount::new);
