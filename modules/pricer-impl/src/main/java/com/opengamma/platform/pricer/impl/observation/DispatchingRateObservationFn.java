@@ -12,6 +12,7 @@ import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.observation.IborAveragedRateObservation;
 import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
@@ -30,7 +31,8 @@ public class DispatchingRateObservationFn
   public static final DispatchingRateObservationFn DEFAULT = new DispatchingRateObservationFn(
       ForwardIborRateObservationFn.DEFAULT,
       ForwardIborInterpolatedRateObservationFn.DEFAULT,
-      ForwardIborAveragedRateObservationFn.DEFAULT);
+      ForwardIborAveragedRateObservationFn.DEFAULT,
+      ApproximatedForwardOvernightAveragedRateObservationFn.DEFAULT);
 
   /**
    * Rate provider for {@link IborRateObservation}.
@@ -44,6 +46,10 @@ public class DispatchingRateObservationFn
    * Rate provider for {@link IborAveragedRateObservation}.
    */
   private final RateObservationFn<IborAveragedRateObservation> iborAveragedRateObservationFn;
+  /**
+   * Rate provider for {@link OvernightAveragedRateObservation}.
+   */
+  private final RateObservationFn<OvernightAveragedRateObservation> overnightAveragedRateObservationFn;
 
   /**
    * Creates an instance.
@@ -51,16 +57,20 @@ public class DispatchingRateObservationFn
    * @param iborRateObservationFn The rate provider for {@link IborRateObservation}
    * @param iborInterpolatedRateObservationFn The rate observation for {@link IborInterpolatedRateObservation}.
    * @param iborAveragedRateObservationFn The rate observation for {@link IborAveragedRateObservation}.
+   * @param overnightAveragedRateObservationFn The rate observation for {@link OvernightAveragedRateObservation}.
    */
   public DispatchingRateObservationFn(
       RateObservationFn<IborRateObservation> iborRateObservationFn,
       RateObservationFn<IborInterpolatedRateObservation> iborInterpolatedRateObservationFn,
-      RateObservationFn<IborAveragedRateObservation> iborAveragedRateObservationFn) {
+      RateObservationFn<IborAveragedRateObservation> iborAveragedRateObservationFn,
+      RateObservationFn<OvernightAveragedRateObservation> overnightAveragedRateObservationFn) {
     this.iborRateObservationFn = ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
     this.iborInterpolatedRateObservationFn = 
         ArgChecker.notNull(iborInterpolatedRateObservationFn, "iborInterpolatedRateObservationFn");
     this.iborAveragedRateObservationFn = 
         ArgChecker.notNull(iborAveragedRateObservationFn, "iborAverageRateObservationFn");
+    this.overnightAveragedRateObservationFn = 
+        ArgChecker.notNull(overnightAveragedRateObservationFn, "overnightAveragedRateObservationFn");
   }
 
   //-------------------------------------------------------------------------
@@ -81,6 +91,9 @@ public class DispatchingRateObservationFn
           env, (IborInterpolatedRateObservation) observation, startDate, endDate);
     } else if (observation instanceof IborAveragedRateObservation) {
       return iborAveragedRateObservationFn.rate(env, (IborAveragedRateObservation) observation, startDate, endDate);
+    } else if (observation instanceof OvernightAveragedRateObservation) {
+      return overnightAveragedRateObservationFn.rate(
+          env, (OvernightAveragedRateObservation) observation, startDate, endDate);
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
     }

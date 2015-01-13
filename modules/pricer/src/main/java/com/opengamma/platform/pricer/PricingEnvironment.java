@@ -14,6 +14,7 @@ import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.basics.index.FxIndex;
 import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.Index;
+import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 
 /**
@@ -134,6 +135,14 @@ public interface PricingEnvironment {
    * @return the rate of the index, either historic or forward
    */
   public abstract double iborIndexRate(IborIndex index, LocalDate fixingDate);
+
+  //-------------------------------------------------------------------------
+  
+  public abstract double overnightIndexRate(OvernightIndex index, LocalDate fixingDate);
+
+  //-------------------------------------------------------------------------
+  
+  public abstract double overnightIndexRate(OvernightIndex index, LocalDate startDate, LocalDate endDate);
 
   //-------------------------------------------------------------------------
   /**

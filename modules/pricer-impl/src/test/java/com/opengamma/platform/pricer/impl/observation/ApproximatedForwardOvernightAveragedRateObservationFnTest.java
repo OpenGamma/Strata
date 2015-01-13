@@ -1,0 +1,274 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.platform.pricer.impl.observation;
+
+import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.collect.TestHelper.date;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.testng.annotations.Test;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
+import com.opengamma.platform.pricer.PricingEnvironment;
+
+/**
+ * Test {@link ApproximatedForwardOvernightAveragedRateObservationFn}.
+ */
+public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
+
+  private static final LocalDate DUMMY_ACCRUAL_DATE = date(2015, 1, 1); // Accrual dates irrelevant for the rate
+  private static final LocalDate FIXING_START_DATE = date(2015, 1, 8);
+  private static final LocalDate FIXING_END_DATE = date(2015, 1, 15); // 1w only to decrease data
+  private static final LocalDate[] FIXING_DATES = new LocalDate[] {
+    date(2015, 1, 7), date(2015, 1, 8), date(2015, 1, 9), 
+    date(2015, 1, 12), date(2015, 1, 13), date(2015, 1, 14), date(2015, 1, 15)};
+  private static final double[] FIXING_RATES = {
+    0.0012, 0.0023, 0.0034, 
+    0.0045, 0.0056, 0.0067, 0.0078};
+  private static final double[] FORWARD_RATES = {
+    0.0112, 0.0123, 0.0134, 
+    0.0145, 0.0156, 0.0167, 0.0178};
+  private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final ApproximatedForwardOvernightAveragedRateObservationFn OBS_FN_APPROX_FWD = 
+      ApproximatedForwardOvernightAveragedRateObservationFn.DEFAULT;
+  
+  @Test
+  public void rateFedFundNoCutOffForward() { // publication=1, cutoff=0, effective offset=0, Forward
+    LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    for (int i = 0; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    double investmentFactor = 1.0;
+    double totalAf = 0.0;
+    for (int i = 1; i < 6; i++) {
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      totalAf += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / totalAf;
+    when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
+    double rateExpected = Math.log(1.0 + rateCmp * totalAf) / totalAf;
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+  
+  @Test
+  public void rateFedFund2CutOffForward() { // publication=1, cutoff=2, effective offset=0, Forward
+    LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    for (int i = 0; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    double investmentFactor = 1.0;
+    double afApprox = 0.0;
+    for (int i = 1; i < 5; i++) {
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      afApprox += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / afApprox;
+    when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_START_DATE,
+        USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp);
+    LocalDate fixingCutOff = FIXING_DATES[5];
+    LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
+    double afCutOff = USD_FED_FUND.getDayCount().yearFraction(fixingCutOff, endDate);
+    double rateExpected = (Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff) / (afApprox + afCutOff);
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+  
+  @Test
+  public void rateFedFund2CutOffValuation1() { 
+    // publication=1, cutoff=2, effective offset=0, TS: Fixing 1
+    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+    List<LocalDate> dTs = new ArrayList<>();
+    List<Double> vTs = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      dTs.add(FIXING_DATES[i]);
+      vTs.add(FIXING_RATES[i]);
+    }
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    for (int i = 0; i < 2; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+    }
+    for (int i = 2; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    LocalDate fixingknown = FIXING_DATES[1];
+    LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+    double afKnown = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
+    double investmentFactor = 1.0;
+    double afApprox = 0.0;
+    for (int i = 2; i < 5; i++) {
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      afApprox += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / afApprox;
+    when(mockEnv.overnightIndexRate(USD_FED_FUND, USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE),
+        USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp);
+    LocalDate fixingCutOff = FIXING_DATES[5];
+    LocalDate endDateCutOff = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
+    double afCutOff = USD_FED_FUND.getDayCount().yearFraction(fixingCutOff, endDateCutOff);
+    double rateExpected = (FIXING_RATES[1] * afKnown + Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff) 
+        / (afKnown + afApprox + afCutOff);
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+  
+  @Test
+  public void rateFedFund2CutOffValuation2() {
+    // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
+    LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13) };
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+    List<LocalDate> dTs = new ArrayList<>();
+    List<Double> vTs = new ArrayList<>();
+    int lastFixing = 3;
+    for (int i = 0; i < lastFixing; i++) {
+      dTs.add(FIXING_DATES[i]);
+      vTs.add(FIXING_RATES[i]);
+    }
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+    }
+    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    double afKnown = 0.0;
+    double accruedKnown = 0.0;
+    for (int i = 0; i < lastFixing - 1; i++) {
+      LocalDate fixingknown = FIXING_DATES[i + 1];
+      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+      double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
+      afKnown += af;
+      accruedKnown += FIXING_RATES[i + 1] * af;
+    }
+    double investmentFactor = 1.0;
+    double afApprox = 0.0;
+    for (int i = lastFixing; i < 5; i++) {
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      afApprox += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / afApprox;
+    when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[lastFixing],
+        FIXING_DATES[5])).thenReturn(rateCmp);
+    LocalDate fixingCutOff = FIXING_DATES[5];
+    LocalDate endDateCutOff = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
+    double afCutOff = USD_FED_FUND.getDayCount().yearFraction(fixingCutOff, endDateCutOff);
+    double rateExpected = (accruedKnown + Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff)
+        / (afKnown + afApprox + afCutOff);
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+  
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void rateFedFund2CutOffValuation2MissingFixing() {
+    // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
+    LocalDate valuationDate = date(2015, 1, 13);
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+    List<LocalDate> dTs = new ArrayList<>();
+    List<Double> vTs = new ArrayList<>();
+    int lastFixing = 2;
+    for (int i = 0; i < lastFixing; i++) {
+      dTs.add(FIXING_DATES[i]);
+      vTs.add(FIXING_RATES[i]);
+    }
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+    }
+    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    when(mockEnv.getValuationDate()).thenReturn(valuationDate);
+    OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+  }
+
+  @Test
+  public void rateFedFund2CutOffValuationEnd() { 
+    // publication=1, cutoff=2, effective offset=0, TS: Fixing all
+    LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16) };
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
+    List<LocalDate> dTs = new ArrayList<>();
+    List<Double> vTs = new ArrayList<>();
+    int lastFixing = 6;
+    for (int i = 0; i < lastFixing; i++) {
+      dTs.add(FIXING_DATES[i]);
+      vTs.add(FIXING_RATES[i]);
+    }
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+    }
+    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    double afKnown = 0.0;
+    double accruedKnown = 0.0;
+    for (int i = 0; i < 4; i++) {
+      LocalDate fixingknown = FIXING_DATES[i + 1];
+      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown);
+      double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
+      afKnown += af;
+      accruedKnown += FIXING_RATES[i + 1] * af;
+    }
+    LocalDate fixingCutOff = FIXING_DATES[5];
+    LocalDate endDateCutOff = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
+    double afCutOff = USD_FED_FUND.getDayCount().yearFraction(fixingCutOff, endDateCutOff);
+    double rateExpected = (accruedKnown + FIXING_RATES[4] * afCutOff)
+        / (afKnown + afCutOff);
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+  
+}
