@@ -21,7 +21,8 @@ public interface SwapPricerFn {
   /**
    * Calculates the present value of the swap.
    * <p>
-   * This returns the value of the leg with discounting.
+   * The present value of the trade is the value on the valuation date.
+   * This is typically implemented as the discounted future value.
    * 
    * @param env  the pricing environment
    * @param swap  the swap to price
@@ -32,7 +33,7 @@ public interface SwapPricerFn {
   /**
    * Calculates the future value of the swap.
    * <p>
-   * This returns the value of the leg without discounting.
+   * The future value of the trade is the value on the valuation date without discounting.
    * 
    * @param env  the pricing environment
    * @param swap  the swap to price
