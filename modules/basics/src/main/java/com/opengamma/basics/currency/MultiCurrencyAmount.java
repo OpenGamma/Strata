@@ -156,7 +156,7 @@ public final class MultiCurrencyAmount
               return map1;
             },
             // convert to MultiCurrencyAmount
-            (map) -> new MultiCurrencyAmount(ImmutableSortedSet.copyOf(map.values())),
+            map -> new MultiCurrencyAmount(ImmutableSortedSet.copyOf(map.values())),
             UNORDERED);
   }
 
