@@ -39,9 +39,40 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
   private static final double[] FORWARD_RATES = {
     0.0112, 0.0123, 0.0134, 
     0.0145, 0.0156, 0.0167, 0.0178};
+  
   private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final double TOLERANCE_APPROX = 1.0E-6;
+  
   private static final ApproximatedForwardOvernightAveragedRateObservationFn OBS_FN_APPROX_FWD = 
       ApproximatedForwardOvernightAveragedRateObservationFn.DEFAULT;
+  private static final ForwardOvernightAveragedRateObservationFn OBS_FN_DET_FWD = 
+      ForwardOvernightAveragedRateObservationFn.DEFAULT;
+  
+
+  @Test
+  public void comparisonApproxVNoApprox() { 
+    LocalDate valuationDate = date(2015, 1, 5);
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.getValuationDate()).thenReturn(valuationDate);
+    for (int i = 0; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    double investmentFactor = 1.0;
+    double totalAf = 0.0;
+    for (int i = 1; i < 6; i++) {
+      LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = USD_FED_FUND.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      totalAf += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / totalAf;
+    when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
+    double rateApprox = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+    double rateDet = OBS_FN_DET_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+    assertEquals(rateDet, rateApprox, TOLERANCE_APPROX);
+  }
   
   @Test
   public void rateFedFundNoCutOffForward() { // publication=1, cutoff=0, effective offset=0, Forward
