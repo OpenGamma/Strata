@@ -35,7 +35,6 @@ public class ApproximatedForwardOvernightAveragedRateObservationFn
   public ApproximatedForwardOvernightAveragedRateObservationFn() {
   }
   
-
 public static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
 
   @Override
