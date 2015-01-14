@@ -7,7 +7,6 @@ package com.opengamma.collect;
 
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -50,25 +49,12 @@ public final class Guavate {
    * This is harder than it should be, a method {@code Stream.of(Iterable)}
    * would have been appropriate, but cannot be added now.
    * 
-   * @param <T>  the type of element in the iterable
+   * @param <T>  the type of element in the list
    * @param iterable  the iterable to convert
-   * @return a stream of the elements in the iterable
+   * @return the immutable list collector
    */
   public static <T> Stream<T> stream(Iterable<T> iterable) {
     return StreamSupport.stream(iterable.spliterator(), false);
-  }
-
-  /**
-   * Converts an optional to a stream with zero or one elements.
-   *
-   * @param <T>  the type of optional element
-   * @param optional  the optional
-   * @return a stream containing a single value if the optional has a value, else a stream with no values.
-   */
-  public static <T> Stream<T> stream(Optional<T> optional) {
-    return optional.isPresent() ?
-        Stream.of(optional.get()) :
-        Stream.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -208,7 +194,7 @@ public final class Guavate {
    */
   public static <T, K> Collector<T, ?, ImmutableMap<K, T>> toImmutableMap(
       Function<? super T, ? extends K> keyExtractor) {
-
+    
     return toImmutableMap(keyExtractor, Function.identity());
   }
 
@@ -264,7 +250,7 @@ public final class Guavate {
    */
   public static <T, K extends Comparable<?>> Collector<T, ?, ImmutableSortedMap<K, T>> toImmutableSortedMap(
       Function<? super T, ? extends K> keyExtractor) {
-
+    
     return toImmutableSortedMap(keyExtractor, Function.identity());
   }
 
@@ -319,7 +305,7 @@ public final class Guavate {
    */
   public static <T, K> Collector<T, ?, ImmutableListMultimap<K, T>> toImmutableListMultimap(
       Function<? super T, ? extends K> keyExtractor) {
-
+    
     return toImmutableListMultimap(keyExtractor, Function.identity());
   }
 
@@ -372,7 +358,7 @@ public final class Guavate {
    */
   public static <T, K> Collector<T, ?, ImmutableSetMultimap<K, T>> toImmutableSetMultimap(
       Function<? super T, ? extends K> keyExtractor) {
-
+    
     return toImmutableSetMultimap(keyExtractor, Function.identity());
   }
 
@@ -407,20 +393,7 @@ public final class Guavate {
 
   /**
    * Collector used at the end of a stream to build an immutable map
-   * from a stream containing map entries. This is a common case if a map's
-   * {@code entrySet} has undergone a {@code filter} operation. For example:
-   * <pre>
-   *   {@code
-   *       Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
-   *       ImmutableMap<String, Integer> output =
-   *         input.entrySet()
-   *           .stream()
-   *           .filter(e -> e.getValue() % 2 == 1)
-   *           .collect(entriesToImmutableMap());
-   *
-   *       // Produces map with "a" -> 1, "c" -> 3, "e" -> 5
-   *   }
-   * </pre>
+   * from a stream containing map entries.
    * <p>
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
@@ -428,6 +401,7 @@ public final class Guavate {
    * <p>
    * This returns a map by converting each {@code Map.Entry} to a key and value.
    * The input stream must resolve to unique keys.
+   * See {@link #toImmutableMap} for more details.
    *
    * @param <K> the type of the keys in the result map
    * @param <V> the type of the values in the result map
@@ -440,21 +414,7 @@ public final class Guavate {
 
   /**
    * Collector used at the end of a stream to build an immutable map
-   * from a stream containing pairs. This is a common case if a map's
-   * {@code entrySet} has undergone a {@code map} operation with the
-   * {@code Map.Entry} converted to a {@code Pair}. For example:
-   * <pre>
-   *   {@code
-   *       Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
-   *       ImmutableMap<String, Double> output =
-   *         input.entrySet()
-   *           .stream()
-   *           .map(e -> Pair.of(e.getKey().toUpperCase(), Math.pow(e.getValue(), 2)))
-   *           .collect(pairsToImmutableMap());
-   *
-   *       // Produces map with "A" -> 1.0, "B" -> 4.0, "C" -> 9.0, "D" -> 16.0
-   *   }
-   * </pre>
+   * from a stream containing pairs.
    * <p>
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
@@ -462,6 +422,7 @@ public final class Guavate {
    * <p>
    * This returns a map by converting each stream element to a key and value.
    * The input stream must resolve to unique keys.
+   * See {@link Collectors#toMap(Function, Function)} for more details.
    *
    * @param <K> the type of the keys in the result map
    * @param <V> the type of the values in the result map
