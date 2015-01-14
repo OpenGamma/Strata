@@ -14,9 +14,10 @@ import com.opengamma.collect.ArgChecker;
 /**
  * Flag indicating whether a trade is "buy" or "sell".
  * <p>
- * Species whether the financial instrument is buy-side or sell-side.
+ * Specifies whether the financial instrument is buy-side or sell-side.
  * For example, in a Forward Rate Agreement the buyer receives the floating rate
  * of interest in exchange for a fixed rate, whereas the seller pays the floating rate.
+ * This flag is stored on the instrument to indicate whether it was bought or sold.
  */
 public enum BuySell {
 
