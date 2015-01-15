@@ -5,11 +5,14 @@
  */
 package com.opengamma.collect;
 
+import static com.opengamma.collect.Guavate.entriesToImmutableMap;
+import static com.opengamma.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
@@ -23,6 +26,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Ordering;
+import com.opengamma.collect.tuple.Pair;
 
 /**
  * Test Guavate.
@@ -178,6 +182,32 @@ public class GuavateTest {
     ImmutableSetMultimap<Object, Object> expected = ImmutableSetMultimap.builder()
         .put(1, "!a").put(2, "!ab").put(1, "!b").put(2, "!bb").put(1, "!c").build();
     assertEquals(test, expected);
+  }
+  //-------------------------------------------------------------------------
+
+  public void test_mapEntriesToImmutableMap() {
+
+    Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5);
+    Map<String, Integer> expected = ImmutableMap.of("a", 1, "c", 3, "e", 5);
+    ImmutableMap<String, Integer> output =
+        input.entrySet()
+            .stream()
+            .filter(e -> e.getValue() % 2 == 1)
+            .collect(entriesToImmutableMap());
+    assertEquals(output, expected);
+  }
+
+  public void test_pairsToImmutableMap() {
+
+    Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
+    Map<String, Double> expected = ImmutableMap.of("A", 1.0, "B", 4.0, "C", 9.0, "D", 16.0);
+
+    ImmutableMap<String, Double> output =
+        input.entrySet()
+            .stream()
+            .map(e -> Pair.of(e.getKey().toUpperCase(), Math.pow(e.getValue(), 2)))
+            .collect(pairsToImmutableMap());
+    assertEquals(output, expected);
   }
 
   //-------------------------------------------------------------------------
