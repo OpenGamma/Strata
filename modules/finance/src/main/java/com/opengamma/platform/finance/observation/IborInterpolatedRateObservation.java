@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.index.IborIndex;
+import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Messages;
 
 /**
@@ -66,18 +67,31 @@ public final class IborInterpolatedRateObservation
   //-------------------------------------------------------------------------
   /**
    * Creates an {@code IborInterpolatedRateObservation} from two indices and fixing date.
+   * <p>
+   * The indices may be passed in any order.
    * 
-   * @param shortIndex  the shorter index
-   * @param longIndex  the longer index
+   * @param index1  the first index
+   * @param index2  the second index
    * @param fixingDate  the fixing date
    * @return the interpolated IBOR rate
    */
-  public static IborInterpolatedRateObservation of(IborIndex shortIndex, IborIndex longIndex, LocalDate fixingDate) {
-    return IborInterpolatedRateObservation.builder()
-        .shortIndex(shortIndex)
-        .longIndex(longIndex)
-        .fixingDate(fixingDate)
-        .build();
+  public static IborInterpolatedRateObservation of(IborIndex index1, IborIndex index2, LocalDate fixingDate) {
+    ArgChecker.notNull(index1, "index1");
+    ArgChecker.notNull(index2, "index2");
+    ArgChecker.notNull(fixingDate, "fixingDate");
+    if (fixingDate.plus(index1.getTenor()).isAfter(fixingDate.plus(index2.getTenor()))) {
+      return IborInterpolatedRateObservation.builder()
+          .shortIndex(index2)
+          .longIndex(index1)
+          .fixingDate(fixingDate)
+          .build();
+    } else {
+      return IborInterpolatedRateObservation.builder()
+          .shortIndex(index1)
+          .longIndex(index2)
+          .fixingDate(fixingDate)
+          .build();
+    }
   }
 
   //-------------------------------------------------------------------------
