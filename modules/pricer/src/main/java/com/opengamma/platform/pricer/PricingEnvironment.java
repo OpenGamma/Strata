@@ -156,21 +156,23 @@ public interface PricingEnvironment {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the forward rate of an overnight index on a given period.
+   * Gets the forward rate of an overnight index on a given period, potentially different from an overnight period.
    * <p>
    * The start date should be on or after the valuation date. The end date should be after the start date.
    * <p>
    * This computes the forward rate in the simple simply compounded convention of the index between two given date.
    * This is used mainly to speed-up computation by computing the rate on a longer period instead of each individual 
    * overnight rate. When data related to the overnight index rate are stored based on the fixing date and not
-   * the start and end date of the period, the call may return an illegal argument exception.
+   * the start and end date of the period, the call may return an {@code IllegalArgumentException}.
    * 
    * @param index  the overnight index to lookup
    * @param startDate the start or effective date of the period on which the rate is computed
    * @param endDate the end or maturity date of the period on which the rate is computed
    * @return the simply compounded rate associated to the period for the index
+   * @throws IllegalArgumentException when data stored based on the fixing date and not
+   * the start and end date of the period
    */
-  public abstract double overnightIndexRate(OvernightIndex index, LocalDate startDate, LocalDate endDate);
+  public abstract double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate);
 
   //-------------------------------------------------------------------------
   /**

@@ -32,7 +32,7 @@ public class DispatchingRateObservationFn
       ForwardIborRateObservationFn.DEFAULT,
       ForwardIborInterpolatedRateObservationFn.DEFAULT,
       ForwardIborAveragedRateObservationFn.DEFAULT,
-      ApproximatedForwardOvernightAveragedRateObservationFn.DEFAULT);
+      ApproxForwardOvernightAveragedRateObservationFn.DEFAULT);
 
   /**
    * Rate provider for {@link IborRateObservation}.

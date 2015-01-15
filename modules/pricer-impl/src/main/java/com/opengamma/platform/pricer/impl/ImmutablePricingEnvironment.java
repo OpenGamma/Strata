@@ -178,13 +178,20 @@ public final class ImmutablePricingEnvironment
   public double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(fixingDate, "fixingDate");
-    // historic rate
-    if (!fixingDate.isAfter(valuationDate)) {
+    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
+    if(valuationDate.isAfter(publicationDate)) { // historic rate must be present
       OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
       if (fixedRate.isPresent()) {
         return fixedRate.getAsDouble();
       } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
         throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
+      }
+    }
+    // valuation date on the publication date, check if fixing present in time series
+    if(valuationDate.equals(publicationDate)) {
+      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
+      if (fixedRate.isPresent()) {
+        return fixedRate.getAsDouble();
       }
     }
     // forward rate
@@ -197,7 +204,7 @@ public final class ImmutablePricingEnvironment
 
   //-------------------------------------------------------------------------
   @Override
-  public double overnightIndexRate(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+  public double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(startDate, "startDate");
     ArgChecker.notNull(endDate, "endDate");

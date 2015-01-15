@@ -6,6 +6,7 @@
 package com.opengamma.platform.pricer.impl.observation;
 
 import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -23,9 +24,9 @@ import com.opengamma.platform.finance.observation.OvernightAveragedRateObservati
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
- * Test {@link ApproximatedForwardOvernightAveragedRateObservationFn}.
+ * Test {@link ApproxForwardOvernightAveragedRateObservationFn}.
  */
-public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
+public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
   private static final LocalDate DUMMY_ACCRUAL_DATE = date(2015, 1, 1); // Accrual dates irrelevant for the rate
   private static final LocalDate FIXING_START_DATE = date(2015, 1, 8);
@@ -43,12 +44,13 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_APPROX = 1.0E-6;
   
-  private static final ApproximatedForwardOvernightAveragedRateObservationFn OBS_FN_APPROX_FWD = 
-      ApproximatedForwardOvernightAveragedRateObservationFn.DEFAULT;
+  private static final ApproxForwardOvernightAveragedRateObservationFn OBS_FN_APPROX_FWD = 
+      ApproxForwardOvernightAveragedRateObservationFn.DEFAULT;
   private static final ForwardOvernightAveragedRateObservationFn OBS_FN_DET_FWD = 
       ForwardOvernightAveragedRateObservationFn.DEFAULT;
   
 
+  /** Compare the rate estimated with approximation to the rate estimated by daily forward. */
   @Test
   public void comparisonApproxVNoApprox() { 
     LocalDate valuationDate = date(2015, 1, 5);
@@ -68,12 +70,13 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / totalAf;
-    when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
+    when(mockEnv.overnightIndexRatePeriod(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
     double rateApprox = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
     double rateDet = OBS_FN_DET_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
     assertEquals(rateDet, rateApprox, TOLERANCE_APPROX);
   }
   
+  /** No cutoff period and the period entirely forward. Test the approximation part only. */
   @Test
   public void rateFedFundNoCutOffForward() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
@@ -92,7 +95,7 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / totalAf;
-    when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
+    when(mockEnv.overnightIndexRatePeriod(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
     double rateExpected = Math.log(1.0 + rateCmp * totalAf) / totalAf;
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -101,6 +104,7 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
     }
   }
   
+  /** Two days cutoff and the period is entirely forward. Test Approximation part plus cutoff specifics.*/
   @Test
   public void rateFedFund2CutOffForward() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
@@ -119,7 +123,7 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afApprox;
-    when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_START_DATE,
+    when(mockEnv.overnightIndexRatePeriod(USD_FED_FUND, FIXING_START_DATE,
         USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp);
     LocalDate fixingCutOff = FIXING_DATES[5];
     LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
@@ -132,6 +136,7 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
     }
   }
   
+  /** Two days cutoff and one already fixed ON rate. Test the already fixed portion with only one fixed ON rate.*/
   @Test
   public void rateFedFund2CutOffValuation1() { 
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 1
@@ -165,7 +170,7 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afApprox;
-    when(mockEnv.overnightIndexRate(USD_FED_FUND, USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE),
+    when(mockEnv.overnightIndexRatePeriod(USD_FED_FUND, USD_FED_FUND.getFixingCalendar().next(FIXING_START_DATE),
         USD_FED_FUND.getFixingCalendar().previous(FIXING_END_DATE))).thenReturn(rateCmp);
     LocalDate fixingCutOff = FIXING_DATES[5];
     LocalDate endDateCutOff = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
@@ -178,7 +183,8 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }
-  
+
+  /** Two days cutoff and two already fixed ON rate. ON index is Fed Fund. */
   @Test
   public void rateFedFund2CutOffValuation2() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
@@ -219,7 +225,7 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
       investmentFactor *= 1.0d + af * FORWARD_RATES[i];
     }
     double rateCmp = (investmentFactor - 1.0d) / afApprox;
-    when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[lastFixing],
+    when(mockEnv.overnightIndexRatePeriod(USD_FED_FUND, FIXING_DATES[lastFixing],
         FIXING_DATES[5])).thenReturn(rateCmp);
     LocalDate fixingCutOff = FIXING_DATES[5];
     LocalDate endDateCutOff = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
@@ -232,7 +238,115 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }
-  
+
+  /** Two days cutoff and two already fixed ON rate. ON index is SONIA. */
+  @Test
+  public void rateSonia2CutOffValuation2() {
+    // publication=0, cutoff=2, effective offset=0, TS: Fixing 2
+    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12) };
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 2);
+    List<LocalDate> dTs = new ArrayList<>();
+    List<Double> vTs = new ArrayList<>();
+    int lastFixing = 3;
+    for (int i = 0; i < lastFixing; i++) {
+      dTs.add(FIXING_DATES[i]);
+      vTs.add(FIXING_RATES[i]);
+    }
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(GBP_SONIA)).thenReturn(ts);
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+    }
+    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    double afKnown = 0.0;
+    double accruedKnown = 0.0;
+    for (int i = 0; i < lastFixing - 1; i++) {
+      LocalDate fixingknown = FIXING_DATES[i + 1];
+      LocalDate endDateKnown = GBP_SONIA.calculateMaturityFromEffective(fixingknown);
+      double af = GBP_SONIA.getDayCount().yearFraction(fixingknown, endDateKnown);
+      afKnown += af;
+      accruedKnown += FIXING_RATES[i + 1] * af;
+    }
+    double investmentFactor = 1.0;
+    double afApprox = 0.0;
+    for (int i = lastFixing; i < 5; i++) {
+      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = GBP_SONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      afApprox += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / afApprox;
+    when(mockEnv.overnightIndexRatePeriod(GBP_SONIA, FIXING_DATES[lastFixing],
+        FIXING_DATES[5])).thenReturn(rateCmp);
+    LocalDate fixingCutOff = FIXING_DATES[5];
+    LocalDate endDateCutOff = GBP_SONIA.calculateMaturityFromEffective(fixingCutOff);
+    double afCutOff = GBP_SONIA.getDayCount().yearFraction(fixingCutOff, endDateCutOff);
+    double rateExpected = (accruedKnown + Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff)
+        / (afKnown + afApprox + afCutOff);
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+
+  /** No cutoff period and two already fixed ON rate. ON index is SONIA. */
+  @Test
+  public void rateSonia0CutOffValuation2() {
+    // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
+    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12) };
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
+    List<LocalDate> dTs = new ArrayList<>();
+    List<Double> vTs = new ArrayList<>();
+    int lastFixing = 3;
+    for (int i = 0; i < lastFixing; i++) {
+      dTs.add(FIXING_DATES[i]);
+      vTs.add(FIXING_RATES[i]);
+    }
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.timeSeries(GBP_SONIA)).thenReturn(ts);
+    for (int i = 0; i < lastFixing; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
+    }
+    for (int i = lastFixing; i < FIXING_DATES.length; i++) {
+      when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
+    }
+    double afKnown = 0.0;
+    double accruedKnown = 0.0;
+    for (int i = 0; i < lastFixing - 1; i++) {
+      LocalDate fixingknown = FIXING_DATES[i + 1];
+      LocalDate endDateKnown = GBP_SONIA.calculateMaturityFromEffective(fixingknown);
+      double af = GBP_SONIA.getDayCount().yearFraction(fixingknown, endDateKnown);
+      afKnown += af;
+      accruedKnown += FIXING_RATES[i + 1] * af;
+    }
+    double investmentFactor = 1.0;
+    double afApprox = 0.0;
+    for (int i = lastFixing; i < 6; i++) {
+      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i]);
+      double af = GBP_SONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      afApprox += af;
+      investmentFactor *= 1.0d + af * FORWARD_RATES[i];
+    }
+    double rateCmp = (investmentFactor - 1.0d) / afApprox;
+    when(mockEnv.overnightIndexRatePeriod(GBP_SONIA, FIXING_DATES[lastFixing],
+        FIXING_DATES[6])).thenReturn(rateCmp);
+    double rateExpected = (accruedKnown + Math.log(1.0 + rateCmp * afApprox))
+        / (afKnown + afApprox);
+    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+      when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    }
+  }
+
+  /** One past fixing missing. Checking the error thrown. */
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void rateFedFund2CutOffValuation2MissingFixing() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
@@ -259,6 +373,7 @@ public class ApproximatedForwardOvernightAveragedRateObservationFnTest {
     OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
   }
 
+  /** Two days cutoff, all ON rates already fixed. */
   @Test
   public void rateFedFund2CutOffValuationEnd() { 
     // publication=1, cutoff=2, effective offset=0, TS: Fixing all
