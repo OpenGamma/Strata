@@ -361,7 +361,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_overnightIndexRateforward_badDatesNotSorted() {
+  public void test_overnightIndexRateForward_badDatesNotSorted() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
@@ -375,7 +375,7 @@ public class ImmutablePricingEnvironmentTest {
         IllegalArgumentException.class);
   }
 
-  public void test_overnightIndexRateforward_BadDateInPast() {
+  public void test_overnightIndexRateForward_BadDateInPast() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
@@ -389,7 +389,7 @@ public class ImmutablePricingEnvironmentTest {
         IllegalArgumentException.class);
   }
 
-  public void test_overnightIndexRateforward_forward() {
+  public void test_overnightIndexRateForward_forward() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     LocalDate startDate = NEXT_DATE;

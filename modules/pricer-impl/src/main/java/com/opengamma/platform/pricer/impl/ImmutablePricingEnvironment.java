@@ -179,7 +179,7 @@ public final class ImmutablePricingEnvironment
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(fixingDate, "fixingDate");
     LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if(valuationDate.isAfter(publicationDate)) { // historic rate must be present
+    if (valuationDate.isAfter(publicationDate)) { // historic rate must be present
       OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
       if (fixedRate.isPresent()) {
         return fixedRate.getAsDouble();
@@ -188,7 +188,7 @@ public final class ImmutablePricingEnvironment
       }
     }
     // valuation date on the publication date, check if fixing present in time series
-    if(valuationDate.equals(publicationDate)) {
+    if (valuationDate.equals(publicationDate)) {
       OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
       if (fixedRate.isPresent()) {
         return fixedRate.getAsDouble();
