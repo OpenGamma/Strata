@@ -11,13 +11,12 @@ import org.assertj.core.data.Offset;
 
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.collect.result.Result;
 
 /**
  * An assert helper that provides useful AssertJ assertion
- * methods for {@link Result} instances.
+ * methods for {@link CurrencyAmount} instances.
  * <p>
- * These allow {code Result}s to be inspected in tests in the
+ * These allow {code CurrencyAmount}s to be inspected in tests in the
  * same fluent style as other basic classes.
  * <p>
  * So the following:
@@ -110,6 +109,15 @@ public class CurrencyAmountAssert extends AbstractAssert<CurrencyAmountAssert, C
     return this;
   }
 
+  /**
+   * Assert that the {@code CurrencyAmount} has the same currency as
+   * the supplied {@code CurrencyAmount} and that the amount is within
+   * range of the supplied {@code CurrencyAmount}'s amount.
+   *
+   * @param expected  the expected {@code CurrencyAmount}
+   * @return this if the amount matches the expectation, else
+   *   throw an {@code AssertionError}
+   */
   public CurrencyAmountAssert isEqualTo(CurrencyAmount expected, Offset<Double> tolerance) {
     isNotNull();
     hasCurrency(expected.getCurrency());

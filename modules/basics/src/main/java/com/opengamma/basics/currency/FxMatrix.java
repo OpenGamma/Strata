@@ -33,19 +33,31 @@ public class FxMatrix {
   public static final FxMatrix EMPTY_FX_MATRIX = builder().build();
 
   /**
-   * The map between the currencies and their order. An ImmutableMap is
-   * used so that the currencies are correctly ordered when the
-   * {@link #toString()} method is called.
+   * The map between the currencies and their position within the
+   * {@code rates} array. Generally the position reflects the order
+   * in which the currencies were added, so the first currency added
+   * will be assigned 0, the second 1 etc.
+   * <p>
+   * An ImmutableMap is used so that the currencies are correctly
+   * ordered when the {@link #toString()} method is called.
    */
   private final ImmutableMap<Currency, Integer> currencies;
 
   /**
-   * The matrix with all exchange rates. The entry [i][j] is such that
-   * 1.0 * Currency[i] = _fxrate * Currency[j]. If _currencies.get(EUR) = 0 and
-   * _currencies.get(USD) = 1, the element _fxRate[0][1] is likely to be something
-   * like 1.40 and _fxRate[1][0] like 0.7142... The rate _fxRate[1][0] will be
-   * computed from _fxRate[0][1] when the object is constructed. All the element
-   * of the matrix are meaningful and coherent.
+   * The matrix with all exchange rates. Each row represents the
+   * rates required to convert a unit of currency to all other
+   * currencies.
+   * <p>
+   * If currencies c1 and c2 are assigned indexes i and j in the
+   * {@code currencies} map, then the entry [i][j] is such that
+   * 1 unit of currency c1 is worth {@code rates[i][j]} units of
+   * currency c2.
+   * <p>
+   * If {@code currencies.get(EUR)} = 0 and {@code currencies.get(USD)} = 1,
+   * then the element {@code rates[0][1]} is likely to be around
+   * 1.40 and {@code rates[1][0]} around 0.7142. The rate {@code rates[1][0]}
+   * will be computed from fxRate[0][1] when the object is constructed.
+   * All the element of the matrix are meaningful and coherent.
    */
   private final double[][] rates;
 
@@ -99,11 +111,11 @@ public class FxMatrix {
   }
 
   /**
-   * Convert a currency amount into a amount in the specified currency
-   * using the rates in this matrix.
+   * Convert a {@code CurrencyAmount} into an amount in the specified
+   * currency using the rates in this matrix.
    *
-   * @param amount  the currency amount, not null
-   * @param ccy  the currency to convert all entries to
+   * @param amount  the {@code CurrencyAmount} to be converted
+   * @param ccy  the currency to convert the {@code CurrencyAmount} to
    * @return the amount converted to the requested currency
    */
   public CurrencyAmount convert(CurrencyAmount amount, Currency ccy) {
@@ -115,10 +127,10 @@ public class FxMatrix {
   }
 
   /**
-   * Convert a multiple currency amount into a amount in the specified currency
-   * using the rates in this matrix.
+   * Convert a {@code MultipleCurrencyAmount} into an amount in the
+   * specified currency using the rates in this matrix.
    *
-   * @param amount  the multiple currency amount, not null
+   * @param amount  the {@code MultipleCurrencyAmount} to be converted
    * @param ccy  the currency to convert all entries to
    * @return the total amount in the requested currency
    */
@@ -171,14 +183,14 @@ public class FxMatrix {
   }
 
   @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    FxMatrix other = (FxMatrix) obj;
+    FxMatrix other = (FxMatrix) o;
     return currencies.equals(other.currencies) && Arrays.deepEquals(rates, other.rates);
   }
 
@@ -188,9 +200,9 @@ public class FxMatrix {
    *
    * @return a collector for creating an {@code FxMatrix} from a stream
    */
-  public static Collector<? super Pair<CurrencyPair, Double>, Builder, FxMatrix> pairsToFxMatrix() {
-    return collector((builder, pair) ->
-        builder.addRate(pair.getFirst(), pair.getSecond()));
+  public static Collector<? super Map.Entry<CurrencyPair, Double>, Builder, FxMatrix> entriesToFxMatrix() {
+    return collector((builder, entry) ->
+        builder.addRate(entry.getKey(), entry.getValue()));
   }
 
   /**
@@ -199,9 +211,9 @@ public class FxMatrix {
    *
    * @return a collector for creating an {@code FxMatrix} from a stream
    */
-  public static Collector<? super Map.Entry<CurrencyPair, Double>, Builder, FxMatrix> entriesToFxMatrix() {
-    return collector((builder, entry) ->
-        builder.addRate(entry.getKey(), entry.getValue()));
+  public static Collector<? super Pair<CurrencyPair, Double>, Builder, FxMatrix> pairsToFxMatrix() {
+    return collector((builder, pair) ->
+        builder.addRate(pair.getFirst(), pair.getSecond()));
   }
 
   private static <T> Collector<T, Builder, FxMatrix> collector(BiConsumer<Builder, T> accumulator) {
@@ -305,7 +317,7 @@ public class FxMatrix {
      *     into a pending set for later processing, for example after another
      *     pair containing one of the currencies and a currency already in
      *     the matrix is added. If no such event occurs, then an exception
-     *     will be thrown whe {@link #build()} is called.</li>
+     *     will be thrown when {@link #build()} is called.</li>
      *   <li>
      *     The builder is non-empty and one of the currencies in the pair
      *     is already in the matrix, whilst the other is not. In this case
@@ -320,9 +332,9 @@ public class FxMatrix {
      *     updated currency. All rates involving the updated currency will
      *     be recalculated using the new rate.
      *     <p>
-     *     Note that due one of the rates being treated as a reference, this
+     *     Note that due to one of the rates being treated as a reference, this
      *     operation is not symmetric. That is, the result of
-     *     {@code matrix.addRate(USD, EUR, 1.23)} will be different from the
+     *     {@code matrix.addRate(USD, EUR, 1.23)} will be different to the
      *     result of {@code matrix.addRate(EUR, USD, 1 / 1.23)} when there
      *     are other currencies present in the builder.
      *   </li>
@@ -330,8 +342,8 @@ public class FxMatrix {
      * An invocation of the method with {@code builder.addRate(GBP, USD, 1.6)}
      * indicates that 1 pound sterling is worth 1.6 US dollars. It is
      * equivalent to: {@code builder.addRate(USD, GBP, 1 / 1.6)} (1 US dollar
-     * is worth 0.625 pounds sterling) for all cases except where the rates
-     * are being updated.
+     * is worth 0.625 pounds sterling) for all cases except where the USD/GBP
+     * rates is already in the matrix and so will be updated .
      *
      * @param ccy1  the first currency of the pair
      * @param ccy2  the second currency of the pair
@@ -400,12 +412,10 @@ public class FxMatrix {
           .filter(other.currencies::containsKey)
           .findFirst();
 
-      if (!common.isPresent()) {
+      Currency commonCurrency = common.orElseThrow(() -> {
         throw new IllegalArgumentException("There are no currencies in common between " +
             currencies.keySet() + " and " + other.currencies.keySet());
-      }
-
-      Currency commonCurrency = common.get();
+      });
 
       // Add in all currencies that we don't already have
       other.currencies.entrySet()
