@@ -6,6 +6,7 @@
 package com.opengamma.collect;
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -23,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.opengamma.collect.tuple.Pair;
 
 /**
  * Utilities that help bridge the gap between Java 8 and Google Guava.
@@ -389,4 +391,45 @@ public final class Guavate {
         Collector.Characteristics.UNORDERED);
   }
 
+  /**
+   * Collector used at the end of a stream to build an immutable map
+   * from a stream containing map entries.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableMap}.
+   * <p>
+   * This returns a map by converting each {@code Map.Entry} to a key and value.
+   * The input stream must resolve to unique keys.
+   * See {@link #toImmutableMap} for more details.
+   *
+   * @param <K> the type of the keys in the result map
+   * @param <V> the type of the values in the result map
+   * @return the immutable map collector
+   * @throws IllegalArgumentException if the same key is generated twice
+   */
+  public static <K, V> Collector<Map.Entry<K, V>, ?, ImmutableMap<K, V>> entriesToImmutableMap() {
+    return toImmutableMap(Map.Entry::getKey, Map.Entry::getValue);
+  }
+
+  /**
+   * Collector used at the end of a stream to build an immutable map
+   * from a stream containing pairs.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableMap}.
+   * <p>
+   * This returns a map by converting each stream element to a key and value.
+   * The input stream must resolve to unique keys.
+   * See {@link Collectors#toMap(Function, Function)} for more details.
+   *
+   * @param <K> the type of the keys in the result map
+   * @param <V> the type of the values in the result map
+   * @return the immutable map collector
+   * @throws IllegalArgumentException if the same key is generated twice
+   */
+  public static <K, V> Collector<Pair<K, V>, ?, ImmutableMap<K, V>> pairsToImmutableMap() {
+    return toImmutableMap(Pair::getFirst, Pair::getSecond);
+  }
 }
