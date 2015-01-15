@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,20 +45,20 @@ public class FxMatrix {
   private final ImmutableMap<Currency, Integer> currencies;
 
   /**
-   * The matrix with all exchange rates. Each row represents the
-   * rates required to convert a unit of currency to all other
-   * currencies.
+   * The matrix with all the exchange rates. Each row represents the
+   * rates required to convert a unit of particular currency to all
+   * other currencies in the matrix.
    * <p>
-   * If currencies c1 and c2 are assigned indexes i and j in the
-   * {@code currencies} map, then the entry [i][j] is such that
+   * If currencies c1 and c2 are assigned indexes i and j respectively
+   * in the {@code currencies} map, then the entry [i][j] is such that
    * 1 unit of currency c1 is worth {@code rates[i][j]} units of
    * currency c2.
    * <p>
    * If {@code currencies.get(EUR)} = 0 and {@code currencies.get(USD)} = 1,
    * then the element {@code rates[0][1]} is likely to be around
    * 1.40 and {@code rates[1][0]} around 0.7142. The rate {@code rates[1][0]}
-   * will be computed from fxRate[0][1] when the object is constructed.
-   * All the element of the matrix are meaningful and coherent.
+   * will be computed from fxRate[0][1] when the object is constructed
+   * by the builder. All the element of the matrix are meaningful and coherent.
    */
   private final double[][] rates;
 
@@ -152,8 +153,12 @@ public class FxMatrix {
    * should have at least one currency in common with this one.
    * The additional currencies from the other matrix are added one by one
    * and the exchange rate data created is coherent with some data in this
-   * matrix. If the data in the two matrices are not coherent then there is
-   * no guarantee which data will be used and the final result may be incoherent.
+   * matrix.
+   * <p>
+   * Note that if the other matrix has more than one currency in common with
+   * this one, and the rates for pairs of those currencies are different to
+   * the equivalents in this matrix, then the rates between the additional
+   * currencies is this matrix will differ from those in the original.
    *
    * @param other  the matrix to be merged into this one
    * @return a new matrix containing the rates from this matrix
@@ -303,8 +308,15 @@ public class FxMatrix {
     }
 
     /**
-     * Add a new pair of currencies to the builder. There are a number
-     * of possible outcomes:
+     * Add a new pair of currencies to the builder.
+     * <p>
+     * An invocation of the method with {@code builder.addRate(GBP, USD, 1.6)}
+     * indicates that 1 pound sterling is worth 1.6 US dollars. It is
+     * equivalent to: {@code builder.addRate(USD, GBP, 1 / 1.6)} (1 US dollar
+     * is worth 0.625 pounds sterling) for all cases except where the USD/GBP
+     * rates is already in the matrix and so will be updated.
+     * </p>
+     * There are a number of possible outcomes when this  method is called:
      * <ul>
      *   <li>
      *     The builder is currently empty. In this case these currencies
@@ -339,11 +351,6 @@ public class FxMatrix {
      *     are other currencies present in the builder.
      *   </li>
      * </ul>
-     * An invocation of the method with {@code builder.addRate(GBP, USD, 1.6)}
-     * indicates that 1 pound sterling is worth 1.6 US dollars. It is
-     * equivalent to: {@code builder.addRate(USD, GBP, 1 / 1.6)} (1 US dollar
-     * is worth 0.625 pounds sterling) for all cases except where the USD/GBP
-     * rates is already in the matrix and so will be updated .
      *
      * @param ccy1  the first currency of the pair
      * @param ccy2  the second currency of the pair
@@ -368,7 +375,7 @@ public class FxMatrix {
     /**
      * Adds a collection of new rates for currency pairs to the builder.
      * Pairs that are already in the builder are treated as updates to the
-     * existing rates
+     * existing ratese -> !e.getKey().equals(commonCurrency) && !currencies.containsKey(e.getKey())
      *
      * @param rates  the currency pairs and rates to be added
      * @return the builder updated with the new rates
@@ -419,10 +426,14 @@ public class FxMatrix {
       // Add in all currencies that we don't already have
       other.currencies.entrySet()
           .stream()
-          .filter(e -> !e.getKey().equals(commonCurrency) && !currencies.containsKey(e.getKey()))
+          .filter(isNewCurrency(commonCurrency))
           .forEach(e -> addCurrencyPair(commonCurrency, e.getKey(), other.getRate(commonCurrency, e.getKey())));
 
       return this;
+    }
+
+    private Predicate<Map.Entry<Currency, Integer>> isNewCurrency(Currency commonCurrency) {
+      return e -> !e.getKey().equals(commonCurrency) && !currencies.containsKey(e.getKey());
     }
 
     private double getRate(Currency ccy1, Currency ccy2) {
