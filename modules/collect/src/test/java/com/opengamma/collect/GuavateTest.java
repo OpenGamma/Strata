@@ -187,12 +187,14 @@ public class GuavateTest {
 
   public void test_mapEntriesToImmutableMap() {
 
-    Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
+    Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5);
+    Map<String, Integer> expected = ImmutableMap.of("a", 1, "c", 3, "e", 5);
     ImmutableMap<String, Integer> output =
         input.entrySet()
             .stream()
+            .filter(e -> e.getValue() % 2 == 1)
             .collect(entriesToImmutableMap());
-    assertEquals(output, input);
+    assertEquals(output, expected);
   }
 
   public void test_pairsToImmutableMap() {

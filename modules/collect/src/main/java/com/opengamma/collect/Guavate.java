@@ -393,7 +393,20 @@ public final class Guavate {
 
   /**
    * Collector used at the end of a stream to build an immutable map
-   * from a stream containing map entries.
+   * from a stream containing map entries. This is a common case if a map's
+   * @code entrySet} has undergone a {@code filter} operation. For example:
+   * <pre>
+   *   {@code
+   *       Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
+   *       ImmutableMap<String, Integer> output =
+   *         input.entrySet()
+   *           .stream()
+   *           .filter(e -> e.getValue() % 2 == 1)
+   *           .collect(entriesToImmutableMap());
+   *
+   *       // Produces map with "a" -> 1, "c" -> 3, "e" -> 5
+   *   }
+   * </pre>
    * <p>
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
@@ -401,7 +414,6 @@ public final class Guavate {
    * <p>
    * This returns a map by converting each {@code Map.Entry} to a key and value.
    * The input stream must resolve to unique keys.
-   * See {@link #toImmutableMap} for more details.
    *
    * @param <K> the type of the keys in the result map
    * @param <V> the type of the values in the result map
@@ -414,7 +426,21 @@ public final class Guavate {
 
   /**
    * Collector used at the end of a stream to build an immutable map
-   * from a stream containing pairs.
+   * from a stream containing pairs. This is a common case if a map's
+   * @code entrySet} has undergone a {@code map} operation with the
+   * {@code Map.Entry} converted to a {@code Pair}. For example:
+   * <pre>
+   *   {@code
+   *       Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
+   *       ImmutableMap<String, Double> output =
+   *         input.entrySet()
+   *           .stream()
+   *           .map(e -> Pair.of(e.getKey().toUpperCase(), Math.pow(e.getValue(), 2)))
+   *           .collect(pairsToImmutableMap());
+   *
+   *       // Produces map with "A" -> 1.0, "B" -> 4.0, "C" -> 9.0, "D" -> 16.0
+   *   }
+   * </pre>
    * <p>
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
@@ -422,7 +448,6 @@ public final class Guavate {
    * <p>
    * This returns a map by converting each stream element to a key and value.
    * The input stream must resolve to unique keys.
-   * See {@link Collectors#toMap(Function, Function)} for more details.
    *
    * @param <K> the type of the keys in the result map
    * @param <V> the type of the values in the result map

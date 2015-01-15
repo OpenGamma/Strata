@@ -30,13 +30,13 @@ import com.opengamma.basics.currency.CurrencyAmount;
  *   CurrencyAmount result = someMethodCall();
  *   assertThat(result)
  *     .hasCurrency(USD)
- *     .hasAmount(123.45, 1e-6);
+ *     .hasAmount(123.45, within(1e-6));
  * </pre>
  * or:
  * <pre>
  *   CurrencyAmount result = someMethodCall();
  *   CurrencyAmount expected = CurrencyAmount.of(USD, 123.45);
- *   assertThat(result).isEqualTo(expected, 1e-6);
+ *   assertThat(result).isEqualTo(expected, within(1e-6));
  * </pre>
  * <p>
  * In order to be able to use a statically imported assertThat()
