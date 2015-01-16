@@ -154,11 +154,7 @@ public final class StubCalculation
    */
   RateObservation createRateObservation(LocalDate fixingDate, IborIndex defaultIndex) {
     if (isInterpolated()) {
-      if (fixingDate.plus(index.getTenor()).isAfter(fixingDate.plus(indexInterpolated.getTenor()))) {
-        return IborInterpolatedRateObservation.of(indexInterpolated, index, fixingDate);
-      } else {
-        return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate);
-      }
+      return IborInterpolatedRateObservation.of(index, indexInterpolated, fixingDate);
     } else if (isFloatingRate()) {
       return IborRateObservation.of(index, fixingDate);
     } else if (isFixedRate()) {
