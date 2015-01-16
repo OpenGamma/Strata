@@ -7,7 +7,6 @@ package com.opengamma.platform.pricer.impl.observation;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.OptionalDouble;
@@ -57,22 +56,17 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     if (valuationDate.isBefore(startPublicationDate)) {// No fixing to analyze. Go directly to approximation and cut-off.
       return rateForward(env, observation);
     }
-    double accumulatedInterest = 0.0d;
     ObservationDetails details = new ObservationDetails(env, observation);
-    accumulatedInterest = details.calculateTotalInterest();
-    // final rate
-    return accumulatedInterest / details.getAccrualFactorTotal();
+    return details.calculateRate();
   }
 
   // Check that the fixing is present. Throws an exception if not and return the rate as double.
   private static double checkedFixing(LocalDate currentFixingTs, LocalDateDoubleTimeSeries indexFixingDateSeries,
       OvernightIndex index) {
     OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixingTs);
-    if (!fixedRate.isPresent()) {
-      throw new OpenGammaRuntimeException("Could not get fixing value of index " + index.getName() +
-          " for date " + currentFixingTs);
-    }
-    return fixedRate.getAsDouble();
+    return fixedRate.orElseThrow(() ->
+        new OpenGammaRuntimeException("Could not get fixing value of index " + index.getName() +
+            " for date " + currentFixingTs));
   }
 
   // Compute the approximated rate in the case where the whole period is forward. 
@@ -235,19 +229,11 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       }
       return accumulatedInterest;
     }
-    
-    public double calculateTotalInterest() {
-      double accumulatedInterest = 0.0d;
-      accumulatedInterest += this.pastAccumulation();
-      accumulatedInterest += this.valuationDateAccumulation();
-      accumulatedInterest += this.approximatedForwardAccumulation();
-      accumulatedInterest += this.cutOffAccumulation();
-      return accumulatedInterest;
-    }
 
-    // Returns the total accrual factor for the observation.
-    public double getAccrualFactorTotal() {
-      return accrualFactorTotal;
+    public double calculateRate() {
+      return (pastAccumulation() + valuationDateAccumulation()
+          + approximatedForwardAccumulation() + cutOffAccumulation())
+          / accrualFactorTotal;
     }
 
   }
