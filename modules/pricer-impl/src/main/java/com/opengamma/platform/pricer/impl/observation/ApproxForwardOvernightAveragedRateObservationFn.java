@@ -163,11 +163,9 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       accrualFactorTotal = accrualFactorAccumulated;
       nbPeriods = accrualFactorsCstr.size();
       // Dealing with Rate cutoff: replace the duplicated periods.
-      if (cutoffOffset > 1) { // Cut-off period
-        for (int i = 0; i < cutoffOffset - 1; i++) {
-          fixingDatesCstr.set(nbPeriods - 1 - i, fixingDatesCstr.get(nbPeriods - cutoffOffset));
-          publicationDatesCstr.set(nbPeriods - 1 - i, publicationDatesCstr.get(nbPeriods - cutoffOffset));
-        }
+      for (int i = 0; i < cutoffOffset - 1; i++) {
+        fixingDatesCstr.set(nbPeriods - 1 - i, fixingDatesCstr.get(nbPeriods - cutoffOffset));
+        publicationDatesCstr.set(nbPeriods - 1 - i, publicationDatesCstr.get(nbPeriods - cutoffOffset));
       }
       fixingDates = Collections.unmodifiableList(fixingDatesCstr);
       onRatePeriodEffectiveDates = Collections.unmodifiableList(onRatePeriodEffectiveDatesCstr);
@@ -209,14 +207,13 @@ public class ApproxForwardOvernightAveragedRateObservationFn
 
     //  Accumulated rate - approximated forward rates if not all fixed and not part of cutoff
     public double approximatedForwardAccumulation() {
-      double accumulatedInterest = 0.0d;
       int nbPeriodNotCutOff = nbPeriods - cutoffOffset + 1;
       if (fixedPeriod < nbPeriodNotCutOff) {
         LocalDate startDateApprox = onRatePeriodEffectiveDates.get(fixedPeriod);
         LocalDate endDateApprox = onRatePeriodMaturityDates.get(nbPeriodNotCutOff - 1);
-        accumulatedInterest = approximatedInterest(env, index, startDateApprox, endDateApprox);
+        return approximatedInterest(env, index, startDateApprox, endDateApprox);
       }
-      return accumulatedInterest;
+      return 0.0d;
     }
 
     // Accumulated rate - cutoff part if not fixed
