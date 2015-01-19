@@ -286,6 +286,7 @@ public class ImmutablePricingEnvironmentTest {
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, NEXT_DATE), 0.0123d, 0d);
   }
+  
   //-------------------------------------------------------------------------
   public void test_overnightIndexRateFixing_beforePublication_inTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV2_DATE, 0.0123d);
@@ -370,9 +371,7 @@ public class ImmutablePricingEnvironmentTest {
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertThrows(
-        () -> test.overnightIndexRatePeriod(USD_FED_FUND, NEXT_DATE, VAL_DATE),
-        IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriod(USD_FED_FUND, NEXT_DATE, VAL_DATE));
   }
 
   public void test_overnightIndexRateForward_BadDateInPast() {
@@ -384,9 +383,7 @@ public class ImmutablePricingEnvironmentTest {
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertThrows(
-        () -> test.overnightIndexRatePeriod(USD_FED_FUND, PREV2_DATE, PREV_DATE),
-        IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriod(USD_FED_FUND, PREV2_DATE, PREV_DATE));
   }
 
   public void test_overnightIndexRateForward_forward() {

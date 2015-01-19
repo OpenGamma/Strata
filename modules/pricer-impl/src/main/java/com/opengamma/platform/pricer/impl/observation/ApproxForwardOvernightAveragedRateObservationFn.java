@@ -53,20 +53,12 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     LocalDate valuationDate = env.getValuationDate();
     LocalDate startFixingDate = observation.getStartDate();
     LocalDate startPublicationDate = index.calculatePublicationFromFixing(startFixingDate);
-    if (valuationDate.isBefore(startPublicationDate)) {// No fixing to analyze. Go directly to approximation and cut-off.
+    // No fixing to analyze. Go directly to approximation and cut-off.
+    if (valuationDate.isBefore(startPublicationDate)) {
       return rateForward(env, observation);
     }
     ObservationDetails details = new ObservationDetails(env, observation);
     return details.calculateRate();
-  }
-
-  // Check that the fixing is present. Throws an exception if not and return the rate as double.
-  private static double checkedFixing(LocalDate currentFixingTs, LocalDateDoubleTimeSeries indexFixingDateSeries,
-      OvernightIndex index) {
-    OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixingTs);
-    return fixedRate.orElseThrow(() ->
-        new OpenGammaRuntimeException("Could not get fixing value of index " + index.getName() +
-            " for date " + currentFixingTs));
   }
 
   // Compute the approximated rate in the case where the whole period is forward. 
@@ -108,7 +100,8 @@ public class ApproxForwardOvernightAveragedRateObservationFn
   }
 
   // Compute the accrued interest on a given period by approximation.
-  private static double approximatedInterest(PricingEnvironment env, OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+  private static double approximatedInterest(PricingEnvironment env, OvernightIndex index, 
+      LocalDate startDate, LocalDate endDate) {
     double remainingFixingAccrualFactor = index.getDayCount().yearFraction(startDate, endDate);
     double forwardRate = env.overnightIndexRatePeriod(index, startDate, endDate);
     return Math.log(1.0 + forwardRate * remainingFixingAccrualFactor);
@@ -128,7 +121,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     private final OvernightIndex index;
     private final int cutoffOffset;
     private final PricingEnvironment env;
-    
+
     // Construct all the details related to the observation: fixing dates, publication dates, start and end dates, 
     // accrual factors, number of already fixed ON rates.
     public ObservationDetails(PricingEnvironment env, OvernightAveragedRateObservation observation) {
@@ -138,14 +131,15 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       List<LocalDate> onRatePeriodEffectiveDatesCstr = new ArrayList<>();
       List<LocalDate> onRatePeriodMaturityDatesCstr = new ArrayList<>();
       List<LocalDate> publicationDatesCstr = new ArrayList<>();
-      List<Double> accrualFactorsCstr = new ArrayList<>();      
+      List<Double> accrualFactorsCstr = new ArrayList<>();
       LocalDate startFixingDate = observation.getStartDate();
       LocalDate endFixingDateP1 = observation.getEndDate();
       LocalDate currentFixing = startFixingDate;
       int publicationOffset = index.getPublicationDateOffset(); // Publication offset is 0 or 1 day.
       cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
       double accrualFactorAccumulated = 0.0d;
-      while (currentFixing.isBefore(endFixingDateP1)) { // All dates involved in the period are computed. Potentially slow.
+      while (currentFixing.isBefore(endFixingDateP1)) { 
+        // All dates involved in the period are computed. Potentially slow.
         // The fixing periods are added as long as their start date is (strictly) before the fixing period end-date. 
         // When the fixing period end-date is not a good business day in the index calendar, 
         // the last fixing end date will be after the fixing end-date.
@@ -227,10 +221,20 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       return accumulatedInterest;
     }
 
+    // Calculate the total rate.
     public double calculateRate() {
       return (pastAccumulation() + valuationDateAccumulation()
           + approximatedForwardAccumulation() + cutOffAccumulation())
           / accrualFactorTotal;
+    }
+
+    // Check that the fixing is present. Throws an exception if not and return the rate as double.
+    private static double checkedFixing(LocalDate currentFixingTs, LocalDateDoubleTimeSeries indexFixingDateSeries,
+        OvernightIndex index) {
+      OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixingTs);
+      return fixedRate.orElseThrow(() ->
+          new OpenGammaRuntimeException("Could not get fixing value of index " + index.getName() +
+              " for date " + currentFixingTs));
     }
 
   }

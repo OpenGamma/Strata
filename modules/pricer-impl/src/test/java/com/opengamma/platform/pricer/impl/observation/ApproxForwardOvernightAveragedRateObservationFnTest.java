@@ -28,7 +28,8 @@ import com.opengamma.platform.pricer.PricingEnvironment;
  */
 public class ApproxForwardOvernightAveragedRateObservationFnTest {
 
-  private static final LocalDate DUMMY_ACCRUAL_DATE = date(2015, 1, 1); // Accrual dates irrelevant for the rate
+  private static final LocalDate DUMMY_ACCRUAL_START_DATE = date(2015, 1, 1); // Accrual dates irrelevant for the rate
+  private static final LocalDate DUMMY_ACCRUAL_END_DATE = date(2015, 1, 1); // Accrual dates irrelevant for the rate
   private static final LocalDate FIXING_START_DATE = date(2015, 1, 8);
   private static final LocalDate FIXING_END_DATE = date(2015, 1, 15); // 1w only to decrease data
   private static final LocalDate[] FIXING_DATES = new LocalDate[] {
@@ -47,12 +48,11 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   private static final ApproxForwardOvernightAveragedRateObservationFn OBS_FN_APPROX_FWD = 
       ApproxForwardOvernightAveragedRateObservationFn.DEFAULT;
   private static final ForwardOvernightAveragedRateObservationFn OBS_FN_DET_FWD = 
-      ForwardOvernightAveragedRateObservationFn.DEFAULT;
-  
+      ForwardOvernightAveragedRateObservationFn.DEFAULT; 
 
   /** Compare the rate estimated with approximation to the rate estimated by daily forward. */
   @Test
-  public void comparisonApproxVNoApprox() { 
+  public void comparisonApproxVNoApprox() {
     LocalDate valuationDate = date(2015, 1, 5);
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
@@ -71,8 +71,8 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     }
     double rateCmp = (investmentFactor - 1.0d) / totalAf;
     when(mockEnv.overnightIndexRatePeriod(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE)).thenReturn(rateCmp);
-    double rateApprox = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
-    double rateDet = OBS_FN_DET_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+    double rateApprox = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    double rateDet = OBS_FN_DET_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
     assertEquals(rateDet, rateApprox, TOLERANCE_APPROX);
   }
   
@@ -99,7 +99,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = Math.log(1.0 + rateCmp * totalAf) / totalAf;
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }
@@ -131,7 +131,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
     double rateExpected = (Math.log(1.0 + rateCmp * afApprox) + FORWARD_RATES[4] * afCutOff) / (afApprox + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }
@@ -179,7 +179,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         / (afKnown + afApprox + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }
@@ -234,7 +234,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         / (afKnown + afApprox + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }
@@ -289,7 +289,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         / (afKnown + afApprox + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }
@@ -341,7 +341,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         / (afKnown + afApprox);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }
@@ -370,7 +370,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
     }
     when(mockEnv.getValuationDate()).thenReturn(valuationDate);
-    OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+    OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
   }
 
   /** Two days cutoff, all ON rates already fixed. */
@@ -412,7 +412,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
         / (afKnown + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_DATE, DUMMY_ACCRUAL_DATE);
+      double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
   }

@@ -7,7 +7,6 @@ package com.opengamma.platform.pricer.impl.observation;
 
 import java.time.LocalDate;
 
-import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
@@ -40,10 +39,7 @@ public class ForwardOvernightAveragedRateObservationFn
       LocalDate startDate,
       LocalDate endDate) {
     OvernightIndex index = observation.getIndex();
-    HolidayCalendar calendar = index.getFixingCalendar();
-    LocalDate startFixingDate = observation.getStartDate();
-    LocalDate endFixingDateP1 = observation.getEndDate();
-    LocalDate lastNonCutoffFixing = endFixingDateP1;
+    LocalDate lastNonCutoffFixing = observation.getEndDate();
     int cutoffOffset = observation.getRateCutOffDays() > 1 ? observation.getRateCutOffDays() : 1;
     double accumulatedInterest = 0.0d;
     double accrualFactorTotal = 0.0d;
@@ -52,7 +48,7 @@ public class ForwardOvernightAveragedRateObservationFn
     // the last fixing end date will be after the fixing end-date.
     double cutoffAccrualFactor = 0.0;
     for (int i = 0; i < cutoffOffset; i++) {
-      lastNonCutoffFixing = calendar.previous(lastNonCutoffFixing);
+      lastNonCutoffFixing = index.getFixingCalendar().previous(lastNonCutoffFixing);
       LocalDate cutoffEffectiveDate = index.calculateEffectiveFromFixing(lastNonCutoffFixing);
       LocalDate cutoffMaturityDate = index.calculateMaturityFromEffective(cutoffEffectiveDate);
       double accrualFactor = index.getDayCount().yearFraction(cutoffEffectiveDate, cutoffMaturityDate);
@@ -61,7 +57,7 @@ public class ForwardOvernightAveragedRateObservationFn
     }
     double forwardRateCutOff = env.overnightIndexRate(index, lastNonCutoffFixing);
     accumulatedInterest += cutoffAccrualFactor * forwardRateCutOff;
-    LocalDate currentFixingNonCutoff = startFixingDate;
+    LocalDate currentFixingNonCutoff = observation.getStartDate();
     while (currentFixingNonCutoff.isBefore(lastNonCutoffFixing)) {
       // All dates involved in the period are computed. Potentially slow.
       // The fixing periods are added as long as their start date is (strictly) before the no cutoff period end-date.

@@ -179,19 +179,12 @@ public final class ImmutablePricingEnvironment
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(fixingDate, "fixingDate");
     LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
-    if (valuationDate.isAfter(publicationDate)) { // historic rate must be present
+    if (!publicationDate.isAfter(valuationDate)) {
       OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
       if (fixedRate.isPresent()) {
         return fixedRate.getAsDouble();
-      } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
+      } else if (publicationDate.isBefore(valuationDate)) { // the fixing is required
         throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-      }
-    }
-    // valuation date on the publication date, check if fixing present in time series
-    if (valuationDate.equals(publicationDate)) {
-      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-      if (fixedRate.isPresent()) {
-        return fixedRate.getAsDouble();
       }
     }
     // forward rate
@@ -208,8 +201,8 @@ public final class ImmutablePricingEnvironment
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(startDate, "startDate");
     ArgChecker.notNull(endDate, "endDate");
-    ArgChecker.isTrue(startDate.isBefore(endDate), "start date should be before end date");
-    ArgChecker.isFalse(valuationDate.isAfter(startDate), "valuation date should be before or on the start date");
+    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+    ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
     double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
     return multicurve.getSimplyCompoundForwardRate(
         Legacy.overnightIndex(index), relativeTime(startDate), relativeTime(endDate), fixingYearFraction);
