@@ -12,6 +12,7 @@ import static com.opengamma.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.basics.index.FxIndices.WM_GBP_USD;
 import static com.opengamma.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
@@ -20,6 +21,7 @@ import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
@@ -40,6 +42,7 @@ public class ImmutablePricingEnvironmentTest {
 
   private static final com.opengamma.util.money.Currency OLD_GBP = com.opengamma.util.money.Currency.GBP;
   private static final com.opengamma.util.money.Currency OLD_USD = com.opengamma.util.money.Currency.USD;
+  private static final LocalDate PREV2_DATE = LocalDate.of(2014, 6, 26);
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
   private static final LocalDate NEXT_DATE = LocalDate.of(2014, 7, 1);
@@ -282,6 +285,124 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, NEXT_DATE), 0.0123d, 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_overnightIndexRateFixing_beforePublication_inTimeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV2_DATE, 0.0123d);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(SwapMockData.MULTICURVE_OIS)
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV2_DATE), 0.0123d, 0d);
+  }
+
+  public void test_overnightIndexRateFixing_beforePublication_NotInTimeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(SwapMockData.MULTICURVE_OIS)
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertThrows(
+        () -> test.overnightIndexRate(USD_FED_FUND, PREV2_DATE),
+        PricingException.class);
+  }
+
+  public void test_overnightIndexRateFixing_publication_inTimeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.0123d);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(SwapMockData.MULTICURVE_OIS)
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV_DATE), 0.0123d, 0d);
+  }
+
+  public void test_overnightIndexRateFixing_publication_NotInTimeSeries() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
+    LocalDate effectiveDate = USD_FED_FUND.calculateEffectiveFromFixing(PREV_DATE);
+    LocalDate maturityDate = USD_FED_FUND.calculateMaturityFromEffective(effectiveDate);
+    double effective = -ACT_ACT_ISDA.yearFraction(effectiveDate, VAL_DATE);
+    double maturity = ACT_ACT_ISDA.yearFraction(VAL_DATE, maturityDate);
+    double yearFraction = USD_FED_FUND.getDayCount().yearFraction(effectiveDate, maturityDate);
+    Mockito.when(mock.getSimplyCompoundForwardRate(
+        Legacy.overnightIndex(USD_FED_FUND), effective, maturity, yearFraction)).thenReturn(0.0123d);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(mock)
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV_DATE), 0.0123d, 0d);    
+  }
+
+  public void test_overnightIndexRateFixing_afterPublication() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
+    LocalDate effectiveDate = USD_FED_FUND.calculateEffectiveFromFixing(NEXT_DATE);
+    LocalDate maturityDate = USD_FED_FUND.calculateMaturityFromEffective(effectiveDate);
+    double effective = ACT_ACT_ISDA.yearFraction(VAL_DATE, effectiveDate);
+    double maturity = ACT_ACT_ISDA.yearFraction(VAL_DATE, maturityDate);
+    double yearFraction = USD_FED_FUND.getDayCount().yearFraction(effectiveDate, maturityDate);
+    Mockito.when(mock.getSimplyCompoundForwardRate(
+        Legacy.overnightIndex(USD_FED_FUND), effective, maturity, yearFraction)).thenReturn(0.0123d);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(mock)
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.overnightIndexRate(USD_FED_FUND, NEXT_DATE), 0.0123d, 0d);    
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_overnightIndexRateForward_badDatesNotSorted() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(mock)
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriod(USD_FED_FUND, NEXT_DATE, VAL_DATE));
+  }
+
+  public void test_overnightIndexRateForward_BadDateInPast() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(mock)
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriod(USD_FED_FUND, PREV2_DATE, PREV_DATE));
+  }
+
+  public void test_overnightIndexRateForward_forward() {
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
+    LocalDate startDate = NEXT_DATE;
+    LocalDate endDate = NEXT_DATE.plus(Period.ofMonths(3));
+    double startTime = ACT_ACT_ISDA.yearFraction(VAL_DATE, startDate);
+    double endTime = ACT_ACT_ISDA.yearFraction(VAL_DATE, endDate);
+    double yearFraction = USD_FED_FUND.getDayCount().yearFraction(startDate, endDate);
+    Mockito.when(mock.getSimplyCompoundForwardRate(
+        Legacy.overnightIndex(USD_FED_FUND), startTime, endTime, yearFraction)).thenReturn(0.0123d);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(mock)
+        .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.overnightIndexRatePeriod(USD_FED_FUND, startDate, endDate), 0.0123d, 0d);
   }
 
   //-------------------------------------------------------------------------

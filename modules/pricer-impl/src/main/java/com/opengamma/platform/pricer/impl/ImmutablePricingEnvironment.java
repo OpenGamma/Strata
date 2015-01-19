@@ -34,6 +34,7 @@ import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.index.FxIndex;
 import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.Index;
+import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Messages;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -170,6 +171,41 @@ public final class ImmutablePricingEnvironment
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
     return multicurve.getSimplyCompoundForwardRate(
         Legacy.iborIndex(index), relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(fixingDate, "fixingDate");
+    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
+    if (!publicationDate.isAfter(valuationDate)) {
+      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
+      if (fixedRate.isPresent()) {
+        return fixedRate.getAsDouble();
+      } else if (publicationDate.isBefore(valuationDate)) { // the fixing is required
+        throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
+      }
+    }
+    // forward rate
+    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
+    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+    double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
+    return multicurve.getSimplyCompoundForwardRate(
+        Legacy.overnightIndex(index), relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(startDate, "startDate");
+    ArgChecker.notNull(endDate, "endDate");
+    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+    ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
+    double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
+    return multicurve.getSimplyCompoundForwardRate(
+        Legacy.overnightIndex(index), relativeTime(startDate), relativeTime(endDate), fixingYearFraction);
   }
 
   //-------------------------------------------------------------------------
