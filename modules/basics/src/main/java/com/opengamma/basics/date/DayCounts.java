@@ -115,7 +115,7 @@ public final class DayCounts {
    *  From 2004-02-28 to 2008-02-28, ISDA rule = 4 + 1 / 366
    *  From 2004-02-28 to 2008-02-29, ISDA rule = 4 + 1 / 366
    * </pre>
-   * (Other strange example occur from 2004-02-29 and 2003-03-01).
+   * (Other strange examples occur from 2004-02-29 and 2003-03-01).
    * <p>
    * OpenGamma interprets the roll back rule to be that if the period ends on the <i>29th</i> February
    * it should be rolled back to the 28th, or to the 29th in a leap year.
@@ -219,7 +219,7 @@ public final class DayCounts {
    * The '30/360 ISDA' day count, which treats input day-of-month 31 specially.
    * <p>
    * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
-   * The deltaDay is then calculated once day-of-month adjustments have occurred.
+   * The deltaDay is calculated once day-of-month adjustments have occurred.
    * If the second day-of-month is 31 and the first day-of-month is 30 or 31, change the second day-of-month to 30.
    * If the first day-of-month is 31, change the first day-of-month to 30.
    * <p>
@@ -231,7 +231,7 @@ public final class DayCounts {
    * The '30U/360' day count, which treats input day-of-month 31 and end of February specially.
    * <p>
    * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
-   * The deltaDay is then calculated once day-of-month adjustments have occurred.
+   * The deltaDay is calculated once day-of-month adjustments have occurred.
    * If the schedule uses EOM convention and both dates are the last day of February,
    * change the second day-of-month to 30.
    * If the schedule uses EOM convention and the first date is the last day of February,
@@ -252,15 +252,15 @@ public final class DayCounts {
    * The '30E/360 ISDA' day count, which treats input day-of-month 31 and end of February specially.
    * <p>
    * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
-   * The deltaDay is then calculated once day-of-month adjustments have occurred.
+   * The deltaDay is calculated once day-of-month adjustments have occurred.
    * If the first day-of-month is 31, change the first day-of-month to 30.
    * If the second day-of-month is 31, change the second day-of-month to 30.
    * If the first date is the last day of February, change the first day-of-month to 30.
    * If the second date is the last day of February and it is not the maturity date,
    * change the second day-of-month to 30.
    * <p>
-   * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will assume
-   * that the second date is not the maturity date.
+   * The method {@link DayCount#yearFraction(LocalDate, LocalDate)} will throw an
+   * exception because schedule information is required for this day count.
    * <p>
    * Also known as '30E/360 German' or 'German'.
    * Defined by the 2006 ISDA definitions 4.16h.
@@ -270,7 +270,7 @@ public final class DayCounts {
    * The '30E/360' day count, which treats input day-of-month 31 specially.
    * <p>
    * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 360}.
-   * The deltaDay is then calculated once day-of-month adjustments have occurred.
+   * The deltaDay is calculated once day-of-month adjustments have occurred.
    * If the first day-of-month is 31, it is changed to 30.
    * If the second day-of-month is 31, it is changed to 30.
    * <p>
