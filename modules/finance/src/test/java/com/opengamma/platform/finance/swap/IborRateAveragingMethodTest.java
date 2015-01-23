@@ -24,8 +24,8 @@ public class IborRateAveragingMethodTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {IborRateAveragingMethod.WEIGHTED, "Weighted" },
-      {IborRateAveragingMethod.UNWEIGHTED, "Unweighted" },
+        {IborRateAveragingMethod.WEIGHTED, "Weighted"},
+        {IborRateAveragingMethod.UNWEIGHTED, "Unweighted"},
     };
   }
 

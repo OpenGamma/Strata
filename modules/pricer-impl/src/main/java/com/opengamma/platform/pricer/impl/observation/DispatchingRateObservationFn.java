@@ -65,11 +65,11 @@ public class DispatchingRateObservationFn
       RateObservationFn<IborAveragedRateObservation> iborAveragedRateObservationFn,
       RateObservationFn<OvernightAveragedRateObservation> overnightAveragedRateObservationFn) {
     this.iborRateObservationFn = ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
-    this.iborInterpolatedRateObservationFn = 
+    this.iborInterpolatedRateObservationFn =
         ArgChecker.notNull(iborInterpolatedRateObservationFn, "iborInterpolatedRateObservationFn");
-    this.iborAveragedRateObservationFn = 
+    this.iborAveragedRateObservationFn =
         ArgChecker.notNull(iborAveragedRateObservationFn, "iborAverageRateObservationFn");
-    this.overnightAveragedRateObservationFn = 
+    this.overnightAveragedRateObservationFn =
         ArgChecker.notNull(overnightAveragedRateObservationFn, "overnightAveragedRateObservationFn");
   }
 

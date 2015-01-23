@@ -29,8 +29,8 @@ public class PaymentRelativeToTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {PaymentRelativeTo.PERIOD_START, "PeriodStart" },
-      {PaymentRelativeTo.PERIOD_END, "PeriodEnd" },
+        {PaymentRelativeTo.PERIOD_START, "PeriodStart"},
+        {PaymentRelativeTo.PERIOD_END, "PeriodEnd"},
     };
   }
 

@@ -339,7 +339,7 @@ public class ImmutablePricingEnvironmentTest {
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV_DATE), 0.0123d, 0d);    
+    assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV_DATE), 0.0123d, 0d);
   }
 
   public void test_overnightIndexRateFixing_afterPublication() {
@@ -358,7 +358,7 @@ public class ImmutablePricingEnvironmentTest {
         .timeSeries(ImmutableMap.of(USD_FED_FUND, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.overnightIndexRate(USD_FED_FUND, NEXT_DATE), 0.0123d, 0d);    
+    assertEquals(test.overnightIndexRate(USD_FED_FUND, NEXT_DATE), 0.0123d, 0d);
   }
 
   //-------------------------------------------------------------------------

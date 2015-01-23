@@ -74,9 +74,9 @@ public class DefaultExpandedSwapLegPricerFn
         .mapToDouble(p -> periodFn.applyAsDouble(env, p))
         .sum();
     double valueEvents = swapLeg.getPaymentEvents().stream()
-      .mapToDouble(e -> eventFn.applyAsDouble(env, e))
-      .sum();
-     return valuePeriods + valueEvents;
+        .mapToDouble(e -> eventFn.applyAsDouble(env, e))
+        .sum();
+    return valuePeriods + valueEvents;
   }
 
 }

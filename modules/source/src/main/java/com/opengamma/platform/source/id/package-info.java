@@ -18,3 +18,4 @@
  */
 @javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.source.id;
+

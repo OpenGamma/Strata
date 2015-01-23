@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.source;
 
-import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,20 +27,12 @@ public class SearchTest {
   }
 
   public void typeCannotBeNull() {
-    assertThrows(() ->
-            Search.builder()
-                .categorisingType(null)
-                .build(),
-        IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> Search.builder().categorisingType(null).build());
   }
 
   public void attributesCannotBeNull() {
-    assertThrows(() ->
-        Search.builder()
-            .attributes(null)
-            .build(),
-        IllegalArgumentException.class);
- }
+    assertThrowsIllegalArg(() -> Search.builder().attributes(null).build());
+  }
 
   public void defaultSearchMatchesAll() {
 

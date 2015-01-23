@@ -30,11 +30,11 @@ public class ForwardOvernightAveragedRateObservationFnTest {
   private static final LocalDate FIXING_START_DATE = date(2015, 1, 8);
   private static final LocalDate FIXING_END_DATE = date(2015, 1, 15); // 1w only to decrease data
   private static final LocalDate[] FIXING_DATES = new LocalDate[] {
-    date(2015, 1, 7), date(2015, 1, 8), date(2015, 1, 9),
-    date(2015, 1, 12), date(2015, 1, 13), date(2015, 1, 14), date(2015, 1, 15)};
+      date(2015, 1, 7), date(2015, 1, 8), date(2015, 1, 9),
+      date(2015, 1, 12), date(2015, 1, 13), date(2015, 1, 14), date(2015, 1, 15)};
   private static final double[] FIXING_RATES = {
-    0.0012, 0.0023, 0.0034,
-    0.0045, 0.0056, 0.0067, 0.0078};
+      0.0012, 0.0023, 0.0034,
+      0.0045, 0.0056, 0.0067, 0.0078};
   private static final double TOLERANCE_RATE = 1.0E-10;
 
   //-------------------------------------------------------------------------
