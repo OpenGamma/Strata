@@ -240,7 +240,6 @@ public class TestHelper {
     assertThrows(runner, IllegalArgumentException.class);
   }
 
-
   /**
    * Asserts that the lambda-based code throws an exception
    * and that the cause of the exception is the supplied cause.
@@ -347,28 +346,28 @@ public class TestHelper {
    * 
    * @param clazz  the class to test
    */
-  public static <E extends Enum<E>>void coverEnum(Class<E> clazz) {
+  public static <E extends Enum<E>> void coverEnum(Class<E> clazz) {
     assertNotNull(clazz, "coverEnum() called with null class");
     ignoreThrows(() -> {
       Method method = clazz.getDeclaredMethod("values");
-      method.setAccessible(true);;
+      method.setAccessible(true);
       method.invoke(null);
     });
     for (E val : clazz.getEnumConstants()) {
       ignoreThrows(() -> {
         Method method = clazz.getDeclaredMethod("valueOf", String.class);
-        method.setAccessible(true);;
+        method.setAccessible(true);
         method.invoke(null, val.name());
       });
     }
     ignoreThrows(() -> {
       Method method = clazz.getDeclaredMethod("valueOf", String.class);
-      method.setAccessible(true);;
+      method.setAccessible(true);
       method.invoke(null, "");
     });
     ignoreThrows(() -> {
       Method method = clazz.getDeclaredMethod("valueOf", String.class);
-      method.setAccessible(true);;
+      method.setAccessible(true);
       method.invoke(null, (Object) null);
     });
   }
@@ -642,47 +641,47 @@ public class TestHelper {
 
   private static final Map<Class<?>, List<?>> SAMPLES =
       ImmutableMap.<Class<?>, List<?>>builder()
-        .put(String.class, Arrays.asList("Hello", "Goodbye", " ", ""))
-        .put(Byte.class, Arrays.asList((byte) 0, (byte) 1))
-        .put(Byte.TYPE, Arrays.asList((byte) 0, (byte) 1))
-        .put(Short.class, Arrays.asList((short) 0, (short) 1))
-        .put(Short.TYPE, Arrays.asList((short) 0, (short) 1))
-        .put(Integer.class, Arrays.asList((int) 0, (int) 1))
-        .put(Integer.TYPE, Arrays.asList((int) 0, (int) 1))
-        .put(Long.class, Arrays.asList((long) 0, (long) 1))
-        .put(Long.TYPE, Arrays.asList((long) 0, (long) 1))
-        .put(Float.class, Arrays.asList((float) 0, (float) 1))
-        .put(Float.TYPE, Arrays.asList((float) 0, (float) 1))
-        .put(Double.class, Arrays.asList((double) 0, (double) 1))
-        .put(Double.TYPE, Arrays.asList((double) 0, (double) 1))
-        .put(Character.class, Arrays.asList(' ', 'A', 'z'))
-        .put(Character.TYPE, Arrays.asList(' ', 'A', 'z'))
-        .put(Boolean.class, Arrays.asList(Boolean.TRUE, Boolean.FALSE))
-        .put(Boolean.TYPE, Arrays.asList(Boolean.TRUE, Boolean.FALSE))
-        .put(LocalDate.class, Arrays.asList(LocalDate.now(), LocalDate.of(2012, 6, 30)))
-        .put(LocalTime.class, Arrays.asList(LocalTime.now(), LocalTime.of(11, 30)))
-        .put(LocalDateTime.class, Arrays.asList(LocalDateTime.now(), LocalDateTime.of(2012, 6, 30, 11, 30)))
-        .put(OffsetTime.class, Arrays.asList(OffsetTime.now(), OffsetTime.of(11, 30, 0, 0, ZoneOffset.ofHours(1))))
-        .put(OffsetDateTime.class, Arrays.asList(
-            OffsetDateTime.now(), OffsetDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneOffset.ofHours(1))))
-        .put(ZonedDateTime.class, Arrays.asList(
-            ZonedDateTime.now(), ZonedDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneId.systemDefault())))
-        .put(Instant.class, Arrays.asList(Instant.now(), Instant.EPOCH))
-        .put(Year.class, Arrays.asList(Year.now(), Year.of(2012)))
-        .put(YearMonth.class, Arrays.asList(YearMonth.now(), YearMonth.of(2012, 6)))
-        .put(MonthDay.class, Arrays.asList(MonthDay.now(), MonthDay.of(12, 25)))
-        .put(Month.class, Arrays.asList(Month.JULY, Month.DECEMBER))
-        .put(DayOfWeek.class, Arrays.asList(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY))
-        .put(URI.class, Arrays.asList(URI.create("http://www.opengamma.com"), URI.create("http://www.joda.org")))
-        .put(Class.class, Arrays.asList(Throwable.class, RuntimeException.class, String.class))
-        .put(Object.class, Arrays.asList("", 6))
-        .put(Collection.class, Arrays.asList(new ArrayList<>()))
-        .put(List.class, Arrays.asList(new ArrayList<>()))
-        .put(Set.class, Arrays.asList(new HashSet<>()))
-        .put(SortedSet.class, Arrays.asList(new TreeSet<>()))
-        .put(ImmutableList.class, Arrays.asList(ImmutableList.<String>of()))
-        .put(ImmutableSet.class, Arrays.asList(ImmutableSet.<String>of()))
-        .put(ImmutableSortedSet.class, Arrays.asList(ImmutableSortedSet.<String>naturalOrder()))
-        .build();
+          .put(String.class, Arrays.asList("Hello", "Goodbye", " ", ""))
+          .put(Byte.class, Arrays.asList((byte) 0, (byte) 1))
+          .put(Byte.TYPE, Arrays.asList((byte) 0, (byte) 1))
+          .put(Short.class, Arrays.asList((short) 0, (short) 1))
+          .put(Short.TYPE, Arrays.asList((short) 0, (short) 1))
+          .put(Integer.class, Arrays.asList((int) 0, (int) 1))
+          .put(Integer.TYPE, Arrays.asList((int) 0, (int) 1))
+          .put(Long.class, Arrays.asList((long) 0, (long) 1))
+          .put(Long.TYPE, Arrays.asList((long) 0, (long) 1))
+          .put(Float.class, Arrays.asList((float) 0, (float) 1))
+          .put(Float.TYPE, Arrays.asList((float) 0, (float) 1))
+          .put(Double.class, Arrays.asList((double) 0, (double) 1))
+          .put(Double.TYPE, Arrays.asList((double) 0, (double) 1))
+          .put(Character.class, Arrays.asList(' ', 'A', 'z'))
+          .put(Character.TYPE, Arrays.asList(' ', 'A', 'z'))
+          .put(Boolean.class, Arrays.asList(Boolean.TRUE, Boolean.FALSE))
+          .put(Boolean.TYPE, Arrays.asList(Boolean.TRUE, Boolean.FALSE))
+          .put(LocalDate.class, Arrays.asList(LocalDate.now(), LocalDate.of(2012, 6, 30)))
+          .put(LocalTime.class, Arrays.asList(LocalTime.now(), LocalTime.of(11, 30)))
+          .put(LocalDateTime.class, Arrays.asList(LocalDateTime.now(), LocalDateTime.of(2012, 6, 30, 11, 30)))
+          .put(OffsetTime.class, Arrays.asList(OffsetTime.now(), OffsetTime.of(11, 30, 0, 0, ZoneOffset.ofHours(1))))
+          .put(OffsetDateTime.class, Arrays.asList(
+              OffsetDateTime.now(), OffsetDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneOffset.ofHours(1))))
+          .put(ZonedDateTime.class, Arrays.asList(
+              ZonedDateTime.now(), ZonedDateTime.of(2012, 6, 30, 11, 30, 0, 0, ZoneId.systemDefault())))
+          .put(Instant.class, Arrays.asList(Instant.now(), Instant.EPOCH))
+          .put(Year.class, Arrays.asList(Year.now(), Year.of(2012)))
+          .put(YearMonth.class, Arrays.asList(YearMonth.now(), YearMonth.of(2012, 6)))
+          .put(MonthDay.class, Arrays.asList(MonthDay.now(), MonthDay.of(12, 25)))
+          .put(Month.class, Arrays.asList(Month.JULY, Month.DECEMBER))
+          .put(DayOfWeek.class, Arrays.asList(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY))
+          .put(URI.class, Arrays.asList(URI.create("http://www.opengamma.com"), URI.create("http://www.joda.org")))
+          .put(Class.class, Arrays.asList(Throwable.class, RuntimeException.class, String.class))
+          .put(Object.class, Arrays.asList("", 6))
+          .put(Collection.class, Arrays.asList(new ArrayList<>()))
+          .put(List.class, Arrays.asList(new ArrayList<>()))
+          .put(Set.class, Arrays.asList(new HashSet<>()))
+          .put(SortedSet.class, Arrays.asList(new TreeSet<>()))
+          .put(ImmutableList.class, Arrays.asList(ImmutableList.<String>of()))
+          .put(ImmutableSet.class, Arrays.asList(ImmutableSet.<String>of()))
+          .put(ImmutableSortedSet.class, Arrays.asList(ImmutableSortedSet.<String>naturalOrder()))
+          .build();
 
 }

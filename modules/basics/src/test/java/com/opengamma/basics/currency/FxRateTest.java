@@ -112,16 +112,16 @@ public class FxRateTest {
   @DataProvider(name = "parseBad")
   Object[][] data_parseBad() {
     return new Object[][] {
-      {"AUD 1.25"},
-      {"AUD/GB 1.25"},
-      {"AUD GBP 1.25"},
-      {"AUD:GBP 1.25"},
-      {"123/456"},
-      {"EUR/GBP -1.25"},
-      {"EUR/GBP 0"},
-      {"EUR/EUR 1.25"},
-      {""},
-      {null},
+        {"AUD 1.25"},
+        {"AUD/GB 1.25"},
+        {"AUD GBP 1.25"},
+        {"AUD:GBP 1.25"},
+        {"123/456"},
+        {"EUR/GBP -1.25"},
+        {"EUR/GBP 0"},
+        {"EUR/EUR 1.25"},
+        {""},
+        {null},
     };
   }
 

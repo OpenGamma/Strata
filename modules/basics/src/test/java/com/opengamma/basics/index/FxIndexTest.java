@@ -36,16 +36,16 @@ public class FxIndexTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
-      return new Object[][] {
-          {FxIndices.ECB_EUR_CHF, "ECB-EUR-CHF"},
-          {FxIndices.ECB_EUR_GBP, "ECB-EUR-GBP"},
-          {FxIndices.ECB_EUR_JPY, "ECB-EUR-JPY"},
-          {FxIndices.ECB_EUR_USD, "ECB-EUR-USD"},
-          {FxIndices.WM_USD_CHF, "WM-USD-CHF"},
-          {FxIndices.WM_EUR_USD, "WM-EUR-USD"},
-          {FxIndices.WM_GBP_USD, "WM-GBP-USD"},
-          {FxIndices.WM_USD_JPY, "WM-USD-JPY"},
-      };
+    return new Object[][] {
+        {FxIndices.ECB_EUR_CHF, "ECB-EUR-CHF"},
+        {FxIndices.ECB_EUR_GBP, "ECB-EUR-GBP"},
+        {FxIndices.ECB_EUR_JPY, "ECB-EUR-JPY"},
+        {FxIndices.ECB_EUR_USD, "ECB-EUR-USD"},
+        {FxIndices.WM_USD_CHF, "WM-USD-CHF"},
+        {FxIndices.WM_EUR_USD, "WM-EUR-USD"},
+        {FxIndices.WM_GBP_USD, "WM-GBP-USD"},
+        {FxIndices.WM_USD_JPY, "WM-USD-JPY"},
+    };
   }
 
   @Test(dataProvider = "name")

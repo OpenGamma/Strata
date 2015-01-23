@@ -73,9 +73,9 @@ public class SchedulePeriodTest {
 
   public void test_builder_defaults() {
     SchedulePeriod test = SchedulePeriod.builder()
-      .startDate(JUL_05)
-      .endDate(JUL_18)
-      .build();
+        .startDate(JUL_05)
+        .endDate(JUL_18)
+        .build();
     assertEquals(test.getStartDate(), JUL_05);
     assertEquals(test.getEndDate(), JUL_18);
     assertEquals(test.getUnadjustedStartDate(), JUL_05);
@@ -227,11 +227,11 @@ public class SchedulePeriodTest {
   public void coverage_builder() {
     SchedulePeriod.Builder builder = SchedulePeriod.builder();
     builder
-      .startDate(JUL_05)
-      .endDate(JUL_18)
-      .unadjustedStartDate(JUL_04)
-      .unadjustedEndDate(JUL_17)
-      .build();
+        .startDate(JUL_05)
+        .endDate(JUL_18)
+        .unadjustedStartDate(JUL_04)
+        .unadjustedEndDate(JUL_17)
+        .build();
   }
 
   //-------------------------------------------------------------------------

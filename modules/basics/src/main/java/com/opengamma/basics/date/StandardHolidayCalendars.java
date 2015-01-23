@@ -30,34 +30,41 @@ enum StandardHolidayCalendars implements HolidayCalendar {
       ArgChecker.notNull(date, "date");
       return false;
     }
+
     @Override
     public boolean isBusinessDay(LocalDate date) {
       ArgChecker.notNull(date, "date");
       return true;
     }
+
     @Override
     public LocalDate shift(LocalDate date, int amount) {
       ArgChecker.notNull(date, "date");
       return date.plusDays(amount);
     }
+
     @Override
     public LocalDate next(LocalDate date) {
       ArgChecker.notNull(date, "date");
       return date.plusDays(1);
     }
+
     @Override
     public LocalDate previous(LocalDate date) {
       ArgChecker.notNull(date, "date");
       return date.minusDays(1);
     }
+
     @Override
     public int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
       return Math.toIntExact(endExclusive.toEpochDay() - startInclusive.toEpochDay());
     }
+
     @Override
     public int daysBetween(LocalDateRange dateRange) {
       return daysBetween(dateRange.getStart(), dateRange.getEndExclusive());
     }
+
     @Override
     public HolidayCalendar combineWith(HolidayCalendar other) {
       return ArgChecker.notNull(other, "other");

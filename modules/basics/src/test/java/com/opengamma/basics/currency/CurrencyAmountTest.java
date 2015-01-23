@@ -81,11 +81,11 @@ public class CurrencyAmountTest {
   @DataProvider(name = "parseBad")
   Object[][] data_parseBad() {
     return new Object[][] {
-      {"AUD"},
-      {"AUD aa"},
-      {"AUD -.+-"},
-      {"123"},
-      {null},
+        {"AUD"},
+        {"AUD aa"},
+        {"AUD -.+-"},
+        {"123"},
+        {null},
     };
   }
 

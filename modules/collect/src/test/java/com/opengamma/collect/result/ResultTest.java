@@ -241,6 +241,7 @@ public class ResultTest {
     assertThat(Result.combine(results, s -> s))
         .isFailure(FailureReason.MULTIPLE);
   }
+
   public void combine_iterableWithSuccesses() {
     Result<Integer> success1 = Result.success(1);
     Result<Integer> success2 = Result.success(2);
@@ -255,6 +256,7 @@ public class ResultTest {
         .isSuccess()
         .hasValue("res24");
   }
+
   //-------------------------------------------------------------------------
 
   public void flatCombine_iterableWithFailures() {
@@ -415,7 +417,7 @@ public class ResultTest {
   //------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void createByBuilder_neitherValueNorFailure() {
-    Result.meta().builder().build();    
+    Result.meta().builder().build();
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -423,7 +425,7 @@ public class ResultTest {
     Result.meta().builder()
         .set("value", "A")
         .set("failure", Failure.of(CALCULATION_FAILED, "Fail"))
-        .build();    
+        .build();
   }
 
   //------------------------------------------------------------------------

@@ -29,8 +29,7 @@ public final class DayCounts {
    * <p>
    * The returns true for end of month and an exception for all other methods.
    */
-  static final ScheduleInfo SIMPLE_SCHEDULE_INFO = new ScheduleInfo() {
-  };
+  static final ScheduleInfo SIMPLE_SCHEDULE_INFO = new ScheduleInfo() {};
 
   /**
    * The '1/1' day count, which always returns a day count of 1.

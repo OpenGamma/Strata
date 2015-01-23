@@ -72,6 +72,7 @@ enum StandardDayCounts implements DayCount {
       double periodDays = nextCouponDate.toEpochDay() - firstEpochDay;
       return actualDays / (freq.eventsPerYear() * periodDays);
     }
+
     // calculate nominal periods backwards from couponDate
     private double initPeriod(LocalDate startDate, LocalDate endDate, LocalDate couponDate, Frequency freq, boolean eom) {
       LocalDate currentNominal = couponDate;
@@ -84,6 +85,7 @@ enum StandardDayCounts implements DayCount {
       }
       return result + calc(prevNominal, currentNominal, startDate, endDate, freq);
     }
+
     // calculate nominal periods forwards from couponDate
     private double finalPeriod(LocalDate couponDate, LocalDate endDate, Frequency freq, boolean eom) {
       LocalDate curNominal = couponDate;
@@ -96,10 +98,12 @@ enum StandardDayCounts implements DayCount {
       }
       return result + calc(curNominal, nextNominal, curNominal, endDate, freq);
     }
+
     // apply eom convention
     private LocalDate eom(LocalDate base, LocalDate calc, boolean eom) {
       return (eom && base.getDayOfMonth() == base.lengthOfMonth() ? calc.withDayOfMonth(calc.lengthOfMonth()) : calc);
     }
+
     // calculate the result
     private double calc(LocalDate prevNominal, LocalDate curNominal, LocalDate start, LocalDate end, Frequency freq) {
       if (end.isAfter(prevNominal)) {

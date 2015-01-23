@@ -51,10 +51,10 @@ public class PayReceiveTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
-      return new Object[][] {
-          {PayReceive.PAY, "Pay"},
-          {PayReceive.RECEIVE, "Receive"},
-      };
+    return new Object[][] {
+        {PayReceive.PAY, "Pay"},
+        {PayReceive.RECEIVE, "Receive"},
+    };
   }
 
   @Test(dataProvider = "name")

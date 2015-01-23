@@ -436,10 +436,10 @@ public class ScheduleTest {
   public void coverage_builder() {
     Schedule.Builder builder = Schedule.builder();
     builder
-      .periods(ImmutableList.of(P1_STUB))
-      .frequency(P1M)
-      .rollConvention(DAY_17)
-      .build();
+        .periods(ImmutableList.of(P1_STUB))
+        .frequency(P1M)
+        .rollConvention(DAY_17)
+        .build();
   }
 
   //-------------------------------------------------------------------------

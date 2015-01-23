@@ -74,13 +74,13 @@ public class CurrencyPairTest {
   @DataProvider(name = "parseBad")
   Object[][] data_parseBad() {
     return new Object[][] {
-      {"AUD"},
-      {"AUD/GB"},
-      {"AUD GBP"},
-      {"AUD:GBP"},
-      {"123/456"},
-      {""},
-      {null},
+        {"AUD"},
+        {"AUD/GB"},
+        {"AUD GBP"},
+        {"AUD:GBP"},
+        {"123/456"},
+        {""},
+        {null},
     };
   }
 

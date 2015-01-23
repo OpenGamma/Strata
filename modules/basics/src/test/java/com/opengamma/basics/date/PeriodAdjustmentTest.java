@@ -82,18 +82,18 @@ public class PeriodAdjustmentTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "adjust")
   static Object[][] data_adjust() {
-      return new Object[][] {
-          // not last day
-          {0, date(2014, 8, 15), date(2014, 8, 15)},
-          {1, date(2014, 8, 15), date(2014, 9, 15)},
-          {2, date(2014, 8, 15), date(2014, 10, 15)},
-          {3, date(2014, 8, 15), date(2014, 11, 17)},
-          {-1, date(2014, 8, 15), date(2014, 7, 15)},
-          {-2, date(2014, 8, 15), date(2014, 6, 16)},
-          // last day
-          {1, date(2014, 2, 28), date(2014, 3, 31)},
-          {1, date(2014, 6, 30), date(2014, 7, 31)},
-      };
+    return new Object[][] {
+        // not last day
+        {0, date(2014, 8, 15), date(2014, 8, 15)},
+        {1, date(2014, 8, 15), date(2014, 9, 15)},
+        {2, date(2014, 8, 15), date(2014, 10, 15)},
+        {3, date(2014, 8, 15), date(2014, 11, 17)},
+        {-1, date(2014, 8, 15), date(2014, 7, 15)},
+        {-2, date(2014, 8, 15), date(2014, 6, 16)},
+        // last day
+        {1, date(2014, 2, 28), date(2014, 3, 31)},
+        {1, date(2014, 6, 30), date(2014, 7, 31)},
+    };
   }
 
   @Test(dataProvider = "adjust")

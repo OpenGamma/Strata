@@ -39,10 +39,10 @@ public class PutCallTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
-      return new Object[][] {
-          {PutCall.PUT, "Put"},
-          {PutCall.CALL, "Call"},
-      };
+    return new Object[][] {
+        {PutCall.PUT, "Put"},
+        {PutCall.CALL, "Call"},
+    };
   }
 
   @Test(dataProvider = "name")

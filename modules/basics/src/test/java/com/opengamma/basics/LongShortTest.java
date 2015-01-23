@@ -39,10 +39,10 @@ public class LongShortTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
-      return new Object[][] {
-          {LongShort.LONG, "Long"},
-          {LongShort.SHORT, "Short"},
-      };
+    return new Object[][] {
+        {LongShort.LONG, "Long"},
+        {LongShort.SHORT, "Short"},
+    };
   }
 
   @Test(dataProvider = "name")

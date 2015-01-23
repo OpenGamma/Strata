@@ -32,7 +32,7 @@ import com.google.common.collect.Sets;
 public class ArgCheckerTest {
 
   public void test_isTrue_ok() {
-     ArgChecker.isTrue(true, "Message");
+    ArgChecker.isTrue(true, "Message");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message")
@@ -146,7 +146,7 @@ public class ArgCheckerTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
   public void test_notEmpty_String_null() {
-      ArgChecker.notEmpty((String) null, "name");
+    ArgChecker.notEmpty((String) null, "name");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*empty.*")
@@ -169,7 +169,7 @@ public class ArgCheckerTest {
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void test_notEmpty_Array_empty() {
-    ArgChecker.notEmpty(new Object[]{}, "name");
+    ArgChecker.notEmpty(new Object[] {}, "name");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
@@ -180,7 +180,7 @@ public class ArgCheckerTest {
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void test_notEmpty_2DArray_empty() {
-      ArgChecker.notEmpty(new Object[0][0], "name");
+    ArgChecker.notEmpty(new Object[0][0], "name");
   }
 
   //-------------------------------------------------------------------------
@@ -264,7 +264,7 @@ public class ArgCheckerTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
   public void test_notEmpty_Collection_null() {
-      ArgChecker.notEmpty((Collection<?>) null, "name");
+    ArgChecker.notEmpty((Collection<?>) null, "name");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
@@ -311,7 +311,7 @@ public class ArgCheckerTest {
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = ".*array.*'name'.*null.*")
   public void test_noNulls_Array_nullElement() {
-    ArgChecker.noNulls(new Object[]{null}, "name");
+    ArgChecker.noNulls(new Object[] {null}, "name");
   }
 
   //-------------------------------------------------------------------------
@@ -494,17 +494,17 @@ public class ArgCheckerTest {
     c = Sets.newHashSet(new Object(), new Object());
     assertFalse(ArgChecker.hasNullElement(c));
   }
-  
+
   public void testHasNegativeElement() {
     Collection<Double> c = Sets.newHashSet(4., -5., -6.);
     assertTrue(ArgChecker.hasNegativeElement(c));
     c = Sets.newHashSet(1., 2., 3.);
     assertFalse(ArgChecker.hasNegativeElement(c));
   }
-  
+
   public void testIsInRange() {
     double low = 0;
-    double high = 1;    
+    double high = 1;
     assertTrue(ArgChecker.isInRangeExclusive(low, high, 0.5));
     assertFalse(ArgChecker.isInRangeExclusive(low, high, -high));
     assertFalse(ArgChecker.isInRangeExclusive(low, high, 2 * high));
@@ -526,13 +526,13 @@ public class ArgCheckerTest {
     assertTrue(ArgChecker.isInRangeExcludingHigh(low, high, low));
     assertFalse(ArgChecker.isInRangeExcludingHigh(low, high, high));
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void testNotEmptyDoubleArray() {
     ArgChecker.notEmpty(new double[0], "name");
-  } 
-  
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
   public void testNotEmptyLongArray() {

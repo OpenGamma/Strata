@@ -216,14 +216,14 @@ public class StubConventionTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
-      return new Object[][] {
-          {NONE, "None"},
-          {SHORT_INITIAL, "ShortInitial"},
-          {LONG_INITIAL, "LongInitial"},
-          {SHORT_FINAL, "ShortFinal"},
-          {LONG_FINAL, "LongFinal"},
-          {BOTH, "Both"},
-      };
+    return new Object[][] {
+        {NONE, "None"},
+        {SHORT_INITIAL, "ShortInitial"},
+        {LONG_INITIAL, "LongInitial"},
+        {SHORT_FINAL, "ShortFinal"},
+        {LONG_FINAL, "LongFinal"},
+        {BOTH, "Both"},
+    };
   }
 
   @Test(dataProvider = "name")

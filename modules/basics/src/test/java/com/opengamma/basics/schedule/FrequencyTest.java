@@ -345,12 +345,12 @@ public class FrequencyTest {
   @DataProvider(name = "parseBad")
   static Object[][] data_parseBad() {
     return new Object[][] {
-      {""},
-      {"2"},
-      {"2K"},
-      {"-2D"},
-      {"PTerm"},
-      {null},
+        {""},
+        {"2"},
+        {"2K"},
+        {"-2D"},
+        {"PTerm"},
+        {null},
     };
   }
 
@@ -412,4 +412,3 @@ public class FrequencyTest {
   }
 
 }
-

@@ -66,13 +66,13 @@ public class CurrencyTest {
   @DataProvider(name = "ofBad")
   Object[][] data_ofBad() {
     return new Object[][] {
-      {""},
-      {"AB"},
-      {"gbp"},
-      {"ABCD"},
-      {"123"},
-      {" GBP"},
-      {null},
+        {""},
+        {"AB"},
+        {"gbp"},
+        {"ABCD"},
+        {"123"},
+        {" GBP"},
+        {null},
     };
   }
 
@@ -115,12 +115,12 @@ public class CurrencyTest {
   @DataProvider(name = "parseBad")
   Object[][] data_parseBad() {
     return new Object[][] {
-      {""},
-      {"AB"},
-      {"ABCD"},
-      {"123"},
-      {" GBP"},
-      {null},
+        {""},
+        {"AB"},
+        {"ABCD"},
+        {"123"},
+        {" GBP"},
+        {null},
     };
   }
 

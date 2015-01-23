@@ -17,3 +17,4 @@
  */
 @javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.basics.schedule;
+
