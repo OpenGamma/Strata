@@ -86,7 +86,7 @@ public class DispatchingRateObservationFnTest {
     double mockRate = 0.0123d;
     RateObservationFn<IborAveragedRateObservation> mockIborAve = mock(RateObservationFn.class);
     LocalDate[] fixingDates = new LocalDate[] {
-      date(2014, 6, 30), date(2014, 7, 7), date(2014, 7, 14), date(2014, 7, 21) };
+        date(2014, 6, 30), date(2014, 7, 7), date(2014, 7, 14), date(2014, 7, 21)};
     double[] weights = {0.10d, 0.20d, 0.30d, 0.40d};
     List<IborAveragedFixing> fixings = new ArrayList<>();
     for (int i = 0; i < fixingDates.length; i++) {

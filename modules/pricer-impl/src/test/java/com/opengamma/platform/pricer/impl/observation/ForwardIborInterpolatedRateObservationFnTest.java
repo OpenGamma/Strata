@@ -52,5 +52,5 @@ public class ForwardIborInterpolatedRateObservationFnTest {
     double rateComputed = obs.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
     assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
   }
-  
+
 }

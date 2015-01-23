@@ -33,14 +33,14 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   private static final LocalDate FIXING_START_DATE = date(2015, 1, 8);
   private static final LocalDate FIXING_END_DATE = date(2015, 1, 15); // 1w only to decrease data
   private static final LocalDate[] FIXING_DATES = new LocalDate[] {
-    date(2015, 1, 7), date(2015, 1, 8), date(2015, 1, 9),
-    date(2015, 1, 12), date(2015, 1, 13), date(2015, 1, 14), date(2015, 1, 15)};
+      date(2015, 1, 7), date(2015, 1, 8), date(2015, 1, 9),
+      date(2015, 1, 12), date(2015, 1, 13), date(2015, 1, 14), date(2015, 1, 15)};
   private static final double[] FIXING_RATES = {
-    0.0012, 0.0023, 0.0034,
-    0.0045, 0.0056, 0.0067, 0.0078};
+      0.0012, 0.0023, 0.0034,
+      0.0045, 0.0056, 0.0067, 0.0078};
   private static final double[] FORWARD_RATES = {
-    0.0112, 0.0123, 0.0134,
-    0.0145, 0.0156, 0.0167, 0.0178};
+      0.0112, 0.0123, 0.0134,
+      0.0145, 0.0156, 0.0167, 0.0178};
 
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_APPROX = 1.0E-6;
@@ -189,7 +189,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   @Test
   public void rateFedFund2CutOffValuation2() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing 2
-    LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13) };
+    LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13)};
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
     List<LocalDate> dTs = new ArrayList<>();
@@ -244,7 +244,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   @Test
   public void rateSonia2CutOffValuation2() {
     // publication=0, cutoff=2, effective offset=0, TS: Fixing 2
-    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12) };
+    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 2);
     List<LocalDate> dTs = new ArrayList<>();
@@ -299,7 +299,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   @Test
   public void rateSonia0CutOffValuation2() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
-    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12) };
+    LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
     List<LocalDate> dTs = new ArrayList<>();
@@ -378,7 +378,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
   @Test
   public void rateFedFund2CutOffValuationEnd() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing all
-    LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16) };
+    LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16)};
     OvernightAveragedRateObservation ro =
         OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
     List<LocalDate> dTs = new ArrayList<>();

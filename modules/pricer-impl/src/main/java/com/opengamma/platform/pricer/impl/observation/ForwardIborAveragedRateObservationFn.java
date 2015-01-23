@@ -20,7 +20,7 @@ import com.opengamma.platform.pricer.observation.RateObservationFn;
  * The rate observation query the rates from the {@code PricingEnvironment} and weighted-average them.
  * There is no convexity adjustment computed in this implementation.
  */
-public class ForwardIborAveragedRateObservationFn 
+public class ForwardIborAveragedRateObservationFn
     implements RateObservationFn<IborAveragedRateObservation> {
 
   /**
