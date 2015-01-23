@@ -5,7 +5,6 @@
  */
 package com.opengamma.platform.source.id;
 
-
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
@@ -47,7 +46,6 @@ public class ExternalIdBundleTest {
     assertEquals((Object) test.size(), 1);
     assertEquals(test.getExternalIds(), Sets.newHashSet(_id11));
   }
-
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_factory_ExternalScheme_String_nullScheme() {
@@ -296,7 +294,7 @@ public class ExternalIdBundleTest {
     assertEquals((Object) ExternalIdBundle.of(_id11).size(), 1);
     assertEquals((Object) ExternalIdBundle.of(_id11, _id12).size(), 2);
   }
-  
+
   public void test_isEmpty() {
     assertEquals((Object) ExternalIdBundle.EMPTY.isEmpty(), true);
     assertEquals((Object) ExternalIdBundle.of(_id11).isEmpty(), false);
@@ -316,7 +314,6 @@ public class ExternalIdBundleTest {
     assertEquals((Object) test.hasNext(), false);
     assertEquals((Object) expected.size(), 0);
   }
-
 
   //-------------------------------------------------------------------------
   public void test_containsAll1() {

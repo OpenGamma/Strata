@@ -143,15 +143,15 @@ public class ObjectIdTest {
     ObjectId a = ObjectId.of("A", "1");
     ObjectId b = ObjectId.of("A", "2");
     ObjectId c = ObjectId.of("B", "2");
-    
+
     assertTrue(a.compareTo(a) == 0);
     assertTrue(a.compareTo(b) < 0);
     assertTrue(a.compareTo(c) < 0);
-    
+
     assertTrue(b.compareTo(a) > 0);
     assertTrue(b.compareTo(b) == 0);
     assertTrue(b.compareTo(c) < 0);
-    
+
     assertTrue(c.compareTo(a) > 0);
     assertTrue(c.compareTo(b) > 0);
     assertTrue(c.compareTo(c) == 0);

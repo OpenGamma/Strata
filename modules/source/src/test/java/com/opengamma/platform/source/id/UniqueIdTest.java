@@ -231,15 +231,15 @@ public class UniqueIdTest {
     UniqueId a = UniqueId.of("A", "1", "");
     UniqueId b = UniqueId.of("A", "2", "");
     UniqueId c = UniqueId.of("B", "2", "");
-    
+
     assertTrue(a.compareTo(a) == 0);
     assertTrue(a.compareTo(b) < 0);
     assertTrue(a.compareTo(c) < 0);
-    
+
     assertTrue(b.compareTo(a) > 0);
     assertTrue(b.compareTo(b) == 0);
     assertTrue(b.compareTo(c) < 0);
-    
+
     assertTrue(c.compareTo(a) > 0);
     assertTrue(c.compareTo(b) > 0);
     assertTrue(c.compareTo(c) == 0);
@@ -249,15 +249,15 @@ public class UniqueIdTest {
     UniqueId a = UniqueId.of("A", "1", "");
     UniqueId b = UniqueId.of("A", "1", "4");
     UniqueId c = UniqueId.of("A", "1", "5");
-    
+
     assertTrue(a.compareTo(a) == 0);
     assertTrue(a.compareTo(b) < 0);
     assertTrue(a.compareTo(c) < 0);
-    
+
     assertTrue(b.compareTo(a) > 0);
     assertTrue(b.compareTo(b) == 0);
     assertTrue(b.compareTo(c) < 0);
-    
+
     assertTrue(c.compareTo(a) > 0);
     assertTrue(c.compareTo(b) > 0);
     assertTrue(c.compareTo(c) == 0);
@@ -266,7 +266,7 @@ public class UniqueIdTest {
   public void test_compareTo_valueBeatsVersion() {
     UniqueId a = UniqueId.of("A", "1", "5");
     UniqueId b = UniqueId.of("A", "2", "4");
-    
+
     assertTrue(a.compareTo(a) == 0);
     assertTrue(a.compareTo(b) < 0);
     assertTrue(b.compareTo(a) > 0);
@@ -276,7 +276,7 @@ public class UniqueIdTest {
   public void test_compareTo_schemeBeatsValue() {
     UniqueId a = UniqueId.of("A", "2", "1");
     UniqueId b = UniqueId.of("B", "1", "1");
-    
+
     assertTrue(a.compareTo(a) == 0);
     assertTrue(a.compareTo(b) < 0);
     assertTrue(b.compareTo(a) > 0);

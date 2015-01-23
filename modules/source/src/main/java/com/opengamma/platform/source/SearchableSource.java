@@ -46,5 +46,3 @@ public interface SearchableSource extends Source {
   public abstract ImmutableSet<IdentifiableBean> search(Iterable<StandardId> ids);
 
 }
-
-

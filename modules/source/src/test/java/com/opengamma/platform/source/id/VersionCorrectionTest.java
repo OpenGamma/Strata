@@ -214,15 +214,15 @@ public class VersionCorrectionTest {
     VersionCorrection a = VersionCorrection.of(INSTANT1, INSTANT2);
     VersionCorrection b = VersionCorrection.of(INSTANT1, INSTANT3);
     VersionCorrection c = VersionCorrection.of(INSTANT2, INSTANT3);
-    
+
     assertTrue(a.compareTo(a) == 0);
     assertTrue(a.compareTo(b) < 0);
     assertTrue(a.compareTo(c) < 0);
-    
+
     assertTrue(b.compareTo(a) > 0);
     assertTrue(b.compareTo(b) == 0);
     assertTrue(b.compareTo(c) < 0);
-    
+
     assertTrue(c.compareTo(a) > 0);
     assertTrue(c.compareTo(b) > 0);
     assertTrue(c.compareTo(c) == 0);
@@ -231,10 +231,10 @@ public class VersionCorrectionTest {
   public void test_compareTo_nullVersion() {
     VersionCorrection a = VersionCorrection.of(INSTANT1, INSTANT2);
     VersionCorrection b = VersionCorrection.of(null, INSTANT2);
-    
+
     assertTrue(a.compareTo(a) == 0);
     assertTrue(a.compareTo(b) < 0);
-    
+
     assertTrue(b.compareTo(a) > 0);
     assertTrue(b.compareTo(b) == 0);
   }
@@ -242,10 +242,10 @@ public class VersionCorrectionTest {
   public void test_compareTo_nullCorrection() {
     VersionCorrection a = VersionCorrection.of(INSTANT1, INSTANT2);
     VersionCorrection b = VersionCorrection.of(INSTANT1, null);
-    
+
     assertTrue(a.compareTo(a) == 0);
     assertTrue(a.compareTo(b) < 0);
-    
+
     assertTrue(b.compareTo(a) > 0);
     assertTrue(b.compareTo(b) == 0);
   }
