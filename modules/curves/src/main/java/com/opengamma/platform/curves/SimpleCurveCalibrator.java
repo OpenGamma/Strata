@@ -68,14 +68,15 @@ public class SimpleCurveCalibrator {
    * methods.
    */
   public SimpleCurveCalibrator() {
-
     // TODO -when available use inbuilt holiday information
     this(DEFAULT_INTERPOLATOR_EXTRAPOLATOR, DayCounts.ACT_365F,
         BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendars.SAT_SUN));
   }
 
-  private SimpleCurveCalibrator(Interpolator1D interpolatorExtrapolator, DayCount dayCount,
-                                BusinessDayAdjustment businessDayAdjustment) {
+  private SimpleCurveCalibrator(
+      Interpolator1D interpolatorExtrapolator,
+      DayCount dayCount,
+      BusinessDayAdjustment businessDayAdjustment) {
     this.interpolatorExtrapolator = interpolatorExtrapolator;
     this.dayCount = dayCount;
     this.businessDayAdjustment = businessDayAdjustment;
@@ -95,8 +96,7 @@ public class SimpleCurveCalibrator {
   }
 
   /**
-   * Create a copy of this curve calibrator with the specified
-   * day count.
+   * Create a copy of this curve calibrator with the specified day count.
    *
    * @param dayCount  the day count to be used
    * @return a new curve calibrator
@@ -106,8 +106,7 @@ public class SimpleCurveCalibrator {
   }
 
   /**
-   * Create a copy of this curve calibrator with the specified
-   * business day adjustment  .
+   * Create a copy of this curve calibrator with the specified business day adjustment.
    *
    * @param businessDayAdjustment  the business day adjustment to be used
    * @return a new curve calibrator
@@ -164,12 +163,11 @@ public class SimpleCurveCalibrator {
 
       @Override
       public double getForwardRate(Tenor startTenor, Tenor endTenor) {
-
-        double forwardLength = dayCount.yearFraction(startDate.plus(startTenor.getPeriod()), startDate.plus(endTenor.getPeriod()));
+        double forwardLength = dayCount.yearFraction(
+            startDate.plus(startTenor.getPeriod()), startDate.plus(endTenor.getPeriod()));
         return (getDiscountFactor(startTenor) / getDiscountFactor(endTenor) - 1) / forwardLength;
       }
     };
   }
 
 }
-
