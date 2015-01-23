@@ -24,8 +24,8 @@ public class TripleTest {
   @DataProvider(name = "factory")
   Object[][] data_factory() {
     return new Object[][] {
-      {"A", "B", "C"},
-      {"A", 200.2d, 6L},
+        {"A", "B", "C"},
+        {"A", 200.2d, 6L},
     };
   }
 

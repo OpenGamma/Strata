@@ -25,13 +25,13 @@ import com.google.common.io.Files;
 @Test
 public class PropertiesFileTest {
 
-  private final String FILE1 =
+  private final String FILE1 = "" +
       "# comment\n" +
       "a = x\n" +
       " \n" +
       "; comment\n" +
       "b = y\n";
-  private final String FILE2 =
+  private final String FILE2 = "" +
       "a = x\n" +
       "a = y\n";
 

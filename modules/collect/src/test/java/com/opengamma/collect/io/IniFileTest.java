@@ -28,7 +28,7 @@ import com.google.common.io.Files;
 @Test
 public class IniFileTest {
 
-  private final String INI1 =
+  private final String INI1 = "" +
       "# comment\n" +
       "[section]\n" +
       "a = x\n" +
@@ -38,11 +38,11 @@ public class IniFileTest {
       "[name]\n" +
       "a = m\n" +
       "b = n\n";
-  private final String INI2 =
+  private final String INI2 = "" +
       "[section]\n" +
       "a = x\n" +
       "b = y\n";
-  private final String INI3 =
+  private final String INI3 = "" +
       "[section]\n" +
       "a = x\n" +
       "a = y\n";
@@ -111,7 +111,7 @@ public class IniFileTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_invalid_badSection() {
-    String invalid =
+    String invalid = "" +
         "[section\n" +
         "b\n";
     IniFile.of(CharSource.wrap(invalid));
@@ -119,7 +119,7 @@ public class IniFileTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_invalid_propertyNoEquals() {
-    String invalid =
+    String invalid = "" +
         "[section]\n" +
         "b\n";
     IniFile.of(CharSource.wrap(invalid));
@@ -127,7 +127,7 @@ public class IniFileTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_invalid_duplicateSection() {
-    String invalid =
+    String invalid = "" +
         "[section]\n" +
         "a = y\n" +
         "[section]\n" +
@@ -137,7 +137,7 @@ public class IniFileTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_of_invalid_emptyKey() {
-    String invalid =
+    String invalid = "" +
         "[section]\n" +
         "= y\n";
     IniFile.of(CharSource.wrap(invalid));

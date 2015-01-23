@@ -183,6 +183,7 @@ public class GuavateTest {
         .put(1, "!a").put(2, "!ab").put(1, "!b").put(2, "!bb").put(1, "!c").build();
     assertEquals(test, expected);
   }
+
   //-------------------------------------------------------------------------
 
   public void test_mapEntriesToImmutableMap() {
