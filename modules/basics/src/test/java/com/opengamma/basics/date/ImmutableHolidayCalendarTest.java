@@ -33,7 +33,7 @@ import com.opengamma.collect.range.LocalDateRange;
 public class ImmutableHolidayCalendarTest {
 
   private static final LocalDateRange RANGE_2014 = LocalDateRange.ofClosed(
-      LocalDate.of(2014,  1, 1), LocalDate.of(2014,  12, 31));
+      LocalDate.of(2014, 1, 1), LocalDate.of(2014, 12, 31));
 
   private static final LocalDate WED_2014_07_09 = LocalDate.of(2014, 7, 9);
   private static final LocalDate THU_2014_07_10 = LocalDate.of(2014, 7, 10);
@@ -74,19 +74,19 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "createSatSunWeekend")
   static Object[][] data_createSatSunWeekend() {
-      return new Object[][] {
-          {FRI_2014_07_11, true},
-          {SAT_2014_07_12, false},
-          {SUN_2014_07_13, false},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, true},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, false},
-          {SUN_2014_07_20, false},
-          {MON_2014_07_21, true},
-      };
+    return new Object[][] {
+        {FRI_2014_07_11, true},
+        {SAT_2014_07_12, false},
+        {SUN_2014_07_13, false},
+        {MON_2014_07_14, false},
+        {TUE_2014_07_15, true},
+        {WED_2014_07_16, true},
+        {THU_2014_07_17, true},
+        {FRI_2014_07_18, false},
+        {SAT_2014_07_19, false},
+        {SUN_2014_07_20, false},
+        {MON_2014_07_21, true},
+    };
   }
 
   @Test(dataProvider = "createSatSunWeekend")
@@ -116,19 +116,19 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "createThuFriWeekend")
   static Object[][] data_createThuFriWeekend() {
-      return new Object[][] {
-          {FRI_2014_07_11, false},
-          {SAT_2014_07_12, true},
-          {SUN_2014_07_13, true},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, false},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, false},
-          {SUN_2014_07_20, true},
-          {MON_2014_07_21, true},
-      };
+    return new Object[][] {
+        {FRI_2014_07_11, false},
+        {SAT_2014_07_12, true},
+        {SUN_2014_07_13, true},
+        {MON_2014_07_14, false},
+        {TUE_2014_07_15, true},
+        {WED_2014_07_16, true},
+        {THU_2014_07_17, false},
+        {FRI_2014_07_18, false},
+        {SAT_2014_07_19, false},
+        {SUN_2014_07_20, true},
+        {MON_2014_07_21, true},
+    };
   }
 
   @Test(dataProvider = "createThuFriWeekend")
@@ -158,19 +158,19 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "createSunWeekend")
   static Object[][] data_createSunWeekend() {
-      return new Object[][] {
-          {FRI_2014_07_11, true},
-          {SAT_2014_07_12, true},
-          {SUN_2014_07_13, false},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, false},
-          {FRI_2014_07_18, true},
-          {SAT_2014_07_19, true},
-          {SUN_2014_07_20, false},
-          {MON_2014_07_21, true},
-      };
+    return new Object[][] {
+        {FRI_2014_07_11, true},
+        {SAT_2014_07_12, true},
+        {SUN_2014_07_13, false},
+        {MON_2014_07_14, false},
+        {TUE_2014_07_15, true},
+        {WED_2014_07_16, true},
+        {THU_2014_07_17, false},
+        {FRI_2014_07_18, true},
+        {SAT_2014_07_19, true},
+        {SUN_2014_07_20, false},
+        {MON_2014_07_21, true},
+    };
   }
 
   @Test(dataProvider = "createSunWeekend")
@@ -200,19 +200,19 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "createThuFriSatWeekend")
   static Object[][] data_createThuFriSatWeekend() {
-      return new Object[][] {
-          {FRI_2014_07_11, false},
-          {SAT_2014_07_12, false},
-          {SUN_2014_07_13, true},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, false},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, false},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, false},
-          {SUN_2014_07_20, true},
-          {MON_2014_07_21, true},
-      };
+    return new Object[][] {
+        {FRI_2014_07_11, false},
+        {SAT_2014_07_12, false},
+        {SUN_2014_07_13, true},
+        {MON_2014_07_14, false},
+        {TUE_2014_07_15, false},
+        {WED_2014_07_16, true},
+        {THU_2014_07_17, false},
+        {FRI_2014_07_18, false},
+        {SAT_2014_07_19, false},
+        {SUN_2014_07_20, true},
+        {MON_2014_07_21, true},
+    };
   }
 
   @Test(dataProvider = "createThuFriSatWeekend")
@@ -231,19 +231,19 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "createNoWeekends")
   static Object[][] data_createNoWeekends() {
-      return new Object[][] {
-          {FRI_2014_07_11, true},
-          {SAT_2014_07_12, true},
-          {SUN_2014_07_13, true},
-          {MON_2014_07_14, false},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, true},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, true},
-          {SUN_2014_07_20, true},
-          {MON_2014_07_21, true},
-      };
+    return new Object[][] {
+        {FRI_2014_07_11, true},
+        {SAT_2014_07_12, true},
+        {SUN_2014_07_13, true},
+        {MON_2014_07_14, false},
+        {TUE_2014_07_15, true},
+        {WED_2014_07_16, true},
+        {THU_2014_07_17, true},
+        {FRI_2014_07_18, false},
+        {SAT_2014_07_19, true},
+        {SUN_2014_07_20, true},
+        {MON_2014_07_21, true},
+    };
   }
 
   @Test(dataProvider = "createNoWeekends")
@@ -262,19 +262,19 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "createNoHolidays")
   static Object[][] data_createNoHolidays() {
-      return new Object[][] {
-          {FRI_2014_07_11, false},
-          {SAT_2014_07_12, false},
-          {SUN_2014_07_13, true},
-          {MON_2014_07_14, true},
-          {TUE_2014_07_15, true},
-          {WED_2014_07_16, true},
-          {THU_2014_07_17, true},
-          {FRI_2014_07_18, false},
-          {SAT_2014_07_19, false},
-          {SUN_2014_07_20, true},
-          {MON_2014_07_21, true},
-      };
+    return new Object[][] {
+        {FRI_2014_07_11, false},
+        {SAT_2014_07_12, false},
+        {SUN_2014_07_13, true},
+        {MON_2014_07_14, true},
+        {TUE_2014_07_15, true},
+        {WED_2014_07_16, true},
+        {THU_2014_07_17, true},
+        {FRI_2014_07_18, false},
+        {SAT_2014_07_19, false},
+        {SUN_2014_07_20, true},
+        {MON_2014_07_21, true},
+    };
   }
 
   @Test(dataProvider = "createNoHolidays")
@@ -328,72 +328,72 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "shift")
   static Object[][] data_shift() {
-      return new Object[][] {
-          {THU_2014_07_10, 1, FRI_2014_07_11},
-          {FRI_2014_07_11, 1, TUE_2014_07_15},
-          {SAT_2014_07_12, 1, TUE_2014_07_15},
-          {SUN_2014_07_13, 1, TUE_2014_07_15},
-          {MON_2014_07_14, 1, TUE_2014_07_15},
-          {TUE_2014_07_15, 1, THU_2014_07_17},
-          {WED_2014_07_16, 1, THU_2014_07_17},
-          {THU_2014_07_17, 1, FRI_2014_07_18},
-          {FRI_2014_07_18, 1, MON_2014_07_21},
-          {SAT_2014_07_19, 1, MON_2014_07_21},
-          {SUN_2014_07_20, 1, MON_2014_07_21},
-          {MON_2014_07_21, 1, TUE_2014_07_22},
-          
-          {THU_2014_07_10, 2, TUE_2014_07_15},
-          {FRI_2014_07_11, 2, THU_2014_07_17},
-          {SAT_2014_07_12, 2, THU_2014_07_17},
-          {SUN_2014_07_13, 2, THU_2014_07_17},
-          {MON_2014_07_14, 2, THU_2014_07_17},
-          {TUE_2014_07_15, 2, FRI_2014_07_18},
-          {WED_2014_07_16, 2, FRI_2014_07_18},
-          {THU_2014_07_17, 2, MON_2014_07_21},
-          {FRI_2014_07_18, 2, TUE_2014_07_22},
-          {SAT_2014_07_19, 2, TUE_2014_07_22},
-          {SUN_2014_07_20, 2, TUE_2014_07_22},
-          {MON_2014_07_21, 2, WED_2014_07_23},
-          
-          {THU_2014_07_10, 0, THU_2014_07_10},
-          {FRI_2014_07_11, 0, FRI_2014_07_11},
-          {SAT_2014_07_12, 0, SAT_2014_07_12},
-          {SUN_2014_07_13, 0, SUN_2014_07_13},
-          {MON_2014_07_14, 0, MON_2014_07_14},
-          {TUE_2014_07_15, 0, TUE_2014_07_15},
-          {WED_2014_07_16, 0, WED_2014_07_16},
-          {THU_2014_07_17, 0, THU_2014_07_17},
-          {FRI_2014_07_18, 0, FRI_2014_07_18},
-          {SAT_2014_07_19, 0, SAT_2014_07_19},
-          {SUN_2014_07_20, 0, SUN_2014_07_20},
-          {MON_2014_07_21, 0, MON_2014_07_21},
-          
-          {FRI_2014_07_11, -1, THU_2014_07_10},
-          {SAT_2014_07_12, -1, FRI_2014_07_11},
-          {SUN_2014_07_13, -1, FRI_2014_07_11},
-          {MON_2014_07_14, -1, FRI_2014_07_11},
-          {TUE_2014_07_15, -1, FRI_2014_07_11},
-          {WED_2014_07_16, -1, TUE_2014_07_15},
-          {THU_2014_07_17, -1, TUE_2014_07_15},
-          {FRI_2014_07_18, -1, THU_2014_07_17},
-          {SAT_2014_07_19, -1, FRI_2014_07_18},
-          {SUN_2014_07_20, -1, FRI_2014_07_18},
-          {MON_2014_07_21, -1, FRI_2014_07_18},
-          {TUE_2014_07_22, -1, MON_2014_07_21},
-          
-          {FRI_2014_07_11, -2, WED_2014_07_09},
-          {SAT_2014_07_12, -2, THU_2014_07_10},
-          {SUN_2014_07_13, -2, THU_2014_07_10},
-          {MON_2014_07_14, -2, THU_2014_07_10},
-          {TUE_2014_07_15, -2, THU_2014_07_10},
-          {WED_2014_07_16, -2, FRI_2014_07_11},
-          {THU_2014_07_17, -2, FRI_2014_07_11},
-          {FRI_2014_07_18, -2, TUE_2014_07_15},
-          {SAT_2014_07_19, -2, THU_2014_07_17},
-          {SUN_2014_07_20, -2, THU_2014_07_17},
-          {MON_2014_07_21, -2, THU_2014_07_17},
-          {TUE_2014_07_22, -2, FRI_2014_07_18},
-      };
+    return new Object[][] {
+        {THU_2014_07_10, 1, FRI_2014_07_11},
+        {FRI_2014_07_11, 1, TUE_2014_07_15},
+        {SAT_2014_07_12, 1, TUE_2014_07_15},
+        {SUN_2014_07_13, 1, TUE_2014_07_15},
+        {MON_2014_07_14, 1, TUE_2014_07_15},
+        {TUE_2014_07_15, 1, THU_2014_07_17},
+        {WED_2014_07_16, 1, THU_2014_07_17},
+        {THU_2014_07_17, 1, FRI_2014_07_18},
+        {FRI_2014_07_18, 1, MON_2014_07_21},
+        {SAT_2014_07_19, 1, MON_2014_07_21},
+        {SUN_2014_07_20, 1, MON_2014_07_21},
+        {MON_2014_07_21, 1, TUE_2014_07_22},
+        
+        {THU_2014_07_10, 2, TUE_2014_07_15},
+        {FRI_2014_07_11, 2, THU_2014_07_17},
+        {SAT_2014_07_12, 2, THU_2014_07_17},
+        {SUN_2014_07_13, 2, THU_2014_07_17},
+        {MON_2014_07_14, 2, THU_2014_07_17},
+        {TUE_2014_07_15, 2, FRI_2014_07_18},
+        {WED_2014_07_16, 2, FRI_2014_07_18},
+        {THU_2014_07_17, 2, MON_2014_07_21},
+        {FRI_2014_07_18, 2, TUE_2014_07_22},
+        {SAT_2014_07_19, 2, TUE_2014_07_22},
+        {SUN_2014_07_20, 2, TUE_2014_07_22},
+        {MON_2014_07_21, 2, WED_2014_07_23},
+        
+        {THU_2014_07_10, 0, THU_2014_07_10},
+        {FRI_2014_07_11, 0, FRI_2014_07_11},
+        {SAT_2014_07_12, 0, SAT_2014_07_12},
+        {SUN_2014_07_13, 0, SUN_2014_07_13},
+        {MON_2014_07_14, 0, MON_2014_07_14},
+        {TUE_2014_07_15, 0, TUE_2014_07_15},
+        {WED_2014_07_16, 0, WED_2014_07_16},
+        {THU_2014_07_17, 0, THU_2014_07_17},
+        {FRI_2014_07_18, 0, FRI_2014_07_18},
+        {SAT_2014_07_19, 0, SAT_2014_07_19},
+        {SUN_2014_07_20, 0, SUN_2014_07_20},
+        {MON_2014_07_21, 0, MON_2014_07_21},
+        
+        {FRI_2014_07_11, -1, THU_2014_07_10},
+        {SAT_2014_07_12, -1, FRI_2014_07_11},
+        {SUN_2014_07_13, -1, FRI_2014_07_11},
+        {MON_2014_07_14, -1, FRI_2014_07_11},
+        {TUE_2014_07_15, -1, FRI_2014_07_11},
+        {WED_2014_07_16, -1, TUE_2014_07_15},
+        {THU_2014_07_17, -1, TUE_2014_07_15},
+        {FRI_2014_07_18, -1, THU_2014_07_17},
+        {SAT_2014_07_19, -1, FRI_2014_07_18},
+        {SUN_2014_07_20, -1, FRI_2014_07_18},
+        {MON_2014_07_21, -1, FRI_2014_07_18},
+        {TUE_2014_07_22, -1, MON_2014_07_21},
+        
+        {FRI_2014_07_11, -2, WED_2014_07_09},
+        {SAT_2014_07_12, -2, THU_2014_07_10},
+        {SUN_2014_07_13, -2, THU_2014_07_10},
+        {MON_2014_07_14, -2, THU_2014_07_10},
+        {TUE_2014_07_15, -2, THU_2014_07_10},
+        {WED_2014_07_16, -2, FRI_2014_07_11},
+        {THU_2014_07_17, -2, FRI_2014_07_11},
+        {FRI_2014_07_18, -2, TUE_2014_07_15},
+        {SAT_2014_07_19, -2, THU_2014_07_17},
+        {SUN_2014_07_20, -2, THU_2014_07_17},
+        {MON_2014_07_21, -2, THU_2014_07_17},
+        {TUE_2014_07_22, -2, FRI_2014_07_18},
+    };
   }
 
   @Test(dataProvider = "shift")
@@ -413,20 +413,20 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "next")
   static Object[][] data_next() {
-      return new Object[][] {
-          {THU_2014_07_10, FRI_2014_07_11},
-          {FRI_2014_07_11, TUE_2014_07_15},
-          {SAT_2014_07_12, TUE_2014_07_15},
-          {SUN_2014_07_13, TUE_2014_07_15},
-          {MON_2014_07_14, TUE_2014_07_15},
-          {TUE_2014_07_15, THU_2014_07_17},
-          {WED_2014_07_16, THU_2014_07_17},
-          {THU_2014_07_17, FRI_2014_07_18},
-          {FRI_2014_07_18, MON_2014_07_21},
-          {SAT_2014_07_19, MON_2014_07_21},
-          {SUN_2014_07_20, MON_2014_07_21},
-          {MON_2014_07_21, TUE_2014_07_22},
-      };
+    return new Object[][] {
+        {THU_2014_07_10, FRI_2014_07_11},
+        {FRI_2014_07_11, TUE_2014_07_15},
+        {SAT_2014_07_12, TUE_2014_07_15},
+        {SUN_2014_07_13, TUE_2014_07_15},
+        {MON_2014_07_14, TUE_2014_07_15},
+        {TUE_2014_07_15, THU_2014_07_17},
+        {WED_2014_07_16, THU_2014_07_17},
+        {THU_2014_07_17, FRI_2014_07_18},
+        {FRI_2014_07_18, MON_2014_07_21},
+        {SAT_2014_07_19, MON_2014_07_21},
+        {SUN_2014_07_20, MON_2014_07_21},
+        {MON_2014_07_21, TUE_2014_07_22},
+    };
   }
 
   @Test(dataProvider = "next")
@@ -441,20 +441,20 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "previous")
   static Object[][] data_previous() {
-      return new Object[][] {
-          {FRI_2014_07_11, THU_2014_07_10},
-          {SAT_2014_07_12, FRI_2014_07_11},
-          {SUN_2014_07_13, FRI_2014_07_11},
-          {MON_2014_07_14, FRI_2014_07_11},
-          {TUE_2014_07_15, FRI_2014_07_11},
-          {WED_2014_07_16, TUE_2014_07_15},
-          {THU_2014_07_17, TUE_2014_07_15},
-          {FRI_2014_07_18, THU_2014_07_17},
-          {SAT_2014_07_19, FRI_2014_07_18},
-          {SUN_2014_07_20, FRI_2014_07_18},
-          {MON_2014_07_21, FRI_2014_07_18},
-          {TUE_2014_07_22, MON_2014_07_21},
-      };
+    return new Object[][] {
+        {FRI_2014_07_11, THU_2014_07_10},
+        {SAT_2014_07_12, FRI_2014_07_11},
+        {SUN_2014_07_13, FRI_2014_07_11},
+        {MON_2014_07_14, FRI_2014_07_11},
+        {TUE_2014_07_15, FRI_2014_07_11},
+        {WED_2014_07_16, TUE_2014_07_15},
+        {THU_2014_07_17, TUE_2014_07_15},
+        {FRI_2014_07_18, THU_2014_07_17},
+        {SAT_2014_07_19, FRI_2014_07_18},
+        {SUN_2014_07_20, FRI_2014_07_18},
+        {MON_2014_07_21, FRI_2014_07_18},
+        {TUE_2014_07_22, MON_2014_07_21},
+    };
   }
 
   @Test(dataProvider = "previous")
@@ -469,20 +469,20 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "daysBetween")
   static Object[][] data_daysBetween() {
-      return new Object[][] {
-          {FRI_2014_07_11, FRI_2014_07_11, 0},
-          {FRI_2014_07_11, SAT_2014_07_12, 1},
-          {FRI_2014_07_11, SUN_2014_07_13, 1},
-          {FRI_2014_07_11, MON_2014_07_14, 1},
-          {FRI_2014_07_11, TUE_2014_07_15, 1},
-          {FRI_2014_07_11, WED_2014_07_16, 2},
-          {FRI_2014_07_11, THU_2014_07_17, 2},
-          {FRI_2014_07_11, FRI_2014_07_18, 3},
-          {FRI_2014_07_11, SAT_2014_07_19, 4},
-          {FRI_2014_07_11, SUN_2014_07_20, 4},
-          {FRI_2014_07_11, MON_2014_07_21, 4},
-          {FRI_2014_07_11, TUE_2014_07_22, 5},
-      };
+    return new Object[][] {
+        {FRI_2014_07_11, FRI_2014_07_11, 0},
+        {FRI_2014_07_11, SAT_2014_07_12, 1},
+        {FRI_2014_07_11, SUN_2014_07_13, 1},
+        {FRI_2014_07_11, MON_2014_07_14, 1},
+        {FRI_2014_07_11, TUE_2014_07_15, 1},
+        {FRI_2014_07_11, WED_2014_07_16, 2},
+        {FRI_2014_07_11, THU_2014_07_17, 2},
+        {FRI_2014_07_11, FRI_2014_07_18, 3},
+        {FRI_2014_07_11, SAT_2014_07_19, 4},
+        {FRI_2014_07_11, SUN_2014_07_20, 4},
+        {FRI_2014_07_11, MON_2014_07_21, 4},
+        {FRI_2014_07_11, TUE_2014_07_22, 5},
+    };
   }
 
   @Test(dataProvider = "daysBetween")

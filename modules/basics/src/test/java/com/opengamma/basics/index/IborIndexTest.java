@@ -154,16 +154,16 @@ public class IborIndexTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
-      return new Object[][] {
-          {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
-          {IborIndices.CHF_LIBOR_6M, "CHF-LIBOR-6M"},
-          {IborIndices.EUR_LIBOR_6M, "EUR-LIBOR-6M"},
-          {IborIndices.JPY_LIBOR_6M, "JPY-LIBOR-6M"},
-          {IborIndices.USD_LIBOR_6M, "USD-LIBOR-6M"},
-          {IborIndices.EUR_EURIBOR_1M, "EUR-EURIBOR-1M"},
-          {IborIndices.JPY_TIBOR_JAPAN_2M, "JPY-TIBOR-JAPAN-2M"},
-          {IborIndices.JPY_TIBOR_EUROYEN_6M, "JPY-TIBOR-EUROYEN-6M"},
-      };
+    return new Object[][] {
+        {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
+        {IborIndices.CHF_LIBOR_6M, "CHF-LIBOR-6M"},
+        {IborIndices.EUR_LIBOR_6M, "EUR-LIBOR-6M"},
+        {IborIndices.JPY_LIBOR_6M, "JPY-LIBOR-6M"},
+        {IborIndices.USD_LIBOR_6M, "USD-LIBOR-6M"},
+        {IborIndices.EUR_EURIBOR_1M, "EUR-EURIBOR-1M"},
+        {IborIndices.JPY_TIBOR_JAPAN_2M, "JPY-TIBOR-JAPAN-2M"},
+        {IborIndices.JPY_TIBOR_EUROYEN_6M, "JPY-TIBOR-EUROYEN-6M"},
+    };
   }
 
   @Test(dataProvider = "name")

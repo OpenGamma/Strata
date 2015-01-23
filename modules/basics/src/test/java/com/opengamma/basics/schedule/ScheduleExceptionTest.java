@@ -24,7 +24,7 @@ public class ScheduleExceptionTest {
     PeriodicSchedule defn = PeriodicSchedule.of(
         date(2014, 6, 30), date(2014, 8, 30), Frequency.P1M,
         BusinessDayAdjustment.NONE, StubConvention.NONE, false);
-    ScheduleException test = new ScheduleException(defn , "Hello {}", "World");
+    ScheduleException test = new ScheduleException(defn, "Hello {}", "World");
     assertEquals(test.getMessage(), "Hello World");
     assertEquals(test.getDefinition(), Optional.of(defn));
   }

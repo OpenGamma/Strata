@@ -100,13 +100,13 @@ public class CountryTest {
   @DataProvider(name = "ofBad")
   Object[][] data_ofBad() {
     return new Object[][] {
-      {""},
-      {"A"},
-      {"gb"},
-      {"ABC"},
-      {"123"},
-      {" GB"},
-      {null},
+        {""},
+        {"A"},
+        {"gb"},
+        {"ABC"},
+        {"123"},
+        {" GB"},
+        {null},
     };
   }
 
@@ -137,12 +137,12 @@ public class CountryTest {
   @DataProvider(name = "parseBad")
   Object[][] data_parseBad() {
     return new Object[][] {
-      {""},
-      {"A"},
-      {"ABC"},
-      {"123"},
-      {" GB"},
-      {null},
+        {""},
+        {"A"},
+        {"ABC"},
+        {"123"},
+        {" GB"},
+        {null},
     };
   }
 

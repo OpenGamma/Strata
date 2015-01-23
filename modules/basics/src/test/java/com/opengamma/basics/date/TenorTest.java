@@ -129,7 +129,7 @@ public class TenorTest {
     assertThrows(() -> Tenor.ofYears(-1), IllegalArgumentException.class);
   }
 
- //-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   public void test_parse_String_roundTrip() {
     assertEquals(Tenor.parse(TENOR_10M.toString()), TENOR_10M);
   }
@@ -160,11 +160,11 @@ public class TenorTest {
   @DataProvider(name = "parseBad")
   static Object[][] data_parseBad() {
     return new Object[][] {
-      {""},
-      {"2"},
-      {"2K"},
-      {"-2D"},
-      {null},
+        {""},
+        {"2"},
+        {"2K"},
+        {"-2D"},
+        {null},
     };
   }
 
@@ -295,4 +295,3 @@ public class TenorTest {
   }
 
 }
-

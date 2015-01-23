@@ -445,7 +445,7 @@ public class RollConventionTest {
     for (DayOfWeek dow : DayOfWeek.values()) {
       RollConvention test = RollConvention.ofDayOfWeek(dow);
       assertEquals(test.getName(), "Day" +
-            CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
+          CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
       assertEquals(test.toString(), "Day" +
           CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
     }
@@ -505,16 +505,16 @@ public class RollConventionTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   static Object[][] data_name() {
-      return new Object[][] {
-          {NONE, "None"},
-          {EOM, "EOM"},
-          {IMM, "IMM"},
-          {IMMAUD, "IMMAUD"},
-          {IMMNZD, "IMMNZD"},
-          {SFE, "SFE"},
-          {DAY_2, "Day2"},
-          {DAY_THU, "DayThu"},
-      };
+    return new Object[][] {
+        {NONE, "None"},
+        {EOM, "EOM"},
+        {IMM, "IMM"},
+        {IMMAUD, "IMMAUD"},
+        {IMMNZD, "IMMNZD"},
+        {SFE, "SFE"},
+        {DAY_2, "Day2"},
+        {DAY_THU, "DayThu"},
+    };
   }
 
   @Test(dataProvider = "name")

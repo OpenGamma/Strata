@@ -67,14 +67,14 @@ public class AdjustableDateTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "adjusted")
   static Object[][] data_adjusted() {
-      return new Object[][] {
-          {THU_2014_07_10, THU_2014_07_10},
-          {FRI_2014_07_11, FRI_2014_07_11},
-          {SAT_2014_07_12, MON_2014_07_14},
-          {SUN_2014_07_13, MON_2014_07_14},
-          {MON_2014_07_14, MON_2014_07_14},
-          {TUE_2014_07_15, TUE_2014_07_15},
-      };
+    return new Object[][] {
+        {THU_2014_07_10, THU_2014_07_10},
+        {FRI_2014_07_11, FRI_2014_07_11},
+        {SAT_2014_07_12, MON_2014_07_14},
+        {SUN_2014_07_13, MON_2014_07_14},
+        {MON_2014_07_14, MON_2014_07_14},
+        {TUE_2014_07_15, TUE_2014_07_15},
+    };
   }
 
   @Test(dataProvider = "adjusted")
