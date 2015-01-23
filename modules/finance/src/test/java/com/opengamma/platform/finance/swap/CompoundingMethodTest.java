@@ -24,10 +24,10 @@ public class CompoundingMethodTest {
   @DataProvider(name = "name")
   static Object[][] data_name() {
     return new Object[][] {
-      {CompoundingMethod.NONE, "None" },
-      {CompoundingMethod.STRAIGHT, "Straight" },
-      {CompoundingMethod.FLAT, "Flat" },
-      {CompoundingMethod.SPREAD_EXCLUSIVE, "SpreadExclusive" },
+        {CompoundingMethod.NONE, "None"},
+        {CompoundingMethod.STRAIGHT, "Straight"},
+        {CompoundingMethod.FLAT, "Flat"},
+        {CompoundingMethod.SPREAD_EXCLUSIVE, "SpreadExclusive"},
     };
   }
 

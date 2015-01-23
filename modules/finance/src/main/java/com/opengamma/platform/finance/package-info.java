@@ -9,3 +9,4 @@
  */
 @javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.platform.finance;
+
