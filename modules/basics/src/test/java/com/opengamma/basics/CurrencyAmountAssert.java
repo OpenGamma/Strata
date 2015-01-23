@@ -100,6 +100,7 @@ public class CurrencyAmountAssert extends AbstractAssert<CurrencyAmountAssert, C
    * of an expected amount.
    *
    * @param expectedAmount  the expected amount
+   * @param tolerance  the tolerance to use
    * @return this if the amount matches the expectation, else
    *   throw an {@code AssertionError}
    */
@@ -115,6 +116,7 @@ public class CurrencyAmountAssert extends AbstractAssert<CurrencyAmountAssert, C
    * range of the supplied {@code CurrencyAmount}'s amount.
    *
    * @param expected  the expected {@code CurrencyAmount}
+   * @param tolerance  the tolerance to use
    * @return this if the amount matches the expectation, else
    *   throw an {@code AssertionError}
    */
@@ -124,4 +126,5 @@ public class CurrencyAmountAssert extends AbstractAssert<CurrencyAmountAssert, C
     hasAmount(expected.getAmount(), tolerance);
     return this;
   }
+
 }
