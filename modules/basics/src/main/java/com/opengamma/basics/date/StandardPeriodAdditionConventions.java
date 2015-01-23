@@ -26,6 +26,7 @@ enum StandardPeriodAdditionConventions implements PeriodAdditionConvention {
       ArgChecker.notNull(calendar, "calendar");
       return baseDate.plus(period);
     }
+
     @Override
     public boolean isMonthBased() {
       return false;
@@ -45,6 +46,7 @@ enum StandardPeriodAdditionConventions implements PeriodAdditionConvention {
       }
       return endDate;
     }
+
     @Override
     public boolean isMonthBased() {
       return true;
@@ -64,6 +66,7 @@ enum StandardPeriodAdditionConventions implements PeriodAdditionConvention {
       }
       return endDate;
     }
+
     @Override
     public boolean isMonthBased() {
       return true;
