@@ -16,3 +16,4 @@
  */
 @javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.collect.io;
+

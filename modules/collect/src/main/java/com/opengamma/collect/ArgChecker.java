@@ -54,7 +54,7 @@ public final class ArgChecker {
       throw new IllegalArgumentException(message);
     }
   }
-  
+
   /**
    * Checks that the specified boolean is true.
    * <p>
@@ -85,7 +85,7 @@ public final class ArgChecker {
     if (!validIfTrue) {
       throw new IllegalArgumentException(Messages.format(message, arg));
     }
-  }  
+  }
 
   /**
    * Checks that the specified boolean is false.
@@ -698,6 +698,7 @@ public final class ArgChecker {
     }
     return parameter;
   }
+
   //-------------------------------------------------------------------------
 
   /**
@@ -718,6 +719,7 @@ public final class ArgChecker {
     }
     return false;
   }
+
   /**
    * Checks a collection of doubles for negative elements.
    * <p>
@@ -754,6 +756,7 @@ public final class ArgChecker {
   public static boolean isInRangeExclusive(double low, double high, double value) {
     return (value > low && value < high);
   }
+
   /**
    * Checks that a value is within the range low &lt;= x &lt;= high.
    * <p>

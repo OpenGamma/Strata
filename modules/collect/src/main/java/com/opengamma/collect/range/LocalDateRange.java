@@ -352,12 +352,14 @@ public final class LocalDateRange
   public Stream<LocalDate> stream() {
     Iterator<LocalDate> it = new Iterator<LocalDate>() {
       private LocalDate current = start;
+
       @Override
       public LocalDate next() {
         LocalDate result = current;
         current = current.plusDays(1);
         return result;
       }
+
       @Override
       public boolean hasNext() {
         return current.isBefore(endExclusive);
@@ -366,8 +368,8 @@ public final class LocalDateRange
     long count = endExclusive.toEpochDay() - start.toEpochDay() + 1;
     Spliterator<LocalDate> spliterator = Spliterators.spliterator(it, count,
         Spliterator.IMMUTABLE | Spliterator.NONNULL |
-        Spliterator.DISTINCT | Spliterator.ORDERED | Spliterator.SORTED |
-        Spliterator.SIZED | Spliterator.SUBSIZED);
+            Spliterator.DISTINCT | Spliterator.ORDERED | Spliterator.SORTED |
+            Spliterator.SIZED | Spliterator.SUBSIZED);
     return StreamSupport.stream(spliterator, false);
   }
 
