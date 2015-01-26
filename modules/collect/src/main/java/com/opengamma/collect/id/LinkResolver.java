@@ -12,7 +12,8 @@ package com.opengamma.collect.id;
  * When the target of a link is needed, it is resolved by passing in a link resolver.
  * <p>
  * Link resolution will typically be implemented to access an underlying data store.
- * If the link specifies an identifier and/or that is not resolvable, an exception is thrown.
+ * If the link specifies an identifier that is not resolvable, or the declared target
+ * type is incorrect, an exception is thrown.
  */
 public interface LinkResolver {
 

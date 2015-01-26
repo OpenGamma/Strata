@@ -67,7 +67,7 @@ public final class ResolvableLink<T extends IdentifiableBean>
    * Creates the link.
    * <p>
    * This constructor is not intended to be called directly.
-   * Use {@link Link#resolved(IdentifiableBean)} instead.
+   * Use {@link Link#resolvable(StandardId, Class)} instead.
    *
    * @param identifier  the identifier for the link target
    * @param targetType  the type of the link target
