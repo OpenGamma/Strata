@@ -86,7 +86,12 @@ public class DiscountingRatePaymentPeriodPricerFn
   // calculate the accrual for a unit notional
   private double unitNotionalAccrual(PricingEnvironment env, RateAccrualPeriod accrualPeriod, double spread) {
     double rate = rawRate(env, accrualPeriod);
-    double treatedRate = rate * accrualPeriod.getGearing() + spread;
+    return unitNotionalAccrual(rate, accrualPeriod, spread);
+  }
+
+  // calculate the accrual for a unit notional from the raw rate
+  private double unitNotionalAccrual(double rawRate, RateAccrualPeriod accrualPeriod, double spread) {
+    double treatedRate = rawRate * accrualPeriod.getGearing() + spread;
     return accrualPeriod.getNegativeRateMethod().adjust(treatedRate * accrualPeriod.getYearFraction());
   }
 
@@ -102,10 +107,6 @@ public class DiscountingRatePaymentPeriodPricerFn
   //-------------------------------------------------------------------------
   // apply compounding
   private double accrueCompounded(PricingEnvironment env, RatePaymentPeriod paymentPeriod, double notional) {
-    // testing revealed that (n * (a + b + c)) != (n * a + n * b + n * c)
-    // the best answer was (n * a + n * b + n * c)
-    // as such, the notional is multiplied by the investment factor at each stage of the calculation
-    // instead of calculating a combined investment factor and only multiplying by the notional at the end
     switch (paymentPeriod.getCompoundingMethod()) {
       case STRAIGHT:
         return compoundedStraight(env, paymentPeriod, notional);
@@ -131,27 +132,25 @@ public class DiscountingRatePaymentPeriodPricerFn
 
   // flat compounding
   private double compoundedFlat(PricingEnvironment env, RatePaymentPeriod paymentPeriod, double notional) {
-    // TODO: deal with gearing
-    // TODO: handle negative rates
     double cpaAccumulated = 0d;
     for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
       double rate = rawRate(env, accrualPeriod);
-      cpaAccumulated += cpaAccumulated * rate * accrualPeriod.getYearFraction() 
-          + (rate + accrualPeriod.getSpread()) * accrualPeriod.getYearFraction();
+      cpaAccumulated += cpaAccumulated * unitNotionalAccrual(rate, accrualPeriod, 0) 
+          + unitNotionalAccrual(rate, accrualPeriod, accrualPeriod.getSpread());
     }
     return cpaAccumulated * notional;
   }
 
   // spread exclusive compounding
   private double compoundedSpreadExclusive(PricingEnvironment env, RatePaymentPeriod paymentPeriod, double notional) {
-    double notionalAccrued = notional;
+    double accruedInterest = 1.0d;
     double spreadAccrued = 0;
     for (RateAccrualPeriod accrualPeriod : paymentPeriod.getAccrualPeriods()) {
       double investFactor = 1 + unitNotionalAccrual(env, accrualPeriod, 0);
-      notionalAccrued *= investFactor;
+      accruedInterest *= investFactor;
       spreadAccrued += accrualPeriod.getSpread() * accrualPeriod.getYearFraction();
     }
-    return (notionalAccrued - notional) + spreadAccrued;
+    return notional * (accruedInterest - 1.0d + spreadAccrued);
   }
 
   // no compounding, just sum each accrual period

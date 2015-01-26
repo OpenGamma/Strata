@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
+import com.opengamma.platform.finance.swap.CompoundingMethod;
 import com.opengamma.platform.finance.swap.FxReset;
 import com.opengamma.platform.finance.swap.NegativeRateMethod;
 import com.opengamma.platform.finance.swap.RateAccrualPeriod;
@@ -26,7 +27,7 @@ import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
- * Test.
+ * Test {@link DiscountingRatePaymentPeriodPricerFn}
  */
 @Test
 public class DiscountingRatePaymentPeriodPricerFnTest {
@@ -50,7 +51,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
   private static final double RATE_3 = 0.0135d;
   private static final double RATE_FX = 1.6d;
   private static final double DISCOUNT_FACTOR = 0.976d;
-  private static final double TOLERANCE_PV = 1E-10;
+  private static final double TOLERANCE_PV = 1E-6;
 
   private static final RateAccrualPeriod ACCRUAL_PERIOD_1 = RateAccrualPeriod.builder()
       .startDate(CPN_DATE_1)
@@ -218,24 +219,72 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
 
   //-------------------------------------------------------------------------
   public void test_futureValue_compoundStraight() {
-    // TODO: why is this wrong
-//    RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder().compoundingMethod(CompoundingMethod.STRAIGHT).build();
-//    PricingEnvironment env = mock(PricingEnvironment.class);
-//    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-//    double accural1 = ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100);
-//    double accural2 = ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * (NOTIONAL_100 + accural1));
-//    double accural3  = ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * (NOTIONAL_100 + accural2));
-//    double fvExpected = accural1 + accural2 + accural3;
-//    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);    
-//    assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
+    RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
+        .compoundingMethod(CompoundingMethod.STRAIGHT).build();
+    PricingEnvironment env = mock(PricingEnvironment.class);
+    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING + SPREAD);
+    double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING + SPREAD);
+    double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING + SPREAD);
+    double fvExpected = NOTIONAL_100 * (invFactor1 * invFactor2 * invFactor3 - 1.0d);
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);
+    assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   public void test_futureValue_compoundFlat() {
-    // TODO
+    RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
+        .compoundingMethod(CompoundingMethod.FLAT).build();
+    PricingEnvironment env = mock(PricingEnvironment.class);
+    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    double cpa1 = NOTIONAL_100 * ACCRUAL_FACTOR_1 * (RATE_1 * GEARING + SPREAD);
+    double cpa2 = NOTIONAL_100 * ACCRUAL_FACTOR_2 * (RATE_2 * GEARING + SPREAD)
+        + cpa1 * ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
+    double cpa3 = NOTIONAL_100 * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING + SPREAD)
+        + (cpa1 + cpa2) * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
+    double fvExpected = cpa1 + cpa2 + cpa3;
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);
+    assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
+  }
+
+  public void test_futureValue_compoundFlat_notional() {
+    RatePaymentPeriod periodNot = PAYMENT_PERIOD_FULL_GS.toBuilder()
+        .compoundingMethod(CompoundingMethod.FLAT).build();
+    RatePaymentPeriod period1 = PAYMENT_PERIOD_FULL_GS.toBuilder()
+        .compoundingMethod(CompoundingMethod.FLAT).notional(1.0d).build();
+    PricingEnvironment env = mock(PricingEnvironment.class);
+    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    double fvComputedNot = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, periodNot);
+    double fvComputed1 = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period1);
+    assertEquals(fvComputedNot, fvComputed1 * NOTIONAL_100, TOLERANCE_PV);
   }
 
   public void test_futureValue_compoundSpreadExclusive() {
-    // TODO
+    RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS.toBuilder()
+        .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
+    PricingEnvironment env = mock(PricingEnvironment.class);
+    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING);
+    double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
+    double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
+    double fvExpected = NOTIONAL_100 * (invFactor1 * invFactor2 * invFactor3 - 1.0d
+        + (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);
+    assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
+  }
+
+  public void test_futureValue_compoundSpreadExclusive_fx() {
+    RatePaymentPeriod period = PAYMENT_PERIOD_FULL_GS_FX.toBuilder()
+        .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
+    PricingEnvironment env = mock(PricingEnvironment.class);
+    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    when(env.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), FX_DATE_1)).thenReturn(RATE_FX);
+    double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING);
+    double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
+    double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
+    double fvExpected = NOTIONAL_100 * RATE_FX * (invFactor1 * invFactor2 * invFactor3 - 1.0d
+        + (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);
+    assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
 }
