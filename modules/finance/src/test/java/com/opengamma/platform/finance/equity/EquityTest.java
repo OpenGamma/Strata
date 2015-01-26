@@ -12,8 +12,8 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.SecurityType;
-import com.opengamma.platform.source.id.StandardId;
 
 /**
  * Test.

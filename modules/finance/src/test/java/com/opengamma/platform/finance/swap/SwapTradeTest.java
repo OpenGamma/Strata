@@ -15,8 +15,8 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.TradeType;
-import com.opengamma.platform.source.id.StandardId;
 
 /**
  * Test.
