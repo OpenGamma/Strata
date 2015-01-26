@@ -8,6 +8,7 @@ package com.opengamma.collect.result;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -65,9 +66,9 @@ public final class FailureItem
   @PropertyDefinition(validate = "notNull")
   private final String stackTrace;
   /**
-   * The type of the exception that caused the failure, null if it wasn't caused by an exception.
+   * The type of the exception that caused the failure, not present if it wasn't caused by an exception.
    */
-  @PropertyDefinition
+  @PropertyDefinition(get = "optional")
   @Nullable
   private final Class<? extends Exception> causeType;
 
@@ -165,11 +166,11 @@ public final class FailureItem
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of the exception that caused the failure, null if it wasn't caused by an exception.
-   * @return the value of the property
+   * Gets the type of the exception that caused the failure, not present if it wasn't caused by an exception.
+   * @return the optional value of the property, not null
    */
-  public Class<? extends Exception> getCauseType() {
-    return causeType;
+  public Optional<Class<? extends Exception>> getCauseType() {
+    return Optional.ofNullable(causeType);
   }
 
   //-----------------------------------------------------------------------
@@ -183,7 +184,7 @@ public final class FailureItem
       return JodaBeanUtils.equal(getReason(), other.getReason()) &&
           JodaBeanUtils.equal(getMessage(), other.getMessage()) &&
           JodaBeanUtils.equal(getStackTrace(), other.getStackTrace()) &&
-          JodaBeanUtils.equal(getCauseType(), other.getCauseType());
+          JodaBeanUtils.equal(causeType, other.causeType);
     }
     return false;
   }
@@ -194,7 +195,7 @@ public final class FailureItem
     hash = hash * 31 + JodaBeanUtils.hashCode(getReason());
     hash = hash * 31 + JodaBeanUtils.hashCode(getMessage());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStackTrace());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getCauseType());
+    hash = hash * 31 + JodaBeanUtils.hashCode(causeType);
     return hash;
   }
 
@@ -205,7 +206,7 @@ public final class FailureItem
     buf.append("reason").append('=').append(getReason()).append(',').append(' ');
     buf.append("message").append('=').append(getMessage()).append(',').append(' ');
     buf.append("stackTrace").append('=').append(getStackTrace()).append(',').append(' ');
-    buf.append("causeType").append('=').append(JodaBeanUtils.toString(getCauseType()));
+    buf.append("causeType").append('=').append(JodaBeanUtils.toString(causeType));
     buf.append('}');
     return buf.toString();
   }
@@ -331,7 +332,7 @@ public final class FailureItem
         case 2026279837:  // stackTrace
           return ((FailureItem) bean).getStackTrace();
         case -1443456189:  // causeType
-          return ((FailureItem) bean).getCauseType();
+          return ((FailureItem) bean).causeType;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
