@@ -9,6 +9,7 @@ import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

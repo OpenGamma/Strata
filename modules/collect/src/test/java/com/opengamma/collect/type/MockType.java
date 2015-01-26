@@ -7,8 +7,6 @@ package com.opengamma.collect.type;
 
 import org.joda.convert.FromString;
 
-import com.opengamma.collect.type.TypedString;
-
 /**
  * The mock type.
  */
