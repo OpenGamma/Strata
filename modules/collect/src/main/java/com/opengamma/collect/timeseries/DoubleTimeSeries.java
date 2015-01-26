@@ -23,13 +23,13 @@ public interface DoubleTimeSeries<T> {
    *
    * @return the size of the time-series
    */
-  int size();
+  public abstract int size();
 
   /**
    * Returns a map of times and values in this time-series.
    *
    * @return a map of the elements of this time-series
    */
-  ImmutableSortedMap<T, Double> toMap();
+  public abstract ImmutableSortedMap<T, Double> toMap();
 
 }
