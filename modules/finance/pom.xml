@@ -24,11 +24,6 @@
       <groupId>com.opengamma.commons</groupId>
       <artifactId>og-basics</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>ogp-source</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- Testing -->
     <dependency>
       <groupId>com.opengamma.commons</groupId>
