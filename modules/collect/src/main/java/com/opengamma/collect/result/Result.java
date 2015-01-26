@@ -15,6 +15,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -49,6 +51,11 @@ import com.opengamma.collect.Messages;
  * Application code using a result should also operate in a functional style.
  * Use {@link #map(Function)} and {@link #flatMap(Function)} in preference to
  * {@link #isSuccess()} and {@link #getValue()}.
+ * <p>
+ * <pre>
+ *  Result{@literal <Foo>} intermediateResult = calculateIntermediateResult();
+ *  return intermediateResult.flatMap(foo -> calculateFinalResult(foo, ...));
+ * </pre>
  * <p>
  * Results can be generated using the factory methods on this class.
  *
@@ -459,6 +466,9 @@ public final class Result<T>
    * <p>
    * If this result is a failure then an an IllegalStateException will be thrown.
    * To avoid this, call {@link #isSuccess()} or {@link #isFailure()} first.
+   * <p>
+   * Application code is recommended to use {@link #map(Function)} and
+   * {@link #flatMap(Function)} in preference to this method.
    *
    * @return the result value, only available if calculated successfully
    * @throws IllegalStateException if called on a failure result
@@ -476,11 +486,14 @@ public final class Result<T>
    * <p>
    * If this result is a success then the result value is returned.
    * If this result is a failure then the default value is returned.
+   * <p>
+   * Application code is recommended to use {@link #map(Function)} and
+   * {@link #flatMap(Function)} in preference to this method.
    *
-   * @param defaultValue  the default value to return if the result is a failure
+   * @param defaultValue  the default value to return if the result is a failure, may be null
    * @return either the result value or the default value
    */
-  public T getValueOrElse(T defaultValue) {
+  public T getValueOrElse(@Nullable T defaultValue) {
     return (isSuccess() ? value : defaultValue);
   }
 

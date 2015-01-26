@@ -51,6 +51,7 @@ public class ResultTest {
     assertEquals(test.isFailure(), false);
     assertEquals(test.getValue(), "success");
     assertEquals(test.getValueOrElse("blue"), "success");
+    assertEquals(test.getValueOrElse(null), "success");
   }
 
   public void success_getFailure() {
@@ -102,6 +103,7 @@ public class ResultTest {
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
     assertEquals(test.getValueOrElse("blue"), "blue");
+    assertEquals(test.getValueOrElse(null), null);
     assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure");
     assertEquals(test.getFailure().getItems().size(), 1);
