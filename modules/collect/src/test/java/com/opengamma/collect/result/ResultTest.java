@@ -11,6 +11,7 @@ import static com.opengamma.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.collect.result.FailureReason.ERROR;
 import static com.opengamma.collect.result.FailureReason.MISSING_DATA;
 import static com.opengamma.collect.result.FailureReason.PERMISSION_DENIED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
@@ -25,6 +26,7 @@ import java.util.function.Function;
 
 import org.testng.annotations.Test;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.collect.TestHelper;
@@ -96,12 +98,22 @@ public class ResultTest {
 
   //-------------------------------------------------------------------------
   public void failure() {
-    Result<String> test = Result.failure(new IllegalArgumentException("failure"));
+    IllegalArgumentException ex = new IllegalArgumentException("failure");
+    Result<String> test = Result.failure(ex);
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
     assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure");
     assertEquals(test.getFailure().getItems().size(), 1);
+    FailureItem item = test.getFailure().getItems().iterator().next();
+    assertEquals(item.getReason(), ERROR);
+    assertEquals(item.getMessage(), "failure");
+    assertEquals(item.getCauseType().get(), ex.getClass());
+    assertEquals(item.getStackTrace(), Throwables.getStackTraceAsString(ex));
+  }
+
+  public void failure_map_flatMap_ifSuccess() {
+    Result<String> test = Result.failure(new IllegalArgumentException("failure"));
     Result<Integer> test1 = test.map(MAP_STRLEN);
     assertSame(test1, test);
     Result<Integer> test2 = test.flatMap(FUNCTION_STRLEN);
@@ -181,6 +193,12 @@ public class ResultTest {
     Result<Integer> test = Result.failure(failure);
     assertTrue(test.isFailure());
     assertEquals(test.getFailure().getMessage(), "my failure");
+    assertEquals(test.getFailure().getItems().size(), 1);
+    FailureItem item = test.getFailure().getItems().iterator().next();
+    assertEquals(item.getReason(), ERROR);
+    assertEquals(item.getMessage(), "my failure");
+    assertEquals(item.getCauseType().isPresent(), false);
+    assertTrue(item.getStackTrace() != null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
