@@ -27,10 +27,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.basics.currency.CurrencyAmount;
+import com.opengamma.collect.id.Link;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.Trade;
 import com.opengamma.platform.finance.TradeType;
-import com.opengamma.platform.source.id.StandardId;
-import com.opengamma.platform.source.link.Link;
 
 /**
  * A trade representing the purchase or sale of an equity.

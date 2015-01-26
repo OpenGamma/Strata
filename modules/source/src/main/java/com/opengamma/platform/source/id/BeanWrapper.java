@@ -23,6 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.StandardId;
 
 /**
  * Wrapper class for an {@link IdentifiableBean} that allows additional identifiers

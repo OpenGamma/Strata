@@ -3,13 +3,15 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.source.link;
+package com.opengamma.platform.source;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.LinkResolutionException;
+import com.opengamma.collect.id.LinkResolver;
+import com.opengamma.collect.id.ResolvableLink;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.collect.result.Result;
-import com.opengamma.platform.source.Source;
-import com.opengamma.platform.source.id.IdentifiableBean;
-import com.opengamma.platform.source.id.StandardId;
 
 /**
  * A link resolver backed by a source.
@@ -51,7 +53,7 @@ public class SourceLinkResolver implements LinkResolver {
    */
   @Override
   public <T extends IdentifiableBean> T resolve(ResolvableLink<T> link) {
-    Result<T> result = source.get(link.getIdentifier(), link.getLinkType());
+    Result<T> result = source.get(link.getIdentifier(), link.getTargetType());
     if (result.isSuccess()) {
       return result.getValue();
     } else {

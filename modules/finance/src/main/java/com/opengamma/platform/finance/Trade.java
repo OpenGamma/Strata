@@ -10,8 +10,8 @@ import java.time.LocalDate;
 import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.platform.source.id.IdentifiableBean;
-import com.opengamma.platform.source.id.StandardId;
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.StandardId;
 
 /**
  * A single trade against a particular counterparty.

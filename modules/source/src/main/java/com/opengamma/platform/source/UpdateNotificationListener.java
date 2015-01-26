@@ -8,8 +8,8 @@ package com.opengamma.platform.source;
 import java.time.Instant;
 import java.util.Collection;
 
-import com.opengamma.platform.source.id.IdentifiableBean;
-import com.opengamma.platform.source.id.StandardId;
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.StandardId;
 
 /**
  * Interface allowing a provider of data to notify clients that

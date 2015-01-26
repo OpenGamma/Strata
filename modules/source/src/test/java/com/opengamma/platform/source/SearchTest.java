@@ -12,9 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.platform.source.id.IdentifiableBean;
-import com.opengamma.platform.source.id.StandardId;
-import com.opengamma.platform.source.id.StandardIdentifiable;
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.StandardId;
+import com.opengamma.collect.id.StandardIdentifiable;
 
 @Test
 public class SearchTest {

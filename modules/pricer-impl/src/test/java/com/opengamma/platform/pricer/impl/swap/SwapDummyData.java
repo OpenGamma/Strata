@@ -19,6 +19,7 @@ import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueSchedule;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
@@ -32,7 +33,6 @@ import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.finance.swap.SwapTrade;
-import com.opengamma.platform.source.id.StandardId;
 
 /**
  * Basic dummy objects used when the data within is not important.

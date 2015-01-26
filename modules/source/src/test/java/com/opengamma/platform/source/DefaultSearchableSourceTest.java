@@ -16,10 +16,10 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.collect.result.FailureReason;
 import com.opengamma.collect.result.Result;
-import com.opengamma.platform.source.id.IdentifiableBean;
-import com.opengamma.platform.source.id.StandardId;
 
 /**
  * Tests for the DefaultSearchableSource.

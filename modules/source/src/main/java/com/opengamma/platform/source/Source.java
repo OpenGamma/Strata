@@ -5,9 +5,9 @@
  */
 package com.opengamma.platform.source;
 
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.collect.result.Result;
-import com.opengamma.platform.source.id.IdentifiableBean;
-import com.opengamma.platform.source.id.StandardId;
 
 /**
  * The Source interface describes an internal source of data.

@@ -25,9 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.Trade;
 import com.opengamma.platform.finance.TradeType;
-import com.opengamma.platform.source.id.StandardId;
 
 /**
  * A trade representing an interest rate swap.

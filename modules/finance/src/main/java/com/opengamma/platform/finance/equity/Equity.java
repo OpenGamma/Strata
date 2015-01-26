@@ -25,10 +25,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.collect.id.StandardId;
+import com.opengamma.collect.id.StandardIdentifiable;
 import com.opengamma.platform.finance.Security;
 import com.opengamma.platform.finance.SecurityType;
-import com.opengamma.platform.source.id.StandardId;
-import com.opengamma.platform.source.id.StandardIdentifiable;
 
 /**
  * An equity share of a company.

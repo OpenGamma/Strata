@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.platform.source.id.StandardId;
+import com.opengamma.collect.id.StandardId;
 
 /**
  * The result of a search of a {@code SearchableSourceProvider}

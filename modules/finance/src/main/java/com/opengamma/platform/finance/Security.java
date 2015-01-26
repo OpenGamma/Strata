@@ -8,10 +8,10 @@ package com.opengamma.platform.finance;
 import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.Link;
+import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.equity.Equity;
-import com.opengamma.platform.source.id.IdentifiableBean;
-import com.opengamma.platform.source.id.StandardId;
-import com.opengamma.platform.source.link.Link;
 
 /**
  * A shared financial security.
