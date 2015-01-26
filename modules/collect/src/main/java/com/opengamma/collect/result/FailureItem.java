@@ -66,7 +66,7 @@ public final class FailureItem
   @PropertyDefinition(validate = "notNull")
   private final String stackTrace;
   /**
-   * The type of the exception that caused the failure, null if it wasn't caused by an exception.
+   * The type of the exception that caused the failure, not present if it wasn't caused by an exception.
    */
   @PropertyDefinition(get = "optional")
   @Nullable
@@ -166,7 +166,7 @@ public final class FailureItem
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of the exception that caused the failure, null if it wasn't caused by an exception.
+   * Gets the type of the exception that caused the failure, not present if it wasn't caused by an exception.
    * @return the optional value of the property, not null
    */
   public Optional<Class<? extends Exception>> getCauseType() {
