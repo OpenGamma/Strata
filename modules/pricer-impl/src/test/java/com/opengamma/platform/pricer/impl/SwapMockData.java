@@ -16,6 +16,7 @@ import com.opengamma.basics.index.IborIndices;
 import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.OvernightIndices;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.collect.timeseries.SparseLocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -27,22 +28,22 @@ public class SwapMockData {
   }
 
   public static final LocalDateDoubleTimeSeries TS_USDLIBOR1M =
-      LocalDateDoubleTimeSeries.builder()
+      SparseLocalDateDoubleTimeSeries.builder()
           .put(LocalDate.of(2013, 12, 10), 0.00123)
           .put(LocalDate.of(2013, 12, 12), 0.00123)
           .build();
   public static final LocalDateDoubleTimeSeries TS_USDLIBOR3M =
-      LocalDateDoubleTimeSeries.builder()
+      SparseLocalDateDoubleTimeSeries.builder()
           .put(LocalDate.of(2013, 12, 10), 0.0024185)
           .put(LocalDate.of(2013, 12, 12), 0.0024285)
           .build();
   public static final LocalDateDoubleTimeSeries TS_USDLIBOR6M =
-      LocalDateDoubleTimeSeries.builder()
+      SparseLocalDateDoubleTimeSeries.builder()
           .put(LocalDate.of(2013, 12, 10), 0.0030)
           .put(LocalDate.of(2013, 12, 12), 0.0035)
           .build();
   public static final LocalDateDoubleTimeSeries TS_USDON =
-      LocalDateDoubleTimeSeries.builder()
+      SparseLocalDateDoubleTimeSeries.builder()
           .put(LocalDate.of(2014, 1, 17), 0.0007)
           .put(LocalDate.of(2014, 1, 21), 0.0007)
           .put(LocalDate.of(2014, 1, 22), 0.0007)
