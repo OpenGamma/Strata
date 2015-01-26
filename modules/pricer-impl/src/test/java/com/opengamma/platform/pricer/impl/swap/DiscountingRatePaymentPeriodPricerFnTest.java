@@ -51,7 +51,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
   private static final double RATE_3 = 0.0135d;
   private static final double RATE_FX = 1.6d;
   private static final double DISCOUNT_FACTOR = 0.976d;
-  private static final double TOLERANCE_PV = 1E-6;
+  private static final double TOLERANCE_PV = 1E-7;
 
   private static final RateAccrualPeriod ACCRUAL_PERIOD_1 = RateAccrualPeriod.builder()
       .startDate(CPN_DATE_1)
@@ -140,7 +140,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(PAYMENT_DATE_1.plusDays(1));
     when(env.discountFactor(USD, PAYMENT_DATE_1)).thenReturn(DISCOUNT_FACTOR);
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.presentValue(env, PAYMENT_PERIOD_1);    
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.presentValue(env, PAYMENT_PERIOD_1);
     assertEquals(fvComputed, 0d, TOLERANCE_PV);
   }
 
@@ -149,7 +149,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
     when(env.discountFactor(USD, PAYMENT_DATE_1)).thenReturn(DISCOUNT_FACTOR);
     double pvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * DISCOUNT_FACTOR;
-    double pvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.presentValue(env, PAYMENT_PERIOD_1);    
+    double pvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.presentValue(env, PAYMENT_PERIOD_1);
     assertEquals(pvComputed, pvExpected, TOLERANCE_PV);
   }
 
@@ -157,7 +157,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
   public void test_futureValue_single_paymentBeforeToday() {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(PAYMENT_DATE_1.plusDays(1));
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1);    
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1);
     assertEquals(fvComputed, 0d, TOLERANCE_PV);
   }
 
@@ -165,7 +165,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100;
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1);    
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -174,7 +174,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
     when(env.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), FX_DATE_1)).thenReturn(RATE_FX);
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX;
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_FX);    
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_FX);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -182,14 +182,14 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
     double fvExpected = (RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100;
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_GS);    
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_GS);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
   public void test_futureValue_single_gearingNoNegative() {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_NEG);    
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_NEG);
     assertEquals(fvComputed, 0d, TOLERANCE_PV);
   }
 
@@ -199,9 +199,9 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100) +
-        ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100) +
-        ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100);
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_FULL_GS);    
+            ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100) +
+            ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100);
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_FULL_GS);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -211,9 +211,9 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     when(env.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), FX_DATE_1)).thenReturn(RATE_FX);
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX) +
-        ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100 * RATE_FX) +
-        ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100 * RATE_FX);
-    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_FULL_GS_FX);    
+            ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100 * RATE_FX) +
+            ((RATE_3 * GEARING + SPREAD) * ACCRUAL_FACTOR_3 * NOTIONAL_100 * RATE_FX);
+    double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_FULL_GS_FX);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
 
@@ -237,10 +237,10 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
     double cpa1 = NOTIONAL_100 * ACCRUAL_FACTOR_1 * (RATE_1 * GEARING + SPREAD);
-    double cpa2 = NOTIONAL_100 * ACCRUAL_FACTOR_2 * (RATE_2 * GEARING + SPREAD)
-        + cpa1 * ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
-    double cpa3 = NOTIONAL_100 * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING + SPREAD)
-        + (cpa1 + cpa2) * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
+    double cpa2 = NOTIONAL_100 * ACCRUAL_FACTOR_2 * (RATE_2 * GEARING + SPREAD) +
+        cpa1 * ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
+    double cpa3 = NOTIONAL_100 * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING + SPREAD) +
+        (cpa1 + cpa2) * ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
     double fvExpected = cpa1 + cpa2 + cpa3;
     double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
@@ -266,8 +266,8 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING);
     double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
-    double fvExpected = NOTIONAL_100 * (invFactor1 * invFactor2 * invFactor3 - 1.0d
-        + (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
+    double fvExpected = NOTIONAL_100 * (invFactor1 * invFactor2 * invFactor3 - 1.0d +
+        (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
     double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
@@ -281,8 +281,8 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING);
     double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);
-    double fvExpected = NOTIONAL_100 * RATE_FX * (invFactor1 * invFactor2 * invFactor3 - 1.0d
-        + (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
+    double fvExpected = NOTIONAL_100 * RATE_FX * (invFactor1 * invFactor2 * invFactor3 - 1.0d +
+        (ACCRUAL_FACTOR_1 + ACCRUAL_FACTOR_2 + ACCRUAL_FACTOR_3) * SPREAD);
     double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
