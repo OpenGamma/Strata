@@ -26,12 +26,12 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * An interest rate swap, that may or may not have been traded.
+ * A swap, that may or may not have been traded.
  * <p>
  * A swap is a financial instrument that represents the exchange of streams of payments.
  * The swap is formed of legs, where each leg typically represents the obligations
- * of the seller or buyer of the swap. In the simplest vanilla swap, there are two legs,
- * one with a fixed rate and the other a floating rate.
+ * of the seller or buyer of the swap. In the simplest vanilla interest rate swap,
+ * there are two legs, one with a fixed rate and the other a floating rate.
  * Many other more complex swaps can also be represented.
  * <p>
  * An instance of {@code Swap} can exist independently from a {@link SwapTrade}.

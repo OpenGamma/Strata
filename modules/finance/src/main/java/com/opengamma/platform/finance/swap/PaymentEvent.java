@@ -17,8 +17,8 @@ import com.opengamma.basics.currency.Currency;
  * Implementations of this interface represent a single payment event.
  * Causes include exchange of notional amounts and fees.
  * <p>
- * This interface imposes few restrictions on the payment periods.
- * The period must have a payment date and currency.
+ * This interface imposes few restrictions on the payment events.
+ * The event must have a payment date and currency.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */

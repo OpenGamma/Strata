@@ -30,7 +30,7 @@ import com.opengamma.platform.finance.Trade;
 import com.opengamma.platform.finance.TradeType;
 
 /**
- * A trade representing an interest rate swap.
+ * A trade representing a swap.
  * <p>
  * A trade in a {@link Swap}.
  * For example, a trade involving a fixed vs 3 month Libor interest rate swap.
