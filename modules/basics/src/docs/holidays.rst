@@ -17,7 +17,7 @@ Holiday Calendar
 ================
 
 The OG-Basics project includes a holiday calendar interface and some common implementations.
-The key interface is ``HolidayCalendar`` which defines methods to query the calendar:
+The key interface is ``HolidayCalendar`` which defines methods to query the calendar.
 
 Each holiday calendar implementation has a unique name.
 This can be used to obtain the holiday calendar via the static method ``HolidayCalendar.of(String)``:
@@ -26,7 +26,7 @@ This can be used to obtain the holiday calendar via the static method ``HolidayC
 
     HolidayCalendar holCal = HolidayCalendar.of("GBLO");
 
-All available holiday calendars can be listed using the static method  ``HolidayCalendar.extendedEnum()``:
+All available holiday calendars can be listed using the static method  ``HolidayCalendar.extendedEnum()``.
 
 Common holiday calendars can also be obtained using static constants on ``HolidayCalendars``:
 

@@ -6,7 +6,7 @@ Introduction
 ============
 
 A common problem in finance is the derivation of a schedule of dates.
-The schedule is generally used to determine accrues interest and payments.
+The schedule is generally used to determine accrued interest and payments.
 
 A classic case is the interest rate swap, which typically accrues and pays interest on a regular basis.
 For example, a swap might accrue and pay interest every 3 months.

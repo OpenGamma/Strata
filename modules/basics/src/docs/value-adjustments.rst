@@ -8,7 +8,7 @@ Introduction
 Once a :doc:`schedule <schedules>` of dates has been determined, a key task is associating a value with the schedule.
 For example, a fixed interest rate may increase by 0.1% every 6 months.
 
-To manage a values that can change over time with the schedule, a *value schedule* is used.
+To manage a value that can change over time with the schedule, a *value schedule* is used.
 
 
 Value Schedule

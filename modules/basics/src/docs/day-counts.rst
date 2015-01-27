@@ -7,8 +7,12 @@ Introduction
 
 A *day count* is used to convert dates to a numeric representation for financial maths.
 
-Due to the nature dates, there are many ways to convert the amount of time between two dates into a number.
-This results in many different day count conventions, used in different markets and for different products.
+A date consists of 12 months of varying lengths and occasional leap days.
+As a result of this variation there are many possible ways to convert the amount of time between
+two dates into a number. While counting the number of days between two dates is simple, there
+are many different ways to convert the amount of time to a fraction of a year.
+Each day count specifies a specific set of rules for the conversion.
+Different rules are used in different markets and for different products.
 
 The standard approach is based on converting the period between two dates to a *year fraction*.
 A year fraction is a floating point number, where one year is represented by 1 and half a year by 0.5.
@@ -23,7 +27,7 @@ Day Count
 =========
 
 The OG-Basics project includes a comprehensive implementation of day count conventions.
-The key interface is ``DayCount`` which defines methods to obtain and query a specific day count:
+The key interface is ``DayCount`` which defines methods to obtain and query a specific day count.
 
 Each day count implementation has a unique name.
 This can be used to obtain the day count via the static method ``DayCount.of(String)``:
@@ -32,7 +36,7 @@ This can be used to obtain the day count via the static method ``DayCount.of(Str
 
     DayCount dayCount = DayCount.of("Act/360");
 
-All available day counts can be listed using the static method  ``DayCount.extendedEnum()``:
+All available day counts can be listed using the static method  ``DayCount.extendedEnum()``.
 
 Common day counts can also be obtained using static constants on ``DayCounts``:
 
