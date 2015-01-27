@@ -24,7 +24,8 @@ import com.opengamma.basics.currency.Currency;
  * A single swap leg must produce payments in a single currency.
  * <p>
  * In most cases, a swap will consist of a list of payment periods, but this is not
- * required by this interface.
+ * required by this interface. The {@link ExpandedSwapLeg} class, which this leg can
+ * be converted to, does define the swap in terms of payment periods.
  * <p>
  * Implementations must be immutable and thread-safe beans.
  */
@@ -59,5 +60,16 @@ public interface SwapLeg
    * @return the currency of the leg
    */
   public abstract Currency getCurrency();
+
+  /**
+   * Expands this swap leg.
+   * <p>
+   * Expanding a swap leg causes the dates to be adjusted according to the relevant
+   * holiday calendar. Other one-off calculations may also be performed.
+   * 
+   * @return the expended swap leg
+   * @throws RuntimeException if unable to expand
+   */
+  public abstract ExpandedSwapLeg expand();
 
 }
