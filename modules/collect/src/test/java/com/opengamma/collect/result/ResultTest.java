@@ -7,6 +7,7 @@ package com.opengamma.collect.result;
 
 import static com.opengamma.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.collect.result.FailureReason.ERROR;
 import static com.opengamma.collect.result.FailureReason.MISSING_DATA;
@@ -51,7 +52,7 @@ public class ResultTest {
     assertEquals(test.isFailure(), false);
     assertEquals(test.getValue(), "success");
     assertEquals(test.getValueOrElse("blue"), "success");
-    assertEquals(test.getValueOrElse(null), "success");
+    assertThrowsIllegalArg(() -> test.getValueOrElse(null));
   }
 
   public void success_getFailure() {
@@ -103,7 +104,7 @@ public class ResultTest {
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
     assertEquals(test.getValueOrElse("blue"), "blue");
-    assertEquals(test.getValueOrElse(null), null);
+    assertThrowsIllegalArg(() -> test.getValueOrElse(null));
     assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure");
     assertEquals(test.getFailure().getItems().size(), 1);

@@ -15,8 +15,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import javax.annotation.Nullable;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -486,14 +484,16 @@ public final class Result<T>
    * <p>
    * If this result is a success then the result value is returned.
    * If this result is a failure then the default value is returned.
+   * The default value must not be null.
    * <p>
    * Application code is recommended to use {@link #map(Function)} and
    * {@link #flatMap(Function)} in preference to this method.
    *
-   * @param defaultValue  the default value to return if the result is a failure, may be null
+   * @param defaultValue  the default value to return if the result is a failure
    * @return either the result value or the default value
    */
-  public T getValueOrElse(@Nullable T defaultValue) {
+  public T getValueOrElse(T defaultValue) {
+    ArgChecker.notNull(defaultValue, "defaultValue");
     return (isSuccess() ? value : defaultValue);
   }
 
