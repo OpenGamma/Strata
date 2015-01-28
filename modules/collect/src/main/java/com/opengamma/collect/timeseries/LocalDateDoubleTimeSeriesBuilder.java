@@ -6,6 +6,7 @@
 package com.opengamma.collect.timeseries;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.OptionalDouble;
@@ -15,6 +16,9 @@ import java.util.stream.Stream;
 
 import com.opengamma.collect.ArgChecker;
 
+import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.INCLUDE_WEEKENDS;
+import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.SKIP_WEEKENDS;
+
 /**
  * Builder to create the immutable {@code LocalDateDoubleTimeSeries}.
  * <p>
@@ -22,20 +26,31 @@ import com.opengamma.collect.ArgChecker;
  * Entries can be added to the builder in any order.
  * If a date is duplicated it will overwrite an earlier entry.
  * <p>
- * Use {@link LocalDateDoubleTimeSeries#builder()} to create an instance.
+ * Use {@link SparseLocalDateDoubleTimeSeries#builder()} to create an instance.
  */
 public final class LocalDateDoubleTimeSeriesBuilder {
+
+  /**
+   * Threshold for deciding whether we use the dense or sparse timeseries
+   * implementation
+   */
+  public static final double DENSITY_THRESHOLD = 0.7;
 
   /**
    * The entries for the time-series.
    */
   private final SortedMap<LocalDate, Double> entries = new TreeMap<>();
 
+  /**
+   * Keep track of whether we have weekends in the data.
+   */
+  private boolean containsWeekends;
+
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
    * <p>
-   * Use {@link LocalDateDoubleTimeSeries#builder()}.
+   * Use {@link SparseLocalDateDoubleTimeSeries#builder()}.
    */
   LocalDateDoubleTimeSeriesBuilder() {
   }
@@ -43,15 +58,19 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   /**
    * Creates an instance.
    * <p>
-   * Use {@link LocalDateDoubleTimeSeries#toBuilder()}.
+   * Use {@link SparseLocalDateDoubleTimeSeries#toBuilder()}.
    * 
    * @param dates  the dates to initialize with
    * @param values  the values to initialize with
    */
   LocalDateDoubleTimeSeriesBuilder(LocalDate[] dates, double[] values) {
     for (int i = 0; i < dates.length; i++) {
-      entries.put(dates[i], values[i]);
+      put(dates[i], values[i]);
     }
+  }
+
+  LocalDateDoubleTimeSeriesBuilder(Stream<LocalDateDoublePoint> points) {
+    points.forEach(pt -> put(pt.getDate(), pt.getValue()));
   }
 
   //-------------------------------------------------------------------------
@@ -81,6 +100,9 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   public LocalDateDoubleTimeSeriesBuilder put(LocalDate date, double value) {
     ArgChecker.notNull(date, "date");
     entries.put(date, value);
+    if (!containsWeekends && date.get(ChronoField.DAY_OF_WEEK) > 5) {
+      containsWeekends = true;
+    }
     return this;
   }
 
@@ -92,7 +114,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   public LocalDateDoubleTimeSeriesBuilder put(LocalDateDoublePoint point) {
     ArgChecker.notNull(point, "point");
-    entries.put(point.getDate(), point.getValue());
+    put(point.getDate(), point.getValue());
     return this;
   }
 
@@ -115,7 +137,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
     Iterator<LocalDate> itDate = dates.iterator();
     Iterator<Double> itValue = values.iterator();
     for (int i = 0; i < dates.size(); i++) {
-      entries.put(itDate.next(), itValue.next());
+      put(itDate.next(), itValue.next());
     }
     return this;
   }
@@ -131,7 +153,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   public LocalDateDoubleTimeSeriesBuilder putAll(Stream<LocalDateDoublePoint> points) {
     ArgChecker.notNull(points, "points");
-    points.forEachOrdered(point -> put(point));
+    points.forEach(this::put);
     return this;
   }
 
@@ -147,6 +169,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   public LocalDateDoubleTimeSeriesBuilder putAll(LocalDateDoubleTimeSeriesBuilder other) {
     ArgChecker.notNull(other, "other");
     entries.putAll(other.entries);
+    containsWeekends = containsWeekends || other.containsWeekends;
     return this;
   }
 
@@ -157,7 +180,26 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    * @return a time-series containing the entries from the builder
    */
   public LocalDateDoubleTimeSeries build() {
-    return LocalDateDoubleTimeSeries.of(entries.keySet(), entries.values());
+
+    if (entries.isEmpty()) {
+      return SparseLocalDateDoubleTimeSeries.EMPTY_SERIES;
+    }
+
+    // Depending on how dense the data is, judge which type of time series
+    // is the best fit
+    return density() > DENSITY_THRESHOLD ?
+        DenseLocalDateDoubleTimeSeries.of(entries, determineCalculation()) :
+        SparseLocalDateDoubleTimeSeries.of(entries.keySet(), entries.values());
+  }
+
+  private DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation determineCalculation() {
+    return containsWeekends ? INCLUDE_WEEKENDS : SKIP_WEEKENDS;
+  }
+
+  private double density() {
+    // We can use the calculators to work out range size
+    double rangeSize = determineCalculation().calculatePosition(entries.firstKey(), entries.lastKey()) + 1;
+    return entries.size() / rangeSize;
   }
 
 }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.collect.timeseries;
 
-import static com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries.EMPTY_SERIES;
+import static com.opengamma.collect.timeseries.SparseLocalDateDoubleTimeSeries.EMPTY_SERIES;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -62,7 +62,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
   public void test_putAll_stream() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     Collection<Double> values = Doubles.asList(2d, 3d);
-    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.of(dates, values);
+    LocalDateDoubleTimeSeries base = SparseLocalDateDoubleTimeSeries.of(dates, values);
     
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.put(date(2012, 1, 1), 0d);
@@ -77,7 +77,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
   public void test_putAll_toBuilder() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     Collection<Double> values = Doubles.asList(2d, 3d);
-    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.of(dates, values);
+    LocalDateDoubleTimeSeries base = SparseLocalDateDoubleTimeSeries.of(dates, values);
     
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.put(date(2012, 1, 1), 0d);
@@ -135,6 +135,49 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
     // updated value
     assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(23d));
     assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(14d));
+  }
+
+  public void densityChoosesImplementation() {
+    LocalDateDoubleTimeSeries initial = LocalDateDoubleTimeSeries.builder()
+        .put(date(2015, 1, 5), 14) // Monday
+        .put(date(2015, 1, 12), 12)
+        .put(date(2015, 1, 19), 13)
+        .build();
+
+    assertEquals(initial.getClass(), SparseLocalDateDoubleTimeSeries.class);
+
+    // Now add in a week's worth of data
+    LocalDateDoubleTimeSeries series2 = initial.toBuilder()
+        .put(date(2015, 1, 6), 14)
+        .put(date(2015, 1, 7), 13)
+        .put(date(2015, 1, 8), 12)
+        .put(date(2015, 1, 9), 13)
+        .build();
+
+    // Not yet enough as we have 7/11 populated (i.e. below 70%)
+    assertEquals(series2.getClass(), SparseLocalDateDoubleTimeSeries.class);
+
+    // Add in 1 more days giving 8/11 populated
+    LocalDateDoubleTimeSeries series3 = series2.toBuilder()
+        .put(date(2015, 1, 13), 11)
+        .build();
+
+    assertEquals(series3.getClass(), DenseLocalDateDoubleTimeSeries.class);
+
+    // Now add in a weekend date, which means we have 9/15
+    LocalDateDoubleTimeSeries series4 = series3.toBuilder()
+        .put(date(2015, 1, 10), 12) // Saturday
+        .build();
+
+    assertEquals(series4.getClass(), SparseLocalDateDoubleTimeSeries.class);
+
+    // Add in 2 new dates giving 11/15
+    LocalDateDoubleTimeSeries series5 = series4.toBuilder()
+        .put(date(2015, 1, 14), 11)
+        .put(date(2015, 1, 15), 10)
+        .build();
+
+    assertEquals(series5.getClass(), DenseLocalDateDoubleTimeSeries.class);
   }
 
   //-------------------------------------------------------------------------
