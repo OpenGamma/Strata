@@ -7,6 +7,7 @@ package com.opengamma.collect.result;
 
 import static com.opengamma.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.collect.result.FailureReason.ERROR;
 import static com.opengamma.collect.result.FailureReason.MISSING_DATA;
@@ -50,6 +51,8 @@ public class ResultTest {
     assertEquals(test.isSuccess(), true);
     assertEquals(test.isFailure(), false);
     assertEquals(test.getValue(), "success");
+    assertEquals(test.getValueOrElse("blue"), "success");
+    assertThrowsIllegalArg(() -> test.getValueOrElse(null));
   }
 
   public void success_getFailure() {
@@ -72,13 +75,6 @@ public class ResultTest {
     assertEquals(test.getValue(), Integer.valueOf(7));
   }
 
-  public void success_ifSuccess() {
-    Result<String> success = Result.success("success");
-    Result<Integer> test = success.ifSuccess(FUNCTION_STRLEN);
-    assertEquals(test.isSuccess(), true);
-    assertEquals(test.getValue(), Integer.valueOf(7));
-  }
-
   public void success_combineWith_success() {
     Result<String> success1 = Result.success("Hello");
     Result<String> success2 = Result.success("World");
@@ -96,12 +92,19 @@ public class ResultTest {
     assertEquals(test.getFailure().getItems().size(), 1);
   }
 
+  public void success_stream() {
+    Result<String> success = Result.success("Hello");
+    assertThat(success.stream().toArray()).containsExactly("Hello");
+  }
+
   //-------------------------------------------------------------------------
   public void failure() {
     IllegalArgumentException ex = new IllegalArgumentException("failure");
     Result<String> test = Result.failure(ex);
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
+    assertEquals(test.getValueOrElse("blue"), "blue");
+    assertThrowsIllegalArg(() -> test.getValueOrElse(null));
     assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure");
     assertEquals(test.getFailure().getItems().size(), 1);
@@ -118,8 +121,6 @@ public class ResultTest {
     assertSame(test1, test);
     Result<Integer> test2 = test.flatMap(FUNCTION_STRLEN);
     assertSame(test2, test);
-    Result<Integer> test3 = test.ifSuccess(FUNCTION_STRLEN);
-    assertSame(test3, test);
   }
 
   @Test(expectedExceptions = IllegalStateException.class)
@@ -142,6 +143,11 @@ public class ResultTest {
     Result<String> test = failure1.combineWith(failure2, FUNCTION_MERGE);
     assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure, fail");
+  }
+
+  public void failure_stream() {
+    Result<String> failure = Result.failure(new IllegalArgumentException("failure"));
+    assertThat(failure.stream().toArray()).isEmpty();
   }
 
   //-------------------------------------------------------------------------
@@ -506,12 +512,6 @@ public class ResultTest {
   public void assert_success_flatMap() {
     Result<String> success = Result.success("success");
     Result<Integer> test = success.flatMap(FUNCTION_STRLEN);
-    assertThat(test).isSuccess().hasValue(7);
-  }
-
-  public void assert_success_ifSuccess() {
-    Result<String> success = Result.success("success");
-    Result<Integer> test = success.ifSuccess(FUNCTION_STRLEN);
     assertThat(test).isSuccess().hasValue(7);
   }
 
