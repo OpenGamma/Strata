@@ -6,10 +6,12 @@
 package com.opengamma.platform.finance.swap;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjuster;
 
 import org.joda.beans.ImmutableBean;
 
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.date.BusinessDayAdjustment;
 
 /**
  * A period over which interest is accrued with a single payment.
@@ -65,5 +67,17 @@ public interface PaymentPeriod
    * @return the end date of the period
    */
   public abstract LocalDate getEndDate();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adjusts the payment date using the rules of the specified adjuster.
+   * <p>
+   * The adjuster is typically an instance of {@link BusinessDayAdjustment}.
+   * Implementations must return a new instance unless they are immutable and no change occurs.
+   * 
+   * @param adjuster  the adjuster to apply to the payment date
+   * @return the adjusted payment event
+   */
+  PaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster);
 
 }

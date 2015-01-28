@@ -14,6 +14,7 @@ import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 
 import org.testng.annotations.Test;
 
@@ -49,6 +50,14 @@ public class NotionalExchangeTest {
     assertThrowsIllegalArg(() -> NotionalExchange.of(null, GBP_1000));
     assertThrowsIllegalArg(() -> NotionalExchange.of(DATE_2014_06_30, null));
     assertThrowsIllegalArg(() -> NotionalExchange.of(null, null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_adjustPaymentDate() {
+    NotionalExchange test = NotionalExchange.of(DATE_2014_06_30, GBP_1000);
+    NotionalExchange expected = NotionalExchange.of(DATE_2014_06_30.plusDays(2), GBP_1000);
+    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0))), test);
+    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2))), expected);
   }
 
   //-------------------------------------------------------------------------
