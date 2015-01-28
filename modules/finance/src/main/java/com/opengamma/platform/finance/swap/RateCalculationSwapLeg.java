@@ -135,7 +135,7 @@ public final class RateCalculationSwapLeg
    * the schedules expanded to be {@link PaymentPeriod} instances.
    * 
    * @return the equivalent expanded swap leg
-   * @throws RuntimeException if the swap leg is invalid
+   * @throws RuntimeException if unable to expand
    */
   public ExpandedSwapLeg expand() {
     Schedule resolvedAccruals = accrualSchedule.createSchedule();

@@ -32,9 +32,13 @@ import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
 
 /**
- * An expanded swap leg consisting of a list of payment periods.
+ * An expanded swap leg, with dates calculated ready for pricing.
  * <p>
- * This defines a single swap leg in the form of a list of payment periods.
+ * A swap is a financial instrument that represents the exchange of streams of payments.
+ * The swap is formed of legs, where each leg typically represents the obligations
+ * of the seller or buyer of the swap.
+ * <p>
+ * This class defines a single swap leg in the form of a list of payment periods.
  * Each payment period typically consists of one or more accrual periods.
  * <p>
  * Any combination of payment and accrual periods is supported in the data model,
