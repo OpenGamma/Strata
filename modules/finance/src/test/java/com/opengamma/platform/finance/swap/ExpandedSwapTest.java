@@ -19,7 +19,6 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.observation.IborRateObservation;
@@ -65,24 +64,20 @@ public class ExpandedSwapTest {
   public void test_of() {
     ExpandedSwap test = ExpandedSwap.of(LEG1);
     assertEquals(test.getLegs(), ImmutableSet.of(LEG1));
-    assertEquals(test.getPaymentEvents(), ImmutableList.of());
     assertEquals(test.isCrossCurrency(), false);
   }
 
   public void test_of_crossCurrency() {
     ExpandedSwap test = ExpandedSwap.of(LEG1, LEG2);
     assertEquals(test.getLegs(), ImmutableSet.of(LEG1, LEG2));
-    assertEquals(test.getPaymentEvents(), ImmutableList.of());
     assertEquals(test.isCrossCurrency(), true);
   }
 
   public void test_builder() {
     ExpandedSwap test = ExpandedSwap.builder()
         .legs(LEG1)
-        .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
     assertEquals(test.getLegs(), ImmutableSet.of(LEG1));
-    assertEquals(test.getPaymentEvents(), ImmutableList.of(NOTIONAL_EXCHANGE));
     assertEquals(test.isCrossCurrency(), false);
   }
 
@@ -101,7 +96,6 @@ public class ExpandedSwapTest {
     coverImmutableBean(test);
     ExpandedSwap test2 = ExpandedSwap.builder()
         .legs(LEG2)
-        .paymentEvents(ImmutableList.of(NOTIONAL_EXCHANGE))
         .build();
     coverBeanEquals(test, test2);
   }

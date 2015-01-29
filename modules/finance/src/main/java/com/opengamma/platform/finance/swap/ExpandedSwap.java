@@ -6,7 +6,6 @@
 package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.collect.ArgChecker;
 
@@ -64,13 +62,6 @@ public final class ExpandedSwap
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableSet<ExpandedSwapLeg> legs;
   /**
-   * The payment events that are associated with the swap.
-   * <p>
-   * Payment events include fees.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<PaymentEvent> paymentEvents;
-  /**
    * Whether the swap is cross currency or not.
    */
   private final boolean crossCurrency;  // not a property, derived and cached from input data
@@ -86,17 +77,14 @@ public final class ExpandedSwap
    */
   public static ExpandedSwap of(ExpandedSwapLeg... legs) {
     ArgChecker.notEmpty(legs, "legs");
-    return new ExpandedSwap(ImmutableSet.copyOf(legs), ImmutableList.of());
+    return new ExpandedSwap(ImmutableSet.copyOf(legs));
   }
 
   //-------------------------------------------------------------------------
   @ImmutableConstructor
-  private ExpandedSwap(
-      Set<ExpandedSwapLeg> legs,
-      List<PaymentEvent> paymentEvents) {
+  private ExpandedSwap(Set<ExpandedSwapLeg> legs) {
     JodaBeanUtils.notEmpty(legs, "legs");
     this.legs = ImmutableSet.copyOf(legs);
-    this.paymentEvents = ImmutableList.copyOf(paymentEvents);
     this.crossCurrency = legs.stream()
         .map(ExpandedSwapLeg::getCurrency)
         .distinct()
@@ -187,17 +175,6 @@ public final class ExpandedSwap
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the payment events that are associated with the swap.
-   * <p>
-   * Payment events include fees.
-   * @return the value of the property, not null
-   */
-  public ImmutableList<PaymentEvent> getPaymentEvents() {
-    return paymentEvents;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -212,8 +189,7 @@ public final class ExpandedSwap
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedSwap other = (ExpandedSwap) obj;
-      return JodaBeanUtils.equal(getLegs(), other.getLegs()) &&
-          JodaBeanUtils.equal(getPaymentEvents(), other.getPaymentEvents());
+      return JodaBeanUtils.equal(getLegs(), other.getLegs());
     }
     return false;
   }
@@ -222,16 +198,14 @@ public final class ExpandedSwap
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getLegs());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentEvents());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("ExpandedSwap{");
-    buf.append("legs").append('=').append(getLegs()).append(',').append(' ');
-    buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(getPaymentEvents()));
+    buf.append("legs").append('=').append(JodaBeanUtils.toString(getLegs()));
     buf.append('}');
     return buf.toString();
   }
@@ -253,18 +227,11 @@ public final class ExpandedSwap
     private final MetaProperty<ImmutableSet<ExpandedSwapLeg>> legs = DirectMetaProperty.ofImmutable(
         this, "legs", ExpandedSwap.class, (Class) ImmutableSet.class);
     /**
-     * The meta-property for the {@code paymentEvents} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<PaymentEvent>> paymentEvents = DirectMetaProperty.ofImmutable(
-        this, "paymentEvents", ExpandedSwap.class, (Class) ImmutableList.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "legs",
-        "paymentEvents");
+        "legs");
 
     /**
      * Restricted constructor.
@@ -277,8 +244,6 @@ public final class ExpandedSwap
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
           return legs;
-        case 1031856831:  // paymentEvents
-          return paymentEvents;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -307,22 +272,12 @@ public final class ExpandedSwap
       return legs;
     }
 
-    /**
-     * The meta-property for the {@code paymentEvents} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<ImmutableList<PaymentEvent>> paymentEvents() {
-      return paymentEvents;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
           return ((ExpandedSwap) bean).getLegs();
-        case 1031856831:  // paymentEvents
-          return ((ExpandedSwap) bean).getPaymentEvents();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -345,7 +300,6 @@ public final class ExpandedSwap
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedSwap> {
 
     private Set<ExpandedSwapLeg> legs = ImmutableSet.of();
-    private List<PaymentEvent> paymentEvents = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -359,7 +313,6 @@ public final class ExpandedSwap
      */
     private Builder(ExpandedSwap beanToCopy) {
       this.legs = beanToCopy.getLegs();
-      this.paymentEvents = beanToCopy.getPaymentEvents();
     }
 
     //-----------------------------------------------------------------------
@@ -368,8 +321,6 @@ public final class ExpandedSwap
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
           return legs;
-        case 1031856831:  // paymentEvents
-          return paymentEvents;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -381,9 +332,6 @@ public final class ExpandedSwap
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
           this.legs = (Set<ExpandedSwapLeg>) newValue;
-          break;
-        case 1031856831:  // paymentEvents
-          this.paymentEvents = (List<PaymentEvent>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -418,8 +366,7 @@ public final class ExpandedSwap
     @Override
     public ExpandedSwap build() {
       return new ExpandedSwap(
-          legs,
-          paymentEvents);
+          legs);
     }
 
     //-----------------------------------------------------------------------
@@ -444,34 +391,12 @@ public final class ExpandedSwap
       return legs(ImmutableSet.copyOf(legs));
     }
 
-    /**
-     * Sets the {@code paymentEvents} property in the builder.
-     * @param paymentEvents  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder paymentEvents(List<PaymentEvent> paymentEvents) {
-      JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
-      this.paymentEvents = paymentEvents;
-      return this;
-    }
-
-    /**
-     * Sets the {@code paymentEvents} property in the builder
-     * from an array of objects.
-     * @param paymentEvents  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder paymentEvents(PaymentEvent... paymentEvents) {
-      return paymentEvents(ImmutableList.copyOf(paymentEvents));
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(64);
       buf.append("ExpandedSwap.Builder{");
-      buf.append("legs").append('=').append(JodaBeanUtils.toString(legs)).append(',').append(' ');
-      buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(paymentEvents));
+      buf.append("legs").append('=').append(JodaBeanUtils.toString(legs));
       buf.append('}');
       return buf.toString();
     }
