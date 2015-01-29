@@ -44,7 +44,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       0.0145, 0.0156, 0.0167, 0.0178};
 
   private static final double TOLERANCE_RATE = 1.0E-10;
-  
+
   private static final ForwardOvernightCompoundedRateObservationFn OBS_FWD_ONCMP =
       ForwardOvernightCompoundedRateObservationFn.DEFAULT;
 
@@ -90,7 +90,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate fixingCutOff = FIXING_DATES[5];
     LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(fixingCutOff);
     double afCutOff = USD_FED_FUND.getDayCount().yearFraction(fixingCutOff, endDate);
-    double rateExpected = ((1.0 + rateCmp * afNonCutoff) * (1.0d + FORWARD_RATES[4] * afCutOff) - 1.0d) 
+    double rateExpected = ((1.0 + rateCmp * afNonCutoff) * (1.0d + FORWARD_RATES[4] * afCutOff) - 1.0d)
         / (afNonCutoff + afCutOff);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockEnv.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
@@ -227,7 +227,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       LocalDate endDateKnown = CHF_TOIS.calculateMaturityFromEffective(startDateKnown);
       double af = CHF_TOIS.getDayCount().yearFraction(startDateKnown, endDateKnown);
       afKnown += af;
-      investmentFactorKnown *= 1.0d + af * FIXING_RATES[i] ;
+      investmentFactorKnown *= 1.0d + af * FIXING_RATES[i];
     }
     double afNoCutoff = 0.0d;
     double investmentFactorNoCutoff = 1.0d;
@@ -369,5 +369,5 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     when(mockEnv.getValuationDate()).thenReturn(valuationDate);
     OBS_FWD_ONCMP.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
   }
-  
+
 }
