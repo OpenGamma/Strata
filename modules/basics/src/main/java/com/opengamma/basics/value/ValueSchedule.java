@@ -43,6 +43,15 @@ public final class ValueSchedule
     implements ImmutableBean, Serializable {
 
   /**
+   * A value schedule that always has the value zero.
+   */
+  public static final ValueSchedule ALWAYS_0 = ValueSchedule.of(0);
+  /**
+   * A value schedule that always has the value one.
+   */
+  public static final ValueSchedule ALWAYS_1 = ValueSchedule.of(1);
+
+  /**
    * The initial value.
    * <p>
    * This is used for the lifetime of the trade unless specifically varied.

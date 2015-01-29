@@ -23,7 +23,7 @@ import com.opengamma.basics.schedule.SchedulePeriod;
 @Test
 public class ValueScheduleTest {
 
-  private static double TOLERANCE = 0.0001d;
+  private static double TOLERANCE = 1.0E-10;
   private static ValueStep STEP1 = ValueStep.ofAbsoluteAmount(date(2014, 6, 30), 2000d);
   private static ValueStep STEP2 = ValueStep.ofAbsoluteAmount(date(2014, 7, 30), 3000d);
 
@@ -32,7 +32,21 @@ public class ValueScheduleTest {
   private static SchedulePeriod PERIOD3 = SchedulePeriod.of(
       date(2014, 3, 1), date(2014, 4, 1), date(2014, 3, 2), date(2014, 4, 1));
   private static ImmutableList<SchedulePeriod> PERIODS = ImmutableList.of(PERIOD1, PERIOD2, PERIOD3);
-  
+
+  //-------------------------------------------------------------------------
+  public void test_constant_ALWAYS_0() {
+    ValueSchedule test = ValueSchedule.ALWAYS_0;
+    assertEquals(test.getInitialValue(), 0d, TOLERANCE);
+    assertEquals(test.getSteps(), ImmutableList.of());
+  }
+
+  public void test_constant_ALWAYS_1() {
+    ValueSchedule test = ValueSchedule.ALWAYS_1;
+    assertEquals(test.getInitialValue(), 1d, TOLERANCE);
+    assertEquals(test.getSteps(), ImmutableList.of());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_of_int() {
     ValueSchedule test = ValueSchedule.of(10000d);
     assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
@@ -79,16 +93,16 @@ public class ValueScheduleTest {
   public void test_resolveValues_dateBased() {
     ValueStep step1 = ValueStep.ofAbsoluteAmount(date(2014, 2, 1), 300d);
     ValueStep step2 = ValueStep.ofAbsoluteAmount(date(2014, 3, 1), 400d);
-    
+    // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
     assertEquals(test0.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 200d));
-    
+    // step1
     ValueSchedule test1a = ValueSchedule.of(200d, ImmutableList.of(step1));
     assertEquals(test1a.resolveValues(PERIODS), ImmutableList.of(200d, 300d, 300d));
-    
+    // step2
     ValueSchedule test1b = ValueSchedule.of(200d, ImmutableList.of(step2));
     assertEquals(test1b.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 400d));
-    
+    // step1 and step2
     ValueSchedule test2 = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
     assertEquals(test2.resolveValues(PERIODS), ImmutableList.of(200d, 300d, 400d));
   }
@@ -96,16 +110,16 @@ public class ValueScheduleTest {
   public void test_resolveValues_dateBased_matchAdjusted() {
     ValueStep step1 = ValueStep.ofAbsoluteAmount(date(2014, 2, 1), 300d);
     ValueStep step2 = ValueStep.ofAbsoluteAmount(date(2014, 3, 2), 400d);
-    
+    // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
     assertEquals(test0.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 200d));
-    
+    // step1
     ValueSchedule test1a = ValueSchedule.of(200d, ImmutableList.of(step1));
     assertEquals(test1a.resolveValues(PERIODS), ImmutableList.of(200d, 300d, 300d));
-    
+    // step2
     ValueSchedule test1b = ValueSchedule.of(200d, ImmutableList.of(step2));
     assertEquals(test1b.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 400d));
-    
+    // step1 and step2
     ValueSchedule test2 = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
     assertEquals(test2.resolveValues(PERIODS), ImmutableList.of(200d, 300d, 400d));
   }
@@ -113,16 +127,16 @@ public class ValueScheduleTest {
   public void test_resolveValues_indexBased() {
     ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(300d));
     ValueStep step2 = ValueStep.of(2, ValueAdjustment.ofAbsoluteAmount(400d));
-    
+    // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
     assertEquals(test0.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 200d));
-    
+    // step1
     ValueSchedule test1a = ValueSchedule.of(200d, ImmutableList.of(step1));
     assertEquals(test1a.resolveValues(PERIODS), ImmutableList.of(200d, 300d, 300d));
-    
+    // step2
     ValueSchedule test1b = ValueSchedule.of(200d, ImmutableList.of(step2));
     assertEquals(test1b.resolveValues(PERIODS), ImmutableList.of(200d, 200d, 400d));
-    
+    // step1 and step2
     ValueSchedule test2 = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
     assertEquals(test2.resolveValues(PERIODS), ImmutableList.of(200d, 300d, 400d));
   }
@@ -130,7 +144,6 @@ public class ValueScheduleTest {
   public void test_resolveValues_indexBased_duplicateDefinitionValid() {
     ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(300d));
     ValueStep step2 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(300d));
-    
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
     assertEquals(test.resolveValues(PERIODS), ImmutableList.of(200d, 300d, 300d));
   }
@@ -138,28 +151,24 @@ public class ValueScheduleTest {
   public void test_resolveValues_indexBased_duplicateDefinitionInvalid() {
     ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(300d));
     ValueStep step2 = ValueStep.of(1, ValueAdjustment.ofAbsoluteAmount(400d));
-    
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
 
   public void test_resolveValues_indexBased_indexTooBig() {
     ValueStep step = ValueStep.of(3, ValueAdjustment.ofAbsoluteAmount(300d));
-    
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
 
   public void test_resolveValues_dateBased_indexZeroInvalid() {
     ValueStep step = ValueStep.ofAbsoluteAmount(date(2014, 1, 1), 300d);
-    
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
 
   public void test_resolveValues_dateBased_dateInvalid() {
     ValueStep step = ValueStep.ofAbsoluteAmount(date(2014, 4, 1), 300d);
-    
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
     assertThrowsIllegalArg(() -> test.resolveValues(PERIODS));
   }
