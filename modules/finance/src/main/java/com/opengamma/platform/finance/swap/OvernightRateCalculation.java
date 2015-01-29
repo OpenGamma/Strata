@@ -6,6 +6,8 @@
 package com.opengamma.platform.finance.swap;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static com.opengamma.basics.value.ValueSchedule.ALWAYS_0;
+import static com.opengamma.basics.value.ValueSchedule.ALWAYS_1;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -51,15 +53,6 @@ import com.opengamma.platform.finance.observation.RateObservation;
 @BeanDefinition
 public final class OvernightRateCalculation
     implements RateCalculation, ImmutableBean, Serializable {
-
-  /**
-   * A value schedule that always has the value zero.
-   */
-  private static final ValueSchedule VALUE_SCHEDULE_0 = ValueSchedule.of(0);
-  /**
-   * A value schedule that always has the value one.
-   */
-  private static final ValueSchedule VALUE_SCHEDULE_1 = ValueSchedule.of(1);
 
   /**
    * The day count convention applicable.
@@ -162,8 +155,8 @@ public final class OvernightRateCalculation
     ArgChecker.notNull(accrualSchedule, "accrualSchedule");
     ArgChecker.notNull(paymentSchedule, "paymentSchedule");
     // resolve data by schedule
-    List<Double> resolvedGearings = firstNonNull(gearing, VALUE_SCHEDULE_1).resolveValues(accrualSchedule.getPeriods());
-    List<Double> resolvedSpreads = firstNonNull(spread, VALUE_SCHEDULE_0).resolveValues(accrualSchedule.getPeriods());
+    List<Double> resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule.getPeriods());
+    List<Double> resolvedSpreads = firstNonNull(spread, ALWAYS_0).resolveValues(accrualSchedule.getPeriods());
     // build accrual periods
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
