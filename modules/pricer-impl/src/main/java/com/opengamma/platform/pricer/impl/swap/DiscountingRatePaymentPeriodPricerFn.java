@@ -62,7 +62,7 @@ public class DiscountingRatePaymentPeriodPricerFn
     }
     // notional * fxRate
     // fxRate is 1 if no FX conversion
-    double notional = period.getNotional() * resolveFxReset(env, period);
+    double notional = period.getNotional() * fxRate(env, period);
     // handle simple case and more complex compounding for whole payment period
     if (period.getAccrualPeriods().size() == 1) {
       RateAccrualPeriod accrualPeriod = period.getAccrualPeriods().get(0);
@@ -72,9 +72,10 @@ public class DiscountingRatePaymentPeriodPricerFn
   }
 
   //-------------------------------------------------------------------------
-  // resolve FX rate, 1 if not applicable
-  private double resolveFxReset(PricingEnvironment env, RatePaymentPeriod paymentPeriod) {
-    if (paymentPeriod.getFxReset().isPresent()) {  // no mapToDouble on Optional
+  // resolve the FX rate from the FX reset, returning an FX rate of 1 if not applicable
+  private double fxRate(PricingEnvironment env, RatePaymentPeriod paymentPeriod) {
+    // inefficient to use Optional.orElse because double primitive type would be boxed
+    if (paymentPeriod.getFxReset().isPresent()) {
       FxReset fxReset = paymentPeriod.getFxReset().get();
       CurrencyPair pair = CurrencyPair.of(fxReset.getReferenceCurrency(), paymentPeriod.getCurrency());
       return env.fxIndexRate(fxReset.getIndex(), pair, fxReset.getFixingDate());
@@ -85,8 +86,8 @@ public class DiscountingRatePaymentPeriodPricerFn
 
   // calculate the accrual for a unit notional
   private double unitNotionalAccrual(PricingEnvironment env, RateAccrualPeriod accrualPeriod, double spread) {
-    double rate = rawRate(env, accrualPeriod);
-    return unitNotionalAccrualRaw(rate, accrualPeriod, spread);
+    double rawRate = rawRate(env, accrualPeriod);
+    return unitNotionalAccrualRaw(rawRate, accrualPeriod, spread);
   }
 
   // calculate the accrual for a unit notional from the raw rate
@@ -95,7 +96,8 @@ public class DiscountingRatePaymentPeriodPricerFn
     return accrualPeriod.getNegativeRateMethod().adjust(treatedRate * accrualPeriod.getYearFraction());
   }
 
-  // finds the rate for the accrual period
+  // finds the raw rate for the accrual period
+  // the raw rate is the rate before gearing, spread and negative checks are applied
   private double rawRate(PricingEnvironment env, RateAccrualPeriod accrualPeriod) {
     return rateObservationFn.rate(
         env,
