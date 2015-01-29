@@ -6,39 +6,41 @@
 package com.opengamma.platform.pricer.swap;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.platform.finance.swap.Swap;
+import com.opengamma.platform.finance.swap.SwapProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
- * Pricer for swaps.
+ * Pricer for swap products.
  * <p>
- * This function provides the ability to price a {@link Swap}.
+ * This function provides the ability to price a {@link SwapProduct}.
  * <p>
  * Implementations must be immutable and thread-safe functions.
+ * 
+ * @param <T>  the type of product
  */
-public interface SwapPricerFn {
+public interface SwapProductPricerFn<T extends SwapProduct> {
 
   /**
-   * Calculates the present value of the swap.
+   * Calculates the present value of the swap product.
    * <p>
    * The present value of the trade is the value on the valuation date.
    * This is typically implemented as the discounted future value.
    * 
    * @param env  the pricing environment
-   * @param swap  the swap to price
-   * @return the present value of the swap
+   * @param swapProduct  the swap product to price
+   * @return the present value of the swap product
    */
-  public abstract MultiCurrencyAmount presentValue(PricingEnvironment env, Swap swap);
+  public abstract MultiCurrencyAmount presentValue(PricingEnvironment env, T swapProduct);
 
   /**
-   * Calculates the future value of the swap.
+   * Calculates the future value of the swap product.
    * <p>
    * The future value of the trade is the value on the valuation date without discounting.
    * 
    * @param env  the pricing environment
-   * @param swap  the swap to price
-   * @return the future value of the swap
+   * @param swapProduct  the swap product to price
+   * @return the future value of the swap product
    */
-  public abstract MultiCurrencyAmount futureValue(PricingEnvironment env, Swap swap);
+  public abstract MultiCurrencyAmount futureValue(PricingEnvironment env, T swapProduct);
 
 }

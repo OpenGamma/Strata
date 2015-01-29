@@ -19,7 +19,7 @@ import com.opengamma.platform.pricer.swap.SwapLegPricerFn;
  * Test.
  */
 @Test
-public class DefaultRateCalculationSwapLegPricerFnTest {
+public class ExpandingSwapLegPricerFnTest {
 
   private final PricingEnvironment mockEnv = mock(PricingEnvironment.class);
 
@@ -28,7 +28,7 @@ public class DefaultRateCalculationSwapLegPricerFnTest {
     SwapLegPricerFn<ExpandedSwapLeg> mockSwapLegFn = mock(SwapLegPricerFn.class);
     when(mockSwapLegFn.presentValue(mockEnv, SwapDummyData.IBOR_RATECALC_SWAP_LEG.expand()))
         .thenReturn(expected);
-    DefaultRateCalculationSwapLegPricerFn test = new DefaultRateCalculationSwapLegPricerFn(mockSwapLegFn);
+    ExpandingSwapLegPricerFn test = new ExpandingSwapLegPricerFn(mockSwapLegFn);
     assertEquals(test.presentValue(mockEnv, SwapDummyData.IBOR_RATECALC_SWAP_LEG), expected);
   }
 
@@ -37,7 +37,7 @@ public class DefaultRateCalculationSwapLegPricerFnTest {
     SwapLegPricerFn<ExpandedSwapLeg> mockSwapLegFn = mock(SwapLegPricerFn.class);
     when(mockSwapLegFn.futureValue(mockEnv, SwapDummyData.IBOR_RATECALC_SWAP_LEG.expand()))
         .thenReturn(expected);
-    DefaultRateCalculationSwapLegPricerFn test = new DefaultRateCalculationSwapLegPricerFn(mockSwapLegFn);
+    ExpandingSwapLegPricerFn test = new ExpandingSwapLegPricerFn(mockSwapLegFn);
     assertEquals(test.futureValue(mockEnv, SwapDummyData.IBOR_RATECALC_SWAP_LEG), expected);
   }
 

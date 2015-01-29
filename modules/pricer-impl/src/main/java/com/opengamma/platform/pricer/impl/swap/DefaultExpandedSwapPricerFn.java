@@ -11,57 +11,58 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.swap.Swap;
+import com.opengamma.platform.finance.swap.ExpandedSwap;
+import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.swap.SwapLegPricerFn;
-import com.opengamma.platform.pricer.swap.SwapPricerFn;
+import com.opengamma.platform.pricer.swap.SwapProductPricerFn;
 
 /**
  * Pricer implementation for swaps.
  * <p>
  * The swap is priced by examining the swap legs.
  */
-public class DefaultSwapPricerFn
-    implements SwapPricerFn {
+public class DefaultExpandedSwapPricerFn
+    implements SwapProductPricerFn<ExpandedSwap> {
 
   /**
    * Default implementation.
    */
-  public static final DefaultSwapPricerFn DEFAULT = new DefaultSwapPricerFn(
-      DispatchingSwapLegPricerFn.DEFAULT);
+  public static final DefaultExpandedSwapPricerFn DEFAULT = new DefaultExpandedSwapPricerFn(
+      DefaultExpandedSwapLegPricerFn.DEFAULT);
 
   /**
    * Pricer for {@link SwapLeg}.
    */
-  private final SwapLegPricerFn<SwapLeg> swapLegPricerFn;
+  private final SwapLegPricerFn<ExpandedSwapLeg> swapLegPricerFn;
 
   /**
    * Creates an instance.
    * 
-   * @param swapLegPricerFn  the pricer for {@link SwapLeg}
+   * @param swapLegPricerFn  the pricer for {@link ExpandedSwapLeg}
    */
-  public DefaultSwapPricerFn(
-      SwapLegPricerFn<SwapLeg> swapLegPricerFn) {
+  public DefaultExpandedSwapPricerFn(
+      SwapLegPricerFn<ExpandedSwapLeg> swapLegPricerFn) {
     this.swapLegPricerFn = ArgChecker.notNull(swapLegPricerFn, "swapLegPricerFn");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public MultiCurrencyAmount presentValue(PricingEnvironment env, Swap swap) {
+  public MultiCurrencyAmount presentValue(PricingEnvironment env, ExpandedSwap swap) {
     return value(env, swap, swapLegPricerFn::presentValue);
   }
 
   @Override
-  public MultiCurrencyAmount futureValue(PricingEnvironment env, Swap swap) {
+  public MultiCurrencyAmount futureValue(PricingEnvironment env, ExpandedSwap swap) {
     return value(env, swap, swapLegPricerFn::futureValue);
   }
 
   // calculate present or future value
   private static MultiCurrencyAmount value(
       PricingEnvironment env,
-      Swap swap,
-      ToDoubleBiFunction<PricingEnvironment, SwapLeg> valueFn) {
+      ExpandedSwap swap,
+      ToDoubleBiFunction<PricingEnvironment, ExpandedSwapLeg> valueFn) {
     if (swap.isCrossCurrency()) {
       return swap.getLegs().stream()
           .map(leg -> CurrencyAmount.of(leg.getCurrency(), valueFn.applyAsDouble(env, leg)))
