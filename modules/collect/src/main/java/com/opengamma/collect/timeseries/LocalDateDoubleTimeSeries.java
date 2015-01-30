@@ -15,11 +15,10 @@ import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedMap;
+import org.joda.beans.ImmutableBean;
+
+import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.function.ObjDoublePredicate;
-import com.opengamma.collect.id.IdentifiableBean;
-import org.joda.beans.Bean;
 
 /**
  * Base interface for all local date time-series types containing
@@ -31,53 +30,26 @@ import org.joda.beans.Bean;
  * <p>
  * The distribution of the data will influence which implementation
  * is most appropriate.
+ * <p>
+ * Implementations must be immutable and thread-safe beans.
  */
-public interface LocalDateDoubleTimeSeries extends Bean {
+public interface LocalDateDoubleTimeSeries extends ImmutableBean {
+
+  public static LocalDateDoubleTimeSeries empty() {
+    return SparseLocalDateDoubleTimeSeries.EMPTY_SERIES;
+  }
 
   /**
-   * Returns a map of times and values in this time-series.
+   * Obtains a time-series containing a single date and value.
    *
-   * @return a map of the elements of this time-series
+   * @param date  the singleton date
+   * @param value  the singleton value
+   * @return the time-series
    */
-  public abstract ImmutableSortedMap<LocalDate, Double> toMap();
-
-  /**
-   * Returns the list of dates in this time-series.
-   * <p>
-   * This provides low-level access to the internal data.
-   * The stream and lambda methods should be used in preference
-   * to this method. There is no guarantee that the underlying
-   * implementation holds the dates in a list.
-   *
-   * @return the list of dates in this time-series
-   */
-  public abstract ImmutableList<LocalDate> dates();
-
-  /**
-   * Returns the list of values in this time-series.
-   * <p>
-   * This provides low-level access to the internal data.
-   * The stream and lambda methods should be used in preference
-   * to this method. There is no guarantee that the underlying
-   * implementation holds the values in a list.
-   *
-   * @return the list of values in this time-series
-   */
-  public abstract ImmutableList<Double> values();
-
-  /**
-   * Return the size of this time-series.
-   *
-   * @return the size of the time-series
-   */
-  public abstract int size();
-
-  /**
-   * Indicates if this time-series is empty.
-   *
-   * @return true if the time-series contains no entries
-   */
-  public abstract boolean isEmpty();
+  public static LocalDateDoubleTimeSeries of(LocalDate date, double value) {
+    ArgChecker.notNull(date, "date");
+    return builder().put(date, value).build();
+  }
 
   /**
    * Creates an empty builder, used to create time-series.
@@ -102,6 +74,20 @@ public interface LocalDateDoubleTimeSeries extends Bean {
         LocalDateDoubleTimeSeriesBuilder::putAll,
         LocalDateDoubleTimeSeriesBuilder::build);
   }
+
+  /**
+   * Return the size of this time-series.
+   *
+   * @return the size of the time-series
+   */
+  public abstract int size();
+
+  /**
+   * Indicates if this time-series is empty.
+   *
+   * @return true if the time-series contains no entries
+   */
+  public abstract boolean isEmpty();
 
   /**
    * Checks if this time-series contains a value for the specified date.
@@ -222,7 +208,7 @@ public interface LocalDateDoubleTimeSeries extends Bean {
    *
    * @return a stream over the values of this time-series
    */
-  public abstract Stream<LocalDate> dateStream();
+  public abstract Stream<LocalDate> dates();
 
   /**
    * Returns a stream over the values of this time-series.
@@ -232,7 +218,7 @@ public interface LocalDateDoubleTimeSeries extends Bean {
    *
    * @return a stream over the values of this time-series
    */
-  public abstract DoubleStream valueStream();
+  public abstract DoubleStream values();
 
   /**
    * Applies an action to each pair in the time series.
@@ -282,7 +268,18 @@ public interface LocalDateDoubleTimeSeries extends Bean {
    * @return a new time-series containing the dates in common between the
    *  input series with their values combined together using the function
    */
-  public abstract LocalDateDoubleTimeSeries combineWith(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper);
+  public default LocalDateDoubleTimeSeries combineWith(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
+
+    ArgChecker.notNull(other, "other");
+    ArgChecker.notNull(mapper, "mapper");
+
+    return new LocalDateDoubleTimeSeriesBuilder(
+        stream().filter(pt -> other.containsDate(pt.getDate()))
+            .map(pt -> LocalDateDoublePoint.of(
+                pt.getDate(),
+                mapper.applyAsDouble(pt.getValue(), other.get(pt.getDate()).getAsDouble()))))
+        .build();
+  }
 
   /**
    * Return a builder populated with the values from this series.

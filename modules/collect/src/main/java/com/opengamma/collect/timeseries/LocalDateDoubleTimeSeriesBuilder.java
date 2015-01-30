@@ -5,19 +5,21 @@
  */
 package com.opengamma.collect.timeseries;
 
+import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.INCLUDE_WEEKENDS;
+import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.SKIP_WEEKENDS;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.opengamma.collect.ArgChecker;
-
-import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.INCLUDE_WEEKENDS;
-import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.SKIP_WEEKENDS;
 
 /**
  * Builder to create the immutable {@code LocalDateDoubleTimeSeries}.
@@ -26,7 +28,7 @@ import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.De
  * Entries can be added to the builder in any order.
  * If a date is duplicated it will overwrite an earlier entry.
  * <p>
- * Use {@link SparseLocalDateDoubleTimeSeries#builder()} to create an instance.
+ * Use {@link LocalDateDoubleTimeSeries#builder()} to create an instance.
  */
 public final class LocalDateDoubleTimeSeriesBuilder {
 
@@ -34,7 +36,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    * Threshold for deciding whether we use the dense or sparse timeseries
    * implementation
    */
-  public static final double DENSITY_THRESHOLD = 0.7;
+  private static final double DENSITY_THRESHOLD = 0.7;
 
   /**
    * The entries for the time-series.
@@ -69,6 +71,13 @@ public final class LocalDateDoubleTimeSeriesBuilder {
     }
   }
 
+  /**
+   * Creates an instance.
+   * <p>
+   * Use {@link DenseLocalDateDoubleTimeSeries#toBuilder()}.
+   *
+   * @param points  the stream of points to initialize with
+   */
   LocalDateDoubleTimeSeriesBuilder(Stream<LocalDateDoublePoint> points) {
     points.forEach(pt -> put(pt.getDate(), pt.getValue()));
   }
@@ -132,6 +141,8 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    * @return this builder
    */
   public LocalDateDoubleTimeSeriesBuilder putAll(Collection<LocalDate> dates, Collection<Double> values) {
+    ArgChecker.noNulls(dates, "dates");
+    ArgChecker.noNulls(values, "values");
     ArgChecker.isTrue(dates.size() == values.size(),
         "Arrays are of different sizes - dates: {}, values: {}", dates.size(), values.size());
     Iterator<LocalDate> itDate = dates.iterator();
@@ -158,6 +169,20 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   }
 
   /**
+   * Puts all the specified points into this builder.
+   * <p>
+   * The points are added one by one.
+   * If a date is duplicated it will overwrite an earlier entry.
+   *
+   * @param points  the points to be added
+   * @return this builder
+   */
+  public LocalDateDoubleTimeSeriesBuilder putAll(List<LocalDateDoublePoint> points) {
+    ArgChecker.notNull(points, "points");
+    return putAll(points.stream());
+  }
+
+  /**
    * Puts the contents of the specified builder into this builder.
    * <p>
    * The points are added one by one.
@@ -173,7 +198,22 @@ public final class LocalDateDoubleTimeSeriesBuilder {
     return this;
   }
 
+  /**
+   * Puts all the entries from the supplied map into this builder.
+   * <p>
+   * If a date is duplicated it will overwrite an earlier entry.
+   *
+   * @param map  the map of points to be added
+   * @return this builder
+   */
+  public LocalDateDoubleTimeSeriesBuilder putAll(Map<LocalDate, Double> map) {
+    ArgChecker.noNulls(map, "map");
+    entries.putAll(map);
+    return this;
+  }
+
   //-------------------------------------------------------------------------
+
   /**
    * Build the time-series from the builder.
    *
@@ -182,14 +222,32 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   public LocalDateDoubleTimeSeries build() {
 
     if (entries.isEmpty()) {
-      return SparseLocalDateDoubleTimeSeries.EMPTY_SERIES;
+      return LocalDateDoubleTimeSeries.empty();
     }
 
     // Depending on how dense the data is, judge which type of time series
     // is the best fit
     return density() > DENSITY_THRESHOLD ?
-        DenseLocalDateDoubleTimeSeries.of(entries, determineCalculation()) :
-        SparseLocalDateDoubleTimeSeries.of(entries.keySet(), entries.values());
+        createDenseSeries() :
+        createSparseSeries();
+  }
+
+  private LocalDateDoubleTimeSeries createDenseSeries() {
+    return DenseLocalDateDoubleTimeSeries.of(
+        entries.firstKey(),
+        entries.lastKey(),
+        streamEntries(),
+        determineCalculation());
+  }
+
+  private SparseLocalDateDoubleTimeSeries createSparseSeries() {
+    return SparseLocalDateDoubleTimeSeries.of(entries.keySet(), entries.values());
+  }
+
+  private Stream<LocalDateDoublePoint> streamEntries() {
+    return entries.entrySet()
+        .stream()
+        .map(e -> LocalDateDoublePoint.of(e.getKey(), e.getValue()));
   }
 
   private DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation determineCalculation() {

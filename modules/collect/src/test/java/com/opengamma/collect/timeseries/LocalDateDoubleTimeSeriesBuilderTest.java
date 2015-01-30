@@ -62,7 +62,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
   public void test_putAll_stream() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     Collection<Double> values = Doubles.asList(2d, 3d);
-    LocalDateDoubleTimeSeries base = SparseLocalDateDoubleTimeSeries.of(dates, values);
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(dates, values).build();
     
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.put(date(2012, 1, 1), 0d);
@@ -77,7 +77,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
   public void test_putAll_toBuilder() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     Collection<Double> values = Doubles.asList(2d, 3d);
-    LocalDateDoubleTimeSeries base = SparseLocalDateDoubleTimeSeries.of(dates, values);
+    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(dates, values).build();
     
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.put(date(2012, 1, 1), 0d);
@@ -138,16 +138,16 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
   }
 
   public void densityChoosesImplementation() {
-    LocalDateDoubleTimeSeries initial = LocalDateDoubleTimeSeries.builder()
+    LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder()
         .put(date(2015, 1, 5), 14) // Monday
         .put(date(2015, 1, 12), 12)
         .put(date(2015, 1, 19), 13)
         .build();
 
-    assertEquals(initial.getClass(), SparseLocalDateDoubleTimeSeries.class);
+    assertEquals(series1.getClass(), SparseLocalDateDoubleTimeSeries.class);
 
     // Now add in a week's worth of data
-    LocalDateDoubleTimeSeries series2 = initial.toBuilder()
+    LocalDateDoubleTimeSeries series2 = series1.toBuilder()
         .put(date(2015, 1, 6), 14)
         .put(date(2015, 1, 7), 13)
         .put(date(2015, 1, 8), 12)

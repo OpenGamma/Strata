@@ -10,11 +10,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
-import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ObjDoubleConsumer;
 import java.util.stream.Collectors;
@@ -36,11 +34,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.collect.Guavate;
 import com.opengamma.collect.function.ObjDoublePredicate;
 
 /**
@@ -53,11 +48,11 @@ import com.opengamma.collect.function.ObjDoublePredicate;
  * This implementation uses arrays internally.
  */
 @BeanDefinition(builderScope = "private")
-public final class SparseLocalDateDoubleTimeSeries
+final class SparseLocalDateDoubleTimeSeries
     implements ImmutableBean, Serializable, LocalDateDoubleTimeSeries {
 
-  /** Empty instance. */
-  public static final LocalDateDoubleTimeSeries EMPTY_SERIES = createUnsafe(new LocalDate[0], new double[0]);
+  static final LocalDateDoubleTimeSeries EMPTY_SERIES =
+      new SparseLocalDateDoubleTimeSeries(new LocalDate[0], new double[0]);
 
   /**
    * The dates in the series.
@@ -65,6 +60,7 @@ public final class SparseLocalDateDoubleTimeSeries
    */
   @PropertyDefinition(get = "manual", validate = "notNull")
   private final LocalDate[] dates;
+
   /**
    * The values in the series.
    * The date for each value is at the matching array index.
@@ -73,16 +69,6 @@ public final class SparseLocalDateDoubleTimeSeries
   private final double[] values;
 
   //-------------------------------------------------------------------------
-  /**
-   * Obtains a time-series from a single date and value.
-   *
-   * @param date  the singleton date
-   * @param value  the singleton value
-   * @return the time-series
-   */
-  public static SparseLocalDateDoubleTimeSeries of(LocalDate date, double value) {
-    return new SparseLocalDateDoubleTimeSeries(date, value);  // validated in constructor
-  }
 
   /**
    * Obtains a time-series from matching arrays of dates and values.
@@ -93,52 +79,11 @@ public final class SparseLocalDateDoubleTimeSeries
    * @param values  the value list
    * @return the time-series
    */
-  public static SparseLocalDateDoubleTimeSeries of(Collection<LocalDate> dates, Collection<Double> values) {
+  static SparseLocalDateDoubleTimeSeries of(Collection<LocalDate> dates, Collection<Double> values) {
     ArgChecker.noNulls(dates, "dates");
     ArgChecker.noNulls(values, "values");
     LocalDate[] datesArray = dates.toArray(new LocalDate[dates.size()]);
     double[] valuesArray = Doubles.toArray(values);
-    validate(datesArray, valuesArray);
-    return createUnsafe(datesArray, valuesArray);
-  }
-
-  /**
-   * Obtains a time-series from a map of dates and values.
-   *
-   * @param map  the map of dates to values
-   * @return the time-series
-   */
-  public static SparseLocalDateDoubleTimeSeries of(Map<LocalDate, Double> map) {
-    ArgChecker.noNulls(map, "map");
-    Set<Entry<LocalDate, Double>> set = map.entrySet();
-    LocalDate[] datesArray = new LocalDate[set.size()];
-    double[] valuesArray = new double[set.size()];
-    int i = 0;
-    for (Entry<LocalDate, Double> entry : set) {
-      datesArray[i] = entry.getKey();
-      valuesArray[i] = entry.getValue();
-      i++;
-    }
-    validate(datesArray, valuesArray);
-    return createUnsafe(datesArray, valuesArray);
-  }
-
-  /**
-   * Obtains a time-series from a collection of points.
-   * <p>
-   * The collection must be sorted from earliest to latest.
-   *
-   * @param points  the list of points
-   * @return the time-series
-   */
-  public static LocalDateDoubleTimeSeries of(Collection<LocalDateDoublePoint> points) {
-    ArgChecker.noNulls(points, "points");
-    LocalDate[] datesArray = points.stream()
-        .map(LocalDateDoublePoint::getDate)
-        .toArray(LocalDate[]::new);
-    double[] valuesArray = points.stream()
-        .mapToDouble(LocalDateDoublePoint::getValue)
-        .toArray();
     validate(datesArray, valuesArray);
     return createUnsafe(datesArray, valuesArray);
   }
@@ -222,16 +167,6 @@ public final class SparseLocalDateDoubleTimeSeries
    */
   private double[] getValues() {
     return values.clone();
-  }
-
-  @Override
-  public ImmutableList<LocalDate> dates() {
-    return ImmutableList.copyOf(dates);
-  }
-
-  @Override
-  public ImmutableList<Double> values() {
-    return ImmutableList.copyOf(Doubles.asList(values));
   }
 
   //-------------------------------------------------------------------------
@@ -350,12 +285,12 @@ public final class SparseLocalDateDoubleTimeSeries
   }
 
   @Override
-  public Stream<LocalDate> dateStream() {
+  public Stream<LocalDate> dates() {
     return Stream.of(dates);
   }
 
   @Override
-  public DoubleStream valueStream() {
+  public DoubleStream values() {
     return DoubleStream.of(values);
   }
 
@@ -391,54 +326,10 @@ public final class SparseLocalDateDoubleTimeSeries
     return createUnsafe(Arrays.copyOf(resDates, resCount), Arrays.copyOf(resValues, resCount));
   }
 
-  @Override
-  public LocalDateDoubleTimeSeries combineWith(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
-    ArgChecker.notNull(other, "other");
-    ArgChecker.notNull(mapper, "mapper");
-    // build up result in arrays keeping track of actual matching dates
-    LocalDate[] resDates = new LocalDate[Math.min(size(), other.size())];
-    double[] resValues = new double[resDates.length];
-    int resCount = 0;
-    // index into the arrays in this time-series
-    int i = 0;
-    int iMax = size();
-    // index into the arrays in the other time-series
-    int j = 0;
-    int jMax = other.size();
-    // loop around and exhaust each input
-    while (i < iMax && j < jMax) {
-      LocalDate date = dates[i];
-      LocalDate otherDate = other.dates().get(j);
-      if (date.equals(otherDate)) {
-        resDates[resCount] = date;
-        resValues[resCount] = mapper.applyAsDouble(values[i], other.values().get(j));
-        resCount++;
-        i++;
-        j++;
-      } else if (date.isBefore(otherDate)) {
-        i++;
-      } else { // date is after otherDate
-        j++;
-      }
-    }
-    return createUnsafe(Arrays.copyOf(resDates, resCount), Arrays.copyOf(resValues, resCount));
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public LocalDateDoubleTimeSeriesBuilder toBuilder() {
     return new LocalDateDoubleTimeSeriesBuilder(dates, values);
-  }
-
-  /**
-   * Returns a map containing the dates and values of this time-series.
-   * 
-   * @return a map of the elements of this time-series
-   */
-  @Override
-  public ImmutableSortedMap<LocalDate, Double> toMap() {
-    return stream()
-        .collect(Guavate.toImmutableSortedMap(LocalDateDoublePoint::getDate, LocalDateDoublePoint::getValue));
   }
 
   //-------------------------------------------------------------------------

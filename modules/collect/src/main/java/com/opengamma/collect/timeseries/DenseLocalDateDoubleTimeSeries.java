@@ -5,23 +5,16 @@
  */
 package com.opengamma.collect.timeseries;
 
-import static com.opengamma.collect.Guavate.toImmutableList;
-import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.SKIP_WEEKENDS;
+import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.io.Serializable;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
-import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ObjDoubleConsumer;
 import java.util.stream.DoubleStream;
@@ -42,11 +35,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Ordering;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.function.ObjDoublePredicate;
-import com.opengamma.collect.tuple.Pair;
 
 /**
  * An immutable implementation of {@code DoubleTimeSeries} where the
@@ -58,50 +49,75 @@ import com.opengamma.collect.tuple.Pair;
  * This implementation uses arrays internally.
  */
 @BeanDefinition(builderScope = "private")
-public class DenseLocalDateDoubleTimeSeries
+class DenseLocalDateDoubleTimeSeries
     implements ImmutableBean, LocalDateDoubleTimeSeries, Serializable {
-
-  // Arguably, we'd be better using the EMPTY_SERIES from the sparse implementation
-  public static final DenseLocalDateDoubleTimeSeries EMPTY_SERIES =
-      new DenseLocalDateDoubleTimeSeries(LocalDate.MIN, new double[0]);
 
   /**
    * Enum indicating whether there are positions in the points
    * array for weekends and providing the different date
    * calculations for each case.
    */
-  public enum DenseTimeSeriesCalculation {
+  enum DenseTimeSeriesCalculation {
     /**
      * Data is not held for weekends.
      */
     SKIP_WEEKENDS {
       @Override
-      int calculatePosition(LocalDate startDate, LocalDate toInsert) {
-        int unadjusted = (int) DAYS.between(startDate, toInsert);
-        int numWeekEnds = unadjusted / 7 + (DayOfWeek.from(startDate).compareTo(DayOfWeek.from(toInsert)) > 0 ? 1 : 0);
-        return unadjusted - (2 * numWeekEnds);
+      int calculatePosition(LocalDate startDate, LocalDate date) {
+        int unadjusted = (int) DAYS.between(startDate, date);
+        // If the day for the start date is after the day of the date of
+        // interest then there is an additional weekend that the
+        // integer division will not handle
+        // compare:
+        //   Tues 8th -> Wed 16th, 8 days span, 8 / 7 = 1 weekend, correct so not further adjustment
+        //   Tues 8th -> Mon 14th, 6 days span, 6 / 7 = 0 weekend, incorrect so we need to add adjustment
+        int weekendAdjustment = startDate.getDayOfWeek().compareTo(date.getDayOfWeek()) > 0 ? 1 : 0;
+        int numWeekends = unadjusted / 7 + weekendAdjustment;
+        return unadjusted - (2 * numWeekends);
       }
 
       @Override
       LocalDate calculateDateFromPosition(LocalDate startDate, int position) {
-        int numWeekEnds = position / 5;
+        int numWeekends = position / 5;
         int remaining = position % 5;
-        int endPointAdjustments = remaining < (6 - startDate.getDayOfWeek().getValue()) ? remaining : remaining + 2;
-        return startDate.plusDays(7 * numWeekEnds + endPointAdjustments);
+        // As above we add adjustment for an uncaptured weekend
+        int endPointAdjustment = remaining < (6 - startDate.get(DAY_OF_WEEK)) ? 0 : 2;
+        return startDate.plusDays(7 * numWeekends + remaining + endPointAdjustment);
       }
+
+      @Override
+      boolean allowsDate(LocalDate date) {
+        return !isWeekend(date);
+      }
+
+      @Override
+      public LocalDate adjustDate(LocalDate date) {
+        return allowsDate(date) ? date : date.plusDays(8 - date.get(DAY_OF_WEEK));
+      }
+
     },
     /**
      * Data is held for weekends.
      */
     INCLUDE_WEEKENDS {
       @Override
-      int calculatePosition(LocalDate startDate, LocalDate toInsert) {
-        return (int) DAYS.between(startDate, toInsert);
+      int calculatePosition(LocalDate startDate, LocalDate date) {
+        return (int) DAYS.between(startDate, date);
       }
 
       @Override
       LocalDate calculateDateFromPosition(LocalDate startDate, int position) {
         return startDate.plusDays(position);
+      }
+
+      @Override
+      boolean allowsDate(LocalDate date) {
+        return true;
+      }
+
+      @Override
+      public LocalDate adjustDate(LocalDate date) {
+        return date;
       }
     };
 
@@ -127,6 +143,24 @@ public class DenseLocalDateDoubleTimeSeries
      * @return the date the position in the array holds data for
      */
     abstract LocalDate calculateDateFromPosition(LocalDate startDate, int position);
+
+    /**
+     * Indicates if the specified date would be a possible date
+     * for the calculation.
+     *
+     * @param date  the date to check
+     * @return true if the calculation would allow the date
+     */
+    abstract boolean allowsDate(LocalDate date);
+
+    /**
+     * Adjusts the supplied data such that it is a valid
+     * date from the calculation's point of view.
+     *
+     * @param date  the date to adjust
+     * @return the adjusted date
+     */
+    public abstract LocalDate adjustDate(LocalDate date);
   }
 
   /**
@@ -134,9 +168,14 @@ public class DenseLocalDateDoubleTimeSeries
    * values can be calculated using date arithmetic to find
    * correct point
    */
-  @PropertyDefinition(validate = "notNull")
+   @PropertyDefinition(validate = "notNull")
   private final LocalDate startDate;
 
+  /**
+   * The values in the series.
+   * The date for each value is calculated using the position
+   * in the array and the start date..
+   */
   @PropertyDefinition(get = "private", validate = "notNull")
   private final double[] points;
 
@@ -148,181 +187,40 @@ public class DenseLocalDateDoubleTimeSeries
   private final DenseTimeSeriesCalculation dateCalculation;
 
   /**
-   * Obtains a time-series from a collection of points.
-   * The points must not contain weekend dates. If weekend
-   * dates are required then use
-   * {@link #of(Collection, DenseTimeSeriesCalculation)}.
+   * Package protected factory method intended to be called
+   * by the {@link LocalDateDoubleTimeSeriesBuilder}. As such
+   * all the information passed is assumed to be consistent.
    *
-   * @param points  the list of points
-   * @return the time-series
+   * @param startDate  the earliest date included in the time-series
+   * @param endDate  the latest date included in the time-series
+   * @param values  stream holding the time-series points
+   * @param dateCalculation  the date calculation method to be used
+   * @return a new time-series
    */
-  public static DenseLocalDateDoubleTimeSeries of(Collection<LocalDateDoublePoint> points) {
-    return of(points, SKIP_WEEKENDS);
+  static LocalDateDoubleTimeSeries of(
+      LocalDate startDate,
+      LocalDate endDate,
+      Stream<LocalDateDoublePoint> values,
+      DenseTimeSeriesCalculation dateCalculation) {
+
+    double[] points = new double[dateCalculation.calculatePosition(startDate, endDate) + 1];
+    Arrays.fill(points, Double.NaN);
+    values.forEach(pt -> points[dateCalculation.calculatePosition(startDate, pt.getDate())] = pt.getValue());
+    return new DenseLocalDateDoubleTimeSeries(startDate, points, dateCalculation, true);
   }
 
-  /**
-   * Obtains a time-series from a collection of points
-   * using the specified {@code dateCalculation}.
-   *
-   * @param points  the list of points
-   * @return the time-series
-   */
-  public static DenseLocalDateDoubleTimeSeries of(
-      Collection<LocalDateDoublePoint> points,
-      DenseTimeSeriesCalculation dateCalculation) {
+  // Private constructor, the trusted flag indicates whether the
+  // points array should be cloned. If trusted, it will not be cloned.
+  private DenseLocalDateDoubleTimeSeries(
+      LocalDate startDate,
+      double[] points,
+      DenseTimeSeriesCalculation dateCalculation,
+      boolean trusted) {
 
     ArgChecker.notNull(points, "points");
-
-    ArgChecker.isFalse(
-        points.stream().anyMatch(pt ->
-            pt == null || (dateCalculation == SKIP_WEEKENDS && isWeekend(pt.getDate()))),
-        "dates must not contain nulls or weekend dates");
-
-    if (points.isEmpty()) {
-      return EMPTY_SERIES;
-    }
-
-    Pair<LocalDate, LocalDate> extremes = points.stream()
-        .reduce(Pair.of(LocalDate.MAX, LocalDate.MIN), (pair, pt) -> {
-          LocalDate earliest = pair.getFirst();
-          LocalDate latest = pair.getSecond();
-          LocalDate ld = pt.getDate();
-          return Pair.of(ld.isBefore(earliest) ? ld : earliest, ld.isAfter(latest) ? ld : latest);
-        }, (p1, p2) -> p1);
-
-    LocalDate startDate = extremes.getFirst();
-
-    int size = dateCalculation.calculatePosition(startDate, extremes.getSecond()) + 1;
-    double[] values = new double[size];
-    if (points.size() != size) {
-      // We have gaps - prefill with NaNs
-      Arrays.fill(values, Double.NaN);
-    }
-
-    points.stream()
-        .forEach(p -> values[dateCalculation.calculatePosition(startDate, p.getDate())] = p.getValue());
-
-    return new DenseLocalDateDoubleTimeSeries(startDate, values, dateCalculation);
-  }
-
-  /**
-   * Obtains a time-series from a map of dates and values.
-   * The points must not contain weekend dates. If weekend
-   * dates are required then use
-   * {@link #of(Map, DenseTimeSeriesCalculation)}.
-   *
-   * @param map  the map of dates to values
-   * @return the time-series
-   */
-  public static DenseLocalDateDoubleTimeSeries of(Map<LocalDate, Double> map) {
-    return of(map, SKIP_WEEKENDS);
-  }
-
-  /**
-   * Obtains a time-series from a map of dates and values
-   * using the specified {@code dateCalculation}.
-   *
-   * @param map  the map of dates to values
-   * @return the time-series
-   */
-  public static DenseLocalDateDoubleTimeSeries of(
-      Map<LocalDate, Double> map,
-      DenseTimeSeriesCalculation dateCalculation) {
-
-    // TODO handle empty map
-    ArgChecker.noNulls(map, "map");
-
-    if (map.isEmpty()) {
-      return EMPTY_SERIES;
-    }
-
-    // First find earliest date
-    Pair<LocalDate, LocalDate> extremes = findExtremities(map.keySet());
-
-    LocalDate startDate = extremes.getFirst();
-
-    int size = dateCalculation.calculatePosition(startDate, extremes.getSecond()) + 1;
-    double[] values = new double[size];
-    if (map.size() != size) {
-      // We have gaps - prefill with NaNs
-      Arrays.fill(values, Double.NaN);
-    }
-
-    map.entrySet()
-        .stream()
-        .forEach(e -> values[dateCalculation.calculatePosition(startDate, e.getKey())] = e.getValue());
-
-    return new DenseLocalDateDoubleTimeSeries(startDate, values, dateCalculation);
-  }
-
-  /**
-   * Obtains a time-series from matching collections of dates and values.
-   * <p>
-   * The two collections must be the same size.
-   *
-   * @param dates  the date collection
-   * @param values  the value collection
-   * @return the time-series
-   */
-  public static DenseLocalDateDoubleTimeSeries of(Collection<LocalDate> dates, Collection<Double> values) {
-    return of(dates, values, SKIP_WEEKENDS);
-  }
-
-  /**
-   * Obtains a time-series from matching collections of dates and values
-   * using the specified {@code dateCalculation}.
-   * <p>
-   * The two collections must be the same size.
-   *
-   * @param dates  the date collection
-   * @param values  the value collection
-   * @return the time-series
-   */
-  public static DenseLocalDateDoubleTimeSeries of(
-      Collection<LocalDate> dates,
-      Collection<Double> values,
-      DenseTimeSeriesCalculation dateCalculation) {
-
-    ArgChecker.notNull(dates, "dates");
-    ArgChecker.noNulls(values, "values");
-    ArgChecker.isTrue(dates.size() == values.size(), "Dates and values must have same size");
-
-    ArgChecker.isFalse(
-        dates.stream().anyMatch(ld ->
-            ld == null || (dateCalculation == SKIP_WEEKENDS && isWeekend(ld))),
-        "dates must not contain nulls or weekend dates");
-
-    if (dates.isEmpty()) {
-      return EMPTY_SERIES;
-    }
-
-    Pair<LocalDate, LocalDate> extremes = findExtremities(dates);
-
-    LocalDate startDate = extremes.getFirst();
-
-    int size = dateCalculation.calculatePosition(startDate, extremes.getSecond()) + 1;
-    double[] valuesArray = new double[size];
-    if (values.size() != size) {
-      // We have gaps - prefill with NaNs
-      Arrays.fill(valuesArray, Double.NaN);
-    }
-
-    // A utility to zip 2 streams would be useful here!
-
-    Iterator<Double> itValues = values.iterator();
-
-    for (LocalDate date : dates) {
-      valuesArray[dateCalculation.calculatePosition(startDate, date)] = itValues.next();
-    }
-
-    return new DenseLocalDateDoubleTimeSeries(startDate, valuesArray, dateCalculation);
-  }
-
-  private static DenseLocalDateDoubleTimeSeries of(
-      LocalDate startDate,
-      DoubleStream values,
-      DenseTimeSeriesCalculation dateCalculation) {
-    return new DenseLocalDateDoubleTimeSeries(startDate, values.toArray(), dateCalculation);
+    this.startDate = ArgChecker.notNull(startDate, "startDate");
+    this.points = trusted ? points : points.clone();
+    this.dateCalculation = ArgChecker.notNull(dateCalculation, "dateCalculation");
   }
 
   @ImmutableConstructor
@@ -330,67 +228,12 @@ public class DenseLocalDateDoubleTimeSeries
       LocalDate startDate,
       double[] points,
       DenseTimeSeriesCalculation dateCalculation) {
-
-    this.startDate = ArgChecker.notNull(startDate, "startDate");
-    this.points = ArgChecker.notNull(points, "points").clone();
-    this.dateCalculation = ArgChecker.notNull(dateCalculation, "dateCalculation");
-  }
-
-  private DenseLocalDateDoubleTimeSeries(LocalDate startDate, double[] points) {
-    this(startDate, points, SKIP_WEEKENDS);
-  }
-
-  private static Pair<LocalDate, LocalDate> findExtremities(Collection<LocalDate> dates) {
-    return dates
-        .stream()
-        .reduce(Pair.of(LocalDate.MAX, LocalDate.MIN), (p, ld) -> {
-          LocalDate earliest = p.getFirst();
-          LocalDate latest = p.getSecond();
-          return Pair.of(ld.isBefore(earliest) ? ld : earliest, ld.isAfter(latest) ? ld : latest);
-        }, (p1, p2) -> p1);
-  }
-
-  public static DenseLocalDateDoubleTimeSeries of(LocalDate date, double value) {
-    return of(date, value, SKIP_WEEKENDS);
-  }
-
-  public static DenseLocalDateDoubleTimeSeries of(
-      LocalDate date,
-      double value,
-      DenseTimeSeriesCalculation dateCalculation) {
-    return new DenseLocalDateDoubleTimeSeries(date, new double[]{value}, dateCalculation);
-  }
-
-  /**
-   * Create a new time series with the specified additional points.
-   *
-   * @param additionalPoints  the points to add or update in the time series.
-   * @return a new time series containing updated points
-   */
-  // Should this not be here with the expectation that we always go through the builder?
-  public DenseLocalDateDoubleTimeSeries update(List<LocalDateDoublePoint> additionalPoints) {
-
-    // Assume points are at the end for now
-    LocalDate latestDate = additionalPoints.stream()
-        .reduce(LocalDate.MIN, (ld, pt) -> ld.isAfter(pt.getDate()) ? ld : pt.getDate(), (ld1, ld2) -> ld1);
-
-    int size = dateCalculation.calculatePosition(startDate, latestDate) + 1;
-
-    double[] values = Arrays.copyOf(points, size);
-    if (points.length + additionalPoints.size() != size) {
-      // We have gaps - prefill with NaNs
-      Arrays.fill(values, points.length, size, Double.NaN);
-    }
-
-    additionalPoints.stream()
-        .forEach(p -> values[dateCalculation.calculatePosition(startDate, p.getDate())] = p.getValue());
-
-    return new DenseLocalDateDoubleTimeSeries(startDate, values);
+    this(startDate, points, dateCalculation, false);
   }
 
   @Override
   public boolean isEmpty() {
-    return size() == 0;
+    return !validIndices().findFirst().isPresent();
   }
 
   @Override
@@ -399,7 +242,32 @@ public class DenseLocalDateDoubleTimeSeries
   }
 
   @Override
-  public DenseLocalDateDoubleTimeSeries subSeries(LocalDate startInclusive, LocalDate endExclusive) {
+  public boolean containsDate(LocalDate date) {
+    return get(date).isPresent();
+  }
+
+  @Override
+  public OptionalDouble get(LocalDate date) {
+    if (!isEmpty() && !date.isBefore(startDate) && dateCalculation.allowsDate(date)) {
+      int position = dateCalculation.calculatePosition(startDate, date);
+      if (position < points.length) {
+        double value = points[position];
+        if (isValidPoint(value)) {
+          return OptionalDouble.of(value);
+        }
+      }
+    }
+    return OptionalDouble.empty();
+  }
+
+  @Override
+  public Stream<LocalDateDoublePoint> stream() {
+    return validIndices()
+        .mapToObj(this::generatePointForPosition);
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries subSeries(LocalDate startInclusive, LocalDate endExclusive) {
 
     ArgChecker.notNull(startInclusive, "startInclusive");
     ArgChecker.notNull(endExclusive, "endExclusive");
@@ -413,51 +281,53 @@ public class DenseLocalDateDoubleTimeSeries
     if (isEmpty() || startInclusive.equals(endExclusive) ||
         !startDate.isBefore(endExclusive) ||
         startInclusive.isAfter(getLatestDate())) {
-      return EMPTY_SERIES;
+      return LocalDateDoubleTimeSeries.empty();
     }
 
-    int startIndex = dateCalculation.calculatePosition(startDate, startInclusive);
+    LocalDate resolvedStart = dateCalculation.adjustDate(Ordering.natural().max(startInclusive, startDate));
+
+    int startIndex = dateCalculation.calculatePosition(startDate, resolvedStart);
     int endIndex = dateCalculation.calculatePosition(startDate, endExclusive);
 
     return new DenseLocalDateDoubleTimeSeries(
-        startInclusive,
-        Arrays.copyOfRange(points, startIndex, endIndex),
-        dateCalculation);
+        resolvedStart,
+        Arrays.copyOfRange(points, Math.max(0, startIndex), Math.min(points.length, endIndex)),
+        dateCalculation,
+        true);
   }
 
   @Override
-  public DenseLocalDateDoubleTimeSeries headSeries(int numPoints) {
+  public LocalDateDoubleTimeSeries headSeries(int numPoints) {
 
     ArgChecker.notNegative(numPoints, "numPoints");
 
     if (numPoints == 0) {
-      return EMPTY_SERIES;
+      return LocalDateDoubleTimeSeries.empty();
     } else if (numPoints > size()) {
       return this;
     }
 
-    int endPosn = findHeadPoints(numPoints);
+    int endPosition = findHeadPoints(numPoints);
 
-    return new DenseLocalDateDoubleTimeSeries(startDate, Arrays.copyOf(points, endPosn), dateCalculation);
+    return new DenseLocalDateDoubleTimeSeries(startDate, Arrays.copyOf(points, endPosition), dateCalculation);
   }
 
   private int findHeadPoints(int required) {
 
     // Take enough points that aren't NaN
     // else we need the entire series
-    return IntStream.range(0, points.length)
-        .filter(i -> isValidPoint(points[i]))
+    return validIndices()
         .skip(required)
         .findFirst()
         .orElse(points.length);
   }
 
   @Override
-  public DenseLocalDateDoubleTimeSeries tailSeries(int numPoints) {
+  public LocalDateDoubleTimeSeries tailSeries(int numPoints) {
     ArgChecker.notNegative(numPoints, "numPoints");
 
     if (numPoints == 0) {
-      return EMPTY_SERIES;
+      return LocalDateDoubleTimeSeries.empty();
     } else if (numPoints > size()) {
       return this;
     }
@@ -477,82 +347,56 @@ public class DenseLocalDateDoubleTimeSeries
     // take the additive inverse (sigh!)
     return IntStream.rangeClosed(1 - points.length, 0)
         .map(i -> -i)
-        .filter(i -> isValidPoint(points[i]))
+        .filter(this::isValidIndex)
         .skip(required - 1)
         .findFirst()
         .orElse(0);
   }
 
-  @Override
-  public Stream<LocalDateDoublePoint> stream() {
-    return validIndices()
-        .mapToObj(i -> LocalDateDoublePoint.of(dateCalculation.calculateDateFromPosition(startDate, i), points[i]));
+  private LocalDateDoublePoint generatePointForPosition(int i) {
+    LocalDate date = dateCalculation.calculateDateFromPosition(startDate, i);
+    return LocalDateDoublePoint.of(date, points[i]);
   }
 
   @Override
-  public DoubleStream valueStream() {
+  public DoubleStream values() {
     return Arrays.stream(points).filter(this::isValidPoint);
   }
 
   @Override
-  public Stream<LocalDate> dateStream() {
+  public Stream<LocalDate> dates() {
     return validIndices()
         .mapToObj(i -> dateCalculation.calculateDateFromPosition(startDate, i));
   }
 
   private IntStream validIndices() {
     return IntStream.range(0, points.length)
-        .filter(i -> isValidPoint(points[i]));
+        .filter(this::isValidIndex);
   }
 
   @Override
-  public DenseLocalDateDoubleTimeSeries filter(ObjDoublePredicate<LocalDate> predicate) {
+  public LocalDateDoubleTimeSeries filter(ObjDoublePredicate<LocalDate> predicate) {
 
-    DoubleStream filtered = IntStream.range(0, points.length)
-        .mapToDouble(i ->
-            isValidPoint(points[i]) &&
-                predicate.test(dateCalculation.calculateDateFromPosition(startDate, i), points[i]) ?
-            points[i] : Double.NaN);
+    Stream<LocalDateDoublePoint> filteredPoints =
+        stream().filter(pt -> predicate.test(pt.getDate(), pt.getValue()));
 
-    return DenseLocalDateDoubleTimeSeries.of(startDate, filtered, dateCalculation);
+    // As we may have changed the density of the series by filtering
+    // go via the builder to get the best implementation
+    return new LocalDateDoubleTimeSeriesBuilder(filteredPoints).build();
   }
 
   @Override
-  public DenseLocalDateDoubleTimeSeries mapValues(DoubleUnaryOperator mapper) {
-    return of(
-        startDate,
-        Arrays.stream(points).map(d -> isValidPoint(d) ? mapper.applyAsDouble(d) : d),
-        dateCalculation);
+  public LocalDateDoubleTimeSeries mapValues(DoubleUnaryOperator mapper) {
+    DoubleStream values = DoubleStream.of(points).map(d -> isValidPoint(d) ? mapper.applyAsDouble(d) : d);
+    return new DenseLocalDateDoubleTimeSeries(startDate, values.toArray(), dateCalculation, true);
+  }
+
+  private boolean isValidIndex(int i) {
+    return isValidPoint(points[i]);
   }
 
   private boolean isValidPoint(double d) {
     return !Double.isNaN(d);
-  }
-
-  @Override
-  public ImmutableSortedMap<LocalDate, Double> toMap() {
-
-    // Unfortunately we can't use the Guavate collector on an IntStream
-    ImmutableSortedMap.Builder<LocalDate, Double> builder = ImmutableSortedMap.naturalOrder();
-
-    validIndices().forEach(
-        i -> builder.put(dateCalculation.calculateDateFromPosition(startDate, i), points[i])
-    );
-    return builder.build();
-  }
-
-  @Override
-  public LocalDateDoubleTimeSeries combineWith(LocalDateDoubleTimeSeries other, DoubleBinaryOperator mapper) {
-
-    ArgChecker.notNull(other, "other");
-    ArgChecker.notNull(mapper, "mapper");
-
-    return new LocalDateDoubleTimeSeriesBuilder(
-        stream().filter(pt -> other.containsDate(pt.getDate()))
-            .map(pt -> LocalDateDoublePoint.of(
-                pt.getDate(),
-                mapper.applyAsDouble(pt.getValue(), other.get(pt.getDate()).getAsDouble()))))
-            .build();
   }
 
   @Override
@@ -565,7 +409,6 @@ public class DenseLocalDateDoubleTimeSeries
   public LocalDateDoubleTimeSeriesBuilder toBuilder() {
     return new LocalDateDoubleTimeSeriesBuilder(stream());
   }
-
 
   @Override
   public LocalDate getEarliestDate() {
@@ -599,56 +442,10 @@ public class DenseLocalDateDoubleTimeSeries
     return points[points.length - 1];
   }
 
-  @Override
-  public ImmutableList<LocalDate> dates() {
-    return dateStream().collect(toImmutableList());
-  }
-
-  @Override
-  public ImmutableList<Double> values() {
-
-    ImmutableList.Builder<Double> builder = ImmutableList.builder();
-    valueStream().forEach(builder::add);
-    return builder.build();
-  }
-
-  @Override
-  public boolean containsDate(LocalDate date) {
-    if (isEmpty() || date.isBefore(startDate) ) {
-      return false;
-    } else {
-
-      // This test feels wrong - push to the enum?
-      if (dateCalculation == SKIP_WEEKENDS && isWeekend(date)) {
-        return false;
-      }
-      int position = dateCalculation.calculatePosition(startDate, date);
-      return position < points.length && isValidPoint(points[position]);
-    }
-  }
-
-  @Override
-  public OptionalDouble get(LocalDate dt) {
-
-    // This test feels wrong - push to the enum?
-    if (dateCalculation == SKIP_WEEKENDS && isWeekend(dt)) {
-      return OptionalDouble.empty();
-    } else {
-
-      int position = dateCalculation.calculatePosition(startDate, dt);
-      if (position >= 0 && position < points.length) {
-        double point = points[position];
-        return isValidPoint(point) ? OptionalDouble.of(point) : OptionalDouble.empty();
-      } else {
-        return OptionalDouble.empty();
-      }
-    }
-  }
-
   // Sufficient for the moment, in the future we may need to
   // vary depending on a non-Western weekend
   private static boolean isWeekend(LocalDate date) {
-    return date.get(ChronoField.DAY_OF_WEEK) > 5;
+    return date.get(DAY_OF_WEEK) > 5;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
