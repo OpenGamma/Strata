@@ -6,6 +6,8 @@
 package com.opengamma.platform.finance.swap;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static com.opengamma.basics.value.ValueSchedule.ALWAYS_0;
+import static com.opengamma.basics.value.ValueSchedule.ALWAYS_1;
 import static com.opengamma.platform.finance.swap.IborRateAveragingMethod.UNWEIGHTED;
 
 import java.io.Serializable;
@@ -65,15 +67,6 @@ import com.opengamma.platform.finance.observation.RateObservation;
 @BeanDefinition
 public final class IborRateCalculation
     implements RateCalculation, ImmutableBean, Serializable {
-
-  /**
-   * A value schedule that always has the value zero.
-   */
-  private static final ValueSchedule VALUE_SCHEDULE_0 = ValueSchedule.of(0);
-  /**
-   * A value schedule that always has the value one.
-   */
-  private static final ValueSchedule VALUE_SCHEDULE_1 = ValueSchedule.of(1);
 
   /**
    * The day count convention applicable.
@@ -235,15 +228,17 @@ public final class IborRateCalculation
           .expand(accrualSchedule, paymentSchedule);
     }
     // resolve data by schedule
-    List<Double> resolvedGearings = firstNonNull(gearing, VALUE_SCHEDULE_1).resolveValues(accrualSchedule.getPeriods());
-    List<Double> resolvedSpreads = firstNonNull(spread, VALUE_SCHEDULE_0).resolveValues(accrualSchedule.getPeriods());
+    List<Double> resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule.getPeriods());
+    List<Double> resolvedSpreads = firstNonNull(spread, ALWAYS_0).resolveValues(accrualSchedule.getPeriods());
     // build accrual periods
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       accrualPeriods.add(RateAccrualPeriod.builder(period)
           .yearFraction(period.yearFraction(dayCount, accrualSchedule))
-          .rateObservation(createRateObservation(period, accrualSchedule.getRollConvention(), i, scheduleInitialStub, scheduleFinalStub))
+          .rateObservation(
+              createRateObservation(
+                  period, accrualSchedule.getRollConvention(), i, scheduleInitialStub, scheduleFinalStub))
           .negativeRateMethod(negativeRateMethod)
           .gearing(resolvedGearings.get(i))
           .spread(resolvedSpreads.get(i))
