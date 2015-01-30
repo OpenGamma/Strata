@@ -126,7 +126,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
 
     // Construct all the details related to the observation: fixing dates, publication dates, start and end dates, 
     // accrual factors, number of already fixed ON rates.
-    public ObservationDetails(PricingEnvironment env, OvernightAveragedRateObservation observation) {
+    private ObservationDetails(PricingEnvironment env, OvernightAveragedRateObservation observation) {
       this.env = env;
       index = observation.getIndex();
       ArrayList<LocalDate> fixingDatesCstr = new ArrayList<>();
@@ -171,7 +171,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     }
 
     // Accumulated rate - publication strictly before valuation date: try accessing fixing time-series
-    public double pastAccumulation() {
+    private double pastAccumulation() {
       double accumulatedInterest = 0.0d;
       LocalDateDoubleTimeSeries indexFixingDateSeries = env.timeSeries(index);
       while ((fixedPeriod < nbPeriods) &&
@@ -184,7 +184,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     }
 
     // Accumulated rate - publication on valuation: Check if a fixing is available on current date
-    public double valuationDateAccumulation() {
+    private double valuationDateAccumulation() {
       double accumulatedInterest = 0.0d;
       LocalDateDoubleTimeSeries indexFixingDateSeries = env.timeSeries(index);
       boolean ratePresent = true;
@@ -202,7 +202,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     }
 
     //  Accumulated rate - approximated forward rates if not all fixed and not part of cutoff
-    public double approximatedForwardAccumulation() {
+    private double approximatedForwardAccumulation() {
       int nbPeriodNotCutOff = nbPeriods - cutoffOffset + 1;
       if (fixedPeriod < nbPeriodNotCutOff) {
         LocalDate startDateApprox = onRatePeriodEffectiveDates.get(fixedPeriod);
@@ -213,7 +213,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     }
 
     // Accumulated rate - cutoff part if not fixed
-    public double cutOffAccumulation() {
+    private double cutOffAccumulation() {
       double accumulatedInterest = 0.0d;
       int nbPeriodNotCutOff = nbPeriods - cutoffOffset + 1;
       for (int i = Math.max(fixedPeriod, nbPeriodNotCutOff); i < nbPeriods; i++) {
@@ -224,7 +224,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     }
 
     // Calculate the total rate.
-    public double calculateRate() {
+    private double calculateRate() {
       return (pastAccumulation() + valuationDateAccumulation()
           + approximatedForwardAccumulation() + cutOffAccumulation())
           / accrualFactorTotal;
