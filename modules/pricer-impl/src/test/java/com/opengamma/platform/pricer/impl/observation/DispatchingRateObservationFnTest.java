@@ -26,6 +26,7 @@ import com.opengamma.platform.finance.observation.IborAveragedRateObservation;
 import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
+import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
@@ -46,6 +47,8 @@ public class DispatchingRateObservationFnTest {
       mock(RateObservationFn.class);
   private static final RateObservationFn<IborAveragedRateObservation> MOCK_IBOR_AVE_EMPTY =
       mock(RateObservationFn.class);
+  private static final RateObservationFn<OvernightCompoundedRateObservation> MOCK_ON_CPD_EMPTY =
+      mock(RateObservationFn.class);
   private static final RateObservationFn<OvernightAveragedRateObservation> MOCK_ON_AVE_EMPTY =
       mock(RateObservationFn.class);
 
@@ -64,8 +67,8 @@ public class DispatchingRateObservationFnTest {
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
     when(mockIbor.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE))
         .thenReturn(0.0123d);
-    DispatchingRateObservationFn test =
-        new DispatchingRateObservationFn(mockIbor, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, MOCK_ON_AVE_EMPTY);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(
+        mockIbor, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY);
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), 0.0123d, 0d);
   }
 
@@ -76,8 +79,8 @@ public class DispatchingRateObservationFnTest {
     IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
     when(mockIborInt.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE))
         .thenReturn(mockRate);
-    DispatchingRateObservationFn test =
-        new DispatchingRateObservationFn(MOCK_IBOR_EMPTY, mockIborInt, MOCK_IBOR_AVE_EMPTY, MOCK_ON_AVE_EMPTY);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(
+        MOCK_IBOR_EMPTY, mockIborInt, MOCK_IBOR_AVE_EMPTY, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY);
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), mockRate, 0d);
   }
 
@@ -97,12 +100,25 @@ public class DispatchingRateObservationFnTest {
     IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
     when(mockIborAve.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE))
         .thenReturn(mockRate);
-    DispatchingRateObservationFn test =
-        new DispatchingRateObservationFn(MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, mockIborAve, MOCK_ON_AVE_EMPTY);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(
+        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, mockIborAve, MOCK_ON_CPD_EMPTY, MOCK_ON_AVE_EMPTY);
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), mockRate, 0d);
   }
 
-  public void test_rate_OvernightAverageRateObservation() {
+  public void test_rate_OvernightCompoundedRateObservation() {
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    double mockRate = 0.0123d;
+    RateObservationFn<OvernightCompoundedRateObservation> mockOnCpd = mock(RateObservationFn.class);
+    OvernightCompoundedRateObservation ro =
+        OvernightCompoundedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
+    when(mockOnCpd.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE))
+        .thenReturn(mockRate);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(
+        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, mockOnCpd, MOCK_ON_AVE_EMPTY);
+    assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), mockRate, TOLERANCE_RATE);
+  }
+
+  public void test_rate_OvernightAveragedRateObservation() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     double mockRate = 0.0123d;
     RateObservationFn<OvernightAveragedRateObservation> mockOnAve = mock(RateObservationFn.class);
@@ -110,8 +126,8 @@ public class DispatchingRateObservationFnTest {
         OvernightAveragedRateObservation.of(USD_FED_FUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, 0);
     when(mockOnAve.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE))
         .thenReturn(mockRate);
-    DispatchingRateObservationFn test =
-        new DispatchingRateObservationFn(MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, mockOnAve);
+    DispatchingRateObservationFn test = new DispatchingRateObservationFn(
+        MOCK_IBOR_EMPTY, MOCK_IBOR_INT_EMPTY, MOCK_IBOR_AVE_EMPTY, MOCK_ON_CPD_EMPTY, mockOnAve);
     assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), mockRate, TOLERANCE_RATE);
   }
 
