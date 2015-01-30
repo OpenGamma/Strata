@@ -8,6 +8,7 @@ package com.opengamma.platform.pricer.impl.observation;
 import static com.opengamma.basics.index.OvernightIndices.CHF_TOIS;
 import static com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -429,7 +430,7 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
   }
 
   /** One past fixing missing. Checking the error thrown. */
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test
   public void rateFedFund0CutOffValuation2MissingFixing() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate valuationDate = date(2015, 1, 13);
@@ -452,7 +453,9 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
     }
     when(mockEnv.getValuationDate()).thenReturn(valuationDate);
-    OBS_FWD_ONCMP.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
+    assertThrows(() -> OBS_FWD_ONCMP.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE), 
+        OpenGammaRuntimeException.class);
+    
   }
 
 }
