@@ -5,6 +5,8 @@
  */
 package com.opengamma.collect.timeseries;
 
+import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.INCLUDE_WEEKENDS;
 import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.SKIP_WEEKENDS;
 import static com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries.empty;
@@ -53,22 +55,23 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   private static final LocalDate DATE_2013_01_01 = date(2013, 1, 1);
 
   private static final LocalDate DATE_2014_01_01 = date(2014, 1, 1);
-  private static final LocalDate DATE_2014_01_02 = date(2014, 1, 2);
-  private static final LocalDate DATE_2014_01_03 = date(2014, 1, 3);
 
   private static final LocalDate DATE_2015_01_02 = date(2015, 1, 2);
+  private static final LocalDate DATE_2015_01_03 = date(2015, 1, 3);
+  private static final LocalDate DATE_2015_01_04 = date(2015, 1, 4);
   private static final LocalDate DATE_2015_01_05 = date(2015, 1, 5);
   private static final LocalDate DATE_2015_01_06 = date(2015, 1, 6);
   private static final LocalDate DATE_2015_01_07 = date(2015, 1, 7);
   private static final LocalDate DATE_2015_01_08 = date(2015, 1, 8);
   private static final LocalDate DATE_2015_01_09 = date(2015, 1, 9);
+  private static final LocalDate DATE_2015_01_11 = date(2015, 1, 11);
+
   private static final LocalDate DATE_2015_01_12 = date(2015, 1, 12);
 
   private static final ImmutableList<LocalDate> DATES_2015_1_WEEK = dates(
       DATE_2015_01_05, DATE_2015_01_06, DATE_2015_01_07, DATE_2015_01_08, DATE_2015_01_09);
 
   private static final ImmutableList<Double> VALUES_1_WEEK = values(10, 11, 12, 13, 14);
-
   private static final ImmutableList<LocalDate> DATES_2010_12 = dates(
       DATE_2010_01_01, DATE_2011_01_01, DATE_2012_01_01);
   private static final ImmutableList<Double> VALUES_10_12 = values(10, 11, 12);
@@ -160,6 +163,32 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     assertEquals(series.get(DATE_2011_01_01), OptionalDouble.of(1d));
     assertEquals(series.get(DATE_2012_01_01), OptionalDouble.of(2d));
   }
+
+  public void test_NaN_is_not_allowed() {
+
+    assertThrowsIllegalArg(() ->
+            LocalDateDoubleTimeSeries.of(DATE_2015_01_02, Double.NaN));
+    assertThrowsIllegalArg(() ->
+        LocalDateDoubleTimeSeries.builder().put(DATE_2015_01_02, Double.NaN));
+    assertThrowsIllegalArg(() ->
+            LocalDateDoubleTimeSeries.builder().putAll(ImmutableMap.of(DATE_2015_01_02, Double.NaN)));
+    assertThrowsIllegalArg(() ->
+        LocalDateDoubleTimeSeries.builder().put(LocalDateDoublePoint.of(DATE_2015_01_02, Double.NaN)));
+    assertThrowsIllegalArg(() ->
+        LocalDateDoubleTimeSeries.builder().putAll(ImmutableList.of(DATE_2015_01_02), ImmutableList.of(Double.NaN)));
+    assertThrowsIllegalArg(() ->
+        LocalDateDoubleTimeSeries.builder().putAll(ImmutableList.of(LocalDateDoublePoint.of(DATE_2015_01_02, Double.NaN))));
+
+    LocalDateDoubleTimeSeries s1 = LocalDateDoubleTimeSeries.of(DATE_2015_01_02, 1d);
+    LocalDateDoubleTimeSeries s2 = LocalDateDoubleTimeSeries.of(DATE_2015_01_02, 2d);
+
+    assertThrowsIllegalArg(() ->
+        s1.combineWith(s2, (d1, d2) -> Double.NaN));
+
+    assertThrowsIllegalArg(() ->
+        s1.mapValues(d -> Double.NaN));
+  }
+
 
   //-------------------------------------------------------------------------
   public void test_of_map() {
@@ -291,10 +320,29 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_earliestLatest_whenEmpty() {
     LocalDateDoubleTimeSeries test = empty();
-    TestHelper.assertThrows(test::getEarliestDate, NoSuchElementException.class);
-    TestHelper.assertThrows(test::getEarliestValue, NoSuchElementException.class);
-    TestHelper.assertThrows(test::getLatestDate, NoSuchElementException.class);
-    TestHelper.assertThrows(test::getLatestValue, NoSuchElementException.class);
+    assertThrows(test::getEarliestDate, NoSuchElementException.class);
+    assertThrows(test::getEarliestValue, NoSuchElementException.class);
+    assertThrows(test::getLatestDate, NoSuchElementException.class);
+    assertThrows(test::getLatestValue, NoSuchElementException.class);
+  }
+
+  public void test_earliest_with_subseries() {
+
+    LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder()
+        .put(DATE_2015_01_03, 3d) // Saturday, so include weekends
+        .put(DATE_2015_01_05, 5d)
+        .put(DATE_2015_01_06, 6d)
+        .put(DATE_2015_01_07, 7d)
+        .put(DATE_2015_01_08, 8d)
+        .put(DATE_2015_01_09, 9d)
+        .put(DATE_2015_01_11, 11d)
+        .build();
+
+    LocalDateDoubleTimeSeries subSeries = series.subSeries(DATE_2015_01_04, DATE_2015_01_11);
+    assertEquals(subSeries.getEarliestDate(), DATE_2015_01_05);
+    assertEquals(subSeries.getEarliestValue(), 5d);
+    assertEquals(subSeries.getLatestDate(), DATE_2015_01_09);
+    assertEquals(subSeries.getLatestValue(), 9d);
   }
 
   //-------------------------------------------------------------------------
@@ -363,11 +411,11 @@ public class DenseLocalDateDoubleTimeSeriesTest {
         .build();
 
     // Pick using weekend dates
-    LocalDateDoubleTimeSeries subSeries = series.subSeries(date(2015, 1, 4), date(2015, 1, 10));
+    LocalDateDoubleTimeSeries subSeries = series.subSeries(DATE_2015_01_04, date(2015, 1, 10));
 
     assertEquals(subSeries.size(), 5);
     assertEquals(subSeries.get(DATE_2015_01_02), OptionalDouble.empty());
-    assertEquals(subSeries.get(date(2015, 1, 4)), OptionalDouble.empty());
+    assertEquals(subSeries.get(DATE_2015_01_04), OptionalDouble.empty());
     assertEquals(subSeries.get(DATE_2015_01_05), OptionalDouble.of(11));
     assertEquals(subSeries.get(DATE_2015_01_06), OptionalDouble.of(12));
     assertEquals(subSeries.get(DATE_2015_01_07), OptionalDouble.of(13));
@@ -744,7 +792,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
         .put(dt(2014, 12, 29), 13d)
         .put(dt(2014, 12, 30), 12d)
         .put(dt(2014, 12, 31), 11d)
-        .put(dt(2015, 1, 1), Double.NaN)
+            // bank hol, so no data
         .put(dt(2015, 1, 2), 11d)
             // Weekend, so no data
         .put(dt(2015, 1, 5), 12d)

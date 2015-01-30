@@ -52,7 +52,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   /**
    * Creates an instance.
    * <p>
-   * Use {@link SparseLocalDateDoubleTimeSeries#builder()}.
+   * Use {@link LocalDateDoubleTimeSeries#builder()}.
    */
   LocalDateDoubleTimeSeriesBuilder() {
   }
@@ -60,7 +60,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   /**
    * Creates an instance.
    * <p>
-   * Use {@link SparseLocalDateDoubleTimeSeries#toBuilder()}.
+   * Use {@link LocalDateDoubleTimeSeries#toBuilder()}.
    * 
    * @param dates  the dates to initialize with
    * @param values  the values to initialize with
@@ -108,6 +108,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   public LocalDateDoubleTimeSeriesBuilder put(LocalDate date, double value) {
     ArgChecker.notNull(date, "date");
+    ArgChecker.isFalse(Double.isNaN(value), "NaN is not allowed as a value");
     entries.put(date, value);
     if (!containsWeekends && date.get(ChronoField.DAY_OF_WEEK) > 5) {
       containsWeekends = true;
@@ -208,7 +209,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   public LocalDateDoubleTimeSeriesBuilder putAll(Map<LocalDate, Double> map) {
     ArgChecker.noNulls(map, "map");
-    entries.putAll(map);
+    map.entrySet().forEach(e -> put(e.getKey(), e.getValue()));
     return this;
   }
 

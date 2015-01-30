@@ -72,7 +72,7 @@ class DenseLocalDateDoubleTimeSeries
         //   Tues 8th -> Wed 16th, 8 days span, 8 / 7 = 1 weekend, correct so not further adjustment
         //   Tues 8th -> Mon 14th, 6 days span, 6 / 7 = 0 weekend, incorrect so we need to add adjustment
         int weekendAdjustment = startDate.getDayOfWeek().compareTo(date.getDayOfWeek()) > 0 ? 1 : 0;
-        int numWeekends = unadjusted / 7 + weekendAdjustment;
+        int numWeekends = (unadjusted / 7) + weekendAdjustment;
         return unadjusted - (2 * numWeekends);
       }
 
@@ -81,8 +81,8 @@ class DenseLocalDateDoubleTimeSeries
         int numWeekends = position / 5;
         int remaining = position % 5;
         // As above we add adjustment for an uncaptured weekend
-        int endPointAdjustment = remaining < (6 - startDate.get(DAY_OF_WEEK)) ? 0 : 2;
-        return startDate.plusDays(7 * numWeekends + remaining + endPointAdjustment);
+        int endPointAdjustment = (remaining < (6 - startDate.get(DAY_OF_WEEK))) ? 0 : 2;
+        return startDate.plusDays((7 * numWeekends) + remaining + endPointAdjustment);
       }
 
       @Override
@@ -166,15 +166,15 @@ class DenseLocalDateDoubleTimeSeries
   /**
    * Date corresponding to first element in the array. All other
    * values can be calculated using date arithmetic to find
-   * correct point
+   * correct point.
    */
-   @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull")
   private final LocalDate startDate;
 
   /**
    * The values in the series.
    * The date for each value is calculated using the position
-   * in the array and the start date..
+   * in the array and the start date.
    */
   @PropertyDefinition(get = "private", validate = "notNull")
   private final double[] points;
@@ -335,27 +335,29 @@ class DenseLocalDateDoubleTimeSeries
     int startPoint = findTailPoints(numPoints);
 
     return new DenseLocalDateDoubleTimeSeries(
-        dateCalculation.calculateDateFromPosition(startDate, startPoint),
+        calculateDateFromPosition(startPoint),
         Arrays.copyOfRange(points, startPoint, points.length),
         dateCalculation);
   }
 
   private int findTailPoints(int required) {
-
-    // As there is no way of constructing an IntStream from
-    // n to m where n > m, we go from -n to m and then
-    // take the additive inverse (sigh!)
-    return IntStream.rangeClosed(1 - points.length, 0)
-        .map(i -> -i)
-        .filter(this::isValidIndex)
+    return reversedValidIndices()
         .skip(required - 1)
         .findFirst()
         .orElse(0);
   }
 
+  private IntStream reversedValidIndices() {
+    // As there is no way of constructing an IntStream from
+    // n to m where n > m, we go from -n to m and then
+    // take the additive inverse (sigh!)
+    return IntStream.rangeClosed(1 - points.length, 0)
+        .map(i -> -i)
+        .filter(this::isValidIndex);
+  }
+
   private LocalDateDoublePoint generatePointForPosition(int i) {
-    LocalDate date = dateCalculation.calculateDateFromPosition(startDate, i);
-    return LocalDateDoublePoint.of(date, points[i]);
+    return LocalDateDoublePoint.of(calculateDateFromPosition(i), points[i]);
   }
 
   @Override
@@ -366,7 +368,7 @@ class DenseLocalDateDoubleTimeSeries
   @Override
   public Stream<LocalDate> dates() {
     return validIndices()
-        .mapToObj(i -> dateCalculation.calculateDateFromPosition(startDate, i));
+        .mapToObj(this::calculateDateFromPosition);
   }
 
   private IntStream validIndices() {
@@ -387,8 +389,16 @@ class DenseLocalDateDoubleTimeSeries
 
   @Override
   public LocalDateDoubleTimeSeries mapValues(DoubleUnaryOperator mapper) {
-    DoubleStream values = DoubleStream.of(points).map(d -> isValidPoint(d) ? mapper.applyAsDouble(d) : d);
+    DoubleStream values = DoubleStream.of(points).map(d -> isValidPoint(d) ? applyMapper(mapper, d) : d);
     return new DenseLocalDateDoubleTimeSeries(startDate, values.toArray(), dateCalculation, true);
+  }
+
+  private double applyMapper(DoubleUnaryOperator mapper, double d) {
+    double value = mapper.applyAsDouble(d);
+    if (!isValidPoint(value)) {
+      throw new IllegalArgumentException("Mapper must not map to NaN");
+    }
+    return value;
   }
 
   private boolean isValidIndex(int i) {
@@ -402,7 +412,7 @@ class DenseLocalDateDoubleTimeSeries
   @Override
   public void forEach(ObjDoubleConsumer<LocalDate> action) {
     validIndices().forEach(i ->
-        action.accept(dateCalculation.calculateDateFromPosition(startDate, i), points[i]));
+        action.accept(calculateDateFromPosition(i), points[i]));
   }
 
   @Override
@@ -412,34 +422,36 @@ class DenseLocalDateDoubleTimeSeries
 
   @Override
   public LocalDate getEarliestDate() {
-    if (isEmpty()) {
-      throw new NoSuchElementException("Unable to return earliest date, time-series is empty");
-    }
-    return startDate;
+    return dates().findFirst().orElseThrow(() ->
+        new NoSuchElementException("Unable to return earliest date, time-series is empty"));
   }
 
   @Override
   public double getEarliestValue() {
-    if (isEmpty()) {
-      throw new NoSuchElementException("Unable to return earliest value, time-series is empty");
-    }
-    return points[0];
+    return values().findFirst().orElseThrow(() ->
+        new NoSuchElementException("Unable to return earliest value, time-series is empty"));
   }
 
   @Override
   public LocalDate getLatestDate() {
-    if (isEmpty()) {
-      throw new NoSuchElementException("Unable to return latest date, time-series is empty");
-    }
-    return dateCalculation.calculateDateFromPosition(startDate, points.length - 1);
+    return reversedValidIndices()
+        .mapToObj(this::calculateDateFromPosition)
+        .findFirst()
+        .orElseThrow(() ->
+            new NoSuchElementException("Unable to return latest date, time-series is empty"));
   }
 
   @Override
   public double getLatestValue() {
-    if (isEmpty()) {
-      throw new NoSuchElementException("Unable to return latest value, time-series is empty");
-    }
-    return points[points.length - 1];
+    return reversedValidIndices()
+        .mapToDouble(i -> points[i])
+        .findFirst()
+        .orElseThrow(() ->
+            new NoSuchElementException("Unable to return latest value, time-series is empty"));
+  }
+
+  private LocalDate calculateDateFromPosition(int i) {
+    return dateCalculation.calculateDateFromPosition(startDate, i);
   }
 
   // Sufficient for the moment, in the future we may need to
@@ -486,7 +498,7 @@ class DenseLocalDateDoubleTimeSeries
   /**
    * Gets date corresponding to first element in the array. All other
    * values can be calculated using date arithmetic to find
-   * correct point
+   * correct point.
    * @return the value of the property, not null
    */
   public LocalDate getStartDate() {
@@ -495,7 +507,9 @@ class DenseLocalDateDoubleTimeSeries
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the points.
+   * Gets the values in the series.
+   * The date for each value is calculated using the position
+   * in the array and the start date.
    * @return the value of the property, not null
    */
   private double[] getPoints() {

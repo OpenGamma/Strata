@@ -21,7 +21,7 @@ import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.function.ObjDoublePredicate;
 
 /**
- * Base interface for all local date time-series types containing
+ * Interface for all local date time-series types containing
  * {@code double} values.
  * <p>
  * A time-series is similar to both a {@code SortedMap} of value keyed
@@ -32,9 +32,18 @@ import com.opengamma.collect.function.ObjDoublePredicate;
  * is most appropriate.
  * <p>
  * Implementations must be immutable and thread-safe beans.
+ * <p>
+ * Note that {@link Double#NaN} is used internally as a sentinel
+ * value and is therefore not allowed as a value.
  */
 public interface LocalDateDoubleTimeSeries extends ImmutableBean {
 
+  /**
+   * Return an empty time-series. Generally a singleton instance
+   * is returned so this method can safely be called multiple times.
+   *
+   * @return an empty time-series
+   */
   public static LocalDateDoubleTimeSeries empty() {
     return SparseLocalDateDoubleTimeSeries.EMPTY_SERIES;
   }
@@ -206,7 +215,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    * This is most useful to summarize the dates in the stream, such as calculating
    * the maximum or minimum date, or searching for a specific value.
    *
-   * @return a stream over the values of this time-series
+   * @return a stream over the dates of this time-series
    */
   public abstract Stream<LocalDate> dates();
 
@@ -226,7 +235,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    * This is generally used to apply a mathematical operation to the values.
    * For example, the operator could multiply each value by a constant, or take the inverse.
    * <pre>
-   *   multiplied = base.forEach((date, value) -> System.out.println(date + "=" + value));
+   *   base.forEach((date, value) -> System.out.println(date + "=" + value));
    * </pre>
    *
    * @param action  the action to be applied to each pair
@@ -274,7 +283,8 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
     ArgChecker.notNull(mapper, "mapper");
 
     return new LocalDateDoubleTimeSeriesBuilder(
-        stream().filter(pt -> other.containsDate(pt.getDate()))
+        stream()
+            .filter(pt -> other.containsDate(pt.getDate()))
             .map(pt -> LocalDateDoublePoint.of(
                 pt.getDate(),
                 mapper.applyAsDouble(pt.getValue(), other.get(pt.getDate()).getAsDouble()))))
