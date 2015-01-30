@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.collect.timeseries.SparseLocalDateDoubleTimeSeries;
 import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
@@ -151,7 +150,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       dTs.add(FIXING_DATES[i]);
       vTs.add(FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = SparseLocalDateDoubleTimeSeries.of(dTs, vTs);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(dTs, vTs).build();
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
     for (int i = 0; i < 2; i++) {
@@ -200,7 +199,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       dTs.add(FIXING_DATES[i]);
       vTs.add(FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = SparseLocalDateDoubleTimeSeries.of(dTs, vTs);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(dTs, vTs).build();
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
     for (int i = 0; i < lastFixing; i++) {
@@ -255,7 +254,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       dTs.add(FIXING_DATES[i]);
       vTs.add(FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = SparseLocalDateDoubleTimeSeries.of(dTs, vTs);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(dTs, vTs).build();
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.timeSeries(GBP_SONIA)).thenReturn(ts);
     for (int i = 0; i < lastFixing; i++) {
@@ -310,7 +309,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       dTs.add(FIXING_DATES[i]);
       vTs.add(FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = SparseLocalDateDoubleTimeSeries.of(dTs, vTs);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(dTs, vTs).build();
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.timeSeries(GBP_SONIA)).thenReturn(ts);
     for (int i = 0; i < lastFixing; i++) {
@@ -362,7 +361,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       dTs.add(FIXING_DATES[i]);
       vTs.add(FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = SparseLocalDateDoubleTimeSeries.of(dTs, vTs);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(dTs, vTs).build();
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
     for (int i = 0; i < lastFixing; i++) {
@@ -389,7 +388,7 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       dTs.add(FIXING_DATES[i]);
       vTs.add(FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = SparseLocalDateDoubleTimeSeries.of(dTs, vTs);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(dTs, vTs).build();
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
     for (int i = 0; i < lastFixing; i++) {
