@@ -5,6 +5,7 @@
  */
 package com.opengamma.platform.finance.swap;
 
+import static com.opengamma.basics.currency.Currency.EUR;
 import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.index.FxIndices.ECB_EUR_GBP;
@@ -68,6 +69,8 @@ public class FxResetTest {
     coverImmutableBean(test);
     FxReset test2 = FxReset.of(ECB_EUR_USD, USD, date(2014, 1, 15));
     coverBeanEquals(test, test2);
+    FxReset test3 = FxReset.of(ECB_EUR_USD, EUR, date(2014, 1, 15));
+    coverBeanEquals(test2, test3);
   }
 
   public void test_serialization() {

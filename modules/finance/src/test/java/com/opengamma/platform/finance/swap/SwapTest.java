@@ -9,6 +9,8 @@ import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.platform.finance.swap.MockSwapLeg.MOCK_EXPANDED_GBP1;
+import static com.opengamma.platform.finance.swap.MockSwapLeg.MOCK_EXPANDED_USD1;
 import static com.opengamma.platform.finance.swap.MockSwapLeg.MOCK_GBP1;
 import static com.opengamma.platform.finance.swap.MockSwapLeg.MOCK_GBP2;
 import static com.opengamma.platform.finance.swap.MockSwapLeg.MOCK_USD1;
@@ -56,6 +58,14 @@ public class SwapTest {
     assertEquals(Swap.of(MOCK_GBP1, MOCK_GBP2, MOCK_USD1).isCrossCurrency(), true);
     assertEquals(Swap.of(MOCK_GBP1, MOCK_GBP2).isCrossCurrency(), false);
     assertEquals(Swap.of(MOCK_GBP1).isCrossCurrency(), false);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_expand() {
+    Swap test = Swap.builder()
+        .legs(ImmutableSet.of(MOCK_GBP1, MOCK_USD1))
+        .build();
+    assertEquals(test.expand(), ExpandedSwap.of(MOCK_EXPANDED_GBP1, MOCK_EXPANDED_USD1));
   }
 
   //-------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,7 +9,6 @@ import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.collect.TestHelper.assertSerialization;
-import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
@@ -20,7 +19,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 
@@ -28,7 +27,7 @@ import com.opengamma.platform.finance.observation.IborRateObservation;
  * Test.
  */
 @Test
-public class ExpandedSwapLegTest {
+public class ExpandedSwapTest {
 
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
   private static final LocalDate DATE_2014_09_30 = date(2014, 9, 30);
@@ -51,60 +50,59 @@ public class ExpandedSwapLegTest {
   private static final RatePaymentPeriod RPP2 = RatePaymentPeriod.builder()
       .paymentDate(DATE_2014_10_01)
       .accrualPeriods(RAP)
-      .currency(GBP)
-      .notional(6000d)
-      .build();
-  private static final RatePaymentPeriod RPP3 = RatePaymentPeriod.builder()
-      .paymentDate(DATE_2014_10_01)
-      .accrualPeriods(RAP)
       .currency(USD)
       .notional(6000d)
       .build();
+  private static final ExpandedSwapLeg LEG1 = ExpandedSwapLeg.builder()
+      .paymentPeriods(RPP1)
+      .paymentEvents(NOTIONAL_EXCHANGE)
+      .build();
+  private static final ExpandedSwapLeg LEG2 = ExpandedSwapLeg.builder()
+      .paymentPeriods(RPP2)
+      .build();
 
-  public void test_builder() {
-    ExpandedSwapLeg test = ExpandedSwapLeg.builder()
-        .paymentPeriods(RPP1)
-        .paymentEvents(NOTIONAL_EXCHANGE)
-        .build();
-    assertEquals(test.getStartDate(), DATE_2014_06_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getPaymentPeriods(), ImmutableList.of(RPP1));
-    assertEquals(test.getPaymentEvents(), ImmutableList.of(NOTIONAL_EXCHANGE));
+  public void test_of() {
+    ExpandedSwap test = ExpandedSwap.of(LEG1);
+    assertEquals(test.getLegs(), ImmutableSet.of(LEG1));
+    assertEquals(test.isCrossCurrency(), false);
   }
 
-  public void test_builder_invalidMixedCurrency() {
-    assertThrowsIllegalArg(() -> ExpandedSwapLeg.builder()
-        .paymentPeriods(RPP3)
-        .paymentEvents(NOTIONAL_EXCHANGE)
-        .build());
+  public void test_of_crossCurrency() {
+    ExpandedSwap test = ExpandedSwap.of(LEG1, LEG2);
+    assertEquals(test.getLegs(), ImmutableSet.of(LEG1, LEG2));
+    assertEquals(test.isCrossCurrency(), true);
+  }
+
+  public void test_builder() {
+    ExpandedSwap test = ExpandedSwap.builder()
+        .legs(LEG1)
+        .build();
+    assertEquals(test.getLegs(), ImmutableSet.of(LEG1));
+    assertEquals(test.isCrossCurrency(), false);
   }
 
   public void test_expand() {
-    ExpandedSwapLeg test = ExpandedSwapLeg.builder()
-        .paymentPeriods(RPP1)
-        .paymentEvents(NOTIONAL_EXCHANGE)
+    ExpandedSwap test = ExpandedSwap.builder()
+        .legs(LEG1)
         .build();
     assertSame(test.expand(), test);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    ExpandedSwapLeg test = ExpandedSwapLeg.builder()
-        .paymentPeriods(RPP1)
-        .paymentEvents(NOTIONAL_EXCHANGE)
+    ExpandedSwap test = ExpandedSwap.builder()
+        .legs(LEG1)
         .build();
     coverImmutableBean(test);
-    ExpandedSwapLeg test2 = ExpandedSwapLeg.builder()
-        .paymentPeriods(RPP2)
+    ExpandedSwap test2 = ExpandedSwap.builder()
+        .legs(LEG2)
         .build();
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    ExpandedSwapLeg test = ExpandedSwapLeg.builder()
-        .paymentPeriods(RPP1)
-        .paymentEvents(NOTIONAL_EXCHANGE)
+    ExpandedSwap test = ExpandedSwap.builder()
+        .legs(LEG1)
         .build();
     assertSerialization(test);
   }
