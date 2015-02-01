@@ -126,7 +126,10 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    * @return the earliest date contained in this time-series
    * @throws NoSuchElementException if the time-series is empty
    */
-  public abstract LocalDate getEarliestDate();
+  public default LocalDate getEarliestDate() {
+    return dates().findFirst().orElseThrow(() ->
+        new NoSuchElementException("Unable to return earliest date, time-series is empty"));
+  }
 
   /**
    * Get the value held for the earliest date contained in this time-series.
@@ -136,7 +139,10 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
    * @return the value held for the earliest date contained in this time-series
    * @throws NoSuchElementException if the time-series is empty
    */
-  public abstract double getEarliestValue();
+  public default double getEarliestValue() {
+    return values().findFirst().orElseThrow(() ->
+        new NoSuchElementException("Unable to return earliest value, time-series is empty"));
+  }
 
   /**
    * Get the latest date contained in this time-series.

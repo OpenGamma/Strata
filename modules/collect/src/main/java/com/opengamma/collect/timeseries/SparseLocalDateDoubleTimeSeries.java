@@ -196,21 +196,6 @@ final class SparseLocalDateDoubleTimeSeries
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public LocalDate getEarliestDate() {
-    if (isEmpty()) {
-      throw new NoSuchElementException("Unable to return earliest, time-series is empty");
-    }
-    return dates[0];
-  }
-
-  @Override
-  public double getEarliestValue() {
-    if (isEmpty()) {
-      throw new NoSuchElementException("Unable to return earliest, time-series is empty");
-    }
-    return values[0];
-  }
 
   @Override
   public LocalDate getLatestDate() {

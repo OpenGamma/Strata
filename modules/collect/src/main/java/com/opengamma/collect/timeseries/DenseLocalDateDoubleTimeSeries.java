@@ -421,18 +421,6 @@ class DenseLocalDateDoubleTimeSeries
   }
 
   @Override
-  public LocalDate getEarliestDate() {
-    return dates().findFirst().orElseThrow(() ->
-        new NoSuchElementException("Unable to return earliest date, time-series is empty"));
-  }
-
-  @Override
-  public double getEarliestValue() {
-    return values().findFirst().orElseThrow(() ->
-        new NoSuchElementException("Unable to return earliest value, time-series is empty"));
-  }
-
-  @Override
   public LocalDate getLatestDate() {
     return reversedValidIndices()
         .mapToObj(this::calculateDateFromPosition)
