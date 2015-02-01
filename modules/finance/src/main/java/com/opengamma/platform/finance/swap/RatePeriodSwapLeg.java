@@ -203,7 +203,7 @@ public final class RatePeriodSwapLeg
         .map(pp -> pp.adjustPaymentDate(paymentBusinessDayAdjustment))
         .collect(toImmutableList());
     return ExpandedSwapLeg.builder()
-        .paymentPeriods(ImmutableList.copyOf(adjusted))
+        .paymentPeriods(ImmutableList.copyOf(adjusted))  // copyOf needed for type conversion
         .paymentEvents(createEvents(adjusted))
         .build();
   }

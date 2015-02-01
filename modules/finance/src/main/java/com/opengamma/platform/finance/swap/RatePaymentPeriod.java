@@ -30,7 +30,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.collect.Messages;
 
 /**
@@ -168,15 +167,6 @@ public final class RatePaymentPeriod
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Adjusts the payment date using the rules of the specified adjuster.
-   * <p>
-   * The adjuster is typically an instance of {@link BusinessDayAdjustment}.
-   * Implementations must return a new instance unless they are immutable and no change occurs.
-   * 
-   * @param adjuster  the adjuster to apply to the payment date
-   * @return the adjusted payment period
-   */
   @Override
   public RatePaymentPeriod adjustPaymentDate(TemporalAdjuster adjuster) {
     LocalDate adjusted = paymentDate.with(adjuster);

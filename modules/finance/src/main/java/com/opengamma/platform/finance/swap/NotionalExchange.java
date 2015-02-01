@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.basics.date.BusinessDayAdjustment;
 
 /**
  * An exchange of notionals between two counterparties.
@@ -86,15 +85,6 @@ public final class NotionalExchange
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Adjusts the payment date using the rules of the specified adjuster.
-   * <p>
-   * The adjuster is typically an instance of {@link BusinessDayAdjustment}.
-   * Implementations must return a new instance unless they are immutable and no change occurs.
-   * 
-   * @param adjuster  the adjuster to apply to the payment date
-   * @return the adjusted payment event
-   */
   @Override
   public NotionalExchange adjustPaymentDate(TemporalAdjuster adjuster) {
     LocalDate adjusted = paymentDate.with(adjuster);

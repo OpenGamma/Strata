@@ -44,8 +44,8 @@ import com.opengamma.basics.schedule.Schedule;
  * The schedule of periods is defined using {@link PeriodicSchedule}, {@link PaymentSchedule},
  * {@link NotionalSchedule} and {@link ResetSchedule}.
  * <p>
- * If this class is insufficient to define the swap, because the schedule or calculation
- * rules are highly unusual, the {@link RatePeriodSwapLeg} class can be used instead.
+ * If the schedule needs to be manually specified, or there are other unusual calculation
+ * rules then the {@link RatePeriodSwapLeg} class should be used instead.
  */
 @BeanDefinition
 public final class RateCalculationSwapLeg
