@@ -43,6 +43,9 @@ import com.opengamma.basics.schedule.Schedule;
  * If the payment period is longer than the accrual period then compounding may apply.
  * The schedule of periods is defined using {@link PeriodicSchedule}, {@link PaymentSchedule},
  * {@link NotionalSchedule} and {@link ResetSchedule}.
+ * <p>
+ * If the schedule needs to be manually specified, or there are other unusual calculation
+ * rules then the {@link RatePeriodSwapLeg} class should be used instead.
  */
 @BeanDefinition
 public final class RateCalculationSwapLeg

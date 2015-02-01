@@ -18,6 +18,7 @@ import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 import org.testng.annotations.Test;
@@ -128,11 +129,32 @@ public class RatePaymentPeriodTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_adjustPaymentDate() {
+    RatePaymentPeriod test = RatePaymentPeriod.builder()
+        .paymentDate(DATE_2014_10_01)
+        .accrualPeriods(RAP2)
+        .currency(GBP)
+        .notional(1000d)
+        .compoundingMethod(CompoundingMethod.STRAIGHT)
+        .build();
+    RatePaymentPeriod expected = RatePaymentPeriod.builder()
+        .paymentDate(DATE_2014_10_01.plusDays(2))
+        .accrualPeriods(RAP2)
+        .currency(GBP)
+        .notional(1000d)
+        .compoundingMethod(CompoundingMethod.STRAIGHT)
+        .build();
+    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0))), test);
+    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2))), expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
         .currency(GBP)
+        .fxReset(FX_RESET_USD)
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
         .build();
