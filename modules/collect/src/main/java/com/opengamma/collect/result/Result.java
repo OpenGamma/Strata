@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
@@ -44,7 +45,10 @@ import com.opengamma.collect.Messages;
  * <p>
  * The result model is typically used in a subsystem following functional programming style.
  * Functions will be written to have {@code Result<T>} as the return type.
- * Instead of using exceptions, code will return failure results.
+ * Instead of using exceptions, code will return failure results. In line with
+ * this, all methods will attempt to catch exception that happen within their
+ * scope and and return a failure {@code Result} rather than propagating the
+ * exception.
  * <p>
  * Application code using a result should also operate in a functional style.
  * Use {@link #map(Function)} and {@link #flatMap(Function)} in preference to
@@ -114,6 +118,43 @@ public final class Result<T>
   public static <R> Result<R> failure(FailureReason reason, String message, Object... messageArgs) {
     String msg = Messages.format(message, messageArgs);
     return new Result<>(Failure.of(reason, msg));
+  }
+
+  /**
+   * Creates a success {@code Result} wrapping the value produced by the
+   * supplier.
+   * <p>
+   * Note that if the supplier throws an exception, this will be caught
+   * and converted to a failure {@code Result}.
+   *
+   * @param <T> the type of the value
+   * @param supplier  supplier of the result value
+   * @return a success {@code Result} wrapping the value produced by the supplier
+   */
+  public static <T> Result<T> of(Supplier<T> supplier) {
+    try {
+      return success(supplier.get());
+    } catch (Exception e) {
+      return failure(e);
+    }
+  }
+
+  /**
+   * Creates a {@code Result} wrapping the result produced by the supplier.
+   * <p>
+   * Note that if the supplier throws an exception, this will be caught
+   * and converted to a failure {@code Result}.
+   *
+   * @param <T> the type of the result value
+   * @param supplier  supplier of the result
+   * @return a {@code Result} produced by the supplier
+   */
+  public static <T> Result<T> wrap(Supplier<Result<T>> supplier) {
+    try {
+      return supplier.get();
+    } catch (Exception e) {
+      return failure(e);
+    }
   }
 
   /**
@@ -305,11 +346,34 @@ public final class Result<T>
   }
 
   /**
+   * Counts how many of the results are failures.
+   *
+   * @param results  the results to check
+   * @return the number of results that are failures
+   */
+  public static long countFailures(Result<?>... results) {
+    return Stream.of(results).filter(Result::isFailure).count();
+  }
+
+  /**
+   * Counts how many of the results are failures.
+   *
+   * @param results  the results to check
+   * @return the number of results that are failures
+   */
+  public static long countFailures(Iterable<? extends Result<?>> results) {
+    return Guavate.stream(results).filter(Result::isFailure).count();
+  }
+
+  /**
    * Takes a collection of results, checks if all of them are successes
    * and then applies the supplied function to the successes wrapping
    * the result in a success result. If any of the initial results was
    * a failure, then a failure result reflecting the failures in the
    * initial results is returned.
+   * <p>
+   * If an exception is thrown when the function is applied, this will
+   * be caught and a failure {@code Result} returned.
    * <p>
    * The following code shows where this method can be used. The code:
    * <blockquote><pre>
@@ -346,9 +410,14 @@ public final class Result<T>
       Iterable<? extends Result<T>> results,
       Function<Stream<T>, R> function) {
 
-    return allSuccessful(results) ?
-        success(function.apply(extractSuccesses(results))) :
-        failure(results);
+    try {
+      return allSuccessful(results) ?
+          success(function.apply(extractSuccesses(results))) :
+          failure(results);
+
+    } catch (Exception e) {
+      return failure(e, "Error whilst combining success results");
+    }
   }
 
   /**
@@ -356,6 +425,9 @@ public final class Result<T>
    * and then applies the supplied function to the successes. If any of
    * the initial results was a failure, then a failure result reflecting
    * the failures in the initial results is returned.
+   * <p>
+   * If an exception is thrown when the function is applied, this will
+   * be caught and a failure {@code Result} returned.
    * <p>
    * The following code shows where this method can be used. The code:
    * <blockquote><pre>
@@ -394,9 +466,14 @@ public final class Result<T>
       Iterable<? extends Result<T>> results,
       Function<Stream<T>, Result<R>> function) {
 
-    return allSuccessful(results) ?
-        function.apply(extractSuccesses(results)) :
-        failure(results);
+    try {
+      return allSuccessful(results) ?
+          function.apply(extractSuccesses(results)) :
+          failure(results);
+
+    } catch (Exception e) {
+      return failure(e, "Error whilst combining success results");
+    }
   }
 
   private static <T> Stream<T> extractSuccesses(Iterable<? extends Result<T>> results) {
@@ -521,7 +598,9 @@ public final class Result<T>
    * The specified function represents a conversion to be performed on the value.
    * <p>
    * If this result is a success, then the specified function is invoked.
-   * The return value of the specified function is returned to the caller wrapped in a success result.
+   * The return value of the specified function is returned to the caller
+   * wrapped in a success result. If an exception is thrown when the function
+   * is invoked, this will be caught and a failure {@code Result} returned.
    * <p>
    * If this result is a failure, then {@code this} is returned.
    * The specified function is not invoked.
@@ -538,7 +617,11 @@ public final class Result<T>
    */
   public <R> Result<R> map(Function<? super T, ? extends R> function) {
     if (isSuccess()) {
-      return Result.success(function.apply(value));
+      try {
+        return Result.success(function.apply(value));
+      } catch (Exception e) {
+        return Result.failure(e, "Error whilst calling map on value: {}", value);
+      }
     } else {
       return Result.failure(this);
     }
@@ -552,7 +635,8 @@ public final class Result<T>
    * <p>
    * If this result is a success, then the specified function is invoked.
    * The return value of the specified function is returned to the caller and may be
-   * a success or failure.
+   * a success or failure. If an exception is thrown when the function
+   * is invoked, this will be caught and a failure {@code Result} returned.
    * <p>
    * If this result is a failure, then an equivalent failure is returned.
    * The specified function is not invoked.
@@ -569,7 +653,11 @@ public final class Result<T>
    */
   public <R> Result<R> flatMap(Function<? super T, Result<R>> function) {
     if (isSuccess()) {
-      return Objects.requireNonNull(function.apply(value));
+      try {
+        return Objects.requireNonNull(function.apply(value));
+      } catch (Exception e) {
+        return failure(e, "Error whilst calling flatMap on value: {}", value);
+      }
     } else {
       return Result.failure(this);
     }
@@ -602,9 +690,13 @@ public final class Result<T>
     ArgChecker.notNull(other, "other");
     ArgChecker.notNull(function, "function");
     if (isSuccess() && other.isSuccess()) {
-      return Objects.requireNonNull(function.apply(value, other.value));
+      try {
+        return Objects.requireNonNull(function.apply(value, other.value));
+      } catch (Exception e) {
+        return failure(e, "Error whilst trying to combine: {} with: {}", value, other.value);
+      }
     } else {
-      return Result.failure(this, other);
+      return failure(this, other);
     }
   }
 
