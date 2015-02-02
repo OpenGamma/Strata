@@ -8,10 +8,11 @@ package com.opengamma.platform.pricer.impl.swap;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.swap.Swap;
+import com.opengamma.platform.finance.swap.SwapProduct;
 import com.opengamma.platform.finance.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.TradePricerFn;
-import com.opengamma.platform.pricer.swap.SwapPricerFn;
+import com.opengamma.platform.pricer.swap.SwapProductPricerFn;
 
 /**
  * Pricer implementation for swap trades.
@@ -25,12 +26,12 @@ public class DefaultSwapTradePricerFn
    * Default implementation.
    */
   public static final DefaultSwapTradePricerFn DEFAULT = new DefaultSwapTradePricerFn(
-      DefaultSwapPricerFn.DEFAULT);
+      ExpandingSwapProductPricerFn.DEFAULT);
 
   /**
-   * Pricer for {@link Swap}.
+   * Pricer for {@link SwapProduct}.
    */
-  private final SwapPricerFn swapPricerFn;
+  private final SwapProductPricerFn<? super Swap> swapPricerFn;
 
   /**
    * Creates an instance.
@@ -38,7 +39,7 @@ public class DefaultSwapTradePricerFn
    * @param swapPricerFn  the swap pricer
    */
   public DefaultSwapTradePricerFn(
-      SwapPricerFn swapPricerFn) {
+      SwapProductPricerFn<? super Swap> swapPricerFn) {
     this.swapPricerFn = ArgChecker.notNull(swapPricerFn, "swapPricerFn");
   }
 

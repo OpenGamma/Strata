@@ -7,22 +7,22 @@ package com.opengamma.platform.pricer.impl.swap;
 
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
-import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
+import com.opengamma.platform.finance.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.swap.SwapLegPricerFn;
 
 /**
- * Pricer implementation for rate calculation swap legs.
+ * Pricer implementation for swap legs.
  * <p>
  * The swap leg is priced by by expanding the swap legs.
  */
-public class DefaultRateCalculationSwapLegPricerFn
-    implements SwapLegPricerFn<RateCalculationSwapLeg> {
+public class ExpandingSwapLegPricerFn
+    implements SwapLegPricerFn<SwapLeg> {
 
   /**
    * Default implementation.
    */
-  public static final DefaultRateCalculationSwapLegPricerFn DEFAULT = new DefaultRateCalculationSwapLegPricerFn(
+  public static final ExpandingSwapLegPricerFn DEFAULT = new ExpandingSwapLegPricerFn(
       DefaultExpandedSwapLegPricerFn.DEFAULT);
 
   /**
@@ -35,19 +35,19 @@ public class DefaultRateCalculationSwapLegPricerFn
    * 
    * @param expandedSwapLegPricerFn  the pricer for {@link ExpandedSwapLeg}
    */
-  public DefaultRateCalculationSwapLegPricerFn(
+  public ExpandingSwapLegPricerFn(
       SwapLegPricerFn<ExpandedSwapLeg> expandedSwapLegPricerFn) {
     this.expandedSwapLegPricerFn = ArgChecker.notNull(expandedSwapLegPricerFn, "expandedSwapLegPricerFn");
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public double presentValue(PricingEnvironment env, RateCalculationSwapLeg swapLeg) {
+  public double presentValue(PricingEnvironment env, SwapLeg swapLeg) {
     return expandedSwapLegPricerFn.presentValue(env, swapLeg.expand());
   }
 
   @Override
-  public double futureValue(PricingEnvironment env, RateCalculationSwapLeg swapLeg) {
+  public double futureValue(PricingEnvironment env, SwapLeg swapLeg) {
     return expandedSwapLegPricerFn.futureValue(env, swapLeg.expand());
   }
 

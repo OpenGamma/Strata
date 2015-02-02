@@ -15,7 +15,7 @@ import com.opengamma.platform.pricer.PricingEnvironment;
  * <p>
  * Implementations must be immutable and thread-safe functions.
  * 
- * @param <T>  the type of period
+ * @param <T>  the type of leg
  */
 public interface SwapLegPricerFn<T extends SwapLeg> {
 

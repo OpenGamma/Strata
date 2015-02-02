@@ -131,8 +131,10 @@ public final class PaymentSchedule
    * <p>
    * This applies the payment schedule.
    * 
-   * @param accrualSchedule  the accrual schedule
+   * @param paymentSchedule  the payment schedule
    * @param accrualPeriods  the list of accrual periods
+   * @param notionalSchedule  the schedule of notionals
+   * @param payReceive  the pay-receive flag
    * @return the list of payment periods
    */
   ImmutableList<RatePaymentPeriod> createPaymentPeriods(

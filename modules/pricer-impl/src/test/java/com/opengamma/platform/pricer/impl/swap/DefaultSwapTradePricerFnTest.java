@@ -13,8 +13,9 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.pricer.PricingEnvironment;
-import com.opengamma.platform.pricer.swap.SwapPricerFn;
+import com.opengamma.platform.pricer.swap.SwapProductPricerFn;
 
 /**
  * Test.
@@ -26,7 +27,7 @@ public class DefaultSwapTradePricerFnTest {
 
   public void test_presentValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 500d);
-    SwapPricerFn mockSwapFn = mock(SwapPricerFn.class);
+    SwapProductPricerFn<Swap> mockSwapFn = mock(SwapProductPricerFn.class);
     when(mockSwapFn.presentValue(mockEnv, SwapDummyData.SWAP))
         .thenReturn(expected);
     DefaultSwapTradePricerFn test = new DefaultSwapTradePricerFn(mockSwapFn);
