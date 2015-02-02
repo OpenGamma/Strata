@@ -143,7 +143,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_fxIndexRate_beforeToday_notInTimeSeries() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(SwapMockData.MULTICURVE_OIS)
@@ -168,7 +168,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_fxIndexRate_today_notInTimeSeries() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     double future = ACT_ACT_ISDA.yearFraction(VAL_DATE, WM_GBP_USD.calculateMaturityFromFixing(VAL_DATE));
     Mockito.when(mock.getDiscountFactor(OLD_GBP, future)).thenReturn(0.95d);
@@ -186,7 +186,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_fxIndexRate_afterToday() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     double future = ACT_ACT_ISDA.yearFraction(VAL_DATE, WM_GBP_USD.calculateMaturityFromFixing(NEXT_DATE));
     Mockito.when(mock.getDiscountFactor(OLD_GBP, future)).thenReturn(0.95d);
@@ -226,7 +226,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_iborIndexRate_beforeToday_notInTimeSeries() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(SwapMockData.MULTICURVE_OIS)
@@ -250,7 +250,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_iborIndexRate_today_notInTimeSeries() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     LocalDate effectiveDate = USD_LIBOR_3M.calculateEffectiveFromFixing(VAL_DATE);
     LocalDate maturityDate = USD_LIBOR_3M.calculateMaturityFromEffective(effectiveDate);
@@ -269,7 +269,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_iborIndexRate_afterToday() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     LocalDate effectiveDate = USD_LIBOR_3M.calculateEffectiveFromFixing(NEXT_DATE);
     LocalDate maturityDate = USD_LIBOR_3M.calculateMaturityFromEffective(effectiveDate);
@@ -300,7 +300,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_overnightIndexRateFixing_beforePublication_NotInTimeSeries() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(SwapMockData.MULTICURVE_OIS)
@@ -324,7 +324,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_overnightIndexRateFixing_publication_NotInTimeSeries() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     LocalDate effectiveDate = USD_FED_FUND.calculateEffectiveFromFixing(PREV_DATE);
     LocalDate maturityDate = USD_FED_FUND.calculateMaturityFromEffective(effectiveDate);
@@ -343,7 +343,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_overnightIndexRateFixing_afterPublication() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     LocalDate effectiveDate = USD_FED_FUND.calculateEffectiveFromFixing(NEXT_DATE);
     LocalDate maturityDate = USD_FED_FUND.calculateMaturityFromEffective(effectiveDate);
@@ -363,7 +363,7 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void test_overnightIndexRateForward_badDatesNotSorted() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
@@ -375,7 +375,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_overnightIndexRateForward_BadDateInPast() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
@@ -387,7 +387,7 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   public void test_overnightIndexRateForward_forward() {
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.EMPTY_SERIES;
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     LocalDate startDate = NEXT_DATE;
     LocalDate endDate = NEXT_DATE.plus(Period.ofMonths(3));

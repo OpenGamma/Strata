@@ -15,13 +15,12 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
@@ -107,15 +106,12 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
-    List<LocalDate> dTs = new ArrayList<>();
-    List<Double> vTs = new ArrayList<>();
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
     for (int i = 0; i < 2; i++) {
-      dTs.add(FIXING_DATES[i]);
-      vTs.add(FIXING_RATES[i]);
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
     for (int i = 0; i < 2; i++) {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -152,16 +148,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0);
-    List<LocalDate> dTs = new ArrayList<>();
-    List<Double> vTs = new ArrayList<>();
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
     int lastFixing = 3;
     for (int i = 0; i < lastFixing; i++) {
-      dTs.add(FIXING_DATES[i]);
-      vTs.add(FIXING_RATES[i]);
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.timeSeries(GBP_SONIA)).thenReturn(ts);
+    when(mockEnv.timeSeries(GBP_SONIA)).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockEnv.overnightIndexRate(GBP_SONIA, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -204,16 +197,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(CHF_TOIS, FIXING_START_DATE, FIXING_END_DATE, 0);
-    List<LocalDate> dTs = new ArrayList<>();
-    List<Double> vTs = new ArrayList<>();
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
     int lastFixing = 3;
     for (int i = 0; i < lastFixing; i++) {
-      dTs.add(FIXING_DATES[i]);
-      vTs.add(FIXING_RATES[i]);
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.timeSeries(CHF_TOIS)).thenReturn(ts);
+    when(mockEnv.timeSeries(CHF_TOIS)).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockEnv.overnightIndexRate(CHF_TOIS, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -259,16 +249,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13)};
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
-    List<LocalDate> dTs = new ArrayList<>();
-    List<Double> vTs = new ArrayList<>();
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
     int lastFixing = 3;
     for (int i = 0; i < lastFixing; i++) {
-      dTs.add(FIXING_DATES[i]);
-      vTs.add(FIXING_RATES[i]);
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -311,16 +298,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16), date(2015, 1, 17)};
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
-    List<LocalDate> dTs = new ArrayList<>();
-    List<Double> vTs = new ArrayList<>();
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
     int lastFixing = 6;
     for (int i = 0; i < lastFixing; i++) {
-      dTs.add(FIXING_DATES[i]);
-      vTs.add(FIXING_RATES[i]);
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -351,16 +335,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate[] valuationDate = {date(2015, 1, 16), date(2015, 1, 17)};
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
-    List<LocalDate> dTs = new ArrayList<>();
-    List<Double> vTs = new ArrayList<>();
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
     int lastFixing = 7;
     for (int i = 0; i < lastFixing; i++) {
-      dTs.add(FIXING_DATES[i]);
-      vTs.add(FIXING_RATES[i]);
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -391,16 +372,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate[] valuationDate = {date(2015, 1, 14), date(2015, 1, 15), date(2015, 1, 16)};
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
-    List<LocalDate> dTs = new ArrayList<>();
-    List<Double> vTs = new ArrayList<>();
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
     int lastFixing = 5;
     for (int i = 0; i < lastFixing; i++) {
-      dTs.add(FIXING_DATES[i]);
-      vTs.add(FIXING_RATES[i]);
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -436,16 +414,13 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
     LocalDate valuationDate = date(2015, 1, 13);
     OvernightCompoundedRateObservation ro =
         OvernightCompoundedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2);
-    List<LocalDate> dTs = new ArrayList<>();
-    List<Double> vTs = new ArrayList<>();
+    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
     int lastFixing = 2;
     for (int i = 0; i < lastFixing; i++) {
-      dTs.add(FIXING_DATES[i]);
-      vTs.add(FIXING_RATES[i]);
+      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
     }
-    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(dTs, vTs);
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
-    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(ts);
+    when(mockEnv.timeSeries(USD_FED_FUND)).thenReturn(tsb.build());
     for (int i = 0; i < lastFixing; i++) {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FIXING_RATES[i]);
     }
@@ -453,9 +428,9 @@ public class ForwardOvernightCompoundedRateObservationFnTest {
       when(mockEnv.overnightIndexRate(USD_FED_FUND, FIXING_DATES[i])).thenReturn(FORWARD_RATES[i]);
     }
     when(mockEnv.getValuationDate()).thenReturn(valuationDate);
-    assertThrows(() -> OBS_FWD_ONCMP.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE), 
+    assertThrows(
+        () -> OBS_FWD_ONCMP.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE),
         OpenGammaRuntimeException.class);
-    
   }
 
 }
