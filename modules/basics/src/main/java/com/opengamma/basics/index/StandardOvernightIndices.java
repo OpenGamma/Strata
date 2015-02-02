@@ -21,7 +21,7 @@ import static com.opengamma.basics.date.HolidayCalendars.NYFD;
 /**
  * Standard Overnight index implementations.
  * <p>
- * See {@link RateIndices} for the description of each.
+ * See {@link OvernightIndices} for the description of each.
  */
 final class StandardOvernightIndices {
   // http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf

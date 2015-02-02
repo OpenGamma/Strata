@@ -38,7 +38,7 @@ import com.opengamma.basics.date.TenorAdjustment;
 /**
  * Standard IBOR index implementations.
  * <p>
- * See {@link RateIndices} for the description of each.
+ * See {@link IborIndices} for the description of each.
  */
 final class StandardIborIndices {
   // http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
