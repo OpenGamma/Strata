@@ -39,8 +39,8 @@ import com.opengamma.collect.function.ObjDoublePredicate;
 public interface LocalDateDoubleTimeSeries extends ImmutableBean {
 
   /**
-   * Return an empty time-series. Generally a singleton instance
-   * is returned so this method can safely be called multiple times.
+   * Returns an empty time-series. Generally a singleton instance
+   * is returned.
    *
    * @return an empty time-series
    */
