@@ -394,7 +394,7 @@ public final class Guavate {
   /**
    * Collector used at the end of a stream to build an immutable map
    * from a stream containing map entries. This is a common case if a map's
-   * @code entrySet} has undergone a {@code filter} operation. For example:
+   * {@code entrySet} has undergone a {@code filter} operation. For example:
    * <pre>
    *   {@code
    *       Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
@@ -427,7 +427,7 @@ public final class Guavate {
   /**
    * Collector used at the end of a stream to build an immutable map
    * from a stream containing pairs. This is a common case if a map's
-   * @code entrySet} has undergone a {@code map} operation with the
+   * {@code entrySet} has undergone a {@code map} operation with the
    * {@code Map.Entry} converted to a {@code Pair}. For example:
    * <pre>
    *   {@code

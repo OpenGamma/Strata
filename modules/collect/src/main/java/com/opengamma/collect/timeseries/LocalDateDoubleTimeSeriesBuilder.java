@@ -5,9 +5,15 @@
  */
 package com.opengamma.collect.timeseries;
 
+import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.INCLUDE_WEEKENDS;
+import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.SKIP_WEEKENDS;
+
 import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -27,9 +33,20 @@ import com.opengamma.collect.ArgChecker;
 public final class LocalDateDoubleTimeSeriesBuilder {
 
   /**
+   * Threshold for deciding whether we use the dense or sparse timeseries
+   * implementation
+   */
+  private static final double DENSITY_THRESHOLD = 0.7;
+
+  /**
    * The entries for the time-series.
    */
   private final SortedMap<LocalDate, Double> entries = new TreeMap<>();
+
+  /**
+   * Keep track of whether we have weekends in the data.
+   */
+  private boolean containsWeekends;
 
   //-------------------------------------------------------------------------
   /**
@@ -50,8 +67,19 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   LocalDateDoubleTimeSeriesBuilder(LocalDate[] dates, double[] values) {
     for (int i = 0; i < dates.length; i++) {
-      entries.put(dates[i], values[i]);
+      put(dates[i], values[i]);
     }
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * Use {@link DenseLocalDateDoubleTimeSeries#toBuilder()}.
+   *
+   * @param points  the stream of points to initialize with
+   */
+  LocalDateDoubleTimeSeriesBuilder(Stream<LocalDateDoublePoint> points) {
+    points.forEach(pt -> put(pt.getDate(), pt.getValue()));
   }
 
   //-------------------------------------------------------------------------
@@ -80,7 +108,11 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   public LocalDateDoubleTimeSeriesBuilder put(LocalDate date, double value) {
     ArgChecker.notNull(date, "date");
+    ArgChecker.isFalse(Double.isNaN(value), "NaN is not allowed as a value");
     entries.put(date, value);
+    if (!containsWeekends && date.get(ChronoField.DAY_OF_WEEK) > 5) {
+      containsWeekends = true;
+    }
     return this;
   }
 
@@ -92,7 +124,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   public LocalDateDoubleTimeSeriesBuilder put(LocalDateDoublePoint point) {
     ArgChecker.notNull(point, "point");
-    entries.put(point.getDate(), point.getValue());
+    put(point.getDate(), point.getValue());
     return this;
   }
 
@@ -110,12 +142,14 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    * @return this builder
    */
   public LocalDateDoubleTimeSeriesBuilder putAll(Collection<LocalDate> dates, Collection<Double> values) {
+    ArgChecker.noNulls(dates, "dates");
+    ArgChecker.noNulls(values, "values");
     ArgChecker.isTrue(dates.size() == values.size(),
         "Arrays are of different sizes - dates: {}, values: {}", dates.size(), values.size());
     Iterator<LocalDate> itDate = dates.iterator();
     Iterator<Double> itValue = values.iterator();
     for (int i = 0; i < dates.size(); i++) {
-      entries.put(itDate.next(), itValue.next());
+      put(itDate.next(), itValue.next());
     }
     return this;
   }
@@ -131,8 +165,22 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   public LocalDateDoubleTimeSeriesBuilder putAll(Stream<LocalDateDoublePoint> points) {
     ArgChecker.notNull(points, "points");
-    points.forEachOrdered(point -> put(point));
+    points.forEach(this::put);
     return this;
+  }
+
+  /**
+   * Puts all the specified points into this builder.
+   * <p>
+   * The points are added one by one.
+   * If a date is duplicated it will overwrite an earlier entry.
+   *
+   * @param points  the points to be added
+   * @return this builder
+   */
+  public LocalDateDoubleTimeSeriesBuilder putAll(List<LocalDateDoublePoint> points) {
+    ArgChecker.notNull(points, "points");
+    return putAll(points.stream());
   }
 
   /**
@@ -147,17 +195,70 @@ public final class LocalDateDoubleTimeSeriesBuilder {
   public LocalDateDoubleTimeSeriesBuilder putAll(LocalDateDoubleTimeSeriesBuilder other) {
     ArgChecker.notNull(other, "other");
     entries.putAll(other.entries);
+    containsWeekends = containsWeekends || other.containsWeekends;
+    return this;
+  }
+
+  /**
+   * Puts all the entries from the supplied map into this builder.
+   * <p>
+   * If a date is duplicated it will overwrite an earlier entry.
+   *
+   * @param map  the map of points to be added
+   * @return this builder
+   */
+  public LocalDateDoubleTimeSeriesBuilder putAll(Map<LocalDate, Double> map) {
+    ArgChecker.noNulls(map, "map");
+    map.entrySet().forEach(e -> put(e.getKey(), e.getValue()));
     return this;
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Build the time-series from the builder.
    *
    * @return a time-series containing the entries from the builder
    */
   public LocalDateDoubleTimeSeries build() {
-    return LocalDateDoubleTimeSeries.of(entries.keySet(), entries.values());
+
+    if (entries.isEmpty()) {
+      return LocalDateDoubleTimeSeries.empty();
+    }
+
+    // Depending on how dense the data is, judge which type of time series
+    // is the best fit
+    return density() > DENSITY_THRESHOLD ?
+        createDenseSeries() :
+        createSparseSeries();
+  }
+
+  private LocalDateDoubleTimeSeries createDenseSeries() {
+    return DenseLocalDateDoubleTimeSeries.of(
+        entries.firstKey(),
+        entries.lastKey(),
+        streamEntries(),
+        determineCalculation());
+  }
+
+  private SparseLocalDateDoubleTimeSeries createSparseSeries() {
+    return SparseLocalDateDoubleTimeSeries.of(entries.keySet(), entries.values());
+  }
+
+  private Stream<LocalDateDoublePoint> streamEntries() {
+    return entries.entrySet()
+        .stream()
+        .map(e -> LocalDateDoublePoint.of(e.getKey(), e.getValue()));
+  }
+
+  private DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation determineCalculation() {
+    return containsWeekends ? INCLUDE_WEEKENDS : SKIP_WEEKENDS;
+  }
+
+  private double density() {
+    // We can use the calculators to work out range size
+    double rangeSize = determineCalculation().calculatePosition(entries.firstKey(), entries.lastKey()) + 1;
+    return entries.size() / rangeSize;
   }
 
 }
