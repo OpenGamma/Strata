@@ -12,7 +12,6 @@ import static com.opengamma.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.collect.result.FailureReason.ERROR;
 import static com.opengamma.collect.result.FailureReason.MISSING_DATA;
 import static com.opengamma.collect.result.FailureReason.PERMISSION_DENIED;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
@@ -45,7 +44,7 @@ public class ResultTest {
   private static final BiFunction<String, String, Result<String>> FUNCTION_MERGE =
       (t, u) -> Result.success(t + " " + u);
 
-  //-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
   public void success() {
     Result<String> test = Result.success("success");
     assertEquals(test.isSuccess(), true);
@@ -92,9 +91,40 @@ public class ResultTest {
     assertEquals(test.getFailure().getItems().size(), 1);
   }
 
+  public void success_combineWith_success_throws() {
+    Result<String> success1 = Result.success("Hello");
+    Result<String> success2 = Result.success("World");
+    Result<String> test = success1.combineWith(success2, (s1, s2) -> {throw new IllegalArgumentException("Ooops");});
+    assertThat(test)
+        .isFailure()
+        .hasFailureMessageMatching(".*Error.*combine.*ith.*");
+  }
+
   public void success_stream() {
     Result<String> success = Result.success("Hello");
     assertThat(success.stream().toArray()).containsExactly("Hello");
+  }
+
+  public void success_map_throwing() {
+    Result<String> success = Result.success("success");
+    Result<Integer> test = success.map(r -> {
+      throw new IllegalArgumentException("Big bad error");
+    });
+    assertEquals(test.isSuccess(), false);
+    assertThat(test)
+        .isFailure(ERROR)
+        .hasFailureMessageMatching("Error whilst calling map.*");
+  }
+
+  public void success_flatMap_throwing() {
+    Result<String> success = Result.success("success");
+    Result<Integer> test = success.flatMap(r -> {
+      throw new IllegalArgumentException("Big bad error");
+    });
+    assertEquals(test.isSuccess(), false);
+    assertThat(test)
+        .isFailure(ERROR)
+        .hasFailureMessageMatching("Error whilst calling flatMap.*");
   }
 
   //-------------------------------------------------------------------------
@@ -148,6 +178,24 @@ public class ResultTest {
   public void failure_stream() {
     Result<String> failure = Result.failure(new IllegalArgumentException("failure"));
     assertThat(failure.stream().toArray()).isEmpty();
+  }
+
+  public void failure_map_throwing() {
+    Result<String> success = Result.failure(new IllegalArgumentException("failure"));
+    Result<Integer> test = success.map(r -> {throw new IllegalArgumentException("Big bad error");});
+    assertEquals(test.isSuccess(), false);
+    assertEquals(test.getFailure().getReason(), ERROR);
+    assertEquals(test.getFailure().getMessage(), "failure");
+  }
+
+  public void failure_flatMap_throwing() {
+    Result<String> success = Result.failure(new IllegalArgumentException("failure"));
+    Result<Integer> test = success.flatMap(r -> {
+      throw new IllegalArgumentException("Big bad error");
+    });
+    assertEquals(test.isSuccess(), false);
+    assertEquals(test.getFailure().getReason(), ERROR);
+    assertEquals(test.getFailure().getMessage(), "failure");
   }
 
   //-------------------------------------------------------------------------
@@ -214,6 +262,48 @@ public class ResultTest {
   }
 
   //-------------------------------------------------------------------------
+  public void of_with_success() {
+
+    Result<String> test = Result.of(() -> "success");
+    assertEquals(test.isSuccess(), true);
+    assertEquals(test.isFailure(), false);
+    assertEquals(test.getValue(), "success");
+  }
+
+  public void of_with_exception() {
+
+    Result<String> test = Result.of(() -> {throw new IllegalArgumentException("Big bad error");});
+    assertEquals(test.isSuccess(), false);
+    assertEquals(test.isFailure(), true);
+    assertThrows(test::getValue, IllegalStateException.class);
+  }
+
+  public void wrap_with_success() {
+    Result<String> test = Result.wrap(() -> Result.success("success"));
+    assertEquals(test.isSuccess(), true);
+    assertEquals(test.isFailure(), false);
+    assertEquals(test.getValue(), "success");
+  }
+
+  public void wrap_with_failure() {
+
+    Result<String> test = Result.wrap(() -> Result.failure(ERROR, "Something failed"));
+    assertEquals(test.isSuccess(), false);
+    assertEquals(test.isFailure(), true);
+    assertThrows(test::getValue, IllegalStateException.class);
+  }
+
+  public void wrap_with_exception() {
+
+    Result<String> test = Result.wrap(() -> {
+      throw new IllegalArgumentException("Big bad error");
+    });
+    assertEquals(test.isSuccess(), false);
+    assertEquals(test.isFailure(), true);
+    assertThrows(test::getValue, IllegalStateException.class);
+  }
+
+  //-------------------------------------------------------------------------
   public void anyFailures_varargs() {
     Result<String> success1 = Result.success("success 1");
     Result<String> success2 = Result.success("success 1");
@@ -232,6 +322,26 @@ public class ResultTest {
     assertTrue(Result.anyFailures(ImmutableList.of(failure1, failure2)));
     assertTrue(Result.anyFailures(ImmutableList.of(failure1, success1)));
     assertFalse(Result.anyFailures(ImmutableList.of(success1, success2)));
+  }
+
+  public void countFailures_varargs() {
+    Result<String> success1 = Result.success("success 1");
+    Result<String> success2 = Result.success("success 1");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(ERROR, "failure 2");
+    assertEquals(Result.countFailures(failure1, failure2), 2);
+    assertEquals(Result.countFailures(failure1, success1), 1);
+    assertEquals(Result.countFailures(success1, success2), 0);
+  }
+
+  public void countFailures_collection() {
+    Result<String> success1 = Result.success("success 1");
+    Result<String> success2 = Result.success("success 1");
+    Result<Object> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Object> failure2 = Result.failure(ERROR, "failure 2");
+    assertEquals(Result.countFailures(ImmutableList.of(failure1, failure2)), 2);
+    assertEquals(Result.countFailures(ImmutableList.of(failure1, success1)), 1);
+    assertEquals(Result.countFailures(ImmutableList.of(success1, success2)), 0);
   }
 
   public void allSuccess_varargs() {
@@ -281,6 +391,22 @@ public class ResultTest {
         .hasValue("res24");
   }
 
+  public void combine_iterableWithSuccesses_throws() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+    Result<Integer> success4 = Result.success(4);
+    Set<Result<Integer>> results = ImmutableSet.of(success1, success2, success3, success4);
+
+    Result<String> combined = Result.combine(
+        results,
+        s -> {throw new IllegalArgumentException("Ooops");});
+
+    assertThat(combined)
+        .isFailure(ERROR)
+        .hasFailureMessageMatching("Error whilst combining success results");
+  }
+
   //-------------------------------------------------------------------------
 
   public void flatCombine_iterableWithFailures() {
@@ -323,6 +449,22 @@ public class ResultTest {
     assertThat(combined)
         .isSuccess()
         .hasValue("res24");
+  }
+
+  public void flatCombine_iterableWithSuccesses_combineThrows() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+    Result<Integer> success4 = Result.success(4);
+    Set<Result<Integer>> results = ImmutableSet.of(success1, success2, success3, success4);
+
+    Result<String> combined = Result.flatCombine(
+        results,
+        s -> {throw new IllegalArgumentException("Ooops");});
+
+    assertThat(combined)
+        .isFailure(ERROR)
+        .hasFailureMessageMatching("Error whilst combining success results");
   }
 
   //-------------------------------------------------------------------------
