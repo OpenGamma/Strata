@@ -50,7 +50,8 @@ import com.opengamma.platform.finance.observation.RateObservation;
  * rate of interest for a floating rate.
  * <p>
  * An instance of {@code Fra} can exist independently from a {@link FraTrade}.
- * This would occur if the FRA has not actually been traded.
+ * This would occur if the FRA has not been traded, such as when a FRA is an
+ * underlying element of another data structure.
  */
 @BeanDefinition
 public final class Fra
