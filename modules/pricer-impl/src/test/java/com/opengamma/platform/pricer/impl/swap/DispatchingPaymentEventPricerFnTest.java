@@ -12,6 +12,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.platform.finance.swap.FxResetNotionalExchange;
 import com.opengamma.platform.finance.swap.NotionalExchange;
 import com.opengamma.platform.finance.swap.PaymentEvent;
 import com.opengamma.platform.pricer.PricingEnvironment;
@@ -23,37 +24,67 @@ import com.opengamma.platform.pricer.swap.PaymentEventPricerFn;
 @Test
 public class DispatchingPaymentEventPricerFnTest {
 
-  private final PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+  private static final PricingEnvironment MOCK_ENV = mock(PricingEnvironment.class);
+  private static final PaymentEventPricerFn<NotionalExchange> MOCK_NOTIONAL_EXG = mock(PaymentEventPricerFn.class);
+  private static final PaymentEventPricerFn<FxResetNotionalExchange> MOCK_FX_NOTIONAL_EXG =
+      mock(PaymentEventPricerFn.class);
 
+  //-------------------------------------------------------------------------
   public void test_presentValue_NotionalExchange() {
     double expected = 0.0123d;
-    PaymentEventPricerFn<NotionalExchange> mockNotionalExchangeFn = mock(PaymentEventPricerFn.class);
-    when(mockNotionalExchangeFn.presentValue(mockEnv, SwapDummyData.NOTIONAL_EXCHANGE))
+    PaymentEventPricerFn<NotionalExchange> mockCalledFn = mock(PaymentEventPricerFn.class);
+    when(mockCalledFn.presentValue(MOCK_ENV, SwapDummyData.NOTIONAL_EXCHANGE))
         .thenReturn(expected);
-    DispatchingPaymentEventPricerFn test = new DispatchingPaymentEventPricerFn(mockNotionalExchangeFn);
-    assertEquals(test.presentValue(mockEnv, SwapDummyData.NOTIONAL_EXCHANGE), expected, 0d);
+    DispatchingPaymentEventPricerFn test = new DispatchingPaymentEventPricerFn(
+        mockCalledFn,
+        MOCK_FX_NOTIONAL_EXG);
+    assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.NOTIONAL_EXCHANGE), expected, 0d);
+  }
+
+  public void test_presentValue_FxResetNotionalExchange() {
+    double expected = 0.0123d;
+    PaymentEventPricerFn<FxResetNotionalExchange> mockCalledFn = mock(PaymentEventPricerFn.class);
+    when(mockCalledFn.presentValue(MOCK_ENV, SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE))
+        .thenReturn(expected);
+    DispatchingPaymentEventPricerFn test = new DispatchingPaymentEventPricerFn(
+        MOCK_NOTIONAL_EXG,
+        mockCalledFn);
+    assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE), expected, 0d);
   }
 
   public void test_presentValue_unknownType() {
     PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
     DispatchingPaymentEventPricerFn test = DispatchingPaymentEventPricerFn.DEFAULT;
-    assertThrowsIllegalArg(() -> test.presentValue(mockEnv, mockPaymentEvent));
+    assertThrowsIllegalArg(() -> test.presentValue(MOCK_ENV, mockPaymentEvent));
   }
 
   //-------------------------------------------------------------------------
   public void test_futureValue_NotionalExchange() {
     double expected = 0.0123d;
-    PaymentEventPricerFn<NotionalExchange> mockNotionalExchangeFn = mock(PaymentEventPricerFn.class);
-    when(mockNotionalExchangeFn.futureValue(mockEnv, SwapDummyData.NOTIONAL_EXCHANGE))
+    PaymentEventPricerFn<NotionalExchange> mockCalledFn = mock(PaymentEventPricerFn.class);
+    when(mockCalledFn.futureValue(MOCK_ENV, SwapDummyData.NOTIONAL_EXCHANGE))
         .thenReturn(expected);
-    DispatchingPaymentEventPricerFn test = new DispatchingPaymentEventPricerFn(mockNotionalExchangeFn);
-    assertEquals(test.futureValue(mockEnv, SwapDummyData.NOTIONAL_EXCHANGE), expected, 0d);
+    DispatchingPaymentEventPricerFn test = new DispatchingPaymentEventPricerFn(
+        mockCalledFn,
+        MOCK_FX_NOTIONAL_EXG);
+    assertEquals(test.futureValue(MOCK_ENV, SwapDummyData.NOTIONAL_EXCHANGE), expected, 0d);
+  }
+
+  public void test_futureValue_FxResetNotionalExchange() {
+    double expected = 0.0123d;
+    PaymentEventPricerFn<FxResetNotionalExchange> mockCalledFn = mock(PaymentEventPricerFn.class);
+    when(mockCalledFn.futureValue(MOCK_ENV, SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE))
+        .thenReturn(expected);
+    DispatchingPaymentEventPricerFn test = new DispatchingPaymentEventPricerFn(
+        MOCK_NOTIONAL_EXG,
+        mockCalledFn);
+    assertEquals(test.futureValue(MOCK_ENV, SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE), expected, 0d);
   }
 
   public void test_futureValue_unknownType() {
     PaymentEvent mockPaymentEvent = mock(PaymentEvent.class);
     DispatchingPaymentEventPricerFn test = DispatchingPaymentEventPricerFn.DEFAULT;
-    assertThrowsIllegalArg(() -> test.futureValue(mockEnv, mockPaymentEvent));
+    assertThrowsIllegalArg(() -> test.futureValue(MOCK_ENV, mockPaymentEvent));
   }
 
 }

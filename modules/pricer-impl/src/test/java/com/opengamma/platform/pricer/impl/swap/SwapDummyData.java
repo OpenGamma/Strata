@@ -16,6 +16,7 @@ import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DayCounts;
 import com.opengamma.basics.date.DaysAdjustment;
+import com.opengamma.basics.index.FxIndices;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueSchedule;
@@ -24,6 +25,7 @@ import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.swap.FixedRateCalculation;
+import com.opengamma.platform.finance.swap.FxResetNotionalExchange;
 import com.opengamma.platform.finance.swap.IborRateCalculation;
 import com.opengamma.platform.finance.swap.NotionalExchange;
 import com.opengamma.platform.finance.swap.NotionalSchedule;
@@ -49,6 +51,16 @@ public final class SwapDummyData {
   public static final NotionalExchange NOTIONAL_EXCHANGE = NotionalExchange.builder()
       .paymentDate(date(2014, 7, 1))
       .paymentAmount(CurrencyAmount.of(Currency.GBP, NOTIONAL))
+      .build();
+  /**
+   * NotionalExchange.
+   */
+  public static final FxResetNotionalExchange FX_RESET_NOTIONAL_EXCHANGE = FxResetNotionalExchange.builder()
+      .paymentDate(date(2014, 7, 1))
+      .referenceCurrency(Currency.USD)
+      .notional(NOTIONAL)
+      .index(FxIndices.WM_GBP_USD)
+      .fixingDate(date(2014, 7, 1))
       .build();
 
   /**
