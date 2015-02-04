@@ -138,8 +138,8 @@ public class ImmutablePricingEnvironmentTest {
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), PREV_DATE), 0.62d, 0d);
-    assertEquals(test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(USD, GBP), PREV_DATE), 1d / 0.62d, 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, PREV_DATE), 0.62d, 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, PREV_DATE), 1d / 0.62d, 0d);
   }
 
   public void test_fxIndexRate_beforeToday_notInTimeSeries() {
@@ -151,7 +151,7 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertThrows(
-        () -> test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(USD, GBP), PREV_DATE),
+        () -> test.fxIndexRate(WM_GBP_USD, USD, PREV_DATE),
         PricingException.class);
   }
 
@@ -163,8 +163,8 @@ public class ImmutablePricingEnvironmentTest {
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), VAL_DATE), 0.62d, 0d);
-    assertEquals(test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(USD, GBP), VAL_DATE), 1d / 0.62d, 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE), 0.62d, 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), 1d / 0.62d, 0d);
   }
 
   public void test_fxIndexRate_today_notInTimeSeries() {
@@ -181,8 +181,8 @@ public class ImmutablePricingEnvironmentTest {
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), VAL_DATE), 1.6d * (0.95d / 0.99d), 0d);
-    assertEquals(test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(USD, GBP), VAL_DATE), (1d / 1.6d) * (0.99d / 0.95d), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, VAL_DATE), 1.6d * (0.95d / 0.99d), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, VAL_DATE), (1d / 1.6d) * (0.99d / 0.95d), 0d);
   }
 
   public void test_fxIndexRate_afterToday() {
@@ -199,18 +199,18 @@ public class ImmutablePricingEnvironmentTest {
         .timeSeries(ImmutableMap.of(WM_GBP_USD, ts))
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertEquals(test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), NEXT_DATE), 1.6d * (0.95d / 0.99d), 0d);
-    assertEquals(test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(USD, GBP), NEXT_DATE), (1d / 1.6d) * (0.99d / 0.95d), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, GBP, NEXT_DATE), 1.6d * (0.95d / 0.99d), 0d);
+    assertEquals(test.fxIndexRate(WM_GBP_USD, USD, NEXT_DATE), (1d / 1.6d) * (0.99d / 0.95d), 0d);
   }
 
-  public void test_fxIndexRate_badCurrencyPair() {
+  public void test_fxIndexRate_badCurrency() {
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(SwapMockData.MULTICURVE_OIS)
         .timeSeries(SwapMockData.TIME_SERIES)
         .dayCount(ACT_ACT_ISDA)
         .build();
-    assertThrowsIllegalArg(() -> test.fxIndexRate(WM_GBP_USD, CurrencyPair.of(USD, EUR), VAL_DATE));
+    assertThrowsIllegalArg(() -> test.fxIndexRate(WM_GBP_USD, EUR, VAL_DATE));
   }
 
   //-------------------------------------------------------------------------

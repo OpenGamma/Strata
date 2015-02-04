@@ -17,7 +17,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.swap.CompoundingMethod;
 import com.opengamma.platform.finance.swap.FxReset;
@@ -172,7 +171,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
   public void test_futureValue_single_fx() {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(env.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), FX_DATE_1)).thenReturn(RATE_FX);
+    when(env.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
     double fvExpected = RATE_1 * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX;
     double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, PAYMENT_PERIOD_1_FX);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
@@ -208,7 +207,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
   public void test_futureValue_compoundNone_fx() {
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(env.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), FX_DATE_1)).thenReturn(RATE_FX);
+    when(env.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
     double fvExpected =
         ((RATE_1 * GEARING + SPREAD) * ACCRUAL_FACTOR_1 * NOTIONAL_100 * RATE_FX) +
             ((RATE_2 * GEARING + SPREAD) * ACCRUAL_FACTOR_2 * NOTIONAL_100 * RATE_FX) +
@@ -277,7 +276,7 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
         .compoundingMethod(CompoundingMethod.SPREAD_EXCLUSIVE).build();
     PricingEnvironment env = mock(PricingEnvironment.class);
     when(env.getValuationDate()).thenReturn(VALUATION_DATE);
-    when(env.fxIndexRate(WM_GBP_USD, CurrencyPair.of(GBP, USD), FX_DATE_1)).thenReturn(RATE_FX);
+    when(env.fxIndexRate(WM_GBP_USD, GBP, FX_DATE_1)).thenReturn(RATE_FX);
     double invFactor1 = 1.0d + ACCRUAL_FACTOR_1 * (RATE_1 * GEARING);
     double invFactor2 = 1.0d + ACCRUAL_FACTOR_2 * (RATE_2 * GEARING);
     double invFactor3 = 1.0d + ACCRUAL_FACTOR_3 * (RATE_3 * GEARING);

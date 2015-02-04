@@ -5,7 +5,6 @@
  */
 package com.opengamma.platform.pricer.impl.swap;
 
-import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.finance.swap.FxReset;
@@ -77,8 +76,7 @@ public class DiscountingRatePaymentPeriodPricerFn
     // inefficient to use Optional.orElse because double primitive type would be boxed
     if (paymentPeriod.getFxReset().isPresent()) {
       FxReset fxReset = paymentPeriod.getFxReset().get();
-      CurrencyPair pair = CurrencyPair.of(fxReset.getReferenceCurrency(), paymentPeriod.getCurrency());
-      return env.fxIndexRate(fxReset.getIndex(), pair, fxReset.getFixingDate());
+      return env.fxIndexRate(fxReset.getIndex(), fxReset.getReferenceCurrency(), fxReset.getFixingDate());
     } else {
       return 1d;
     }
