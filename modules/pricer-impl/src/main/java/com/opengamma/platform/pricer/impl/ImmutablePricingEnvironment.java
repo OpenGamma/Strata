@@ -146,7 +146,8 @@ public final class ImmutablePricingEnvironment
       }
     }
     // forward rate
-    // derive from discount factors based off desired currency pair, not that of the index
+    // use the specified base currency to determine the desired currency pair
+    // then derive rate from discount factors based off desired currency pair, not that of the index
     CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
     double maturity = relativeTime(index.calculateMaturityFromFixing(fixingDate));
     double dfCcyBaseAtMaturity = multicurve.getDiscountFactor(Legacy.currency(pair.getBase()), maturity);
