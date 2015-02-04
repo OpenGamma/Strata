@@ -107,17 +107,24 @@ public interface PricingEnvironment {
    * or the estimated rate if the fixing date is after the valuation date.
    * If the fixing date equals the valuation date, then the best available rate is returned.
    * <p>
-   * The rate returned is the rate from the base to counter as defined by the
-   * specified currency pair - {@code 1 * base = fxRate * counter}.
-   * The specified currency pair must match, or be the inverse of, the currency
-   * pair defined by the index.
+   * The index defines the conversion rate for a specific currency pair.
+   * This method specifies which of the two currencies in the index is to be treated
+   * as the base currency for the purposes of the returned rate.
+   * If the specified base currency equals the base currency of the index, then
+   * the rate is simply returned. If the specified base currency equals the counter currency
+   * of the index, then the inverse rate is returned.
+   * As such, an amount in the specified base currency can be directly multiplied by the
+   * returned FX rate to perform FX conversion.
+   * <p>
+   * To convert an amount in the specified base currency to the other currency,
+   * multiply it by the returned FX rate.
    * 
    * @param index  the index to lookup
-   * @param currencyPair  the ordered currency pair defining the rate required
+   * @param baseCurrency  the base currency that the rate should be expressed against
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
    */
-  public abstract double fxIndexRate(FxIndex index, CurrencyPair currencyPair, LocalDate fixingDate);
+  public abstract double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate);
 
   //-------------------------------------------------------------------------
   /**

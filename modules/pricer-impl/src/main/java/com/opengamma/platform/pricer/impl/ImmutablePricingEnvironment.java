@@ -126,29 +126,33 @@ public final class ImmutablePricingEnvironment
 
   //-------------------------------------------------------------------------
   @Override
-  public double fxIndexRate(FxIndex index, CurrencyPair currencyPair, LocalDate fixingDate) {
+  public double fxIndexRate(FxIndex index, Currency baseCurrency, LocalDate fixingDate) {
     ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(currencyPair, "currencyPair");
+    ArgChecker.notNull(baseCurrency, "baseCurrency");
     ArgChecker.notNull(fixingDate, "fixingDate");
-    ArgChecker.isTrue(currencyPair.equals(index.getCurrencyPair()) || currencyPair.isInverse(index.getCurrencyPair()),
-        "CurrencyPair must match FxIndex");
+    ArgChecker.isTrue(
+        index.getCurrencyPair().contains(baseCurrency),
+        "Currency {} invalid for FxIndex {}", baseCurrency, index);
     // historic rate
+    boolean inverse = baseCurrency.equals(index.getCurrencyPair().getCounter());
     if (!fixingDate.isAfter(valuationDate)) {
       OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
       if (fixedRate.isPresent()) {
         // if the index is the inverse of the desired pair, then invert it
         double fxIndexRate = fixedRate.getAsDouble();
-        return (currencyPair.isInverse(index.getCurrencyPair()) ? 1d / fxIndexRate : fxIndexRate);
+        return (inverse ? 1d / fxIndexRate : fxIndexRate);
       } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
         throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
       }
     }
     // forward rate
-    // derive from discount factors based off desired currency pair, not that of the index
+    // use the specified base currency to determine the desired currency pair
+    // then derive rate from discount factors based off desired currency pair, not that of the index
+    CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
     double maturity = relativeTime(index.calculateMaturityFromFixing(fixingDate));
-    double dfCcyBaseAtMaturity = multicurve.getDiscountFactor(Legacy.currency(currencyPair.getBase()), maturity);
-    double dfCcyCounterAtMaturity = multicurve.getDiscountFactor(Legacy.currency(currencyPair.getCounter()), maturity);
-    return fxRate(currencyPair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
+    double dfCcyBaseAtMaturity = multicurve.getDiscountFactor(Legacy.currency(pair.getBase()), maturity);
+    double dfCcyCounterAtMaturity = multicurve.getDiscountFactor(Legacy.currency(pair.getCounter()), maturity);
+    return fxRate(pair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
   }
 
   //-------------------------------------------------------------------------
