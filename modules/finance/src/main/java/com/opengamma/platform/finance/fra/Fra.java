@@ -202,7 +202,7 @@ public final class Fra
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-    if (indexInterpolated != null && indexInterpolated.equals(index)) {
+    if (index.equals(indexInterpolated)) {
       throw new IllegalArgumentException("Interpolation requires two different indices");
     }
   }

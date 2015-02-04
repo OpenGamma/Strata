@@ -126,7 +126,7 @@ public final class ExpandedFra
   /**
    * The method to use for discounting.
    * <p>
-   * There are different approaches FRA pricing in the area of discounting.
+   * There are different approaches to FRA pricing in the area of discounting.
    * This method specifies the approach for this FRA.
    */
   @PropertyDefinition(validate = "notNull")
@@ -343,7 +343,7 @@ public final class ExpandedFra
   /**
    * Gets the method to use for discounting.
    * <p>
-   * There are different approaches FRA pricing in the area of discounting.
+   * There are different approaches to FRA pricing in the area of discounting.
    * This method specifies the approach for this FRA.
    * @return the value of the property, not null
    */
