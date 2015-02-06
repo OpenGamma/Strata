@@ -201,6 +201,9 @@ public final class NotionalSchedule
    * Builds notional exchange events from the payment periods and notional exchange flags.
    * <p>
    * FX reset is only processed if all three flags are true.
+   * <p>
+   * The {@code initialExchangeDate} is only used of {@code initialExchange} is true,
+   * however it is intended that the value is always set to an appropriate date.
    * 
    * @param payPeriods  the payment periods
    * @param initialExchangeDate  the date of the initial notional exchange
@@ -238,7 +241,7 @@ public final class NotionalSchedule
     ImmutableList.Builder<PaymentEvent> events = ImmutableList.builder();
     for (int i = 0; i < payPeriods.size(); i++) {
       RatePaymentPeriod period = payPeriods.get(i);
-      LocalDate startPaymentDate = i == 0 ? initialExchangeDate : payPeriods.get(i - 1).getPaymentDate();
+      LocalDate startPaymentDate = (i == 0 ? initialExchangeDate : payPeriods.get(i - 1).getPaymentDate());
       if (period.getFxReset().isPresent()) {
         FxReset fxReset = period.getFxReset().get();
         // notional out at start of period
@@ -249,7 +252,7 @@ public final class NotionalSchedule
             .index(fxReset.getIndex())
             .fixingDate(fxReset.getFixingDate())
             .build());
-        // notional in at start of period
+        // notional in at end of period
         events.add(FxResetNotionalExchange.builder()
             .paymentDate(period.getPaymentDate())
             .referenceCurrency(fxReset.getReferenceCurrency())
@@ -264,7 +267,7 @@ public final class NotionalSchedule
             .paymentDate(startPaymentDate)
             .paymentAmount(CurrencyAmount.of(period.getCurrency(), -period.getNotional()))
             .build());
-        // notional in at start of period
+        // notional in at end of period
         events.add(NotionalExchange.builder()
             .paymentDate(period.getPaymentDate())
             .paymentAmount(CurrencyAmount.of(period.getCurrency(), period.getNotional()))

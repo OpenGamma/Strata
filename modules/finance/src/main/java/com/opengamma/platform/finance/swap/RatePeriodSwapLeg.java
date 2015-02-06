@@ -79,8 +79,10 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred at the start of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * If set to true and there is no FX reset, then a {@link NotionalExchange} will be generated automatically.
-   * If there is an FX reset, then the {@code intermediateExchange} flag takes precedence.
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on the initial payment date of the swap leg, treated as the start date.
+   * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+   * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
    */
   @PropertyDefinition
   private final boolean initialExchange;
@@ -90,9 +92,11 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred when it changes during the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on each intermediate payment date of the swap leg.
    * If set to true, the behavior depends on whether an FX reset payment period is defined.
-   * If there is an FX reset, then an {@link FxResetNotionalExchange} will be generated automatically.
-   * If there is no FX reset, then a {@link NotionalExchange} will be generated automatically.
+   * If there is an FX reset, then an {@link FxResetNotionalExchange} object will be created.
+   * If there is no FX reset, then a {@link NotionalExchange} object will be created.
    */
   @PropertyDefinition
   private final boolean intermediateExchange;
@@ -102,8 +106,10 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred at the end of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * If set to true and there is no FX reset, then a {@link NotionalExchange} will be generated automatically.
-   * If there is an FX reset, then the {@code intermediateExchange} flag takes precedence.
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on the final payment date of the swap leg.
+   * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+   * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
    */
   @PropertyDefinition
   private final boolean finalExchange;
@@ -287,8 +293,10 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred at the start of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * If set to true and there is no FX reset, then a {@link NotionalExchange} will be generated automatically.
-   * If there is an FX reset, then the {@code intermediateExchange} flag takes precedence.
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on the initial payment date of the swap leg, treated as the start date.
+   * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+   * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
    * @return the value of the property
    */
   public boolean isInitialExchange() {
@@ -302,9 +310,11 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred when it changes during the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on each intermediate payment date of the swap leg.
    * If set to true, the behavior depends on whether an FX reset payment period is defined.
-   * If there is an FX reset, then an {@link FxResetNotionalExchange} will be generated automatically.
-   * If there is no FX reset, then a {@link NotionalExchange} will be generated automatically.
+   * If there is an FX reset, then an {@link FxResetNotionalExchange} object will be created.
+   * If there is no FX reset, then a {@link NotionalExchange} object will be created.
    * @return the value of the property
    */
   public boolean isIntermediateExchange() {
@@ -318,8 +328,10 @@ public final class RatePeriodSwapLeg
    * Setting this to true indicates that the notional is transferred at the end of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * If set to true and there is no FX reset, then a {@link NotionalExchange} will be generated automatically.
-   * If there is an FX reset, then the {@code intermediateExchange} flag takes precedence.
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on the final payment date of the swap leg.
+   * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+   * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
    * @return the value of the property
    */
   public boolean isFinalExchange() {
