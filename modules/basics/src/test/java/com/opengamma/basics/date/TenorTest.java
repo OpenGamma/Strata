@@ -33,7 +33,9 @@ import static java.time.temporal.ChronoUnit.YEARS;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.Period;
+import java.time.ZoneOffset;
 import java.time.temporal.UnsupportedTemporalTypeException;
 
 import org.testng.annotations.DataProvider;
@@ -234,11 +236,24 @@ public class TenorTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_addTo() {
+    assertEquals(TENOR_3D.addTo(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 7, 3));
+    assertEquals(TENOR_1W.addTo(
+        OffsetDateTime.of(2014, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)),
+        OffsetDateTime.of(2014, 7, 7, 0, 0, 0, 0, ZoneOffset.UTC));
+  }
+
+  public void test_subtractFrom() {
+    assertEquals(TENOR_3D.subtractFrom(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 6, 27));
+    assertEquals(TENOR_1W.subtractFrom(
+        OffsetDateTime.of(2014, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)),
+        OffsetDateTime.of(2014, 6, 23, 0, 0, 0, 0, ZoneOffset.UTC));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_temporalAmount() {
     assertEquals(TENOR_3D.getUnits(), ImmutableList.of(YEARS, MONTHS, DAYS));
     assertEquals(TENOR_3D.get(DAYS), 3);
-    assertEquals(TENOR_3D.addTo(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 7, 3));
-    assertEquals(TENOR_3D.subtractFrom(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 6, 27));
     assertEquals(LocalDate.of(2014, 6, 30).plus(TENOR_1W), LocalDate.of(2014, 7, 7));
     assertEquals(LocalDate.of(2014, 6, 30).minus(TENOR_1W), LocalDate.of(2014, 6, 23));
     assertThrows(() -> TENOR_10M.get(CENTURIES), UnsupportedTemporalTypeException.class);

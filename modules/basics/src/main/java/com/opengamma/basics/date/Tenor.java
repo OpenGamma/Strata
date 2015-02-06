@@ -413,6 +413,10 @@ public final class Tenor
    */
   @Override
   public Temporal addTo(Temporal temporal) {
+    if (temporal instanceof LocalDate) {
+      LocalDate date = (LocalDate) temporal;
+      return date.plusMonths(period.toTotalMonths()).plusDays(period.getDays());
+    }
     return period.addTo(temporal);
   }
 
@@ -430,6 +434,10 @@ public final class Tenor
    */
   @Override
   public Temporal subtractFrom(Temporal temporal) {
+    if (temporal instanceof LocalDate) {
+      LocalDate date = (LocalDate) temporal;
+      return date.minusMonths(period.toTotalMonths()).minusDays(period.getDays());
+    }
     return period.subtractFrom(temporal);
   }
 
