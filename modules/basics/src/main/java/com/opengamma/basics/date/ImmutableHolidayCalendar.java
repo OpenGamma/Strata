@@ -52,7 +52,9 @@ import com.opengamma.collect.range.LocalDateRange;
 public final class ImmutableHolidayCalendar
     implements HolidayCalendar, ImmutableBean, Serializable {
   // optimized implementation of HolidayCalendar
-  // uses an array where each bit represents a date, where 1 is a holiday and 0 is a business day
+  // uses an int array where each int represents a month
+  // each bit within the int represents a date, where 0 is a holiday and 1 is a business day
+  // (most logic involves finding business days, finding 1 is easier than finding 0)
   // benchmarking showed nextOrSame() and previousOrSame() do not need to be overridden
   // out-of-range and weekend-only (used in testing) are handled using exceptions to fast-path the standard case
 
@@ -82,8 +84,8 @@ public final class ImmutableHolidayCalendar
   private final int startYear;
   /**
    * The lookup table, where each item represents a month from January of startYear onwards.
-   * Bits 0 to 31 are used for each day-of-month, where 1 is a holiday and 0 a business day.
-   * Trailing bits are set to 1 so they act as holidays, avoiding month length logic.
+   * Bits 0 to 31 are used for each day-of-month, where 0 is a holiday and 1 is a business day.
+   * Trailing bits are set to 0 so they act as holidays, avoiding month length logic.
    */
   private final int[] lookup;
   /**
@@ -156,34 +158,53 @@ public final class ImmutableHolidayCalendar
     this.holidays = ImmutableSortedSet.copyOfSorted(holidays);
     this.weekendDays = Sets.immutableEnumSet(weekendDays);
     if (holidays.isEmpty()) {
+      // special case where no holiday dates are specified
       this.range = LocalDateRange.ALL;
       this.startYear = 0;
       this.lookup = new int[0];
     } else {
+      // normal case where holidays are specified
       this.range = LocalDateRange.ofClosed(
           holidays.first().with(TemporalAdjusters.firstDayOfYear()),
           holidays.last().with(TemporalAdjusters.lastDayOfYear()));
       this.startYear = range.getStart().getYear();
-      int[] array = new int[(range.getEndExclusive().getYear() - startYear) * 12];
-      for (LocalDate date : holidays) {
-        int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
-        array[index] |= (1 << (date.getDayOfMonth() - 1));
-      }
-      LocalDate date = LocalDate.of(startYear, 1, 1);
-      for (int i = 0; i < array.length; i++) {
-        int monthLen = date.lengthOfMonth();
-        for (int j = 0; j < monthLen; j++) {
-          if (weekendDays.contains(date.getDayOfWeek())) {
-            array[i] |= (1 << j);
-          }
-          date = date.plusDays(1);
-        }
-        for (int j = monthLen; j < 32; j++) {
-          array[i] |= (1 << j);
-        }
-      }
-      this.lookup = array;
+      int endYearExclusive = range.getEndExclusive().getYear();
+      this.lookup = buildLookupArray(holidays, weekendDays, startYear, endYearExclusive);
     }
+  }
+
+  // create and populate the int[] lookup
+  // use 1 for business days and 0 for holidays
+  private static int[] buildLookupArray(
+      SortedSet<LocalDate> holidays,
+      Set<DayOfWeek> weekendDays,
+      int startYear,
+      int endYearExclusive) {
+    // array that has one entry for each month
+    int[] array = new int[(endYearExclusive - startYear) * 12];
+    // loop through all months to handle end-of-month and weekends
+    LocalDate firstOfMonth = LocalDate.of(startYear, 1, 1);
+    for (int i = 0; i < array.length; i++) {
+      int monthLen = firstOfMonth.lengthOfMonth();
+      // set each valid day-of-month to be a business day
+      // the bits for days beyond the end-of-month will be unset and thus treated as non-business days
+      array[i] = (1 << monthLen) - 1;
+      // unset the bits associated with a weekend
+      // can unset across whole month using repeating pattern of 7 bits
+      for (DayOfWeek weekendDow : weekendDays) {
+        int loopDow0 = firstOfMonth.getDayOfWeek().getValue() - 1;
+        int weekendDow0 = weekendDow.getValue() - 1;
+        int offset = (weekendDow0 - loopDow0 + 7) % 7;
+        array[i] &= ~(0b10000001000000100000010000001 << offset);
+      }
+      firstOfMonth = firstOfMonth.plusMonths(1);
+    }
+    // unset the bit associated with each holiday date
+    for (LocalDate date : holidays) {
+      int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
+      array[index] &= ~(1 << (date.getDayOfMonth() - 1));
+    }
+    return array;
   }
 
   //-------------------------------------------------------------------------
@@ -206,7 +227,7 @@ public final class ImmutableHolidayCalendar
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
       // check if bit is 1 at zero-based day-of-month
-      return (lookup[index] & (1 << (date.getDayOfMonth() - 1))) > 0;
+      return (lookup[index] & (1 << (date.getDayOfMonth() - 1))) == 0;
 
     } catch (ArrayIndexOutOfBoundsException ex) {
       if (startYear == 0) {
@@ -263,7 +284,7 @@ public final class ImmutableHolidayCalendar
     // loop from input day-of-month forwards until business day found
     int remaining = amount;
     for (int dom0 = baseDom0; dom0 < 31; dom0++) {
-      if ((monthData & (1 << dom0)) == 0) {
+      if ((monthData & (1 << dom0)) != 0) {
         remaining--;
         if (remaining == 0) {
           return LocalDate.of(baseYear, baseMonth, dom0 + 1);
@@ -299,7 +320,7 @@ public final class ImmutableHolidayCalendar
     // loop from input day-of-month backwards until business day found
     int remaining = amount;
     for (int dom0 = baseDom0; dom0 >= 0; dom0--) {
-      if ((monthData & (1 << dom0)) == 0) {
+      if ((monthData & (1 << dom0)) != 0) {
         remaining++;
         if (remaining == 0) {
           return LocalDate.of(baseYear, baseMonth, dom0 + 1);
@@ -317,9 +338,9 @@ public final class ImmutableHolidayCalendar
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
-      // shift right, leaving the input date as bit-0 and filling with 1 on the right
-      // if the result is -2, which is all ones and a final 0 (...1110) then it is last business day of month
-      return (lookup[index] >> (date.getDayOfMonth() - 1)) == -2;
+      // shift right, leaving the input date as bit-0 and filling with 0 on the right
+      // if the result is 1, which is all zeroes and a final 1 (...0001) then it is last business day of month
+      return (lookup[index] >>> (date.getDayOfMonth() - 1)) == 1;
 
     } catch (ArrayIndexOutOfBoundsException ex) {
       if (startYear == 0) {
@@ -335,10 +356,9 @@ public final class ImmutableHolidayCalendar
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
-      // need to find the most significant zero bit
-      // JDK method can find most significant one bit (and is a fast intrinsic)
-      // invert to swap zeros and ones to match method signature
-      int leading = Integer.numberOfLeadingZeros(~lookup[index]);
+      // need to find the most significant bit, which is the last business day
+      // use JDK numberOfLeadingZeros() method which is mapped to a fast intrinsic
+      int leading = Integer.numberOfLeadingZeros(lookup[index]);
       return date.withDayOfMonth(32 - leading);
 
     } catch (ArrayIndexOutOfBoundsException ex) {
