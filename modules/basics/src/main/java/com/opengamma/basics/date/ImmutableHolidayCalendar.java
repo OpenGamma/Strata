@@ -54,7 +54,8 @@ public final class ImmutableHolidayCalendar
   // optimized implementation of HolidayCalendar
   // uses an int array where each int represents a month
   // each bit within the int represents a date, where 0 is a holiday and 1 is a business day
-  // (most logic involves finding business days, finding 1 is easier than finding 0)
+  // (most logic involves finding business days, finding 1 is easier than finding 0
+  // when using Integer.numberOfTrailingZeros and Integer.numberOfLeadingZeros)
   // benchmarking showed nextOrSame() and previousOrSame() do not need to be overridden
   // out-of-range and weekend-only (used in testing) are handled using exceptions to fast-path the standard case
 
@@ -188,13 +189,14 @@ public final class ImmutableHolidayCalendar
       int monthLen = firstOfMonth.lengthOfMonth();
       // set each valid day-of-month to be a business day
       // the bits for days beyond the end-of-month will be unset and thus treated as non-business days
+      // the minus one part converts a single set bit into each lower bit being set
       array[i] = (1 << monthLen) - 1;
       // unset the bits associated with a weekend
       // can unset across whole month using repeating pattern of 7 bits
+      // just need to find the offset between the weekend and the day-of-week of the 1st of the month
       for (DayOfWeek weekendDow : weekendDays) {
-        int loopDow0 = firstOfMonth.getDayOfWeek().getValue() - 1;
-        int weekendDow0 = weekendDow.getValue() - 1;
-        int offset = (weekendDow0 - loopDow0 + 7) % 7;
+        int daysDiff = weekendDow.getValue() - firstOfMonth.getDayOfWeek().getValue();
+        int offset = (daysDiff < 0 ? daysDiff + 7 : daysDiff);
         array[i] &= ~(0b10000001000000100000010000001 << offset);
       }
       firstOfMonth = firstOfMonth.plusMonths(1);
@@ -291,7 +293,7 @@ public final class ImmutableHolidayCalendar
         }
       }
     }
-    // recurse to previous month if necessary
+    // recurse to next month if necessary
     return baseMonth == 12 ? findNext(baseYear + 1, 1, 0, remaining) : findNext(baseYear, baseMonth + 1, 0, remaining);
   }
 
@@ -338,7 +340,7 @@ public final class ImmutableHolidayCalendar
     try {
       // find data for month
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
-      // shift right, leaving the input date as bit-0 and filling with 0 on the right
+      // shift right, leaving the input date as bit-0 and filling with 0 on the left
       // if the result is 1, which is all zeroes and a final 1 (...0001) then it is last business day of month
       return (lookup[index] >>> (date.getDayOfMonth() - 1)) == 1;
 
