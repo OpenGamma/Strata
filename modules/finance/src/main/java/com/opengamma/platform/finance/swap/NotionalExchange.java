@@ -51,17 +51,17 @@ public final class NotionalExchange
   /**
    * The amount of the notional exchange.
    * <p>
-   * This is the amount of the notional exchange
+   * This is the amount of the notional exchange.
    */
   @PropertyDefinition(validate = "notNull")
   private final CurrencyAmount paymentAmount;
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a {@code NotionalExchange} from a date and amount.
+   * Creates a {@code NotionalExchange} from the date and amount.
    * 
    * @param paymentDate  the date that the payment is made
-   * @param paymentAmount  the date that the payment is made
+   * @param paymentAmount  the amount of the notional exchange
    * @return the notional exchange
    */
   public static NotionalExchange of(LocalDate paymentDate, CurrencyAmount paymentAmount) {
@@ -159,7 +159,7 @@ public final class NotionalExchange
   /**
    * Gets the amount of the notional exchange.
    * <p>
-   * This is the amount of the notional exchange
+   * This is the amount of the notional exchange.
    * @return the value of the property, not null
    */
   public CurrencyAmount getPaymentAmount() {

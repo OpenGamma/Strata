@@ -384,9 +384,52 @@ public class RateCalculationSwapLegTest {
         .notional(-1000d)
         .fxReset(FxReset.of(ECB_EUR_GBP, EUR, DATE_03_03))
         .build();
+    FxResetNotionalExchange ne1a = FxResetNotionalExchange.builder()
+        .paymentDate(DATE_01_06)
+        .referenceCurrency(EUR)
+        .index(ECB_EUR_GBP)
+        .notional(1000d)
+        .fixingDate(DATE_01_02)
+        .build();
+    FxResetNotionalExchange ne1b = FxResetNotionalExchange.builder()
+        .paymentDate(DATE_02_07)
+        .referenceCurrency(EUR)
+        .index(ECB_EUR_GBP)
+        .notional(-1000d)
+        .fixingDate(DATE_01_02)
+        .build();
+    FxResetNotionalExchange ne2a = FxResetNotionalExchange.builder()
+        .paymentDate(DATE_02_07)
+        .referenceCurrency(EUR)
+        .index(ECB_EUR_GBP)
+        .notional(1000d)
+        .fixingDate(DATE_02_03)
+        .build();
+    FxResetNotionalExchange ne2b = FxResetNotionalExchange.builder()
+        .paymentDate(DATE_03_07)
+        .referenceCurrency(EUR)
+        .index(ECB_EUR_GBP)
+        .notional(-1000d)
+        .fixingDate(DATE_02_03)
+        .build();
+    FxResetNotionalExchange ne3a = FxResetNotionalExchange.builder()
+        .paymentDate(DATE_03_07)
+        .referenceCurrency(EUR)
+        .index(ECB_EUR_GBP)
+        .notional(1000d)
+        .fixingDate(DATE_03_03)
+        .build();
+    FxResetNotionalExchange ne3b = FxResetNotionalExchange.builder()
+        .paymentDate(DATE_04_09)
+        .referenceCurrency(EUR)
+        .index(ECB_EUR_GBP)
+        .notional(-1000d)
+        .fixingDate(DATE_03_03)
+        .build();
     // assertion
     assertEquals(test.expand(), ExpandedSwapLeg.builder()
         .paymentPeriods(rpp1, rpp2, rpp3)
+        .paymentEvents(ne1a, ne1b, ne2a, ne2b, ne3a, ne3b)
         .build());
   }
 

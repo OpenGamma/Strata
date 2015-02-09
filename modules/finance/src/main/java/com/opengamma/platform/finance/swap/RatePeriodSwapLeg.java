@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +34,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
@@ -76,20 +74,29 @@ public final class RatePeriodSwapLeg
   @PropertyDefinition(validate = "notEmpty")
   private final ImmutableList<RatePaymentPeriod> paymentPeriods;
   /**
-   * The date of the initial notional exchange, optional.
+   * The flag indicating whether to exchange the initial notional.
    * <p>
-   * Setting this to a specific date indicates that the notional is transferred at the start of the trade.
-   * This should typically be set in the case of an FX reset swap, or one with a varying notional.
+   * Setting this to true indicates that the notional is transferred at the start of the trade.
+   * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * The {@code paymentBusinessDayAdjustment} rule is applied to this date.
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on the initial payment date of the swap leg, treated as the start date.
+   * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+   * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
    */
-  @PropertyDefinition(get = "optional")
-  private final LocalDate initialExchangeDate;
+  @PropertyDefinition
+  private final boolean initialExchange;
   /**
    * The flag indicating whether to exchange the differences in the notional during the lifetime of the swap.
    * <p>
    * Setting this to true indicates that the notional is transferred when it changes during the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
+   * <p>
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on each intermediate payment date of the swap leg.
+   * If set to true, the behavior depends on whether an FX reset payment period is defined.
+   * If there is an FX reset, then an {@link FxResetNotionalExchange} object will be created.
+   * If there is no FX reset, then a {@link NotionalExchange} object will be created.
    */
   @PropertyDefinition
   private final boolean intermediateExchange;
@@ -98,6 +105,11 @@ public final class RatePeriodSwapLeg
    * <p>
    * Setting this to true indicates that the notional is transferred at the end of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
+   * <p>
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on the final payment date of the swap leg.
+   * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+   * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
    */
   @PropertyDefinition
   private final boolean finalExchange;
@@ -125,7 +137,7 @@ public final class RatePeriodSwapLeg
   @ImmutableConstructor
   private RatePeriodSwapLeg(
       List<RatePaymentPeriod> paymentPeriods,
-      LocalDate initialExchangeDate,
+      boolean initialExchange,
       boolean intermediateExchange,
       boolean finalExchange,
       List<PaymentEvent> paymentEvents,
@@ -134,7 +146,7 @@ public final class RatePeriodSwapLeg
     JodaBeanUtils.notEmpty(paymentPeriods, "paymentPeriods");
     JodaBeanUtils.notNull(paymentEvents, "paymentEvents");
     this.paymentPeriods = ImmutableList.copyOf(paymentPeriods);
-    this.initialExchangeDate = initialExchangeDate;
+    this.initialExchange = initialExchange;
     this.intermediateExchange = intermediateExchange;
     this.finalExchange = finalExchange;
     this.paymentBusinessDayAdjustment = Objects.firstNonNull(paymentBusinessDayAdjustment, BusinessDayAdjustment.NONE);
@@ -209,19 +221,12 @@ public final class RatePeriodSwapLeg
   }
 
   // notional exchange events
-  private ImmutableList<PaymentEvent> createEvents(List<RatePaymentPeriod> adjustedPaymentPeriods) {
+  private ImmutableList<PaymentEvent> createEvents(List<RatePaymentPeriod> adjPaymentPeriods) {
+
     ImmutableList.Builder<PaymentEvent> events = ImmutableList.builder();
-    if (initialExchangeDate != null || intermediateExchange || finalExchange) {
-      NotionalSchedule eventBuilder = NotionalSchedule.builder()
-          .currency(currency)
-          .amount(ValueSchedule.ALWAYS_0)  // unused by createEvents()
-          .initialExchange(initialExchangeDate != null)
-          .intermediateExchange(intermediateExchange)
-          .finalExchange(finalExchange)
-          .build();
-      LocalDate initial = Objects.firstNonNull(initialExchangeDate, getStartDate()).with(paymentBusinessDayAdjustment);
-      events.addAll(eventBuilder.createEvents(adjustedPaymentPeriods, initial));
-    }
+    LocalDate initialExchangeDate = getStartDate().with(paymentBusinessDayAdjustment);
+    events.addAll(NotionalSchedule.createEvents(
+        adjPaymentPeriods, initialExchangeDate, initialExchange, intermediateExchange, finalExchange));
     paymentEvents.forEach(pe -> events.add(pe.adjustPaymentDate(paymentBusinessDayAdjustment)));
     return events.build();
   }
@@ -283,16 +288,19 @@ public final class RatePeriodSwapLeg
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date of the initial notional exchange, optional.
+   * Gets the flag indicating whether to exchange the initial notional.
    * <p>
-   * Setting this to a specific date indicates that the notional is transferred at the start of the trade.
-   * This should typically be set in the case of an FX reset swap, or one with a varying notional.
+   * Setting this to true indicates that the notional is transferred at the start of the trade.
+   * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
    * <p>
-   * The {@code paymentBusinessDayAdjustment} rule is applied to this date.
-   * @return the optional value of the property, not null
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on the initial payment date of the swap leg, treated as the start date.
+   * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+   * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
+   * @return the value of the property
    */
-  public Optional<LocalDate> getInitialExchangeDate() {
-    return Optional.ofNullable(initialExchangeDate);
+  public boolean isInitialExchange() {
+    return initialExchange;
   }
 
   //-----------------------------------------------------------------------
@@ -301,6 +309,12 @@ public final class RatePeriodSwapLeg
    * <p>
    * Setting this to true indicates that the notional is transferred when it changes during the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
+   * <p>
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on each intermediate payment date of the swap leg.
+   * If set to true, the behavior depends on whether an FX reset payment period is defined.
+   * If there is an FX reset, then an {@link FxResetNotionalExchange} object will be created.
+   * If there is no FX reset, then a {@link NotionalExchange} object will be created.
    * @return the value of the property
    */
   public boolean isIntermediateExchange() {
@@ -313,6 +327,11 @@ public final class RatePeriodSwapLeg
    * <p>
    * Setting this to true indicates that the notional is transferred at the end of the trade.
    * This should typically be set to true in the case of an FX reset swap, or one with a varying notional.
+   * <p>
+   * This flag controls whether a notional exchange object is created when the leg is expanded.
+   * It covers an exchange on the final payment date of the swap leg.
+   * If there is an FX reset, then this flag is ignored, see {@code intermediateExchange}.
+   * If there is no FX reset and the flag is true, then a {@link NotionalExchange} object will be created.
    * @return the value of the property
    */
   public boolean isFinalExchange() {
@@ -359,7 +378,7 @@ public final class RatePeriodSwapLeg
     if (obj != null && obj.getClass() == this.getClass()) {
       RatePeriodSwapLeg other = (RatePeriodSwapLeg) obj;
       return JodaBeanUtils.equal(getPaymentPeriods(), other.getPaymentPeriods()) &&
-          JodaBeanUtils.equal(initialExchangeDate, other.initialExchangeDate) &&
+          (isInitialExchange() == other.isInitialExchange()) &&
           (isIntermediateExchange() == other.isIntermediateExchange()) &&
           (isFinalExchange() == other.isFinalExchange()) &&
           JodaBeanUtils.equal(getPaymentEvents(), other.getPaymentEvents()) &&
@@ -372,7 +391,7 @@ public final class RatePeriodSwapLeg
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentPeriods());
-    hash = hash * 31 + JodaBeanUtils.hashCode(initialExchangeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(isInitialExchange());
     hash = hash * 31 + JodaBeanUtils.hashCode(isIntermediateExchange());
     hash = hash * 31 + JodaBeanUtils.hashCode(isFinalExchange());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentEvents());
@@ -385,7 +404,7 @@ public final class RatePeriodSwapLeg
     StringBuilder buf = new StringBuilder(224);
     buf.append("RatePeriodSwapLeg{");
     buf.append("paymentPeriods").append('=').append(getPaymentPeriods()).append(',').append(' ');
-    buf.append("initialExchangeDate").append('=').append(initialExchangeDate).append(',').append(' ');
+    buf.append("initialExchange").append('=').append(isInitialExchange()).append(',').append(' ');
     buf.append("intermediateExchange").append('=').append(isIntermediateExchange()).append(',').append(' ');
     buf.append("finalExchange").append('=').append(isFinalExchange()).append(',').append(' ');
     buf.append("paymentEvents").append('=').append(getPaymentEvents()).append(',').append(' ');
@@ -411,10 +430,10 @@ public final class RatePeriodSwapLeg
     private final MetaProperty<ImmutableList<RatePaymentPeriod>> paymentPeriods = DirectMetaProperty.ofImmutable(
         this, "paymentPeriods", RatePeriodSwapLeg.class, (Class) ImmutableList.class);
     /**
-     * The meta-property for the {@code initialExchangeDate} property.
+     * The meta-property for the {@code initialExchange} property.
      */
-    private final MetaProperty<LocalDate> initialExchangeDate = DirectMetaProperty.ofImmutable(
-        this, "initialExchangeDate", RatePeriodSwapLeg.class, LocalDate.class);
+    private final MetaProperty<Boolean> initialExchange = DirectMetaProperty.ofImmutable(
+        this, "initialExchange", RatePeriodSwapLeg.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code intermediateExchange} property.
      */
@@ -442,7 +461,7 @@ public final class RatePeriodSwapLeg
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "paymentPeriods",
-        "initialExchangeDate",
+        "initialExchange",
         "intermediateExchange",
         "finalExchange",
         "paymentEvents",
@@ -459,8 +478,8 @@ public final class RatePeriodSwapLeg
       switch (propertyName.hashCode()) {
         case -1674414612:  // paymentPeriods
           return paymentPeriods;
-        case -1952444971:  // initialExchangeDate
-          return initialExchangeDate;
+        case -511982201:  // initialExchange
+          return initialExchange;
         case -2147112388:  // intermediateExchange
           return intermediateExchange;
         case -1048781383:  // finalExchange
@@ -498,11 +517,11 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * The meta-property for the {@code initialExchangeDate} property.
+     * The meta-property for the {@code initialExchange} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> initialExchangeDate() {
-      return initialExchangeDate;
+    public MetaProperty<Boolean> initialExchange() {
+      return initialExchange;
     }
 
     /**
@@ -543,8 +562,8 @@ public final class RatePeriodSwapLeg
       switch (propertyName.hashCode()) {
         case -1674414612:  // paymentPeriods
           return ((RatePeriodSwapLeg) bean).getPaymentPeriods();
-        case -1952444971:  // initialExchangeDate
-          return ((RatePeriodSwapLeg) bean).initialExchangeDate;
+        case -511982201:  // initialExchange
+          return ((RatePeriodSwapLeg) bean).isInitialExchange();
         case -2147112388:  // intermediateExchange
           return ((RatePeriodSwapLeg) bean).isIntermediateExchange();
         case -1048781383:  // finalExchange
@@ -575,7 +594,7 @@ public final class RatePeriodSwapLeg
   public static final class Builder extends DirectFieldsBeanBuilder<RatePeriodSwapLeg> {
 
     private List<RatePaymentPeriod> paymentPeriods = ImmutableList.of();
-    private LocalDate initialExchangeDate;
+    private boolean initialExchange;
     private boolean intermediateExchange;
     private boolean finalExchange;
     private List<PaymentEvent> paymentEvents = ImmutableList.of();
@@ -593,7 +612,7 @@ public final class RatePeriodSwapLeg
      */
     private Builder(RatePeriodSwapLeg beanToCopy) {
       this.paymentPeriods = beanToCopy.getPaymentPeriods();
-      this.initialExchangeDate = beanToCopy.initialExchangeDate;
+      this.initialExchange = beanToCopy.isInitialExchange();
       this.intermediateExchange = beanToCopy.isIntermediateExchange();
       this.finalExchange = beanToCopy.isFinalExchange();
       this.paymentEvents = beanToCopy.getPaymentEvents();
@@ -606,8 +625,8 @@ public final class RatePeriodSwapLeg
       switch (propertyName.hashCode()) {
         case -1674414612:  // paymentPeriods
           return paymentPeriods;
-        case -1952444971:  // initialExchangeDate
-          return initialExchangeDate;
+        case -511982201:  // initialExchange
+          return initialExchange;
         case -2147112388:  // intermediateExchange
           return intermediateExchange;
         case -1048781383:  // finalExchange
@@ -628,8 +647,8 @@ public final class RatePeriodSwapLeg
         case -1674414612:  // paymentPeriods
           this.paymentPeriods = (List<RatePaymentPeriod>) newValue;
           break;
-        case -1952444971:  // initialExchangeDate
-          this.initialExchangeDate = (LocalDate) newValue;
+        case -511982201:  // initialExchange
+          this.initialExchange = (Boolean) newValue;
           break;
         case -2147112388:  // intermediateExchange
           this.intermediateExchange = (Boolean) newValue;
@@ -677,7 +696,7 @@ public final class RatePeriodSwapLeg
     public RatePeriodSwapLeg build() {
       return new RatePeriodSwapLeg(
           paymentPeriods,
-          initialExchangeDate,
+          initialExchange,
           intermediateExchange,
           finalExchange,
           paymentEvents,
@@ -707,12 +726,12 @@ public final class RatePeriodSwapLeg
     }
 
     /**
-     * Sets the {@code initialExchangeDate} property in the builder.
-     * @param initialExchangeDate  the new value
+     * Sets the {@code initialExchange} property in the builder.
+     * @param initialExchange  the new value
      * @return this, for chaining, not null
      */
-    public Builder initialExchangeDate(LocalDate initialExchangeDate) {
-      this.initialExchangeDate = initialExchangeDate;
+    public Builder initialExchange(boolean initialExchange) {
+      this.initialExchange = initialExchange;
       return this;
     }
 
@@ -774,7 +793,7 @@ public final class RatePeriodSwapLeg
       StringBuilder buf = new StringBuilder(224);
       buf.append("RatePeriodSwapLeg.Builder{");
       buf.append("paymentPeriods").append('=').append(JodaBeanUtils.toString(paymentPeriods)).append(',').append(' ');
-      buf.append("initialExchangeDate").append('=').append(JodaBeanUtils.toString(initialExchangeDate)).append(',').append(' ');
+      buf.append("initialExchange").append('=').append(JodaBeanUtils.toString(initialExchange)).append(',').append(' ');
       buf.append("intermediateExchange").append('=').append(JodaBeanUtils.toString(intermediateExchange)).append(',').append(' ');
       buf.append("finalExchange").append('=').append(JodaBeanUtils.toString(finalExchange)).append(',').append(' ');
       buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(paymentEvents)).append(',').append(' ');

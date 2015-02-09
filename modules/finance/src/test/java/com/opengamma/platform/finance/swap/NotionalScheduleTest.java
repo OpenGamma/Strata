@@ -66,7 +66,26 @@ public class NotionalScheduleTest {
     assertEquals(test.isFinalExchange(), false);
   }
 
-  public void test_buidler_invalidCurrencyFxReset() {
+  public void test_builder_FxResetSetsFlags() {
+    FxResetCalculation fxReset = FxResetCalculation.builder()
+        .referenceCurrency(GBP)
+        .index(WM_GBP_USD)
+        .fixingOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+        .build();
+    NotionalSchedule test = NotionalSchedule.builder()
+        .currency(USD)
+        .amount(ValueSchedule.of(2000d))
+        .fxReset(fxReset)
+        .build();
+    assertEquals(test.getCurrency(), USD);
+    assertEquals(test.getAmount(), ValueSchedule.of(2000d));
+    assertEquals(test.getFxReset(), Optional.of(fxReset));
+    assertEquals(test.isInitialExchange(), true);
+    assertEquals(test.isIntermediateExchange(), true);
+    assertEquals(test.isFinalExchange(), true);
+  }
+
+  public void test_builder_invalidCurrencyFxReset() {
     assertThrowsIllegalArg(() -> NotionalSchedule.builder()
         .currency(USD)
         .amount(ValueSchedule.of(2000d))
