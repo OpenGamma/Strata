@@ -57,7 +57,7 @@ public final class ImmutableHolidayCalendar
   // (most logic involves finding business days, finding 1 is easier than finding 0
   // when using Integer.numberOfTrailingZeros and Integer.numberOfLeadingZeros)
   // benchmarking showed nextOrSame() and previousOrSame() do not need to be overridden
-  // out-of-range and weekend-only (used in testing) are handled using exceptions to fast-path the standard case
+  // out-of-range and weekend-only (used in testing) are handled using exceptions to fast-path the common case
 
   /**
    * The calendar name.
@@ -235,8 +235,13 @@ public final class ImmutableHolidayCalendar
       if (startYear == 0) {
         return weekendDays.contains(date.getDayOfWeek());
       }
-      throw new IllegalArgumentException("Date is not within the range of known holidays: " + date + ", " + range);
+      throw new IllegalArgumentException(rangeError(date));
     }
+  }
+
+  // pulled out to aid hotspot inlining
+  private String rangeError(LocalDate date) {
+    return "Date is not within the range of known holidays: " + date + ", " + range;
   }
 
   //-------------------------------------------------------------------------
@@ -257,7 +262,7 @@ public final class ImmutableHolidayCalendar
       if (startYear == 0) {
         return HolidayCalendar.super.shift(date, amount);
       }
-      throw new IllegalArgumentException("Date is not within the range of known holidays: " + date + ", " + range);
+      throw new IllegalArgumentException(rangeError(date));
     }
   }
 
@@ -273,7 +278,7 @@ public final class ImmutableHolidayCalendar
       if (startYear == 0) {
         return HolidayCalendar.super.next(date);
       }
-      throw new IllegalArgumentException("Date is not within the range of known holidays: " + date + ", " + range);
+      throw new IllegalArgumentException(rangeError(date));
     }
   }
 
@@ -283,15 +288,20 @@ public final class ImmutableHolidayCalendar
     // find data for month
     int index = (baseYear - startYear) * 12 + baseMonth - 1;
     int monthData = lookup[index];
-    // loop from input day-of-month forwards until business day found
+    // shift to remove days before the input day
+    // the input day-of-month will be at bit-0
+    int shifted = (monthData >> baseDom0);
     int remaining = amount;
-    for (int dom0 = baseDom0; dom0 < 31; dom0++) {
-      if ((monthData & (1 << dom0)) != 0) {
-        remaining--;
-        if (remaining == 0) {
-          return LocalDate.of(baseYear, baseMonth, dom0 + 1);
-        }
+    while (shifted != 0) {
+      // find least significant bit, which is next business day
+      // use JDK numberOfTrailingZeros() method which is mapped to a fast intrinsic
+      int trailing = Integer.numberOfTrailingZeros(shifted);
+      remaining--;
+      if (remaining == 0) {
+        return LocalDate.of(baseYear, baseMonth, baseDom0 + 1 + trailing);
       }
+      // unset the business day to find the next one
+      shifted &= ~(1 << trailing);
     }
     // recurse to next month if necessary
     return baseMonth == 12 ? findNext(baseYear + 1, 1, 0, remaining) : findNext(baseYear, baseMonth + 1, 0, remaining);
@@ -309,7 +319,7 @@ public final class ImmutableHolidayCalendar
       if (startYear == 0) {
         return HolidayCalendar.super.previous(date);
       }
-      throw new IllegalArgumentException("Date is not within the range of known holidays: " + date + ", " + range);
+      throw new IllegalArgumentException(rangeError(date));
     }
   }
 
@@ -319,14 +329,21 @@ public final class ImmutableHolidayCalendar
     // find data for month
     int index = (baseYear - startYear) * 12 + baseMonth - 1;
     int monthData = lookup[index];
-    // loop from input day-of-month backwards until business day found
+    // shift to remove days after the input day
+    // the input day-of-month will be at bit-31
     int remaining = amount;
-    for (int dom0 = baseDom0; dom0 >= 0; dom0--) {
-      if ((monthData & (1 << dom0)) != 0) {
+    if (baseDom0 >= 0) {
+      int shifted = (monthData << (31 - baseDom0));
+      while (shifted != 0) {
+        // find most significant bit, which is next business day
+        // use JDK numberOfLeadingZeros() method which is mapped to a fast intrinsic
+        int leading = Integer.numberOfLeadingZeros(shifted);
         remaining++;
         if (remaining == 0) {
-          return LocalDate.of(baseYear, baseMonth, dom0 + 1);
+          return LocalDate.of(baseYear, baseMonth, baseDom0 + 1 - leading);
         }
+        // unset the business day to find the next one
+        shifted &= ~(1 << (31 - leading));
       }
     }
     // recurse to previous month if necessary
@@ -348,10 +365,11 @@ public final class ImmutableHolidayCalendar
       if (startYear == 0) {
         return HolidayCalendar.super.isLastBusinessDayOfMonth(date);
       }
-      throw new IllegalArgumentException("Date is not within the range of known holidays: " + date + ", " + range);
+      throw new IllegalArgumentException(rangeError(date));
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate lastBusinessDayOfMonth(LocalDate date) {
     ArgChecker.notNull(date, "date");
@@ -367,7 +385,7 @@ public final class ImmutableHolidayCalendar
       if (startYear == 0) {
         return HolidayCalendar.super.lastBusinessDayOfMonth(date);
       }
-      throw new IllegalArgumentException("Date is not within the range of known holidays: " + date + ", " + range);
+      throw new IllegalArgumentException(rangeError(date));
     }
   }
 

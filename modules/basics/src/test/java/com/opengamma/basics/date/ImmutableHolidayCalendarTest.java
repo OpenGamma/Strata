@@ -20,6 +20,9 @@ import static org.testng.Assert.assertSame;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -784,6 +787,30 @@ public class ImmutableHolidayCalendarTest {
     Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_16);
     ImmutableHolidayCalendar base = ImmutableHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
     assertThrowsIllegalArg(() -> base.combineWith(null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_broadCheck() {
+    LocalDate start = LocalDate.of(2010, 1, 1);
+    LocalDate end = LocalDate.of(2020, 1, 1);
+    Random random = new Random(547698);
+    for (int i = 0; i < 10; i++) {
+      // create sample holiday dates
+      LocalDate date = start;
+      SortedSet<LocalDate> set = new TreeSet<>();
+      while (date.isBefore(end)) {
+        set.add(date);
+        date = date.plusDays(random.nextInt(10) + 1);
+      }
+      // check holiday calendar works using simple algorithm
+      ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("TestBroad" + i, set, SATURDAY, SUNDAY);
+      LocalDate checkDate = start;
+      while (checkDate.isBefore(end)) {
+        DayOfWeek dow = checkDate.getDayOfWeek();
+        assertEquals(test.isHoliday(checkDate), dow == SATURDAY || dow == SUNDAY || set.contains(checkDate));
+        checkDate = checkDate.plusDays(1);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
