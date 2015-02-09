@@ -14,9 +14,8 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.ImmutableDefaults;
-import org.joda.beans.ImmutablePreBuild;
-import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.base.Objects;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.collect.ArgChecker;
@@ -146,20 +146,36 @@ public final class RateAccrualPeriod
     builder.gearing(1d);
   }
 
-  @ImmutablePreBuild
-  private static void preBuild(Builder builder) {
-    if (builder.unadjustedStartDate == null) {
-      builder.unadjustedStartDate = builder.startDate;
-    }
-    if (builder.unadjustedEndDate == null) {
-      builder.unadjustedEndDate = builder.endDate;
-    }
-  }
-
-  @ImmutableValidator
-  private void validate() {
+  // could use @ImmutablePreBuild and @ImmutableValidate but faster inline
+  @ImmutableConstructor
+  private RateAccrualPeriod(
+      LocalDate startDate,
+      LocalDate endDate,
+      LocalDate unadjustedStartDate,
+      LocalDate unadjustedEndDate,
+      double yearFraction,
+      RateObservation rateObservation,
+      double gearing,
+      double spread,
+      NegativeRateMethod negativeRateMethod) {
+    ArgChecker.notNull(startDate, "startDate");
+    ArgChecker.notNull(endDate, "endDate");
+    ArgChecker.notNegative(yearFraction, "yearFraction");
+    ArgChecker.notNull(rateObservation, "rateObservation");
+    ArgChecker.notNull(negativeRateMethod, "negativeRateMethod");
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.unadjustedStartDate = Objects.firstNonNull(unadjustedStartDate, startDate);
+    this.unadjustedEndDate = Objects.firstNonNull(unadjustedEndDate, endDate);
+    this.yearFraction = yearFraction;
+    this.rateObservation = rateObservation;
+    this.gearing = gearing;
+    this.spread = spread;
+    this.negativeRateMethod = negativeRateMethod;
+    // check for unadjusted must be after Objects.firstNonNull
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
-    ArgChecker.inOrderNotEqual(unadjustedStartDate, unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
+    ArgChecker.inOrderNotEqual(
+        this.unadjustedStartDate, this.unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
   }
 
   //-------------------------------------------------------------------------
@@ -204,35 +220,6 @@ public final class RateAccrualPeriod
    */
   public static RateAccrualPeriod.Builder builder() {
     return new RateAccrualPeriod.Builder();
-  }
-
-  private RateAccrualPeriod(
-      LocalDate startDate,
-      LocalDate endDate,
-      LocalDate unadjustedStartDate,
-      LocalDate unadjustedEndDate,
-      double yearFraction,
-      RateObservation rateObservation,
-      double gearing,
-      double spread,
-      NegativeRateMethod negativeRateMethod) {
-    JodaBeanUtils.notNull(startDate, "startDate");
-    JodaBeanUtils.notNull(endDate, "endDate");
-    JodaBeanUtils.notNull(unadjustedStartDate, "unadjustedStartDate");
-    JodaBeanUtils.notNull(unadjustedEndDate, "unadjustedEndDate");
-    ArgChecker.notNegative(yearFraction, "yearFraction");
-    JodaBeanUtils.notNull(rateObservation, "rateObservation");
-    JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
-    this.startDate = startDate;
-    this.endDate = endDate;
-    this.unadjustedStartDate = unadjustedStartDate;
-    this.unadjustedEndDate = unadjustedEndDate;
-    this.yearFraction = yearFraction;
-    this.rateObservation = rateObservation;
-    this.gearing = gearing;
-    this.spread = spread;
-    this.negativeRateMethod = negativeRateMethod;
-    validate();
   }
 
   @Override
@@ -794,7 +781,6 @@ public final class RateAccrualPeriod
 
     @Override
     public RateAccrualPeriod build() {
-      preBuild(this);
       return new RateAccrualPeriod(
           startDate,
           endDate,
