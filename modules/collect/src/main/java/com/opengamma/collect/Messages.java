@@ -43,14 +43,14 @@ public final class Messages {
     }
     int placeholderPos = messageTemplate.indexOf("{}", 0);
     String argStr = String.valueOf(arg);
-    StringBuilder builder = new StringBuilder(messageTemplate.length() + argStr.length());
+    StringBuilder builder = new StringBuilder(messageTemplate.length() + argStr.length() + 3);
     if (placeholderPos >= 0) {
       builder
           .append(messageTemplate.substring(0, placeholderPos))
-          .append(arg)
+          .append(argStr)
           .append(messageTemplate.substring(placeholderPos + 2));
     } else {
-      builder.append(messageTemplate).append(" - [").append(arg).append(']');
+      builder.append(messageTemplate).append(" - [").append(argStr).append(']');
     }
     return builder.toString();
   }
