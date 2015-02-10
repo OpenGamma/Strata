@@ -19,11 +19,69 @@ import org.testng.annotations.Test;
 @Test
 public class MessagesTest {
 
+  @DataProvider(name = "formatMessageSingle")
+  Object[][] data_formatMessageSingle() {
+    return new Object[][] {
+        // null template
+        {null, null, "", " - [null]"},
+        {null, "", "", " - []"},
+        // null in array
+        {"", null, "", " - [null]"},
+        {"{}", null, "null", ""},
+        {"{}{}", null, "null{}", ""},
+        {"{} and {}", null, "null and {}", ""},
+        // empty string in array
+        {"", "", "", " - []"},
+        {"{}", "", "", ""},
+        {"{}{}", "", "{}", ""},
+        {"{} and {}", "", " and {}", ""},
+        // main tests
+        {"{}", 67, "67", ""},
+        {"{}{}", 67, "67{}", ""},
+        {"{} and {}", 67, "67 and {}", ""},
+    };
+  }
+
+  @Test(dataProvider = "formatMessageSingle")
+  public void test_formatMessageSingle(String template, Object arg, String expMain, String expExcess) {
+    assertEquals(Messages.format(template, arg), expMain + expExcess);
+  }
+
+  @Test(dataProvider = "formatMessageSingle")
+  public void test_formatMessageSingle_prefix(String template, Object arg, String expMain, String expExcess) {
+    assertEquals(Messages.format("::" + Objects.toString(template, ""), arg), "::" + expMain + expExcess);
+  }
+
+  @Test(dataProvider = "formatMessageSingle")
+  public void test_formatMessageSingle_suffix(String template, Object arg, String expMain, String expExcess) {
+    assertEquals(Messages.format(Objects.toString(template, "") + "@@", arg), expMain + "@@" + expExcess);
+  }
+
+  @Test(dataProvider = "formatMessageSingle")
+  public void test_formatMessageSingle_prefixSuffix(String template, Object arg, String expMain, String expExcess) {
+    assertEquals(Messages.format("::" + Objects.toString(template, "") + "@@", arg), "::" + expMain + "@@" + expExcess);
+  }
+
+  //-------------------------------------------------------------------------
   @DataProvider(name = "formatMessage")
   Object[][] data_formatMessage() {
     return new Object[][] {
+        // null template
         {null, null, "", ""},
         {null, new Object[] {}, "", ""},
+        {null, new Object[] {null}, "", " - [null]"},
+        {null, new Object[] {67}, "", " - [67]"},
+        // null array
+        {"", null, "", ""},
+        {"{}", null, "{}", ""},
+        {"{}{}", null, "{}{}", ""},
+        {"{} and {}", null, "{} and {}", ""},
+        // null in array
+        {"", new Object[] {null}, "", " - [null]"},
+        {"{}", new Object[] {null}, "null", ""},
+        {"{}{}", new Object[] {null}, "null{}", ""},
+        {"{} and {}", new Object[] {null}, "null and {}", ""},
+        // main tests
         {"", new Object[] {}, "", ""},
         {"{}", null, "{}", ""},
         {"{}", new Object[] {}, "{}", ""},
