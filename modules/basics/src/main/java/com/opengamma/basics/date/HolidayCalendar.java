@@ -221,7 +221,7 @@ public interface HolidayCalendar
    * or the last business day of the month
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
-  public default LocalDate nextLastOrSameInMonth(LocalDate date) {
+  public default LocalDate nextSameOrLastInMonth(LocalDate date) {
     ArgChecker.notNull(date, "date");
     LocalDate nextOrSame = nextOrSame(date);
     return (nextOrSame.getMonthValue() != date.getMonthValue() ? previous(date) : nextOrSame);

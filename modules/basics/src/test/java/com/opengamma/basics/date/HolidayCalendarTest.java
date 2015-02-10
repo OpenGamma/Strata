@@ -486,8 +486,8 @@ public class HolidayCalendarTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "nextLastOrSameInMonth")
-  static Object[][] data_nextLastOrSameInMonth() {
+  @DataProvider(name = "nextSameOrLastInMonth")
+  static Object[][] data_nextSameOrLastInMonth() {
     return new Object[][] {
         {THU_2014_07_10, THU_2014_07_10},
         {FRI_2014_07_11, FRI_2014_07_11},
@@ -506,14 +506,15 @@ public class HolidayCalendarTest {
     };
   }
 
-  @Test(dataProvider = "nextLastOrSameInMonth")
+  @Test(dataProvider = "nextSameOrLastInMonth")
   public void test_nextLastOrSame(LocalDate date, LocalDate expectedNext) {
+    // mock calendar has Sat/Sun plus 16th, 18th and 31st as holidays
     HolidayCalendar test = new MockHolCal();
-    assertEquals(test.nextLastOrSameInMonth(date), expectedNext);
+    assertEquals(test.nextSameOrLastInMonth(date), expectedNext);
   }
 
-  public void test_nextLastOrSameInMonth_null() {
-    assertThrows(() -> new MockHolCal().nextLastOrSameInMonth(null), IllegalArgumentException.class);
+  public void test_nextSameOrLastInMonth_null() {
+    assertThrows(() -> new MockHolCal().nextSameOrLastInMonth(null), IllegalArgumentException.class);
   }
 
   //-------------------------------------------------------------------------

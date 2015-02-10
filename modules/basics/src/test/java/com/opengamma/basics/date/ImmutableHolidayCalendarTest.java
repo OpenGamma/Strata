@@ -83,6 +83,9 @@ public class ImmutableHolidayCalendarTest {
   private static final ImmutableHolidayCalendar HOLCAL_END_MONTH =
       ImmutableHolidayCalendar.of("TestEndOfMonth", ImmutableList.of(MON_2014_06_30, THU_2014_07_31), SATURDAY, SUNDAY);
 
+  private static final LocalDate FRI_2015_02_27 = LocalDate.of(2015, 2, 27);
+  private static final LocalDate SAT_2015_02_28 = LocalDate.of(2015, 2, 28);
+
   //-------------------------------------------------------------------------
   public void test_of_IterableDayOfWeekDayOfWeek_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
@@ -634,8 +637,8 @@ public class ImmutableHolidayCalendarTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "nextLastOrSameInMonth")
-  static Object[][] data_nextLastOrSameInMonth() {
+  @DataProvider(name = "nextSameOrLastInMonth")
+  static Object[][] data_nextSameOrLastInMonth() {
     return new Object[][] {
         {THU_2014_07_10, THU_2014_07_10, HOLCAL_MON_WED},
         {FRI_2014_07_11, FRI_2014_07_11, HOLCAL_MON_WED},
@@ -661,25 +664,26 @@ public class ImmutableHolidayCalendarTest {
         {WED_2015_04_01, WED_2015_04_01, HOLCAL_YEAR_END},
 
         {SAT_2014_07_12, MON_2014_07_14, HOLCAL_SAT_SUN},
+        {SAT_2015_02_28, FRI_2015_02_27, HOLCAL_SAT_SUN},
 
         {WED_2014_07_30, WED_2014_07_30, HOLCAL_END_MONTH},
         {THU_2014_07_31, WED_2014_07_30, HOLCAL_END_MONTH},
     };
   }
 
-  @Test(dataProvider = "nextLastOrSameInMonth")
+  @Test(dataProvider = "nextSameOrLastInMonth")
   public void test_nextLastOrSame(LocalDate date, LocalDate expectedNext, HolidayCalendar cal) {
-    assertEquals(cal.nextLastOrSameInMonth(date), expectedNext);
+    assertEquals(cal.nextSameOrLastInMonth(date), expectedNext);
   }
 
-  public void test_nextLastOrSameInMonth_null() {
-    assertThrows(() -> HOLCAL_MON_WED.nextLastOrSameInMonth(null), IllegalArgumentException.class);
+  public void test_nextSameOrLastInMonth_null() {
+    assertThrows(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(null), IllegalArgumentException.class);
   }
 
-  public void test_nextLastOrSameInMonth_range() {
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextLastOrSameInMonth(date(2010, 1, 1)));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextLastOrSameInMonth(LocalDate.MIN));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextLastOrSameInMonth(LocalDate.MAX));
+  public void test_nextSameOrLastInMonth_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(date(2010, 1, 1)));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(LocalDate.MIN));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
