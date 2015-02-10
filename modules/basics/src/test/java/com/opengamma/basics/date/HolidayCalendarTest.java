@@ -49,6 +49,9 @@ public class HolidayCalendarTest {
   private static final LocalDate TUE_2014_07_22 = LocalDate.of(2014, 7, 22);
   private static final LocalDate WED_2014_07_23 = LocalDate.of(2014, 7, 23);
 
+  private static final LocalDate WED_2014_07_30 = LocalDate.of(2014, 7, 30);
+  private static final LocalDate THU_2014_07_31 = LocalDate.of(2014, 7, 31);
+
   //-------------------------------------------------------------------------
   public void test_NO_HOLIDAYS() {
     HolidayCalendar test = HolidayCalendars.NO_HOLIDAYS;
@@ -483,6 +486,37 @@ public class HolidayCalendarTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "nextLastOrSameInMonth")
+  static Object[][] data_nextLastOrSameInMonth() {
+    return new Object[][] {
+        {THU_2014_07_10, THU_2014_07_10},
+        {FRI_2014_07_11, FRI_2014_07_11},
+        {SAT_2014_07_12, MON_2014_07_14},
+        {SUN_2014_07_13, MON_2014_07_14},
+        {MON_2014_07_14, MON_2014_07_14},
+        {TUE_2014_07_15, TUE_2014_07_15},
+        {WED_2014_07_16, THU_2014_07_17},
+        {THU_2014_07_17, THU_2014_07_17},
+        {FRI_2014_07_18, MON_2014_07_21},
+        {SAT_2014_07_19, MON_2014_07_21},
+        {SUN_2014_07_20, MON_2014_07_21},
+        {MON_2014_07_21, MON_2014_07_21},
+
+        {THU_2014_07_31, WED_2014_07_30},
+    };
+  }
+
+  @Test(dataProvider = "nextLastOrSameInMonth")
+  public void test_nextLastOrSame(LocalDate date, LocalDate expectedNext) {
+    HolidayCalendar test = new MockHolCal();
+    assertEquals(test.nextLastOrSameInMonth(date), expectedNext);
+  }
+
+  public void test_nextLastOrSameInMonth_null() {
+    assertThrows(() -> new MockHolCal().nextLastOrSameInMonth(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
   @DataProvider(name = "lastBusinessDayOfMonth")
   static Object[][] data_lastBusinessDayOfMonth() {
     return new Object[][] {
@@ -634,7 +668,7 @@ public class HolidayCalendarTest {
   static class MockHolCal implements HolidayCalendar {
     @Override
     public boolean isHoliday(LocalDate date) {
-      return date.getDayOfMonth() == 16 || date.getDayOfMonth() == 18 ||
+      return date.getDayOfMonth() == 16 || date.getDayOfMonth() == 18 || date.getDayOfMonth() == 31 ||
           date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
     }
 

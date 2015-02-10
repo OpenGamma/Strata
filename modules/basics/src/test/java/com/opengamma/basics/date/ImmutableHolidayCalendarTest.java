@@ -77,6 +77,7 @@ public class ImmutableHolidayCalendarTest {
       ImmutableHolidayCalendar.of("TestSatSun", ImmutableList.of(), SATURDAY, SUNDAY);
 
   private static final LocalDate MON_2014_06_30 = LocalDate.of(2014, 6, 30);
+  private static final LocalDate WED_2014_07_30 = LocalDate.of(2014, 7, 30);
   private static final LocalDate THU_2014_07_31 = LocalDate.of(2014, 7, 31);
 
   private static final ImmutableHolidayCalendar HOLCAL_END_MONTH =
@@ -630,6 +631,55 @@ public class ImmutableHolidayCalendarTest {
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(date(2010, 1, 1)));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MIN));
     assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MAX));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "nextLastOrSameInMonth")
+  static Object[][] data_nextLastOrSameInMonth() {
+    return new Object[][] {
+        {THU_2014_07_10, THU_2014_07_10, HOLCAL_MON_WED},
+        {FRI_2014_07_11, FRI_2014_07_11, HOLCAL_MON_WED},
+        {SAT_2014_07_12, TUE_2014_07_15, HOLCAL_MON_WED},
+        {SUN_2014_07_13, TUE_2014_07_15, HOLCAL_MON_WED},
+        {MON_2014_07_14, TUE_2014_07_15, HOLCAL_MON_WED},
+        {TUE_2014_07_15, TUE_2014_07_15, HOLCAL_MON_WED},
+        {WED_2014_07_16, THU_2014_07_17, HOLCAL_MON_WED},
+        {THU_2014_07_17, THU_2014_07_17, HOLCAL_MON_WED},
+        {FRI_2014_07_18, FRI_2014_07_18, HOLCAL_MON_WED},
+        {SAT_2014_07_19, MON_2014_07_21, HOLCAL_MON_WED},
+        {SUN_2014_07_20, MON_2014_07_21, HOLCAL_MON_WED},
+        {MON_2014_07_21, MON_2014_07_21, HOLCAL_MON_WED},
+
+        {MON_2014_12_29, MON_2014_12_29, HOLCAL_YEAR_END},
+        {TUE_2014_12_30, WED_2014_12_31, HOLCAL_YEAR_END},
+        {WED_2014_12_31, WED_2014_12_31, HOLCAL_YEAR_END},
+        {THU_2015_01_01, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {FRI_2015_01_02, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {SAT_2015_01_03, MON_2015_01_05, HOLCAL_YEAR_END},
+
+        {TUE_2015_03_31, TUE_2015_03_31, HOLCAL_YEAR_END},
+        {WED_2015_04_01, WED_2015_04_01, HOLCAL_YEAR_END},
+
+        {SAT_2014_07_12, MON_2014_07_14, HOLCAL_SAT_SUN},
+
+        {WED_2014_07_30, WED_2014_07_30, HOLCAL_END_MONTH},
+        {THU_2014_07_31, WED_2014_07_30, HOLCAL_END_MONTH},
+    };
+  }
+
+  @Test(dataProvider = "nextLastOrSameInMonth")
+  public void test_nextLastOrSame(LocalDate date, LocalDate expectedNext, HolidayCalendar cal) {
+    assertEquals(cal.nextLastOrSameInMonth(date), expectedNext);
+  }
+
+  public void test_nextLastOrSameInMonth_null() {
+    assertThrows(() -> HOLCAL_MON_WED.nextLastOrSameInMonth(null), IllegalArgumentException.class);
+  }
+
+  public void test_nextLastOrSameInMonth_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextLastOrSameInMonth(date(2010, 1, 1)));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextLastOrSameInMonth(LocalDate.MIN));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextLastOrSameInMonth(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
