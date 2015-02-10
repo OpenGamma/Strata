@@ -5,6 +5,8 @@
  */
 package com.opengamma.basics.date;
 
+import static com.opengamma.basics.date.LocalDateUtils.plusDays;
+
 import java.time.LocalDate;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
@@ -149,7 +151,7 @@ public interface HolidayCalendar
    */
   public default LocalDate next(LocalDate date) {
     ArgChecker.notNull(date, "date");
-    LocalDate next = date.plusDays(1);
+    LocalDate next = plusDays(date, 1);
     return isHoliday(next) ? next(next) : next;
   }
 
@@ -180,7 +182,7 @@ public interface HolidayCalendar
    */
   public default LocalDate previous(LocalDate date) {
     ArgChecker.notNull(date, "date");
-    LocalDate previous = date.minusDays(1);
+    LocalDate previous = plusDays(date, -1);
     return isHoliday(previous) ? previous(previous) : previous;
   }
 
