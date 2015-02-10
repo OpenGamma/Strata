@@ -7,7 +7,9 @@ package com.opengamma.basics.date;
 
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.collect.TestHelper.date;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
@@ -18,10 +20,14 @@ import static org.testng.Assert.assertSame;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.collect.range.LocalDateRange;
@@ -52,23 +58,45 @@ public class ImmutableHolidayCalendarTest {
   private static final LocalDate WED_2014_07_23 = LocalDate.of(2014, 7, 23);
 
   private static final ImmutableHolidayCalendar HOLCAL_MON_WED =
-      ImmutableHolidayCalendar.of("Test", Arrays.asList(MON_2014_07_14, WED_2014_07_16), SATURDAY, SUNDAY);
+      ImmutableHolidayCalendar.of("Test", ImmutableList.of(MON_2014_07_14, WED_2014_07_16), SATURDAY, SUNDAY);
+
+  private static final LocalDate MON_2014_12_29 = LocalDate.of(2014, 12, 29);
+  private static final LocalDate TUE_2014_12_30 = LocalDate.of(2014, 12, 30);
+  private static final LocalDate WED_2014_12_31 = LocalDate.of(2014, 12, 31);
+  private static final LocalDate THU_2015_01_01 = LocalDate.of(2015, 1, 1);
+  private static final LocalDate FRI_2015_01_02 = LocalDate.of(2015, 1, 2);
+  private static final LocalDate SAT_2015_01_03 = LocalDate.of(2015, 1, 3);
+  private static final LocalDate MON_2015_01_05 = LocalDate.of(2015, 1, 5);
+  private static final LocalDate TUE_2015_03_31 = LocalDate.of(2015, 3, 31);
+  private static final LocalDate WED_2015_04_01 = LocalDate.of(2015, 4, 1);
+
+  private static final ImmutableHolidayCalendar HOLCAL_YEAR_END =
+      ImmutableHolidayCalendar.of("TestYearEnd", ImmutableList.of(TUE_2014_12_30, THU_2015_01_01), SATURDAY, SUNDAY);
+
+  private static final ImmutableHolidayCalendar HOLCAL_SAT_SUN =
+      ImmutableHolidayCalendar.of("TestSatSun", ImmutableList.of(), SATURDAY, SUNDAY);
+
+  private static final LocalDate MON_2014_06_30 = LocalDate.of(2014, 6, 30);
+  private static final LocalDate THU_2014_07_31 = LocalDate.of(2014, 7, 31);
+
+  private static final ImmutableHolidayCalendar HOLCAL_END_MONTH =
+      ImmutableHolidayCalendar.of("TestEndOfMonth", ImmutableList.of(MON_2014_06_30, THU_2014_07_31), SATURDAY, SUNDAY);
 
   //-------------------------------------------------------------------------
   public void test_of_IterableDayOfWeekDayOfWeek_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
-    assertThrows(() -> ImmutableHolidayCalendar.of(null, holidays, SATURDAY, SUNDAY), IllegalArgumentException.class);
-    assertThrows(() -> ImmutableHolidayCalendar.of("Test", null, SATURDAY, SUNDAY), IllegalArgumentException.class);
-    assertThrows(() -> ImmutableHolidayCalendar.of("Test", holidays, null, SUNDAY), IllegalArgumentException.class);
-    assertThrows(() -> ImmutableHolidayCalendar.of("Test", holidays, SATURDAY, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(null, holidays, SATURDAY, SUNDAY));
+    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of("Test", null, SATURDAY, SUNDAY));
+    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of("Test", holidays, null, SUNDAY));
+    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of("Test", holidays, SATURDAY, null));
   }
 
   public void test_of_IterableIterable_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
     Iterable<DayOfWeek> weekendDays = Arrays.asList(THURSDAY, FRIDAY);
-    assertThrows(() -> ImmutableHolidayCalendar.of(null, holidays, weekendDays), IllegalArgumentException.class);
-    assertThrows(() -> ImmutableHolidayCalendar.of("Test", null, weekendDays), IllegalArgumentException.class);
-    assertThrows(() -> ImmutableHolidayCalendar.of("Test", holidays, null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of(null, holidays, weekendDays));
+    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of("Test", null, weekendDays));
+    assertThrowsIllegalArg(() -> ImmutableHolidayCalendar.of("Test", holidays, null));
   }
 
   //-------------------------------------------------------------------------
@@ -321,8 +349,8 @@ public class ImmutableHolidayCalendarTest {
   public void test_isBusinessDay_outOfRange() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, TUE_2014_07_15);
     ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("Test", holidays, SATURDAY, SUNDAY);
-    assertThrows(() -> test.isBusinessDay(LocalDate.of(2013, 12, 31)), IllegalArgumentException.class);
-    assertThrows(() -> test.isBusinessDay(LocalDate.of(2015, 1, 1)), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> test.isBusinessDay(LocalDate.of(2013, 12, 31)));
+    assertThrowsIllegalArg(() -> test.isBusinessDay(LocalDate.of(2015, 1, 1)));
   }
 
   //-------------------------------------------------------------------------
@@ -401,8 +429,19 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(HOLCAL_MON_WED.shift(date, amount), expected);
   }
 
+  public void test_shift_SatSun() {
+    assertEquals(HOLCAL_SAT_SUN.shift(SAT_2014_07_12, -2), THU_2014_07_10);
+    assertEquals(HOLCAL_SAT_SUN.shift(SAT_2014_07_12, 2), TUE_2014_07_15);
+  }
+
   public void test_shift_null() {
-    assertThrows(() -> HOLCAL_MON_WED.shift(null, 1), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(null, 1));
+  }
+
+  public void test_shift_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(date(2010, 1, 1), 1));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(LocalDate.MIN, 1));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(LocalDate.MAX.minusDays(1), 1));
   }
 
   @Test(dataProvider = "shift")
@@ -414,56 +453,241 @@ public class ImmutableHolidayCalendarTest {
   @DataProvider(name = "next")
   static Object[][] data_next() {
     return new Object[][] {
-        {THU_2014_07_10, FRI_2014_07_11},
-        {FRI_2014_07_11, TUE_2014_07_15},
-        {SAT_2014_07_12, TUE_2014_07_15},
-        {SUN_2014_07_13, TUE_2014_07_15},
-        {MON_2014_07_14, TUE_2014_07_15},
-        {TUE_2014_07_15, THU_2014_07_17},
-        {WED_2014_07_16, THU_2014_07_17},
-        {THU_2014_07_17, FRI_2014_07_18},
-        {FRI_2014_07_18, MON_2014_07_21},
-        {SAT_2014_07_19, MON_2014_07_21},
-        {SUN_2014_07_20, MON_2014_07_21},
-        {MON_2014_07_21, TUE_2014_07_22},
+        {THU_2014_07_10, FRI_2014_07_11, HOLCAL_MON_WED},
+        {FRI_2014_07_11, TUE_2014_07_15, HOLCAL_MON_WED},
+        {SAT_2014_07_12, TUE_2014_07_15, HOLCAL_MON_WED},
+        {SUN_2014_07_13, TUE_2014_07_15, HOLCAL_MON_WED},
+        {MON_2014_07_14, TUE_2014_07_15, HOLCAL_MON_WED},
+        {TUE_2014_07_15, THU_2014_07_17, HOLCAL_MON_WED},
+        {WED_2014_07_16, THU_2014_07_17, HOLCAL_MON_WED},
+        {THU_2014_07_17, FRI_2014_07_18, HOLCAL_MON_WED},
+        {FRI_2014_07_18, MON_2014_07_21, HOLCAL_MON_WED},
+        {SAT_2014_07_19, MON_2014_07_21, HOLCAL_MON_WED},
+        {SUN_2014_07_20, MON_2014_07_21, HOLCAL_MON_WED},
+        {MON_2014_07_21, TUE_2014_07_22, HOLCAL_MON_WED},
+
+        {MON_2014_12_29, WED_2014_12_31, HOLCAL_YEAR_END},
+        {TUE_2014_12_30, WED_2014_12_31, HOLCAL_YEAR_END},
+        {WED_2014_12_31, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {THU_2015_01_01, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {FRI_2015_01_02, MON_2015_01_05, HOLCAL_YEAR_END},
+        {SAT_2015_01_03, MON_2015_01_05, HOLCAL_YEAR_END},
+
+        {TUE_2015_03_31, WED_2015_04_01, HOLCAL_YEAR_END},
+
+        {SAT_2014_07_12, MON_2014_07_14, HOLCAL_SAT_SUN},
     };
   }
 
   @Test(dataProvider = "next")
-  public void test_next(LocalDate date, LocalDate expectedNext) {
-    assertEquals(HOLCAL_MON_WED.next(date), expectedNext);
+  public void test_next(LocalDate date, LocalDate expectedNext, HolidayCalendar cal) {
+    assertEquals(cal.next(date), expectedNext);
   }
 
   public void test_next_null() {
-    assertThrows(() -> HOLCAL_MON_WED.next(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(null));
+  }
+
+  public void test_next_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(date(2010, 1, 1)));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(LocalDate.MIN));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(LocalDate.MAX.minusDays(1)));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "nextOrSame")
+  static Object[][] data_nextOrSame() {
+    return new Object[][] {
+        {THU_2014_07_10, THU_2014_07_10, HOLCAL_MON_WED},
+        {FRI_2014_07_11, FRI_2014_07_11, HOLCAL_MON_WED},
+        {SAT_2014_07_12, TUE_2014_07_15, HOLCAL_MON_WED},
+        {SUN_2014_07_13, TUE_2014_07_15, HOLCAL_MON_WED},
+        {MON_2014_07_14, TUE_2014_07_15, HOLCAL_MON_WED},
+        {TUE_2014_07_15, TUE_2014_07_15, HOLCAL_MON_WED},
+        {WED_2014_07_16, THU_2014_07_17, HOLCAL_MON_WED},
+        {THU_2014_07_17, THU_2014_07_17, HOLCAL_MON_WED},
+        {FRI_2014_07_18, FRI_2014_07_18, HOLCAL_MON_WED},
+        {SAT_2014_07_19, MON_2014_07_21, HOLCAL_MON_WED},
+        {SUN_2014_07_20, MON_2014_07_21, HOLCAL_MON_WED},
+        {MON_2014_07_21, MON_2014_07_21, HOLCAL_MON_WED},
+
+        {MON_2014_12_29, MON_2014_12_29, HOLCAL_YEAR_END},
+        {TUE_2014_12_30, WED_2014_12_31, HOLCAL_YEAR_END},
+        {WED_2014_12_31, WED_2014_12_31, HOLCAL_YEAR_END},
+        {THU_2015_01_01, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {FRI_2015_01_02, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {SAT_2015_01_03, MON_2015_01_05, HOLCAL_YEAR_END},
+
+        {TUE_2015_03_31, TUE_2015_03_31, HOLCAL_YEAR_END},
+        {WED_2015_04_01, WED_2015_04_01, HOLCAL_YEAR_END},
+
+        {SAT_2014_07_12, MON_2014_07_14, HOLCAL_SAT_SUN},
+    };
+  }
+
+  @Test(dataProvider = "nextOrSame")
+  public void test_nextOrSame(LocalDate date, LocalDate expectedNext, HolidayCalendar cal) {
+    assertEquals(cal.nextOrSame(date), expectedNext);
+  }
+
+  public void test_nextOrSame_null() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(null));
+  }
+
+  public void test_nextOrSame_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(date(2010, 1, 1)));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(LocalDate.MIN));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "previous")
   static Object[][] data_previous() {
     return new Object[][] {
-        {FRI_2014_07_11, THU_2014_07_10},
-        {SAT_2014_07_12, FRI_2014_07_11},
-        {SUN_2014_07_13, FRI_2014_07_11},
-        {MON_2014_07_14, FRI_2014_07_11},
-        {TUE_2014_07_15, FRI_2014_07_11},
-        {WED_2014_07_16, TUE_2014_07_15},
-        {THU_2014_07_17, TUE_2014_07_15},
-        {FRI_2014_07_18, THU_2014_07_17},
-        {SAT_2014_07_19, FRI_2014_07_18},
-        {SUN_2014_07_20, FRI_2014_07_18},
-        {MON_2014_07_21, FRI_2014_07_18},
-        {TUE_2014_07_22, MON_2014_07_21},
+        {FRI_2014_07_11, THU_2014_07_10, HOLCAL_MON_WED},
+        {SAT_2014_07_12, FRI_2014_07_11, HOLCAL_MON_WED},
+        {SUN_2014_07_13, FRI_2014_07_11, HOLCAL_MON_WED},
+        {MON_2014_07_14, FRI_2014_07_11, HOLCAL_MON_WED},
+        {TUE_2014_07_15, FRI_2014_07_11, HOLCAL_MON_WED},
+        {WED_2014_07_16, TUE_2014_07_15, HOLCAL_MON_WED},
+        {THU_2014_07_17, TUE_2014_07_15, HOLCAL_MON_WED},
+        {FRI_2014_07_18, THU_2014_07_17, HOLCAL_MON_WED},
+        {SAT_2014_07_19, FRI_2014_07_18, HOLCAL_MON_WED},
+        {SUN_2014_07_20, FRI_2014_07_18, HOLCAL_MON_WED},
+        {MON_2014_07_21, FRI_2014_07_18, HOLCAL_MON_WED},
+        {TUE_2014_07_22, MON_2014_07_21, HOLCAL_MON_WED},
+
+        {TUE_2014_12_30, MON_2014_12_29, HOLCAL_YEAR_END},
+        {WED_2014_12_31, MON_2014_12_29, HOLCAL_YEAR_END},
+        {THU_2015_01_01, WED_2014_12_31, HOLCAL_YEAR_END},
+        {FRI_2015_01_02, WED_2014_12_31, HOLCAL_YEAR_END},
+        {SAT_2015_01_03, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {MON_2015_01_05, FRI_2015_01_02, HOLCAL_YEAR_END},
+
+        {WED_2015_04_01, TUE_2015_03_31, HOLCAL_YEAR_END},
+
+        {SAT_2014_07_12, FRI_2014_07_11, HOLCAL_SAT_SUN},
     };
   }
 
   @Test(dataProvider = "previous")
-  public void test_previous(LocalDate date, LocalDate expectedPrevious) {
-    assertEquals(HOLCAL_MON_WED.previous(date), expectedPrevious);
+  public void test_previous(LocalDate date, LocalDate expectedPrevious, HolidayCalendar cal) {
+    assertEquals(cal.previous(date), expectedPrevious);
   }
 
   public void test_previous_null() {
-    assertThrows(() -> HOLCAL_MON_WED.previous(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(null));
+  }
+
+  public void test_previous_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(date(2010, 1, 1)));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(LocalDate.MIN.plusDays(1)));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(LocalDate.MAX));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "previousOrSame")
+  static Object[][] data_previousOrSame() {
+    return new Object[][] {
+        {FRI_2014_07_11, FRI_2014_07_11, HOLCAL_MON_WED},
+        {SAT_2014_07_12, FRI_2014_07_11, HOLCAL_MON_WED},
+        {SUN_2014_07_13, FRI_2014_07_11, HOLCAL_MON_WED},
+        {MON_2014_07_14, FRI_2014_07_11, HOLCAL_MON_WED},
+        {TUE_2014_07_15, TUE_2014_07_15, HOLCAL_MON_WED},
+        {WED_2014_07_16, TUE_2014_07_15, HOLCAL_MON_WED},
+        {THU_2014_07_17, THU_2014_07_17, HOLCAL_MON_WED},
+        {FRI_2014_07_18, FRI_2014_07_18, HOLCAL_MON_WED},
+        {SAT_2014_07_19, FRI_2014_07_18, HOLCAL_MON_WED},
+        {SUN_2014_07_20, FRI_2014_07_18, HOLCAL_MON_WED},
+        {MON_2014_07_21, MON_2014_07_21, HOLCAL_MON_WED},
+        {TUE_2014_07_22, TUE_2014_07_22, HOLCAL_MON_WED},
+
+        {MON_2014_12_29, MON_2014_12_29, HOLCAL_YEAR_END},
+        {TUE_2014_12_30, MON_2014_12_29, HOLCAL_YEAR_END},
+        {WED_2014_12_31, WED_2014_12_31, HOLCAL_YEAR_END},
+        {THU_2015_01_01, WED_2014_12_31, HOLCAL_YEAR_END},
+        {FRI_2015_01_02, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {SAT_2015_01_03, FRI_2015_01_02, HOLCAL_YEAR_END},
+        {MON_2015_01_05, MON_2015_01_05, HOLCAL_YEAR_END},
+
+        {TUE_2015_03_31, TUE_2015_03_31, HOLCAL_YEAR_END},
+        {WED_2015_04_01, WED_2015_04_01, HOLCAL_YEAR_END},
+
+        {SAT_2014_07_12, FRI_2014_07_11, HOLCAL_SAT_SUN},
+    };
+  }
+
+  @Test(dataProvider = "previousOrSame")
+  public void test_previousOrSame(LocalDate date, LocalDate expectedPrevious, HolidayCalendar cal) {
+    assertEquals(cal.previousOrSame(date), expectedPrevious);
+  }
+
+  public void test_previousOrSame_null() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(null));
+  }
+
+  public void test_previousOrSame_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(date(2010, 1, 1)));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MIN));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MAX));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "lastBusinessDayOfMonth")
+  static Object[][] data_lastBusinessDayOfMonth() {
+    return new Object[][] {
+        // June 30th is Monday holiday, June 28/29 is weekend
+        {date(2014, 6, 26), date(2014, 6, 27)},
+        {date(2014, 6, 27), date(2014, 6, 27)},
+        {date(2014, 6, 28), date(2014, 6, 27)},
+        {date(2014, 6, 29), date(2014, 6, 27)},
+        {date(2014, 6, 30), date(2014, 6, 27)},
+        // July 31st is Thursday holiday
+        {date(2014, 7, 29), date(2014, 7, 30)},
+        {date(2014, 7, 30), date(2014, 7, 30)},
+        {date(2014, 7, 31), date(2014, 7, 30)},
+        // August 31st is Sunday weekend
+        {date(2014, 8, 28), date(2014, 8, 29)},
+        {date(2014, 8, 29), date(2014, 8, 29)},
+        {date(2014, 8, 30), date(2014, 8, 29)},
+        {date(2014, 8, 31), date(2014, 8, 29)},
+        // September 30th is Tuesday not holiday
+        {date(2014, 9, 28), date(2014, 9, 30)},
+        {date(2014, 9, 29), date(2014, 9, 30)},
+        {date(2014, 9, 30), date(2014, 9, 30)},
+    };
+  }
+
+  @Test(dataProvider = "lastBusinessDayOfMonth")
+  public void test_lastBusinessDayOfMonth(LocalDate date, LocalDate expectedEom) {
+    assertEquals(HOLCAL_END_MONTH.lastBusinessDayOfMonth(date), expectedEom);
+  }
+
+  @Test(dataProvider = "lastBusinessDayOfMonth")
+  public void test_isLastBusinessDayOfMonth(LocalDate date, LocalDate expectedEom) {
+    assertEquals(HOLCAL_END_MONTH.isLastBusinessDayOfMonth(date), date.equals(expectedEom));
+  }
+
+  public void test_lastBusinessDayOfMonth_satSun() {
+    assertEquals(HOLCAL_SAT_SUN.isLastBusinessDayOfMonth(MON_2014_06_30), true);
+    assertEquals(HOLCAL_SAT_SUN.lastBusinessDayOfMonth(MON_2014_06_30), MON_2014_06_30);
+  }
+
+  public void test_lastBusinessDayOfMonth_null() {
+    assertThrows(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(null), IllegalArgumentException.class);
+    assertThrows(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(null), IllegalArgumentException.class);
+  }
+
+  public void test_lastBusinessDayOfMonth_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(date(2010, 1, 1)));
+    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(LocalDate.MIN));
+    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(LocalDate.MAX));
+  }
+
+  public void test_isLastBusinessDayOfMonth_range() {
+    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(date(2010, 1, 1)));
+    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(LocalDate.MIN));
+    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
@@ -496,10 +720,10 @@ public class ImmutableHolidayCalendarTest {
   }
 
   public void test_daysBetween_null() {
-    assertThrows(() -> HOLCAL_MON_WED.daysBetween(null, WED_2014_07_16), IllegalArgumentException.class);
-    assertThrows(() -> HOLCAL_MON_WED.daysBetween(WED_2014_07_16, null), IllegalArgumentException.class);
-    assertThrows(() -> HOLCAL_MON_WED.daysBetween(null, null), IllegalArgumentException.class);
-    assertThrows(() -> HOLCAL_MON_WED.daysBetween(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.daysBetween(null, WED_2014_07_16));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.daysBetween(WED_2014_07_16, null));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.daysBetween(null, null));
+    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.daysBetween(null));
   }
 
   //-------------------------------------------------------------------------
@@ -562,7 +786,31 @@ public class ImmutableHolidayCalendarTest {
   public void test_combineWith_null() {
     Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_16);
     ImmutableHolidayCalendar base = ImmutableHolidayCalendar.of("Test1", holidays, SATURDAY, SUNDAY);
-    assertThrows(() -> base.combineWith(null), IllegalArgumentException.class);
+    assertThrowsIllegalArg(() -> base.combineWith(null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_broadCheck() {
+    LocalDate start = LocalDate.of(2010, 1, 1);
+    LocalDate end = LocalDate.of(2020, 1, 1);
+    Random random = new Random(547698);
+    for (int i = 0; i < 10; i++) {
+      // create sample holiday dates
+      LocalDate date = start;
+      SortedSet<LocalDate> set = new TreeSet<>();
+      while (date.isBefore(end)) {
+        set.add(date);
+        date = date.plusDays(random.nextInt(10) + 1);
+      }
+      // check holiday calendar works using simple algorithm
+      ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of("TestBroad" + i, set, SATURDAY, SUNDAY);
+      LocalDate checkDate = start;
+      while (checkDate.isBefore(end)) {
+        DayOfWeek dow = checkDate.getDayOfWeek();
+        assertEquals(test.isHoliday(checkDate), dow == SATURDAY || dow == SUNDAY || set.contains(checkDate));
+        checkDate = checkDate.plusDays(1);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

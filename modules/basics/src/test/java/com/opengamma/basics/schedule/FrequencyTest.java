@@ -22,7 +22,9 @@ import static java.time.temporal.ChronoUnit.YEARS;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.Period;
+import java.time.ZoneOffset;
 import java.time.temporal.UnsupportedTemporalTypeException;
 
 import org.testng.annotations.DataProvider;
@@ -360,11 +362,24 @@ public class FrequencyTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_addTo() {
+    assertEquals(P1D.addTo(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 7, 1));
+    assertEquals(P1W.addTo(
+        OffsetDateTime.of(2014, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)),
+        OffsetDateTime.of(2014, 7, 7, 0, 0, 0, 0, ZoneOffset.UTC));
+  }
+
+  public void test_subtractFrom() {
+    assertEquals(P1D.subtractFrom(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 6, 29));
+    assertEquals(P1W.subtractFrom(
+        OffsetDateTime.of(2014, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)),
+        OffsetDateTime.of(2014, 6, 23, 0, 0, 0, 0, ZoneOffset.UTC));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_temporalAmount() {
     assertEquals(P3M.getUnits(), ImmutableList.of(YEARS, MONTHS, DAYS));
     assertEquals(P3M.get(MONTHS), 3);
-    assertEquals(P1D.addTo(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 7, 1));
-    assertEquals(P1D.subtractFrom(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 6, 29));
     assertEquals(LocalDate.of(2014, 6, 30).plus(P1W), LocalDate.of(2014, 7, 7));
     assertEquals(LocalDate.of(2014, 6, 30).minus(P1W), LocalDate.of(2014, 6, 23));
     assertThrows(() -> P3M.get(CENTURIES), UnsupportedTemporalTypeException.class);
