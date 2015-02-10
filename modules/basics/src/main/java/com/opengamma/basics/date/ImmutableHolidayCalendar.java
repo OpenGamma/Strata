@@ -251,10 +251,10 @@ public final class ImmutableHolidayCalendar
     try {
       if (amount > 0) {
         // day-of-month: minus one for zero-based day-of-month, plus one to start from next day
-        return findNext(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), amount);
+        return shiftNext(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), amount);
       } else if (amount < 0) {
-        // day-of-month: minus one for zero-based day-of-month, minus one to start from previous day
-        return findPrev(date.getYear(), date.getMonthValue(), date.getDayOfMonth() - 2, amount);
+        // day-of-month: minus one to start from previous day
+        return shiftPrev(date.getYear(), date.getMonthValue(), date.getDayOfMonth() - 1, amount);
       }
       return date;
 
@@ -272,7 +272,7 @@ public final class ImmutableHolidayCalendar
     ArgChecker.notNull(date, "date");
     try {
       // day-of-month: minus one for zero-based day-of-month, plus one to start from next day
-      return findNext(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 1);
+      return shiftNext(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 1);
 
     } catch (ArrayIndexOutOfBoundsException ex) {
       if (startYear == 0) {
@@ -284,27 +284,25 @@ public final class ImmutableHolidayCalendar
 
   // shift to a later working day, following nextOrSame semantics
   // input day-of-month is zero-based
-  private LocalDate findNext(int baseYear, int baseMonth, int baseDom0, int amount) {
+  private LocalDate shiftNext(int baseYear, int baseMonth, int baseDom0, int amount) {
     // find data for month
     int index = (baseYear - startYear) * 12 + baseMonth - 1;
     int monthData = lookup[index];
-    // shift to remove days before the input day
-    // the input day-of-month will be at bit-0
-    int shifted = (monthData >> baseDom0);
-    int remaining = amount;
-    while (shifted != 0) {
+    // loop around amount, the number of days to shift by
+    // use domOffset to keep track of day-of-month
+    int domOffset = baseDom0;
+    for (int amt = amount; amt > 0; amt--) {
+      // shift to move the target day-of-month into bit-0, removing earlier days
+      int shifted = monthData >> domOffset;
+      // recurse to next month if no more business days in the month
+      if (shifted == 0) {
+        return baseMonth == 12 ? shiftNext(baseYear + 1, 1, 0, amt) : shiftNext(baseYear, baseMonth + 1, 0, amt);
+      }
       // find least significant bit, which is next business day
       // use JDK numberOfTrailingZeros() method which is mapped to a fast intrinsic
-      int trailing = Integer.numberOfTrailingZeros(shifted);
-      remaining--;
-      if (remaining == 0) {
-        return LocalDate.of(baseYear, baseMonth, baseDom0 + 1 + trailing);
-      }
-      // unset the business day to find the next one
-      shifted &= ~(1 << trailing);
+      domOffset += (Integer.numberOfTrailingZeros(shifted) + 1);
     }
-    // recurse to next month if necessary
-    return baseMonth == 12 ? findNext(baseYear + 1, 1, 0, remaining) : findNext(baseYear, baseMonth + 1, 0, remaining);
+    return LocalDate.of(baseYear, baseMonth, domOffset);
   }
 
   //-------------------------------------------------------------------------
@@ -312,8 +310,8 @@ public final class ImmutableHolidayCalendar
   public LocalDate previous(LocalDate date) {
     ArgChecker.notNull(date, "date");
     try {
-      // day-of-month: minus one for zero-based day-of-month, minus one to start from previous day
-      return findPrev(date.getYear(), date.getMonthValue(), date.getDayOfMonth() - 2, -1);
+      // day-of-month: minus one to start from previous day
+      return shiftPrev(date.getYear(), date.getMonthValue(), date.getDayOfMonth() - 1, -1);
 
     } catch (ArrayIndexOutOfBoundsException ex) {
       if (startYear == 0) {
@@ -323,31 +321,27 @@ public final class ImmutableHolidayCalendar
     }
   }
 
-  // shift to a later working day, following previousOrSame semantics
-  // input day-of-month is zero-based and may be negative
-  private LocalDate findPrev(int baseYear, int baseMonth, int baseDom0, int amount) {
+  // shift to an earlier working day, following previousOrSame semantics
+  // input day-of-month is one-based and may be zero or negative
+  private LocalDate shiftPrev(int baseYear, int baseMonth, int baseDom, int amount) {
     // find data for month
     int index = (baseYear - startYear) * 12 + baseMonth - 1;
     int monthData = lookup[index];
-    // shift to remove days after the input day
-    // the input day-of-month will be at bit-31
-    int remaining = amount;
-    if (baseDom0 >= 0) {
-      int shifted = (monthData << (31 - baseDom0));
-      while (shifted != 0) {
-        // find most significant bit, which is next business day
-        // use JDK numberOfLeadingZeros() method which is mapped to a fast intrinsic
-        int leading = Integer.numberOfLeadingZeros(shifted);
-        remaining++;
-        if (remaining == 0) {
-          return LocalDate.of(baseYear, baseMonth, baseDom0 + 1 - leading);
-        }
-        // unset the business day to find the next one
-        shifted &= ~(1 << (31 - leading));
+    // loop around amount, the number of days to shift by
+    // use domOffset to keep track of day-of-month
+    int domOffset = baseDom;
+    for (int amt = amount; amt < 0; amt++) {
+      // shift to move the target day-of-month into bit-31, removing later days
+      int shifted = (monthData << (32 - domOffset));
+      // recurse to previous month if no more business days in the month
+      if (shifted == 0 || domOffset <= 0) {
+        return baseMonth == 1 ? shiftPrev(baseYear - 1, 12, 31, amt) : shiftPrev(baseYear, baseMonth - 1, 31, amt);
       }
+      // find most significant bit, which is previous business day
+      // use JDK numberOfLeadingZeros() method which is mapped to a fast intrinsic
+      domOffset -= (Integer.numberOfLeadingZeros(shifted) + 1);
     }
-    // recurse to previous month if necessary
-    return baseMonth == 1 ? findPrev(baseYear - 1, 12, 30, remaining) : findPrev(baseYear, baseMonth - 1, 30, remaining);
+    return LocalDate.of(baseYear, baseMonth, domOffset + 1);
   }
 
   //-------------------------------------------------------------------------
