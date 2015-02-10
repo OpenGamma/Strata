@@ -45,11 +45,7 @@ enum StandardBusinessDayConventions implements BusinessDayConvention {
     public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
       ArgChecker.notNull(date, "date");
       ArgChecker.notNull(calendar, "calendar");
-      LocalDate adjusted = calendar.nextOrSame(date);
-      if (adjusted.getMonthValue() != date.getMonthValue()) {
-        adjusted = calendar.previous(date);
-      }
-      return adjusted;
+      return calendar.nextSameOrLastInMonth(date);
     }
   },
 

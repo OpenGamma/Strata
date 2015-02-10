@@ -346,6 +346,43 @@ public final class ImmutableHolidayCalendar
 
   //-------------------------------------------------------------------------
   @Override
+  public LocalDate nextSameOrLastInMonth(LocalDate date) {
+    ArgChecker.notNull(date, "date");
+    try {
+      // day-of-month: no alteration as method is one-based and same is valid
+      return shiftNextSameLast(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+
+    } catch (ArrayIndexOutOfBoundsException ex) {
+      if (startYear == 0) {
+        return HolidayCalendar.super.nextSameOrLastInMonth(date);
+      }
+      throw new IllegalArgumentException(rangeError(date));
+    }
+  }
+
+  // shift to a later working day, following nextOrSame semantics
+  // falling back to the last business day-of-month to avoid crossing a month boundary
+  // input day-of-month is one-based
+  private LocalDate shiftNextSameLast(int baseYear, int baseMonth, int baseDom) {
+    // find data for month
+    int index = (baseYear - startYear) * 12 + baseMonth - 1;
+    int monthData = lookup[index];
+    // shift to move the target day-of-month into bit-0, removing earlier days
+    int shifted = monthData >> (baseDom - 1);
+    // return last business day-of-month if no more business days in the month
+    if (shifted == 0) {
+      // need to find the most significant bit, which is the last business day
+      // use JDK numberOfLeadingZeros() method which is mapped to a fast intrinsic
+      int leading = Integer.numberOfLeadingZeros(monthData);
+      return LocalDate.of(baseYear, baseMonth, 32 - leading);
+    }
+    // find least significant bit, which is the next/same business day
+    // use JDK numberOfTrailingZeros() method which is mapped to a fast intrinsic
+    return LocalDate.of(baseYear, baseMonth, baseDom + Integer.numberOfTrailingZeros(shifted));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public boolean isLastBusinessDayOfMonth(LocalDate date) {
     ArgChecker.notNull(date, "date");
     try {

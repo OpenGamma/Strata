@@ -169,6 +169,7 @@ public interface HolidayCalendar
     return isHoliday(date) ? next(date) : date;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Finds the previous business day, always returning an earlier date.
    * <p>
@@ -198,6 +199,32 @@ public interface HolidayCalendar
   public default LocalDate previousOrSame(LocalDate date) {
     ArgChecker.notNull(date, "date");
     return isHoliday(date) ? previous(date) : date;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the next business day within the month, returning the input date if it is a business day,
+   * or the last business day of the month if the next business day is in a different month.
+   * <p>
+   * Given a date, this method returns a business day.
+   * If the input date is a business day, it is returned.
+   * If the next business day is within the same month, it is returned.
+   * Otherwise, the last business day of the month is returned.
+   * <p>
+   * Note that the result of this method may be earlier than the input date.
+   * <p>
+   * This corresponds to the {@linkplain BusinessDayConventions#MODIFIED_FOLLOWING modified following}
+   * business day convention.
+   * 
+   * @param date  the date to adjust
+   * @return the input date if it is a business day, the next business day if within the same month
+   * or the last business day of the month
+   * @throws IllegalArgumentException if the calculation is outside the supported range
+   */
+  public default LocalDate nextSameOrLastInMonth(LocalDate date) {
+    ArgChecker.notNull(date, "date");
+    LocalDate nextOrSame = nextOrSame(date);
+    return (nextOrSame.getMonthValue() != date.getMonthValue() ? previous(date) : nextOrSame);
   }
 
   //-------------------------------------------------------------------------
