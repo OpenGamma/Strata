@@ -18,6 +18,44 @@ public final class Messages {
 
   //-------------------------------------------------------------------------
   /**
+   * Formats a templated message inserting a single argument.
+   * <p>
+   * This method combines a template message with a single argument.
+   * It can be useful to delay string concatenation, which is sometimes a performance issue.
+   * The approach is similar to SLF4J MessageFormat, Guava Preconditions and String format().
+   * <p>
+   * The message template contains zero to many "{}" placeholders.
+   * The first placeholder is replaced by the string form of the argument.
+   * Subsequent placeholders are not replaced.
+   * If there is no placeholder, then the argument is appended to the end of the message.
+   * No attempt is made to format the argument.
+   * <p>
+   * This method is null tolerant to ensure that use in exception construction will
+   * not throw another exception, which might hide the intended exception.
+   * 
+   * @param messageTemplate  the message template with "{}" placeholders, null returns empty string
+   * @param arg  the message argument, null treated as string "null"
+   * @return the formatted message
+   */
+  public static String format(String messageTemplate, Object arg) {
+    if (messageTemplate == null) {
+      return format("", arg);
+    }
+    int placeholderPos = messageTemplate.indexOf("{}", 0);
+    String argStr = String.valueOf(arg);
+    StringBuilder builder = new StringBuilder(messageTemplate.length() + argStr.length() + 3);
+    if (placeholderPos >= 0) {
+      builder
+          .append(messageTemplate.substring(0, placeholderPos))
+          .append(argStr)
+          .append(messageTemplate.substring(placeholderPos + 2));
+    } else {
+      builder.append(messageTemplate).append(" - [").append(argStr).append(']');
+    }
+    return builder.toString();
+  }
+
+  /**
    * Formats a templated message inserting arguments.
    * <p>
    * This method combines a template message with a list of specific arguments.
@@ -39,7 +77,7 @@ public final class Messages {
    */
   public static String format(String messageTemplate, Object... args) {
     if (messageTemplate == null) {
-      return "";
+      return format("", args);
     }
     if (args == null) {
       return format(messageTemplate, new Object[0]);

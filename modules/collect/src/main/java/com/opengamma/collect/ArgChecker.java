@@ -161,9 +161,14 @@ public final class ArgChecker {
    */
   public static <T> T notNull(T parameter, String name) {
     if (parameter == null) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be null");
+      throw new IllegalArgumentException(notNullMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notNullMsg(String name) {
+    return "Argument '" + name + "' must not be null";
   }
 
   /**
@@ -211,9 +216,14 @@ public final class ArgChecker {
     notNull(pattern, "pattern");
     notNull(parameter, name);
     if (pattern.matcher(parameter).matches() == false) {
-      throw new IllegalArgumentException("Argument '" + name + "' must match pattern: " + pattern);
+      throw new IllegalArgumentException(matchesMsg(pattern, name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String matchesMsg(Pattern pattern, String name) {
+    return "Argument '" + name + "' must match pattern: " + pattern;
   }
 
   //-------------------------------------------------------------------------
@@ -239,9 +249,14 @@ public final class ArgChecker {
   public static String notBlank(String parameter, String name) {
     notNull(parameter, name);
     if (parameter.trim().isEmpty()) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notBlankMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notBlankMsg(String name) {
+    return "Argument '" + name + "' must not be blank";
   }
 
   //-------------------------------------------------------------------------
@@ -264,9 +279,14 @@ public final class ArgChecker {
   public static String notEmpty(String parameter, String name) {
     notNull(parameter, name);
     if (parameter.isEmpty()) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notEmptyMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notEmptyMsg(String name) {
+    return "Argument '" + name + "' must not be empty";
   }
 
   /**
@@ -288,9 +308,14 @@ public final class ArgChecker {
   public static <T> T[] notEmpty(T[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Argument array '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notEmptyArrayMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notEmptyArrayMsg(String name) {
+    return "Argument array '" + name + "' must not be empty";
   }
 
   /**
@@ -311,7 +336,7 @@ public final class ArgChecker {
   public static int[] notEmpty(int[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Argument array '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notEmptyArrayMsg(name));
     }
     return parameter;
   }
@@ -334,7 +359,7 @@ public final class ArgChecker {
   public static long[] notEmpty(long[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Argument array '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notEmptyArrayMsg(name));
     }
     return parameter;
   }
@@ -357,7 +382,7 @@ public final class ArgChecker {
   public static double[] notEmpty(double[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Argument array '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notEmptyArrayMsg(name));
     }
     return parameter;
   }
@@ -382,9 +407,14 @@ public final class ArgChecker {
   public static <T, I extends Iterable<T>> I notEmpty(I parameter, String name) {
     notNull(parameter, name);
     if (!parameter.iterator().hasNext()) {
-      throw new IllegalArgumentException("Argument iterable '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notEmptyIterableMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notEmptyIterableMsg(String name) {
+    return "Argument iterable '" + name + "' must not be empty";
   }
 
   /**
@@ -407,9 +437,14 @@ public final class ArgChecker {
   public static <T, C extends Collection<T>> C notEmpty(C parameter, String name) {
     notNull(parameter, name);
     if (parameter.isEmpty()) {
-      throw new IllegalArgumentException("Argument collection '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notEmptyCollectionMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notEmptyCollectionMsg(String name) {
+    return "Argument collection '" + name + "' must not be empty";
   }
 
   /**
@@ -433,9 +468,14 @@ public final class ArgChecker {
   public static <K, V, M extends Map<K, V>> M notEmpty(M parameter, String name) {
     notNull(parameter, name);
     if (parameter.isEmpty()) {
-      throw new IllegalArgumentException("Argument map '" + name + "' must not be empty");
+      throw new IllegalArgumentException(notEmptyMapMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notEmptyMapMsg(String name) {
+    return "Argument map '" + name + "' must not be empty";
   }
 
   //-------------------------------------------------------------------------
@@ -537,9 +577,14 @@ public final class ArgChecker {
    */
   public static int notNegative(int parameter, String name) {
     if (parameter < 0) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be negative");
+      throw new IllegalArgumentException(notNegativeMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notNegativeMsg(String name) {
+    return "Argument '" + name + "' must not be negative";
   }
 
   /**
@@ -558,7 +603,7 @@ public final class ArgChecker {
    */
   public static long notNegative(long parameter, String name) {
     if (parameter < 0) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be negative");
+      throw new IllegalArgumentException(notNegativeMsg(name));
     }
     return parameter;
   }
@@ -579,7 +624,7 @@ public final class ArgChecker {
    */
   public static double notNegative(double parameter, String name) {
     if (parameter < 0) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be negative");
+      throw new IllegalArgumentException(notNegativeMsg(name));
     }
     return parameter;
   }
@@ -601,9 +646,14 @@ public final class ArgChecker {
    */
   public static int notNegativeOrZero(int parameter, String name) {
     if (parameter <= 0) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be negative or zero");
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
     }
     return parameter;
+  }
+
+  // extracted to aid inlining performance
+  private static String notNegativeOrZeroMsg(String name) {
+    return "Argument '" + name + "' must not be negative or zero";
   }
 
   /**
@@ -622,7 +672,7 @@ public final class ArgChecker {
    */
   public static long notNegativeOrZero(long parameter, String name) {
     if (parameter <= 0) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be negative or zero");
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
     }
     return parameter;
   }
@@ -643,7 +693,7 @@ public final class ArgChecker {
    */
   public static double notNegativeOrZero(double parameter, String name) {
     if (parameter <= 0) {
-      throw new IllegalArgumentException("Argument '" + name + "' must not be negative or zero");
+      throw new IllegalArgumentException(notNegativeOrZeroMsg(name));
     }
     return parameter;
   }
