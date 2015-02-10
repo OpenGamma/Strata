@@ -211,6 +211,8 @@ public interface HolidayCalendar
    * If the next business day is within the same month, it is returned.
    * Otherwise, the last business day of the month is returned.
    * <p>
+   * Note that the result of this method may be earlier than the input date.
+   * <p>
    * This corresponds to the {@linkplain BusinessDayConventions#MODIFIED_FOLLOWING modified following}
    * business day convention.
    * 
