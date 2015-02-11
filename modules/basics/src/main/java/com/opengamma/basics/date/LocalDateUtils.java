@@ -13,8 +13,10 @@ import java.time.LocalDate;
 final class LocalDateUtils {
 
   // First day-of-month minus one for a standard year
+  // array length 13 with element zero ignored, so month 1 to 12 can be queried directly
   private static final int[] STANDARD = {0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
   // First day-of-month minus one for a leap year
+  // array length 13 with element zero ignored, so month 1 to 12 can be queried directly
   private static final int[] LEAP = {0, 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335};
 
   /**
@@ -49,8 +51,11 @@ final class LocalDateUtils {
     if (daysToAdd == 0) {
       return date;
     }
+    // add the days to the current day-of-month
+    // if it is guaranteed to be in this month or the next month then fast path it
+    // (59th Jan is 28th Feb, 59th Feb is 31st Mar)
     long dom = date.getDayOfMonth() + daysToAdd;
-    if (dom > 0 && dom <= 59) { // 59th Jan is 28th Feb, 59th Feb is 31st Mar
+    if (dom > 0 && dom <= 59) {
       int monthLen = date.lengthOfMonth();
       int month = date.getMonthValue();
       int year = date.getYear();

@@ -362,8 +362,9 @@ public final class PeriodicSchedule
       createUnadjustedDates();
       createAdjustedDates();
       // unknown exception
-      throw (ScheduleException) new ScheduleException(
-          this, "Schedule calculation resulted in invalid period").initCause(ex);
+      ScheduleException se = new ScheduleException(this, "Schedule calculation resulted in invalid period");
+      se.initCause(ex);
+      throw se;
     }
     return Schedule.builder()
         .periods(periods)
