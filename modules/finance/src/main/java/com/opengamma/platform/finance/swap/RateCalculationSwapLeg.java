@@ -147,7 +147,7 @@ public final class RateCalculationSwapLeg
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals);
     List<RateAccrualPeriod> accrualPeriods = calculation.expand(resolvedAccruals, resolvedPayments);
     List<RatePaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
-        resolvedPayments, accrualPeriods, notionalSchedule, payReceive);
+        resolvedAccruals, resolvedPayments, accrualPeriods, notionalSchedule, payReceive);
     return ExpandedSwapLeg.builder()
         .paymentPeriods(ImmutableList.copyOf(payPeriods))  // copyOf changes generics of list without an actual copy
         .paymentEvents(notionalSchedule.createEvents(payPeriods, getStartDate()))

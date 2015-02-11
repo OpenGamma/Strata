@@ -30,7 +30,6 @@ import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.collect.Guavate;
 
 /**
  * Defines the schedule of payment dates relative to the accrual periods.
@@ -131,6 +130,7 @@ public final class PaymentSchedule
    * <p>
    * This applies the payment schedule.
    * 
+   * @param accrualSchedule  the accrual schedule
    * @param paymentSchedule  the payment schedule
    * @param accrualPeriods  the list of accrual periods
    * @param notionalSchedule  the schedule of notionals
@@ -138,21 +138,39 @@ public final class PaymentSchedule
    * @return the list of payment periods
    */
   ImmutableList<RatePaymentPeriod> createPaymentPeriods(
+      Schedule accrualSchedule,
       Schedule paymentSchedule,
       List<RateAccrualPeriod> accrualPeriods,
       NotionalSchedule notionalSchedule,
       PayReceive payReceive) {
+
     List<Double> notionals = notionalSchedule.getAmount().resolveValues(paymentSchedule.getPeriods());
     // build up payment periods using schedule
     ImmutableList.Builder<RatePaymentPeriod> paymentPeriods = ImmutableList.builder();
-    for (int paymentIndex = 0; paymentIndex < paymentSchedule.size(); paymentIndex++) {
-      SchedulePeriod period = paymentSchedule.getPeriod(paymentIndex);
-      double notional = payReceive.normalize(notionals.get(paymentIndex));
-      List<RateAccrualPeriod> paymentAccrualPeriods = accrualPeriods.stream()
-          .filter(p -> !p.getStartDate().isBefore(period.getStartDate()))
-          .filter(p -> !p.getEndDate().isAfter(period.getEndDate()))
-          .collect(Guavate.toImmutableList());
-      paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, notionalSchedule, notional));
+    // compare using == as Schedule.mergeRegular() will return same schedule
+    if (accrualSchedule == paymentSchedule) {
+      // same schedule means one accrual period per payment period
+      for (int index = 0; index < paymentSchedule.size(); index++) {
+        SchedulePeriod period = paymentSchedule.getPeriod(index);
+        double notional = payReceive.normalize(notionals.get(index));
+        ImmutableList<RateAccrualPeriod> paymentAccrualPeriods = ImmutableList.of(accrualPeriods.get(index));
+        paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, notionalSchedule, notional));
+      }
+    } else {
+      // multiple accrual periods per payment period
+      int accrualIndex = 0;
+      for (int paymentIndex = 0; paymentIndex < paymentSchedule.size(); paymentIndex++) {
+        SchedulePeriod period = paymentSchedule.getPeriod(paymentIndex);
+        double notional = payReceive.normalize(notionals.get(paymentIndex));
+        int accrualStartIndex = accrualIndex;
+        RateAccrualPeriod accrual = accrualPeriods.get(accrualIndex);
+        while (accrual.getEndDate().isBefore(period.getEndDate())) {
+          accrual = accrualPeriods.get(++accrualIndex);
+        }
+        List<RateAccrualPeriod> paymentAccrualPeriods = accrualPeriods.subList(accrualStartIndex, accrualIndex + 1);
+        paymentPeriods.add(createPaymentPeriod(period, paymentAccrualPeriods, notionalSchedule, notional));
+        accrualIndex++;
+      }
     }
     return paymentPeriods.build();
   }

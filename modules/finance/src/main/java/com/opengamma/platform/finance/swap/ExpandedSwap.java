@@ -6,6 +6,7 @@
 package com.opengamma.platform.finance.swap;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -24,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.currency.Currency;
 import com.opengamma.collect.ArgChecker;
 
 /**
@@ -85,10 +87,19 @@ public final class ExpandedSwap
   private ExpandedSwap(Set<ExpandedSwapLeg> legs) {
     JodaBeanUtils.notEmpty(legs, "legs");
     this.legs = ImmutableSet.copyOf(legs);
-    this.crossCurrency = legs.stream()
-        .map(ExpandedSwapLeg::getCurrency)
-        .distinct()
-        .count() > 1;
+    this.crossCurrency = checkIfCrossCurrency(legs);
+  }
+
+  // profiling showed a hotspot when using streams, removed when using this approach
+  private static boolean checkIfCrossCurrency(Set<ExpandedSwapLeg> legs) {
+    Iterator<ExpandedSwapLeg> it = legs.iterator();
+    Currency currency = it.next().getCurrency();
+    while (it.hasNext()) {
+      if (!currency.equals(it.next().getCurrency())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   //-------------------------------------------------------------------------
