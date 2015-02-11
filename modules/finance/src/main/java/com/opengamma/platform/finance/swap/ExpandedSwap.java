@@ -87,11 +87,11 @@ public final class ExpandedSwap
   private ExpandedSwap(Set<ExpandedSwapLeg> legs) {
     JodaBeanUtils.notEmpty(legs, "legs");
     this.legs = ImmutableSet.copyOf(legs);
-    this.crossCurrency = initCrossCurrency(legs);
+    this.crossCurrency = checkIfCrossCurrency(legs);
   }
 
-  // avoid streams for performance
-  private boolean initCrossCurrency(Set<ExpandedSwapLeg> legs) {
+  // profiling showed a hotspot when using streams, removed when using this approach
+  private static boolean checkIfCrossCurrency(Set<ExpandedSwapLeg> legs) {
     Iterator<ExpandedSwapLeg> it = legs.iterator();
     Currency currency = it.next().getCurrency();
     while (it.hasNext()) {

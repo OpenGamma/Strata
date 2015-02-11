@@ -158,20 +158,15 @@ public final class RateAccrualPeriod
       double gearing,
       double spread,
       NegativeRateMethod negativeRateMethod) {
-    ArgChecker.notNull(startDate, "startDate");
-    ArgChecker.notNull(endDate, "endDate");
-    ArgChecker.notNegative(yearFraction, "yearFraction");
-    ArgChecker.notNull(rateObservation, "rateObservation");
-    ArgChecker.notNull(negativeRateMethod, "negativeRateMethod");
-    this.startDate = startDate;
-    this.endDate = endDate;
+    this.startDate = ArgChecker.notNull(startDate, "startDate");
+    this.endDate = ArgChecker.notNull(endDate, "endDate");
     this.unadjustedStartDate = Objects.firstNonNull(unadjustedStartDate, startDate);
     this.unadjustedEndDate = Objects.firstNonNull(unadjustedEndDate, endDate);
-    this.yearFraction = yearFraction;
-    this.rateObservation = rateObservation;
+    this.yearFraction = ArgChecker.notNegative(yearFraction, "yearFraction");
+    this.rateObservation = ArgChecker.notNull(rateObservation, "rateObservation");
     this.gearing = gearing;
     this.spread = spread;
-    this.negativeRateMethod = negativeRateMethod;
+    this.negativeRateMethod = ArgChecker.notNull(negativeRateMethod, "negativeRateMethod");
     // check for unadjusted must be after Objects.firstNonNull
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderNotEqual(
