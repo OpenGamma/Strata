@@ -5,6 +5,7 @@
  */
 package com.opengamma.basics.date;
 
+import static com.opengamma.basics.date.LocalDateUtils.plusDays;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
@@ -40,24 +41,24 @@ enum StandardHolidayCalendars implements HolidayCalendar {
     @Override
     public LocalDate shift(LocalDate date, int amount) {
       ArgChecker.notNull(date, "date");
-      return date.plusDays(amount);
+      return plusDays(date, amount);
     }
 
     @Override
     public LocalDate next(LocalDate date) {
       ArgChecker.notNull(date, "date");
-      return date.plusDays(1);
+      return plusDays(date, 1);
     }
 
     @Override
     public LocalDate previous(LocalDate date) {
       ArgChecker.notNull(date, "date");
-      return date.minusDays(1);
+      return plusDays(date, -1);
     }
 
     @Override
     public int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
-      return Math.toIntExact(endExclusive.toEpochDay() - startInclusive.toEpochDay());
+      return Math.toIntExact(LocalDateUtils.daysBetween(startInclusive, endExclusive));
     }
 
     @Override

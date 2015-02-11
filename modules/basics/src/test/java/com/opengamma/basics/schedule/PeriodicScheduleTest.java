@@ -8,6 +8,7 @@ package com.opengamma.basics.schedule;
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_PRECEDING;
 import static com.opengamma.basics.date.BusinessDayConventions.PRECEDING;
+import static com.opengamma.basics.date.HolidayCalendars.NO_HOLIDAYS;
 import static com.opengamma.basics.schedule.Frequency.P1M;
 import static com.opengamma.basics.schedule.Frequency.P2M;
 import static com.opengamma.basics.schedule.Frequency.P3M;
@@ -26,6 +27,7 @@ import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
+import static java.time.DayOfWeek.SUNDAY;
 import static java.time.Month.AUGUST;
 import static java.time.Month.FEBRUARY;
 import static java.time.Month.JULY;
@@ -44,7 +46,9 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.date.BusinessDayAdjustment;
+import com.opengamma.basics.date.BusinessDayConvention;
 import com.opengamma.basics.date.BusinessDayConventions;
+import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.date.HolidayCalendars;
 
 /**
@@ -204,7 +208,7 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, null, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
             ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
-        
+
         // stub NONE
         {JUN_17, SEP_17, P1M, STUB_NONE, null, null, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
@@ -212,7 +216,7 @@ public class PeriodicScheduleTest {
         {JUN_17, JUL_17, P1M, STUB_NONE, null, null, null,
             ImmutableList.of(JUN_17, JUL_17),
             ImmutableList.of(JUN_17, JUL_17)},
-        
+
         // stub SHORT_INITIAL
         {JUN_04, SEP_17, P1M, SHORT_INITIAL, null, null, null,
             ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_17, SEP_17),
@@ -235,7 +239,7 @@ public class PeriodicScheduleTest {
         {date(2014, 11, 24), date(2015, 8, 24), P3M, null, RollConventions.NONE, null, null,
             ImmutableList.of(date(2014, 11, 24), date(2015, 2, 24), date(2015, 5, 24), date(2015, 8, 24)),
             ImmutableList.of(date(2014, 11, 24), date(2015, 2, 24), date(2015, 5, 25), date(2015, 8, 24))},
-        
+
         // stub LONG_INITIAL
         {JUN_04, SEP_17, P1M, LONG_INITIAL, null, null, null,
             ImmutableList.of(JUN_04, JUL_17, AUG_17, SEP_17),
@@ -249,7 +253,7 @@ public class PeriodicScheduleTest {
         {JUN_17, AUG_04, P1M, LONG_INITIAL, null, null, null,
             ImmutableList.of(JUN_17, AUG_04),
             ImmutableList.of(JUN_17, AUG_04)},
-        
+
         // stub SHORT_FINAL
         {JUN_04, SEP_17, P1M, SHORT_FINAL, null, null, null,
             ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17),
@@ -269,7 +273,7 @@ public class PeriodicScheduleTest {
         {date(2014, 11, 29), date(2015, 9, 2), P3M, SHORT_FINAL, RollConventions.NONE, null, null,
             ImmutableList.of(date(2014, 11, 29), date(2015, 2, 28), date(2015, 5, 29), date(2015, 8, 29), date(2015, 9, 2)),
             ImmutableList.of(date(2014, 11, 28), date(2015, 2, 27), date(2015, 5, 29), date(2015, 8, 31), date(2015, 9, 2))},
-        
+
         // stub LONG_FINAL
         {JUN_04, SEP_17, P1M, LONG_FINAL, null, null, null,
             ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17),
@@ -283,7 +287,7 @@ public class PeriodicScheduleTest {
         {JUN_17, AUG_04, P1M, LONG_FINAL, null, null, null,
             ImmutableList.of(JUN_17, AUG_04),
             ImmutableList.of(JUN_17, AUG_04)},
-        
+
         // explicit initial stub
         {JUN_04, SEP_17, P1M, null, null, JUN_17, null,
             ImmutableList.of(JUN_04, JUN_17, JUL_17, AUG_17, SEP_17),
@@ -294,7 +298,7 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, JUN_17, null,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
             ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
-        
+
         // explicit final stub
         {JUN_04, SEP_17, P1M, null, null, null, AUG_04,
             ImmutableList.of(JUN_04, JUL_04, AUG_04, SEP_17),
@@ -305,7 +309,7 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, null, AUG_17,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
             ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
-        
+
         // explicit double stub
         {JUN_04, SEP_17, P1M, null, null, JUL_11, AUG_11,
             ImmutableList.of(JUN_04, JUL_11, AUG_11, SEP_17),
@@ -316,7 +320,7 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, JUN_17, SEP_17,
             ImmutableList.of(JUN_17, JUL_17, AUG_17, SEP_17),
             ImmutableList.of(JUN_17, JUL_17, AUG_18, SEP_17)},
-        
+
         // near end of month
         // EOM flag false, thus roll on 30th
         {NOV_30_2013, NOV_30, P3M, STUB_NONE, null, null, null,
@@ -334,12 +338,12 @@ public class PeriodicScheduleTest {
         {date(2014, 1, 3), SEP_17, P3M, STUB_BOTH, EOM, FEB_28, AUG_31,
             ImmutableList.of(date(2014, 1, 3), FEB_28, MAY_31, AUG_31, SEP_17),
             ImmutableList.of(date(2014, 1, 3), FEB_28, MAY_30, date(2014, AUGUST, 29), SEP_17)},
-        
+
         // TERM period
         {JUN_04, SEP_17, TERM, STUB_NONE, null, null, null,
             ImmutableList.of(JUN_04, SEP_17),
             ImmutableList.of(JUN_04, SEP_17)},
-        
+
         // IMM
         {date(2014, 9, 17), date(2014, 10, 15), P1M, STUB_NONE, IMM, null, null,
             ImmutableList.of(date(2014, 9, 17), date(2014, 10, 15)),
@@ -616,6 +620,36 @@ public class PeriodicScheduleTest {
         .endDate(date(2015, 5, 31))
         .frequency(Frequency.ofDays(2))
         .businessDayAdjustment(BDA)
+        .stubConvention(STUB_NONE)
+        .rollConvention(null)
+        .firstRegularStartDate(null)
+        .lastRegularEndDate(null)
+        .build();
+    defn.createSchedule();
+  }
+
+  @Test(
+      expectedExceptions = ScheduleException.class,
+      expectedExceptionsMessageRegExp = "Schedule calculation resulted in invalid period")
+  public void test_brokenWhenAdjusted_twoPeriods_createSchedule() {
+    // generate unadjusted dates that are sorted (Wed, then Fri, then Sun)
+    // use weird BusinessDayConvention to move Sunday back to Thursday
+    // result is adjusted dates that are not sorted (Wed, then Fri, then Thu)
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+        .startDate(date(2015, 5, 27))
+        .endDate(date(2015, 5, 31))
+        .frequency(Frequency.ofDays(2))
+        .businessDayAdjustment(BusinessDayAdjustment.of(new BusinessDayConvention() {
+          @Override
+          public String getName() {
+            return "TestBack3OnSun";
+          }
+
+          @Override
+          public LocalDate adjust(LocalDate date, HolidayCalendar calendar) {
+            return (date.getDayOfWeek() == SUNDAY ? date.minusDays(3) : date);
+          }
+        }, NO_HOLIDAYS))
         .stubConvention(STUB_NONE)
         .rollConvention(null)
         .firstRegularStartDate(null)

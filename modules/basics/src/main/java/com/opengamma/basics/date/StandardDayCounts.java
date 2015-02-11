@@ -5,6 +5,9 @@
  */
 package com.opengamma.basics.date;
 
+import static com.opengamma.basics.date.LocalDateUtils.daysBetween;
+import static com.opengamma.basics.date.LocalDateUtils.doy;
+
 import java.time.LocalDate;
 
 import com.opengamma.basics.schedule.Frequency;
@@ -33,11 +36,11 @@ enum StandardDayCounts implements DayCount {
       int y2 = secondDate.getYear();
       double firstYearLength = firstDate.lengthOfYear();
       if (y1 == y2) {
-        double actualDays = secondDate.getDayOfYear() - firstDate.getDayOfYear();
+        double actualDays = doy(secondDate) - doy(firstDate);
         return actualDays / firstYearLength;
       }
-      double firstRemainderOfYear = firstYearLength - firstDate.getDayOfYear() + 1;
-      double secondRemainderOfYear = secondDate.getDayOfYear() - 1;
+      double firstRemainderOfYear = firstYearLength - doy(firstDate) + 1;
+      double secondRemainderOfYear = doy(secondDate) - 1;
       double secondYearLength = secondDate.lengthOfYear();
       return firstRemainderOfYear / firstYearLength +
           secondRemainderOfYear / secondYearLength +
@@ -67,9 +70,8 @@ enum StandardDayCounts implements DayCount {
       if (firstDate.equals(scheduleStartDate)) {
         return initPeriod(firstDate, secondDate, nextCouponDate, freq, eom);
       }
-      long firstEpochDay = firstDate.toEpochDay();
-      double actualDays = secondDate.toEpochDay() - firstEpochDay;
-      double periodDays = nextCouponDate.toEpochDay() - firstEpochDay;
+      double actualDays = daysBetween(firstDate, secondDate);
+      double periodDays = daysBetween(firstDate, nextCouponDate);
       return actualDays / (freq.eventsPerYear() * periodDays);
     }
 
@@ -136,7 +138,7 @@ enum StandardDayCounts implements DayCount {
         start = secondDate.minusYears(years + 1);
       }
       // calculate the remaining fraction, including start, excluding end
-      long actualDays = end.toEpochDay() - firstDate.toEpochDay();
+      long actualDays = daysBetween(firstDate, end);
       LocalDate nextLeap = DateAdjusters.nextOrSameLeapDay(firstDate);
       return years + (actualDays / (nextLeap.isBefore(end) ? 366d : 365d));
     }
@@ -146,7 +148,7 @@ enum StandardDayCounts implements DayCount {
   ACT_365_ACTUAL("Act/365 Actual") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = actualDays(firstDate, secondDate);
+      long actualDays = daysBetween(firstDate, secondDate);
       LocalDate nextLeap = DateAdjusters.nextLeapDay(firstDate);
       return actualDays / (nextLeap.isAfter(secondDate) ? 365d : 366d);
     }
@@ -156,7 +158,7 @@ enum StandardDayCounts implements DayCount {
   ACT_365L("Act/365L") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = actualDays(firstDate, secondDate);
+      long actualDays = daysBetween(firstDate, secondDate);
       // avoid using ScheduleInfo in this case
       if (firstDate.equals(secondDate)) {
         return 0d;
@@ -176,7 +178,7 @@ enum StandardDayCounts implements DayCount {
   ACT_360("Act/360") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      return actualDays(firstDate, secondDate) / 360d;
+      return daysBetween(firstDate, secondDate) / 360d;
     }
   },
 
@@ -184,7 +186,7 @@ enum StandardDayCounts implements DayCount {
   ACT_364("Act/364") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      return actualDays(firstDate, secondDate) / 364d;
+      return daysBetween(firstDate, secondDate) / 364d;
     }
   },
 
@@ -192,7 +194,7 @@ enum StandardDayCounts implements DayCount {
   ACT_365F("Act/365F") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      return actualDays(firstDate, secondDate) / 365d;
+      return daysBetween(firstDate, secondDate) / 365d;
     }
   },
 
@@ -200,7 +202,7 @@ enum StandardDayCounts implements DayCount {
   ACT_365_25("Act/365.25") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      return actualDays(firstDate, secondDate) / 365.25d;
+      return daysBetween(firstDate, secondDate) / 365.25d;
     }
   },
 
@@ -208,7 +210,7 @@ enum StandardDayCounts implements DayCount {
   NL_365("NL/365") {
     @Override
     public double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-      long actualDays = actualDays(firstDate, secondDate);
+      long actualDays = daysBetween(firstDate, secondDate);
       int numberOfLeapDays = 0;
       LocalDate temp = DateAdjusters.nextLeapDay(firstDate);
       while (temp.isAfter(secondDate) == false) {
@@ -333,11 +335,6 @@ enum StandardDayCounts implements DayCount {
   // calculate using the standard 30/360 function - 360(y2 - y1) + 30(m2 - m1) + (d2 - d1)) / 360
   private static double thirty360(int y1, int m1, int d1, int y2, int m2, int d2) {
     return (360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1)) / 360d;
-  }
-
-  // return actual days difference between the dates
-  private static long actualDays(LocalDate firstDate, LocalDate secondDate) {
-    return secondDate.toEpochDay() - firstDate.toEpochDay();
   }
 
   @Override

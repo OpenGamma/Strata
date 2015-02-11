@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -349,12 +348,23 @@ public final class PeriodicSchedule
    * @throws ScheduleException if the definition is invalid
    */
   public Schedule createSchedule() {
-    List<LocalDate> unadj = createUnadjustedDates();
+    List<LocalDate> unadj = generateUnadjustedDates();
     List<LocalDate> adj = applyBusinessDayAdjustment(unadj);
     RollConvention rollConv = getEffectiveRollConvention();
     List<SchedulePeriod> periods = new ArrayList<>();
-    for (int i = 0; i < unadj.size() - 1; i++) {
-      periods.add(SchedulePeriod.of(adj.get(i), adj.get(i + 1), unadj.get(i), unadj.get(i + 1)));
+    try {
+      // for performance, handle silly errors using exceptions
+      for (int i = 0; i < unadj.size() - 1; i++) {
+        periods.add(SchedulePeriod.of(adj.get(i), adj.get(i + 1), unadj.get(i), unadj.get(i + 1)));
+      }
+    } catch (IllegalArgumentException ex) {
+      // check dates to throw a better exception for duplicate dates in schedule
+      createUnadjustedDates();
+      createAdjustedDates();
+      // unknown exception
+      ScheduleException se = new ScheduleException(this, "Schedule calculation resulted in invalid period");
+      se.initCause(ex);
+      throw se;
     }
     return Schedule.builder()
         .periods(periods)
@@ -381,6 +391,17 @@ public final class PeriodicSchedule
    * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createUnadjustedDates() {
+    List<LocalDate> unadj = generateUnadjustedDates();
+    // ensure schedule is valid with no duplicated dates
+    ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
+    if (deduplicated.size() < unadj.size()) {
+      throw new ScheduleException(this, "Schedule calculation resulted in duplicate unadjusted dates: {}", unadj);
+    }
+    return deduplicated;
+  }
+
+  // creates the unadjusted dates, returning the mutable list
+  private List<LocalDate> generateUnadjustedDates() {
     LocalDate regStart = getEffectiveFirstRegularStartDate();
     LocalDate regEnd = getEffectiveLastRegularEndDate();
     boolean explicitInitialStub = !startDate.equals(regStart);
@@ -405,12 +426,7 @@ public final class PeriodicSchedule
     if (explicitFinalStub) {
       unadj.add(endDate);
     }
-    // sanity check
-    ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
-    if (deduplicated.size() < unadj.size()) {
-      throw new ScheduleException(this, "Schedule calculation resulted in duplicate unadjusted dates: {}", unadj);
-    }
-    return deduplicated;
+    return unadj;
   }
 
   // using knowledge of the explicit stubs, generate the correct convention for implicit stubs
@@ -496,25 +512,23 @@ public final class PeriodicSchedule
    * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createAdjustedDates() {
-    ImmutableList<LocalDate> unadj = createUnadjustedDates();
-    return ImmutableList.copyOf(applyBusinessDayAdjustment(unadj));
+    List<LocalDate> adj = applyBusinessDayAdjustment(generateUnadjustedDates());
+    // ensure schedule is valid with no duplicated dates
+    ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(adj).asList();
+    if (deduplicated.size() < adj.size()) {
+      throw new ScheduleException(this, "Schedule calculation resulted in duplicate adjusted dates: {}", adj);
+    }
+    return deduplicated;
   }
 
   // applies the appropriate business day adjustment to each date
   private List<LocalDate> applyBusinessDayAdjustment(List<LocalDate> unadj) {
-    List<LocalDate> adj = unadj.stream()
-        .map(businessDayAdjustment::adjust)
-        .collect(Collectors.toList());
-    if (startDateBusinessDayAdjustment != null) {
-      adj.set(0, startDateBusinessDayAdjustment.adjust(startDate));
+    List<LocalDate> adj = new ArrayList<>(unadj.size());
+    adj.add(Objects.firstNonNull(startDateBusinessDayAdjustment, businessDayAdjustment).adjust(startDate));
+    for (int i = 1; i < unadj.size() - 1; i++) {
+      adj.add(businessDayAdjustment.adjust(unadj.get(i)));
     }
-    if (endDateBusinessDayAdjustment != null) {
-      adj.set(adj.size() - 1, endDateBusinessDayAdjustment.adjust(endDate));
-    }
-    ImmutableSet<LocalDate> deduplicated = ImmutableSet.copyOf(adj);
-    if (deduplicated.size() < adj.size()) {
-      throw new ScheduleException(this, "Schedule calculation resulted in duplicate adjusted dates: {}", adj);
-    }
+    adj.add(Objects.firstNonNull(endDateBusinessDayAdjustment, businessDayAdjustment).adjust(endDate));
     return adj;
   }
 

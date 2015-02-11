@@ -160,9 +160,9 @@ public class CurrencyTest {
 
   //-----------------------------------------------------------------------
   public void test_equals_hashCode() {
-    Currency a1 = Currency.GBP;
-    Currency a2 = Currency.of("GBP");
-    Currency b = Currency.EUR;
+    Object a1 = Currency.GBP;
+    Object a2 = Currency.of("GBP");
+    Object b = Currency.EUR;
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(a2), true);
@@ -179,7 +179,7 @@ public class CurrencyTest {
   }
 
   public void test_equals_bad() {
-    Currency a = Currency.GBP;
+    Object a = Currency.GBP;
     assertEquals(a.equals(null), false);
     assertEquals(a.equals("String"), false);
     assertEquals(a.equals(new Object()), false);

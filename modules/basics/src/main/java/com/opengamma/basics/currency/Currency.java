@@ -224,6 +224,10 @@ public final class Currency
    * The currency code.
    */
   private final String code;
+  /**
+   * The cached hash code.
+   */
+  private final int cachedHashCode;
 
   //-------------------------------------------------------------------------
   /**
@@ -295,6 +299,8 @@ public final class Currency
    */
   private Currency(String code) {
     this.code = code;
+    // total universe is (26 * 26 * 26) codes, which can provide a unique hash code
+    this.cachedHashCode = ((code.charAt(0) - 64) << 16) + ((code.charAt(1) - 64) << 8) + (code.charAt(2) - 64);
   }
 
   /**
@@ -340,7 +346,8 @@ public final class Currency
    */
   @Override
   public int compareTo(Currency other) {
-    return code.compareTo(other.code);
+    // hash code is unique and ordered so can be used for compareTo
+    return cachedHashCode - other.cachedHashCode;
   }
 
   /**
@@ -356,11 +363,16 @@ public final class Currency
     if (obj == this) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
+    if (obj instanceof Currency) {
+      return equals((Currency) obj);
     }
-    Currency other = (Currency) obj;
-    return code.equals(other.code);
+    return false;
+  }
+
+  // called by CurrencyAmount
+  boolean equals(Currency other) {
+    // hash code is unique so can be used for equals
+    return other.cachedHashCode == cachedHashCode;
   }
 
   /**
@@ -370,7 +382,7 @@ public final class Currency
    */
   @Override
   public int hashCode() {
-    return code.hashCode();
+    return cachedHashCode;
   }
 
   //-------------------------------------------------------------------------

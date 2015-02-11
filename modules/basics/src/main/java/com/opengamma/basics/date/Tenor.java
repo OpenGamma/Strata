@@ -5,6 +5,8 @@
  */
 package com.opengamma.basics.date;
 
+import static com.opengamma.basics.date.LocalDateUtils.plusDays;
+
 import java.io.Serializable;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -416,7 +418,7 @@ public final class Tenor
     // special case for performance
     if (temporal instanceof LocalDate) {
       LocalDate date = (LocalDate) temporal;
-      return date.plusMonths(period.toTotalMonths()).plusDays(period.getDays());
+      return plusDays(date.plusMonths(period.toTotalMonths()), period.getDays());
     }
     return period.addTo(temporal);
   }
@@ -438,7 +440,7 @@ public final class Tenor
     // special case for performance
     if (temporal instanceof LocalDate) {
       LocalDate date = (LocalDate) temporal;
-      return date.minusMonths(period.toTotalMonths()).minusDays(period.getDays());
+      return plusDays(date.minusMonths(period.toTotalMonths()), -period.getDays());
     }
     return period.subtractFrom(temporal);
   }
