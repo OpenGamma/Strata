@@ -40,7 +40,7 @@ import com.opengamma.collect.ArgChecker;
  * As such, it is recommended to use the {@code FxIndex} interface in application
  * code rather than directly referring to this class.
  */
-@BeanDefinition(cacheHashCode = true)
+@BeanDefinition
 public final class ImmutableFxIndex
     implements FxIndex, ImmutableBean, Serializable {
 
@@ -106,6 +106,23 @@ public final class ImmutableFxIndex
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof ImmutableFxIndex) {
+      return name.equals(((ImmutableFxIndex) obj).name);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the name of the index.
    * 
@@ -134,11 +151,6 @@ public final class ImmutableFxIndex
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * The cached hash code, using the racy single-check idiom.
-   */
-  private int cachedHashCode;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -235,35 +247,6 @@ public final class ImmutableFxIndex
    */
   public Builder toBuilder() {
     return new Builder(this);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ImmutableFxIndex other = (ImmutableFxIndex) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getCurrencyPair(), other.getCurrencyPair()) &&
-          JodaBeanUtils.equal(getFixingCalendar(), other.getFixingCalendar()) &&
-          JodaBeanUtils.equal(getMaturityDateOffset(), other.getMaturityDateOffset());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = cachedHashCode;
-    if (hash == 0) {
-      hash = getClass().hashCode();
-      hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getCurrencyPair());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDateOffset());
-      cachedHashCode = hash;
-    }
-    return hash;
   }
 
   //-----------------------------------------------------------------------

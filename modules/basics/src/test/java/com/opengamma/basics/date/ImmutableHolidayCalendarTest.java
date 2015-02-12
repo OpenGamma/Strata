@@ -873,11 +873,9 @@ public class ImmutableHolidayCalendarTest {
     ImmutableHolidayCalendar a2 = ImmutableHolidayCalendar.of("Test1", Arrays.asList(WED_2014_07_16), SATURDAY, SUNDAY);
     ImmutableHolidayCalendar b = ImmutableHolidayCalendar.of("Test2", Arrays.asList(WED_2014_07_16), SATURDAY, SUNDAY);
     ImmutableHolidayCalendar c = ImmutableHolidayCalendar.of("Test1", Arrays.asList(THU_2014_07_10), SATURDAY, SUNDAY);
-    ImmutableHolidayCalendar d = ImmutableHolidayCalendar.of("Test1", Arrays.asList(WED_2014_07_16), FRIDAY, SATURDAY);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
-    assertEquals(a1.equals(d), false);
+    assertEquals(a1.equals(c), true);  // only name compared
   }
 
   //-------------------------------------------------------------------------

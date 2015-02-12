@@ -11,7 +11,6 @@ import static com.opengamma.basics.date.DayCounts.ACT_360;
 import static com.opengamma.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.basics.date.HolidayCalendars.NYFD;
-import static com.opengamma.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.basics.date.Tenor.TENOR_1D;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
@@ -152,17 +151,7 @@ public class OvernightIndexTest {
         .effectiveDateOffset(0)
         .dayCount(ACT_360)
         .build();
-    OvernightIndex b = a.toBuilder().currency(Currency.USD).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().name("Rubbish").build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().fixingCalendar(USNY).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().publicationDateOffset(1).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().effectiveDateOffset(1).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().dayCount(ACT_365F).build();
+    OvernightIndex b = a.toBuilder().name("Rubbish").build();
     assertEquals(a.equals(b), false);
   }
 
