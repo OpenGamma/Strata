@@ -725,7 +725,6 @@ public final class ArgChecker {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Checks that the argument is not equal to zero to within a given accuracy.
    * <p>
@@ -791,7 +790,6 @@ public final class ArgChecker {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Checks that a value is within the range low &lt; x &lt; high.
    * <p>
@@ -833,7 +831,6 @@ public final class ArgChecker {
    * @param value  the value
    * @return true if low &lt; x &lt;= high
    */
-
   public static boolean isInRangeExcludingLow(double low, double high, double value) {
     return (value > low && value <= high);
   }
