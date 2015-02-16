@@ -350,6 +350,7 @@ enum StandardDayCounts implements DayCount {
 
   @Override
   public double relativeYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+    // override to avoid duplicate null checks
     ArgChecker.notNull(firstDate, "firstDate");
     ArgChecker.notNull(secondDate, "secondDate");
     ArgChecker.notNull(scheduleInfo, "scheduleInfo");

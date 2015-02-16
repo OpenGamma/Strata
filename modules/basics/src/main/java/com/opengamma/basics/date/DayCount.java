@@ -95,8 +95,9 @@ public interface DayCount
    * Gets the relative year fraction between the specified dates.
    * <p>
    * Given two dates, this method returns the fraction of a year between these
-   * dates according to the convention. If the first date is after the second date,
-   * the result is calculated by swapping the dates to be in order and negating the result.
+   * dates according to the convention.
+   * The result of this method will be negative if the first date is after the second date. 
+   * The result is calculated using {@link #yearFraction(LocalDate, LocalDate, ScheduleInfo)}.
    * <p>
    * This uses a simple {@link ScheduleInfo} which has the end-of-month convention
    * set to false, but throws an exception for other methods.
@@ -116,8 +117,9 @@ public interface DayCount
    * Gets the relative year fraction between the specified dates.
    * <p>
    * Given two dates, this method returns the fraction of a year between these
-   * dates according to the convention. If the first date is after the second date,
-   * the result is calculated by swapping the dates to be in order and negating the result.
+   * dates according to the convention.
+   * The result of this method will be negative if the first date is after the second date. 
+   * The result is calculated using {@link #yearFraction(LocalDate, LocalDate, ScheduleInfo)}.
    * 
    * @param firstDate  the first date
    * @param secondDate  the second date, which may be before the first date
@@ -125,7 +127,15 @@ public interface DayCount
    * @return the year fraction, may be negative
    * @throws UnsupportedOperationException if the year fraction cannot be obtained
    */
-  public abstract double relativeYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
+  public default double relativeYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+    ArgChecker.notNull(firstDate, "firstDate");
+    ArgChecker.notNull(secondDate, "secondDate");
+    ArgChecker.notNull(scheduleInfo, "scheduleInfo");
+    if (secondDate.isBefore(firstDate)) {
+      return -yearFraction(secondDate, firstDate, scheduleInfo);
+    }
+    return yearFraction(firstDate, secondDate, scheduleInfo);
+  }
 
   /**
    * Gets the name that uniquely identifies this convention.

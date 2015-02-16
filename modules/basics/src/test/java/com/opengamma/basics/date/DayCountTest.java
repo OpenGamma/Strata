@@ -29,6 +29,7 @@ import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.coverEnum;
 import static com.opengamma.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -755,6 +756,26 @@ public class DayCountTest {
 
   public void test_of_lookup_null() {
     assertThrows(() -> DayCount.of(null), IllegalArgumentException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_relativeYearFraction_defaultMethod() {
+    DayCount dc = new DayCount() {
+      @Override
+      public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+        return 1;
+      }
+
+      @Override
+      public String getName() {
+        return "";
+      }
+    };
+    LocalDate date1 = date(2015, 6, 1);
+    LocalDate date2 = date(2015, 7, 1);
+    assertEquals(dc.yearFraction(date1, date2), 1, 0d);
+    assertEquals(dc.relativeYearFraction(date1, date2), 1, 0d);
+    assertEquals(dc.relativeYearFraction(date2, date1), -1, 0d);
   }
 
   //-------------------------------------------------------------------------
