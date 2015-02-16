@@ -289,6 +289,24 @@ public class DayCountTest {
     assertEquals(dayCount.yearFraction(date1, date2), expected, 0d);
   }
 
+  @Test(dataProvider = "yearFraction")
+  public void test_relativeYearFraction(
+      DayCount dayCount, int y1, int m1, int d1, int y2, int m2, int d2, Double value) {
+    double expected = (value == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : value);
+    LocalDate date1 = LocalDate.of(y1, m1, d1);
+    LocalDate date2 = LocalDate.of(y2, m2, d2);
+    assertEquals(dayCount.relativeYearFraction(date1, date2), expected, 0d);
+  }
+
+  @Test(dataProvider = "yearFraction")
+  public void test_relativeYearFraction_reverse(
+      DayCount dayCount, int y1, int m1, int d1, int y2, int m2, int d2, Double value) {
+    double expected = (value == SIMPLE_30_360 ? calc360(y1, m1, d1, y2, m2, d2) : value);
+    LocalDate date1 = LocalDate.of(y1, m1, d1);
+    LocalDate date2 = LocalDate.of(y2, m2, d2);
+    assertEquals(dayCount.relativeYearFraction(date2, date1), -expected, 0d);
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "30U360")
   static Object[][] data_30U360() {

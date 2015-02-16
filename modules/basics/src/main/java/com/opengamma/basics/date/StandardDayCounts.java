@@ -348,9 +348,21 @@ enum StandardDayCounts implements DayCount {
     return calculateYearFraction(firstDate, secondDate, scheduleInfo);
   }
 
+  @Override
+  public double relativeYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+    ArgChecker.notNull(firstDate, "firstDate");
+    ArgChecker.notNull(secondDate, "secondDate");
+    ArgChecker.notNull(scheduleInfo, "scheduleInfo");
+    if (secondDate.isBefore(firstDate)) {
+      return -calculateYearFraction(secondDate, firstDate, scheduleInfo);
+    }
+    return calculateYearFraction(firstDate, secondDate, scheduleInfo);
+  }
+
   // calculate the year fraction, using validated inputs
   abstract double calculateYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
 
+  //-------------------------------------------------------------------------
   @Override
   public String getName() {
     return name;
