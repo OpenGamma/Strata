@@ -510,6 +510,12 @@ public class TestHelper {
         m.invoke(metaBean, bean, mp.name(), "", true);
       });
     }
+    ignoreThrows(() -> {
+      Method m = metaBean.getClass().getDeclaredMethod(
+          "propertyGet", Bean.class, String.class, Boolean.TYPE);
+      m.setAccessible(true);
+      m.invoke(metaBean, bean, "Not a real property name", true);
+    });
   }
 
   // cover parts of a bean that are not property-based
@@ -616,10 +622,35 @@ public class TestHelper {
     if (sample != null) {
       return sample;
     }
-    // find any potential declared constants
+    // find any potential declared constants, using some plural rules
+    String typeName = type.getName();
     ImmutableList.Builder<Object> builder = ImmutableList.builder();
-    for (Field field : type.getFields()) {
-      if (field.getType() == type &&
+    builder.addAll(buildSampleConstants(type, type));
+    ignoreThrows(() -> {
+      // cat -> cats
+      builder.addAll(buildSampleConstants(Class.forName(typeName + "s"), type));
+    });
+    ignoreThrows(() -> {
+      // dish -> dishes
+      builder.addAll(buildSampleConstants(Class.forName(typeName + "es"), type));
+    });
+    ignoreThrows(() -> {
+      // lady -> ladies
+      builder.addAll(buildSampleConstants(Class.forName(typeName.substring(0, typeName.length() - 1) + "ies"), type));
+    });
+    ignoreThrows(() -> {
+      // index -> indices
+      builder.addAll(buildSampleConstants(Class.forName(typeName.substring(0, typeName.length() - 2) + "ices"), type));
+    });
+    // none
+    return builder.build();
+  }
+
+  // adds sample constants to the 
+  private static ImmutableList<Object> buildSampleConstants(Class<?> queryType, Class<?> targetType) {
+    ImmutableList.Builder<Object> builder = ImmutableList.builder();
+    for (Field field : queryType.getFields()) {
+      if (field.getType() == targetType &&
           Modifier.isPublic(field.getModifiers()) &&
           Modifier.isStatic(field.getModifiers()) &&
           Modifier.isFinal(field.getModifiers()) &&
@@ -627,7 +658,6 @@ public class TestHelper {
         ignoreThrows(() -> builder.add(field.get(null)));
       }
     }
-    // none
     return builder.build();
   }
 
