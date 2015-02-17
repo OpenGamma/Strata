@@ -583,13 +583,13 @@ public final class Result<T>
    * The function must not be null.
    * <p>
    * This method can be used in preference to {@link #getValueOrElse(Object)}
-   * when the default value is expensive to create. In such cases {@code getValueOrElse}
-   * the object will get created on each call, even though it may be
-   * immediately discarded.
+   * when the default value is expensive to create. In such cases, the
+   * default value will get created on each call, even though it will be
+   * immediately discarded if the result is a success.
    *
    * @param mapper  function used to generate a default value. The function
    *   has no obligation to use the input {@code Failure} (in other words it can
-   *   behave as a {@code Supplier} if desired).
+   *   behave as a {@code Supplier<T>} if desired).
    * @return either the result value or the result of the function
    */
   public T getValueOrElseApply(Function<Failure, T> mapper) {
