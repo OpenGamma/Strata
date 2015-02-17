@@ -59,7 +59,7 @@ public interface DayCount
    * Gets the year fraction between the specified dates.
    * <p>
    * Given two dates, this method returns the fraction of a year between these
-   * dates according to the convention.
+   * dates according to the convention. The dates must be in order.
    * <p>
    * This uses a simple {@link ScheduleInfo} which has the end-of-month convention
    * set to false, but throws an exception for other methods.
@@ -69,6 +69,7 @@ public interface DayCount
    * @param firstDate  the first date
    * @param secondDate  the second date, on or after the first date
    * @return the year fraction
+   * @throws IllegalArgumentException if the dates are not in order
    * @throws UnsupportedOperationException if the year fraction cannot be obtained
    */
   public default double yearFraction(LocalDate firstDate, LocalDate secondDate) {
@@ -79,15 +80,62 @@ public interface DayCount
    * Gets the year fraction between the specified dates.
    * <p>
    * Given two dates, this method returns the fraction of a year between these
-   * dates according to the convention.
+   * dates according to the convention. The dates must be in order.
    * 
    * @param firstDate  the first date
    * @param secondDate  the second date, on or after the first date
    * @param scheduleInfo  the schedule information
-   * @return the year fraction
+   * @return the year fraction, zero or greater
+   * @throws IllegalArgumentException if the dates are not in order
    * @throws UnsupportedOperationException if the year fraction cannot be obtained
    */
-  public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
+  public abstract double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo);
+
+  /**
+   * Gets the relative year fraction between the specified dates.
+   * <p>
+   * Given two dates, this method returns the fraction of a year between these
+   * dates according to the convention.
+   * The result of this method will be negative if the first date is after the second date. 
+   * The result is calculated using {@link #yearFraction(LocalDate, LocalDate, ScheduleInfo)}.
+   * <p>
+   * This uses a simple {@link ScheduleInfo} which has the end-of-month convention
+   * set to false, but throws an exception for other methods.
+   * Certain implementations of {@code DayCount} need the missing information,
+   * and thus will throw an exception.
+   * 
+   * @param firstDate  the first date
+   * @param secondDate  the second date, which may be before the first date
+   * @return the year fraction, may be negative
+   * @throws UnsupportedOperationException if the year fraction cannot be obtained
+   */
+  public default double relativeYearFraction(LocalDate firstDate, LocalDate secondDate) {
+    return relativeYearFraction(firstDate, secondDate, DayCounts.SIMPLE_SCHEDULE_INFO);
+  }
+
+  /**
+   * Gets the relative year fraction between the specified dates.
+   * <p>
+   * Given two dates, this method returns the fraction of a year between these
+   * dates according to the convention.
+   * The result of this method will be negative if the first date is after the second date. 
+   * The result is calculated using {@link #yearFraction(LocalDate, LocalDate, ScheduleInfo)}.
+   * 
+   * @param firstDate  the first date
+   * @param secondDate  the second date, which may be before the first date
+   * @param scheduleInfo  the schedule information
+   * @return the year fraction, may be negative
+   * @throws UnsupportedOperationException if the year fraction cannot be obtained
+   */
+  public default double relativeYearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
+    ArgChecker.notNull(firstDate, "firstDate");
+    ArgChecker.notNull(secondDate, "secondDate");
+    ArgChecker.notNull(scheduleInfo, "scheduleInfo");
+    if (secondDate.isBefore(firstDate)) {
+      return -yearFraction(secondDate, firstDate, scheduleInfo);
+    }
+    return yearFraction(firstDate, secondDate, scheduleInfo);
+  }
 
   /**
    * Gets the name that uniquely identifies this convention.
@@ -98,7 +146,7 @@ public interface DayCount
    */
   @ToString
   @Override
-  public String getName();
+  public abstract String getName();
 
   //-------------------------------------------------------------------------
   /**
