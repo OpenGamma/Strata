@@ -5,6 +5,8 @@
  */
 package com.opengamma.collect;
 
+import javax.annotation.Nullable;
+
 /**
  * Contains utility methods for managing messages.
  */
@@ -37,7 +39,7 @@ public final class Messages {
    * @param arg  the message argument, null treated as string "null"
    * @return the formatted message
    */
-  public static String format(String messageTemplate, Object arg) {
+  public static String format(@Nullable String messageTemplate, @Nullable Object arg) {
     if (messageTemplate == null) {
       return format("", arg);
     }
@@ -75,7 +77,7 @@ public final class Messages {
    * @param args  the message arguments, null treated as empty array
    * @return the formatted message
    */
-  public static String format(String messageTemplate, Object... args) {
+  public static String format(@Nullable String messageTemplate, @Nullable Object... args) {
     if (messageTemplate == null) {
       return format("", args);
     }

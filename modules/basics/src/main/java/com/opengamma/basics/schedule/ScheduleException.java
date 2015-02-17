@@ -7,6 +7,8 @@ package com.opengamma.basics.schedule;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import com.opengamma.collect.Messages;
 
 /**
@@ -32,7 +34,9 @@ public final class ScheduleException
    * @param msgTemplate  the message template, null tolerant
    * @param msgArguments  the message arguments, null tolerant
    */
-  public ScheduleException(String msgTemplate, Object... msgArguments) {
+  public ScheduleException(
+      @Nullable String msgTemplate,
+      @Nullable Object... msgArguments) {
     this(null, msgTemplate, msgArguments);
   }
 
@@ -46,7 +50,10 @@ public final class ScheduleException
    * @param msgTemplate  the message template, null tolerant
    * @param msgArguments  the message arguments, null tolerant
    */
-  public ScheduleException(PeriodicSchedule definition, String msgTemplate, Object... msgArguments) {
+  public ScheduleException(
+      @Nullable PeriodicSchedule definition,
+      @Nullable String msgTemplate,
+      @Nullable Object... msgArguments) {
     super(Messages.format(msgTemplate, msgArguments));
     this.definition = definition;
   }
