@@ -575,6 +575,29 @@ public final class Result<T>
   }
 
   /**
+   * Returns the actual result value if calculated successfully, else the
+   * specified function is applied to the {@code Failure} that occurred.
+   * <p>
+   * If this result is a success then the result value is returned.
+   * If this result is a failure then the function is applied to the failure.
+   * The function must not be null.
+   * <p>
+   * This method can be used in preference to {@link #getValueOrElse(Object)}
+   * when the default value is expensive to create. In such cases {@code getValueOrElse}
+   * the object will get created on each call, even though it may be
+   * immediately discarded.
+   *
+   * @param mapper  function used to generate a default value. The function
+   *   has no obligation to use the input {@code Failure} (in other words it can
+   *   behave as a {@code Supplier} if desired).
+   * @return either the result value or the result of the function
+   */
+  public T getValueOrElseApply(Function<Failure, T> mapper) {
+    ArgChecker.notNull(mapper, "mapper");
+    return (isSuccess() ? value : mapper.apply(failure));
+  }
+
+  /**
    * Returns the failure instance indicating the reason why the calculation failed.
    * <p>
    * If this result is a success then an an IllegalStateException will be thrown.
