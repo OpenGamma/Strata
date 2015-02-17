@@ -149,7 +149,7 @@ public final class IborRateCalculation
    * <p>
    * The initial stub of a swap may have different rate rules to the regular accrual periods.
    * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
-   * This may be null if there is no initial stub, or if the index during the stub is the same
+   * This may not be present if there is no initial stub, or if the index during the stub is the same
    * as the main floating rate index.
    * <p>
    * If this property is not present, then the main index applies during any initial stub.
@@ -162,7 +162,7 @@ public final class IborRateCalculation
    * <p>
    * The final stub of a swap may have different rate rules to the regular accrual periods.
    * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
-   * This may be null if there is no final stub, or if the index during the stub is the same
+   * This may not be present if there is no final stub, or if the index during the stub is the same
    * as the main floating rate index.
    * <p>
    * If this property is not present, then the main index applies during any final stub.
@@ -485,7 +485,7 @@ public final class IborRateCalculation
    * <p>
    * The initial stub of a swap may have different rate rules to the regular accrual periods.
    * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
-   * This may be null if there is no initial stub, or if the index during the stub is the same
+   * This may not be present if there is no initial stub, or if the index during the stub is the same
    * as the main floating rate index.
    * <p>
    * If this property is not present, then the main index applies during any initial stub.
@@ -502,7 +502,7 @@ public final class IborRateCalculation
    * <p>
    * The final stub of a swap may have different rate rules to the regular accrual periods.
    * A fixed rate may be specified, a different floating rate or a linearly interpolated floating rate.
-   * This may be null if there is no final stub, or if the index during the stub is the same
+   * This may not be present if there is no final stub, or if the index during the stub is the same
    * as the main floating rate index.
    * <p>
    * If this property is not present, then the main index applies during any final stub.

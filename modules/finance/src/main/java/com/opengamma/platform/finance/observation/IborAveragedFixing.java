@@ -12,6 +12,8 @@ import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -85,7 +87,7 @@ public final class IborAveragedFixing
    * @param fixedRate  the fixed rate for the fixing date, optional, may be null
    * @return the fixing information
    */
-  public static IborAveragedFixing of(LocalDate fixingDate, Double fixedRate) {
+  public static IborAveragedFixing of(LocalDate fixingDate, @Nullable Double fixedRate) {
     return IborAveragedFixing.builder()
         .fixingDate(fixingDate)
         .fixedRate(fixedRate)
@@ -128,7 +130,7 @@ public final class IborAveragedFixing
       LocalDate fixingDate,
       LocalDate startDate,
       LocalDate endDate,
-      Double fixedRate) {
+      @Nullable Double fixedRate) {
     ArgChecker.notNull(fixingDate, "fixingDate");
     ArgChecker.notNull(startDate, "startDate");
     ArgChecker.notNull(endDate, "endDate");
