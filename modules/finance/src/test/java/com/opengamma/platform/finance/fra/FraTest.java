@@ -186,7 +186,6 @@ public class FraTest {
         .notional(NOTIONAL_1M)
         .build();
     ExpandedFra test = fra.expand();
-    assertEquals(test.getBuySell(), BUY);
     assertEquals(test.getPaymentDate(), date(2015, 6, 16));
     assertEquals(test.getStartDate(), date(2015, 6, 15));
     assertEquals(test.getEndDate(), date(2015, 9, 15));
@@ -200,7 +199,7 @@ public class FraTest {
 
   public void test_expand_IborInterpolated() {
     Fra fra = Fra.builder()
-        .buySell(BUY)
+        .buySell(SELL)
         .paymentDate(AdjustableDate.of(date(2015, 6, 16), BDA_MOD_FOLLOW))
         .startDate(date(2015, 6, 12))
         .endDate(date(2015, 9, 5))
@@ -212,7 +211,6 @@ public class FraTest {
         .notional(NOTIONAL_1M)
         .build();
     ExpandedFra test = fra.expand();
-    assertEquals(test.getBuySell(), BUY);
     assertEquals(test.getPaymentDate(), date(2015, 6, 16));
     assertEquals(test.getStartDate(), date(2015, 6, 12));
     assertEquals(test.getEndDate(), date(2015, 9, 7));
@@ -221,7 +219,7 @@ public class FraTest {
         IborInterpolatedRateObservation.of(GBP_LIBOR_2M, GBP_LIBOR_3M, date(2015, 6, 10)));
     assertEquals(test.getYearFraction(), ACT_365F.yearFraction(date(2015, 6, 12), date(2015, 9, 7)), 0d);
     assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), NOTIONAL_1M, 0d);
+    assertEquals(test.getNotional(), -NOTIONAL_1M, 0d); // sell
     assertEquals(test.getDiscounting(), ISDA);
   }
 

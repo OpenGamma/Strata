@@ -5,9 +5,12 @@
  */
 package com.opengamma.platform.pricer.impl.fra;
 
+import java.time.temporal.ChronoUnit;
+
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.fra.ExpandedFra;
+import com.opengamma.platform.finance.fra.FraDiscountingMethod;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
@@ -48,22 +51,34 @@ public class DiscountingExpandedFraPricerFn
   public MultiCurrencyAmount presentValue(PricingEnvironment env, ExpandedFra fra) {
     // futureValue * discountFactor
     double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
-    return MultiCurrencyAmount.of(fra.getCurrency(), futureValue0(env, fra) * df);
+    return futureValue(env, fra).multipliedBy(df);
   }
 
   @Override
   public MultiCurrencyAmount futureValue(PricingEnvironment env, ExpandedFra fra) {
-    return MultiCurrencyAmount.of(fra.getCurrency(), futureValue0(env, fra));
+    double notional = fra.getNotional();
+    double unitFutureValue = 0.0;
+    if (fra.getDiscounting() == FraDiscountingMethod.AFMA) {
+      unitFutureValue = unitFutureValueAFMA(env, fra);
+    } else {
+      unitFutureValue = unitFutureValueDefault(env, fra);
+    }
+    return MultiCurrencyAmount.of(fra.getCurrency(), notional * unitFutureValue);
   }
 
-  private double futureValue0(PricingEnvironment env, ExpandedFra fra) {
-    // TODO: FRA discounting method
-    // TODO: remove BuySell from ExpandedFra and alter sign of notional in Fra.expand()
+  private double unitFutureValueDefault(PricingEnvironment env, ExpandedFra fra) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = rateObservationFn.rate(env, fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate());
     double yearFraction = fra.getYearFraction();
-    double notional = fra.getNotional();
-    return notional * ((forwardRate - fixedRate) * yearFraction) / (1 + forwardRate * yearFraction);
+    return (forwardRate - fixedRate) * yearFraction / (1 + forwardRate * yearFraction);
+  }
+
+  private double unitFutureValueAFMA(PricingEnvironment env, ExpandedFra fra) {
+    // TODO check formula
+    double fixedRate = fra.getFixedRate();
+    double forwardRate = rateObservationFn.rate(env, fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate());
+    double yearFraction = ChronoUnit.DAYS.between(fra.getStartDate(), fra.getEndDate()) / 365.0;
+    return 1.0 / (1.0 + fixedRate * yearFraction) - 1.0 / (1.0 + forwardRate * yearFraction);
   }
 
 }
