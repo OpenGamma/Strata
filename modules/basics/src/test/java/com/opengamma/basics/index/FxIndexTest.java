@@ -8,7 +8,6 @@ package com.opengamma.basics.index;
 import static com.opengamma.basics.currency.Currency.EUR;
 import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.date.HolidayCalendars.GBLO;
-import static com.opengamma.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.basics.index.StandardFxIndices.ECB_EUR_CHF;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
@@ -123,12 +122,6 @@ public class FxIndexTest {
         .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     ImmutableFxIndex b = a.toBuilder().name("EUR-GBP").build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().currencyPair(CurrencyPair.of(EUR, GBP)).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().fixingCalendar(USNY).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().maturityDateOffset(DaysAdjustment.ofBusinessDays(2, USNY)).build();
     assertEquals(a.equals(b), false);
   }
 

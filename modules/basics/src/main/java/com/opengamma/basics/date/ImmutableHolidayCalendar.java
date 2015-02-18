@@ -444,6 +444,23 @@ public final class ImmutableHolidayCalendar
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof ImmutableHolidayCalendar) {
+      return name.equals(((ImmutableHolidayCalendar) obj).name);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the name of the calendar.
    * 
@@ -518,30 +535,6 @@ public final class ImmutableHolidayCalendar
    */
   public ImmutableSet<DayOfWeek> getWeekendDays() {
     return weekendDays;
-  }
-
-  //-----------------------------------------------------------------------
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ImmutableHolidayCalendar other = (ImmutableHolidayCalendar) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getHolidays(), other.getHolidays()) &&
-          JodaBeanUtils.equal(getWeekendDays(), other.getWeekendDays());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getHolidays());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getWeekendDays());
-    return hash;
   }
 
   //-----------------------------------------------------------------------

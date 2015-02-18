@@ -43,7 +43,7 @@ import com.opengamma.collect.ArgChecker;
  * As such, it is recommended to use the {@code IborIndex} interface in application
  * code rather than directly referring to this class.
  */
-@BeanDefinition(cacheHashCode = true)
+@BeanDefinition
 public final class ImmutableIborIndex
     implements IborIndex, ImmutableBean, Serializable {
 
@@ -170,6 +170,23 @@ public final class ImmutableIborIndex
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof ImmutableIborIndex) {
+      return name.equals(((ImmutableIborIndex) obj).name);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the name of the index.
    * 
@@ -198,11 +215,6 @@ public final class ImmutableIborIndex
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * The cached hash code, using the racy single-check idiom.
-   */
-  private int cachedHashCode;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -324,39 +336,6 @@ public final class ImmutableIborIndex
    */
   public Builder toBuilder() {
     return new Builder(this);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ImmutableIborIndex other = (ImmutableIborIndex) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getFixingCalendar(), other.getFixingCalendar()) &&
-          JodaBeanUtils.equal(getEffectiveDateOffset(), other.getEffectiveDateOffset()) &&
-          JodaBeanUtils.equal(getMaturityDateOffset(), other.getMaturityDateOffset()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = cachedHashCode;
-    if (hash == 0) {
-      hash = getClass().hashCode();
-      hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getEffectiveDateOffset());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getMaturityDateOffset());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-      cachedHashCode = hash;
-    }
-    return hash;
   }
 
   //-----------------------------------------------------------------------

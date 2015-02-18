@@ -16,7 +16,6 @@ import static com.opengamma.basics.date.HolidayCalendars.EUTA;
 import static com.opengamma.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.basics.date.HolidayCalendars.USNY;
 import static com.opengamma.basics.date.Tenor.TENOR_3M;
-import static com.opengamma.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrows;
@@ -205,17 +204,7 @@ public class IborIndexTest {
         .maturityDateOffset(TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.NONE))
         .dayCount(ACT_360)
         .build();
-    IborIndex b = a.toBuilder().currency(Currency.USD).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().name("Rubbish").build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().fixingCalendar(USNY).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, USNY)).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().maturityDateOffset(TenorAdjustment.ofLastBusinessDay(TENOR_6M, BusinessDayAdjustment.NONE)).build();
-    assertEquals(a.equals(b), false);
-    b = a.toBuilder().dayCount(ACT_365F).build();
+    IborIndex b = a.toBuilder().name("Rubbish").build();
     assertEquals(a.equals(b), false);
   }
 

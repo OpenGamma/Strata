@@ -36,7 +36,7 @@ import com.opengamma.basics.schedule.Frequency;
  * As such, it is recommended to use the {@code PriceIndex} interface in application
  * code rather than directly referring to this class.
  */
-@BeanDefinition(cacheHashCode = true)
+@BeanDefinition
 public final class ImmutablePriceIndex
     implements PriceIndex, ImmutableBean, Serializable {
 
@@ -61,6 +61,23 @@ public final class ImmutablePriceIndex
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Frequency publicationFrequency;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof ImmutablePriceIndex) {
+      return name.equals(((ImmutablePriceIndex) obj).name);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return name.hashCode();
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -91,11 +108,6 @@ public final class ImmutablePriceIndex
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * The cached hash code, using the racy single-check idiom.
-   */
-  private int cachedHashCode;
 
   /**
    * Returns a builder used to create an instance of the bean.
@@ -183,35 +195,6 @@ public final class ImmutablePriceIndex
    */
   public Builder toBuilder() {
     return new Builder(this);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ImmutablePriceIndex other = (ImmutablePriceIndex) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getPublicationFrequency(), other.getPublicationFrequency());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = cachedHashCode;
-    if (hash == 0) {
-      hash = getClass().hashCode();
-      hash = hash * 31 + JodaBeanUtils.hashCode(getName());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getRegion());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getPublicationFrequency());
-      cachedHashCode = hash;
-    }
-    return hash;
   }
 
   //-----------------------------------------------------------------------
