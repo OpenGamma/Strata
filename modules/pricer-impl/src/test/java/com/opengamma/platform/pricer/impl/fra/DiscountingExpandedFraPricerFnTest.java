@@ -24,6 +24,7 @@ import com.opengamma.platform.pricer.observation.RateObservationFn;
 public class DiscountingExpandedFraPricerFnTest {
 
   private final PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+  private final DispatchingRateObservationFn mockObs = mock(DispatchingRateObservationFn.class);
   private static final double TOLERANCE = 1E-12;
 
   /**
@@ -54,32 +55,33 @@ public class DiscountingExpandedFraPricerFnTest {
    * Test future value for ISDA. 
    */
   public void testFutureISDA() {
-    RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
-    DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(observation);
-    MultiCurrencyAmount computed = test.futureValue(mockEnv, FRA.expand());
-    double forwardRate = observation.rate(mockEnv, FRA.expand().getFloatingRate(), FRA.expand().getStartDate(), FRA
-        .expand().getEndDate());
+    double forwardRate = 0.02;
+    ExpandedFra fraExp = FRA.expand();
+    when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
+        .thenReturn(forwardRate);
+    DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
+    MultiCurrencyAmount computed = test.futureValue(mockEnv, fraExp);
     double fixedRate = FRA.getFixedRate();
-    double yearFraction = FRA.expand().getYearFraction();
-    double notional = FRA.expand().getNotional();
+    double yearFraction = fraExp.getYearFraction();
+    double notional = fraExp.getNotional();
     double expected = notional * (forwardRate - fixedRate) * yearFraction / (1 + forwardRate * yearFraction);
-    assertEquals(expected, computed.getAmount(FRA.getCurrency()).getAmount(), TOLERANCE);
+    assertEquals(computed.getAmount(FRA.getCurrency()).getAmount(), expected, TOLERANCE);
   }
 
   /**
    * Test future value for AFMA. 
    */
   public void testFutureAFMA() {
+    double forwardRate = 0.018;
     ExpandedFra fraExp = FRA_AFMA.expand();
-    RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
-    DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(observation);
+    when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
+        .thenReturn(forwardRate);
+    DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
     MultiCurrencyAmount computed = test.futureValue(mockEnv, fraExp);
-    double forwardRate = observation
-        .rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate());
     double fixedRate = FRA_AFMA.getFixedRate();
     double yearFraction = ChronoUnit.DAYS.between(fraExp.getStartDate(), fraExp.getEndDate()) / 365.0;
     double notional = fraExp.getNotional();
     double expected = notional * (1.0 / (1 + fixedRate * yearFraction) - 1.0 / (1 + forwardRate * yearFraction));
-    assertEquals(expected, computed.getAmount(FRA.getCurrency()).getAmount(), TOLERANCE);
+    assertEquals(computed.getAmount(FRA.getCurrency()).getAmount(), expected, TOLERANCE);
   }
 }
