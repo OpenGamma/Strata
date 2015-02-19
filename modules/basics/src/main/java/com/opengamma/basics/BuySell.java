@@ -54,6 +54,7 @@ public enum BuySell {
     return isBuy ? BUY : SELL;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Normalizes the specified notional amount using this buy/sell rule.
    * <p>
@@ -65,7 +66,8 @@ public enum BuySell {
    * @return the adjusted amount
    */
   public double normalize(double amount) {
-    return isBuy() ? amount : -amount;
+    double normalized = Math.abs(amount);
+    return isBuy() ? normalized : -normalized;
   }
 
   //-------------------------------------------------------------------------

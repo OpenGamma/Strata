@@ -26,6 +26,18 @@ public class BuySellTest {
     assertEquals(BuySell.ofBuy(false), BuySell.SELL);
   }
 
+  public void test_normalize_sell() {
+    assertEquals(BuySell.SELL.normalize(1d), -1d, 0d);
+    assertEquals(BuySell.SELL.normalize(0d), -0d, 0d);
+    assertEquals(BuySell.SELL.normalize(-1d), -1d, 0d);
+  }
+
+  public void test_normalize_buy() {
+    assertEquals(BuySell.BUY.normalize(1d), 1d, 0d);
+    assertEquals(BuySell.BUY.normalize(0d), 0d, 0d);
+    assertEquals(BuySell.BUY.normalize(-1d), 1d, 0d);
+  }
+
   public void test_isBuy() {
     assertEquals(BuySell.BUY.isBuy(), true);
     assertEquals(BuySell.SELL.isBuy(), false);
