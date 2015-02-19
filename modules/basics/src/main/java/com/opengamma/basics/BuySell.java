@@ -54,6 +54,20 @@ public enum BuySell {
     return isBuy ? BUY : SELL;
   }
 
+  /**
+   * Normalizes the specified notional amount using this buy/sell rule.
+   * <p>
+   * This returns a positive signed amount if this is 'buy', and a negative signed amount 
+   * if this is 'sell'. This effectively normalizes the input notional
+   * to the buy/sell sign conventions of this library.
+   * 
+   * @param amount  the amount to adjust
+   * @return the adjusted amount
+   */
+  public double normalize(double amount) {
+    return isBuy() ? amount : -amount;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if the type is 'Buy'.
