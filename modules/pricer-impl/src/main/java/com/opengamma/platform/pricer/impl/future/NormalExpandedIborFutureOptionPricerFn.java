@@ -25,7 +25,7 @@ public class NormalExpandedIborFutureOptionPricerFn
    */
   public static final NormalExpandedIborFutureOptionPricerFn DEFAULT = new NormalExpandedIborFutureOptionPricerFn();
 
-  private final IborFutureProductPricerFn expandedIborFuturePriceFn;
+  private final IborFutureProductPricerFn<ExpandedIborFuture> expandedIborFuturePriceFn;
 
   private static final NormalPriceFunction NORMAL_FUNCTION = new NormalPriceFunction();
   

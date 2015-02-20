@@ -18,21 +18,50 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * An expanded futures option contract, based on an IBOR-like index, with dates calculated ready for pricing.
+ * <p>
+ * An Ibor future option is an option on a financial instrument that is based on the future value of
+ * an IBOR-like interest rate.
+ * An Ibor future option is also known as a <i>STIR future option</i>.
+ * <p>
+ * This class represents the structure of a single futures contract, which is typically exchange traded.
+ */
 @BeanDefinition
 public class ExpandedIborFutureOption implements IborFutureOptionProduct, ImmutableBean, Serializable {
 
+  /**
+   * The underlying expanded ibor future.
+   */
   @PropertyDefinition(validate = "notNull")
   private final ExpandedIborFuture expandedIborFuture;
 
+  /**
+   * The expiry date of option. 
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate expirationDate;
 
+  /**
+   * The strike price of option. 
+   * <p>
+   * This should be represented in decimal. 
+   * Thus strike rate is given by 1.0 - strike
+   */
   @PropertyDefinition
   private final double strike;
 
+  /**
+   * True for call option, false for put option
+   */
   @PropertyDefinition
   private final boolean isCall;
 
+  /**
+   * TODO This information should be in option???
+   * The last date of trading.
+   * This date is also the fixing date for the IBOR-like index.
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
 
@@ -101,7 +130,7 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expandedIborFuture.
+   * Gets the underlying expanded ibor future.
    * @return the value of the property, not null
    */
   public ExpandedIborFuture getExpandedIborFuture() {
@@ -110,7 +139,7 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expirationDate.
+   * Gets the expiry date of option.
    * @return the value of the property, not null
    */
   public LocalDate getExpirationDate() {
@@ -119,7 +148,10 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the strike.
+   * Gets the strike price of option.
+   * <p>
+   * This should be represented in decimal.
+   * Thus strike rate is given by 1.0 - strike
    * @return the value of the property
    */
   public double getStrike() {
@@ -128,7 +160,7 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the isCall.
+   * Gets true for call option, false for put option
    * @return the value of the property
    */
   public boolean isIsCall() {
@@ -137,7 +169,9 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the lastTradeDate.
+   * Gets tODO This information should be in option???
+   * The last date of trading.
+   * This date is also the fixing date for the IBOR-like index.
    * @return the value of the property, not null
    */
   public LocalDate getLastTradeDate() {

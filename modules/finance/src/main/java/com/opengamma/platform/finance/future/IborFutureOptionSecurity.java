@@ -23,6 +23,11 @@ import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.Security;
 import com.opengamma.platform.finance.SecurityType;
 
+/**
+ * A security representing an exchange-traded IBOR future option.
+ * <p>
+ * A listed security based on an {@link IborFutureOption}.
+ */
 @BeanDefinition
 public class IborFutureOptionSecurity
     implements Security, ImmutableBean, Serializable {

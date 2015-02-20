@@ -18,18 +18,42 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * A futures option contract, based on an IBOR-like index, with dates calculated ready for pricing.
+ * <p>
+ * An Ibor future option is an option on financial instrument that is based on the future value of
+ * an IBOR-like interest rate.
+ * An Ibor future option is also known as a <i>STIR future option</i>.
+ * <p>
+ * This class represents the structure of a single option contract, which is typically exchange traded.
+ */
 @BeanDefinition
 public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean, Serializable {
 
+  /**
+   * The underlying ibor future.
+   */
   @PropertyDefinition(validate = "notNull")
   private final IborFuture iborFuture;
 
+  /**
+   * The expiry date of option.  
+   */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate expirationDate;
 
+  /**
+   * The strike price of option. 
+   * <p>
+   * This should be represented in decimal. 
+   * Thus strike rate is given by 1.0 - strike
+   */
   @PropertyDefinition
   private final double strike;
 
+  /**
+   * True for call option, false for put option
+   */
   @PropertyDefinition
   private final boolean isCall;
 
@@ -102,7 +126,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the iborFuture.
+   * Gets the underlying ibor future.
    * @return the value of the property, not null
    */
   public IborFuture getIborFuture() {
@@ -111,7 +135,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the expirationDate.
+   * Gets the expiry date of option.
    * @return the value of the property, not null
    */
   public LocalDate getExpirationDate() {
@@ -120,7 +144,10 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the strike.
+   * Gets the strike price of option.
+   * <p>
+   * This should be represented in decimal.
+   * Thus strike rate is given by 1.0 - strike
    * @return the value of the property
    */
   public double getStrike() {
@@ -129,7 +156,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the isCall.
+   * Gets true for call option, false for put option
    * @return the value of the property
    */
   public boolean isIsCall() {
