@@ -1,6 +1,5 @@
 package com.opengamma.platform.pricer.future;
 
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.future.IborFutureOptionProduct;
 import com.opengamma.platform.finance.future.IborFutureOptionSecurityTrade;
@@ -32,10 +31,10 @@ public interface IborFutureOptionProductPricerFn<T extends IborFutureOptionProdu
    * @return option price
    */
   public abstract double price(PricingEnvironment env, T iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface);
+      Object surface);
 
   public abstract CurrencyAmount presentValue(PricingEnvironment env, T iborFutureOptionProduct,
-      IborFutureOptionSecurityTrade trade, NormalSTIRFuturesProviderInterface surface);
+      IborFutureOptionSecurityTrade trade, Object surface);
 
   /**
    * Calculates price delta of the Ibor future option.
@@ -48,7 +47,7 @@ public interface IborFutureOptionProductPricerFn<T extends IborFutureOptionProdu
    * @return option price
    */
   public abstract double priceDelta(PricingEnvironment env, T iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface);
+      Object surface);
 
   /**
    * Calculates price gamma of the Ibor future option.
@@ -61,7 +60,7 @@ public interface IborFutureOptionProductPricerFn<T extends IborFutureOptionProdu
    * @return option price
    */
   public abstract double priceGamma(PricingEnvironment env, T iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface);
+      Object surface);
 
   /**
    * Calculates price vega of the Ibor future option.
@@ -74,7 +73,7 @@ public interface IborFutureOptionProductPricerFn<T extends IborFutureOptionProdu
    * @return option price
    */
   public abstract double priceVega(PricingEnvironment env, T iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface);
+      Object surface);
 
   /**
    * Calculates price theta of the Ibor future option.
@@ -83,9 +82,9 @@ public interface IborFutureOptionProductPricerFn<T extends IborFutureOptionProdu
    * 
    * @param env The pricing environment
    * @param iborFutureOptionProduct The pricing option
-   * @param surface The volatility surface
+   * @param surface The volatility surface, NormalSTIRFuturesProviderInterface
    * @return option price
    */
   public abstract double priceTheta(PricingEnvironment env, T iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface);
+      Object surface);
 }

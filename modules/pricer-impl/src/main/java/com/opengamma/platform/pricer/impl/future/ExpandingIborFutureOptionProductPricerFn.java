@@ -1,6 +1,5 @@
 package com.opengamma.platform.pricer.impl.future;
 
-import com.opengamma.analytics.financial.provider.description.interestrate.NormalSTIRFuturesProviderInterface;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.future.ExpandedIborFuture;
@@ -36,37 +35,37 @@ public class ExpandingIborFutureOptionProductPricerFn
 
   @Override
   public double price(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     return expandedIborFutureOptionPricerFn.price(env, iborFutureOptionProduct.expand(), surface);
   }
 
   @Override
   public CurrencyAmount presentValue(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      IborFutureOptionSecurityTrade trade, NormalSTIRFuturesProviderInterface surface) {
+      IborFutureOptionSecurityTrade trade, Object surface) {
     return expandedIborFutureOptionPricerFn.presentValue(env, iborFutureOptionProduct.expand(), trade, surface);
   }
 
   @Override
   public double priceDelta(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     return expandedIborFutureOptionPricerFn.priceDelta(env, iborFutureOptionProduct.expand(), surface);
   }
 
   @Override
   public double priceGamma(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     return expandedIborFutureOptionPricerFn.priceGamma(env, iborFutureOptionProduct.expand(), surface);
   }
 
   @Override
   public double priceVega(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     return expandedIborFutureOptionPricerFn.priceVega(env, iborFutureOptionProduct.expand(), surface);
   }
 
   @Override
   public double priceTheta(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     return expandedIborFutureOptionPricerFn.priceTheta(env, iborFutureOptionProduct.expand(), surface);
   }
 

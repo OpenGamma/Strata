@@ -38,7 +38,7 @@ public class NormalExpandedIborFutureOptionPricerFn
 
   @Override
   public double price(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
     NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
     return NORMAL_FUNCTION.getPriceFunction(option).evaluate(normalPoint);
@@ -46,7 +46,7 @@ public class NormalExpandedIborFutureOptionPricerFn
 
   @Override
   public CurrencyAmount presentValue(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      IborFutureOptionSecurityTrade trade, NormalSTIRFuturesProviderInterface surface) {
+      IborFutureOptionSecurityTrade trade, Object surface) {
     double optionPrice = price(env, iborFutureOptionProduct, surface);
     double pv = (optionPrice - trade.getReferencePrice()) *
         iborFutureOptionProduct.getExpandedIborFuture().getNotional()
@@ -56,7 +56,7 @@ public class NormalExpandedIborFutureOptionPricerFn
 
   @Override
   public double priceDelta(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
     NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
     return NORMAL_FUNCTION.getDelta(option, normalPoint);
@@ -64,7 +64,7 @@ public class NormalExpandedIborFutureOptionPricerFn
 
   @Override
   public double priceGamma(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
     NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
     return NORMAL_FUNCTION.getGamma(option, normalPoint);
@@ -72,7 +72,7 @@ public class NormalExpandedIborFutureOptionPricerFn
 
   @Override
   public double priceVega(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
     NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
     return NORMAL_FUNCTION.getVega(option, normalPoint);
@@ -80,7 +80,7 @@ public class NormalExpandedIborFutureOptionPricerFn
 
   @Override
   public double priceTheta(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
     NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
     return NORMAL_FUNCTION.getTheta(option, normalPoint);
@@ -98,14 +98,15 @@ public class NormalExpandedIborFutureOptionPricerFn
   // MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity
 
   private NormalFunctionData createData(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      NormalSTIRFuturesProviderInterface surface) {
+      Object surface) {
     ExpandedIborFuture underlyingFuture = iborFutureOptionProduct.getExpandedIborFuture();
     double futurePrice = expandedIborFuturePriceFn.price(env, underlyingFuture);
     double timeToExpiry = env.relativeTime(iborFutureOptionProduct.getExpirationDate());
     double timeToLastTrade = env.relativeTime(iborFutureOptionProduct.getLastTradeDate());
     double delay = timeToLastTrade - timeToExpiry;
     double strike = iborFutureOptionProduct.getStrike();
-    double volatility = surface.getVolatility(timeToExpiry, delay, strike, futurePrice);
+    double volatility = ((NormalSTIRFuturesProviderInterface) surface).getVolatility(timeToExpiry, delay, strike,
+        futurePrice);
     return new NormalFunctionData(futurePrice, 1.0, volatility);
   }
 }
