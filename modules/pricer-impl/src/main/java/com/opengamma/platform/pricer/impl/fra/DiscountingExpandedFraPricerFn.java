@@ -7,6 +7,7 @@ package com.opengamma.platform.pricer.impl.fra;
 
 import java.time.temporal.ChronoUnit;
 
+import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.fra.ExpandedFra;
@@ -49,32 +50,42 @@ public class DiscountingExpandedFraPricerFn
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount presentValue(PricingEnvironment env, ExpandedFra fra) {
-    // futureValue * discountFactor
-    double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
-    return futureValue(env, fra).multipliedBy(df);
+    double notional = fra.getNotional();
+    Currency currency = fra.getCurrency();
+    double res = notional;
+    if (fra.getDiscounting() == FraDiscountingMethod.ISDA) {
+      res *= unitValueDiscounting(env, fra);
+    } else if (fra.getDiscounting() == FraDiscountingMethod.AFMA) {
+      res *= unitValueYieldDiscounting(env, fra);
+    } else if (fra.getDiscounting() == FraDiscountingMethod.NONE) {
+      res *= unitValueNoDiscounting(env, fra);
+    } else {
+      throw new IllegalArgumentException("not supported");
+    }
+    return MultiCurrencyAmount.of(currency, res);
   }
 
   @Override
   public MultiCurrencyAmount futureValue(PricingEnvironment env, ExpandedFra fra) {
-    double notional = fra.getNotional();
-    double unitFutureValue = 0.0;
-    if (fra.getDiscounting() == FraDiscountingMethod.AFMA) {
-      unitFutureValue = unitFutureValueAFMA(env, fra);
-    } else {
-      unitFutureValue = unitFutureValueDefault(env, fra);
+    if (fra.getDiscounting() == FraDiscountingMethod.ISDA) {
+      return MultiCurrencyAmount.of(fra.getCurrency(), fra.getNotional() * unitValueNoDiscounting(env, fra));
     }
-    return MultiCurrencyAmount.of(fra.getCurrency(), notional * unitFutureValue);
+    throw new IllegalArgumentException("not supported");
   }
 
-  private double unitFutureValueDefault(PricingEnvironment env, ExpandedFra fra) {
+  private double unitValueDiscounting(PricingEnvironment env, ExpandedFra fra) {
+    double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
+    return df * unitValueNoDiscounting(env, fra);
+  }
+
+  private double unitValueNoDiscounting(PricingEnvironment env, ExpandedFra fra) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = rateObservationFn.rate(env, fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate());
     double yearFraction = fra.getYearFraction();
-    return (forwardRate - fixedRate) * yearFraction / (1 + forwardRate * yearFraction);
+    return (forwardRate - fixedRate) * yearFraction / (1.0 + forwardRate * yearFraction);
   }
 
-  private double unitFutureValueAFMA(PricingEnvironment env, ExpandedFra fra) {
-    // TODO check formula
+  private double unitValueYieldDiscounting(PricingEnvironment env, ExpandedFra fra) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = rateObservationFn.rate(env, fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate());
     double yearFraction = ChronoUnit.DAYS.between(fra.getStartDate(), fra.getEndDate()) / 365.0;

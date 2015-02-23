@@ -66,6 +66,22 @@ public class FraDummyData {
       .build();
 
   /**
+   * Fra, AFMA discounting method. 
+   */
+  public static final Fra FRA_NONE = Fra.builder()
+      .buySell(BUY)
+      .notional(NOTIONAL)
+      .paymentDate(AdjustableDate.of(date(2014, 12, 12), BDA_MOD_FOLLOW))
+      .startDate(date(2014, 9, 12))
+      .endDate(date(2014, 12, 12))
+      .index(GBP_LIBOR_3M)
+      .fixedRate(0.0125)
+      .currency(Currency.GBP)
+      .fixingOffset(MINUS_TWO_DAYS)
+      .discounting(FraDiscountingMethod.NONE)
+      .build();
+
+  /**
    * FraTrade, default discounting method. 
    */
   public static final FraTrade FRA_TRADE = FraTrade.builder()

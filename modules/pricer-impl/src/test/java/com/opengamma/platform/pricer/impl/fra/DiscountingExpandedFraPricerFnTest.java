@@ -1,7 +1,9 @@
 package com.opengamma.platform.pricer.impl.fra;
 
+import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.platform.pricer.impl.fra.FraDummyData.FRA;
 import static com.opengamma.platform.pricer.impl.fra.FraDummyData.FRA_AFMA;
+import static com.opengamma.platform.pricer.impl.fra.FraDummyData.FRA_NONE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -28,27 +30,39 @@ public class DiscountingExpandedFraPricerFnTest {
   private static final double TOLERANCE = 1E-12;
 
   /**
-   * Consistency between present value and future value for ISDA. 
+   * Consistency between present value and future value for ISDA, and present value for no discounting. 
    */
   public void testConsistencyISDA() {
     double discountFactor = 0.98d;
     RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
     when(mockEnv.discountFactor(FRA.getCurrency(), FRA.expand().getPaymentDate())).thenReturn(discountFactor);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(observation);
-    assertEquals(test.presentValue(mockEnv, FRA.expand()),
-        test.futureValue(mockEnv, FRA.expand()).multipliedBy(discountFactor));
+    assertEquals(test.presentValue(mockEnv, FRA.expand()).getAmount(FRA.getCurrency()).getAmount(),
+        test.futureValue(mockEnv, FRA.expand()).multipliedBy(discountFactor).getAmount(FRA.getCurrency()).getAmount(),
+        TOLERANCE);
+    assertEquals(test.presentValue(mockEnv, FRA_NONE.expand()), test.futureValue(mockEnv, FRA.expand()));
   }
 
   /**
-   * Consistency between present value and future value for AFMA. 
+   * 
    */
-  public void testConsistencyAFMA() {
+  public void TestFutureValueAFMA() {
     double discountFactor = 0.965d;
     RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
     when(mockEnv.discountFactor(FRA_AFMA.getCurrency(), FRA_AFMA.expand().getPaymentDate())).thenReturn(discountFactor);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(observation);
-    assertEquals(test.presentValue(mockEnv, FRA_AFMA.expand()),
-        test.futureValue(mockEnv, FRA_AFMA.expand()).multipliedBy(discountFactor));
+    assertThrowsIllegalArg(() -> test.futureValue(mockEnv, FRA_AFMA.expand()));
+  }
+
+  /**
+   * 
+   */
+  public void TestFutureValueNoDsc() {
+    double discountFactor = 0.965d;
+    RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
+    when(mockEnv.discountFactor(FRA_NONE.getCurrency(), FRA_NONE.expand().getPaymentDate())).thenReturn(discountFactor);
+    DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(observation);
+    assertThrowsIllegalArg(() -> test.futureValue(mockEnv, FRA_NONE.expand()));
   }
 
   /**
@@ -69,15 +83,15 @@ public class DiscountingExpandedFraPricerFnTest {
   }
 
   /**
-   * Test future value for AFMA. 
+   * Test present value for AFMA. 
    */
-  public void testFutureAFMA() {
+  public void testPresentAFMA() {
     double forwardRate = 0.018;
     ExpandedFra fraExp = FRA_AFMA.expand();
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
         .thenReturn(forwardRate);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
-    MultiCurrencyAmount computed = test.futureValue(mockEnv, fraExp);
+    MultiCurrencyAmount computed = test.presentValue(mockEnv, fraExp);
     double fixedRate = FRA_AFMA.getFixedRate();
     double yearFraction = ChronoUnit.DAYS.between(fraExp.getStartDate(), fraExp.getEndDate()) / 365.0;
     double notional = fraExp.getNotional();
