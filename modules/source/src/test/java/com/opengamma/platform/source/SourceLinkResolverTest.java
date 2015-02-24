@@ -14,6 +14,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 import com.opengamma.collect.Guavate;
 import com.opengamma.collect.id.IdentifiableBean;
 import com.opengamma.collect.id.Link;
@@ -92,17 +93,18 @@ public class SourceLinkResolverTest {
           .collect(Guavate.<IdentifiableBean, StandardId>toImmutableMap(StandardIdentifiable::getStandardId)));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends IdentifiableBean> Result<T> get(StandardId id, Class<T> type) {
+    public <T extends IdentifiableBean> Result<T> get(StandardId id, TypeToken<T> type) {
       if (beanMap.containsKey(id)) {
         IdentifiableBean bean = beanMap.get(id);
         Class<? extends IdentifiableBean> receivedType = bean.getClass();
         if (type.isAssignableFrom(receivedType)) {
-          return Result.success(type.cast(bean));
+          return Result.success((T) bean);
         } else {
           return Result.failure(FailureReason.MISSING_DATA,
               "Found data with id: {} of type: {} but expected type was: {}",
-              id, receivedType.getSimpleName(), type.getSimpleName());
+              id, receivedType.getSimpleName(), type.toString());
         }
       } else {
         return Result.failure(FailureReason.MISSING_DATA, "Unable to find data with id: {}", id);
