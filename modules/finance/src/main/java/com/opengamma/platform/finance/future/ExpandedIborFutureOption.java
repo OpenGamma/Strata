@@ -57,14 +57,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
   @PropertyDefinition
   private final boolean isCall;
 
-  /**
-   * TODO This information should be in option???
-   * The last date of trading.
-   * This date is also the fixing date for the IBOR-like index.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final LocalDate lastTradeDate;
-
   //-------------------------------------------------------------------------
   @Override
   public ExpandedIborFutureOption expand() {
@@ -105,12 +97,10 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
   protected ExpandedIborFutureOption(ExpandedIborFutureOption.Builder builder) {
     JodaBeanUtils.notNull(builder.expandedIborFuture, "expandedIborFuture");
     JodaBeanUtils.notNull(builder.expirationDate, "expirationDate");
-    JodaBeanUtils.notNull(builder.lastTradeDate, "lastTradeDate");
     this.expandedIborFuture = builder.expandedIborFuture;
     this.expirationDate = builder.expirationDate;
     this.strike = builder.strike;
     this.isCall = builder.isCall;
-    this.lastTradeDate = builder.lastTradeDate;
   }
 
   @Override
@@ -169,17 +159,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets tODO This information should be in option???
-   * The last date of trading.
-   * This date is also the fixing date for the IBOR-like index.
-   * @return the value of the property, not null
-   */
-  public LocalDate getLastTradeDate() {
-    return lastTradeDate;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -197,8 +176,7 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
       return JodaBeanUtils.equal(getExpandedIborFuture(), other.getExpandedIborFuture()) &&
           JodaBeanUtils.equal(getExpirationDate(), other.getExpirationDate()) &&
           JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
-          (isIsCall() == other.isIsCall()) &&
-          JodaBeanUtils.equal(getLastTradeDate(), other.getLastTradeDate());
+          (isIsCall() == other.isIsCall());
     }
     return false;
   }
@@ -210,13 +188,12 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
     hash = hash * 31 + JodaBeanUtils.hashCode(isIsCall());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getLastTradeDate());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("ExpandedIborFutureOption{");
     int len = buf.length();
     toString(buf);
@@ -232,7 +209,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
     buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(getExpirationDate())).append(',').append(' ');
     buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
     buf.append("isCall").append('=').append(JodaBeanUtils.toString(isIsCall())).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(getLastTradeDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -266,11 +242,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
     private final MetaProperty<Boolean> isCall = DirectMetaProperty.ofImmutable(
         this, "isCall", ExpandedIborFutureOption.class, Boolean.TYPE);
     /**
-     * The meta-property for the {@code lastTradeDate} property.
-     */
-    private final MetaProperty<LocalDate> lastTradeDate = DirectMetaProperty.ofImmutable(
-        this, "lastTradeDate", ExpandedIborFutureOption.class, LocalDate.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -278,8 +249,7 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
         "expandedIborFuture",
         "expirationDate",
         "strike",
-        "isCall",
-        "lastTradeDate");
+        "isCall");
 
     /**
      * Restricted constructor.
@@ -298,8 +268,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
           return strike;
         case -1180608856:  // isCall
           return isCall;
-        case -1041950404:  // lastTradeDate
-          return lastTradeDate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -352,14 +320,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
       return isCall;
     }
 
-    /**
-     * The meta-property for the {@code lastTradeDate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<LocalDate> lastTradeDate() {
-      return lastTradeDate;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -372,8 +332,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
           return ((ExpandedIborFutureOption) bean).getStrike();
         case -1180608856:  // isCall
           return ((ExpandedIborFutureOption) bean).isIsCall();
-        case -1041950404:  // lastTradeDate
-          return ((ExpandedIborFutureOption) bean).getLastTradeDate();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -399,7 +357,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
     private LocalDate expirationDate;
     private double strike;
     private boolean isCall;
-    private LocalDate lastTradeDate;
 
     /**
      * Restricted constructor.
@@ -416,7 +373,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
       this.expirationDate = beanToCopy.getExpirationDate();
       this.strike = beanToCopy.getStrike();
       this.isCall = beanToCopy.isIsCall();
-      this.lastTradeDate = beanToCopy.getLastTradeDate();
     }
 
     //-----------------------------------------------------------------------
@@ -431,8 +387,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
           return strike;
         case -1180608856:  // isCall
           return isCall;
-        case -1041950404:  // lastTradeDate
-          return lastTradeDate;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -452,9 +406,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
           break;
         case -1180608856:  // isCall
           this.isCall = (Boolean) newValue;
-          break;
-        case -1041950404:  // lastTradeDate
-          this.lastTradeDate = (LocalDate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -534,21 +485,10 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
       return this;
     }
 
-    /**
-     * Sets the {@code lastTradeDate} property in the builder.
-     * @param lastTradeDate  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder lastTradeDate(LocalDate lastTradeDate) {
-      JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
-      this.lastTradeDate = lastTradeDate;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("ExpandedIborFutureOption.Builder{");
       int len = buf.length();
       toString(buf);
@@ -564,7 +504,6 @@ public class ExpandedIborFutureOption implements IborFutureOptionProduct, Immuta
       buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(expirationDate)).append(',').append(' ');
       buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
       buf.append("isCall").append('=').append(JodaBeanUtils.toString(isCall)).append(',').append(' ');
-      buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
     }
 
   }

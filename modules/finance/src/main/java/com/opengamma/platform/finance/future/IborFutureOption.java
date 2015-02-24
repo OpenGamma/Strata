@@ -65,7 +65,6 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
         .strike(strike)
         .isCall(isCall)
         .expandedIborFuture(iborFuture.expand())
-        .lastTradeDate(iborFuture.getLastTradeDate())
         .build();
   }
 
