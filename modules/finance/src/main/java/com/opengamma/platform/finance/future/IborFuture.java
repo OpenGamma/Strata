@@ -95,7 +95,7 @@ public final class IborFuture
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
-  private static void p(Builder builder) {
+  private static void applyDefaults(Builder builder) {
     builder.roundingDecimalPlaces(4);
   }
 
@@ -491,7 +491,7 @@ public final class IborFuture
      * Restricted constructor.
      */
     private Builder() {
-      p(this);
+      applyDefaults(this);
     }
 
     /**

@@ -9,6 +9,7 @@ import static com.opengamma.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverBeanEquals;
+import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
@@ -103,6 +104,7 @@ public class IborFutureTest {
   public void coverageTest() {
     IborFuture iborFuture1 = IborFuture.builder().notional(NOTIONAL_1).currency(USD).accrualFactor(ACCRUAL_FACTOR_3M)
         .lastTradeDate(LAST_TRADE_DATE_1).index(USD_LIBOR_3M).roundingDecimalPlaces(ROUNDING).build();
+    coverImmutableBean(iborFuture1);
     IborFuture iborFuture2 = IborFuture.builder().notional(NOTIONAL_2).currency(GBP).accrualFactor(ACCRUAL_FACTOR_2M)
         .lastTradeDate(LAST_TRADE_DATE_2).index(GBP_LIBOR_2M).build();
     coverBeanEquals(iborFuture1, iborFuture2);
