@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.TypeToken;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Guavate;
 import com.opengamma.collect.id.IdentifiableBean;
@@ -99,7 +100,7 @@ public class DefaultSearchableSource implements SearchableSource {
    *   reason why it cannot be returned
    */
   @Override
-  public <T extends IdentifiableBean> Result<T> get(StandardId id, Class<T> type) {
+  public <T extends IdentifiableBean> Result<T> get(StandardId id, TypeToken<T> type) {
 
     Optional<IdentifiableBean> opt = sourceProvider.get(id);
     return opt
@@ -108,12 +109,15 @@ public class DefaultSearchableSource implements SearchableSource {
   }
 
   // try to convert the bean to the specified type, returning an appropriate result
+  @SuppressWarnings("unchecked")
   private <T extends IdentifiableBean> Result<T> attemptTypeConversion(
-      StandardId id, Class<T> type, IdentifiableBean bean) {
+      StandardId id, TypeToken<T> type, IdentifiableBean bean) {
 
     Class<? extends IdentifiableBean> receivedType = bean.getClass();
-    return type.isAssignableFrom(receivedType) ?
-        Result.success(type.cast(bean)) :
+    // this code does not fully check the type compatibility
+    // to do this, the generic types need to be made available
+    return type.getRawType().isAssignableFrom(receivedType) ?
+        Result.success((T) bean) :
         createIncorrectTypeFailure(id, type, receivedType);
   }
 
@@ -124,10 +128,10 @@ public class DefaultSearchableSource implements SearchableSource {
 
   // failure result when the identifier returned a type incompatible with the requested type
   private <T extends IdentifiableBean> Result<T> createIncorrectTypeFailure(
-      StandardId id, Class<T> type, Class<? extends IdentifiableBean> receivedType) {
+      StandardId id, TypeToken<T> type, Class<? extends IdentifiableBean> receivedType) {
     return Result.<T>failure(FailureReason.MISSING_DATA,
         "Found data with id: {} of type: {} but expected type was: {}",
-        id, receivedType.getSimpleName(), type.getSimpleName());
+        id, receivedType.getSimpleName(), type.toString());
   }
 
 }
