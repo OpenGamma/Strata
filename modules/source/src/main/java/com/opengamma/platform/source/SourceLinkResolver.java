@@ -5,11 +5,11 @@
  */
 package com.opengamma.platform.source;
 
+import com.google.common.reflect.TypeToken;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.id.IdentifiableBean;
 import com.opengamma.collect.id.LinkResolutionException;
 import com.opengamma.collect.id.LinkResolver;
-import com.opengamma.collect.id.ResolvableLink;
 import com.opengamma.collect.id.StandardId;
 import com.opengamma.collect.result.Result;
 
@@ -41,24 +41,23 @@ public class SourceLinkResolver implements LinkResolver {
    * Resolve the supplied link using the source, returning the
    * realized target of the link.
    * <p>
-   * A call is made to {@link Source#get(StandardId, Class)} and
-   * if the returned result indicates a failure, a
-   * {@code LinkResolutionException} will be thrown with the
-   * failure reason taken from the Result.
+   * A call is made to {@link Source#get(StandardId, TypeToken)}.
+   * If the returned result indicates a failure, a {@code LinkResolutionException}
+   * will be thrown with the failure reason taken from the {@code Result}.
    *
    * @param <T>  the type of the target of the link
-   * @param link  the link to be resolved
+   * @param identifier  the identifier to be resolved
+   * @param targetType  the target type of the link
    * @return the resolved target of the link
    * @throws LinkResolutionException if the link cannot be resolved
    */
   @Override
-  public <T extends IdentifiableBean> T resolve(ResolvableLink<T> link) {
-    Result<T> result = source.get(link.getIdentifier(), link.getTargetType());
-    if (result.isSuccess()) {
-      return result.getValue();
-    } else {
-      throw new LinkResolutionException(link, result.getFailure());
-    }
+  public <T extends IdentifiableBean> T resolve(StandardId identifier, TypeToken<T> targetType) {
+    Result<T> result = source.get(identifier, targetType);
+    return result
+        .getValueOrElseApply(failure -> {
+          throw new LinkResolutionException("Unable to resolve link to: " + identifier + ", " + failure.getMessage());
+        });
   }
 
   @Override
