@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 
 /**
- * 
+ * Test ExpandedIborFuture.
  */
 @Test
 public class ExpandedIborFutureTest {
@@ -72,11 +72,12 @@ public class ExpandedIborFutureTest {
   }
 
   /**
-   * Currency is not set, exception is thrown. 
+   * Currency is not set, currency of index is used. 
    */
   public void noCurrencyTest() {
-    assertThrowsIllegalArg(() -> ExpandedIborFuture.builder().notional(NOTIONAL_1).accrualFactor(ACCRUAL_FACTOR_2M)
-        .rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build());
+    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder().notional(NOTIONAL_1)
+        .accrualFactor(ACCRUAL_FACTOR_2M).rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build();
+    assertEquals(GBP, expIborFuture.getCurrency());
   }
 
   /**

@@ -84,11 +84,12 @@ public class IborFutureTest {
   }
 
   /**
-   * currency is null, exception thrown. 
+   * currency is null, currency of index is used. 
    */
   public void noCurrencyTest() {
-    assertThrowsIllegalArg(() -> IborFuture.builder().notional(NOTIONAL_1).index(GBP_LIBOR_2M)
-        .lastTradeDate(LAST_TRADE_DATE_1).roundingDecimalPlaces(ROUNDING).build());
+    IborFuture iborFuture = IborFuture.builder().notional(NOTIONAL_1).index(GBP_LIBOR_2M)
+        .lastTradeDate(LAST_TRADE_DATE_1).roundingDecimalPlaces(ROUNDING).build();
+    assertEquals(GBP, iborFuture.getCurrency());
   }
 
   /**

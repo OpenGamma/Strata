@@ -101,8 +101,13 @@ public final class IborFuture
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
-    if (builder.accrualFactor == 0d && builder.index != null && builder.index.getTenor().isMonthBased()) {
-      builder.accrualFactor(builder.index.getTenor().getPeriod().toTotalMonths() / 12d);
+    if (builder.index != null) {
+      if (builder.accrualFactor == 0d && builder.index.getTenor().isMonthBased()) {
+        builder.accrualFactor(builder.index.getTenor().getPeriod().toTotalMonths() / 12d);
+      }
+      if (builder.currency == null) {
+        builder.currency = builder.index.getCurrency();
+      }
     }
   }
 
