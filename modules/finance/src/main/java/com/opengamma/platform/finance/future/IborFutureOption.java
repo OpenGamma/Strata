@@ -9,6 +9,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -17,6 +18,8 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.collect.ArgChecker;
 
 /**
  * A futures option contract, based on an IBOR-like index, with dates calculated ready for pricing.
@@ -56,6 +59,11 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
    */
   @PropertyDefinition
   private final boolean isCall;
+
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.inOrderOrEqual(expirationDate, iborFuture.getLastTradeDate(), "expirationDate", "lastTradeDate");
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -106,6 +114,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
     this.expirationDate = builder.expirationDate;
     this.strike = builder.strike;
     this.isCall = builder.isCall;
+    validate();
   }
 
   @Override
