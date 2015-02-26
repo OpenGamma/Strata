@@ -41,32 +41,8 @@ public class ExpandingIborFutureOptionProductPricerFn
 
   @Override
   public CurrencyAmount presentValue(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      IborFutureOptionSecurityTrade trade, Object surface) {
-    return expandedIborFutureOptionPricerFn.presentValue(env, iborFutureOptionProduct.expand(), trade, surface);
+      IborFutureOptionSecurityTrade trade, double lastClosingPrice, Object surface) {
+    return expandedIborFutureOptionPricerFn.presentValue(env, iborFutureOptionProduct.expand(), trade,
+        lastClosingPrice, surface);
   }
-
-  @Override
-  public double priceDelta(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      Object surface) {
-    return expandedIborFutureOptionPricerFn.priceDelta(env, iborFutureOptionProduct.expand(), surface);
-  }
-
-  @Override
-  public double priceGamma(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      Object surface) {
-    return expandedIborFutureOptionPricerFn.priceGamma(env, iborFutureOptionProduct.expand(), surface);
-  }
-
-  @Override
-  public double priceVega(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      Object surface) {
-    return expandedIborFutureOptionPricerFn.priceVega(env, iborFutureOptionProduct.expand(), surface);
-  }
-
-  @Override
-  public double priceTheta(PricingEnvironment env, IborFutureOption iborFutureOptionProduct,
-      Object surface) {
-    return expandedIborFutureOptionPricerFn.priceTheta(env, iborFutureOptionProduct.expand(), surface);
-  }
-
 }

@@ -78,13 +78,10 @@ public class IborFutureOptionSecurityTrade
   private final double multiplier;
 
   /**
-   * transaction price paid for the equity at transaction time.
-   * <p>
-   * This will be negative if buying and positive if selling.
-   * This is an optional value that will not be present if the amount is not known.
+   * Initial price of the product. 
    */
   @PropertyDefinition
-  private final double referencePrice;
+  private final double initialPrice;
 
   @Override
   @DerivedProperty
@@ -133,7 +130,7 @@ public class IborFutureOptionSecurityTrade
     this.tradeDate = builder.tradeDate;
     this.securityLink = builder.securityLink;
     this.multiplier = builder.multiplier;
-    this.referencePrice = builder.referencePrice;
+    this.initialPrice = builder.initialPrice;
   }
 
   @Override
@@ -209,14 +206,11 @@ public class IborFutureOptionSecurityTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets transaction price paid for the equity at transaction time.
-   * <p>
-   * This will be negative if buying and positive if selling.
-   * This is an optional value that will not be present if the amount is not known.
+   * Gets initial price of the product.
    * @return the value of the property
    */
-  public double getReferencePrice() {
-    return referencePrice;
+  public double getInitialPrice() {
+    return initialPrice;
   }
 
   //-----------------------------------------------------------------------
@@ -240,7 +234,7 @@ public class IborFutureOptionSecurityTrade
           JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getMultiplier(), other.getMultiplier()) &&
-          JodaBeanUtils.equal(getReferencePrice(), other.getReferencePrice());
+          JodaBeanUtils.equal(getInitialPrice(), other.getInitialPrice());
     }
     return false;
   }
@@ -253,7 +247,7 @@ public class IborFutureOptionSecurityTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash = hash * 31 + JodaBeanUtils.hashCode(getMultiplier());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getReferencePrice());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInitialPrice());
     return hash;
   }
 
@@ -276,7 +270,7 @@ public class IborFutureOptionSecurityTrade
     buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
     buf.append("securityLink").append('=').append(JodaBeanUtils.toString(getSecurityLink())).append(',').append(' ');
     buf.append("multiplier").append('=').append(JodaBeanUtils.toString(getMultiplier())).append(',').append(' ');
-    buf.append("referencePrice").append('=').append(JodaBeanUtils.toString(getReferencePrice())).append(',').append(' ');
+    buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(getInitialPrice())).append(',').append(' ');
     buf.append("tradeType").append('=').append(JodaBeanUtils.toString(getTradeType())).append(',').append(' ');
   }
 
@@ -318,10 +312,10 @@ public class IborFutureOptionSecurityTrade
     private final MetaProperty<Double> multiplier = DirectMetaProperty.ofImmutable(
         this, "multiplier", IborFutureOptionSecurityTrade.class, Double.TYPE);
     /**
-     * The meta-property for the {@code referencePrice} property.
+     * The meta-property for the {@code initialPrice} property.
      */
-    private final MetaProperty<Double> referencePrice = DirectMetaProperty.ofImmutable(
-        this, "referencePrice", IborFutureOptionSecurityTrade.class, Double.TYPE);
+    private final MetaProperty<Double> initialPrice = DirectMetaProperty.ofImmutable(
+        this, "initialPrice", IborFutureOptionSecurityTrade.class, Double.TYPE);
     /**
      * The meta-property for the {@code tradeType} property.
      */
@@ -337,7 +331,7 @@ public class IborFutureOptionSecurityTrade
         "tradeDate",
         "securityLink",
         "multiplier",
-        "referencePrice",
+        "initialPrice",
         "tradeType");
 
     /**
@@ -359,8 +353,8 @@ public class IborFutureOptionSecurityTrade
           return securityLink;
         case 1265073601:  // multiplier
           return multiplier;
-        case -1913890626:  // referencePrice
-          return referencePrice;
+        case -423406491:  // initialPrice
+          return initialPrice;
         case 752919230:  // tradeType
           return tradeType;
       }
@@ -424,11 +418,11 @@ public class IborFutureOptionSecurityTrade
     }
 
     /**
-     * The meta-property for the {@code referencePrice} property.
+     * The meta-property for the {@code initialPrice} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> referencePrice() {
-      return referencePrice;
+    public final MetaProperty<Double> initialPrice() {
+      return initialPrice;
     }
 
     /**
@@ -453,8 +447,8 @@ public class IborFutureOptionSecurityTrade
           return ((IborFutureOptionSecurityTrade) bean).getSecurityLink();
         case 1265073601:  // multiplier
           return ((IborFutureOptionSecurityTrade) bean).getMultiplier();
-        case -1913890626:  // referencePrice
-          return ((IborFutureOptionSecurityTrade) bean).getReferencePrice();
+        case -423406491:  // initialPrice
+          return ((IborFutureOptionSecurityTrade) bean).getInitialPrice();
         case 752919230:  // tradeType
           return ((IborFutureOptionSecurityTrade) bean).getTradeType();
       }
@@ -483,7 +477,7 @@ public class IborFutureOptionSecurityTrade
     private LocalDate tradeDate;
     private Link<IborFutureOptionSecurity> securityLink;
     private double multiplier;
-    private double referencePrice;
+    private double initialPrice;
 
     /**
      * Restricted constructor.
@@ -501,7 +495,7 @@ public class IborFutureOptionSecurityTrade
       this.tradeDate = beanToCopy.getTradeDate();
       this.securityLink = beanToCopy.getSecurityLink();
       this.multiplier = beanToCopy.getMultiplier();
-      this.referencePrice = beanToCopy.getReferencePrice();
+      this.initialPrice = beanToCopy.getInitialPrice();
     }
 
     //-----------------------------------------------------------------------
@@ -518,8 +512,8 @@ public class IborFutureOptionSecurityTrade
           return securityLink;
         case 1265073601:  // multiplier
           return multiplier;
-        case -1913890626:  // referencePrice
-          return referencePrice;
+        case -423406491:  // initialPrice
+          return initialPrice;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -544,8 +538,8 @@ public class IborFutureOptionSecurityTrade
         case 1265073601:  // multiplier
           this.multiplier = (Double) newValue;
           break;
-        case -1913890626:  // referencePrice
-          this.referencePrice = (Double) newValue;
+        case -423406491:  // initialPrice
+          this.initialPrice = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -638,12 +632,12 @@ public class IborFutureOptionSecurityTrade
     }
 
     /**
-     * Sets the {@code referencePrice} property in the builder.
-     * @param referencePrice  the new value
+     * Sets the {@code initialPrice} property in the builder.
+     * @param initialPrice  the new value
      * @return this, for chaining, not null
      */
-    public Builder referencePrice(double referencePrice) {
-      this.referencePrice = referencePrice;
+    public Builder initialPrice(double initialPrice) {
+      this.initialPrice = initialPrice;
       return this;
     }
 
@@ -667,7 +661,7 @@ public class IborFutureOptionSecurityTrade
       buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(tradeDate)).append(',').append(' ');
       buf.append("securityLink").append('=').append(JodaBeanUtils.toString(securityLink)).append(',').append(' ');
       buf.append("multiplier").append('=').append(JodaBeanUtils.toString(multiplier)).append(',').append(' ');
-      buf.append("referencePrice").append('=').append(JodaBeanUtils.toString(referencePrice)).append(',').append(' ');
+      buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice)).append(',').append(' ');
     }
 
   }

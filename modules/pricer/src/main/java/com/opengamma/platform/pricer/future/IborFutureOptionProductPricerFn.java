@@ -33,58 +33,15 @@ public interface IborFutureOptionProductPricerFn<T extends IborFutureOptionProdu
   public abstract double price(PricingEnvironment env, T iborFutureOptionProduct,
       Object surface);
 
+  /**
+   * Calculates present value of ibor future option trade. 
+   * @param env The pricing environment
+   * @param iborFutureOptionProduct The pricing product
+   * @param trade The trade 
+   * @param lastClosingPrice The last closing price
+   * @param surface The volatility surface
+   * @return The present value as CurrencyAmount
+   */
   public abstract CurrencyAmount presentValue(PricingEnvironment env, T iborFutureOptionProduct,
-      IborFutureOptionSecurityTrade trade, Object surface);
-
-  /**
-   * Calculates price delta of the Ibor future option.
-   * <p>
-   * The price of the product is the price on the valuation date.
-   * 
-   * @param env The pricing environment
-   * @param iborFutureOptionProduct The pricing option
-   * @param surface The volatility surface
-   * @return option price
-   */
-  public abstract double priceDelta(PricingEnvironment env, T iborFutureOptionProduct,
-      Object surface);
-
-  /**
-   * Calculates price gamma of the Ibor future option.
-   * <p>
-   * The price of the product is the price on the valuation date.
-   * 
-   * @param env The pricing environment
-   * @param iborFutureOptionProduct The pricing option
-   * @param surface The volatility surface
-   * @return option price
-   */
-  public abstract double priceGamma(PricingEnvironment env, T iborFutureOptionProduct,
-      Object surface);
-
-  /**
-   * Calculates price vega of the Ibor future option.
-   * <p>
-   * The price of the product is the price on the valuation date.
-   * 
-   * @param env The pricing environment
-   * @param iborFutureOptionProduct The pricing option
-   * @param surface The volatility surface
-   * @return option price
-   */
-  public abstract double priceVega(PricingEnvironment env, T iborFutureOptionProduct,
-      Object surface);
-
-  /**
-   * Calculates price theta of the Ibor future option.
-   * <p>
-   * The price of the product is the price on the valuation date.
-   * 
-   * @param env The pricing environment
-   * @param iborFutureOptionProduct The pricing option
-   * @param surface The volatility surface, NormalSTIRFuturesProviderInterface
-   * @return option price
-   */
-  public abstract double priceTheta(PricingEnvironment env, T iborFutureOptionProduct,
-      Object surface);
+      IborFutureOptionSecurityTrade trade, double lastClosingPrice, Object surface);
 }

@@ -46,44 +46,11 @@ public class NormalExpandedIborFutureOptionPricerFn
 
   @Override
   public CurrencyAmount presentValue(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      IborFutureOptionSecurityTrade trade, Object surface) {
+      IborFutureOptionSecurityTrade trade, double lastClosingPrice, Object surface) {
     double optionPrice = price(env, iborFutureOptionProduct, surface);
-    double pv = (optionPrice - trade.getReferencePrice()) *
-        iborFutureOptionProduct.getExpandedIborFuture().getNotional()
+    double pv = (optionPrice - lastClosingPrice) * iborFutureOptionProduct.getExpandedIborFuture().getNotional()
         * iborFutureOptionProduct.getExpandedIborFuture().getAccrualFactor() * trade.getMultiplier();
     return CurrencyAmount.of(iborFutureOptionProduct.getExpandedIborFuture().getCurrency(), pv);
-  }
-
-  @Override
-  public double priceDelta(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      Object surface) {
-    EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
-    NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
-    return NORMAL_FUNCTION.getDelta(option, normalPoint);
-  }
-
-  @Override
-  public double priceGamma(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      Object surface) {
-    EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
-    NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
-    return NORMAL_FUNCTION.getGamma(option, normalPoint);
-  }
-
-  @Override
-  public double priceVega(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      Object surface) {
-    EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
-    NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
-    return NORMAL_FUNCTION.getVega(option, normalPoint);
-  }
-
-  @Override
-  public double priceTheta(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct,
-      Object surface) {
-    EuropeanVanillaOption option = createOption(env, iborFutureOptionProduct);
-    NormalFunctionData normalPoint = createData(env, iborFutureOptionProduct, surface);
-    return NORMAL_FUNCTION.getTheta(option, normalPoint);
   }
 
   private EuropeanVanillaOption createOption(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct) {
