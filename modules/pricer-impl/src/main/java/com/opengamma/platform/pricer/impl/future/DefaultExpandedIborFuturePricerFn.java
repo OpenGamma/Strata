@@ -33,24 +33,24 @@ public class DefaultExpandedIborFuturePricerFn
   //-------------------------------------------------------------------------
   @Override
   public double price(PricingEnvironment env, ExpandedIborFuture iborFuture) {
-    // FuturesPriceMulticurveCalculator.visitInterestRateFutureSecurity()
     double forward = env.iborIndexRate(iborFuture.getRate().getIndex(), iborFuture.getRate().getFixingDate());
     // TODO this is an analytic price, not a user one
     return (1.0 - forward);
   }
 
-  public CurrencyAmount presentValue(
-      PricingEnvironment env,
-      ExpandedIborFuture iborFuture,
-      IborFutureSecurityTrade trade,
-      double lastMarginPrice) {
-
-    // FuturesTransactionMulticurveMethod.presentValue()
+  /**
+   * Computes present value. 
+   * @param env The pricing environment 
+   * @param iborFuture The expanded product to price
+   * @param trade The trade 
+   * @param lastClosingPrice The last closing price
+   * @return The present value
+   */
+  public CurrencyAmount presentValue(PricingEnvironment env, ExpandedIborFuture iborFuture,
+      IborFutureSecurityTrade trade, double lastClosingPrice) {
     double price = price(env, iborFuture);
-    // FuturesTransactionMethod.presentValueFromPrice()
     double priceIndex = marginIndex(iborFuture, price);
-    // TODO check "referencePrice" = "paymentAmount"
-    double referenceIndex = marginIndex(iborFuture, lastMarginPrice);
+    double referenceIndex = marginIndex(iborFuture, lastClosingPrice);
     double pv = (priceIndex - referenceIndex) * trade.getMultiplier();
     return CurrencyAmount.of(iborFuture.getCurrency(), pv);
   }

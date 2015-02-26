@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.Bean;
@@ -26,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.collect.id.Link;
 import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.Trade;
@@ -82,13 +80,10 @@ public final class IborFutureSecurityTrade
   @PropertyDefinition
   private final double multiplier;
   /**
-   * Amount paid for the equity at time of purchase, optional.
-   * <p>
-   * This will be negative if buying and positive if selling.
-   * This is an optional value that will not be present if the amount is not known.
+   * Initial price of the product. 
    */
-  @PropertyDefinition(get = "optional")
-  private final CurrencyAmount paymentAmount;
+  @PropertyDefinition
+  private final double initialPrice;
 
   //-------------------------------------------------------------------------
   /**
@@ -135,7 +130,7 @@ public final class IborFutureSecurityTrade
       LocalDate tradeDate,
       Link<IborFutureSecurity> securityLink,
       double multiplier,
-      CurrencyAmount paymentAmount) {
+      double initialPrice) {
     JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(attributes, "attributes");
     JodaBeanUtils.notNull(tradeDate, "tradeDate");
@@ -145,7 +140,7 @@ public final class IborFutureSecurityTrade
     this.tradeDate = tradeDate;
     this.securityLink = securityLink;
     this.multiplier = multiplier;
-    this.paymentAmount = paymentAmount;
+    this.initialPrice = initialPrice;
   }
 
   @Override
@@ -221,14 +216,11 @@ public final class IborFutureSecurityTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets amount paid for the equity at time of purchase, optional.
-   * <p>
-   * This will be negative if buying and positive if selling.
-   * This is an optional value that will not be present if the amount is not known.
-   * @return the optional value of the property, not null
+   * Gets initial price of the product.
+   * @return the value of the property
    */
-  public Optional<CurrencyAmount> getPaymentAmount() {
-    return Optional.ofNullable(paymentAmount);
+  public double getInitialPrice() {
+    return initialPrice;
   }
 
   //-----------------------------------------------------------------------
@@ -252,7 +244,7 @@ public final class IborFutureSecurityTrade
           JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getMultiplier(), other.getMultiplier()) &&
-          JodaBeanUtils.equal(paymentAmount, other.paymentAmount);
+          JodaBeanUtils.equal(getInitialPrice(), other.getInitialPrice());
     }
     return false;
   }
@@ -265,7 +257,7 @@ public final class IborFutureSecurityTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash = hash * 31 + JodaBeanUtils.hashCode(getMultiplier());
-    hash = hash * 31 + JodaBeanUtils.hashCode(paymentAmount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(getInitialPrice());
     return hash;
   }
 
@@ -278,7 +270,7 @@ public final class IborFutureSecurityTrade
     buf.append("tradeDate").append('=').append(getTradeDate()).append(',').append(' ');
     buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
     buf.append("multiplier").append('=').append(getMultiplier()).append(',').append(' ');
-    buf.append("paymentAmount").append('=').append(paymentAmount).append(',').append(' ');
+    buf.append("initialPrice").append('=').append(getInitialPrice()).append(',').append(' ');
     buf.append("tradeType").append('=').append(JodaBeanUtils.toString(getTradeType()));
     buf.append('}');
     return buf.toString();
@@ -322,10 +314,10 @@ public final class IborFutureSecurityTrade
     private final MetaProperty<Double> multiplier = DirectMetaProperty.ofImmutable(
         this, "multiplier", IborFutureSecurityTrade.class, Double.TYPE);
     /**
-     * The meta-property for the {@code paymentAmount} property.
+     * The meta-property for the {@code initialPrice} property.
      */
-    private final MetaProperty<CurrencyAmount> paymentAmount = DirectMetaProperty.ofImmutable(
-        this, "paymentAmount", IborFutureSecurityTrade.class, CurrencyAmount.class);
+    private final MetaProperty<Double> initialPrice = DirectMetaProperty.ofImmutable(
+        this, "initialPrice", IborFutureSecurityTrade.class, Double.TYPE);
     /**
      * The meta-property for the {@code tradeType} property.
      */
@@ -341,7 +333,7 @@ public final class IborFutureSecurityTrade
         "tradeDate",
         "securityLink",
         "multiplier",
-        "paymentAmount",
+        "initialPrice",
         "tradeType");
 
     /**
@@ -363,8 +355,8 @@ public final class IborFutureSecurityTrade
           return securityLink;
         case 1265073601:  // multiplier
           return multiplier;
-        case 909332990:  // paymentAmount
-          return paymentAmount;
+        case -423406491:  // initialPrice
+          return initialPrice;
         case 752919230:  // tradeType
           return tradeType;
       }
@@ -428,11 +420,11 @@ public final class IborFutureSecurityTrade
     }
 
     /**
-     * The meta-property for the {@code paymentAmount} property.
+     * The meta-property for the {@code initialPrice} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyAmount> paymentAmount() {
-      return paymentAmount;
+    public MetaProperty<Double> initialPrice() {
+      return initialPrice;
     }
 
     /**
@@ -457,8 +449,8 @@ public final class IborFutureSecurityTrade
           return ((IborFutureSecurityTrade) bean).getSecurityLink();
         case 1265073601:  // multiplier
           return ((IborFutureSecurityTrade) bean).getMultiplier();
-        case 909332990:  // paymentAmount
-          return ((IborFutureSecurityTrade) bean).paymentAmount;
+        case -423406491:  // initialPrice
+          return ((IborFutureSecurityTrade) bean).getInitialPrice();
         case 752919230:  // tradeType
           return ((IborFutureSecurityTrade) bean).getTradeType();
       }
@@ -487,7 +479,7 @@ public final class IborFutureSecurityTrade
     private LocalDate tradeDate;
     private Link<IborFutureSecurity> securityLink;
     private double multiplier;
-    private CurrencyAmount paymentAmount;
+    private double initialPrice;
 
     /**
      * Restricted constructor.
@@ -505,7 +497,7 @@ public final class IborFutureSecurityTrade
       this.tradeDate = beanToCopy.getTradeDate();
       this.securityLink = beanToCopy.getSecurityLink();
       this.multiplier = beanToCopy.getMultiplier();
-      this.paymentAmount = beanToCopy.paymentAmount;
+      this.initialPrice = beanToCopy.getInitialPrice();
     }
 
     //-----------------------------------------------------------------------
@@ -522,8 +514,8 @@ public final class IborFutureSecurityTrade
           return securityLink;
         case 1265073601:  // multiplier
           return multiplier;
-        case 909332990:  // paymentAmount
-          return paymentAmount;
+        case -423406491:  // initialPrice
+          return initialPrice;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -548,8 +540,8 @@ public final class IborFutureSecurityTrade
         case 1265073601:  // multiplier
           this.multiplier = (Double) newValue;
           break;
-        case 909332990:  // paymentAmount
-          this.paymentAmount = (CurrencyAmount) newValue;
+        case -423406491:  // initialPrice
+          this.initialPrice = (Double) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -589,7 +581,7 @@ public final class IborFutureSecurityTrade
           tradeDate,
           securityLink,
           multiplier,
-          paymentAmount);
+          initialPrice);
     }
 
     //-----------------------------------------------------------------------
@@ -648,12 +640,12 @@ public final class IborFutureSecurityTrade
     }
 
     /**
-     * Sets the {@code paymentAmount} property in the builder.
-     * @param paymentAmount  the new value
+     * Sets the {@code initialPrice} property in the builder.
+     * @param initialPrice  the new value
      * @return this, for chaining, not null
      */
-    public Builder paymentAmount(CurrencyAmount paymentAmount) {
-      this.paymentAmount = paymentAmount;
+    public Builder initialPrice(double initialPrice) {
+      this.initialPrice = initialPrice;
       return this;
     }
 
@@ -667,7 +659,7 @@ public final class IborFutureSecurityTrade
       buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(tradeDate)).append(',').append(' ');
       buf.append("securityLink").append('=').append(JodaBeanUtils.toString(securityLink)).append(',').append(' ');
       buf.append("multiplier").append('=').append(JodaBeanUtils.toString(multiplier)).append(',').append(' ');
-      buf.append("paymentAmount").append('=').append(JodaBeanUtils.toString(paymentAmount));
+      buf.append("initialPrice").append('=').append(JodaBeanUtils.toString(initialPrice));
       buf.append('}');
       return buf.toString();
     }
