@@ -35,7 +35,7 @@ public class IborAveragedRateObservationTest {
     IborAveragedRateObservation test = IborAveragedRateObservation.of(GBP_LIBOR_3M, FIXINGS);
     IborAveragedRateObservation expected = IborAveragedRateObservation.builder()
         .index(IborIndices.GBP_LIBOR_3M)
-        .fixings(FIXINGS)
+        .fixings(IborAveragedFixing.of(date(2014, 6, 30)), IborAveragedFixing.of(date(2014, 7, 30)))
         .build();
     assertEquals(test, expected);
     assertEquals(test.getTotalWeight(), 2d, 0d);
