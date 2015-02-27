@@ -29,11 +29,13 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.collect.ArgChecker;
 
 /**
- * An expanded swap, with dates calculated ready for pricing.
+ * An expanded rate swap, with dates calculated ready for pricing.
  * <p>
- * A swap is a financial instrument that represents the exchange of streams of payments.
+ * A rate swap is a financial instrument that represents the exchange of streams of payments.
  * The swap is formed of legs, where each leg typically represents the obligations
- * of the seller or buyer of the swap.
+ * of the seller or buyer of the swap. In the simplest vanilla interest rate swap,
+ * there are two legs, one with a fixed rate and the other a floating rate.
+ * Many other more complex swaps can also be represented.
  * <p>
  * This class defines a swap as a set of legs, each of which contains a list of payment periods.
  * Each payment period typically consists of one or more accrual periods.

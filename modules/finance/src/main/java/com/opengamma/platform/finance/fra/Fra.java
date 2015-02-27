@@ -44,14 +44,13 @@ import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.finance.observation.RateObservation;
 
 /**
- * A forward rate agreement (FRA) that can be traded.
+ * A forward rate agreement (FRA).
  * <p>
  * A FRA is a financial instrument that represents the one off exchange of a fixed
- * rate of interest for a floating rate.
+ * rate of interest for a floating rate at a future date.
  * <p>
- * An instance of {@code Fra} can exist independently from a {@link FraTrade}.
- * This would occur if the FRA has not been traded, such as when a FRA is an
- * underlying element of another data structure.
+ * For example, a FRA might involve an agreement to exchange the difference between
+ * the fixed rate of 1% and the 'GBP-LIBOR-3M' rate in 2 months time.
  */
 @BeanDefinition
 public final class Fra

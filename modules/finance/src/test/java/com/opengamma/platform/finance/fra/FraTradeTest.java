@@ -15,8 +15,6 @@ import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
-import java.time.LocalDate;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -24,7 +22,7 @@ import com.opengamma.basics.date.AdjustableDate;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.collect.id.StandardId;
-import com.opengamma.platform.finance.TradeType;
+import com.opengamma.platform.finance.TradeInfo;
 
 /**
  * Test.
@@ -51,24 +49,26 @@ public class FraTradeTest {
   public void test_builder() {
     FraTrade test = FraTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
-        .tradeDate(LocalDate.of(2014, 12, 3))
+        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 12, 3)).build())
         .fra(FRA)
         .build();
-    assertEquals(test.getTradeType(), TradeType.of("Fra"));
+    assertEquals(test.getStandardId(), StandardId.of("OG-Trade", "1"));
+    assertEquals(test.getTradeInfo(), TradeInfo.builder().tradeDate(date(2014, 12, 3)).build());
+    assertEquals(test.getFra(), FRA);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
     FraTrade test = FraTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
-        .tradeDate(LocalDate.of(2014, 12, 3))
+        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 12, 3)).build())
         .fra(FRA)
         .build();
     coverImmutableBean(test);
     FraTrade test2 = FraTrade.builder()
         .standardId(StandardId.of("OG-Trade", "2"))
         .attributes(ImmutableMap.of("key", "value"))
-        .tradeDate(LocalDate.of(2014, 12, 5))
+        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 12, 5)).build())
         .fra(FRA.toBuilder().notional(NOTIONAL_2M).build())
         .build();
     coverBeanEquals(test, test2);
@@ -77,7 +77,7 @@ public class FraTradeTest {
   public void test_serialization() {
     FraTrade test = FraTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
-        .tradeDate(LocalDate.of(2014, 12, 3))
+        .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 12, 3)).build())
         .fra(FRA)
         .build();
     assertSerialization(test);
