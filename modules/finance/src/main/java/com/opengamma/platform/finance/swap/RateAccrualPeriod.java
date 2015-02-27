@@ -5,6 +5,8 @@
  */
 package com.opengamma.platform.finance.swap;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
@@ -25,7 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.base.Objects;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.collect.ArgChecker;
@@ -160,14 +161,14 @@ public final class RateAccrualPeriod
       NegativeRateMethod negativeRateMethod) {
     this.startDate = ArgChecker.notNull(startDate, "startDate");
     this.endDate = ArgChecker.notNull(endDate, "endDate");
-    this.unadjustedStartDate = Objects.firstNonNull(unadjustedStartDate, startDate);
-    this.unadjustedEndDate = Objects.firstNonNull(unadjustedEndDate, endDate);
+    this.unadjustedStartDate = firstNonNull(unadjustedStartDate, startDate);
+    this.unadjustedEndDate = firstNonNull(unadjustedEndDate, endDate);
     this.yearFraction = ArgChecker.notNegative(yearFraction, "yearFraction");
     this.rateObservation = ArgChecker.notNull(rateObservation, "rateObservation");
     this.gearing = gearing;
     this.spread = spread;
     this.negativeRateMethod = ArgChecker.notNull(negativeRateMethod, "negativeRateMethod");
-    // check for unadjusted must be after Objects.firstNonNull
+    // check for unadjusted must be after firstNonNull
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderNotEqual(
         this.unadjustedStartDate, this.unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");

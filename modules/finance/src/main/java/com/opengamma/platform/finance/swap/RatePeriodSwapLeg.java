@@ -5,6 +5,7 @@
  */
 package com.opengamma.platform.finance.swap;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.opengamma.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
@@ -29,7 +30,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
@@ -149,7 +149,7 @@ public final class RatePeriodSwapLeg
     this.initialExchange = initialExchange;
     this.intermediateExchange = intermediateExchange;
     this.finalExchange = finalExchange;
-    this.paymentBusinessDayAdjustment = Objects.firstNonNull(paymentBusinessDayAdjustment, BusinessDayAdjustment.NONE);
+    this.paymentBusinessDayAdjustment = firstNonNull(paymentBusinessDayAdjustment, BusinessDayAdjustment.NONE);
     this.paymentEvents = ImmutableList.copyOf(paymentEvents);
     // determine and validate currency, with explicit error message
     Stream<Currency> periodCurrencies = paymentPeriods.stream().map(PaymentPeriod::getCurrency);

@@ -5,6 +5,8 @@
  */
 package com.opengamma.platform.source.id;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+
 import java.io.Serializable;
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -247,7 +249,7 @@ public final class VersionCorrection
    * @return the string version as of
    */
   public String getVersionAsOfString() {
-    return Objects.firstNonNull(versionAsOf, "LATEST").toString();
+    return firstNonNull(versionAsOf, "LATEST").toString();
   }
 
   /**
@@ -259,7 +261,7 @@ public final class VersionCorrection
    * @return the string corrected to
    */
   public String getCorrectedToString() {
-    return Objects.firstNonNull(correctedTo, "LATEST").toString();
+    return firstNonNull(correctedTo, "LATEST").toString();
   }
 
   //-------------------------------------------------------------------------

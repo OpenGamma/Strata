@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.finance.swap;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.opengamma.basics.value.ValueSchedule.ALWAYS_0;
 import static com.opengamma.basics.value.ValueSchedule.ALWAYS_1;
 
