@@ -9,9 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.collect.result.Failure;
-import com.opengamma.collect.result.Result;
-
 /**
  * Test.
  */
@@ -19,33 +16,15 @@ import com.opengamma.collect.result.Result;
 public class LinkResolutionExceptionTest {
 
   public void test_constructor_LinkString() {
-    Link<?> link = Link.resolved(MockIdentifiable.MOCK1);
-    LinkResolutionException test = new LinkResolutionException(link, "Msg");
+    LinkResolutionException test = new LinkResolutionException("Msg");
     assertThat(test).isNotNull();
     assertThat(test.getMessage()).isNotNull();
   }
 
   public void test_constructor_LinkString_nullCause() {
-    Link<?> link = Link.resolved(MockIdentifiable.MOCK1);
-    LinkResolutionException test = new LinkResolutionException(link, (String) null);
+    LinkResolutionException test = new LinkResolutionException((String) null);
     assertThat(test).isNotNull();
-    assertThat(test.getMessage()).isNotNull();
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_constructor_LinkCause() {
-    Link<?> link = Link.resolved(MockIdentifiable.MOCK1);
-    Failure cause = Result.failure(new RuntimeException()).getFailure();
-    LinkResolutionException test = new LinkResolutionException(link, cause);
-    assertThat(test).isNotNull();
-    assertThat(test.getMessage()).isNotNull();
-  }
-
-  public void test_constructor_LinkCause_nullCause() {
-    Link<?> link = Link.resolved(MockIdentifiable.MOCK1);
-    LinkResolutionException test = new LinkResolutionException(link, (Failure) null);
-    assertThat(test).isNotNull();
-    assertThat(test.getMessage()).isNotNull();
+    assertThat(test.getMessage()).isNull();
   }
 
 }
