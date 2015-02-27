@@ -5,6 +5,7 @@
  */
 package com.opengamma.platform.source;
 
+import static com.opengamma.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,6 +17,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.TypeToken;
 import com.opengamma.collect.id.IdentifiableBean;
 import com.opengamma.collect.id.StandardId;
 import com.opengamma.collect.result.FailureReason;
@@ -36,8 +38,8 @@ public class DefaultSearchableSourceTest {
         IllegalArgumentException.class);
   }
 
+  //-------------------------------------------------------------------------
   public void getOfMissingItemGivesFailureResult() {
-
     SearchableSource searchableSource = createEmptySearchableSource();
 
     Result<TesterIdentifiable> result =
@@ -49,14 +51,23 @@ public class DefaultSearchableSourceTest {
   }
 
   public void getOfWrongTypeGivesFailureResult() {
-
     StandardId id = StandardId.of("some_scheme", "1234");
     IdentifiableBean bean = TesterIdentifiable.builder().standardId(id).build();
-
     SearchableSource searchableSource = createSearchableSource(ImmutableMap.of(id, bean));
 
-    Result<NonTesterIdentifiable> result =
-        searchableSource.get(id, NonTesterIdentifiable.class);
+    Result<NonTesterIdentifiable> result = searchableSource.get(id, NonTesterIdentifiable.class);
+
+    assertThat(result.isFailure()).isTrue();
+    assertThat(result.getFailure().getReason()).isEqualTo(FailureReason.MISSING_DATA);
+    assertThat(result.getFailure().getMessage()).contains("expected type was");
+  }
+
+  public void getOfWrongTypeGivesFailureResultWithGenerics() {
+    StandardId id = StandardId.of("some_scheme", "1234");
+    IdentifiableBean bean = GenericIdentifiable.<String>builder().standardId(id).build();
+    SearchableSource searchableSource = createSearchableSource(ImmutableMap.of(id, bean));
+
+    Result<NonTesterIdentifiable> result = searchableSource.get(id, NonTesterIdentifiable.class);
 
     assertThat(result.isFailure()).isTrue();
     assertThat(result.getFailure().getReason()).isEqualTo(FailureReason.MISSING_DATA);
@@ -64,19 +75,30 @@ public class DefaultSearchableSourceTest {
   }
 
   public void getWithCorrectTypeGivesSuccessResult() {
-
     StandardId id = StandardId.of("some_scheme", "1234");
     IdentifiableBean bean = TesterIdentifiable.builder().standardId(id).build();
-
     SearchableSource searchableSource = createSearchableSource(ImmutableMap.of(id, bean));
 
-    Result<TesterIdentifiable> result =
-        searchableSource.get(id, TesterIdentifiable.class);
+    Result<TesterIdentifiable> result = searchableSource.get(id, TesterIdentifiable.class);
 
     assertThat(result.isSuccess()).isTrue();
     assertThat(result.getValue()).isSameAs(bean);
   }
 
+  public void getWithCorrectTypeGivesSuccessResultWithGenerics() {
+    StandardId id = StandardId.of("some_scheme", "1234");
+    IdentifiableBean bean = GenericIdentifiable.<String>builder().standardId(id).build();
+    SearchableSource searchableSource = createSearchableSource(ImmutableMap.of(id, bean));
+
+    @SuppressWarnings("serial")
+    Result<GenericIdentifiable<String>> result =
+        searchableSource.get(id, new TypeToken<GenericIdentifiable<String>>() {});
+
+    assertThat(result).isSuccess();
+    assertThat(result).hasValue(bean);
+  }
+
+  //-------------------------------------------------------------------------
   public void idSearchWithNoMatches() {
 
     SearchableSource searchableSource = createEmptySearchableSource();

@@ -18,8 +18,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.collect.id.Link;
 import com.opengamma.collect.id.StandardId;
+import com.opengamma.collect.id.StandardLink;
 import com.opengamma.platform.finance.TradeType;
 
 /**
@@ -32,7 +32,7 @@ public class EquityTradeTest {
     EquityTrade test = EquityTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeDate(LocalDate.of(2014, 12, 3))
-        .equityLink(Link.resolvable(StandardId.of("OG-Ticker", "OG"), Equity.class))
+        .equityLink(StandardLink.resolvable(StandardId.of("OG-Ticker", "OG"), Equity.class))
         .quantity(60)
         .paymentAmount(CurrencyAmount.of(Currency.GBP, -1000))
         .build();
@@ -44,7 +44,7 @@ public class EquityTradeTest {
     EquityTrade test = EquityTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeDate(LocalDate.of(2014, 12, 3))
-        .equityLink(Link.resolvable(StandardId.of("OG-Ticker", "OG"), Equity.class))
+        .equityLink(StandardLink.resolvable(StandardId.of("OG-Ticker", "OG"), Equity.class))
         .quantity(60)
         .build();
     assertEquals(test.getTradeType(), TradeType.of("Equity"));
@@ -56,7 +56,7 @@ public class EquityTradeTest {
     EquityTrade test = EquityTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeDate(LocalDate.of(2014, 12, 3))
-        .equityLink(Link.resolvable(StandardId.of("OG-Ticker", "OG"), Equity.class))
+        .equityLink(StandardLink.resolvable(StandardId.of("OG-Ticker", "OG"), Equity.class))
         .quantity(60)
         .paymentAmount(CurrencyAmount.of(Currency.GBP, -1000))
         .build();
@@ -65,7 +65,7 @@ public class EquityTradeTest {
         .standardId(StandardId.of("OG-Trade", "2"))
         .attributes(ImmutableMap.of("a", "b"))
         .tradeDate(LocalDate.of(2014, 12, 4))
-        .equityLink(Link.resolvable(StandardId.of("OG-Ticker", "OG2"), Equity.class))
+        .equityLink(StandardLink.resolvable(StandardId.of("OG-Ticker", "OG2"), Equity.class))
         .quantity(70)
         .paymentAmount(CurrencyAmount.of(Currency.GBP, -2000))
         .build();
@@ -76,7 +76,7 @@ public class EquityTradeTest {
     EquityTrade test = EquityTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeDate(LocalDate.of(2014, 12, 3))
-        .equityLink(Link.resolvable(StandardId.of("OG-Ticker", "OG"), Equity.class))
+        .equityLink(StandardLink.resolvable(StandardId.of("OG-Ticker", "OG"), Equity.class))
         .quantity(60)
         .paymentAmount(CurrencyAmount.of(Currency.GBP, -1000))
         .build();
