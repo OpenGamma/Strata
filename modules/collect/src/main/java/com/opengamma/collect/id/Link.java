@@ -5,70 +5,100 @@
  */
 package com.opengamma.collect.id;
 
+import org.joda.beans.ImmutableBean;
+
+import com.google.common.reflect.TypeToken;
+
 /**
- * A link to a target object that has an identifier.
+ * Defines a link to a target object using an identifier.
  * <p>
  * A link provides loose coupling between different parts of the object model.
  * For example, an equity trade can hold a link to the underlying equity.
  * The two objects can be updated independently of each other.
  * If the link resolver supports historic versions, then the correct version of the
  * target will be returned when resolved.
+ * The target object should be immutable to ensure the safety of the link.
  * <p>
- * Two styles of link are provided. The first, {@link ResolvableLink}, is the standard
- * implementation that links to the target using a {@link StandardId} and type.
- * The second, {@link ResolvedLink}, embeds the target object within the link.
+ * A link can be in one of two states, resolvable and resolved.
+ * <p>
+ * In the resolvable state, the link contains the identifier and type of the target object.
+ * The target can only be obtained using a {@link LinkResolver}.
+ * <p>
+ * In the resolved state, the link directly embeds the target object.
  * <p>
  * Links are expected to be resolvable. It is reasonable to expect that when
  * {@link #resolve(LinkResolver)} is called, the target of the link is available.
  * For this reason, if the target is not found, a {@link LinkResolutionException} will be thrown.
  * <p>
- * All implementations of this interface must be immutable and thread-safe.
+ * The standard implementation of {@code Link} is {@link StandardLink}.
  *
- * @param <T> type of the link, which ensures that when the link
- *   is resolved no casting is required by the caller
+ * @param <T> the type of the target
  */
-public interface Link<T extends IdentifiableBean> {
+public interface Link<T extends IdentifiableBean>
+    extends StandardIdentifiable, ImmutableBean {
 
   /**
-   * Create a resolvable link for the specified identifier and type.
+   * Checks if the link is resolved.
    * <p>
-   * When, at some subsequent point, the {@link #resolve(LinkResolver)}
-   * method is called on the created link, the target for the
-   * link will be looked up and returned to the caller.
-   *
-   * @param identifier  the identifier for the link's target
-   * @param linkType  the type of the link target
-   * @return a new resolvable link
+   * A resolved link contains the target directly.
+   * A resolvable link only contains the identifier, acting as a pointer to the target.
+   * 
+   * @return true if the link is resolved, false if unresolved
    */
-  public static <T extends IdentifiableBean> Link<T> resolvable(StandardId identifier, Class<T> linkType) {
-    return new ResolvableLink<>(identifier, linkType);
+  public abstract boolean isResolved();
+
+  /**
+   * Gets the identifier of the target.
+   * <p>
+   * Returns the identifier, either directly or from the target.
+   * 
+   * @return the standard identifier of the target
+   */
+  @Override
+  public abstract StandardId getStandardId();
+
+  /**
+   * Gets the target type.
+   * <p>
+   * Returns the target type, either directly or from the target.
+   * 
+   * @return the target type of the link
+   */
+  @SuppressWarnings("unchecked")
+  public abstract Class<T> getTargetType();
+
+  /**
+   * Gets the target type token.
+   * <p>
+   * Returns the target type as a {@link TypeToken}, either directly or from the target.
+   * A {@code TypeToken} is used to express generic parameterized types, such as {@code Trade<Swap>}:
+   * <p>
+   * <pre>{@code
+   *  new TypeToken<Trade<Swap>>() {};
+   * }</pre>
+   * 
+   * @return the target type of the link
+   */
+  @SuppressWarnings("unchecked")
+  public default TypeToken<T> getTargetTypeToken() {
+    return TypeToken.of(getTargetType());
   }
 
   /**
-   * Create a link with the link target embedded directly.
+   * Resolves this link using the specified resolver.
    * <p>
-   * When, at some subsequent point, the {@link #resolve(LinkResolver)}
-   * method is called on the created link, the target embedded
-   * in the link will be returned to the caller.
-   *
-   * @param linkTarget  the link target
-   * @return a new resolved link
-   */
-  public static <T extends IdentifiableBean> Link<T> resolved(T linkTarget) {
-    return new ResolvedLink<>(linkTarget);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Resolves the link using the supplied resolver.
+   * In the resolvable state, the resolver is used to find the target, throwing
+   * an exception of the target cannot be found.
+   * In the resolved state, the directly embedded target is returned,
+   * without using the resolver.
    * <p>
-   * A {@link ResolvableLink} will use the specified resolver to return the link target.
-   * A {@link ResolvedLink} will return the target stored when it was created.
+   * The returned target may contain other unresolved links.
    *
-   * @param linkResolver  the resolver used to resolve the link
-   * @return the resolved target
-   * @throws LinkResolutionException if the link cannot be resolved
+   * @param resolver  the resolver to use for the resolution
+   * @return the target
+   * @throws LinkResolutionException if the target cannot be resolved
    */
-  public abstract T resolve(LinkResolver linkResolver);
+  @SuppressWarnings("unchecked")
+  public abstract T resolve(LinkResolver resolver);
 
 }
