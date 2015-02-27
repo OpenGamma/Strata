@@ -12,6 +12,7 @@ import java.time.temporal.ChronoUnit;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.platform.finance.fra.ExpandedFra;
 import com.opengamma.platform.finance.observation.RateObservation;
@@ -34,13 +35,15 @@ public class DiscountingExpandedFraPricerFnTest {
    */
   public void testConsistencyISDA() {
     double discountFactor = 0.98d;
+    Currency currency = FRA.getCurrency();
+    ExpandedFra expFra = FRA.expand();
     RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
-    when(mockEnv.discountFactor(FRA.getCurrency(), FRA.expand().getPaymentDate())).thenReturn(discountFactor);
+    when(mockEnv.discountFactor(currency, expFra.getPaymentDate())).thenReturn(discountFactor);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(observation);
-    assertEquals(test.presentValue(mockEnv, FRA.expand()).getAmount(FRA.getCurrency()).getAmount(),
-        test.futureValue(mockEnv, FRA.expand()).multipliedBy(discountFactor).getAmount(FRA.getCurrency()).getAmount(),
+    assertEquals(test.presentValue(mockEnv, expFra).getAmount(currency).getAmount(),
+        test.futureValue(mockEnv, expFra).multipliedBy(discountFactor).getAmount(currency).getAmount(),
         TOLERANCE);
-    assertEquals(test.presentValue(mockEnv, FRA_NONE.expand()), test.futureValue(mockEnv, FRA.expand()));
+    assertEquals(test.presentValue(mockEnv, FRA_NONE.expand()), test.futureValue(mockEnv, expFra));
   }
 
   /**
@@ -48,10 +51,11 @@ public class DiscountingExpandedFraPricerFnTest {
    */
   public void TestFutureValueAFMA() {
     double discountFactor = 0.965d;
+    ExpandedFra expFra = FRA_AFMA.expand();
     RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
-    when(mockEnv.discountFactor(FRA_AFMA.getCurrency(), FRA_AFMA.expand().getPaymentDate())).thenReturn(discountFactor);
+    when(mockEnv.discountFactor(FRA_AFMA.getCurrency(), expFra.getPaymentDate())).thenReturn(discountFactor);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(observation);
-    assertThrowsIllegalArg(() -> test.futureValue(mockEnv, FRA_AFMA.expand()));
+    assertThrowsIllegalArg(() -> test.futureValue(mockEnv, expFra));
   }
 
   /**
@@ -59,10 +63,11 @@ public class DiscountingExpandedFraPricerFnTest {
    */
   public void TestFutureValueNoDsc() {
     double discountFactor = 0.965d;
+    ExpandedFra expFra = FRA_NONE.expand();
     RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
-    when(mockEnv.discountFactor(FRA_NONE.getCurrency(), FRA_NONE.expand().getPaymentDate())).thenReturn(discountFactor);
+    when(mockEnv.discountFactor(FRA_NONE.getCurrency(), expFra.getPaymentDate())).thenReturn(discountFactor);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(observation);
-    assertThrowsIllegalArg(() -> test.futureValue(mockEnv, FRA_NONE.expand()));
+    assertThrowsIllegalArg(() -> test.futureValue(mockEnv, expFra));
   }
 
   /**
@@ -71,14 +76,14 @@ public class DiscountingExpandedFraPricerFnTest {
   public void testFutureISDA() {
     double forwardRate = 0.02;
     ExpandedFra fraExp = FRA.expand();
-    when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
-        .thenReturn(forwardRate);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
-    MultiCurrencyAmount computed = test.futureValue(mockEnv, fraExp);
     double fixedRate = FRA.getFixedRate();
     double yearFraction = fraExp.getYearFraction();
     double notional = fraExp.getNotional();
-    double expected = notional * (forwardRate - fixedRate) * yearFraction / (1 + forwardRate * yearFraction);
+    when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
+        .thenReturn(forwardRate);
+    MultiCurrencyAmount computed = test.futureValue(mockEnv, fraExp);
+    double expected = notional * (forwardRate - fixedRate) * yearFraction;
     assertEquals(computed.getAmount(FRA.getCurrency()).getAmount(), expected, TOLERANCE);
   }
 
