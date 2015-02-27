@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.collect.id.StandardId;
-import com.opengamma.platform.finance.SecurityType;
 
 /**
  * Test.
@@ -27,7 +26,9 @@ public class EquityTest {
         .companyName("OpenGamma")
         .currency(Currency.GBP)
         .build();
-    assertEquals(test.getSecurityType(), SecurityType.of("Equity"));
+    assertEquals(test.getStandardId(), StandardId.of("OG-Ticker", "OG"));
+    assertEquals(test.getCompanyName(), "OpenGamma");
+    assertEquals(test.getCurrency(), Currency.GBP);
   }
 
   //-------------------------------------------------------------------------

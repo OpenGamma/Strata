@@ -5,8 +5,6 @@
  */
 package com.opengamma.platform.finance;
 
-import java.time.LocalDate;
-
 import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableMap;
@@ -14,7 +12,7 @@ import com.opengamma.collect.id.IdentifiableBean;
 import com.opengamma.collect.id.StandardId;
 
 /**
- * A single trade against a particular counterparty.
+ * A single trade.
  * <p>
  * A trade is a transaction that occurred on a specific date between two counterparties.
  * For example, an interest rate swap trade agreed on a particular date for
@@ -24,8 +22,6 @@ import com.opengamma.collect.id.StandardId;
  */
 public interface Trade
     extends IdentifiableBean, Attributable, ImmutableBean {
-  // counterparties are not currently defined here
-  // there is not yet any evidence that the model needs to hold that data
 
   /**
    * The primary standard identifier for the trade.
@@ -51,17 +47,12 @@ public interface Trade
   public abstract ImmutableMap<String, String> getAttributes();
 
   /**
-   * Gets the trade type.
+   * The additional trade information.
+   * <p>
+   * This allows additional information to be attached to the trade.
    * 
-   * @return the trade type
+   * @return the additional trade info
    */
-  public abstract TradeType getTradeType();
-
-  /**
-   * Gets the trade date.
-   * 
-   * @return the trade date
-   */
-  public abstract LocalDate getTradeDate();
+  public abstract TradeInfo getTradeInfo();
 
 }

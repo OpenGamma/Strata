@@ -25,6 +25,7 @@ import com.opengamma.basics.schedule.StubConvention;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
 import com.opengamma.collect.id.StandardId;
+import com.opengamma.platform.finance.TradeInfo;
 
 /**
  * Demonstrate use of the API for interest rate swaps.
@@ -210,7 +211,9 @@ public class SwapDemo {
     // a SwapTrade combines the two legs
     SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
-        .tradeDate(LocalDate.of(2014, 9, 10))
+        .tradeInfo(TradeInfo.builder()
+            .tradeDate(LocalDate.of(2014, 9, 10))
+            .build())
         .swap(Swap.of(payLeg, receiveLeg))
         .build();
     

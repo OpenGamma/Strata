@@ -11,15 +11,14 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.collect.id.IdentifiableBean;
 import com.opengamma.collect.id.Link;
 import com.opengamma.collect.id.StandardId;
-import com.opengamma.platform.finance.equity.Equity;
 
 /**
- * A shared financial security.
+ * A single security.
  * <p>
  * A security is one of the building blocks of finance, representing a fungible instrument that can be traded.
- * This is intended to cover instruments such as {@link Equity} and {@code Bond}.
- * It is intended that OTC instruments, such as an interest rate swap, are
- * embedded within a {@link Trade}, rather than handled as one-off securities.
+ * This is intended to cover instruments such as listed equities and futures.
+ * It is intended that Over-The-Counter (OTC) instruments, such as an interest rate swap,
+ * are embedded directly within an {@link OtcTrade}, rather than handled as one-off securities.
  * <p>
  * When referring to a security from another object, such as an underlying on a
  * more complex trade, the reference should be via a {@link Link}.
@@ -51,12 +50,5 @@ public interface Security
    */
   @Override
   public abstract ImmutableMap<String, String> getAttributes();
-
-  /**
-   * Gets the security type.
-   * 
-   * @return the security type
-   */
-  public abstract SecurityType getSecurityType();
 
 }

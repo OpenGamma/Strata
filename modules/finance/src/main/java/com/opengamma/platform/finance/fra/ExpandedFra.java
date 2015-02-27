@@ -34,7 +34,7 @@ import com.opengamma.platform.finance.observation.RateObservation;
  * An expanded forward rate agreement (FRA), with dates calculated ready for pricing.
  * <p>
  * A FRA is a financial instrument that represents the one off exchange of a fixed
- * rate of interest for a floating rate.
+ * rate of interest for a floating rate at a future date.
  * <p>
  * An {@code ExpandedFra} contains information based on holiday calendars.
  * If a holiday calendar changes, the adjusted dates may no longer be correct.
