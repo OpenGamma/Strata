@@ -27,7 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.date.BusinessDayAdjustment;
@@ -524,11 +524,11 @@ public final class PeriodicSchedule
   // applies the appropriate business day adjustment to each date
   private List<LocalDate> applyBusinessDayAdjustment(List<LocalDate> unadj) {
     List<LocalDate> adj = new ArrayList<>(unadj.size());
-    adj.add(Objects.firstNonNull(startDateBusinessDayAdjustment, businessDayAdjustment).adjust(startDate));
+    adj.add(MoreObjects.firstNonNull(startDateBusinessDayAdjustment, businessDayAdjustment).adjust(startDate));
     for (int i = 1; i < unadj.size() - 1; i++) {
       adj.add(businessDayAdjustment.adjust(unadj.get(i)));
     }
-    adj.add(Objects.firstNonNull(endDateBusinessDayAdjustment, businessDayAdjustment).adjust(endDate));
+    adj.add(MoreObjects.firstNonNull(endDateBusinessDayAdjustment, businessDayAdjustment).adjust(endDate));
     return adj;
   }
 
@@ -567,7 +567,7 @@ public final class PeriodicSchedule
           getEffectiveFirstRegularStartDate(), getEffectiveLastRegularEndDate(), frequency, false);
     }
     // use RollConventions.NONE if nothing else applies
-    return Objects.firstNonNull(rollConvention, RollConventions.NONE);
+    return MoreObjects.firstNonNull(rollConvention, RollConventions.NONE);
   }
 
   /**
@@ -578,7 +578,7 @@ public final class PeriodicSchedule
    * @return the non-null start date of the first regular period
    */
   public LocalDate getEffectiveFirstRegularStartDate() {
-    return Objects.firstNonNull(firstRegularStartDate, startDate);
+    return MoreObjects.firstNonNull(firstRegularStartDate, startDate);
   }
 
   /**
@@ -589,7 +589,7 @@ public final class PeriodicSchedule
    * @return the non-null end date of the last regular period
    */
   public LocalDate getEffectiveLastRegularEndDate() {
-    return Objects.firstNonNull(lastRegularEndDate, endDate);
+    return MoreObjects.firstNonNull(lastRegularEndDate, endDate);
   }
 
   /**
@@ -600,7 +600,7 @@ public final class PeriodicSchedule
    * @return the non-null business day adjustment to apply to the start date
    */
   public BusinessDayAdjustment getEffectiveStartDateBusinessDayAdjustment() {
-    return Objects.firstNonNull(startDateBusinessDayAdjustment, businessDayAdjustment);
+    return MoreObjects.firstNonNull(startDateBusinessDayAdjustment, businessDayAdjustment);
   }
 
   /**
@@ -611,7 +611,7 @@ public final class PeriodicSchedule
    * @return the non-null business day adjustment to apply to the end date
    */
   public BusinessDayAdjustment getEffectiveEndDateBusinessDayAdjustment() {
-    return Objects.firstNonNull(endDateBusinessDayAdjustment, businessDayAdjustment);
+    return MoreObjects.firstNonNull(endDateBusinessDayAdjustment, businessDayAdjustment);
   }
 
   //-------------------------------------------------------------------------
