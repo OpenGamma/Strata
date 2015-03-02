@@ -7,11 +7,11 @@ package com.opengamma.platform.pricer.impl;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.platform.finance.OtcTrade;
+import com.opengamma.platform.finance.QuantityTrade;
 import com.opengamma.platform.finance.Trade;
-import com.opengamma.platform.finance.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.TradePricerFn;
-import com.opengamma.platform.pricer.impl.swap.DefaultSwapTradePricerFn;
 
 /**
  * Pricer implementation for trades using multiple dispatch.
@@ -25,29 +25,39 @@ public class DispatchingTradePricerFn
    * Default implementation.
    */
   public static final DispatchingTradePricerFn DEFAULT = new DispatchingTradePricerFn(
-      DefaultSwapTradePricerFn.DEFAULT);
+      DispatchingProductOtcTradePricerFn.DEFAULT,
+      DispatchingProductQuantityTradePricerFn.DEFAULT);
 
   /**
-   * Pricer for {@link SwapTrade}.
+   * Pricer for {@link OtcTrade}.
    */
-  private final TradePricerFn<SwapTrade> swapTradePricerFn;
+  private final TradePricerFn<OtcTrade<?>> otcTradePricerFn;
+  /**
+   * Pricer for {@link QuantityTrade}.
+   */
+  private final TradePricerFn<QuantityTrade<?>> quantityTradePricerFn;
 
   /**
    * Creates an instance.
    * 
-   * @param swapTradePricerFn  the rate provider for {@link SwapTrade}
+   * @param otcTradePricerFn  the pricer for {@link OtcTrade}
+   * @param quantityTradePricerFn  the pricer for {@link QuantityTrade}
    */
   public DispatchingTradePricerFn(
-      TradePricerFn<SwapTrade> swapTradePricerFn) {
-    this.swapTradePricerFn = ArgChecker.notNull(swapTradePricerFn, "swapTradePricerFn");
+      TradePricerFn<OtcTrade<?>> otcTradePricerFn,
+      TradePricerFn<QuantityTrade<?>> quantityTradePricerFn) {
+    this.otcTradePricerFn = ArgChecker.notNull(otcTradePricerFn, "otcTradePricerFn");
+    this.quantityTradePricerFn = ArgChecker.notNull(quantityTradePricerFn, "quantityTradePricerFn");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount presentValue(PricingEnvironment env, Trade trade) {
     // dispatch by runtime type
-    if (trade instanceof SwapTrade) {
-      return swapTradePricerFn.presentValue(env, (SwapTrade) trade);
+    if (trade instanceof OtcTrade) {
+      return otcTradePricerFn.presentValue(env, (OtcTrade<?>) trade);
+    } else if (trade instanceof QuantityTrade) {
+      return quantityTradePricerFn.presentValue(env, (QuantityTrade<?>) trade);
     } else {
       throw new IllegalArgumentException("Unknown Trade type: " + trade.getClass().getSimpleName());
     }

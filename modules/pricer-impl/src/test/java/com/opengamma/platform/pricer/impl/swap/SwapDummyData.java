@@ -10,8 +10,6 @@ import static com.opengamma.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.collect.TestHelper.date;
 
-import java.time.LocalDate;
-
 import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
@@ -23,6 +21,7 @@ import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.collect.id.StandardId;
+import com.opengamma.platform.finance.OtcTrade;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
@@ -37,7 +36,6 @@ import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.finance.swap.Swap;
-import com.opengamma.platform.finance.swap.SwapTrade;
 
 /**
  * Basic dummy objects used when the data within is not important.
@@ -196,15 +194,14 @@ public final class SwapDummyData {
   public static final Swap SWAP_CROSS_CURRENCY = Swap.builder()
       .legs(IBOR_EXPANDED_SWAP_LEG, FIXED_EXPANDED_SWAP_LEG_USD)
       .build();
+
   /**
-   * SwapTrade.
+   * Swap OtcTrade.
    */
-  public static final SwapTrade SWAP_TRADE = SwapTrade.builder()
+  public static final OtcTrade<Swap> SWAP_TRADE = OtcTrade.<Swap>builder()
       .standardId(StandardId.of("OG-Trade", "1"))
-      .tradeInfo(TradeInfo.builder()
-          .tradeDate(LocalDate.of(2014, 6, 30))
-          .build())
-      .swap(SWAP)
+      .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
+      .product(SWAP)
       .build();
 
   /**

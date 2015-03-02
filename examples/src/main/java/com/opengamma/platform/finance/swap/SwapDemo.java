@@ -25,6 +25,7 @@ import com.opengamma.basics.schedule.StubConvention;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
 import com.opengamma.collect.id.StandardId;
+import com.opengamma.platform.finance.OtcTrade;
 import com.opengamma.platform.finance.TradeInfo;
 
 /**
@@ -94,7 +95,7 @@ public class SwapDemo {
     // an ExpandedSwapLeg has all the dates of the cash flows
     // it remains valid so long as the holiday calendar does not change 
     ExpandedSwapLeg expandedLeg = swapLeg.expand();
-    
+
     System.out.println("===== Fixed =====");
     System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(swapLeg));
     System.out.println();
@@ -150,7 +151,7 @@ public class SwapDemo {
     // an ExpandedSwapLeg has all the dates of the cash flows
     // it remains valid so long as the holiday calendar does not change 
     ExpandedSwapLeg expandedLeg = swapLeg.expand();
-        
+
     System.out.println("===== Floating =====");
     System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(swapLeg));
     System.out.println();
@@ -209,14 +210,13 @@ public class SwapDemo {
             .build())
         .build();
     // a SwapTrade combines the two legs
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.builder(Swap.of(payLeg, receiveLeg))
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder()
             .tradeDate(LocalDate.of(2014, 9, 10))
             .build())
-        .swap(Swap.of(payLeg, receiveLeg))
         .build();
-    
+
     System.out.println("===== Vanilla fixed vs Libor3m =====");
     System.out.println(JodaBeanSer.PRETTY.jsonWriter().write(trade));
     System.out.println();

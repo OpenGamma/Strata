@@ -9,7 +9,6 @@ import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.collect.id.IdentifiableBean;
-import com.opengamma.collect.id.Link;
 import com.opengamma.collect.id.StandardId;
 
 /**
@@ -21,11 +20,13 @@ import com.opengamma.collect.id.StandardId;
  * are embedded directly within an {@link OtcTrade}, rather than handled as one-off securities.
  * <p>
  * When referring to a security from another object, such as an underlying on a
- * more complex trade, the reference should be via a {@link Link}.
+ * more complex trade, consideration should be given to using {@link SecurityLink}.
  * <p>
  * Implementations of this interface must be immutable beans.
+ * 
+ * @param <P>  the type of the product
  */
-public interface Security
+public interface Security<P extends Product>
     extends IdentifiableBean, Attributable, ImmutableBean {
 
   /**
@@ -50,5 +51,15 @@ public interface Security
    */
   @Override
   public abstract ImmutableMap<String, String> getAttributes();
+
+  /**
+   * Gets the product underlying the security.
+   * <p>
+   * All securities refer to a single underlying product.
+   * The product captures the contracted financial details of the trade.
+   * 
+   * @return the product
+   */
+  public abstract P getProduct();
 
 }
