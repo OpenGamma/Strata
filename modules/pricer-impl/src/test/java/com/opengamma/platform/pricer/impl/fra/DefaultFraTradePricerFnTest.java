@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.pricer.impl.fra;
 
 import static com.opengamma.basics.currency.Currency.GBP;
@@ -13,7 +18,7 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
 
 /**
- * Test DefaultFraTradePricerFn.
+ * Test.
  */
 @Test
 public class DefaultFraTradePricerFnTest {
@@ -30,4 +35,5 @@ public class DefaultFraTradePricerFnTest {
     DefaultFraTradePricerFn test = new DefaultFraTradePricerFn(mockFraFn);
     assertEquals(test.presentValue(mockEnv, FraDummyData.FRA_TRADE), expected);
   }
+
 }

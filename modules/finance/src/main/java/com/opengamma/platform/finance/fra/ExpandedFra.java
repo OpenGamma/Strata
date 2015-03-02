@@ -89,8 +89,6 @@ public final class ExpandedFra
    * <p>
    * The floating rate to be paid is based on this index.
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
-   * <p>
-   * See {@code buySell} to determine whether this rate is paid or received.
    */
   @PropertyDefinition(validate = "notNull")
   private final RateObservation floatingRate;
@@ -106,7 +104,9 @@ public final class ExpandedFra
   /**
    * The notional amount.
    * <p>
-   * The notional.
+   * The notional, which is a positive signed amount if the FRA is 'buy',
+   * and a negative signed amount if the FRA is 'sell'.
+   * <p>
    * The currency of the notional is specified by {@code currency}.
    */
   @PropertyDefinition
@@ -275,8 +275,6 @@ public final class ExpandedFra
    * <p>
    * The floating rate to be paid is based on this index.
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
-   * <p>
-   * See {@code buySell} to determine whether this rate is paid or received.
    * @return the value of the property, not null
    */
   public RateObservation getFloatingRate() {
@@ -300,7 +298,9 @@ public final class ExpandedFra
   /**
    * Gets the notional amount.
    * <p>
-   * The notional.
+   * The notional, which is a positive signed amount if the FRA is 'buy',
+   * and a negative signed amount if the FRA is 'sell'.
+   * <p>
    * The currency of the notional is specified by {@code currency}.
    * @return the value of the property
    */

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.pricer.impl.fra;
 
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
@@ -21,7 +26,7 @@ import com.opengamma.platform.pricer.impl.observation.DispatchingRateObservation
 import com.opengamma.platform.pricer.observation.RateObservationFn;
 
 /**
- * Test DiscountingExpandedFraPricerFn
+ * Test.
  */
 @Test
 public class DiscountingExpandedFraPricerFnTest {
@@ -33,7 +38,7 @@ public class DiscountingExpandedFraPricerFnTest {
   /**
    * Consistency between present value and future value for ISDA, and present value for no discounting. 
    */
-  public void testConsistencyISDA() {
+  public void test_consistencyISDA() {
     double discountFactor = 0.98d;
     Currency currency = FRA.getCurrency();
     ExpandedFra expFra = FRA.expand();
@@ -47,9 +52,9 @@ public class DiscountingExpandedFraPricerFnTest {
   }
 
   /**
-   * 
+   * Future value AFMA.
    */
-  public void TestFutureValueAFMA() {
+  public void test_futureValue_AFMA() {
     double discountFactor = 0.965d;
     ExpandedFra expFra = FRA_AFMA.expand();
     RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
@@ -59,9 +64,9 @@ public class DiscountingExpandedFraPricerFnTest {
   }
 
   /**
-   * 
+   * Future value with no discounting.
    */
-  public void TestFutureValueNoDsc() {
+  public void test_futureValue_NoDsc() {
     double discountFactor = 0.965d;
     ExpandedFra expFra = FRA_NONE.expand();
     RateObservationFn<RateObservation> observation = DispatchingRateObservationFn.DEFAULT;
@@ -73,7 +78,7 @@ public class DiscountingExpandedFraPricerFnTest {
   /**
    * Test future value for ISDA. 
    */
-  public void testFutureISDA() {
+  public void test_futureValue_ISDA() {
     double forwardRate = 0.02;
     ExpandedFra fraExp = FRA.expand();
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
@@ -90,7 +95,7 @@ public class DiscountingExpandedFraPricerFnTest {
   /**
    * Test present value for AFMA. 
    */
-  public void testPresentAFMA() {
+  public void test_presentValue_AFMA() {
     double forwardRate = 0.018;
     ExpandedFra fraExp = FRA_AFMA.expand();
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
@@ -103,4 +108,5 @@ public class DiscountingExpandedFraPricerFnTest {
     double expected = notional * (1.0 / (1 + fixedRate * yearFraction) - 1.0 / (1 + forwardRate * yearFraction));
     assertEquals(computed.getAmount(FRA.getCurrency()).getAmount(), expected, TOLERANCE);
   }
+
 }

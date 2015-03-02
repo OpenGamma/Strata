@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.pricer.impl.fra;
 
 import static com.opengamma.basics.currency.Currency.GBP;
@@ -13,16 +18,14 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
 
 /**
- * Test ExpandingFraProductPricerFn
+ * Test.
  */
 @Test
 public class ExpandingFraProductPricerFnTest {
 
   private final PricingEnvironment mockEnv = mock(PricingEnvironment.class);
 
-  /**
-   * present value
-   */
+  // Present value
   public void test_presentValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
     FraProductPricerFn<ExpandedFra> mockFraLegFn = mock(FraProductPricerFn.class);
@@ -31,9 +34,7 @@ public class ExpandingFraProductPricerFnTest {
     assertEquals(test.presentValue(mockEnv, FraDummyData.FRA), expected);
   }
 
-  /**
-   * future value
-   */
+  // Future value
   public void test_futureValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
     FraProductPricerFn<ExpandedFra> mockFraLegFn = mock(FraProductPricerFn.class);

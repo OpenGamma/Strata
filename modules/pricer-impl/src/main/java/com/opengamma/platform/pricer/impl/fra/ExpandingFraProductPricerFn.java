@@ -43,13 +43,13 @@ public class ExpandingFraProductPricerFn
 
   //-------------------------------------------------------------------------
   @Override
-  public MultiCurrencyAmount presentValue(PricingEnvironment env, FraProduct swapProduct) {
-    return expandedFraPricerFn.presentValue(env, swapProduct.expand());
+  public MultiCurrencyAmount presentValue(PricingEnvironment env, FraProduct fraProduct) {
+    return expandedFraPricerFn.presentValue(env, fraProduct.expand());
   }
 
   @Override
-  public MultiCurrencyAmount futureValue(PricingEnvironment env, FraProduct swapProduct) {
-    return expandedFraPricerFn.futureValue(env, swapProduct.expand());
+  public MultiCurrencyAmount futureValue(PricingEnvironment env, FraProduct fraProduct) {
+    return expandedFraPricerFn.futureValue(env, fraProduct.expand());
   }
 
 }

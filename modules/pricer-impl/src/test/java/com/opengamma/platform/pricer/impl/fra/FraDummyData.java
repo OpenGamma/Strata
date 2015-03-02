@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.pricer.impl.fra;
 
 import static com.opengamma.basics.BuySell.BUY;
@@ -12,6 +17,7 @@ import com.opengamma.basics.date.AdjustableDate;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.collect.id.StandardId;
+import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.fra.Fra;
 import com.opengamma.platform.finance.fra.FraDiscountingMethod;
 import com.opengamma.platform.finance.fra.FraTrade;
@@ -66,7 +72,7 @@ public class FraDummyData {
       .build();
 
   /**
-   * Fra, AFMA discounting method. 
+   * Fra, NONE discounting method. 
    */
   public static final Fra FRA_NONE = Fra.builder()
       .buySell(BUY)
@@ -86,7 +92,8 @@ public class FraDummyData {
    */
   public static final FraTrade FRA_TRADE = FraTrade.builder()
       .standardId(StandardId.of("OG-Trade", "1"))
-      .tradeDate(date(2014, 6, 30))
+      .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .fra(FRA)
       .build();
+
 }
