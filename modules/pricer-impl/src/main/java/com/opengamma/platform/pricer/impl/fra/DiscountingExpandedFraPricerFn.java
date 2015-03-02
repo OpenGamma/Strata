@@ -5,13 +5,11 @@
  */
 package com.opengamma.platform.pricer.impl.fra;
 
-import java.time.temporal.ChronoUnit;
 
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.fra.ExpandedFra;
-import com.opengamma.platform.finance.fra.FraDiscountingMethod;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
@@ -50,50 +48,53 @@ public class DiscountingExpandedFraPricerFn
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount presentValue(PricingEnvironment env, ExpandedFra fra) {
-    // TODO: this should be (futureValue() * discountFactor)
-    double notional = fra.getNotional();
-    Currency currency = fra.getCurrency();
-    switch (fra.getDiscounting()) {
-      case ISDA:
-        return MultiCurrencyAmount.of(currency, notional * unitValueDiscounting(env, fra));
-      case AFMA:
-        return MultiCurrencyAmount.of(currency, notional * unitValueYieldDiscounting(env, fra));
-      case NONE:
-        return MultiCurrencyAmount.of(currency, notional * unitValueNoDiscounting(env, fra));
-      default:
-        throw new IllegalArgumentException("Unknown FraDiscounting value: " + fra.getDiscounting());
-    }
+    double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
+    return futureValue(env, fra).multipliedBy(df);
   }
 
   @Override
   public MultiCurrencyAmount futureValue(PricingEnvironment env, ExpandedFra fra) {
-    // TODO: this should handle all types
-    if (fra.getDiscounting() == FraDiscountingMethod.ISDA) {
-      return MultiCurrencyAmount.of(fra.getCurrency(), fra.getNotional() * unitValueNoDiscounting(env, fra));
+    double notional = fra.getNotional();
+    Currency currency = fra.getCurrency();
+    double unitAmount;
+    switch (fra.getDiscounting()) {
+      case ISDA:
+        unitAmount = unitAmountIsda(env, fra);
+        break;
+      case AFMA:
+        unitAmount = unitAmountAfma(env, fra);
+        break;
+      case NONE:
+        unitAmount = unitAmountNone(env, fra);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown FraDiscounting value: " + fra.getDiscounting());
     }
-    throw new IllegalArgumentException("value: " + fra.getDiscounting() + "not supported");
+    return MultiCurrencyAmount.of(currency, notional * unitAmount);
   }
 
   //-------------------------------------------------------------------------
   // ISDA discounting method
-  private double unitValueDiscounting(PricingEnvironment env, ExpandedFra fra) {
-    double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
-    return df * unitValueNoDiscounting(env, fra);
-  }
-
-  // NONE discounting method
-  private double unitValueNoDiscounting(PricingEnvironment env, ExpandedFra fra) {
+  private double unitAmountIsda(PricingEnvironment env, ExpandedFra fra) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(env, fra);
     double yearFraction = fra.getYearFraction();
-    return (forwardRate - fixedRate) * yearFraction;
+    return yearFraction * (forwardRate - fixedRate)  / (1.0 + yearFraction * forwardRate);
   }
 
-  // ACMA discounting method
-  private double unitValueYieldDiscounting(PricingEnvironment env, ExpandedFra fra) {
+  // NONE discounting method
+  private double unitAmountNone(PricingEnvironment env, ExpandedFra fra) {
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(env, fra);
-    double yearFraction = ChronoUnit.DAYS.between(fra.getStartDate(), fra.getEndDate()) / 365.0;
+    double yearFraction = fra.getYearFraction();
+    return yearFraction * (forwardRate - fixedRate);
+  }
+
+  // AFMA discounting method
+  private double unitAmountAfma(PricingEnvironment env, ExpandedFra fra) {
+    double fixedRate = fra.getFixedRate();
+    double forwardRate = forwardRate(env, fra);
+    double yearFraction = fra.getYearFraction();
     return 1.0 / (1.0 + fixedRate * yearFraction) - 1.0 / (1.0 + forwardRate * yearFraction);
   }
 
