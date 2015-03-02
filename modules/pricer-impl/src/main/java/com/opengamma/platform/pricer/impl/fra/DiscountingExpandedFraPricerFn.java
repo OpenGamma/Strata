@@ -5,8 +5,6 @@
  */
 package com.opengamma.platform.pricer.impl.fra;
 
-
-import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.fra.ExpandedFra;
@@ -49,31 +47,35 @@ public class DiscountingExpandedFraPricerFn
   @Override
   public MultiCurrencyAmount presentValue(PricingEnvironment env, ExpandedFra fra) {
     double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
-    return futureValue(env, fra).multipliedBy(df);
+    double notional = fra.getNotional();
+    double unitAmount = unitAmount(env, fra);
+    double pv = notional * unitAmount * df;
+    return MultiCurrencyAmount.of(fra.getCurrency(), pv);
   }
 
   @Override
   public MultiCurrencyAmount futureValue(PricingEnvironment env, ExpandedFra fra) {
     double notional = fra.getNotional();
-    Currency currency = fra.getCurrency();
-    double unitAmount;
-    switch (fra.getDiscounting()) {
-      case ISDA:
-        unitAmount = unitAmountIsda(env, fra);
-        break;
-      case AFMA:
-        unitAmount = unitAmountAfma(env, fra);
-        break;
-      case NONE:
-        unitAmount = unitAmountNone(env, fra);
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown FraDiscounting value: " + fra.getDiscounting());
-    }
-    return MultiCurrencyAmount.of(currency, notional * unitAmount);
+    double unitAmount = unitAmount(env, fra);
+    double fv = notional * unitAmount;
+    return MultiCurrencyAmount.of(fra.getCurrency(), fv);
   }
 
   //-------------------------------------------------------------------------
+  // unit amount in various discounting methods
+  private double unitAmount(PricingEnvironment env, ExpandedFra fra) {
+    switch (fra.getDiscounting()) {
+      case ISDA:
+        return unitAmountIsda(env, fra);
+      case AFMA:
+        return unitAmountAfma(env, fra);
+      case NONE:
+        return unitAmountNone(env, fra);
+      default:
+        throw new IllegalArgumentException("Unknown FraDiscounting value: " + fra.getDiscounting());
+    }
+  }
+
   // ISDA discounting method
   private double unitAmountIsda(PricingEnvironment env, ExpandedFra fra) {
     double fixedRate = fra.getFixedRate();
