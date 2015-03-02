@@ -6,7 +6,6 @@
 package com.opengamma.platform.finance.fra;
 
 import static com.opengamma.basics.BuySell.BUY;
-import static com.opengamma.basics.BuySell.SELL;
 import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
@@ -21,6 +20,7 @@ import static com.opengamma.collect.TestHelper.date;
 import static com.opengamma.platform.finance.fra.FraDiscountingMethod.ISDA;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.basics.date.AdjustableDate;
@@ -42,7 +42,6 @@ public class ExpandedFraTest {
   //-------------------------------------------------------------------------
   public void test_builder() {
     ExpandedFra test = ExpandedFra.builder()
-        .buySell(BUY)
         .paymentDate(date(2015, 6, 16))
         .startDate(date(2015, 6, 15))
         .endDate(date(2015, 9, 15))
@@ -53,7 +52,6 @@ public class ExpandedFraTest {
         .notional(NOTIONAL_1M)
         .discounting(ISDA)
         .build();
-    assertEquals(test.getBuySell(), BUY);
     assertEquals(test.getPaymentDate(), date(2015, 6, 16));
     assertEquals(test.getStartDate(), date(2015, 6, 15));
     assertEquals(test.getEndDate(), date(2015, 9, 15));
@@ -80,7 +78,6 @@ public class ExpandedFraTest {
 
   public void test_expand() {
     ExpandedFra test = ExpandedFra.builder()
-        .buySell(BUY)
         .paymentDate(date(2015, 6, 16))
         .startDate(date(2015, 6, 15))
         .endDate(date(2015, 9, 15))
@@ -97,7 +94,6 @@ public class ExpandedFraTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     ExpandedFra test = ExpandedFra.builder()
-        .buySell(BUY)
         .paymentDate(date(2015, 6, 16))
         .startDate(date(2015, 6, 15))
         .endDate(date(2015, 9, 15))
@@ -110,7 +106,6 @@ public class ExpandedFraTest {
         .build();
     coverImmutableBean(test);
     ExpandedFra test2 = ExpandedFra.builder()
-        .buySell(SELL)
         .paymentDate(date(2015, 6, 17))
         .startDate(date(2015, 6, 16))
         .endDate(date(2015, 9, 16))
@@ -126,7 +121,6 @@ public class ExpandedFraTest {
 
   public void test_serialization() {
     ExpandedFra test = ExpandedFra.builder()
-        .buySell(BUY)
         .paymentDate(date(2015, 6, 16))
         .startDate(date(2015, 6, 15))
         .endDate(date(2015, 9, 15))

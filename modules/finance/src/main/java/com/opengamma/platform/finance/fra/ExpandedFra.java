@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.basics.BuySell;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.collect.ArgChecker;
@@ -44,15 +43,6 @@ import com.opengamma.platform.finance.observation.RateObservation;
 public final class ExpandedFra
     implements FraProduct, ImmutableBean, Serializable {
 
-  /**
-   * Whether the FRA is buy or sell.
-   * <p>
-   * A value of 'Buy' implies that the floating rate is received from the counterparty,
-   * with the fixed rate being paid. A value of 'Sell' implies that the floating rate
-   * is paid to the counterparty, with the fixed rate being received.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final BuySell buySell;
   /**
    * The date that payment occurs.
    * <p>
@@ -91,8 +81,6 @@ public final class ExpandedFra
   /**
    * The fixed rate of interest.
    * A 5% rate will be expressed as 0.05.
-   * <p>
-   * See {@code buySell} to determine whether this rate is paid or received.
    */
   @PropertyDefinition
   private final double fixedRate;
@@ -101,8 +89,6 @@ public final class ExpandedFra
    * <p>
    * The floating rate to be paid is based on this index.
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
-   * <p>
-   * See {@code buySell} to determine whether this rate is paid or received.
    */
   @PropertyDefinition(validate = "notNull")
   private final RateObservation floatingRate;
@@ -118,10 +104,12 @@ public final class ExpandedFra
   /**
    * The notional amount.
    * <p>
-   * The notional expressed here must be positive.
+   * The notional, which is a positive signed amount if the FRA is 'buy',
+   * and a negative signed amount if the FRA is 'sell'.
+   * <p>
    * The currency of the notional is specified by {@code currency}.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegative")
+  @PropertyDefinition
   private final double notional;
   /**
    * The method to use for discounting.
@@ -177,7 +165,6 @@ public final class ExpandedFra
   }
 
   private ExpandedFra(
-      BuySell buySell,
       LocalDate paymentDate,
       LocalDate startDate,
       LocalDate endDate,
@@ -187,16 +174,13 @@ public final class ExpandedFra
       Currency currency,
       double notional,
       FraDiscountingMethod discounting) {
-    JodaBeanUtils.notNull(buySell, "buySell");
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
     ArgChecker.notNegative(yearFraction, "yearFraction");
     JodaBeanUtils.notNull(floatingRate, "floatingRate");
     JodaBeanUtils.notNull(currency, "currency");
-    ArgChecker.notNegative(notional, "notional");
     JodaBeanUtils.notNull(discounting, "discounting");
-    this.buySell = buySell;
     this.paymentDate = paymentDate;
     this.startDate = startDate;
     this.endDate = endDate;
@@ -222,19 +206,6 @@ public final class ExpandedFra
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets whether the FRA is buy or sell.
-   * <p>
-   * A value of 'Buy' implies that the floating rate is received from the counterparty,
-   * with the fixed rate being paid. A value of 'Sell' implies that the floating rate
-   * is paid to the counterparty, with the fixed rate being received.
-   * @return the value of the property, not null
-   */
-  public BuySell getBuySell() {
-    return buySell;
   }
 
   //-----------------------------------------------------------------------
@@ -292,8 +263,6 @@ public final class ExpandedFra
   /**
    * Gets the fixed rate of interest.
    * A 5% rate will be expressed as 0.05.
-   * <p>
-   * See {@code buySell} to determine whether this rate is paid or received.
    * @return the value of the property
    */
   public double getFixedRate() {
@@ -306,8 +275,6 @@ public final class ExpandedFra
    * <p>
    * The floating rate to be paid is based on this index.
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
-   * <p>
-   * See {@code buySell} to determine whether this rate is paid or received.
    * @return the value of the property, not null
    */
   public RateObservation getFloatingRate() {
@@ -331,7 +298,9 @@ public final class ExpandedFra
   /**
    * Gets the notional amount.
    * <p>
-   * The notional expressed here must be positive.
+   * The notional, which is a positive signed amount if the FRA is 'buy',
+   * and a negative signed amount if the FRA is 'sell'.
+   * <p>
    * The currency of the notional is specified by {@code currency}.
    * @return the value of the property
    */
@@ -367,8 +336,7 @@ public final class ExpandedFra
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ExpandedFra other = (ExpandedFra) obj;
-      return JodaBeanUtils.equal(getBuySell(), other.getBuySell()) &&
-          JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
+      return JodaBeanUtils.equal(getPaymentDate(), other.getPaymentDate()) &&
           JodaBeanUtils.equal(getStartDate(), other.getStartDate()) &&
           JodaBeanUtils.equal(getEndDate(), other.getEndDate()) &&
           JodaBeanUtils.equal(getYearFraction(), other.getYearFraction()) &&
@@ -384,7 +352,6 @@ public final class ExpandedFra
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(getBuySell());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPaymentDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getStartDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getEndDate());
@@ -399,9 +366,8 @@ public final class ExpandedFra
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("ExpandedFra{");
-    buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
     buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
     buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
     buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
@@ -425,11 +391,6 @@ public final class ExpandedFra
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code buySell} property.
-     */
-    private final MetaProperty<BuySell> buySell = DirectMetaProperty.ofImmutable(
-        this, "buySell", ExpandedFra.class, BuySell.class);
     /**
      * The meta-property for the {@code paymentDate} property.
      */
@@ -480,7 +441,6 @@ public final class ExpandedFra
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "buySell",
         "paymentDate",
         "startDate",
         "endDate",
@@ -500,8 +460,6 @@ public final class ExpandedFra
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 244977400:  // buySell
-          return buySell;
         case -1540873516:  // paymentDate
           return paymentDate;
         case -2129778896:  // startDate
@@ -540,14 +498,6 @@ public final class ExpandedFra
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code buySell} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<BuySell> buySell() {
-      return buySell;
-    }
-
     /**
      * The meta-property for the {@code paymentDate} property.
      * @return the meta-property, not null
@@ -624,8 +574,6 @@ public final class ExpandedFra
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 244977400:  // buySell
-          return ((ExpandedFra) bean).getBuySell();
         case -1540873516:  // paymentDate
           return ((ExpandedFra) bean).getPaymentDate();
         case -2129778896:  // startDate
@@ -665,7 +613,6 @@ public final class ExpandedFra
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ExpandedFra> {
 
-    private BuySell buySell;
     private LocalDate paymentDate;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -687,7 +634,6 @@ public final class ExpandedFra
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ExpandedFra beanToCopy) {
-      this.buySell = beanToCopy.getBuySell();
       this.paymentDate = beanToCopy.getPaymentDate();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
@@ -703,8 +649,6 @@ public final class ExpandedFra
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 244977400:  // buySell
-          return buySell;
         case -1540873516:  // paymentDate
           return paymentDate;
         case -2129778896:  // startDate
@@ -731,9 +675,6 @@ public final class ExpandedFra
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 244977400:  // buySell
-          this.buySell = (BuySell) newValue;
-          break;
         case -1540873516:  // paymentDate
           this.paymentDate = (LocalDate) newValue;
           break;
@@ -794,7 +735,6 @@ public final class ExpandedFra
     @Override
     public ExpandedFra build() {
       return new ExpandedFra(
-          buySell,
           paymentDate,
           startDate,
           endDate,
@@ -807,17 +747,6 @@ public final class ExpandedFra
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code buySell} property in the builder.
-     * @param buySell  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder buySell(BuySell buySell) {
-      JodaBeanUtils.notNull(buySell, "buySell");
-      this.buySell = buySell;
-      return this;
-    }
-
     /**
      * Sets the {@code paymentDate} property in the builder.
      * @param paymentDate  the new value, not null
@@ -900,7 +829,6 @@ public final class ExpandedFra
      * @return this, for chaining, not null
      */
     public Builder notional(double notional) {
-      ArgChecker.notNegative(notional, "notional");
       this.notional = notional;
       return this;
     }
@@ -919,9 +847,8 @@ public final class ExpandedFra
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(352);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("ExpandedFra.Builder{");
-      buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');

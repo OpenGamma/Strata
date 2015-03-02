@@ -222,7 +222,6 @@ public final class Fra
     LocalDate start = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(startDate);
     LocalDate end = getBusinessDayAdjustment().orElse(BusinessDayAdjustment.NONE).adjust(endDate);
     return ExpandedFra.builder()
-        .buySell(buySell)
         .paymentDate(paymentDate.adjusted())
         .startDate(start)
         .endDate(end)
@@ -230,7 +229,7 @@ public final class Fra
         .fixedRate(fixedRate)
         .floatingRate(createRateObservation())
         .currency(currency)
-        .notional(notional)
+        .notional(buySell.normalize(notional))
         .discounting(discounting)
         .build();
   }
