@@ -41,6 +41,8 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
 
   /**
    * The expiry date of option.  
+   * <p>
+   * The expiry date should not be after last trade date of the underlying future. 
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate expirationDate;
@@ -49,10 +51,10 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
    * The strike price of option. 
    * <p>
    * This should be represented in decimal. 
-   * Thus strike rate is given by 1.0 - strike
+   * Thus strike rate is given by (1.0 - strike) which can take negative values.
    */
   @PropertyDefinition
-  private final double strike;
+  private final double strikePrice;
 
   /**
    * True for call option, false for put option
@@ -70,7 +72,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
   public ExpandedIborFutureOption expand() {
     return ExpandedIborFutureOption.builder()
         .expirationDate(expirationDate)
-        .strike(strike)
+        .strikePrice(strikePrice)
         .isCall(isCall)
         .expandedIborFuture(iborFuture.expand())
         .build();
@@ -112,7 +114,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
     JodaBeanUtils.notNull(builder.expirationDate, "expirationDate");
     this.iborFuture = builder.iborFuture;
     this.expirationDate = builder.expirationDate;
-    this.strike = builder.strike;
+    this.strikePrice = builder.strikePrice;
     this.isCall = builder.isCall;
     validate();
   }
@@ -144,6 +146,8 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
   //-----------------------------------------------------------------------
   /**
    * Gets the expiry date of option.
+   * <p>
+   * The expiry date should not be after last trade date of the underlying future.
    * @return the value of the property, not null
    */
   public LocalDate getExpirationDate() {
@@ -155,11 +159,11 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
    * Gets the strike price of option.
    * <p>
    * This should be represented in decimal.
-   * Thus strike rate is given by 1.0 - strike
+   * Thus strike rate is given by (1.0 - strike) which can take negative values.
    * @return the value of the property
    */
-  public double getStrike() {
-    return strike;
+  public double getStrikePrice() {
+    return strikePrice;
   }
 
   //-----------------------------------------------------------------------
@@ -189,7 +193,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
       IborFutureOption other = (IborFutureOption) obj;
       return JodaBeanUtils.equal(getIborFuture(), other.getIborFuture()) &&
           JodaBeanUtils.equal(getExpirationDate(), other.getExpirationDate()) &&
-          JodaBeanUtils.equal(getStrike(), other.getStrike()) &&
+          JodaBeanUtils.equal(getStrikePrice(), other.getStrikePrice()) &&
           (isIsCall() == other.isIsCall());
     }
     return false;
@@ -200,7 +204,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIborFuture());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationDate());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getStrike());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getStrikePrice());
     hash = hash * 31 + JodaBeanUtils.hashCode(isIsCall());
     return hash;
   }
@@ -221,7 +225,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
   protected void toString(StringBuilder buf) {
     buf.append("iborFuture").append('=').append(JodaBeanUtils.toString(getIborFuture())).append(',').append(' ');
     buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(getExpirationDate())).append(',').append(' ');
-    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(getStrikePrice())).append(',').append(' ');
     buf.append("isCall").append('=').append(JodaBeanUtils.toString(isIsCall())).append(',').append(' ');
   }
 
@@ -246,10 +250,10 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
     private final MetaProperty<LocalDate> expirationDate = DirectMetaProperty.ofImmutable(
         this, "expirationDate", IborFutureOption.class, LocalDate.class);
     /**
-     * The meta-property for the {@code strike} property.
+     * The meta-property for the {@code strikePrice} property.
      */
-    private final MetaProperty<Double> strike = DirectMetaProperty.ofImmutable(
-        this, "strike", IborFutureOption.class, Double.TYPE);
+    private final MetaProperty<Double> strikePrice = DirectMetaProperty.ofImmutable(
+        this, "strikePrice", IborFutureOption.class, Double.TYPE);
     /**
      * The meta-property for the {@code isCall} property.
      */
@@ -262,7 +266,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
         this, null,
         "iborFuture",
         "expirationDate",
-        "strike",
+        "strikePrice",
         "isCall");
 
     /**
@@ -278,8 +282,8 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
           return iborFuture;
         case -668811523:  // expirationDate
           return expirationDate;
-        case -891985998:  // strike
-          return strike;
+        case 50946231:  // strikePrice
+          return strikePrice;
         case -1180608856:  // isCall
           return isCall;
       }
@@ -319,11 +323,11 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
     }
 
     /**
-     * The meta-property for the {@code strike} property.
+     * The meta-property for the {@code strikePrice} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> strike() {
-      return strike;
+    public final MetaProperty<Double> strikePrice() {
+      return strikePrice;
     }
 
     /**
@@ -342,8 +346,8 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
           return ((IborFutureOption) bean).getIborFuture();
         case -668811523:  // expirationDate
           return ((IborFutureOption) bean).getExpirationDate();
-        case -891985998:  // strike
-          return ((IborFutureOption) bean).getStrike();
+        case 50946231:  // strikePrice
+          return ((IborFutureOption) bean).getStrikePrice();
         case -1180608856:  // isCall
           return ((IborFutureOption) bean).isIsCall();
       }
@@ -369,7 +373,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
 
     private IborFuture iborFuture;
     private LocalDate expirationDate;
-    private double strike;
+    private double strikePrice;
     private boolean isCall;
 
     /**
@@ -385,7 +389,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
     protected Builder(IborFutureOption beanToCopy) {
       this.iborFuture = beanToCopy.getIborFuture();
       this.expirationDate = beanToCopy.getExpirationDate();
-      this.strike = beanToCopy.getStrike();
+      this.strikePrice = beanToCopy.getStrikePrice();
       this.isCall = beanToCopy.isIsCall();
     }
 
@@ -397,8 +401,8 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
           return iborFuture;
         case -668811523:  // expirationDate
           return expirationDate;
-        case -891985998:  // strike
-          return strike;
+        case 50946231:  // strikePrice
+          return strikePrice;
         case -1180608856:  // isCall
           return isCall;
         default:
@@ -415,8 +419,8 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
         case -668811523:  // expirationDate
           this.expirationDate = (LocalDate) newValue;
           break;
-        case -891985998:  // strike
-          this.strike = (Double) newValue;
+        case 50946231:  // strikePrice
+          this.strikePrice = (Double) newValue;
           break;
         case -1180608856:  // isCall
           this.isCall = (Boolean) newValue;
@@ -480,12 +484,12 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
     }
 
     /**
-     * Sets the {@code strike} property in the builder.
-     * @param strike  the new value
+     * Sets the {@code strikePrice} property in the builder.
+     * @param strikePrice  the new value
      * @return this, for chaining, not null
      */
-    public Builder strike(double strike) {
-      this.strike = strike;
+    public Builder strikePrice(double strikePrice) {
+      this.strikePrice = strikePrice;
       return this;
     }
 
@@ -516,7 +520,7 @@ public class IborFutureOption implements IborFutureOptionProduct, ImmutableBean,
     protected void toString(StringBuilder buf) {
       buf.append("iborFuture").append('=').append(JodaBeanUtils.toString(iborFuture)).append(',').append(' ');
       buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(expirationDate)).append(',').append(' ');
-      buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
+      buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
       buf.append("isCall").append('=').append(JodaBeanUtils.toString(isCall)).append(',').append(' ');
     }
 

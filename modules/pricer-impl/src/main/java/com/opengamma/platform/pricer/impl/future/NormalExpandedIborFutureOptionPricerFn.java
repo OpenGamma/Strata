@@ -54,7 +54,7 @@ public class NormalExpandedIborFutureOptionPricerFn
   }
 
   private EuropeanVanillaOption createOption(PricingEnvironment env, ExpandedIborFutureOption iborFutureOptionProduct) {
-    double strike = iborFutureOptionProduct.getStrike();
+    double strike = iborFutureOptionProduct.getStrikePrice();
     double timeToExpiry = env.relativeTime(iborFutureOptionProduct.getExpirationDate());
     boolean isCall = iborFutureOptionProduct.isIsCall();
     return new EuropeanVanillaOption(strike, timeToExpiry, isCall);
@@ -72,7 +72,7 @@ public class NormalExpandedIborFutureOptionPricerFn
     double timeToLastTrade = env.relativeTime(iborFutureOptionProduct.getExpandedIborFuture().getRate()
         .getFixingDate()); // assuming last trade date is stored as fixing date
     double delay = timeToLastTrade - timeToExpiry;
-    double strike = iborFutureOptionProduct.getStrike();
+    double strike = iborFutureOptionProduct.getStrikePrice();
     double volatility = ((NormalSTIRFuturesProviderInterface) surface).getVolatility(timeToExpiry, delay, strike,
         futurePrice);
     return new NormalFunctionData(futurePrice, 1.0, volatility);
