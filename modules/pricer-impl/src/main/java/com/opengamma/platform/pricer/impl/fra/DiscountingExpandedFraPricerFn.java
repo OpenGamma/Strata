@@ -81,7 +81,7 @@ public class DiscountingExpandedFraPricerFn
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(env, fra);
     double yearFraction = fra.getYearFraction();
-    return yearFraction * (forwardRate - fixedRate)  / (1.0 + yearFraction * forwardRate);
+    return ((forwardRate - fixedRate) / (1.0 + forwardRate * yearFraction)) * yearFraction;
   }
 
   // NONE discounting method
@@ -89,7 +89,7 @@ public class DiscountingExpandedFraPricerFn
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(env, fra);
     double yearFraction = fra.getYearFraction();
-    return yearFraction * (forwardRate - fixedRate);
+    return (forwardRate - fixedRate) * yearFraction;
   }
 
   // AFMA discounting method
@@ -97,7 +97,7 @@ public class DiscountingExpandedFraPricerFn
     double fixedRate = fra.getFixedRate();
     double forwardRate = forwardRate(env, fra);
     double yearFraction = fra.getYearFraction();
-    return 1.0 / (1.0 + fixedRate * yearFraction) - 1.0 / (1.0 + forwardRate * yearFraction);
+    return (1.0 / (1.0 + fixedRate * yearFraction)) - (1.0 / (1.0 + forwardRate * yearFraction));
   }
 
   // query the forward rate
