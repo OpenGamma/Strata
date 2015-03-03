@@ -1,5 +1,12 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.finance.future;
 
+import static com.opengamma.basics.PutCall.CALL;
+import static com.opengamma.basics.PutCall.PUT;
 import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.date.Tenor.TENOR_2M;
@@ -25,6 +32,7 @@ import com.opengamma.platform.finance.observation.IborRateObservation;
  */
 @Test
 public class ExpandedIborFutureOptionTest {
+
   private static final double NOTIONAL_1 = 1_000d;
   private static final double NOTIONAL_2 = 2_000d;
   private static final double ACCRUAL_FACTOR_2M = TENOR_2M.getPeriod().toTotalMonths() / 12.0;
@@ -36,56 +44,79 @@ public class ExpandedIborFutureOptionTest {
   private static final IborRateObservation RATE_OBS_USD = IborRateObservation.of(USD_LIBOR_3M, LAST_TRADE_DATE_2);
   private static final IborRateObservation RATE_OBS_GBP_1W = IborRateObservation.of(GBP_LIBOR_1W, LAST_TRADE_DATE_1);
 
-  private static final ExpandedIborFuture EXPANDED_IBOR_FUTURE_1 = ExpandedIborFuture.builder().currency(GBP)
-      .notional(NOTIONAL_1).accrualFactor(ACCRUAL_FACTOR_2M).rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build();
-  private static final ExpandedIborFuture EXPANDED_IBOR_FUTURE_2 = ExpandedIborFuture.builder().currency(GBP)
-      .notional(NOTIONAL_2).accrualFactor(ACCRUAL_FACTOR_3M).rate(RATE_OBS_GBP_1W).build();
+  private static final ExpandedIborFuture EXPANDED_IBOR_FUTURE_1 = ExpandedIborFuture.builder()
+      .currency(GBP)
+      .notional(NOTIONAL_1)
+      .accrualFactor(ACCRUAL_FACTOR_2M)
+      .rate(RATE_OBS_GBP)
+      .roundingDecimalPlaces(ROUNDING)
+      .build();
+  private static final ExpandedIborFuture EXPANDED_IBOR_FUTURE_2 = ExpandedIborFuture.builder()
+      .currency(GBP)
+      .notional(NOTIONAL_2)
+      .accrualFactor(ACCRUAL_FACTOR_3M)
+      .rate(RATE_OBS_GBP_1W)
+      .build();
 
   private static final LocalDate EXPIRY_DATE = date(2015, 5, 20);
   private static final double STRIKE_PRICE = 1.075;
-  private static final boolean IS_CALL = true;
 
-  /**
-   * Test builder. 
-   */
-  public void builderTest() {
-    ExpandedIborFutureOption option = ExpandedIborFutureOption.builder().expandedIborFuture(EXPANDED_IBOR_FUTURE_1)
-        .expirationDate(EXPIRY_DATE).strikePrice(STRIKE_PRICE).isCall(IS_CALL).build();
-    assertEquals(option.getExpandedIborFuture(), EXPANDED_IBOR_FUTURE_1);
-    assertEquals(option.getExpirationDate(), EXPIRY_DATE);
-    assertEquals(option.getStrikePrice(), STRIKE_PRICE);
-    assertEquals(option.isIsCall(), IS_CALL);
-    assertEquals(option.expand(), option);
+  //-------------------------------------------------------------------------
+  public void test_builder() {
+    ExpandedIborFutureOption test = ExpandedIborFutureOption.builder()
+        .putCall(CALL)
+        .expirationDate(EXPIRY_DATE)
+        .strikePrice(STRIKE_PRICE)
+        .iborFuture(EXPANDED_IBOR_FUTURE_1)
+        .build();
+    assertEquals(test.getPutCall(), CALL);
+    assertEquals(test.getExpirationDate(), EXPIRY_DATE);
+    assertEquals(test.getStrikePrice(), STRIKE_PRICE);
+    assertEquals(test.getIborFuture(), EXPANDED_IBOR_FUTURE_1);
+    assertEquals(test.expand(), test);
   }
 
-  /**
-   * Expiry should not be after last trade. 
-   */
-  public void lateExpiryTest() {
-    ExpandedIborFuture iborFutureUSD = ExpandedIborFuture.builder().currency(USD).notional(NOTIONAL_2)
-        .accrualFactor(ACCRUAL_FACTOR_3M).rate(RATE_OBS_USD).build();
-    assertThrowsIllegalArg(() -> ExpandedIborFutureOption.builder().expandedIborFuture(iborFutureUSD)
-        .expirationDate(EXPIRY_DATE).strikePrice(STRIKE_PRICE).isCall(IS_CALL).build());
+  public void test_builder_expiryNotAfterTradeDate() {
+    ExpandedIborFuture test = ExpandedIborFuture.builder()
+        .currency(USD)
+        .notional(NOTIONAL_2)
+        .accrualFactor(ACCRUAL_FACTOR_3M)
+        .rate(RATE_OBS_USD)
+        .build();
+    assertThrowsIllegalArg(() -> ExpandedIborFutureOption.builder()
+        .putCall(CALL)
+        .expirationDate(EXPIRY_DATE)
+        .strikePrice(STRIKE_PRICE)
+        .iborFuture(test)
+        .build());
   }
 
-  /**
-   * Coverage test. 
-   */
-  public void coverageTest() {
-    ExpandedIborFutureOption option1 = ExpandedIborFutureOption.builder().expandedIborFuture(EXPANDED_IBOR_FUTURE_1)
-        .expirationDate(EXPIRY_DATE).strikePrice(STRIKE_PRICE).isCall(IS_CALL).build();
-    coverImmutableBean(option1);
-    ExpandedIborFutureOption option2 = ExpandedIborFutureOption.builder().expandedIborFuture(EXPANDED_IBOR_FUTURE_2)
-        .expirationDate(LAST_TRADE_DATE_1).strikePrice(STRIKE_PRICE).isCall(!IS_CALL).build();
-    coverBeanEquals(option1, option2);
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    ExpandedIborFutureOption test = ExpandedIborFutureOption.builder()
+        .putCall(CALL)
+        .expirationDate(EXPIRY_DATE)
+        .strikePrice(STRIKE_PRICE)
+        .iborFuture(EXPANDED_IBOR_FUTURE_1)
+        .build();
+    coverImmutableBean(test);
+    ExpandedIborFutureOption test2 = ExpandedIborFutureOption.builder()
+        .putCall(PUT)
+        .expirationDate(LAST_TRADE_DATE_1)
+        .strikePrice(STRIKE_PRICE)
+        .iborFuture(EXPANDED_IBOR_FUTURE_2)
+        .build();
+    coverBeanEquals(test, test2);
   }
 
-  /**
-   * Serialization Test.
-   */
-  public void serializationTest() {
-    ExpandedIborFutureOption option = ExpandedIborFutureOption.builder().expandedIborFuture(EXPANDED_IBOR_FUTURE_1)
-        .expirationDate(EXPIRY_DATE).strikePrice(STRIKE_PRICE).isCall(IS_CALL).build();
-    assertSerialization(option);
+  public void test_serialization() {
+    ExpandedIborFutureOption test = ExpandedIborFutureOption.builder()
+        .putCall(CALL)
+        .expirationDate(EXPIRY_DATE)
+        .strikePrice(STRIKE_PRICE)
+        .iborFuture(EXPANDED_IBOR_FUTURE_1)
+        .build();
+    assertSerialization(test);
   }
+
 }

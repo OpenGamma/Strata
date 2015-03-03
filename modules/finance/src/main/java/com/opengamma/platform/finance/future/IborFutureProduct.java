@@ -7,6 +7,7 @@ package com.opengamma.platform.finance.future;
 
 import org.joda.beans.ImmutableBean;
 
+import com.opengamma.platform.finance.Expandable;
 import com.opengamma.platform.finance.Product;
 
 /**
@@ -23,6 +24,6 @@ import com.opengamma.platform.finance.Product;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface IborFutureProduct
-    extends Product<ExpandedIborFuture>, ImmutableBean {
+    extends Product, Expandable<ExpandedIborFuture>, ImmutableBean {
 
 }

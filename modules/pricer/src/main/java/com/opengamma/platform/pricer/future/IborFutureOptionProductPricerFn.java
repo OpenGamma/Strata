@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.pricer.future;
 
 import com.opengamma.basics.currency.CurrencyAmount;
@@ -21,27 +26,32 @@ public interface IborFutureOptionProductPricerFn<T extends IborFutureOptionProdu
   //  public abstract MulticurveSensitivity priceCurveSensitivity(PricingEnvironment env, T iborFutureOptionProduct);
 
   /**
-   * Calculates price of the Ibor future option.
+   * Calculates the price of the Ibor future option product.
    * <p>
    * The price of the product is the price on the valuation date.
    * 
-   * @param env The pricing environment
-   * @param iborFutureOptionProduct The pricing option
-   * @param surface The volatility surface
-   * @return option price
+   * @param env  the pricing environment
+   * @param iborFutureOption  the product to price
+   * @param surface  the volatility surface
+   * @return the price of the product
    */
-  public abstract double price(PricingEnvironment env, T iborFutureOptionProduct,
-      Object surface);
+  public abstract double price(PricingEnvironment env, T iborFutureOption, Object surface);
 
   /**
-   * Calculates present value of ibor future option trade. 
-   * @param env The pricing environment
-   * @param iborFutureOptionProduct The pricing product
-   * @param trade The trade 
-   * @param lastClosingPrice The last closing price
-   * @param surface The volatility surface
-   * @return The present value as CurrencyAmount
+   * Calculates the present value of the Ibor future option trade.
+   * 
+   * @param env  the pricing environment
+   * @param iborFutureOption  the product to price
+   * @param trade  the trade 
+   * @param lastClosingPrice  the last closing price
+   * @param surface  the volatility surface
+   * @return the present value
    */
-  public abstract CurrencyAmount presentValue(PricingEnvironment env, T iborFutureOptionProduct,
-      IborFutureOptionSecurityTrade trade, double lastClosingPrice, Object surface);
+  public abstract CurrencyAmount presentValue(
+      PricingEnvironment env,
+      T iborFutureOption,
+      IborFutureOptionSecurityTrade trade,
+      double lastClosingPrice,
+      Object surface);
+
 }

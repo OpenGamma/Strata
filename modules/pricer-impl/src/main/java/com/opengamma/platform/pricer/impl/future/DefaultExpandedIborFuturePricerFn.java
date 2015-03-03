@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,9 +12,7 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.future.IborFutureProductPricerFn;
 
 /**
- * Pricer implementation for swaps.
- * <p>
- * The swap is priced by examining the swap legs.
+ * Pricer implementation for Ibor futures.
  */
 public class DefaultExpandedIborFuturePricerFn
     implements IborFutureProductPricerFn<ExpandedIborFuture> {
@@ -38,16 +36,13 @@ public class DefaultExpandedIborFuturePricerFn
     return (1.0 - forward);
   }
 
-  /**
-   * Computes present value. 
-   * @param env The pricing environment 
-   * @param iborFuture The expanded product to price
-   * @param trade The trade 
-   * @param lastClosingPrice The last closing price
-   * @return The present value
-   */
-  public CurrencyAmount presentValue(PricingEnvironment env, ExpandedIborFuture iborFuture,
-      IborFutureSecurityTrade trade, double lastClosingPrice) {
+  @Override
+  public CurrencyAmount presentValue(
+      PricingEnvironment env,
+      ExpandedIborFuture iborFuture,
+      IborFutureSecurityTrade trade,
+      double lastClosingPrice) {
+
     double price = price(env, iborFuture);
     double priceIndex = marginIndex(iborFuture, price);
     double referenceIndex = marginIndex(iborFuture, lastClosingPrice);
@@ -57,8 +52,8 @@ public class DefaultExpandedIborFuturePricerFn
 
   // referencePrice
   // Provides the reference margin price,
-  // for futures, options and other exchange traded securities that are margined. <p>
-  // This is typically last night's close price, but may, on the trade date itself, be the trade price.<p>
+  // for futures, options and other exchange traded securities that are margined.
+  // This is typically last night's close price, but may, on the trade date itself, be the trade price.
 
   private double marginIndex(final ExpandedIborFuture iborFuture, double price) {
     // FuturesMarginIndexFromPriceCalculator.visitInterestRateFutureSecurity()

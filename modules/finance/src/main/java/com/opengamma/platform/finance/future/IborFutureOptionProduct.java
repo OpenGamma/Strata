@@ -1,7 +1,13 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.finance.future;
 
 import org.joda.beans.ImmutableBean;
 
+import com.opengamma.platform.finance.Expandable;
 import com.opengamma.platform.finance.Product;
 
 /**
@@ -14,6 +20,6 @@ import com.opengamma.platform.finance.Product;
  * Implementations must be immutable and thread-safe beans.
  */
 public interface IborFutureOptionProduct
-    extends Product<ExpandedIborFutureOption>, ImmutableBean {
+    extends Product, Expandable<ExpandedIborFutureOption>, ImmutableBean {
 
 }

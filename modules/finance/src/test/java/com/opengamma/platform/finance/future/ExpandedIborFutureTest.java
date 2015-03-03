@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.platform.finance.future;
 
 import static com.opengamma.basics.currency.Currency.GBP;
@@ -25,6 +30,7 @@ import com.opengamma.platform.finance.observation.IborRateObservation;
  */
 @Test
 public class ExpandedIborFutureTest {
+
   private static final double NOTIONAL_1 = 1_000d;
   private static final double NOTIONAL_2 = 2_000d;
   private static final double ACCRUAL_FACTOR_2M = TENOR_2M.getPeriod().toTotalMonths() / 12.0;
@@ -38,90 +44,107 @@ public class ExpandedIborFutureTest {
 
   private static final double TOL = 1.0e-13;
 
-  /**
-   * Test builder.
-   */
-  public void builderTest() {
-    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder().currency(GBP).notional(NOTIONAL_1)
-        .accrualFactor(ACCRUAL_FACTOR_2M).rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build();
-    assertEquals(NOTIONAL_1, expIborFuture.getNotional());
-    assertEquals(GBP, expIborFuture.getCurrency());
-    assertEquals(ACCRUAL_FACTOR_2M, expIborFuture.getAccrualFactor());
-    assertEquals(ROUNDING, expIborFuture.getRoundingDecimalPlaces());
-    assertEquals(RATE_OBS_GBP, expIborFuture.getRate());
-    ExpandedIborFuture expIborFutureRe = expIborFuture.expand(); // returns itself
-    assertEquals(expIborFuture, expIborFutureRe);
+  //-------------------------------------------------------------------------
+  public void test_builder() {
+    ExpandedIborFuture test = ExpandedIborFuture.builder()
+        .currency(GBP)
+        .notional(NOTIONAL_1)
+        .accrualFactor(ACCRUAL_FACTOR_2M)
+        .rate(RATE_OBS_GBP)
+        .roundingDecimalPlaces(ROUNDING)
+        .build();
+    assertEquals(test.getNotional(), NOTIONAL_1);
+    assertEquals(test.getCurrency(), GBP);
+    assertEquals(test.getAccrualFactor(), ACCRUAL_FACTOR_2M);
+    assertEquals(test.getRoundingDecimalPlaces(), ROUNDING);
+    assertEquals(test.getRate(), RATE_OBS_GBP);
+    assertEquals(test.expand(), test); // returns itself
   }
 
-  /**
-   * Accrual factor is not set, computed from tenor of index. 
-   */
-  public void noAccFactorTest() {
-    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder().currency(GBP).notional(NOTIONAL_1)
-        .rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build();
+  public void test_builder_accrualFactorDefaultedFromIndex() {
+    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder()
+        .currency(GBP)
+        .notional(NOTIONAL_1)
+        .rate(RATE_OBS_GBP)
+        .roundingDecimalPlaces(ROUNDING)
+        .build();
     assertEquals(ACCRUAL_FACTOR_2M, expIborFuture.getAccrualFactor(), TOL);
   }
 
-  /**
-   * Notioanl is not set, 0.0 is used by default. 
-   */
-  public void noNotionalTest() {
-    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder().currency(GBP).accrualFactor(ACCRUAL_FACTOR_2M)
-        .rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build();
+  public void test_builder_zeroNotionalByDefault() {
+    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder()
+        .currency(GBP)
+        .accrualFactor(ACCRUAL_FACTOR_2M)
+        .rate(RATE_OBS_GBP)
+        .roundingDecimalPlaces(ROUNDING)
+        .build();
     assertEquals(0.0, expIborFuture.getNotional());
   }
 
-  /**
-   * Currency is not set, currency of index is used. 
-   */
-  public void noCurrencyTest() {
-    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder().notional(NOTIONAL_1)
-        .accrualFactor(ACCRUAL_FACTOR_2M).rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build();
+  public void test_builder_currencyDefaultedFromIndex() {
+    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder()
+        .notional(NOTIONAL_1)
+        .accrualFactor(ACCRUAL_FACTOR_2M)
+        .rate(RATE_OBS_GBP)
+        .roundingDecimalPlaces(ROUNDING)
+        .build();
     assertEquals(GBP, expIborFuture.getCurrency());
   }
 
-  /**
-   * rate is not set, exception is thrown. 
-   */
-  public void noRateTest() {
-    assertThrowsIllegalArg(() -> ExpandedIborFuture.builder().currency(GBP).notional(NOTIONAL_1)
-        .accrualFactor(ACCRUAL_FACTOR_2M).roundingDecimalPlaces(ROUNDING).build());
+  public void test_builder_exceptionWhenNoRate() {
+    assertThrowsIllegalArg(() -> ExpandedIborFuture.builder()
+        .currency(GBP)
+        .notional(NOTIONAL_1)
+        .accrualFactor(ACCRUAL_FACTOR_2M)
+        .roundingDecimalPlaces(ROUNDING)
+        .build());
   }
 
-  /**
-   * rate and accrual factor are not set, exception is thrown. 
-   */
-  public void noRateAccFactorTest() {
-    assertThrowsIllegalArg(() -> ExpandedIborFuture.builder().currency(GBP).notional(NOTIONAL_1)
-        .roundingDecimalPlaces(ROUNDING).build());
+  public void test_builder_exceptionWhenNoRateIndexOrAccrualFactor() {
+    assertThrowsIllegalArg(() -> ExpandedIborFuture.builder()
+        .currency(GBP)
+        .notional(NOTIONAL_1)
+        .roundingDecimalPlaces(ROUNDING)
+        .build());
   }
 
-  /**
-   * rate is not set, accrual factor is not computed because index is week-based. Thus exception is thrown. 
-   */
-  public void noAccFactorWeekIborTest() {
-    assertThrowsIllegalArg(() -> ExpandedIborFuture.builder().currency(GBP).notional(NOTIONAL_1)
-        .rate(RATE_OBS_GBP_1W).roundingDecimalPlaces(ROUNDING).build());
+  public void test_builder_exceptionWhenWeekBasedIndexAndNoAccrualFactor() {
+    assertThrowsIllegalArg(() -> ExpandedIborFuture.builder()
+        .currency(GBP)
+        .notional(NOTIONAL_1)
+        .rate(RATE_OBS_GBP_1W)
+        .roundingDecimalPlaces(ROUNDING)
+        .build());
   }
 
-  /**
-   * Coverage test. 
-   */
-  public void coverageTest() {
-    ExpandedIborFuture expIborFuture1 = ExpandedIborFuture.builder().currency(GBP).notional(NOTIONAL_1)
-        .accrualFactor(ACCRUAL_FACTOR_2M).rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build();
-    coverImmutableBean(expIborFuture1);
-    ExpandedIborFuture expIborFuture2 = ExpandedIborFuture.builder().currency(USD).notional(NOTIONAL_2)
-        .accrualFactor(ACCRUAL_FACTOR_3M).rate(RATE_OBS_USD).build();
-    coverBeanEquals(expIborFuture1, expIborFuture2);
+  //-------------------------------------------------------------------------
+  public void coverage() {
+    ExpandedIborFuture test = ExpandedIborFuture.builder()
+        .currency(GBP)
+        .notional(NOTIONAL_1)
+        .accrualFactor(ACCRUAL_FACTOR_2M)
+        .rate(RATE_OBS_GBP)
+        .roundingDecimalPlaces(ROUNDING)
+        .build();
+    coverImmutableBean(test);
+    ExpandedIborFuture test2 = ExpandedIborFuture.builder()
+        .currency(USD)
+        .notional(NOTIONAL_2)
+        .accrualFactor(ACCRUAL_FACTOR_3M)
+        .rate(RATE_OBS_USD)
+        .build();
+    coverBeanEquals(test, test2);
   }
 
-  /**
-   * Serialization test. 
-   */
-  public void serializationTest() {
-    ExpandedIborFuture expIborFuture = ExpandedIborFuture.builder().currency(GBP).notional(NOTIONAL_1)
-        .accrualFactor(ACCRUAL_FACTOR_2M).rate(RATE_OBS_GBP).roundingDecimalPlaces(ROUNDING).build();
-    assertSerialization(expIborFuture);
+  public void test_serialization() {
+    ExpandedIborFuture test = ExpandedIborFuture.builder()
+        .currency(GBP)
+        .notional(NOTIONAL_1)
+        .accrualFactor(ACCRUAL_FACTOR_2M)
+        .rate(RATE_OBS_GBP)
+        .roundingDecimalPlaces(ROUNDING)
+        .build();
+    assertSerialization(test);
   }
+
 }
