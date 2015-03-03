@@ -18,7 +18,7 @@ import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.SecurityType;
 
 /**
- * 
+ * Test IborFutureSecurity.
  */
 @Test
 public class IborFutureSecurityTest {

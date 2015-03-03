@@ -66,7 +66,6 @@ public final class IborFutureSecurityTrade
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate tradeDate;
-
   /**
    * The link referencing the underlying security.
    */
