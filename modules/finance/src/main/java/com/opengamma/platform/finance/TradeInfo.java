@@ -8,6 +8,7 @@ package com.opengamma.platform.finance;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -60,6 +61,11 @@ public final class TradeInfo
   @PropertyDefinition(get = "optional")
   private final LocalTime tradeTime;
   /**
+   * The trade time-zone, optional.
+   */
+  @PropertyDefinition(get = "optional")
+  private final ZoneId zone;
+  /**
    * The settlement date, optional.
    */
   @PropertyDefinition(get = "optional")
@@ -96,10 +102,12 @@ public final class TradeInfo
       StandardId counterparty,
       LocalDate tradeDate,
       LocalTime tradeTime,
+      ZoneId zone,
       LocalDate settlementDate) {
     this.counterparty = counterparty;
     this.tradeDate = tradeDate;
     this.tradeTime = tradeTime;
+    this.zone = zone;
     this.settlementDate = settlementDate;
   }
 
@@ -149,6 +157,15 @@ public final class TradeInfo
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the trade time-zone, optional.
+   * @return the optional value of the property, not null
+   */
+  public Optional<ZoneId> getZone() {
+    return Optional.ofNullable(zone);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the settlement date, optional.
    * @return the optional value of the property, not null
    */
@@ -175,6 +192,7 @@ public final class TradeInfo
       return JodaBeanUtils.equal(counterparty, other.counterparty) &&
           JodaBeanUtils.equal(tradeDate, other.tradeDate) &&
           JodaBeanUtils.equal(tradeTime, other.tradeTime) &&
+          JodaBeanUtils.equal(zone, other.zone) &&
           JodaBeanUtils.equal(settlementDate, other.settlementDate);
     }
     return false;
@@ -186,17 +204,19 @@ public final class TradeInfo
     hash = hash * 31 + JodaBeanUtils.hashCode(counterparty);
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeTime);
+    hash = hash * 31 + JodaBeanUtils.hashCode(zone);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDate);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("TradeInfo{");
     buf.append("counterparty").append('=').append(counterparty).append(',').append(' ');
     buf.append("tradeDate").append('=').append(tradeDate).append(',').append(' ');
     buf.append("tradeTime").append('=').append(tradeTime).append(',').append(' ');
+    buf.append("zone").append('=').append(zone).append(',').append(' ');
     buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate));
     buf.append('}');
     return buf.toString();
@@ -228,6 +248,11 @@ public final class TradeInfo
     private final MetaProperty<LocalTime> tradeTime = DirectMetaProperty.ofImmutable(
         this, "tradeTime", TradeInfo.class, LocalTime.class);
     /**
+     * The meta-property for the {@code zone} property.
+     */
+    private final MetaProperty<ZoneId> zone = DirectMetaProperty.ofImmutable(
+        this, "zone", TradeInfo.class, ZoneId.class);
+    /**
      * The meta-property for the {@code settlementDate} property.
      */
     private final MetaProperty<LocalDate> settlementDate = DirectMetaProperty.ofImmutable(
@@ -240,6 +265,7 @@ public final class TradeInfo
         "counterparty",
         "tradeDate",
         "tradeTime",
+        "zone",
         "settlementDate");
 
     /**
@@ -257,6 +283,8 @@ public final class TradeInfo
           return tradeDate;
         case 752903761:  // tradeTime
           return tradeTime;
+        case 3744684:  // zone
+          return zone;
         case -295948169:  // settlementDate
           return settlementDate;
       }
@@ -304,6 +332,14 @@ public final class TradeInfo
     }
 
     /**
+     * The meta-property for the {@code zone} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ZoneId> zone() {
+      return zone;
+    }
+
+    /**
      * The meta-property for the {@code settlementDate} property.
      * @return the meta-property, not null
      */
@@ -321,6 +357,8 @@ public final class TradeInfo
           return ((TradeInfo) bean).tradeDate;
         case 752903761:  // tradeTime
           return ((TradeInfo) bean).tradeTime;
+        case 3744684:  // zone
+          return ((TradeInfo) bean).zone;
         case -295948169:  // settlementDate
           return ((TradeInfo) bean).settlementDate;
       }
@@ -347,6 +385,7 @@ public final class TradeInfo
     private StandardId counterparty;
     private LocalDate tradeDate;
     private LocalTime tradeTime;
+    private ZoneId zone;
     private LocalDate settlementDate;
 
     /**
@@ -363,6 +402,7 @@ public final class TradeInfo
       this.counterparty = beanToCopy.counterparty;
       this.tradeDate = beanToCopy.tradeDate;
       this.tradeTime = beanToCopy.tradeTime;
+      this.zone = beanToCopy.zone;
       this.settlementDate = beanToCopy.settlementDate;
     }
 
@@ -376,6 +416,8 @@ public final class TradeInfo
           return tradeDate;
         case 752903761:  // tradeTime
           return tradeTime;
+        case 3744684:  // zone
+          return zone;
         case -295948169:  // settlementDate
           return settlementDate;
         default:
@@ -394,6 +436,9 @@ public final class TradeInfo
           break;
         case 752903761:  // tradeTime
           this.tradeTime = (LocalTime) newValue;
+          break;
+        case 3744684:  // zone
+          this.zone = (ZoneId) newValue;
           break;
         case -295948169:  // settlementDate
           this.settlementDate = (LocalDate) newValue;
@@ -434,6 +479,7 @@ public final class TradeInfo
           counterparty,
           tradeDate,
           tradeTime,
+          zone,
           settlementDate);
     }
 
@@ -469,6 +515,16 @@ public final class TradeInfo
     }
 
     /**
+     * Sets the {@code zone} property in the builder.
+     * @param zone  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder zone(ZoneId zone) {
+      this.zone = zone;
+      return this;
+    }
+
+    /**
      * Sets the {@code settlementDate} property in the builder.
      * @param settlementDate  the new value
      * @return this, for chaining, not null
@@ -481,11 +537,12 @@ public final class TradeInfo
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("TradeInfo.Builder{");
       buf.append("counterparty").append('=').append(JodaBeanUtils.toString(counterparty)).append(',').append(' ');
       buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(tradeDate)).append(',').append(' ');
       buf.append("tradeTime").append('=').append(JodaBeanUtils.toString(tradeTime)).append(',').append(' ');
+      buf.append("zone").append('=').append(JodaBeanUtils.toString(zone)).append(',').append(' ');
       buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate));
       buf.append('}');
       return buf.toString();

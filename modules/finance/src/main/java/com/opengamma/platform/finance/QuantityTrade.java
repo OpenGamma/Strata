@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.equity;
+package com.opengamma.platform.finance;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -25,21 +25,29 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.reflect.TypeToken;
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.collect.id.Link;
+import com.opengamma.collect.id.IdentifiableBean;
+import com.opengamma.collect.id.LinkResolutionException;
+import com.opengamma.collect.id.LinkResolver;
+import com.opengamma.collect.id.Resolvable;
 import com.opengamma.collect.id.StandardId;
-import com.opengamma.platform.finance.Trade;
-import com.opengamma.platform.finance.TradeInfo;
 
 /**
- * A trade representing the purchase or sale of an equity.
+ * A trade in a security, where the amount purchased is defined as a quantity,
+ * such as 200 shares of OpenGamma equity.
  * <p>
- * A trade in an underlying {@link Equity}.
- * For example, the purchase of 1000 shares of IBM.
+ * A {@code QuantityTrade} is used for those trades where a quantity of an underlying
+ * {@link Security} has been traded. For example, a trade in an equity.
+ * If the security was bought, the quantity will be positive.
+ * If the security was sold, the quantity will be negative.
+ * The price paid or received, and any other fees, can also be expressed.
+ * 
+ * @param <P>  the type of the product
  */
 @BeanDefinition
-public final class EquityTrade
-    implements Trade, ImmutableBean, Serializable {
+public final class QuantityTrade<P extends Product>
+    implements Trade, Resolvable<QuantityTrade<P>>, ImmutableBean, Serializable {
 
   /**
    * The primary standard identifier for the trade.
@@ -64,27 +72,29 @@ public final class EquityTrade
    */
   @PropertyDefinition(overrideGet = true)
   private final TradeInfo tradeInfo;
-
   /**
-   * The link referencing the equity.
+   * The link to the security that was traded.
+   * <p>
+   * The underlying security is the fungible instrument that was traded.
+   * This property returns a link to the security via a {@link StandardId}.
+   * See {@link #getSecurity()} and {@link SecurityLink} for more details.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Link<Equity> equityLink;
+  private final SecurityLink<P> securityLink;
   /**
-   * The number of units of the equity in the trade.
+   * The quantity of the security that has been traded.
    * <p>
-   * This will be positive if buying and negative if selling.
+   * For example, 200 shares of an equity.
    */
   @PropertyDefinition
-  private final double quantity;
+  private final long quantity;
   /**
-   * Amount paid for the equity at time of purchase, optional.
+   * The premium paid for the trade.
    * <p>
-   * This will be negative if buying and positive if selling.
-   * This is an optional value that will not be present if the amount is not known.
+   * The premium may be negative if money was received rather than paid.
    */
   @PropertyDefinition(get = "optional")
-  private final CurrencyAmount paymentAmount;
+  private final CurrencyAmount premium;
 
   //-------------------------------------------------------------------------
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -93,18 +103,108 @@ public final class EquityTrade
     builder.tradeInfo = TradeInfo.EMPTY;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the security that was traded, throwing an exception if not resolved.
+   * <p>
+   * The underlying security is the fungible instrument that was traded.
+   * This property returns full details of the security.
+   * <p>
+   * This method accesses the security via the {@link #getSecurityLink() securityLink} property.
+   * The link has two states, resolvable and resolved.
+   * <p>
+   * In the resolved state, the security is known and available for use.
+   * The security object will be directly embedded in the link held within this trade.
+   * <p>
+   * In the resolvable state, only the identifier and type of the security are known.
+   * These act as a pointer to the security, and as such the security is not directly available.
+   * The link must be resolved before use.
+   * This can be achieved by calling {@link #resolveLinks(LinkResolver)} on this trade.
+   * If the trade has not been resolved, then this method will throw a {@link LinkResolutionException}.
+   * 
+   * @return full details of the security
+   * @throws LinkResolutionException if the security is not resolved
+   */
+  public Security<P> getSecurity() {
+    return securityLink.resolve(new LinkResolver() {
+      @Override
+      public <R extends IdentifiableBean> R resolve(StandardId identifier, TypeToken<R> targetType) {
+        throw new LinkResolutionException("Security must be resolved before it can be used: " + identifier);
+      }
+    });
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Resolves all links in this trade, returning a fully resolved trade.
+   * <p>
+   * This method examines the trade, locates any links and resolves them.
+   * The result is fully resolved with all data available for use.
+   * Calling {@link #getSecurity()} on the result will not throw an exception.
+   * <p>
+   * An exception is thrown if a link cannot be resolved.
+   * 
+   * @param resolver  the resolver to use
+   * @return the fully resolved trade
+   * @throws LinkResolutionException if a link cannot be resolved
+   */
+  @Override
+  public QuantityTrade<P> resolveLinks(LinkResolver resolver) {
+    return resolver.resolveLinksIn(this, securityLink, resolved -> toBuilder().securityLink(resolved).build());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a builder used to create an instance, specifying the security.
+   * <p>
+   * When using this method, the security link will be resolved,
+   * directly containing the security.
+   * 
+   * @param <R>  the product type
+   * @param security  the security to embed in the link
+   * @return the builder, with the {@code securityLink} property set
+   */
+  public static <R extends Product> QuantityTrade.Builder<R> builder(Security<R> security) {
+    return QuantityTrade.builder(SecurityLink.resolved(security));
+  }
+
+  /**
+   * Returns a builder used to create an instance, specifying the security link.
+   * <p>
+   * When using this method, the security link will be set in the builder.
+   * 
+   * @param <R>  the product type
+   * @param securityLink  the security link
+   * @return the builder, with the {@code securityLink} property set
+   */
+  public static <R extends Product> QuantityTrade.Builder<R> builder(SecurityLink<R> securityLink) {
+    return QuantityTrade.<R>builder().securityLink(securityLink);
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code EquityTrade}.
+   * The meta-bean for {@code QuantityTrade}.
    * @return the meta-bean, not null
    */
-  public static EquityTrade.Meta meta() {
-    return EquityTrade.Meta.INSTANCE;
+  @SuppressWarnings("rawtypes")
+  public static QuantityTrade.Meta meta() {
+    return QuantityTrade.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code QuantityTrade}.
+   * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R extends Product> QuantityTrade.Meta<R> metaQuantityTrade(Class<R> cls) {
+    return QuantityTrade.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(EquityTrade.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(QuantityTrade.Meta.INSTANCE);
   }
 
   /**
@@ -114,33 +214,35 @@ public final class EquityTrade
 
   /**
    * Returns a builder used to create an instance of the bean.
+   * @param <P>  the type
    * @return the builder, not null
    */
-  public static EquityTrade.Builder builder() {
-    return new EquityTrade.Builder();
+  public static <P extends Product> QuantityTrade.Builder<P> builder() {
+    return new QuantityTrade.Builder<P>();
   }
 
-  private EquityTrade(
+  private QuantityTrade(
       StandardId standardId,
       Map<String, String> attributes,
       TradeInfo tradeInfo,
-      Link<Equity> equityLink,
-      double quantity,
-      CurrencyAmount paymentAmount) {
+      SecurityLink<P> securityLink,
+      long quantity,
+      CurrencyAmount premium) {
     JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(attributes, "attributes");
-    JodaBeanUtils.notNull(equityLink, "equityLink");
+    JodaBeanUtils.notNull(securityLink, "securityLink");
     this.standardId = standardId;
     this.attributes = ImmutableMap.copyOf(attributes);
     this.tradeInfo = tradeInfo;
-    this.equityLink = equityLink;
+    this.securityLink = securityLink;
     this.quantity = quantity;
-    this.paymentAmount = paymentAmount;
+    this.premium = premium;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public EquityTrade.Meta metaBean() {
-    return EquityTrade.Meta.INSTANCE;
+  public QuantityTrade.Meta<P> metaBean() {
+    return QuantityTrade.Meta.INSTANCE;
   }
 
   @Override
@@ -193,34 +295,37 @@ public final class EquityTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the link referencing the equity.
+   * Gets the link to the security that was traded.
+   * <p>
+   * The underlying security is the fungible instrument that was traded.
+   * This property returns a link to the security via a {@link StandardId}.
+   * See {@link #getSecurity()} and {@link SecurityLink} for more details.
    * @return the value of the property, not null
    */
-  public Link<Equity> getEquityLink() {
-    return equityLink;
+  public SecurityLink<P> getSecurityLink() {
+    return securityLink;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of units of the equity in the trade.
+   * Gets the quantity of the security that has been traded.
    * <p>
-   * This will be positive if buying and negative if selling.
+   * For example, 200 shares of an equity.
    * @return the value of the property
    */
-  public double getQuantity() {
+  public long getQuantity() {
     return quantity;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets amount paid for the equity at time of purchase, optional.
+   * Gets the premium paid for the trade.
    * <p>
-   * This will be negative if buying and positive if selling.
-   * This is an optional value that will not be present if the amount is not known.
+   * The premium may be negative if money was received rather than paid.
    * @return the optional value of the property, not null
    */
-  public Optional<CurrencyAmount> getPaymentAmount() {
-    return Optional.ofNullable(paymentAmount);
+  public Optional<CurrencyAmount> getPremium() {
+    return Optional.ofNullable(premium);
   }
 
   //-----------------------------------------------------------------------
@@ -228,8 +333,8 @@ public final class EquityTrade
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder toBuilder() {
-    return new Builder(this);
+  public Builder<P> toBuilder() {
+    return new Builder<P>(this);
   }
 
   @Override
@@ -238,13 +343,13 @@ public final class EquityTrade
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      EquityTrade other = (EquityTrade) obj;
+      QuantityTrade<?> other = (QuantityTrade<?>) obj;
       return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
           JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
-          JodaBeanUtils.equal(getEquityLink(), other.getEquityLink()) &&
-          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(paymentAmount, other.paymentAmount);
+          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
+          (getQuantity() == other.getQuantity()) &&
+          JodaBeanUtils.equal(premium, other.premium);
     }
     return false;
   }
@@ -255,68 +360,70 @@ public final class EquityTrade
     hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
     hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getEquityLink());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash = hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash = hash * 31 + JodaBeanUtils.hashCode(paymentAmount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(premium);
     return hash;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
-    buf.append("EquityTrade{");
+    buf.append("QuantityTrade{");
     buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
     buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
     buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
-    buf.append("equityLink").append('=').append(getEquityLink()).append(',').append(' ');
+    buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
     buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
-    buf.append("paymentAmount").append('=').append(JodaBeanUtils.toString(paymentAmount));
+    buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code EquityTrade}.
+   * The meta-bean for {@code QuantityTrade}.
+   * @param <P>  the type
    */
-  public static final class Meta extends DirectMetaBean {
+  public static final class Meta<P extends Product> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
      * The meta-property for the {@code standardId} property.
      */
     private final MetaProperty<StandardId> standardId = DirectMetaProperty.ofImmutable(
-        this, "standardId", EquityTrade.class, StandardId.class);
+        this, "standardId", QuantityTrade.class, StandardId.class);
     /**
      * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<String, String>> attributes = DirectMetaProperty.ofImmutable(
-        this, "attributes", EquityTrade.class, (Class) ImmutableMap.class);
+        this, "attributes", QuantityTrade.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code tradeInfo} property.
      */
     private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", EquityTrade.class, TradeInfo.class);
+        this, "tradeInfo", QuantityTrade.class, TradeInfo.class);
     /**
-     * The meta-property for the {@code equityLink} property.
+     * The meta-property for the {@code securityLink} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Link<Equity>> equityLink = DirectMetaProperty.ofImmutable(
-        this, "equityLink", EquityTrade.class, (Class) Link.class);
+    private final MetaProperty<SecurityLink<P>> securityLink = DirectMetaProperty.ofImmutable(
+        this, "securityLink", QuantityTrade.class, (Class) SecurityLink.class);
     /**
      * The meta-property for the {@code quantity} property.
      */
-    private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
-        this, "quantity", EquityTrade.class, Double.TYPE);
+    private final MetaProperty<Long> quantity = DirectMetaProperty.ofImmutable(
+        this, "quantity", QuantityTrade.class, Long.TYPE);
     /**
-     * The meta-property for the {@code paymentAmount} property.
+     * The meta-property for the {@code premium} property.
      */
-    private final MetaProperty<CurrencyAmount> paymentAmount = DirectMetaProperty.ofImmutable(
-        this, "paymentAmount", EquityTrade.class, CurrencyAmount.class);
+    private final MetaProperty<CurrencyAmount> premium = DirectMetaProperty.ofImmutable(
+        this, "premium", QuantityTrade.class, CurrencyAmount.class);
     /**
      * The meta-properties.
      */
@@ -325,9 +432,9 @@ public final class EquityTrade
         "standardId",
         "attributes",
         "tradeInfo",
-        "equityLink",
+        "securityLink",
         "quantity",
-        "paymentAmount");
+        "premium");
 
     /**
      * Restricted constructor.
@@ -344,24 +451,25 @@ public final class EquityTrade
           return attributes;
         case 752580658:  // tradeInfo
           return tradeInfo;
-        case -867837857:  // equityLink
-          return equityLink;
+        case 807992154:  // securityLink
+          return securityLink;
         case -1285004149:  // quantity
           return quantity;
-        case 909332990:  // paymentAmount
-          return paymentAmount;
+        case -318452137:  // premium
+          return premium;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public EquityTrade.Builder builder() {
-      return new EquityTrade.Builder();
+    public QuantityTrade.Builder<P> builder() {
+      return new QuantityTrade.Builder<P>();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends EquityTrade> beanType() {
-      return EquityTrade.class;
+    public Class<? extends QuantityTrade<P>> beanType() {
+      return (Class) QuantityTrade.class;
     }
 
     @Override
@@ -395,27 +503,27 @@ public final class EquityTrade
     }
 
     /**
-     * The meta-property for the {@code equityLink} property.
+     * The meta-property for the {@code securityLink} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Link<Equity>> equityLink() {
-      return equityLink;
+    public MetaProperty<SecurityLink<P>> securityLink() {
+      return securityLink;
     }
 
     /**
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> quantity() {
+    public MetaProperty<Long> quantity() {
       return quantity;
     }
 
     /**
-     * The meta-property for the {@code paymentAmount} property.
+     * The meta-property for the {@code premium} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurrencyAmount> paymentAmount() {
-      return paymentAmount;
+    public MetaProperty<CurrencyAmount> premium() {
+      return premium;
     }
 
     //-----------------------------------------------------------------------
@@ -423,17 +531,17 @@ public final class EquityTrade
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1284477768:  // standardId
-          return ((EquityTrade) bean).getStandardId();
+          return ((QuantityTrade<?>) bean).getStandardId();
         case 405645655:  // attributes
-          return ((EquityTrade) bean).getAttributes();
+          return ((QuantityTrade<?>) bean).getAttributes();
         case 752580658:  // tradeInfo
-          return ((EquityTrade) bean).getTradeInfo();
-        case -867837857:  // equityLink
-          return ((EquityTrade) bean).getEquityLink();
+          return ((QuantityTrade<?>) bean).getTradeInfo();
+        case 807992154:  // securityLink
+          return ((QuantityTrade<?>) bean).getSecurityLink();
         case -1285004149:  // quantity
-          return ((EquityTrade) bean).getQuantity();
-        case 909332990:  // paymentAmount
-          return ((EquityTrade) bean).paymentAmount;
+          return ((QuantityTrade<?>) bean).getQuantity();
+        case -318452137:  // premium
+          return ((QuantityTrade<?>) bean).premium;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -451,16 +559,17 @@ public final class EquityTrade
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code EquityTrade}.
+   * The bean-builder for {@code QuantityTrade}.
+   * @param <P>  the type
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<EquityTrade> {
+  public static final class Builder<P extends Product> extends DirectFieldsBeanBuilder<QuantityTrade<P>> {
 
     private StandardId standardId;
     private Map<String, String> attributes = ImmutableMap.of();
     private TradeInfo tradeInfo;
-    private Link<Equity> equityLink;
-    private double quantity;
-    private CurrencyAmount paymentAmount;
+    private SecurityLink<P> securityLink;
+    private long quantity;
+    private CurrencyAmount premium;
 
     /**
      * Restricted constructor.
@@ -473,13 +582,13 @@ public final class EquityTrade
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(EquityTrade beanToCopy) {
+    private Builder(QuantityTrade<P> beanToCopy) {
       this.standardId = beanToCopy.getStandardId();
       this.attributes = beanToCopy.getAttributes();
       this.tradeInfo = beanToCopy.getTradeInfo();
-      this.equityLink = beanToCopy.getEquityLink();
+      this.securityLink = beanToCopy.getSecurityLink();
       this.quantity = beanToCopy.getQuantity();
-      this.paymentAmount = beanToCopy.paymentAmount;
+      this.premium = beanToCopy.premium;
     }
 
     //-----------------------------------------------------------------------
@@ -492,12 +601,12 @@ public final class EquityTrade
           return attributes;
         case 752580658:  // tradeInfo
           return tradeInfo;
-        case -867837857:  // equityLink
-          return equityLink;
+        case 807992154:  // securityLink
+          return securityLink;
         case -1285004149:  // quantity
           return quantity;
-        case 909332990:  // paymentAmount
-          return paymentAmount;
+        case -318452137:  // premium
+          return premium;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -505,7 +614,7 @@ public final class EquityTrade
 
     @SuppressWarnings("unchecked")
     @Override
-    public Builder set(String propertyName, Object newValue) {
+    public Builder<P> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1284477768:  // standardId
           this.standardId = (StandardId) newValue;
@@ -516,14 +625,14 @@ public final class EquityTrade
         case 752580658:  // tradeInfo
           this.tradeInfo = (TradeInfo) newValue;
           break;
-        case -867837857:  // equityLink
-          this.equityLink = (Link<Equity>) newValue;
+        case 807992154:  // securityLink
+          this.securityLink = (SecurityLink<P>) newValue;
           break;
         case -1285004149:  // quantity
-          this.quantity = (Double) newValue;
+          this.quantity = (Long) newValue;
           break;
-        case 909332990:  // paymentAmount
-          this.paymentAmount = (CurrencyAmount) newValue;
+        case -318452137:  // premium
+          this.premium = (CurrencyAmount) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -532,38 +641,38 @@ public final class EquityTrade
     }
 
     @Override
-    public Builder set(MetaProperty<?> property, Object value) {
+    public Builder<P> set(MetaProperty<?> property, Object value) {
       super.set(property, value);
       return this;
     }
 
     @Override
-    public Builder setString(String propertyName, String value) {
+    public Builder<P> setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
     @Override
-    public Builder setString(MetaProperty<?> property, String value) {
+    public Builder<P> setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
     @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+    public Builder<P> setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
     }
 
     @Override
-    public EquityTrade build() {
-      return new EquityTrade(
+    public QuantityTrade<P> build() {
+      return new QuantityTrade<P>(
           standardId,
           attributes,
           tradeInfo,
-          equityLink,
+          securityLink,
           quantity,
-          paymentAmount);
+          premium);
     }
 
     //-----------------------------------------------------------------------
@@ -572,7 +681,7 @@ public final class EquityTrade
      * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder standardId(StandardId standardId) {
+    public Builder<P> standardId(StandardId standardId) {
       JodaBeanUtils.notNull(standardId, "standardId");
       this.standardId = standardId;
       return this;
@@ -583,7 +692,7 @@ public final class EquityTrade
      * @param attributes  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder attributes(Map<String, String> attributes) {
+    public Builder<P> attributes(Map<String, String> attributes) {
       JodaBeanUtils.notNull(attributes, "attributes");
       this.attributes = attributes;
       return this;
@@ -594,19 +703,19 @@ public final class EquityTrade
      * @param tradeInfo  the new value
      * @return this, for chaining, not null
      */
-    public Builder tradeInfo(TradeInfo tradeInfo) {
+    public Builder<P> tradeInfo(TradeInfo tradeInfo) {
       this.tradeInfo = tradeInfo;
       return this;
     }
 
     /**
-     * Sets the {@code equityLink} property in the builder.
-     * @param equityLink  the new value, not null
+     * Sets the {@code securityLink} property in the builder.
+     * @param securityLink  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder equityLink(Link<Equity> equityLink) {
-      JodaBeanUtils.notNull(equityLink, "equityLink");
-      this.equityLink = equityLink;
+    public Builder<P> securityLink(SecurityLink<P> securityLink) {
+      JodaBeanUtils.notNull(securityLink, "securityLink");
+      this.securityLink = securityLink;
       return this;
     }
 
@@ -615,18 +724,18 @@ public final class EquityTrade
      * @param quantity  the new value
      * @return this, for chaining, not null
      */
-    public Builder quantity(double quantity) {
+    public Builder<P> quantity(long quantity) {
       this.quantity = quantity;
       return this;
     }
 
     /**
-     * Sets the {@code paymentAmount} property in the builder.
-     * @param paymentAmount  the new value
+     * Sets the {@code premium} property in the builder.
+     * @param premium  the new value
      * @return this, for chaining, not null
      */
-    public Builder paymentAmount(CurrencyAmount paymentAmount) {
-      this.paymentAmount = paymentAmount;
+    public Builder<P> premium(CurrencyAmount premium) {
+      this.premium = premium;
       return this;
     }
 
@@ -634,13 +743,13 @@ public final class EquityTrade
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
-      buf.append("EquityTrade.Builder{");
+      buf.append("QuantityTrade.Builder{");
       buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes)).append(',').append(' ');
       buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
-      buf.append("equityLink").append('=').append(JodaBeanUtils.toString(equityLink)).append(',').append(' ');
+      buf.append("securityLink").append('=').append(JodaBeanUtils.toString(securityLink)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("paymentAmount").append('=').append(JodaBeanUtils.toString(paymentAmount));
+      buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
       buf.append('}');
       return buf.toString();
     }

@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.swap;
+package com.opengamma.platform.finance;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -24,73 +24,125 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.collect.id.LinkResolutionException;
+import com.opengamma.collect.id.LinkResolver;
+import com.opengamma.collect.id.Resolvable;
 import com.opengamma.collect.id.StandardId;
-import com.opengamma.platform.finance.Trade;
-import com.opengamma.platform.finance.TradeInfo;
 
 /**
- * A trade representing a swap.
+ * A standard implementation of a security shared between trades.
  * <p>
- * A trade in a {@link Swap}.
- * For example, a trade involving a fixed vs 3 month Libor interest rate swap.
+ * This is the standard implementation of {@link Security}.
+ * It represents a single unit of the security, such as one equity share or one futures contract.
+ * <p>
+ * The data for a security is split into two parts, the meta-data and the underlying product.
+ * The product is intended to represent the financial contract of the security.
+ * A product can typically be priced against a model as well as against the market.
+ * The security itself holds the primary market identifier and user-defined attributes.
+ * <p>
+ * A {@code Security} will typically be referenced by a trade, such as {@link QuantityTrade}.
+ * <p>
+ * Implementations of this interface must be immutable beans.
+ * 
+ * @param <P>  the type of the product
  */
 @BeanDefinition
-public final class SwapTrade
-    implements Trade, ImmutableBean, Serializable {
+public final class UnitSecurity<P extends Product>
+    implements Security<P>, Resolvable<UnitSecurity<P>>, ImmutableBean, Serializable {
 
   /**
-   * The primary standard identifier for the trade.
+   * The primary standard identifier for the security.
    * <p>
-   * The standard identifier is used to identify the trade.
+   * The standard identifier is used to identify the security.
    * It will typically be an identifier in an external data system.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final StandardId standardId;
   /**
-   * The set of additional trade attributes.
+   * The extensible set of attributes.
    * <p>
-   * Most data in the trade is available as bean properties.
-   * Attributes are typically used to tag the object with additional information.
+   * Most data is available as bean properties.
+   * Attributes are used to tag the object with additional information.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ImmutableMap<String, String> attributes;
   /**
-   * The additional trade information, defaulted to an empty instance.
-   * <p>
-   * This allows additional information to be attached to the trade.
-   */
-  @PropertyDefinition(overrideGet = true)
-  private final TradeInfo tradeInfo;
-
-  /**
-   * The swap that was agreed when the trade occurred.
-   * <p>
-   * The swap typically has a start date shortly after the trade date,
-   * however this is not required. Swaps that start before the trade date
-   * or in the future are also supported by the data model.
+   * The name of the security, defaulted to an empty string.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Swap swap;
+  private final String name;
+  /**
+   * The product that was agreed when the trade occurred.
+   * <p>
+   * All trades essentially refer to some kind of product.
+   * The product captures the financial details of the security contract.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final P product;
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings({"rawtypes", "unchecked"})
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.tradeInfo = TradeInfo.EMPTY;
+    builder.name = "";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Resolves all links in this security, returning a fully resolved security.
+   * <p>
+   * This method examines the security, locates any links and resolves them.
+   * The result is fully resolved with all data available for use.
+   * <p>
+   * An exception is thrown if a link cannot be resolved.
+   * 
+   * @param resolver  the resolver to use
+   * @return the fully resolved security
+   * @throws LinkResolutionException if a link cannot be resolved
+   */
+  @Override
+  public UnitSecurity<P> resolveLinks(LinkResolver resolver) {
+    return resolver.resolveLinksIn(this, product, resolved -> toBuilder().product(resolved).build());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a builder used to create an instance, specifying the product.
+   * <p>
+   * When using this method, the {@code product} property will be set in the builder.
+   * 
+   * @param <R>  the product type
+   * @param product  the product to use
+   * @return the builder, with the {@code productLink} property set
+   */
+  public static <R extends Product> UnitSecurity.Builder<R> builder(R product) {
+    return UnitSecurity.<R>builder().product(product);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SwapTrade}.
+   * The meta-bean for {@code UnitSecurity}.
    * @return the meta-bean, not null
    */
-  public static SwapTrade.Meta meta() {
-    return SwapTrade.Meta.INSTANCE;
+  @SuppressWarnings("rawtypes")
+  public static UnitSecurity.Meta meta() {
+    return UnitSecurity.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code UnitSecurity}.
+   * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R extends Product> UnitSecurity.Meta<R> metaUnitSecurity(Class<R> cls) {
+    return UnitSecurity.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SwapTrade.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(UnitSecurity.Meta.INSTANCE);
   }
 
   /**
@@ -100,29 +152,32 @@ public final class SwapTrade
 
   /**
    * Returns a builder used to create an instance of the bean.
+   * @param <P>  the type
    * @return the builder, not null
    */
-  public static SwapTrade.Builder builder() {
-    return new SwapTrade.Builder();
+  public static <P extends Product> UnitSecurity.Builder<P> builder() {
+    return new UnitSecurity.Builder<P>();
   }
 
-  private SwapTrade(
+  private UnitSecurity(
       StandardId standardId,
       Map<String, String> attributes,
-      TradeInfo tradeInfo,
-      Swap swap) {
+      String name,
+      P product) {
     JodaBeanUtils.notNull(standardId, "standardId");
     JodaBeanUtils.notNull(attributes, "attributes");
-    JodaBeanUtils.notNull(swap, "swap");
+    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(product, "product");
     this.standardId = standardId;
     this.attributes = ImmutableMap.copyOf(attributes);
-    this.tradeInfo = tradeInfo;
-    this.swap = swap;
+    this.name = name;
+    this.product = product;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public SwapTrade.Meta metaBean() {
-    return SwapTrade.Meta.INSTANCE;
+  public UnitSecurity.Meta<P> metaBean() {
+    return UnitSecurity.Meta.INSTANCE;
   }
 
   @Override
@@ -137,9 +192,9 @@ public final class SwapTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the primary standard identifier for the trade.
+   * Gets the primary standard identifier for the security.
    * <p>
-   * The standard identifier is used to identify the trade.
+   * The standard identifier is used to identify the security.
    * It will typically be an identifier in an external data system.
    * @return the value of the property, not null
    */
@@ -150,10 +205,10 @@ public final class SwapTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the set of additional trade attributes.
+   * Gets the extensible set of attributes.
    * <p>
-   * Most data in the trade is available as bean properties.
-   * Attributes are typically used to tag the object with additional information.
+   * Most data is available as bean properties.
+   * Attributes are used to tag the object with additional information.
    * @return the value of the property, not null
    */
   @Override
@@ -163,27 +218,24 @@ public final class SwapTrade
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the additional trade information, defaulted to an empty instance.
-   * <p>
-   * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * Gets the name of the security, defaulted to an empty string.
+   * @return the value of the property, not null
    */
-  @Override
-  public TradeInfo getTradeInfo() {
-    return tradeInfo;
+  public String getName() {
+    return name;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the swap that was agreed when the trade occurred.
+   * Gets the product that was agreed when the trade occurred.
    * <p>
-   * The swap typically has a start date shortly after the trade date,
-   * however this is not required. Swaps that start before the trade date
-   * or in the future are also supported by the data model.
+   * All trades essentially refer to some kind of product.
+   * The product captures the financial details of the security contract.
    * @return the value of the property, not null
    */
-  public Swap getSwap() {
-    return swap;
+  @Override
+  public P getProduct() {
+    return product;
   }
 
   //-----------------------------------------------------------------------
@@ -191,8 +243,8 @@ public final class SwapTrade
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
-  public Builder toBuilder() {
-    return new Builder(this);
+  public Builder<P> toBuilder() {
+    return new Builder<P>(this);
   }
 
   @Override
@@ -201,11 +253,11 @@ public final class SwapTrade
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SwapTrade other = (SwapTrade) obj;
+      UnitSecurity<?> other = (UnitSecurity<?>) obj;
       return JodaBeanUtils.equal(getStandardId(), other.getStandardId()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
-          JodaBeanUtils.equal(getTradeInfo(), other.getTradeInfo()) &&
-          JodaBeanUtils.equal(getSwap(), other.getSwap());
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getProduct(), other.getProduct());
     }
     return false;
   }
@@ -215,54 +267,57 @@ public final class SwapTrade
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getStandardId());
     hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getTradeInfo());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getSwap());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getProduct());
     return hash;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
-    buf.append("SwapTrade{");
+    buf.append("UnitSecurity{");
     buf.append("standardId").append('=').append(getStandardId()).append(',').append(' ');
     buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
-    buf.append("tradeInfo").append('=').append(getTradeInfo()).append(',').append(' ');
-    buf.append("swap").append('=').append(JodaBeanUtils.toString(getSwap()));
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(getProduct()));
     buf.append('}');
     return buf.toString();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code SwapTrade}.
+   * The meta-bean for {@code UnitSecurity}.
+   * @param <P>  the type
    */
-  public static final class Meta extends DirectMetaBean {
+  public static final class Meta<P extends Product> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
      * The meta-property for the {@code standardId} property.
      */
     private final MetaProperty<StandardId> standardId = DirectMetaProperty.ofImmutable(
-        this, "standardId", SwapTrade.class, StandardId.class);
+        this, "standardId", UnitSecurity.class, StandardId.class);
     /**
      * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<ImmutableMap<String, String>> attributes = DirectMetaProperty.ofImmutable(
-        this, "attributes", SwapTrade.class, (Class) ImmutableMap.class);
+        this, "attributes", UnitSecurity.class, (Class) ImmutableMap.class);
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<TradeInfo> tradeInfo = DirectMetaProperty.ofImmutable(
-        this, "tradeInfo", SwapTrade.class, TradeInfo.class);
+    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
+        this, "name", UnitSecurity.class, String.class);
     /**
-     * The meta-property for the {@code swap} property.
+     * The meta-property for the {@code product} property.
      */
-    private final MetaProperty<Swap> swap = DirectMetaProperty.ofImmutable(
-        this, "swap", SwapTrade.class, Swap.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<P> product = (DirectMetaProperty) DirectMetaProperty.ofImmutable(
+        this, "product", UnitSecurity.class, Object.class);
     /**
      * The meta-properties.
      */
@@ -270,8 +325,8 @@ public final class SwapTrade
         this, null,
         "standardId",
         "attributes",
-        "tradeInfo",
-        "swap");
+        "name",
+        "product");
 
     /**
      * Restricted constructor.
@@ -286,22 +341,23 @@ public final class SwapTrade
           return standardId;
         case 405645655:  // attributes
           return attributes;
-        case 752580658:  // tradeInfo
-          return tradeInfo;
-        case 3543443:  // swap
-          return swap;
+        case 3373707:  // name
+          return name;
+        case -309474065:  // product
+          return product;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public SwapTrade.Builder builder() {
-      return new SwapTrade.Builder();
+    public UnitSecurity.Builder<P> builder() {
+      return new UnitSecurity.Builder<P>();
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends SwapTrade> beanType() {
-      return SwapTrade.class;
+    public Class<? extends UnitSecurity<P>> beanType() {
+      return (Class) UnitSecurity.class;
     }
 
     @Override
@@ -327,19 +383,19 @@ public final class SwapTrade
     }
 
     /**
-     * The meta-property for the {@code tradeInfo} property.
+     * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<TradeInfo> tradeInfo() {
-      return tradeInfo;
+    public MetaProperty<String> name() {
+      return name;
     }
 
     /**
-     * The meta-property for the {@code swap} property.
+     * The meta-property for the {@code product} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Swap> swap() {
-      return swap;
+    public MetaProperty<P> product() {
+      return product;
     }
 
     //-----------------------------------------------------------------------
@@ -347,13 +403,13 @@ public final class SwapTrade
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1284477768:  // standardId
-          return ((SwapTrade) bean).getStandardId();
+          return ((UnitSecurity<?>) bean).getStandardId();
         case 405645655:  // attributes
-          return ((SwapTrade) bean).getAttributes();
-        case 752580658:  // tradeInfo
-          return ((SwapTrade) bean).getTradeInfo();
-        case 3543443:  // swap
-          return ((SwapTrade) bean).getSwap();
+          return ((UnitSecurity<?>) bean).getAttributes();
+        case 3373707:  // name
+          return ((UnitSecurity<?>) bean).getName();
+        case -309474065:  // product
+          return ((UnitSecurity<?>) bean).getProduct();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -371,14 +427,15 @@ public final class SwapTrade
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code SwapTrade}.
+   * The bean-builder for {@code UnitSecurity}.
+   * @param <P>  the type
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<SwapTrade> {
+  public static final class Builder<P extends Product> extends DirectFieldsBeanBuilder<UnitSecurity<P>> {
 
     private StandardId standardId;
     private Map<String, String> attributes = ImmutableMap.of();
-    private TradeInfo tradeInfo;
-    private Swap swap;
+    private String name;
+    private P product;
 
     /**
      * Restricted constructor.
@@ -391,11 +448,11 @@ public final class SwapTrade
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(SwapTrade beanToCopy) {
+    private Builder(UnitSecurity<P> beanToCopy) {
       this.standardId = beanToCopy.getStandardId();
       this.attributes = beanToCopy.getAttributes();
-      this.tradeInfo = beanToCopy.getTradeInfo();
-      this.swap = beanToCopy.getSwap();
+      this.name = beanToCopy.getName();
+      this.product = beanToCopy.getProduct();
     }
 
     //-----------------------------------------------------------------------
@@ -406,10 +463,10 @@ public final class SwapTrade
           return standardId;
         case 405645655:  // attributes
           return attributes;
-        case 752580658:  // tradeInfo
-          return tradeInfo;
-        case 3543443:  // swap
-          return swap;
+        case 3373707:  // name
+          return name;
+        case -309474065:  // product
+          return product;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -417,7 +474,7 @@ public final class SwapTrade
 
     @SuppressWarnings("unchecked")
     @Override
-    public Builder set(String propertyName, Object newValue) {
+    public Builder<P> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -1284477768:  // standardId
           this.standardId = (StandardId) newValue;
@@ -425,11 +482,11 @@ public final class SwapTrade
         case 405645655:  // attributes
           this.attributes = (Map<String, String>) newValue;
           break;
-        case 752580658:  // tradeInfo
-          this.tradeInfo = (TradeInfo) newValue;
+        case 3373707:  // name
+          this.name = (String) newValue;
           break;
-        case 3543443:  // swap
-          this.swap = (Swap) newValue;
+        case -309474065:  // product
+          this.product = (P) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -438,36 +495,36 @@ public final class SwapTrade
     }
 
     @Override
-    public Builder set(MetaProperty<?> property, Object value) {
+    public Builder<P> set(MetaProperty<?> property, Object value) {
       super.set(property, value);
       return this;
     }
 
     @Override
-    public Builder setString(String propertyName, String value) {
+    public Builder<P> setString(String propertyName, String value) {
       setString(meta().metaProperty(propertyName), value);
       return this;
     }
 
     @Override
-    public Builder setString(MetaProperty<?> property, String value) {
+    public Builder<P> setString(MetaProperty<?> property, String value) {
       super.setString(property, value);
       return this;
     }
 
     @Override
-    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+    public Builder<P> setAll(Map<String, ? extends Object> propertyValueMap) {
       super.setAll(propertyValueMap);
       return this;
     }
 
     @Override
-    public SwapTrade build() {
-      return new SwapTrade(
+    public UnitSecurity<P> build() {
+      return new UnitSecurity<P>(
           standardId,
           attributes,
-          tradeInfo,
-          swap);
+          name,
+          product);
     }
 
     //-----------------------------------------------------------------------
@@ -476,7 +533,7 @@ public final class SwapTrade
      * @param standardId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder standardId(StandardId standardId) {
+    public Builder<P> standardId(StandardId standardId) {
       JodaBeanUtils.notNull(standardId, "standardId");
       this.standardId = standardId;
       return this;
@@ -487,30 +544,31 @@ public final class SwapTrade
      * @param attributes  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder attributes(Map<String, String> attributes) {
+    public Builder<P> attributes(Map<String, String> attributes) {
       JodaBeanUtils.notNull(attributes, "attributes");
       this.attributes = attributes;
       return this;
     }
 
     /**
-     * Sets the {@code tradeInfo} property in the builder.
-     * @param tradeInfo  the new value
+     * Sets the {@code name} property in the builder.
+     * @param name  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder tradeInfo(TradeInfo tradeInfo) {
-      this.tradeInfo = tradeInfo;
+    public Builder<P> name(String name) {
+      JodaBeanUtils.notNull(name, "name");
+      this.name = name;
       return this;
     }
 
     /**
-     * Sets the {@code swap} property in the builder.
-     * @param swap  the new value, not null
+     * Sets the {@code product} property in the builder.
+     * @param product  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder swap(Swap swap) {
-      JodaBeanUtils.notNull(swap, "swap");
-      this.swap = swap;
+    public Builder<P> product(P product) {
+      JodaBeanUtils.notNull(product, "product");
+      this.product = product;
       return this;
     }
 
@@ -518,11 +576,11 @@ public final class SwapTrade
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
-      buf.append("SwapTrade.Builder{");
+      buf.append("UnitSecurity.Builder{");
       buf.append("standardId").append('=').append(JodaBeanUtils.toString(standardId)).append(',').append(' ');
       buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes)).append(',').append(' ');
-      buf.append("tradeInfo").append('=').append(JodaBeanUtils.toString(tradeInfo)).append(',').append(' ');
-      buf.append("swap").append('=').append(JodaBeanUtils.toString(swap));
+      buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+      buf.append("product").append('=').append(JodaBeanUtils.toString(product));
       buf.append('}');
       return buf.toString();
     }
