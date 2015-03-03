@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.collect.id.LinkResolutionException;
 import com.opengamma.collect.id.LinkResolver;
 import com.opengamma.collect.id.Resolvable;
 import com.opengamma.collect.id.StandardId;
@@ -67,7 +68,6 @@ public final class OtcTrade<P extends Product>
    * <p>
    * All trades essentially refer to some kind of product.
    * The product captures the contracted financial details of the trade.
-   * Many different types of product exist, such as options, swaps and FRAs.
    */
   @PropertyDefinition(validate = "notNull")
   private final P product;
@@ -85,9 +85,12 @@ public final class OtcTrade<P extends Product>
    * <p>
    * This method examines the trade, locates any links and resolves them.
    * The result is fully resolved with all data available for use.
+   * <p>
+   * An exception is thrown if a link cannot be resolved.
    * 
    * @param resolver  the resolver to use
    * @return the fully resolved trade
+   * @throws LinkResolutionException if a link cannot be resolved
    */
   @Override
   public OtcTrade<P> resolveLinks(LinkResolver resolver) {
@@ -222,7 +225,6 @@ public final class OtcTrade<P extends Product>
    * <p>
    * All trades essentially refer to some kind of product.
    * The product captures the contracted financial details of the trade.
-   * Many different types of product exist, such as options, swaps and FRAs.
    * @return the value of the property, not null
    */
   public P getProduct() {

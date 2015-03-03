@@ -44,15 +44,16 @@ import com.opengamma.collect.id.StandardLink;
  * target will be returned when resolved.
  * <p>
  * A link can be in one of two states, resolvable and resolved.
- * <p>
  * In the resolvable state, the link contains the identifier and product type of the security.
- * The target can only be obtained using a {@link LinkResolver}.
- * <p>
  * In the resolved state, the link directly embeds the security.
  * <p>
- * Links are expected to be resolvable. It is reasonable to expect that when
- * {@link #resolve(LinkResolver)} is called, the security is available.
- * For this reason, if the security is not found, a {@link LinkResolutionException} will be thrown.
+ * To obtain the target of the link, the {@link #resolve(LinkResolver)} method must be used.
+ * When the link is in the resolved state, the resolver is not used.
+ * When the link is in the resolvable state, the resolver is invoked.
+ * <p>
+ * The {@link LinkResolver} is a simple interface that is implemented to find the security by identifier.
+ * It can be implemented in many ways, including an in-memory map, a database or a call to another service.
+ * The resolver throws a {@link LinkResolutionException} if the security cannot be found.
  *
  * @param <P> the type of the product
  * @see StandardLink
@@ -219,11 +220,11 @@ public final class SecurityLink<P extends Product>
    * <p>
    * The resolver is used to find the linked security.
    * In the resolvable state, the resolver is used to find the security, throwing
-   * an exception of the security cannot be found.
-   * In the resolved state, the directly embedded security is returned,
-   * without using the resolver.
+   * an exception if the security cannot be found.
+   * In the resolved state, the directly embedded security is returned without using the resolver.
    * <p>
    * The returned target may contain other unresolved links.
+   * Use {@link #resolveLinks(LinkResolver)} to fully resolve the object graph.
    *
    * @param resolver  the resolver to use for the resolution
    * @return the security
@@ -241,6 +242,8 @@ public final class SecurityLink<P extends Product>
    * Second, if the security implements {@link Resolvable}, it is resolved as well.
    * The result is wrapped using {@link Link#resolved(IdentifiableBean)}.
    * The returned security should not contain any unresolved links.
+   * <p>
+   * An exception is thrown if a link cannot be resolved.
    *
    * @param linkResolver  the resolver to use for the resolution
    * @return the fully resolved link

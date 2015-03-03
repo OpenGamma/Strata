@@ -28,7 +28,7 @@ import com.opengamma.basics.currency.Currency;
  * An equity share of a company.
  * <p>
  * This represents the concept of a single equity share of a company.
- * For example, a single share of IBM.
+ * For example, a single share of OpenGamma.
  */
 @BeanDefinition
 public final class Equity

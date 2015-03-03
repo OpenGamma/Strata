@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.collect.id.LinkResolutionException;
 import com.opengamma.collect.id.LinkResolver;
 import com.opengamma.collect.id.Resolvable;
 import com.opengamma.collect.id.StandardId;
@@ -38,6 +39,8 @@ import com.opengamma.collect.id.StandardId;
  * The product is intended to represent the financial contract of the security.
  * A product can typically be priced against a model as well as against the market.
  * The security itself holds the primary market identifier and user-defined attributes.
+ * <p>
+ * A {@code Security} will typically be reference by a trade, such as {@link QuantityTrade}.
  * <p>
  * Implementations of this interface must be immutable beans.
  * 
@@ -72,8 +75,7 @@ public final class UnitSecurity<P extends Product>
    * The product that was agreed when the trade occurred.
    * <p>
    * All trades essentially refer to some kind of product.
-   * The product captures the contracted financial details of the trade.
-   * Many different types of product exist, such as options, swaps and FRAs.
+   * The product captures the financial details of the security contract.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final P product;
@@ -91,9 +93,12 @@ public final class UnitSecurity<P extends Product>
    * <p>
    * This method examines the security, locates any links and resolves them.
    * The result is fully resolved with all data available for use.
+   * <p>
+   * An exception is thrown if a link cannot be resolved.
    * 
    * @param resolver  the resolver to use
    * @return the fully resolved security
+   * @throws LinkResolutionException if a link cannot be resolved
    */
   @Override
   public UnitSecurity<P> resolveLinks(LinkResolver resolver) {
@@ -225,8 +230,7 @@ public final class UnitSecurity<P extends Product>
    * Gets the product that was agreed when the trade occurred.
    * <p>
    * All trades essentially refer to some kind of product.
-   * The product captures the contracted financial details of the trade.
-   * Many different types of product exist, such as options, swaps and FRAs.
+   * The product captures the financial details of the security contract.
    * @return the value of the property, not null
    */
   @Override

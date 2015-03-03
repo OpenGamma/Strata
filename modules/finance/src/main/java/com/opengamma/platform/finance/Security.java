@@ -56,7 +56,7 @@ public interface Security<P extends Product>
    * Gets the product underlying the security.
    * <p>
    * All securities refer to a single underlying product.
-   * The product captures the contracted financial details of the trade.
+   * The product captures the financial details of the security contract.
    * 
    * @return the product
    */

@@ -35,7 +35,7 @@ import com.opengamma.collect.id.StandardId;
 
 /**
  * A trade in a security, where the amount purchased is defined as a quantity,
- * such as 200 equity shares.
+ * such as 200 shares of OpenGamma equity.
  * <p>
  * A {@code QuantityTrade} is used for those trades where a quantity of an underlying
  * {@link Security} has been traded. For example, a trade in an equity.
@@ -123,7 +123,7 @@ public final class QuantityTrade<P extends Product>
    * If the trade has not been resolved, then this method will throw a {@link LinkResolutionException}.
    * 
    * @return full details of the security
-   * @throws LinkResolutionException if the security is linked
+   * @throws LinkResolutionException if the security is not resolved
    */
   public Security<P> getSecurity() {
     return securityLink.resolve(new LinkResolver() {
@@ -141,9 +141,12 @@ public final class QuantityTrade<P extends Product>
    * This method examines the trade, locates any links and resolves them.
    * The result is fully resolved with all data available for use.
    * Calling {@link #getSecurity()} on the result will not throw an exception.
+   * <p>
+   * An exception is thrown if a link cannot be resolved.
    * 
    * @param resolver  the resolver to use
    * @return the fully resolved trade
+   * @throws LinkResolutionException if a link cannot be resolved
    */
   @Override
   public QuantityTrade<P> resolveLinks(LinkResolver resolver) {
@@ -162,7 +165,7 @@ public final class QuantityTrade<P extends Product>
    * @return the builder, with the {@code securityLink} property set
    */
   public static <R extends Product> QuantityTrade.Builder<R> builder(Security<R> security) {
-    return QuantityTrade.<R>builder().securityLink(SecurityLink.resolved(security));
+    return QuantityTrade.builder(SecurityLink.resolved(security));
   }
 
   /**
