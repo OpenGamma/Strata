@@ -52,6 +52,7 @@ import com.opengamma.platform.finance.swap.CompoundingMethod;
 import com.opengamma.platform.finance.swap.FixedRateCalculation;
 import com.opengamma.platform.finance.swap.IborRateCalculation;
 import com.opengamma.platform.finance.swap.NotionalSchedule;
+import com.opengamma.platform.finance.swap.OvernightAccrualMethod;
 import com.opengamma.platform.finance.swap.OvernightRateCalculation;
 import com.opengamma.platform.finance.swap.PaymentSchedule;
 import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
@@ -265,8 +266,6 @@ public class SwapEnd2EndTest {
 
     TradePricerFn<Trade> pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
-    // TODO check number
-    // assertEquals(pv.getAmount(), -13844.3872, TOLERANCE_PV);
     assertEquals(pv.getAmount(), -21875.376339152455, TOLERANCE_PV);
   }
 
@@ -321,9 +320,7 @@ public class SwapEnd2EndTest {
 
     TradePricerFn<Trade> pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
-    // TODO unable to match existing number
-    // assertEquals(pv.getAmount(), -340426.6128, TOLERANCE_PV);
-    assertEquals(pv.getAmount(), -342874.98367929866, TOLERANCE_PV);  // unverified number
+    assertEquals(pv.getAmount(), -342874.98367929866, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
@@ -692,6 +689,62 @@ public class SwapEnd2EndTest {
     TradePricerFn<Trade> pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -7352.973875972721, TOLERANCE_PV);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_OnAASpreadVsLibor3MSwap() {
+
+    RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(LocalDate.of(2014, 9, 12))
+            .endDate(LocalDate.of(2020, 9, 12))
+            .frequency(P3M)
+            .businessDayAdjustment(BDA_MF)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P3M)
+            .paymentOffset(DaysAdjustment.NONE)
+            .build())
+        .notionalSchedule(NOTIONAL)
+        .calculation(IborRateCalculation.builder()
+            .dayCount(ACT_360)
+            .index(USD_LIBOR_3M)
+            .fixingOffset(DaysAdjustment.ofBusinessDays(-2, CalendarUSD.NYC, BDA_P))
+            .build())
+        .build();
+    
+    RateCalculationSwapLeg receiveLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(LocalDate.of(2014, 9, 12))
+            .endDate(LocalDate.of(2020, 9, 12))
+            .frequency(P3M)
+            .businessDayAdjustment(BDA_MF)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P3M)
+            .paymentOffset(DaysAdjustment.NONE)
+            .build())
+        .notionalSchedule(NOTIONAL)
+        .calculation(OvernightRateCalculation.builder()
+            .dayCount(ACT_360)
+            .index(USD_FED_FUND)
+            .accrualMethod(OvernightAccrualMethod.AVERAGED)
+            .rateCutOffDays(0) // Should be 2, put to 0 for comparison
+            .spread(ValueSchedule.of(0.0025))
+            .build())
+        .build();
+
+    SwapTrade trade = SwapTrade.builder()
+        .standardId(StandardId.of("OG-Trade", "1"))
+        .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 1, 15)).build())
+        .swap(Swap.of(payLeg, receiveLeg))
+        .build();
+
+    TradePricerFn<Trade> pricer = swapPricer();
+    CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
+    assertEquals(pv.getAmount(), -160663.8362, TOLERANCE_PV);
   }
 
   //-------------------------------------------------------------------------
