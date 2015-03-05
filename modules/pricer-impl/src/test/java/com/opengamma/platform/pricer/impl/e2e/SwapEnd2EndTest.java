@@ -46,6 +46,7 @@ import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
 import com.opengamma.collect.id.StandardId;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.platform.finance.OtcTrade;
 import com.opengamma.platform.finance.Trade;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.swap.CompoundingMethod;
@@ -58,7 +59,6 @@ import com.opengamma.platform.finance.swap.PaymentSchedule;
 import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
 import com.opengamma.platform.finance.swap.StubCalculation;
 import com.opengamma.platform.finance.swap.Swap;
-import com.opengamma.platform.finance.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.TradePricerFn;
 import com.opengamma.platform.pricer.impl.DispatchingTradePricerFn;
@@ -132,10 +132,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -168,10 +168,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -204,10 +204,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2013, 9, 10)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -258,10 +258,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -312,10 +312,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
-        .swap(Swap.of(receiveLeg, payLeg))
+        .product(Swap.of(receiveLeg, payLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -349,10 +349,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(receiveLeg, payLeg))
+        .product(Swap.of(receiveLeg, payLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -386,10 +386,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(receiveLeg, payLeg))
+        .product(Swap.of(receiveLeg, payLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -424,10 +424,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(receiveLeg, payLeg))
+        .product(Swap.of(receiveLeg, payLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -462,10 +462,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(receiveLeg, payLeg))
+        .product(Swap.of(receiveLeg, payLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -517,10 +517,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -576,10 +576,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(receiveLeg, payLeg))
+        .product(Swap.of(receiveLeg, payLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -628,10 +628,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 2, 3)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -680,10 +680,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 1, 15)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
@@ -736,10 +736,10 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    SwapTrade trade = SwapTrade.builder()
+    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 1, 15)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     TradePricerFn<Trade> pricer = swapPricer();
