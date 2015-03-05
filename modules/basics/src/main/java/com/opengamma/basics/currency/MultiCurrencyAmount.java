@@ -363,7 +363,7 @@ public final class MultiCurrencyAmount
    * <p>
    * This instance is immutable and unaffected by this method. 
    * 
-   * @param factor The multiplicative factor.
+   * @param factor  the multiplicative factor
    * @return an amount based on this with all the amounts multiplied by the factor
    */
   public MultiCurrencyAmount multipliedBy(double factor) {
