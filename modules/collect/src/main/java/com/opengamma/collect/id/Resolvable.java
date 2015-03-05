@@ -16,9 +16,9 @@ package com.opengamma.collect.id;
  * <p>
  * Implementations must be immutable and thread-safe beans.
  * 
- * @param <R>  the resolved type, which is the type implementing this interface
+ * @param <T>  the resolved type, which is the type implementing this interface
  */
-public interface Resolvable<R> {
+public interface Resolvable<T> {
 
   /**
    * Resolves all links in the object graph.
@@ -35,6 +35,6 @@ public interface Resolvable<R> {
    * @return the resolved instance
    * @throws LinkResolutionException if a link cannot be resolved
    */
-  public abstract R resolveLinks(LinkResolver resolver);
+  public abstract T resolveLinks(LinkResolver resolver);
 
 }
