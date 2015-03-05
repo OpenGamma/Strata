@@ -23,24 +23,24 @@ import com.opengamma.platform.pricer.swap.SwapProductPricerFn;
 @Test
 public class ExpandingSwapProductPricerFnTest {
 
-  private final PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+  private final PricingEnvironment MOCK_ENV = mock(PricingEnvironment.class);
 
   public void test_presentValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
-    SwapProductPricerFn<ExpandedSwap> mockSwapLegFn = mock(SwapProductPricerFn.class);
-    when(mockSwapLegFn.presentValue(mockEnv, SwapDummyData.SWAP.expand()))
+    SwapProductPricerFn<ExpandedSwap> mockSwapProductFn = mock(SwapProductPricerFn.class);
+    when(mockSwapProductFn.presentValue(MOCK_ENV, SwapDummyData.SWAP.expand()))
         .thenReturn(expected);
-    ExpandingSwapProductPricerFn test = new ExpandingSwapProductPricerFn(mockSwapLegFn);
-    assertEquals(test.presentValue(mockEnv, SwapDummyData.SWAP), expected);
+    ExpandingSwapProductPricerFn test = new ExpandingSwapProductPricerFn(mockSwapProductFn);
+    assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.SWAP), expected);
   }
 
   public void test_futureValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
-    SwapProductPricerFn<ExpandedSwap> mockSwapLegFn = mock(SwapProductPricerFn.class);
-    when(mockSwapLegFn.futureValue(mockEnv, SwapDummyData.SWAP.expand()))
+    SwapProductPricerFn<ExpandedSwap> mockSwapProductFn = mock(SwapProductPricerFn.class);
+    when(mockSwapProductFn.futureValue(MOCK_ENV, SwapDummyData.SWAP.expand()))
         .thenReturn(expected);
-    ExpandingSwapProductPricerFn test = new ExpandingSwapProductPricerFn(mockSwapLegFn);
-    assertEquals(test.futureValue(mockEnv, SwapDummyData.SWAP), expected);
+    ExpandingSwapProductPricerFn test = new ExpandingSwapProductPricerFn(mockSwapProductFn);
+    assertEquals(test.futureValue(MOCK_ENV, SwapDummyData.SWAP), expected);
   }
 
 }

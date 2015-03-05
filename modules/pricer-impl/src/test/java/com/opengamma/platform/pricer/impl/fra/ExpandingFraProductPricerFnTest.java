@@ -23,24 +23,24 @@ import com.opengamma.platform.pricer.fra.FraProductPricerFn;
 @Test
 public class ExpandingFraProductPricerFnTest {
 
-  private final PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+  private final PricingEnvironment MOCK_ENV = mock(PricingEnvironment.class);
 
-  // Present value
   public void test_presentValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
-    FraProductPricerFn<ExpandedFra> mockFraLegFn = mock(FraProductPricerFn.class);
-    when(mockFraLegFn.presentValue(mockEnv, FraDummyData.FRA.expand())).thenReturn(expected);
-    ExpandingFraProductPricerFn test = new ExpandingFraProductPricerFn(mockFraLegFn);
-    assertEquals(test.presentValue(mockEnv, FraDummyData.FRA), expected);
+    FraProductPricerFn<ExpandedFra> mockFraProductFn = mock(FraProductPricerFn.class);
+    when(mockFraProductFn.presentValue(MOCK_ENV, FraDummyData.FRA.expand()))
+        .thenReturn(expected);
+    ExpandingFraProductPricerFn test = new ExpandingFraProductPricerFn(mockFraProductFn);
+    assertEquals(test.presentValue(MOCK_ENV, FraDummyData.FRA), expected);
   }
 
-  // Future value
   public void test_futureValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
-    FraProductPricerFn<ExpandedFra> mockFraLegFn = mock(FraProductPricerFn.class);
-    when(mockFraLegFn.futureValue(mockEnv, FraDummyData.FRA.expand())).thenReturn(expected);
-    ExpandingFraProductPricerFn test = new ExpandingFraProductPricerFn(mockFraLegFn);
-    assertEquals(test.futureValue(mockEnv, FraDummyData.FRA), expected);
+    FraProductPricerFn<ExpandedFra> mockFraProductFn = mock(FraProductPricerFn.class);
+    when(mockFraProductFn.futureValue(MOCK_ENV, FraDummyData.FRA.expand()))
+        .thenReturn(expected);
+    ExpandingFraProductPricerFn test = new ExpandingFraProductPricerFn(mockFraProductFn);
+    assertEquals(test.futureValue(MOCK_ENV, FraDummyData.FRA), expected);
   }
 
 }

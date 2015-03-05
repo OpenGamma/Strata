@@ -43,13 +43,13 @@ public class ExpandingSwapProductPricerFn
 
   //-------------------------------------------------------------------------
   @Override
-  public MultiCurrencyAmount presentValue(PricingEnvironment env, SwapProduct swapProduct) {
-    return expandedSwapPricerFn.presentValue(env, swapProduct.expand());
+  public MultiCurrencyAmount presentValue(PricingEnvironment env, SwapProduct product) {
+    return expandedSwapPricerFn.presentValue(env, product.expand());
   }
 
   @Override
-  public MultiCurrencyAmount futureValue(PricingEnvironment env, SwapProduct swapProduct) {
-    return expandedSwapPricerFn.futureValue(env, swapProduct.expand());
+  public MultiCurrencyAmount futureValue(PricingEnvironment env, SwapProduct product) {
+    return expandedSwapPricerFn.futureValue(env, product.expand());
   }
 
 }

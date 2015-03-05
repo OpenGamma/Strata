@@ -23,24 +23,24 @@ public interface FraProductPricerFn<T extends FraProduct> {
   /**
    * Calculates the present value of the FRA product.
    * <p>
-   * The present value of the trade is the value on the valuation date.
+   * The present value of the product is the value on the valuation date.
    * This is typically implemented as the discounted future value.
    * 
    * @param env  the pricing environment
-   * @param fraProduct  the FRA product to price
-   * @return the present value of the FRA product
+   * @param product  the product to price
+   * @return the present value of the product
    */
-  public abstract MultiCurrencyAmount presentValue(PricingEnvironment env, T fraProduct);
+  public abstract MultiCurrencyAmount presentValue(PricingEnvironment env, T product);
 
   /**
    * Calculates the future value of the FRA product.
    * <p>
-   * The future value of the trade is the value on the valuation date without discounting.
+   * The future value of the product is the value on the valuation date without discounting.
    * 
    * @param env  the pricing environment
-   * @param fraProduct  the FRA product to price
-   * @return the future value of the FRA product
+   * @param product  the product to price
+   * @return the future value of the product
    */
-  public abstract MultiCurrencyAmount futureValue(PricingEnvironment env, T fraProduct);
+  public abstract MultiCurrencyAmount futureValue(PricingEnvironment env, T product);
 
 }
