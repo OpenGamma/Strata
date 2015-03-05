@@ -46,8 +46,6 @@ import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
 import com.opengamma.collect.id.StandardId;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.platform.finance.OtcTrade;
-import com.opengamma.platform.finance.Trade;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.swap.CompoundingMethod;
 import com.opengamma.platform.finance.swap.FixedRateCalculation;
@@ -59,10 +57,11 @@ import com.opengamma.platform.finance.swap.PaymentSchedule;
 import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
 import com.opengamma.platform.finance.swap.StubCalculation;
 import com.opengamma.platform.finance.swap.Swap;
+import com.opengamma.platform.finance.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
-import com.opengamma.platform.pricer.TradePricerFn;
-import com.opengamma.platform.pricer.impl.DispatchingTradePricerFn;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
+import com.opengamma.platform.pricer.impl.swap.ExpandingSwapTradePricerFn;
+import com.opengamma.platform.pricer.swap.SwapTradePricerFn;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -132,13 +131,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -1003684.8402, TOLERANCE_PV);
   }
@@ -168,13 +167,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 7170391.798257509, TOLERANCE_PV);
   }
@@ -204,13 +203,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2013, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 3588376.471608199, TOLERANCE_PV);
   }
@@ -258,13 +257,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -21875.376339152455, TOLERANCE_PV);
   }
@@ -312,13 +311,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 8, 27)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -342874.98367929866, TOLERANCE_PV);
   }
@@ -349,13 +348,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 502890.9443281095, TOLERANCE_PV);
   }
@@ -386,13 +385,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 463962.5517136799, TOLERANCE_PV);
   }
@@ -424,13 +423,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 364832.4284058402, TOLERANCE_PV);
   }
@@ -462,13 +461,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 314215.2347116342, TOLERANCE_PV);
   }
@@ -517,13 +516,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), 7850279.042216873, TOLERANCE_PV);
   }
@@ -576,13 +575,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
         .product(Swap.of(receiveLeg, payLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -1850080.2895532502, TOLERANCE_PV);
   }
@@ -628,13 +627,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 2, 3)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -9723.264518929138, TOLERANCE_PV);
   }
@@ -680,13 +679,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 1, 15)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -7352.973875972721, TOLERANCE_PV);
   }
@@ -736,13 +735,13 @@ public class SwapEnd2EndTest {
             .build())
         .build();
 
-    OtcTrade<Swap> trade = OtcTrade.<Swap>builder()
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 1, 15)).build())
         .product(Swap.of(payLeg, receiveLeg))
         .build();
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(env(), trade).getAmount(USD);
     assertEquals(pv.getAmount(), -160663.8362, TOLERANCE_PV);
   }
@@ -776,8 +775,8 @@ public class SwapEnd2EndTest {
 
   //-------------------------------------------------------------------------
   // pricer
-  private TradePricerFn<Trade> swapPricer() {
-    return DispatchingTradePricerFn.DEFAULT;
+  private SwapTradePricerFn swapPricer() {
+    return ExpandingSwapTradePricerFn.DEFAULT;
   }
 
   // pricing environment

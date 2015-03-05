@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.collect.id.StandardId;
 
 /**
@@ -36,13 +37,21 @@ import com.opengamma.collect.id.StandardId;
  */
 @BeanDefinition
 public final class TradeInfo
-    implements ImmutableBean, Serializable {
+    implements ImmutableBean, Attributable, Serializable {
 
   /**
    * An empty instance of {@code TradeInfo}.
    */
   public static final TradeInfo EMPTY = TradeInfo.builder().build();
 
+  /**
+   * The set of additional trade attributes.
+   * <p>
+   * Most data in the trade is available as bean properties.
+   * Attributes are typically used to tag the object with additional information.
+   */
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  private final ImmutableMap<String, String> attributes;
   /**
    * The counterparty identifier, optional.
    * <p>
@@ -99,11 +108,14 @@ public final class TradeInfo
   }
 
   private TradeInfo(
+      Map<String, String> attributes,
       StandardId counterparty,
       LocalDate tradeDate,
       LocalTime tradeTime,
       ZoneId zone,
       LocalDate settlementDate) {
+    JodaBeanUtils.notNull(attributes, "attributes");
+    this.attributes = ImmutableMap.copyOf(attributes);
     this.counterparty = counterparty;
     this.tradeDate = tradeDate;
     this.tradeTime = tradeTime;
@@ -124,6 +136,19 @@ public final class TradeInfo
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the set of additional trade attributes.
+   * <p>
+   * Most data in the trade is available as bean properties.
+   * Attributes are typically used to tag the object with additional information.
+   * @return the value of the property, not null
+   */
+  @Override
+  public ImmutableMap<String, String> getAttributes() {
+    return attributes;
   }
 
   //-----------------------------------------------------------------------
@@ -189,7 +214,8 @@ public final class TradeInfo
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       TradeInfo other = (TradeInfo) obj;
-      return JodaBeanUtils.equal(counterparty, other.counterparty) &&
+      return JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
+          JodaBeanUtils.equal(counterparty, other.counterparty) &&
           JodaBeanUtils.equal(tradeDate, other.tradeDate) &&
           JodaBeanUtils.equal(tradeTime, other.tradeTime) &&
           JodaBeanUtils.equal(zone, other.zone) &&
@@ -201,6 +227,7 @@ public final class TradeInfo
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     hash = hash * 31 + JodaBeanUtils.hashCode(counterparty);
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(tradeTime);
@@ -211,8 +238,9 @@ public final class TradeInfo
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("TradeInfo{");
+    buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
     buf.append("counterparty").append('=').append(counterparty).append(',').append(' ');
     buf.append("tradeDate").append('=').append(tradeDate).append(',').append(' ');
     buf.append("tradeTime").append('=').append(tradeTime).append(',').append(' ');
@@ -232,6 +260,12 @@ public final class TradeInfo
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code attributes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<ImmutableMap<String, String>> attributes = DirectMetaProperty.ofImmutable(
+        this, "attributes", TradeInfo.class, (Class) ImmutableMap.class);
     /**
      * The meta-property for the {@code counterparty} property.
      */
@@ -262,6 +296,7 @@ public final class TradeInfo
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "attributes",
         "counterparty",
         "tradeDate",
         "tradeTime",
@@ -277,6 +312,8 @@ public final class TradeInfo
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 405645655:  // attributes
+          return attributes;
         case -1651301782:  // counterparty
           return counterparty;
         case 752419634:  // tradeDate
@@ -307,6 +344,14 @@ public final class TradeInfo
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code attributes} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ImmutableMap<String, String>> attributes() {
+      return attributes;
+    }
+
     /**
      * The meta-property for the {@code counterparty} property.
      * @return the meta-property, not null
@@ -351,6 +396,8 @@ public final class TradeInfo
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 405645655:  // attributes
+          return ((TradeInfo) bean).getAttributes();
         case -1651301782:  // counterparty
           return ((TradeInfo) bean).counterparty;
         case 752419634:  // tradeDate
@@ -382,6 +429,7 @@ public final class TradeInfo
    */
   public static final class Builder extends DirectFieldsBeanBuilder<TradeInfo> {
 
+    private Map<String, String> attributes = ImmutableMap.of();
     private StandardId counterparty;
     private LocalDate tradeDate;
     private LocalTime tradeTime;
@@ -399,6 +447,7 @@ public final class TradeInfo
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(TradeInfo beanToCopy) {
+      this.attributes = beanToCopy.getAttributes();
       this.counterparty = beanToCopy.counterparty;
       this.tradeDate = beanToCopy.tradeDate;
       this.tradeTime = beanToCopy.tradeTime;
@@ -410,6 +459,8 @@ public final class TradeInfo
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 405645655:  // attributes
+          return attributes;
         case -1651301782:  // counterparty
           return counterparty;
         case 752419634:  // tradeDate
@@ -425,9 +476,13 @@ public final class TradeInfo
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 405645655:  // attributes
+          this.attributes = (Map<String, String>) newValue;
+          break;
         case -1651301782:  // counterparty
           this.counterparty = (StandardId) newValue;
           break;
@@ -476,6 +531,7 @@ public final class TradeInfo
     @Override
     public TradeInfo build() {
       return new TradeInfo(
+          attributes,
           counterparty,
           tradeDate,
           tradeTime,
@@ -484,6 +540,17 @@ public final class TradeInfo
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code attributes} property in the builder.
+     * @param attributes  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder attributes(Map<String, String> attributes) {
+      JodaBeanUtils.notNull(attributes, "attributes");
+      this.attributes = attributes;
+      return this;
+    }
+
     /**
      * Sets the {@code counterparty} property in the builder.
      * @param counterparty  the new value
@@ -537,8 +604,9 @@ public final class TradeInfo
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("TradeInfo.Builder{");
+      buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes)).append(',').append(' ');
       buf.append("counterparty").append('=').append(JodaBeanUtils.toString(counterparty)).append(',').append(' ');
       buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(tradeDate)).append(',').append(' ');
       buf.append("tradeTime").append('=').append(JodaBeanUtils.toString(tradeTime)).append(',').append(' ');

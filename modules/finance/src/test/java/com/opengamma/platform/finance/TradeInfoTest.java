@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.collect.id.StandardId;
 
 /**
@@ -40,6 +41,7 @@ public class TradeInfoTest {
   //-------------------------------------------------------------------------
   public void coverage() {
     TradeInfo test = TradeInfo.builder()
+        .attributes(ImmutableMap.of("A", "B"))
         .counterparty(StandardId.of("OG-Party", "Other"))
         .tradeDate(date(2014, 6, 20))
         .tradeTime(LocalTime.MIDNIGHT)
