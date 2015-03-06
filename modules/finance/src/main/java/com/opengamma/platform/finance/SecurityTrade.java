@@ -19,7 +19,6 @@ import com.opengamma.collect.id.Resolvable;
  * Implementations of this interface must be immutable beans.
  * 
  * @param <P>  the type of the product
- * @param <T>  the resolved type, which is the type implementing this interface
  */
 public interface SecurityTrade<P extends Product>
     extends Trade, Resolvable<SecurityTrade<P>> {
@@ -83,7 +82,7 @@ public interface SecurityTrade<P extends Product>
 
   //-------------------------------------------------------------------------
   /**
-   * Resolves all links in this trade, returning a fully resolved trade.
+   * Returns a trade where all links have been resolved.
    * <p>
    * This method examines the trade, locates any links and resolves them.
    * The result is fully resolved with all data available for use.
