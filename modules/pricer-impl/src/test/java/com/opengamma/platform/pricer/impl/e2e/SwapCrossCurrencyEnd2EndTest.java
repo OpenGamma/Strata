@@ -7,8 +7,8 @@ package com.opengamma.platform.pricer.impl.e2e;
 
 import static com.opengamma.basics.PayReceive.PAY;
 import static com.opengamma.basics.PayReceive.RECEIVE;
-import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.currency.Currency.EUR;
+import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.basics.date.DayCounts.ACT_360;
@@ -37,7 +37,6 @@ import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.collect.id.StandardId;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.platform.finance.Trade;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.swap.FxResetCalculation;
 import com.opengamma.platform.finance.swap.IborRateCalculation;
@@ -47,9 +46,9 @@ import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
 import com.opengamma.platform.finance.swap.Swap;
 import com.opengamma.platform.finance.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
-import com.opengamma.platform.pricer.TradePricerFn;
-import com.opengamma.platform.pricer.impl.DispatchingTradePricerFn;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
+import com.opengamma.platform.pricer.impl.swap.ExpandingSwapTradePricerFn;
+import com.opengamma.platform.pricer.swap.SwapTradePricerFn;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -57,6 +56,7 @@ import com.opengamma.util.tuple.Pair;
  */
 @Test
 public class SwapCrossCurrencyEnd2EndTest {
+
   private static final IborIndex EUR_EURIBOR_3M = IborIndices.EUR_EURIBOR_3M;
   private static final IborIndex USD_LIBOR_3M = IborIndices.USD_LIBOR_3M;
   private static final FxIndex WM_EUR_USD = FxIndices.WM_EUR_USD;
@@ -64,33 +64,34 @@ public class SwapCrossCurrencyEnd2EndTest {
   private static final double NOTIONAL_EUR = 100_000_000;
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CalendarUSD.NYC);
   private static final BusinessDayAdjustment BDA_P = BusinessDayAdjustment.of(PRECEDING, CalendarUSD.NYC);
-  
+
   // curve providers
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_USD_PAIR = 
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_USD_PAIR =
       StandardDataSetsMulticurveUSD.getCurvesUSDOisL3();
-  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR = 
+  private static final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> MULTICURVE_EUR_PAIR =
       StandardDataSetsMulticurveEUR.getCurvesUSDOisL3();
-  private static final FXMatrix FX_MATRIX = 
+  private static final FXMatrix FX_MATRIX =
       new FXMatrix(com.opengamma.util.money.Currency.EUR, com.opengamma.util.money.Currency.USD, 1.20);
-  private static final com.opengamma.analytics.financial.instrument.index.IborIndex EUREURIBOR3M = 
+  private static final com.opengamma.analytics.financial.instrument.index.IborIndex EUREURIBOR3M =
       MULTICURVE_EUR_PAIR.getFirst().getIndexesIbor().iterator().next();
   private static final MulticurveProviderDiscount MULTICURVE = MULTICURVE_USD_PAIR.getFirst();
   static {
-    MULTICURVE.setCurve(com.opengamma.util.money.Currency.EUR, 
+    MULTICURVE.setCurve(com.opengamma.util.money.Currency.EUR,
         MULTICURVE_EUR_PAIR.getFirst().getCurve(com.opengamma.util.money.Currency.EUR));
     MULTICURVE.setCurve(EUREURIBOR3M, MULTICURVE_EUR_PAIR.getFirst().getCurve(EUREURIBOR3M));
     MULTICURVE.setForexMatrix(FX_MATRIX);
   }
   private static final CurveBuildingBlockBundle BLOCK = MULTICURVE_USD_PAIR.getSecond();
-  static{
+  static {
     BLOCK.addAll(MULTICURVE_EUR_PAIR.getSecond());
   }
+
   // tolerance
   private static final double TOLERANCE_PV = 1.0E-4;
 
   //-----------------------------------------------------------------------
-  public void test_XCcyEur3MSpreadVsUSD3M() { // XCcy swap with exchange of notional
-
+  // XCcy swap with exchange of notional
+  public void test_XCcyEur3MSpreadVsUSD3M() {
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -145,18 +146,20 @@ public class SwapCrossCurrencyEnd2EndTest {
     SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
-        .build();    
+        .product(Swap.of(payLeg, receiveLeg))
+        .build();
 
     double pvUsdExpected = 431944.6868;
     double pvEurExpected = -731021.1778;
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     MultiCurrencyAmount pv = pricer.presentValue(env(), trade);
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
   }
-  public void test_XCcyEur3MSpreadVsUSD3MFxReset() { // XCcy swap with exchange of notional and FX Reset on the USD leg
+
+  // XCcy swap with exchange of notional and FX Reset on the USD leg
+  public void test_XCcyEur3MSpreadVsUSD3MFxReset() {
 
     RateCalculationSwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -217,13 +220,13 @@ public class SwapCrossCurrencyEnd2EndTest {
     SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder().tradeDate(LocalDate.of(2014, 9, 10)).build())
-        .swap(Swap.of(payLeg, receiveLeg))
-        .build();    
+        .product(Swap.of(payLeg, receiveLeg))
+        .build();
 
     double pvUsdExpected = 518623.5163;
     double pvEurExpected = -731021.1778;
 
-    TradePricerFn<Trade> pricer = swapPricer();
+    SwapTradePricerFn pricer = swapPricer();
     MultiCurrencyAmount pv = pricer.presentValue(env(), trade);
     assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
     assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
@@ -231,12 +234,12 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   //-------------------------------------------------------------------------
   // pricer
-  private TradePricerFn<Trade> swapPricer() {
-    return DispatchingTradePricerFn.DEFAULT;
+  private SwapTradePricerFn swapPricer() {
+    return ExpandingSwapTradePricerFn.DEFAULT;
   }
 
   private static final LocalDateDoubleTimeSeries TS_EMTPY = LocalDateDoubleTimeSeries.empty();
-      
+
   // pricing environment
   private static PricingEnvironment env() {
     return ImmutablePricingEnvironment.builder()
@@ -249,5 +252,5 @@ public class SwapCrossCurrencyEnd2EndTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
   }
-  
+
 }
