@@ -5,6 +5,8 @@
  */
 package com.opengamma.platform.finance;
 
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -26,5 +28,18 @@ public interface Attributable {
    * @return the complete set of attributes
    */
   public abstract ImmutableMap<String, String> getAttributes();
+
+  /**
+   * Gets the value of an attribute by key.
+   * <p>
+   * Attributes are typically used to tag the object with additional information.
+   * If the attribute is not found, optional empty is returned.
+   * 
+   * @param key  the key to find
+   * @return the the value of the specified attribute, empty if not found
+   */
+  public default Optional<String> getAttribute(String key) {
+    return Optional.ofNullable(getAttributes().get(key));
+  }
 
 }

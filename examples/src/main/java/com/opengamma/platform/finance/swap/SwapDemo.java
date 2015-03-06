@@ -25,7 +25,6 @@ import com.opengamma.basics.schedule.StubConvention;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
 import com.opengamma.collect.id.StandardId;
-import com.opengamma.platform.finance.OtcTrade;
 import com.opengamma.platform.finance.TradeInfo;
 
 /**
@@ -210,11 +209,12 @@ public class SwapDemo {
             .build())
         .build();
     // a SwapTrade combines the two legs
-    OtcTrade<Swap> trade = OtcTrade.builder(Swap.of(payLeg, receiveLeg))
+    SwapTrade trade = SwapTrade.builder()
         .standardId(StandardId.of("OG-Trade", "1"))
         .tradeInfo(TradeInfo.builder()
             .tradeDate(LocalDate.of(2014, 9, 10))
             .build())
+        .product(Swap.of(payLeg, receiveLeg))
         .build();
 
     System.out.println("===== Vanilla fixed vs Libor3m =====");

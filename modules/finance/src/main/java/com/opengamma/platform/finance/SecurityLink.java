@@ -216,6 +216,24 @@ public final class SecurityLink<P extends Product>
 
   //-------------------------------------------------------------------------
   /**
+   * Returns the target, throwing an exception if the link is not resolved.
+   *
+   * @return the security
+   * @throws IllegalStateException if the link is not in the resolved state
+   */
+  Security<P> resolvedTarget() {
+    if (!isResolved()) {
+      throw new IllegalStateException(resolvedTargetMsg());
+    }
+    return target;
+  }
+
+  // extracted to aid inlining performance
+  private String resolvedTargetMsg() {
+    return "Security must be resolved before it can be used: " + standardId;
+  }
+
+  /**
    * Resolves this link using the specified resolver.
    * <p>
    * The resolver is used to find the linked security.

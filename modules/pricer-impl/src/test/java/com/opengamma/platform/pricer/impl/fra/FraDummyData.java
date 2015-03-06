@@ -17,10 +17,10 @@ import com.opengamma.basics.date.AdjustableDate;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.collect.id.StandardId;
-import com.opengamma.platform.finance.OtcTrade;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.fra.Fra;
 import com.opengamma.platform.finance.fra.FraDiscountingMethod;
+import com.opengamma.platform.finance.fra.FraTrade;
 
 /**
  * Basic dummy objects used when the data within is not important.
@@ -88,9 +88,9 @@ public class FraDummyData {
       .build();
 
   /**
-   * Fra OtcTrade.
+   * Fra trade.
    */
-  public static final OtcTrade<Fra> FRA_TRADE = OtcTrade.<Fra>builder()
+  public static final FraTrade FRA_TRADE = FraTrade.builder()
       .standardId(StandardId.of("OG-Trade", "1"))
       .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(FRA)

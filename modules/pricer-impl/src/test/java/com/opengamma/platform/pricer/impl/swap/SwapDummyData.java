@@ -21,7 +21,6 @@ import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.collect.id.StandardId;
-import com.opengamma.platform.finance.OtcTrade;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
@@ -36,6 +35,7 @@ import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.finance.swap.Swap;
+import com.opengamma.platform.finance.swap.SwapTrade;
 
 /**
  * Basic dummy objects used when the data within is not important.
@@ -196,9 +196,9 @@ public final class SwapDummyData {
       .build();
 
   /**
-   * Swap OtcTrade.
+   * Swap trade.
    */
-  public static final OtcTrade<Swap> SWAP_TRADE = OtcTrade.<Swap>builder()
+  public static final SwapTrade SWAP_TRADE = SwapTrade.builder()
       .standardId(StandardId.of("OG-Trade", "1"))
       .tradeInfo(TradeInfo.builder().tradeDate(date(2014, 6, 30)).build())
       .product(SWAP)

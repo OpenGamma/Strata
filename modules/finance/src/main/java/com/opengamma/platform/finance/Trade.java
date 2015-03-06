@@ -7,7 +7,6 @@ package com.opengamma.platform.finance;
 
 import org.joda.beans.ImmutableBean;
 
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.collect.id.IdentifiableBean;
 import com.opengamma.collect.id.StandardId;
 
@@ -21,7 +20,7 @@ import com.opengamma.collect.id.StandardId;
  * Implementations of this interface must be immutable beans.
  */
 public interface Trade
-    extends IdentifiableBean, Attributable, ImmutableBean {
+    extends IdentifiableBean, ImmutableBean {
 
   /**
    * The primary standard identifier for the trade.
@@ -35,16 +34,6 @@ public interface Trade
    */
   @Override
   public abstract StandardId getStandardId();
-
-  /**
-   * Gets the entire set of additional attributes.
-   * <p>
-   * Attributes are typically used to tag the object with additional information.
-   * 
-   * @return the complete set of attributes
-   */
-  @Override
-  public abstract ImmutableMap<String, String> getAttributes();
 
   /**
    * The additional trade information.
