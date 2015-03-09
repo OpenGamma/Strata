@@ -8,9 +8,11 @@ package com.opengamma.platform.pricer.impl.observation;
 import java.time.LocalDate;
 
 import com.opengamma.basics.index.IborIndex;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 
 /**
  * Rate observation implementation for rate based on the weighted average of the fixing
@@ -60,6 +62,15 @@ public class ForwardIborInterpolatedRateObservationFn
     double weight1 = (days2 - daysN) / (days2 - days1);
     double weight2 = (daysN - days1) / (days2 - days1);
     return ((rate1 * weight1) + (rate2 * weight2)) / (weight1 + weight2);
+  }
+
+  @Override
+  public Pair<Double, MulticurveSensitivity3LD> rateMulticurveSensitivity3LD(
+      PricingEnvironment env,
+      IborInterpolatedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+    return null;
   }
 
 }

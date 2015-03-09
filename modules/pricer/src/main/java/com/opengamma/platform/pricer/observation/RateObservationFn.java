@@ -7,8 +7,10 @@ package com.opengamma.platform.pricer.observation;
 
 import java.time.LocalDate;
 
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 
 /**
  * Observes a rate from an index.
@@ -39,4 +41,9 @@ public interface RateObservationFn<T extends RateObservation> {
    */
   public abstract double rate(PricingEnvironment env, T observation, LocalDate startDate, LocalDate endDate);
 
+  public abstract Pair<Double, MulticurveSensitivity3LD> rateMulticurveSensitivity3LD(
+      PricingEnvironment env,
+      T observation,
+      LocalDate startDate,
+      LocalDate endDate);
 }

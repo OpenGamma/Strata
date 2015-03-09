@@ -8,6 +8,7 @@ package com.opengamma.platform.pricer.impl.observation;
 import java.time.LocalDate;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.observation.IborAveragedRateObservation;
 import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
@@ -17,6 +18,7 @@ import com.opengamma.platform.finance.observation.OvernightCompoundedRateObserva
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 
 /**
  * Rate observation implementation using multiple dispatch.
@@ -110,6 +112,15 @@ public class DispatchingRateObservationFn
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
     }
+  }
+
+  @Override
+  public Pair<Double, MulticurveSensitivity3LD> rateMulticurveSensitivity3LD(
+      PricingEnvironment env,
+      RateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+    return null;
   }
 
 }
