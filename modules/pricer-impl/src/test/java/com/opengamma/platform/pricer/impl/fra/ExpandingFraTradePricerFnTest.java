@@ -16,6 +16,7 @@ import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.platform.finance.fra.ExpandedFra;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
+import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
 
 /**
  * Test.
@@ -23,7 +24,7 @@ import com.opengamma.platform.pricer.fra.FraProductPricerFn;
 @Test
 public class ExpandingFraTradePricerFnTest {
 
-  private final PricingEnvironment MOCK_ENV = mock(PricingEnvironment.class);
+  private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
 
   public void test_presentValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);

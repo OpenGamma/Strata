@@ -16,6 +16,7 @@ import com.opengamma.platform.finance.swap.FxResetNotionalExchange;
 import com.opengamma.platform.finance.swap.NotionalExchange;
 import com.opengamma.platform.finance.swap.PaymentEvent;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
 import com.opengamma.platform.pricer.swap.PaymentEventPricerFn;
 
 /**
@@ -24,7 +25,7 @@ import com.opengamma.platform.pricer.swap.PaymentEventPricerFn;
 @Test
 public class DispatchingPaymentEventPricerFnTest {
 
-  private static final PricingEnvironment MOCK_ENV = mock(PricingEnvironment.class);
+  private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
   private static final PaymentEventPricerFn<NotionalExchange> MOCK_NOTIONAL_EXG = mock(PaymentEventPricerFn.class);
   private static final PaymentEventPricerFn<FxResetNotionalExchange> MOCK_FX_NOTIONAL_EXG =
       mock(PaymentEventPricerFn.class);
