@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.platform.finance.swap.PaymentPeriod;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
 
 /**
@@ -23,37 +24,37 @@ import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
 @Test
 public class DispatchingPaymentPeriodPricerFnTest {
 
-  private final PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+  private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
 
   public void test_presentValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     PaymentPeriodPricerFn<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricerFn.class);
-    when(mockNotionalExchangeFn.presentValue(mockEnv, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD))
+    when(mockNotionalExchangeFn.presentValue(MOCK_ENV, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD))
         .thenReturn(expected);
     DispatchingPaymentPeriodPricerFn test = new DispatchingPaymentPeriodPricerFn(mockNotionalExchangeFn);
-    assertEquals(test.presentValue(mockEnv, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD), expected, 0d);
+    assertEquals(test.presentValue(MOCK_ENV, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD), expected, 0d);
   }
 
   public void test_presentValue_unknownType() {
     PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
     DispatchingPaymentPeriodPricerFn test = DispatchingPaymentPeriodPricerFn.DEFAULT;
-    assertThrowsIllegalArg(() -> test.presentValue(mockEnv, mockPaymentPeriod));
+    assertThrowsIllegalArg(() -> test.presentValue(MOCK_ENV, mockPaymentPeriod));
   }
 
   //-------------------------------------------------------------------------
   public void test_futureValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     PaymentPeriodPricerFn<RatePaymentPeriod> mockNotionalExchangeFn = mock(PaymentPeriodPricerFn.class);
-    when(mockNotionalExchangeFn.futureValue(mockEnv, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD))
+    when(mockNotionalExchangeFn.futureValue(MOCK_ENV, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD))
         .thenReturn(expected);
     DispatchingPaymentPeriodPricerFn test = new DispatchingPaymentPeriodPricerFn(mockNotionalExchangeFn);
-    assertEquals(test.futureValue(mockEnv, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD), expected, 0d);
+    assertEquals(test.futureValue(MOCK_ENV, SwapDummyData.FIXED_RATE_PAYMENT_PERIOD), expected, 0d);
   }
 
   public void test_futureValue_unknownType() {
     PaymentPeriod mockPaymentPeriod = mock(PaymentPeriod.class);
     DispatchingPaymentPeriodPricerFn test = DispatchingPaymentPeriodPricerFn.DEFAULT;
-    assertThrowsIllegalArg(() -> test.futureValue(mockEnv, mockPaymentPeriod));
+    assertThrowsIllegalArg(() -> test.futureValue(MOCK_ENV, mockPaymentPeriod));
   }
 
 }

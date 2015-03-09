@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.platform.finance.swap.ExpandedSwap;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
 import com.opengamma.platform.pricer.swap.SwapProductPricerFn;
 
 /**
@@ -23,7 +24,7 @@ import com.opengamma.platform.pricer.swap.SwapProductPricerFn;
 @Test
 public class ExpandingSwapTradePricerFnTest {
 
-  private final PricingEnvironment MOCK_ENV = mock(PricingEnvironment.class);
+  private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
 
   public void test_presentValue() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);

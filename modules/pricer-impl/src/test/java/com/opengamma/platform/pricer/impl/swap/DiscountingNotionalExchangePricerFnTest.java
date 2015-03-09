@@ -9,6 +9,7 @@ import static com.opengamma.platform.pricer.impl.swap.SwapDummyData.NOTIONAL_EXC
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.platform.pricer.PricingEnvironment;
