@@ -6,8 +6,10 @@
 package com.opengamma.platform.pricer.swap;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.SwapProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 
 /**
  * Pricer for swap products.
@@ -43,4 +45,6 @@ public interface SwapProductPricerFn<T extends SwapProduct> {
    */
   public abstract MultiCurrencyAmount futureValue(PricingEnvironment env, T product);
 
+  public abstract Pair<MultiCurrencyAmount, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(
+      PricingEnvironment env, T product);
 }

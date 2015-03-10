@@ -5,7 +5,14 @@
  */
 package com.opengamma.platform.pricer.impl.swap;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.NotImplementedException;
+
+import com.opengamma.basics.currency.Currency;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.finance.swap.FxReset;
 import com.opengamma.platform.finance.swap.RateAccrualPeriod;
@@ -13,6 +20,8 @@ import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.observation.DispatchingRateObservationFn;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
+import com.opengamma.platform.pricer.sensitivity.multicurve.ZeroRateSensitivityLD;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
 
 /**
@@ -160,4 +169,66 @@ public class DiscountingRatePaymentPeriodPricerFn
         .sum();
   }
 
+  @Override
+  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(
+      PricingEnvironment env, RatePaymentPeriod period) {
+    Currency ccy = period.getCurrency();
+    double paymentTime = env.relativeTime(period.getPaymentDate());
+    double df = env.discountFactor(period.getCurrency(), period.getPaymentDate());
+    Pair<Double, MulticurveSensitivity3LD> fvSensitivity = futureValueCurveSensitivity3LD(env, period);
+    double pv = fvSensitivity.getFirst() * df;
+    final List<ZeroRateSensitivityLD> zeroRateSensi = new ArrayList<>();
+    zeroRateSensi.add(new ZeroRateSensitivityLD(ccy, period.getPaymentDate(), -paymentTime * df *
+        fvSensitivity.getFirst(), ccy));
+    MulticurveSensitivity3LD sensi = MulticurveSensitivity3LD.ofZeroRate(zeroRateSensi);
+    sensi.add(fvSensitivity.getSecond().multipliedBy(df));
+    return Pair.of(pv, sensi);
+  }
+
+  public Pair<Double, MulticurveSensitivity3LD> futureValueCurveSensitivity3LD(PricingEnvironment env,
+      RatePaymentPeriod period) {
+    // historic payments have zero sensi
+    if (period.getPaymentDate().isBefore(env.getValuationDate())) {
+      return Pair.of(0.0D, new MulticurveSensitivity3LD());
+    }
+    // find FX rate, using 1 if no FX reset occurs
+    double fxRate = 1d;
+    if (period.getFxReset().isPresent()) {
+      throw new NotImplementedException("FX Reset not yet implemented for futureValueCurveSensitivity");
+    }
+    double notional = period.getNotional() * fxRate;
+    // handle compounding
+    Pair<Double, MulticurveSensitivity3LD> unitAccrual;
+    if (period.isCompoundingApplicable()) {
+      throw new NotImplementedException("compounding not yet implemented for futureValueCurveSensitivity");
+    } else {
+      unitAccrual = unitNotionalSensiNoCompounding3LD(env, period);
+    }
+    return Pair.of(notional * unitAccrual.getFirst(), unitAccrual.getSecond().multipliedBy(notional));
+  }
+
+  private Pair<Double, MulticurveSensitivity3LD> unitNotionalSensiNoCompounding3LD(PricingEnvironment env,
+      RatePaymentPeriod period) {
+    Currency ccy = period.getCurrency();
+    double un = 0.0d;
+    MulticurveSensitivity3LD sensi = new MulticurveSensitivity3LD();
+    for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
+      Pair<Double, MulticurveSensitivity3LD> pair = unitNotionalSensiAccrual3LD(env, accrualPeriod,
+          accrualPeriod.getSpread(), ccy);
+      un += pair.getFirst();
+      sensi.add(pair.getSecond());
+    }
+    return Pair.of(un, sensi);
+  }
+
+  private Pair<Double, MulticurveSensitivity3LD> unitNotionalSensiAccrual3LD(PricingEnvironment env,
+      RateAccrualPeriod period, double spread, Currency ccy) {
+    Pair<Double, MulticurveSensitivity3LD> pair = rateObservationFn.rateMulticurveSensitivity3LD(
+        env, period.getRateObservation(), period.getStartDate(), period.getEndDate());
+    double treatedRate = pair.getFirst() * period.getGearing() + spread;
+    double unitNotionalAccrual = period.getNegativeRateMethod().adjust(treatedRate * period.getYearFraction());
+    //Backward sweep.
+    //FIXME: need to adjust also the sensitivity
+    return Pair.of(unitNotionalAccrual, pair.getSecond().multipliedBy(period.getGearing() * period.getYearFraction()));
+  }
 }

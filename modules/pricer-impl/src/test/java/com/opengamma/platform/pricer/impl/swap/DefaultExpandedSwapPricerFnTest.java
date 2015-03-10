@@ -15,8 +15,10 @@ import org.testng.annotations.Test;
 
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 import com.opengamma.platform.pricer.swap.SwapLegPricerFn;
 
 /**
@@ -69,4 +71,9 @@ public class DefaultExpandedSwapPricerFnTest {
     assertEquals(test.futureValue(mockEnv, SwapDummyData.SWAP_CROSS_CURRENCY.expand()), expected);
   }
 
+  public void test_presentValue_sensitivity() {
+    ExpandingSwapProductPricerFn func = ExpandingSwapProductPricerFn.DEFAULT;
+    Pair<MultiCurrencyAmount, MulticurveSensitivity3LD> priceAndSense = func.presentValueCurveSensitivity3LD(mockEnv,
+        SwapDummyData.SWAP.expand());
+  }
 }

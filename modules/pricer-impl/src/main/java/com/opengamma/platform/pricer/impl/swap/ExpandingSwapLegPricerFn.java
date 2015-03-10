@@ -6,9 +6,11 @@
 package com.opengamma.platform.pricer.impl.swap;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 import com.opengamma.platform.pricer.swap.SwapLegPricerFn;
 
 /**
@@ -49,6 +51,12 @@ public class ExpandingSwapLegPricerFn
   @Override
   public double futureValue(PricingEnvironment env, SwapLeg swapLeg) {
     return expandedSwapLegPricerFn.futureValue(env, swapLeg.expand());
+  }
+
+  @Override
+  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(PricingEnvironment env,
+      SwapLeg swapLeg) {
+    return expandedSwapLegPricerFn.presentValueCurveSensitivity3LD(env, swapLeg.expand());
   }
 
 }

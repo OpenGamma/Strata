@@ -5,8 +5,10 @@
  */
 package com.opengamma.platform.pricer.swap;
 
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 
 /**
  * Pricer for swap legs.
@@ -43,4 +45,6 @@ public interface SwapLegPricerFn<T extends SwapLeg> {
    */
   public abstract double futureValue(PricingEnvironment env, T swapLeg);
 
+  public abstract Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(
+      PricingEnvironment env, T swapLeg);
 }

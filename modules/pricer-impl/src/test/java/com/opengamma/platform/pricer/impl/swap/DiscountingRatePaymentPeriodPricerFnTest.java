@@ -8,22 +8,34 @@ package com.opengamma.platform.pricer.impl.swap;
 import static com.opengamma.basics.currency.Currency.GBP;
 import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.basics.index.FxIndices.WM_GBP_USD;
+import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.basics.index.IborIndex;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
+import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.finance.swap.CompoundingMethod;
 import com.opengamma.platform.finance.swap.FxReset;
 import com.opengamma.platform.finance.swap.NegativeRateMethod;
 import com.opengamma.platform.finance.swap.RateAccrualPeriod;
 import com.opengamma.platform.finance.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.multicurve.ForwardRateSensitivityLD;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
+import com.opengamma.platform.pricer.sensitivity.multicurve.ZeroRateSensitivityLD;
 
 /**
  * Test {@link DiscountingRatePaymentPeriodPricerFn}
@@ -285,5 +297,133 @@ public class DiscountingRatePaymentPeriodPricerFnTest {
     double fvComputed = DiscountingRatePaymentPeriodPricerFn.DEFAULT.futureValue(env, period);
     assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
   }
+  
 
+  private static final RateAccrualPeriod ACCRUAL_PERIOD_1_FLOATING = RateAccrualPeriod.builder()
+      .startDate(CPN_DATE_1)
+      .endDate(CPN_DATE_2)
+      .yearFraction(ACCRUAL_FACTOR_1)
+      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_1))
+      .gearing(GEARING)
+      .spread(SPREAD)
+      .build();
+  private static final RateAccrualPeriod ACCRUAL_PERIOD_2_FLOATING = RateAccrualPeriod.builder()
+      .startDate(CPN_DATE_2)
+      .endDate(CPN_DATE_3)
+      .yearFraction(ACCRUAL_FACTOR_2)
+      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_2))
+      .gearing(GEARING)
+      .spread(SPREAD)
+      .build();
+  private static final RateAccrualPeriod ACCRUAL_PERIOD_3_FLOATING = RateAccrualPeriod.builder()
+      .startDate(CPN_DATE_3)
+      .endDate(CPN_DATE_4)
+      .yearFraction(ACCRUAL_FACTOR_3)
+      .rateObservation(IborRateObservation.of(GBP_LIBOR_3M, CPN_DATE_3))
+      .gearing(GEARING)
+      .spread(SPREAD)
+      .build();
+
+  private static final RatePaymentPeriod PAYMENT_PERIOD_FLOATING = RatePaymentPeriod.builder()
+      .paymentDate(PAYMENT_DATE_3)
+      .accrualPeriods(ImmutableList.of(ACCRUAL_PERIOD_1_FLOATING, ACCRUAL_PERIOD_2_FLOATING, ACCRUAL_PERIOD_3_FLOATING))
+      .currency(USD)
+      .notional(NOTIONAL_100)
+      .build();
+
+  private static final double TOL = 1.0e-12;
+
+  public void test_futureValueSensitivity_compoundNone() {
+    PricingEnvironment env = mock(PricingEnvironment.class);
+    RateObservationFn<RateObservation> obsFunc = mock(RateObservationFn.class);
+    when(env.getValuationDate()).thenReturn(VALUATION_DATE);
+    DiscountingRatePaymentPeriodPricerFn pricer = new DiscountingRatePaymentPeriodPricerFn(obsFunc);
+    LocalDate [] dates = new LocalDate[] {CPN_DATE_1,CPN_DATE_2,CPN_DATE_3,CPN_DATE_4};
+    double[] rates = new double[] {RATE_1, RATE_2, RATE_3 };
+    for (int i = 0; i < 3; ++i) {
+      IborRateObservation observation = (IborRateObservation) PAYMENT_PERIOD_FLOATING.getAccrualPeriods().get(i)
+          .getRateObservation();
+      List<ForwardRateSensitivityLD> forwardRateSensi = new ArrayList<>();
+      forwardRateSensi.add(new ForwardRateSensitivityLD(GBP_LIBOR_3M, dates[i], 1.0d, GBP));
+      when(obsFunc.rateMulticurveSensitivity3LD(env, observation, dates[i], dates[i + 1])).thenReturn(
+          Pair.of(rates[i], MulticurveSensitivity3LD.ofForwardRate(forwardRateSensi)));
+      when(obsFunc.rate(env, observation, dates[i], dates[i + 1])).thenReturn(rates[i]);
+    }
+    Pair<Double, MulticurveSensitivity3LD> senseComputed = pricer.futureValueCurveSensitivity3LD(env,
+        PAYMENT_PERIOD_FLOATING);
+    double futureValue = pricer.futureValue(env, PAYMENT_PERIOD_FLOATING);
+    assertEquals(senseComputed.getFirst(), futureValue, Math.abs(PAYMENT_PERIOD_FLOATING.getNotional()) * TOL);
+
+    double eps = 1.e-7;
+    MulticurveSensitivity3LD senseExpected = fwdSensitivityFD(env, PAYMENT_PERIOD_FLOATING, obsFunc, eps);
+    assertMulticurveSensitivity3LD(senseComputed.getSecond(), senseExpected,
+        eps * PAYMENT_PERIOD_FLOATING.getNotional());
+  }
+
+  private void assertMulticurveSensitivity3LD(MulticurveSensitivity3LD computed, MulticurveSensitivity3LD expected,
+      double absTol) {
+    // dsc
+    List<ZeroRateSensitivityLD> dscListComputed = computed.getZeroRateSensitivities();
+    List<ZeroRateSensitivityLD> dscListExpected = computed.getZeroRateSensitivities();
+    if (dscListExpected.isEmpty()) {
+      assertTrue(dscListComputed.isEmpty());
+    } else {
+
+    }
+    // fwd
+    List<ForwardRateSensitivityLD> fwdListComputed = computed.getForwardRateSensitivities();
+    List<ForwardRateSensitivityLD> fwdListExpected = computed.getForwardRateSensitivities();
+    if (fwdListExpected.isEmpty()) {
+      assertTrue(fwdListComputed.isEmpty());
+    } else {
+      int nSense = fwdListExpected.size();
+      assertEquals(fwdListComputed.size(), nSense);
+      for (int i = 0; i < nSense; ++i) {
+        ForwardRateSensitivityLD senseComputed = fwdListComputed.get(i);
+        ForwardRateSensitivityLD senseExpected = fwdListExpected.get(i);
+        assertEquals(senseComputed.getCurrency(), senseExpected.getCurrency());
+        assertEquals(senseComputed.getFixingDate(), senseExpected.getFixingDate());
+        assertEquals(senseComputed.getIndex(), senseExpected.getIndex());
+        assertEquals(senseComputed.getValue(), senseExpected.getValue(), absTol);
+      }
+    }
+  }
+
+  @SuppressWarnings("null")
+  private MulticurveSensitivity3LD fwdSensitivityFD(PricingEnvironment env, RatePaymentPeriod payment,
+      RateObservationFn<RateObservation> obsFunc, double eps) {
+    //    DiscountingRatePaymentPeriodPricerFn pricer = new DiscountingRatePaymentPeriodPricerFn(obsFunc);
+    ImmutableList<RateAccrualPeriod> periods = payment.getAccrualPeriods();
+    int nPeriods = periods.size();
+    List<ForwardRateSensitivityLD> forwardRateSensi = new ArrayList<>();
+    for (int j = 0; j < nPeriods; ++j) {
+      RateObservationFn<RateObservation> obsFuncUp = mock(RateObservationFn.class);
+      RateObservationFn<RateObservation> obsFuncDown = mock(RateObservationFn.class);
+      IborIndex index = null;
+      LocalDate fixingDate = null;
+      for (int i = 0; i < nPeriods; ++i) {
+        RateAccrualPeriod period = periods.get(i);
+        IborRateObservation observation = (IborRateObservation) period.getRateObservation();
+        double rate = obsFunc.rate(env, observation, period.getStartDate(), period.getEndDate());
+        if (i == j) {
+          fixingDate = observation.getFixingDate();
+          index = observation.getIndex();
+          when(obsFuncUp.rate(env, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate + eps);
+          when(obsFuncDown.rate(env, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate - eps);
+        } else {
+          when(obsFuncUp.rate(env, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate);
+          when(obsFuncDown.rate(env, observation, period.getStartDate(), period.getEndDate())).thenReturn(rate);
+        }
+      }
+      DiscountingRatePaymentPeriodPricerFn pricerUp = new DiscountingRatePaymentPeriodPricerFn(obsFuncUp);
+      DiscountingRatePaymentPeriodPricerFn pricerDown = new DiscountingRatePaymentPeriodPricerFn(obsFuncDown);
+      double up = pricerUp.futureValue(env, payment);
+      double down = pricerDown.futureValue(env, payment);
+      ForwardRateSensitivityLD fwdSense = new ForwardRateSensitivityLD(index, fixingDate, 0.5 * (up - down) / eps,
+          index.getCurrency());
+      forwardRateSensi.add(fwdSense);
+    }
+
+    return MulticurveSensitivity3LD.ofForwardRate(forwardRateSensi);
+  }
 }

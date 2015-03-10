@@ -5,8 +5,10 @@
  */
 package com.opengamma.platform.pricer.swap;
 
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.PaymentEvent;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 
 /**
  * Pricer for payment events.
@@ -43,4 +45,6 @@ public interface PaymentEventPricerFn<T extends PaymentEvent> {
    */
   public abstract double futureValue(PricingEnvironment env, T event);
 
+  public abstract Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity(
+      PricingEnvironment env, T event);
 }

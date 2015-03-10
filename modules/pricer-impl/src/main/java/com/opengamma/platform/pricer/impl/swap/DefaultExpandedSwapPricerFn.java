@@ -11,10 +11,12 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.ExpandedSwap;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 import com.opengamma.platform.pricer.swap.SwapLegPricerFn;
 import com.opengamma.platform.pricer.swap.SwapProductPricerFn;
 
@@ -76,4 +78,16 @@ public class DefaultExpandedSwapPricerFn
     }
   }
 
+  public Pair<MultiCurrencyAmount, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(
+      PricingEnvironment env, ExpandedSwap swap) {
+    MulticurveSensitivity3LD sensi = new MulticurveSensitivity3LD();
+    MultiCurrencyAmount pv = MultiCurrencyAmount.of();
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      Pair<Double, MulticurveSensitivity3LD> pair =
+          swapLegPricerFn.presentValueCurveSensitivity3LD(env, leg);
+      pv = pv.plus(leg.getCurrency(), pair.getFirst());
+      sensi.add(pair.getSecond());
+    }
+    return Pair.of(pv, sensi);
+  }
 }

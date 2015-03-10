@@ -8,10 +8,12 @@ package com.opengamma.platform.pricer.impl.swap;
 import java.util.function.ToDoubleBiFunction;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
 import com.opengamma.platform.finance.swap.PaymentEvent;
 import com.opengamma.platform.finance.swap.PaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 import com.opengamma.platform.pricer.swap.PaymentEventPricerFn;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
 import com.opengamma.platform.pricer.swap.SwapLegPricerFn;
@@ -77,6 +79,20 @@ public class DefaultExpandedSwapLegPricerFn
         .mapToDouble(e -> eventFn.applyAsDouble(env, e))
         .sum();
     return valuePeriods + valueEvents;
+  }
+
+  @Override
+  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(PricingEnvironment env,
+      ExpandedSwapLeg swapLeg) {
+    MulticurveSensitivity3LD sensi = new MulticurveSensitivity3LD();
+    double pv = 0.0;
+    for (PaymentPeriod payment : swapLeg.getPaymentPeriods()) {
+      Pair<Double, MulticurveSensitivity3LD> pair =
+          paymentPeriodPricerFn.presentValueCurveSensitivity3LD(env, payment);
+      pv += pair.getFirst();
+      sensi.add(pair.getSecond());
+    }
+    return Pair.of(pv, sensi);
   }
 
 }

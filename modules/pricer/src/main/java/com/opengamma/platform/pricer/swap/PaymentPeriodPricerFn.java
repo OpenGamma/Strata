@@ -5,8 +5,10 @@
  */
 package com.opengamma.platform.pricer.swap;
 
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.PaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 
 /**
  * Pricer for payment periods.
@@ -42,5 +44,8 @@ public interface PaymentPeriodPricerFn<T extends PaymentPeriod> {
    * @return the future value of the period
    */
   public abstract double futureValue(PricingEnvironment env, T period);
+
+  public abstract Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(PricingEnvironment env,
+      T period);
 
 }

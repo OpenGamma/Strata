@@ -6,10 +6,12 @@
 package com.opengamma.platform.pricer.impl.swap;
 
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.FxResetNotionalExchange;
 import com.opengamma.platform.finance.swap.NotionalExchange;
 import com.opengamma.platform.finance.swap.PaymentEvent;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 import com.opengamma.platform.pricer.swap.PaymentEventPricerFn;
 
 /**
@@ -70,6 +72,19 @@ public class DispatchingPaymentEventPricerFn
       return notionalExchangePricerFn.futureValue(env, (NotionalExchange) paymentEvent);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
       return fxResetNotionalExchangePricerFn.futureValue(env, (FxResetNotionalExchange) paymentEvent);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
+    }
+  }
+
+  @Override
+  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity(PricingEnvironment env,
+      PaymentEvent paymentEvent) {
+    // dispatch by runtime type
+    if (paymentEvent instanceof NotionalExchange) {
+      return notionalExchangePricerFn.presentValueCurveSensitivity(env, (NotionalExchange) paymentEvent);
+    } else if (paymentEvent instanceof FxResetNotionalExchange) {
+      return fxResetNotionalExchangePricerFn.presentValueCurveSensitivity(env, (FxResetNotionalExchange) paymentEvent);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }

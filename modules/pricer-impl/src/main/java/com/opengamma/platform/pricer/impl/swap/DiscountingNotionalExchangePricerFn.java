@@ -5,8 +5,10 @@
  */
 package com.opengamma.platform.pricer.impl.swap;
 
+import com.opengamma.collect.tuple.Pair;
 import com.opengamma.platform.finance.swap.NotionalExchange;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.multicurve.MulticurveSensitivity3LD;
 import com.opengamma.platform.pricer.swap.PaymentEventPricerFn;
 
 /**
@@ -40,6 +42,12 @@ public class DiscountingNotionalExchangePricerFn
   public double futureValue(PricingEnvironment env, NotionalExchange event) {
     // paymentAmount
     return event.getPaymentAmount().getAmount();
+  }
+
+  @Override
+  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity(PricingEnvironment env,
+      NotionalExchange event) {
+    return null;
   }
 
 }
