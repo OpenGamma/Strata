@@ -45,6 +45,6 @@ public interface PaymentEventPricerFn<T extends PaymentEvent> {
    */
   public abstract double futureValue(PricingEnvironment env, T event);
 
-  public abstract Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity(
+  public abstract Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(
       PricingEnvironment env, T event);
 }

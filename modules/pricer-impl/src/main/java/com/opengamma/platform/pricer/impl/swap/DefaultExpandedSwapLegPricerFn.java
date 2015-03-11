@@ -86,9 +86,15 @@ public class DefaultExpandedSwapLegPricerFn
       ExpandedSwapLeg swapLeg) {
     MulticurveSensitivity3LD sensi = new MulticurveSensitivity3LD();
     double pv = 0.0;
-    for (PaymentPeriod payment : swapLeg.getPaymentPeriods()) {
+    for (PaymentPeriod period : swapLeg.getPaymentPeriods()) {
       Pair<Double, MulticurveSensitivity3LD> pair =
-          paymentPeriodPricerFn.presentValueCurveSensitivity3LD(env, payment);
+          paymentPeriodPricerFn.presentValueCurveSensitivity3LD(env, period);
+      pv += pair.getFirst();
+      sensi.add(pair.getSecond());
+    }
+    for (PaymentEvent event : swapLeg.getPaymentEvents()) {
+      Pair<Double, MulticurveSensitivity3LD> pair =
+          paymentEventPricerFn.presentValueCurveSensitivity3LD(env, event);
       pv += pair.getFirst();
       sensi.add(pair.getSecond());
     }

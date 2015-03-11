@@ -48,7 +48,7 @@ public class DiscountingFxResetNotionalExchangePricerFn
   }
 
   @Override
-  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity(PricingEnvironment env,
+  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(PricingEnvironment env,
       FxResetNotionalExchange event) {
     return null;
   }

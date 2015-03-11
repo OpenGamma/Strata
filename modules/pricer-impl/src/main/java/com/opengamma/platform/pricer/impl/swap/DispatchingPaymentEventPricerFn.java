@@ -78,13 +78,14 @@ public class DispatchingPaymentEventPricerFn
   }
 
   @Override
-  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity(PricingEnvironment env,
+  public Pair<Double, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(PricingEnvironment env,
       PaymentEvent paymentEvent) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
-      return notionalExchangePricerFn.presentValueCurveSensitivity(env, (NotionalExchange) paymentEvent);
+      return notionalExchangePricerFn.presentValueCurveSensitivity3LD(env, (NotionalExchange) paymentEvent);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
-      return fxResetNotionalExchangePricerFn.presentValueCurveSensitivity(env, (FxResetNotionalExchange) paymentEvent);
+      return fxResetNotionalExchangePricerFn.presentValueCurveSensitivity3LD(env,
+          (FxResetNotionalExchange) paymentEvent);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }

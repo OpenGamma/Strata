@@ -191,13 +191,13 @@ public class DiscountingRatePaymentPeriodPricerFn
     if (period.getPaymentDate().isBefore(env.getValuationDate())) {
       return Pair.of(0.0D, new MulticurveSensitivity3LD());
     }
-    // find FX rate, using 1 if no FX reset occurs
+    // TODO find FX rate, using 1 if no FX reset occurs
     double fxRate = 1d;
     if (period.getFxReset().isPresent()) {
       throw new NotImplementedException("FX Reset not yet implemented for futureValueCurveSensitivity");
     }
     double notional = period.getNotional() * fxRate;
-    // handle compounding
+    // TODO handle compounding
     Pair<Double, MulticurveSensitivity3LD> unitAccrual;
     if (period.isCompoundingApplicable()) {
       throw new NotImplementedException("compounding not yet implemented for futureValueCurveSensitivity");
