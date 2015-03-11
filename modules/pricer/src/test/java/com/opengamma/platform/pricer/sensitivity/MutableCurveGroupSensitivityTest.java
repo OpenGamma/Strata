@@ -75,20 +75,20 @@ public class MutableCurveGroupSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_merge() {
+  public void test_addAll() {
     MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
     test.addAll(Lists.newArrayList(CS2, CS1));
     MutableCurveGroupSensitivity test2 = new MutableCurveGroupSensitivity();
     test2.addAll(Lists.newArrayList(CS3));
-    test.merge(test2);
+    test.addAll(test2);
     assertEquals(test.getSensitivities(), ImmutableList.of(CS2, CS1, CS3));
   }
 
   //-------------------------------------------------------------------------
-  public void test_multipliedBy() {
+  public void test_multiplyBy() {
     MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1));
-    test.multipliedBy(2d);
+    test.multiplyBy(2d);
     assertEquals(
         test.getSensitivities(),
         ImmutableList.of(CS3.withSensitivity(64d), CS2.withSensitivity(44d), CS1.withSensitivity(24d)));

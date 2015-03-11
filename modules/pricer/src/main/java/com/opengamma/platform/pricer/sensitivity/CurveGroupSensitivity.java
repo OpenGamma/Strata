@@ -35,6 +35,7 @@ import com.opengamma.collect.Guavate;
  * <p>
  * Contains a list of {@linkplain CurveSensitivity point sensitivity} objects, each
  * referring to a specific point on a curve that was queried.
+ * The order of the list has no specific meaning, but does allow duplicates.
  * <p>
  * When creating an instance, consider using {@link MutableCurveGroupSensitivity}.
  */
@@ -86,16 +87,15 @@ public final class CurveGroupSensitivity
    * The result may contain duplicate point sensitivities.
    * 
    * @param other  the other group sensitivity
-   * @return a copy of this object with the point sensitivities from the other instance added
+   * @return a {@code CurveGroupSensitivity} based on this one, with the other instance added
    */
-  public CurveGroupSensitivity merge(CurveGroupSensitivity other) {
-    List<CurveSensitivity> mutable = new ArrayList<>(sensitivities.size() + other.sensitivities.size());
-    mutable.addAll(sensitivities);
-    mutable.addAll(other.sensitivities);
-    return new CurveGroupSensitivity(mutable);
+  public CurveGroupSensitivity combinedWith(CurveGroupSensitivity other) {
+    return new CurveGroupSensitivity(ImmutableList.<CurveSensitivity>builder()
+        .addAll(sensitivities)
+        .addAll(other.sensitivities)
+        .build());
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Multiplies the point sensitivities by the specified factor.
    * <p>
@@ -103,7 +103,7 @@ public final class CurveGroupSensitivity
    * This instance is immutable and unaffected by this method. 
    * 
    * @param factor  the multiplicative factor
-   * @return a copy of this object with the each sensitivity multiplied by the factor
+   * @return a {@code CurveGroupSensitivity} based on this one, with each sensitivity multiplied by the factor
    */
   public CurveGroupSensitivity multipliedBy(double factor) {
     return mapSensitivities(s -> s * factor);
@@ -118,11 +118,11 @@ public final class CurveGroupSensitivity
    * This is used to apply a mathematical operation to the sensitivities.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.
    * <pre>
-   *   multiplied = base.mapAmount(value -> value * 3);
+   *   multiplied = base.mapSensitivities(value -> 1 / value);
    * </pre>
    *
    * @param operator  the operator to be applied to the sensitivities
-   * @return a copy of this object with the operator applied to the original sensitivities
+   * @return a {@code CurveGroupSensitivity} based on this one, with the operator applied to the point sensitivities
    */
   public CurveGroupSensitivity mapSensitivities(DoubleUnaryOperator operator) {
     return sensitivities.stream()
@@ -134,15 +134,16 @@ public final class CurveGroupSensitivity
   }
 
   /**
-   * Cleans the point sensitivities.
+   * Cleans the point sensitivities by sorting and merging.
    * <p>
    * The list of sensitivities is sorted and then merged.
-   * For example, if there are two entries that represent the same currency and date, then the
-   * entries are combined, summing the sensitivity.
+   * Any two entries that represent the same curve query are merged.
+   * For example, if there are two point sensitivities that were created based on the same curve,
+   * currency and fixing date, then the entries are combined, summing the sensitivity value.
    * <p>
    * This instance is immutable and unaffected by this method.
    * 
-   * @return a copy of this object with the the sensitivities cleaned
+   * @return a {@code CurveGroupSensitivity} based on this one, with the the sensitivities cleaned
    */
   public CurveGroupSensitivity cleaned() {
     if (sensitivities.isEmpty()) {

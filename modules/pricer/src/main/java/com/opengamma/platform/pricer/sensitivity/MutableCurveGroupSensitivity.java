@@ -17,6 +17,7 @@ import com.opengamma.collect.ArgChecker;
  * <p>
  * Contains a mutable list of {@linkplain CurveSensitivity point sensitivity} objects, each
  * referring to a specific point on a curve that was queried.
+ * The order of the list has no specific meaning, but does allow duplicates.
  * <p>
  * This is a mutable builder that is not intended for use in multiple threads.
  * It is intended to be used to create an immutable {@link CurveGroupSensitivity} instance.
@@ -100,7 +101,7 @@ public final class MutableCurveGroupSensitivity {
    * 
    * @param other  the group sensitivity to add
    */
-  public void merge(MutableCurveGroupSensitivity other) {
+  public void addAll(MutableCurveGroupSensitivity other) {
     this.sensitivities.addAll(other.sensitivities);
   }
 
@@ -112,7 +113,7 @@ public final class MutableCurveGroupSensitivity {
    * 
    * @param factor  the multiplicative factor
    */
-  public void multipliedBy(double factor) {
+  public void multiplyBy(double factor) {
     mapSensitivities(s -> s * factor);
   }
 
@@ -124,7 +125,7 @@ public final class MutableCurveGroupSensitivity {
    * This is used to apply a mathematical operation to the sensitivities.
    * For example, the operator could multiply the sensitivities by a constant, or take the inverse.
    * <pre>
-   *   multiplied = base.mapAmount(value -> value * 3);
+   *   multiplied = base.mapSensitivities(value -> 1 / value);
    * </pre>
    *
    * @param operator  the operator to be applied to the sensitivities
@@ -143,21 +144,24 @@ public final class MutableCurveGroupSensitivity {
   }
 
   /**
-   * Cleans the point sensitivities, mutating the internal list.
+   * Cleans the point sensitivities by sorting and merging, mutating the internal list.
    * <p>
    * The list of sensitivities is sorted and then merged.
+   * Any two entries that represent the same curve query are merged.
+   * For example, if there are two point sensitivities that were created based on the same curve,
+   * currency and fixing date, then the entries are combined, summing the sensitivity value.
    */
   public void clean() {
     sensitivities.sort(CurveSensitivity::compareExcludingSensitivity);
-    CurveSensitivity last = sensitivities.get(0);
+    CurveSensitivity previous = sensitivities.get(0);
     for (int i = 1; i < sensitivities.size(); i++) {
       CurveSensitivity current = sensitivities.get(i);
-      if (current.compareExcludingSensitivity(last) == 0) {
-        sensitivities.set(i - 1, last.withSensitivity(last.getSensitivity() + current.getSensitivity()));
+      if (current.compareExcludingSensitivity(previous) == 0) {
+        sensitivities.set(i - 1, previous.withSensitivity(previous.getSensitivity() + current.getSensitivity()));
         sensitivities.remove(i);
         i--;
       }
-      last = current;
+      previous = current;
     }
   }
 

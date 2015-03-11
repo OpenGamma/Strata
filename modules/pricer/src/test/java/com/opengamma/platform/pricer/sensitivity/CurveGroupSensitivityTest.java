@@ -53,10 +53,10 @@ public class CurveGroupSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_merge() {
+  public void test_combinedWith() {
     CurveGroupSensitivity test = CurveGroupSensitivity.of(Lists.newArrayList(CS2, CS1));
     CurveGroupSensitivity test2 = CurveGroupSensitivity.of(Lists.newArrayList(CS3));
-    assertEquals(test.merge(test2).getSensitivities(), ImmutableList.of(CS2, CS1, CS3));
+    assertEquals(test.combinedWith(test2).getSensitivities(), ImmutableList.of(CS2, CS1, CS3));
   }
 
   //-------------------------------------------------------------------------
