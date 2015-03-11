@@ -36,7 +36,7 @@ public class IborRateSensitivityTest {
     IborRateSensitivity test = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
-        .date(date(2015, 8, 27))
+        .fixingDate(date(2015, 8, 27))
         .sensitivity(32d)
         .build();
     assertEquals(test.getIndex(), GBP_LIBOR_3M);
@@ -51,7 +51,7 @@ public class IborRateSensitivityTest {
     IborRateSensitivity base = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
-        .date(date(2015, 8, 27))
+        .fixingDate(date(2015, 8, 27))
         .sensitivity(32d)
         .build();
     IborRateSensitivity test = base.withSensitivity(20d);
@@ -70,31 +70,31 @@ public class IborRateSensitivityTest {
     IborRateSensitivity a1 = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
-        .date(date(2015, 8, 27))
+        .fixingDate(date(2015, 8, 27))
         .sensitivity(32d)
         .build();
     IborRateSensitivity a2 = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
-        .date(date(2015, 8, 27))
+        .fixingDate(date(2015, 8, 27))
         .sensitivity(32d)
         .build();
     IborRateSensitivity b = IborRateSensitivity.builder()
         .index(USD_LIBOR_3M)
         .currency(USD)
-        .date(date(2015, 8, 27))
+        .fixingDate(date(2015, 8, 27))
         .sensitivity(32d)
         .build();
     IborRateSensitivity c = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(USD)
-        .date(date(2015, 8, 27))
+        .fixingDate(date(2015, 8, 27))
         .sensitivity(32d)
         .build();
     IborRateSensitivity d = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
-        .date(date(2015, 9, 27))
+        .fixingDate(date(2015, 9, 27))
         .sensitivity(32d)
         .build();
     ZeroRateSensitivity e = ZeroRateSensitivity.builder()
@@ -118,14 +118,14 @@ public class IborRateSensitivityTest {
     IborRateSensitivity test = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
-        .date(date(2015, 8, 27))
+        .fixingDate(date(2015, 8, 27))
         .sensitivity(32d)
         .build();
     coverImmutableBean(test);
     IborRateSensitivity test2 = IborRateSensitivity.builder()
         .index(USD_LIBOR_3M)
         .currency(USD)
-        .date(date(2015, 7, 27))
+        .fixingDate(date(2015, 7, 27))
         .sensitivity(16d)
         .build();
     coverBeanEquals(test, test2);
@@ -135,7 +135,7 @@ public class IborRateSensitivityTest {
     IborRateSensitivity test = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
-        .date(date(2015, 8, 27))
+        .fixingDate(date(2015, 8, 27))
         .sensitivity(32d)
         .build();
     assertSerialization(test);

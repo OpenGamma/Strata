@@ -111,10 +111,10 @@ public class MutableCurveGroupSensitivityTest {
     assertEquals(test.getSensitivities(), ImmutableList.of(CS1, CS2, CS3));
   }
 
-  public void test_clean() {
+  public void test_normalize() {
     MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1, CS3B));
-    test.clean();
+    test.normalize();
     assertEquals(test.getSensitivities(), ImmutableList.of(CS1, CS2, CS3.withSensitivity(35d)));
   }
 

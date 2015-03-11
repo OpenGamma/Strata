@@ -83,7 +83,7 @@ public class ZeroRateSensitivityTest {
     IborRateSensitivity d = IborRateSensitivity.builder()
         .index(GBP_LIBOR_3M)
         .currency(GBP)
-        .date(date(2015, 9, 27))
+        .fixingDate(date(2015, 9, 27))
         .sensitivity(32d)
         .build();
     assertEquals(a1.compareExcludingSensitivity(a2), 0);

@@ -47,10 +47,10 @@ public final class IborRateSensitivity
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Currency currency;
   /**
-   * The date that was looked up on the curve, which is the fixing date.
+   * The fixing date that was looked up on the curve.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final LocalDate date;
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate fixingDate;
   /**
    * The value of the sensitivity.
    */
@@ -78,8 +78,13 @@ public final class IborRateSensitivity
   }
 
   @Override
+  public LocalDate getDate() {
+    return fixingDate;
+  }
+
+  @Override
   public IborRateSensitivity withSensitivity(double sensitivity) {
-    return new IborRateSensitivity(index, currency, date, sensitivity);
+    return new IborRateSensitivity(index, currency, fixingDate, sensitivity);
   }
 
   @Override
@@ -89,7 +94,7 @@ public final class IborRateSensitivity
       return ComparisonChain.start()
           .compare(index.toString(), otherIbor.index.toString())
           .compare(currency, otherIbor.currency)
-          .compare(date, otherIbor.date)
+          .compare(fixingDate, otherIbor.fixingDate)
           .result();
     }
     return ComparisonChain.start()
@@ -127,14 +132,14 @@ public final class IborRateSensitivity
   private IborRateSensitivity(
       IborIndex index,
       Currency currency,
-      LocalDate date,
+      LocalDate fixingDate,
       double sensitivity) {
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notNull(date, "date");
+    JodaBeanUtils.notNull(fixingDate, "fixingDate");
     this.index = index;
     this.currency = currency;
-    this.date = date;
+    this.fixingDate = fixingDate;
     this.sensitivity = sensitivity;
   }
 
@@ -174,12 +179,11 @@ public final class IborRateSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the date that was looked up on the curve, which is the fixing date.
+   * Gets the fixing date that was looked up on the curve.
    * @return the value of the property, not null
    */
-  @Override
-  public LocalDate getDate() {
-    return date;
+  public LocalDate getFixingDate() {
+    return fixingDate;
   }
 
   //-----------------------------------------------------------------------
@@ -210,7 +214,7 @@ public final class IborRateSensitivity
       IborRateSensitivity other = (IborRateSensitivity) obj;
       return JodaBeanUtils.equal(getIndex(), other.getIndex()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getDate(), other.getDate()) &&
+          JodaBeanUtils.equal(getFixingDate(), other.getFixingDate()) &&
           JodaBeanUtils.equal(getSensitivity(), other.getSensitivity());
     }
     return false;
@@ -221,7 +225,7 @@ public final class IborRateSensitivity
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(getIndex());
     hash = hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash = hash * 31 + JodaBeanUtils.hashCode(getDate());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getFixingDate());
     hash = hash * 31 + JodaBeanUtils.hashCode(getSensitivity());
     return hash;
   }
@@ -232,7 +236,7 @@ public final class IborRateSensitivity
     buf.append("IborRateSensitivity{");
     buf.append("index").append('=').append(getIndex()).append(',').append(' ');
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("date").append('=').append(getDate()).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(getSensitivity()));
     buf.append('}');
     return buf.toString();
@@ -259,10 +263,10 @@ public final class IborRateSensitivity
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", IborRateSensitivity.class, Currency.class);
     /**
-     * The meta-property for the {@code date} property.
+     * The meta-property for the {@code fixingDate} property.
      */
-    private final MetaProperty<LocalDate> date = DirectMetaProperty.ofImmutable(
-        this, "date", IborRateSensitivity.class, LocalDate.class);
+    private final MetaProperty<LocalDate> fixingDate = DirectMetaProperty.ofImmutable(
+        this, "fixingDate", IborRateSensitivity.class, LocalDate.class);
     /**
      * The meta-property for the {@code sensitivity} property.
      */
@@ -275,7 +279,7 @@ public final class IborRateSensitivity
         this, null,
         "index",
         "currency",
-        "date",
+        "fixingDate",
         "sensitivity");
 
     /**
@@ -291,8 +295,8 @@ public final class IborRateSensitivity
           return index;
         case 575402001:  // currency
           return currency;
-        case 3076014:  // date
-          return date;
+        case 1255202043:  // fixingDate
+          return fixingDate;
         case 564403871:  // sensitivity
           return sensitivity;
       }
@@ -332,11 +336,11 @@ public final class IborRateSensitivity
     }
 
     /**
-     * The meta-property for the {@code date} property.
+     * The meta-property for the {@code fixingDate} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate> date() {
-      return date;
+    public MetaProperty<LocalDate> fixingDate() {
+      return fixingDate;
     }
 
     /**
@@ -355,8 +359,8 @@ public final class IborRateSensitivity
           return ((IborRateSensitivity) bean).getIndex();
         case 575402001:  // currency
           return ((IborRateSensitivity) bean).getCurrency();
-        case 3076014:  // date
-          return ((IborRateSensitivity) bean).getDate();
+        case 1255202043:  // fixingDate
+          return ((IborRateSensitivity) bean).getFixingDate();
         case 564403871:  // sensitivity
           return ((IborRateSensitivity) bean).getSensitivity();
       }
@@ -382,7 +386,7 @@ public final class IborRateSensitivity
 
     private IborIndex index;
     private Currency currency;
-    private LocalDate date;
+    private LocalDate fixingDate;
     private double sensitivity;
 
     /**
@@ -398,7 +402,7 @@ public final class IborRateSensitivity
     private Builder(IborRateSensitivity beanToCopy) {
       this.index = beanToCopy.getIndex();
       this.currency = beanToCopy.getCurrency();
-      this.date = beanToCopy.getDate();
+      this.fixingDate = beanToCopy.getFixingDate();
       this.sensitivity = beanToCopy.getSensitivity();
     }
 
@@ -410,8 +414,8 @@ public final class IborRateSensitivity
           return index;
         case 575402001:  // currency
           return currency;
-        case 3076014:  // date
-          return date;
+        case 1255202043:  // fixingDate
+          return fixingDate;
         case 564403871:  // sensitivity
           return sensitivity;
         default:
@@ -428,8 +432,8 @@ public final class IborRateSensitivity
         case 575402001:  // currency
           this.currency = (Currency) newValue;
           break;
-        case 3076014:  // date
-          this.date = (LocalDate) newValue;
+        case 1255202043:  // fixingDate
+          this.fixingDate = (LocalDate) newValue;
           break;
         case 564403871:  // sensitivity
           this.sensitivity = (Double) newValue;
@@ -469,7 +473,7 @@ public final class IborRateSensitivity
       return new IborRateSensitivity(
           index,
           currency,
-          date,
+          fixingDate,
           sensitivity);
     }
 
@@ -497,13 +501,13 @@ public final class IborRateSensitivity
     }
 
     /**
-     * Sets the {@code date} property in the builder.
-     * @param date  the new value, not null
+     * Sets the {@code fixingDate} property in the builder.
+     * @param fixingDate  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder date(LocalDate date) {
-      JodaBeanUtils.notNull(date, "date");
-      this.date = date;
+    public Builder fixingDate(LocalDate fixingDate) {
+      JodaBeanUtils.notNull(fixingDate, "fixingDate");
+      this.fixingDate = fixingDate;
       return this;
     }
 
@@ -524,7 +528,7 @@ public final class IborRateSensitivity
       buf.append("IborRateSensitivity.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
+      buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
       buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
       buf.append('}');
       return buf.toString();

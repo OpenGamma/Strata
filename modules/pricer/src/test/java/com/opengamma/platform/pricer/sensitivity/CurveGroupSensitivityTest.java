@@ -75,18 +75,18 @@ public class CurveGroupSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_cleaned_sorts() {
+  public void test_normalized_sorts() {
     CurveGroupSensitivity test = CurveGroupSensitivity.of(Lists.newArrayList(CS3, CS2, CS1));
-    assertEquals(test.cleaned().getSensitivities(), ImmutableList.of(CS1, CS2, CS3));
+    assertEquals(test.normalized().getSensitivities(), ImmutableList.of(CS1, CS2, CS3));
   }
 
-  public void test_cleaned_merges() {
+  public void test_normalized_merges() {
     CurveGroupSensitivity test = CurveGroupSensitivity.of(Lists.newArrayList(CS3, CS2, CS1, CS3B));
-    assertEquals(test.cleaned().getSensitivities(), ImmutableList.of(CS1, CS2, CS3.withSensitivity(35d)));
+    assertEquals(test.normalized().getSensitivities(), ImmutableList.of(CS1, CS2, CS3.withSensitivity(35d)));
   }
 
-  public void test_cleaned_empty() {
-    assertEquals(CurveGroupSensitivity.EMPTY.cleaned(), CurveGroupSensitivity.EMPTY);
+  public void test_normalized_empty() {
+    assertEquals(CurveGroupSensitivity.EMPTY.normalized(), CurveGroupSensitivity.EMPTY);
   }
 
   //-------------------------------------------------------------------------

@@ -144,14 +144,16 @@ public final class MutableCurveGroupSensitivity {
   }
 
   /**
-   * Cleans the point sensitivities by sorting and merging, mutating the internal list.
+   * Normalizes the point sensitivities by sorting and merging, mutating the internal list.
    * <p>
    * The list of sensitivities is sorted and then merged.
    * Any two entries that represent the same curve query are merged.
    * For example, if there are two point sensitivities that were created based on the same curve,
    * currency and fixing date, then the entries are combined, summing the sensitivity value.
+   * <p>
+   * The intention is that normalization occurs after gathering all the point sensitivities.
    */
-  public void clean() {
+  public void normalize() {
     sensitivities.sort(CurveSensitivity::compareExcludingSensitivity);
     CurveSensitivity previous = sensitivities.get(0);
     for (int i = 1; i < sensitivities.size(); i++) {

@@ -134,18 +134,20 @@ public final class CurveGroupSensitivity
   }
 
   /**
-   * Cleans the point sensitivities by sorting and merging.
+   * Normalizes the point sensitivities by sorting and merging.
    * <p>
    * The list of sensitivities is sorted and then merged.
    * Any two entries that represent the same curve query are merged.
    * For example, if there are two point sensitivities that were created based on the same curve,
    * currency and fixing date, then the entries are combined, summing the sensitivity value.
    * <p>
+   * The intention is that normalization occurs after gathering all the point sensitivities.
+   * <p>
    * This instance is immutable and unaffected by this method.
    * 
-   * @return a {@code CurveGroupSensitivity} based on this one, with the the sensitivities cleaned
+   * @return a {@code CurveGroupSensitivity} based on this one, with the the sensitivities normalized
    */
-  public CurveGroupSensitivity cleaned() {
+  public CurveGroupSensitivity normalized() {
     if (sensitivities.isEmpty()) {
       return this;
     }
