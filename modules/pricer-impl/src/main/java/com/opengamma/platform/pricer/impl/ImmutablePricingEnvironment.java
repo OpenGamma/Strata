@@ -133,19 +133,29 @@ public final class ImmutablePricingEnvironment
     ArgChecker.isTrue(
         index.getCurrencyPair().contains(baseCurrency),
         "Currency {} invalid for FxIndex {}", baseCurrency, index);
-    // historic rate
     boolean inverse = baseCurrency.equals(index.getCurrencyPair().getCounter());
     if (!fixingDate.isAfter(valuationDate)) {
-      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-      if (fixedRate.isPresent()) {
-        // if the index is the inverse of the desired pair, then invert it
-        double fxIndexRate = fixedRate.getAsDouble();
-        return (inverse ? 1d / fxIndexRate : fxIndexRate);
-      } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
-        throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-      }
+      return fxIndexHistoricRate(index, fixingDate, inverse);
     }
-    // forward rate
+    return fxIndexForwardRate(index, fixingDate, inverse);
+  }
+
+  // historic rate
+  private double fxIndexHistoricRate(FxIndex index, LocalDate fixingDate, boolean inverse) {
+    OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
+    if (fixedRate.isPresent()) {
+      // if the index is the inverse of the desired pair, then invert it
+      double fxIndexRate = fixedRate.getAsDouble();
+      return (inverse ? 1d / fxIndexRate : fxIndexRate);
+    } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
+      throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
+    } else {
+      return fxIndexForwardRate(index, fixingDate, inverse);
+    }
+  }
+
+  // forward rate
+  private double fxIndexForwardRate(FxIndex index, LocalDate fixingDate, boolean inverse) {
     // use the specified base currency to determine the desired currency pair
     // then derive rate from discount factors based off desired currency pair, not that of the index
     CurrencyPair pair = inverse ? index.getCurrencyPair().inverse() : index.getCurrencyPair();
@@ -160,16 +170,26 @@ public final class ImmutablePricingEnvironment
   public double iborIndexRate(IborIndex index, LocalDate fixingDate) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(fixingDate, "fixingDate");
-    // historic rate
     if (!fixingDate.isAfter(valuationDate)) {
-      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-      if (fixedRate.isPresent()) {
-        return fixedRate.getAsDouble();
-      } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
-        throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-      }
+      return iborIndexHistoricRate(index, fixingDate);
     }
-    // forward rate
+    return iborIndexForwardRate(index, fixingDate);
+  }
+
+  // historic rate
+  private double iborIndexHistoricRate(IborIndex index, LocalDate fixingDate) {
+    OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
+    if (fixedRate.isPresent()) {
+      return fixedRate.getAsDouble();
+    } else if (fixingDate.isBefore(valuationDate)) { // the fixing is required
+      throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
+    } else {
+      return iborIndexForwardRate(index, fixingDate);
+    }
+  }
+
+  // forward rate
+  private double iborIndexForwardRate(IborIndex index, LocalDate fixingDate) {
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
@@ -184,14 +204,25 @@ public final class ImmutablePricingEnvironment
     ArgChecker.notNull(fixingDate, "fixingDate");
     LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
     if (!publicationDate.isAfter(valuationDate)) {
-      OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
-      if (fixedRate.isPresent()) {
-        return fixedRate.getAsDouble();
-      } else if (publicationDate.isBefore(valuationDate)) { // the fixing is required
-        throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
-      }
+      return overnightIndexHistoricRate(index, fixingDate, publicationDate);
     }
-    // forward rate
+    return overnightIndexForwardRate(index, fixingDate);
+  }
+
+  // historic rate
+  private double overnightIndexHistoricRate(OvernightIndex index, LocalDate fixingDate, LocalDate publicationDate) {
+    OptionalDouble fixedRate = timeSeries(index).get(fixingDate);
+    if (fixedRate.isPresent()) {
+      return fixedRate.getAsDouble();
+    } else if (publicationDate.isBefore(valuationDate)) { // the fixing is required
+      throw new PricingException(Messages.format("Unable to get fixing for {} on date {}", index, fixingDate));
+    } else {
+      return overnightIndexForwardRate(index, fixingDate);
+    }
+  }
+
+  // forward rate
+  private double overnightIndexForwardRate(OvernightIndex index, LocalDate fixingDate) {
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
     LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
     double fixingYearFraction = index.getDayCount().yearFraction(fixingStartDate, fixingEndDate);
