@@ -78,6 +78,7 @@ public class DefaultExpandedSwapPricerFn
     }
   }
 
+  @Override
   public Pair<MultiCurrencyAmount, MulticurveSensitivity3LD> presentValueCurveSensitivity3LD(
       PricingEnvironment env, ExpandedSwap swap) {
     MulticurveSensitivity3LD sensi = new MulticurveSensitivity3LD();

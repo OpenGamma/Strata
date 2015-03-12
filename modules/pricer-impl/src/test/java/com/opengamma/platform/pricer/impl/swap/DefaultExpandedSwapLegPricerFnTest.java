@@ -81,14 +81,14 @@ public class DefaultExpandedSwapLegPricerFnTest {
     forwardRateSensi.add(fwdSense);
     MulticurveSensitivity3LD sensiPeriod = MulticurveSensitivity3LD.ofForwardRate(forwardRateSensi);
     List<ZeroRateSensitivityLD> dscRateSensi = new ArrayList<>();
-    ZeroRateSensitivityLD dscSense = new ZeroRateSensitivityLD(ccy, paymentDate, 162.0, ccy);
+    ZeroRateSensitivityLD dscSense = new ZeroRateSensitivityLD(ccy, paymentDate, -162.0, ccy);
     dscRateSensi.add(dscSense);
     MulticurveSensitivity3LD sensiDsc = MulticurveSensitivity3LD.ofZeroRate(dscRateSensi);
     sensiPeriod.add(sensiDsc);
 
     LocalDate paymentDateEvent = SwapDummyData.NOTIONAL_EXCHANGE.getPaymentDate();
     List<ZeroRateSensitivityLD> dscRateSensiEvent = new ArrayList<>();
-    ZeroRateSensitivityLD dscSenseEvent = new ZeroRateSensitivityLD(ccy, paymentDateEvent, 134.0, ccy);
+    ZeroRateSensitivityLD dscSenseEvent = new ZeroRateSensitivityLD(ccy, paymentDateEvent, -134.0, ccy);
     dscRateSensiEvent.add(dscSenseEvent);
     MulticurveSensitivity3LD sensiEvent = MulticurveSensitivity3LD.ofZeroRate(dscRateSensiEvent);
 
