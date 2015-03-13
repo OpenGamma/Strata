@@ -13,6 +13,8 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
 import com.opengamma.platform.pricer.impl.observation.DispatchingRateObservationFn;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer implementation for forward rate agreements.
@@ -54,6 +56,20 @@ public class DiscountingExpandedFraPricerFn
   }
 
   @Override
+  public PointSensitivities presentValueSensitivity(PricingEnvironment env, ExpandedFra fra) {
+    double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
+    double notional = fra.getNotional();
+    double unitAmount = unitAmount(env, fra);
+    double derivative = derivative(env, fra);
+    PointSensitivityBuilder iborSens = forwardRateSensitivity(env, fra)
+        .multipliedBy(derivative * df * notional);
+    PointSensitivityBuilder discSens = env.discountFactorZeroRateSensitivity(fra.getCurrency(), fra.getPaymentDate())
+        .multipliedBy(unitAmount * notional);
+    return iborSens.withCurrency(fra.getCurrency()).combinedWith(discSens).build();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public MultiCurrencyAmount futureValue(PricingEnvironment env, ExpandedFra fra) {
     double notional = fra.getNotional();
     double unitAmount = unitAmount(env, fra);
@@ -61,27 +77,28 @@ public class DiscountingExpandedFraPricerFn
     return MultiCurrencyAmount.of(fra.getCurrency(), fv);
   }
 
+  @Override
+  public PointSensitivities futureValueSensitivity(PricingEnvironment env, ExpandedFra fra) {
+    double notional = fra.getNotional();
+    double derivative = derivative(env, fra);
+    PointSensitivityBuilder iborSens = forwardRateSensitivity(env, fra)
+        .multipliedBy(derivative * notional);
+    return iborSens.withCurrency(fra.getCurrency()).build();
+  }
+
   //-------------------------------------------------------------------------
   // unit amount in various discounting methods
   private double unitAmount(PricingEnvironment env, ExpandedFra fra) {
     switch (fra.getDiscounting()) {
+      case NONE:
+        return unitAmountNone(env, fra);
       case ISDA:
         return unitAmountIsda(env, fra);
       case AFMA:
         return unitAmountAfma(env, fra);
-      case NONE:
-        return unitAmountNone(env, fra);
       default:
         throw new IllegalArgumentException("Unknown FraDiscounting value: " + fra.getDiscounting());
     }
-  }
-
-  // ISDA discounting method
-  private double unitAmountIsda(PricingEnvironment env, ExpandedFra fra) {
-    double fixedRate = fra.getFixedRate();
-    double forwardRate = forwardRate(env, fra);
-    double yearFraction = fra.getYearFraction();
-    return ((forwardRate - fixedRate) / (1.0 + forwardRate * yearFraction)) * yearFraction;
   }
 
   // NONE discounting method
@@ -92,6 +109,14 @@ public class DiscountingExpandedFraPricerFn
     return (forwardRate - fixedRate) * yearFraction;
   }
 
+  // ISDA discounting method
+  private double unitAmountIsda(PricingEnvironment env, ExpandedFra fra) {
+    double fixedRate = fra.getFixedRate();
+    double forwardRate = forwardRate(env, fra);
+    double yearFraction = fra.getYearFraction();
+    return ((forwardRate - fixedRate) / (1.0 + forwardRate * yearFraction)) * yearFraction;
+  }
+
   // AFMA discounting method
   private double unitAmountAfma(PricingEnvironment env, ExpandedFra fra) {
     double fixedRate = fra.getFixedRate();
@@ -100,9 +125,51 @@ public class DiscountingExpandedFraPricerFn
     return (1.0 / (1.0 + fixedRate * yearFraction)) - (1.0 / (1.0 + forwardRate * yearFraction));
   }
 
+  //-------------------------------------------------------------------------
+  private double derivative(PricingEnvironment env, ExpandedFra fra) {
+    switch (fra.getDiscounting()) {
+      case NONE:
+        return derivativeNone(env, fra);
+      case ISDA:
+        return derivativeIsda(env, fra);
+      case AFMA:
+        return derivativeAfma(env, fra);
+      default:
+        throw new IllegalArgumentException("Unknown FraDiscounting value: " + fra.getDiscounting());
+    }
+  }
+
+  // NONE discounting method
+  private double derivativeNone(PricingEnvironment env, ExpandedFra fra) {
+    return fra.getYearFraction();
+  }
+
+  // ISDA discounting method
+  private double derivativeIsda(PricingEnvironment env, ExpandedFra fra) {
+    double fixedRate = fra.getFixedRate();
+    double forwardRate = forwardRate(env, fra);
+    double yearFraction = fra.getYearFraction();
+    double dsc = 1.0 / (1.0 + forwardRate * yearFraction);
+    return (1.0 + fixedRate * yearFraction) * yearFraction * dsc * dsc;
+  }
+
+  // AFMA discounting method
+  private double derivativeAfma(PricingEnvironment env, ExpandedFra fra) {
+    double forwardRate = forwardRate(env, fra);
+    double yearFraction = fra.getYearFraction();
+    double dsc = 1.0 / (1.0 + forwardRate * yearFraction);
+    return yearFraction * dsc * dsc;
+  }
+
+  //-------------------------------------------------------------------------
   // query the forward rate
   private double forwardRate(PricingEnvironment env, ExpandedFra fra) {
     return rateObservationFn.rate(env, fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate());
+  }
+
+  // query the sensitivity
+  private PointSensitivityBuilder forwardRateSensitivity(PricingEnvironment env, ExpandedFra fra) {
+    return rateObservationFn.rateSensitivity(env, fra.getFloatingRate(), fra.getStartDate(), fra.getEndDate());
   }
 
 }

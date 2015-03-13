@@ -213,7 +213,8 @@ public final class ImmutablePricingEnvironment
   public PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(fixingDate, "fixingDate");
-    if (!fixingDate.isAfter(valuationDate) && timeSeries(index).get(fixingDate).isPresent()) {
+    if (fixingDate.isBefore(valuationDate) ||
+        (fixingDate.equals(valuationDate) && timeSeries(index).get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
     return IborRateSensitivity.of(index, fixingDate, 1d);
@@ -256,7 +257,9 @@ public final class ImmutablePricingEnvironment
   public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(fixingDate, "fixingDate");
-    if (!fixingDate.isAfter(valuationDate) && timeSeries(index).get(fixingDate).isPresent()) {
+    LocalDate publicationDate = index.calculatePublicationFromFixing(fixingDate);
+    if (publicationDate.isBefore(valuationDate) ||
+        (publicationDate.equals(valuationDate) && timeSeries(index).get(fixingDate).isPresent())) {
       return PointSensitivityBuilder.none();
     }
     LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);

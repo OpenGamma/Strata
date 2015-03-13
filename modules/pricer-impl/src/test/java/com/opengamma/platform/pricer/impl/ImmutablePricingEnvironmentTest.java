@@ -33,6 +33,10 @@ import com.opengamma.basics.currency.CurrencyPair;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.basics.index.IborIndices;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
+import com.opengamma.platform.pricer.sensitivity.OvernightRateSensitivity;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.platform.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
  * Test.
@@ -87,9 +91,9 @@ public class ImmutablePricingEnvironmentTest {
 
   //-------------------------------------------------------------------------
   public void test_discountFactor() {
-    double dayCount = ACT_ACT_ISDA.yearFraction(VAL_DATE, LocalDate.of(2014, 7, 30));
+    double relativeTime = ACT_ACT_ISDA.yearFraction(VAL_DATE, LocalDate.of(2014, 7, 30));
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
-    Mockito.when(mock.getDiscountFactor(OLD_GBP, dayCount)).thenReturn(0.99d);
+    Mockito.when(mock.getDiscountFactor(OLD_GBP, relativeTime)).thenReturn(0.99d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
         .multicurve(mock)
@@ -97,6 +101,21 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.discountFactor(GBP, LocalDate.of(2014, 7, 30)), 0.99d, 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_discountFactorZeroRateSensitivity() {
+    double relativeTime = ACT_ACT_ISDA.yearFraction(VAL_DATE, LocalDate.of(2014, 7, 30));
+    MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
+    Mockito.when(mock.getDiscountFactor(OLD_GBP, relativeTime)).thenReturn(0.99d);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(mock)
+        .timeSeries(SwapMockData.TIME_SERIES)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    PointSensitivityBuilder expected = ZeroRateSensitivity.of(GBP, LocalDate.of(2014, 7, 30), -0.99d * relativeTime);
+    assertEquals(test.discountFactorZeroRateSensitivity(GBP, LocalDate.of(2014, 7, 30)), expected);
   }
 
   //-------------------------------------------------------------------------
@@ -223,6 +242,7 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, PREV_DATE), 0.0123d, 0d);
+    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, PREV_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_iborIndexRate_beforeToday_notInTimeSeries() {
@@ -236,6 +256,8 @@ public class ImmutablePricingEnvironmentTest {
     assertThrows(
         () -> test.iborIndexRate(USD_LIBOR_3M, PREV_DATE),
         PricingException.class);
+    // sensitivity succeeds, as result would be no sensitivity whether data is there or not
+    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, PREV_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_iborIndexRate_today_inTimeSeries() {
@@ -247,6 +269,7 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, VAL_DATE), 0.0123d, 0d);
+    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, VAL_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_iborIndexRate_today_notInTimeSeries() {
@@ -266,6 +289,9 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, VAL_DATE), 0.0123d, 0d);
+
+    PointSensitivityBuilder sens = IborRateSensitivity.of(USD_LIBOR_3M, VAL_DATE, 1.0);
+    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, VAL_DATE), sens);
   }
 
   public void test_iborIndexRate_afterToday() {
@@ -285,6 +311,9 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.iborIndexRate(USD_LIBOR_3M, NEXT_DATE), 0.0123d, 0d);
+
+    PointSensitivityBuilder sens = IborRateSensitivity.of(USD_LIBOR_3M, LocalDate.of(2014, 7, 30), 1.0);
+    assertEquals(test.iborIndexRateSensitivity(USD_LIBOR_3M, LocalDate.of(2014, 7, 30)), sens);
   }
 
   //-------------------------------------------------------------------------
@@ -297,9 +326,10 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV2_DATE), 0.0123d, 0d);
+    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, PREV2_DATE), PointSensitivityBuilder.none());
   }
 
-  public void test_overnightIndexRateFixing_beforePublication_NotInTimeSeries() {
+  public void test_overnightIndexRateFixing_beforePublication_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
         .valuationDate(VAL_DATE)
@@ -310,6 +340,8 @@ public class ImmutablePricingEnvironmentTest {
     assertThrows(
         () -> test.overnightIndexRate(USD_FED_FUND, PREV2_DATE),
         PricingException.class);
+    // sensitivity succeeds, as result would be no sensitivity whether data is there or not
+    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, PREV2_DATE), PointSensitivityBuilder.none());
   }
 
   public void test_overnightIndexRateFixing_publication_inTimeSeries() {
@@ -321,9 +353,10 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV_DATE), 0.0123d, 0d);
+    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, PREV_DATE), PointSensitivityBuilder.none());
   }
 
-  public void test_overnightIndexRateFixing_publication_NotInTimeSeries() {
+  public void test_overnightIndexRateFixing_publication_notInTimeSeries() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     LocalDate effectiveDate = USD_FED_FUND.calculateEffectiveFromFixing(PREV_DATE);
@@ -340,6 +373,8 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRate(USD_FED_FUND, PREV_DATE), 0.0123d, 0d);
+    PointSensitivityBuilder sens = OvernightRateSensitivity.of(USD_FED_FUND, PREV_DATE, 1d);
+    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, PREV_DATE), sens);
   }
 
   public void test_overnightIndexRateFixing_afterPublication() {
@@ -359,10 +394,12 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRate(USD_FED_FUND, NEXT_DATE), 0.0123d, 0d);
+    PointSensitivityBuilder sens = OvernightRateSensitivity.of(USD_FED_FUND, NEXT_DATE, 1d);
+    assertEquals(test.overnightIndexRateSensitivity(USD_FED_FUND, NEXT_DATE), sens);
   }
 
   //-------------------------------------------------------------------------
-  public void test_overnightIndexRateForward_badDatesNotSorted() {
+  public void test_overnightIndexRatePeriod_badDatesNotSorted() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
@@ -372,9 +409,10 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertThrowsIllegalArg(() -> test.overnightIndexRatePeriod(USD_FED_FUND, NEXT_DATE, VAL_DATE));
+    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriodSensitivity(USD_FED_FUND, NEXT_DATE, VAL_DATE));
   }
 
-  public void test_overnightIndexRateForward_BadDateInPast() {
+  public void test_overnightIndexRatePeriod_BadDateInPast() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
@@ -384,9 +422,10 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertThrowsIllegalArg(() -> test.overnightIndexRatePeriod(USD_FED_FUND, PREV2_DATE, PREV_DATE));
+    assertThrowsIllegalArg(() -> test.overnightIndexRatePeriodSensitivity(USD_FED_FUND, PREV2_DATE, PREV_DATE));
   }
 
-  public void test_overnightIndexRateForward_forward() {
+  public void test_overnightIndexRatePeriod_forward() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.empty();
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     LocalDate startDate = NEXT_DATE;
@@ -403,6 +442,8 @@ public class ImmutablePricingEnvironmentTest {
         .dayCount(ACT_ACT_ISDA)
         .build();
     assertEquals(test.overnightIndexRatePeriod(USD_FED_FUND, startDate, endDate), 0.0123d, 0d);
+    PointSensitivityBuilder sens = OvernightRateSensitivity.of(USD_FED_FUND, USD, startDate, endDate, 1d);
+    assertEquals(test.overnightIndexRatePeriodSensitivity(USD_FED_FUND, startDate, endDate), sens);
   }
 
   //-------------------------------------------------------------------------
