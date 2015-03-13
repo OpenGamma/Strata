@@ -15,6 +15,7 @@ import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
 * Rate observation implementation for a rate based on a single overnight index that is compounded.
@@ -46,6 +47,15 @@ public class ForwardOvernightCompoundedRateObservationFn
       LocalDate startDate,
       LocalDate endDate) {
     return new ObservationDetails(env, observation).calculateRate();
+  }
+
+  @Override
+  public PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      OvernightCompoundedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+    throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------

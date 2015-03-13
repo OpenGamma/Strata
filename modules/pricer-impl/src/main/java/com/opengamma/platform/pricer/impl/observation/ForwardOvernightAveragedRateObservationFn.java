@@ -11,6 +11,7 @@ import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
 * Rate observation implementation for a rate based on a single overnight index that is arithmetically averaged.
@@ -72,6 +73,15 @@ public class ForwardOvernightAveragedRateObservationFn
     }
     // final rate
     return accumulatedInterest / accrualFactorTotal;
+  }
+
+  @Override
+  public PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      OvernightAveragedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+    throw new UnsupportedOperationException();
   }
 
 }

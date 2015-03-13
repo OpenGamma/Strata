@@ -16,6 +16,7 @@ import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * The pricing environment used to calculate analytic measures.
@@ -58,21 +59,6 @@ public interface PricingEnvironment {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the discount factor applicable for a currency.
-   * <p>
-   * The discount factor represents the time value of money for the specified currency
-   * when comparing the valuation date to the specified date.
-   * <p>
-   * If the valuation date is on or after the specified date, the discount factor is 1.
-   * 
-   * @param currency  the currency to get the discount factor for
-   * @param date  the date to discount to
-   * @return the discount factor
-   */
-  public abstract double discountFactor(Currency currency, LocalDate date);
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the FX rate for a currency pair on the valuation date.
    * <p>
    * The rate returned is the rate from the base to counter as defined by the
@@ -95,6 +81,35 @@ public interface PricingEnvironment {
    * @return the converted amount
    */
   public abstract CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency currency);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the discount factor applicable for a currency.
+   * <p>
+   * The discount factor represents the time value of money for the specified currency
+   * when comparing the valuation date to the specified date.
+   * <p>
+   * If the valuation date is on or after the specified date, the discount factor is 1.
+   * 
+   * @param currency  the currency to get the discount factor for
+   * @param date  the date to discount to
+   * @return the discount factor
+   */
+  public abstract double discountFactor(Currency currency, LocalDate date);
+
+  /**
+   * Gets the zero rate curve sensitivity for the discount factor.
+   * <p>
+   * This returns a sensitivity instance referring to the zero rate sensitivity of the curve
+   * used to determine the discount factor.
+   * The sensitivity typically has the value {@code (-discountFactor * relativeTime)}.
+   * The sensitivity refers to the result of {@link #discountFactor(Currency, LocalDate)}.
+   * 
+   * @param currency  the currency to get the sensitivity for
+   * @param date  the date to discount to
+   * @return the point sensitivity of the zero rate
+   */
+  public abstract PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date);
 
   //-------------------------------------------------------------------------
   /**
@@ -143,6 +158,20 @@ public interface PricingEnvironment {
    */
   public abstract double iborIndexRate(IborIndex index, LocalDate fixingDate);
 
+  /**
+   * Gets the basic curve sensitivity for the forward rate of an IBOR-like index.
+   * <p>
+   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * If a time-series was used, then there is no sensitivity.
+   * Otherwise, the sensitivity has the value 1.
+   * The sensitivity refers to the result of {@link #iborIndexRate(IborIndex, LocalDate)}.
+   * 
+   * @param index  the index to lookup
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the point sensitivity of the rate
+   */
+  public abstract PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate);
+
   //-------------------------------------------------------------------------
   /**
    * Gets the historic or forward rate of an Overnight index.
@@ -163,6 +192,21 @@ public interface PricingEnvironment {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the basic curve sensitivity for the forward rate of an Overnight index.
+   * <p>
+   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * If a time-series was used, then there is no sensitivity.
+   * Otherwise, the sensitivity has the value 1.
+   * The sensitivity refers to the result of {@link #overnightIndexRate(OvernightIndex, LocalDate)}.
+   * 
+   * @param index  the overnight index to lookup
+   * @param fixingDate  the fixing date to query the rate for
+   * @return the point sensitivity of the rate
+   */
+  public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate);
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the forward rate of an overnight index on a given period, potentially different from an overnight period.
    * <p>
    * The start date should be on or after the valuation date. The end date should be after the start date.
@@ -180,6 +224,25 @@ public interface PricingEnvironment {
    *  the start and end date of the period
    */
   public abstract double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate);
+
+  /**
+   * Gets the basic curve sensitivity for the forward rate of an Overnight index on a given period.
+   * <p>
+   * This returns a sensitivity instance referring to the curve used to determine the forward rate.
+   * The sensitivity will have the value 1.
+   * The sensitivity refers to the result of {@link #overnightIndexRatePeriod(OvernightIndex, LocalDate, LocalDate)}.
+   * 
+   * @param index  the overnight index to lookup
+   * @param startDate  the start or effective date of the period on which the rate is computed
+   * @param endDate  the end or maturity date of the period on which the rate is computed
+   * @return the point sensitivity of the rate
+   * @throws IllegalArgumentException when data stored based on the fixing date and not
+   *  the start and end date of the period
+   */
+  public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
+      OvernightIndex index,
+      LocalDate startDate,
+      LocalDate endDate);
 
   //-------------------------------------------------------------------------
   /**

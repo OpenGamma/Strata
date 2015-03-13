@@ -17,6 +17,7 @@ import com.opengamma.platform.finance.observation.OvernightCompoundedRateObserva
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Rate observation implementation using multiple dispatch.
@@ -72,7 +73,9 @@ public class DispatchingRateObservationFn
       RateObservationFn<IborAveragedRateObservation> iborAveragedRateObservationFn,
       RateObservationFn<OvernightCompoundedRateObservation> overnightCompoundedRateObservationFn,
       RateObservationFn<OvernightAveragedRateObservation> overnightAveragedRateObservationFn) {
-    this.iborRateObservationFn = ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
+
+    this.iborRateObservationFn =
+        ArgChecker.notNull(iborRateObservationFn, "iborRateObservationFn");
     this.iborInterpolatedRateObservationFn =
         ArgChecker.notNull(iborInterpolatedRateObservationFn, "iborInterpolatedRateObservationFn");
     this.iborAveragedRateObservationFn =
@@ -90,22 +93,56 @@ public class DispatchingRateObservationFn
       RateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
+
     // dispatch by runtime type
     if (observation instanceof FixedRateObservation) {
       // inline code (performance) avoiding need for FixedRateObservationFn implementation
       return ((FixedRateObservation) observation).getRate();
     } else if (observation instanceof IborRateObservation) {
-      return iborRateObservationFn.rate(env, (IborRateObservation) observation, startDate, endDate);
+      return iborRateObservationFn.rate(
+          env, (IborRateObservation) observation, startDate, endDate);
     } else if (observation instanceof IborInterpolatedRateObservation) {
       return iborInterpolatedRateObservationFn.rate(
           env, (IborInterpolatedRateObservation) observation, startDate, endDate);
     } else if (observation instanceof IborAveragedRateObservation) {
-      return iborAveragedRateObservationFn.rate(env, (IborAveragedRateObservation) observation, startDate, endDate);
+      return iborAveragedRateObservationFn.rate(
+          env, (IborAveragedRateObservation) observation, startDate, endDate);
     } else if (observation instanceof OvernightAveragedRateObservation) {
       return overnightAveragedRateObservationFn.rate(
           env, (OvernightAveragedRateObservation) observation, startDate, endDate);
     } else if (observation instanceof OvernightCompoundedRateObservation) {
       return overnightCompoundedRateObservationFn.rate(
+          env, (OvernightCompoundedRateObservation) observation, startDate, endDate);
+    } else {
+      throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());
+    }
+  }
+
+  @Override
+  public PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      RateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+
+    // dispatch by runtime type
+    if (observation instanceof FixedRateObservation) {
+      // inline code (performance) avoiding need for FixedRateObservationFn implementation
+      return PointSensitivityBuilder.none();
+    } else if (observation instanceof IborRateObservation) {
+      return iborRateObservationFn.rateSensitivity(
+          env, (IborRateObservation) observation, startDate, endDate);
+    } else if (observation instanceof IborInterpolatedRateObservation) {
+      return iborInterpolatedRateObservationFn.rateSensitivity(
+          env, (IborInterpolatedRateObservation) observation, startDate, endDate);
+    } else if (observation instanceof IborAveragedRateObservation) {
+      return iborAveragedRateObservationFn.rateSensitivity(
+          env, (IborAveragedRateObservation) observation, startDate, endDate);
+    } else if (observation instanceof OvernightAveragedRateObservation) {
+      return overnightAveragedRateObservationFn.rateSensitivity(
+          env, (OvernightAveragedRateObservation) observation, startDate, endDate);
+    } else if (observation instanceof OvernightCompoundedRateObservation) {
+      return overnightCompoundedRateObservationFn.rateSensitivity(
           env, (OvernightCompoundedRateObservation) observation, startDate, endDate);
     } else {
       throw new IllegalArgumentException("Unknown Rate type: " + observation.getClass().getSimpleName());

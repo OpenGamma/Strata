@@ -12,6 +12,7 @@ import com.opengamma.platform.finance.observation.IborAveragedFixing;
 import com.opengamma.platform.finance.observation.IborAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Rate observation implementation for a rate based on the average of multiple fixings of a
@@ -41,6 +42,7 @@ public class ForwardIborAveragedRateObservationFn
       IborAveragedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
+
     // take (rate * weight) for each fixing and divide by total weight
     double weightedRate = observation.getFixings().stream()
         .mapToDouble(fixing -> weightedRate(env, observation.getIndex(), fixing))
@@ -52,6 +54,31 @@ public class ForwardIborAveragedRateObservationFn
   private double weightedRate(PricingEnvironment env, IborIndex iborIndex, IborAveragedFixing fixing) {
     double rate = fixing.getFixedRate().orElse(env.iborIndexRate(iborIndex, fixing.getFixingDate()));
     return rate * fixing.getWeight();
+  }
+
+  @Override
+  public PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      IborAveragedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+
+    // combine the weighted sensitivity to each fixing
+    // omit fixed rates as they have no sensitivity to a curve
+    return observation.getFixings().stream()
+        .filter(fixing -> !fixing.getFixedRate().isPresent())
+        .map(fixing -> weightedSensitivity(env, observation, fixing))
+        .reduce(PointSensitivityBuilder.none(), PointSensitivityBuilder::combinedWith);
+  }
+
+  // Compute the weighted sensitivity for one IborAverageFixing.
+  private PointSensitivityBuilder weightedSensitivity(
+      PricingEnvironment env,
+      IborAveragedRateObservation observation,
+      IborAveragedFixing fixing) {
+
+    return env.iborIndexRateSensitivity(observation.getIndex(), fixing.getFixingDate())
+        .multipliedBy(fixing.getWeight() / observation.getTotalWeight());
   }
 
 }

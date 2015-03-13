@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
 * Rate observation implementation for an IBOR-like index.
@@ -38,6 +39,15 @@ public class ForwardIborRateObservationFn
       LocalDate startDate,
       LocalDate endDate) {
     return env.iborIndexRate(observation.getIndex(), observation.getFixingDate());
+  }
+
+  @Override
+  public PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      IborRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+    return env.iborIndexRateSensitivity(observation.getIndex(), observation.getFixingDate());
   }
 
 }
