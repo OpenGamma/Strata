@@ -33,20 +33,20 @@ import com.opengamma.collect.Guavate;
 /**
  * Sensitivity to a group of curves.
  * <p>
- * Contains a list of {@linkplain CurveSensitivity point sensitivity} objects, each
+ * Contains a list of {@linkplain PointSensitivity point sensitivity} objects, each
  * referring to a specific point on a curve that was queried.
  * The order of the list has no specific meaning, but does allow duplicates.
  * <p>
- * When creating an instance, consider using {@link MutableCurveGroupSensitivity}.
+ * When creating an instance, consider using {@link MutablePointSensitivities}.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurveGroupSensitivity
+public final class PointSensitivities
     implements ImmutableBean, Serializable {
 
   /**
-   * An empty group sensitivities instance.
+   * A group sensitivities instance to be used when there is no sensitivity.
    */
-  public static final CurveGroupSensitivity EMPTY = new CurveGroupSensitivity(ImmutableList.of());
+  public static final PointSensitivities NONE = new PointSensitivities(ImmutableList.of());
 
   /**
    * The point sensitivities.
@@ -54,18 +54,28 @@ public final class CurveGroupSensitivity
    * Each entry includes details of the curve it relates to.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableList<CurveSensitivity> sensitivities;
+  private final ImmutableList<PointSensitivity> sensitivities;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a {@code CurveGroupSensitivity} from a list of point sensitivities.
+   * Obtains a {@code PointSensitivities} from a single point sensitivity.
+   * 
+   * @param sensitivity  the sensitivity
+   * @return the sensitivities instance
+   */
+  public static PointSensitivities of(PointSensitivity sensitivity) {
+    return PointSensitivities.of(ImmutableList.of(sensitivity));
+  }
+
+  /**
+   * Obtains a {@code PointSensitivities} from a list of point sensitivities.
    * 
    * @param sensitivities  the list of sensitivities
    * @return the sensitivities instance
    */
   @SuppressWarnings("unchecked")
-  public static CurveGroupSensitivity of(List<? extends CurveSensitivity> sensitivities) {
-    return new CurveGroupSensitivity((List<CurveSensitivity>) sensitivities);
+  public static PointSensitivities of(List<? extends PointSensitivity> sensitivities) {
+    return new PointSensitivities((List<PointSensitivity>) sensitivities);
   }
 
   //-----------------------------------------------------------------------
@@ -80,7 +90,7 @@ public final class CurveGroupSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Merges this group sensitivity with another instance.
+   * Combines this group sensitivity with another instance.
    * <p>
    * This returns a new group sensitivity with a combined list of point sensitivities.
    * This instance is immutable and unaffected by this method.
@@ -89,8 +99,8 @@ public final class CurveGroupSensitivity
    * @param other  the other group sensitivity
    * @return a {@code CurveGroupSensitivity} based on this one, with the other instance added
    */
-  public CurveGroupSensitivity combinedWith(CurveGroupSensitivity other) {
-    return new CurveGroupSensitivity(ImmutableList.<CurveSensitivity>builder()
+  public PointSensitivities combinedWith(PointSensitivities other) {
+    return new PointSensitivities(ImmutableList.<PointSensitivity>builder()
         .addAll(sensitivities)
         .addAll(other.sensitivities)
         .build());
@@ -105,7 +115,7 @@ public final class CurveGroupSensitivity
    * @param factor  the multiplicative factor
    * @return a {@code CurveGroupSensitivity} based on this one, with each sensitivity multiplied by the factor
    */
-  public CurveGroupSensitivity multipliedBy(double factor) {
+  public PointSensitivities multipliedBy(double factor) {
     return mapSensitivities(s -> s * factor);
   }
 
@@ -124,13 +134,13 @@ public final class CurveGroupSensitivity
    * @param operator  the operator to be applied to the sensitivities
    * @return a {@code CurveGroupSensitivity} based on this one, with the operator applied to the point sensitivities
    */
-  public CurveGroupSensitivity mapSensitivities(DoubleUnaryOperator operator) {
+  public PointSensitivities mapSensitivities(DoubleUnaryOperator operator) {
     return sensitivities.stream()
         .map(cs -> cs.withSensitivity(operator.applyAsDouble(cs.getSensitivity())))
         .collect(
             Collectors.collectingAndThen(
                 Guavate.toImmutableList(),
-                CurveGroupSensitivity::new));
+                PointSensitivities::new));
   }
 
   /**
@@ -147,15 +157,15 @@ public final class CurveGroupSensitivity
    * 
    * @return a {@code CurveGroupSensitivity} based on this one, with the the sensitivities normalized
    */
-  public CurveGroupSensitivity normalized() {
+  public PointSensitivities normalized() {
     if (sensitivities.isEmpty()) {
       return this;
     }
-    List<CurveSensitivity> mutable = new ArrayList<>(sensitivities);
-    mutable.sort(CurveSensitivity::compareExcludingSensitivity);
-    CurveSensitivity last = mutable.get(0);
+    List<PointSensitivity> mutable = new ArrayList<>(sensitivities);
+    mutable.sort(PointSensitivity::compareExcludingSensitivity);
+    PointSensitivity last = mutable.get(0);
     for (int i = 1; i < mutable.size(); i++) {
-      CurveSensitivity current = mutable.get(i);
+      PointSensitivity current = mutable.get(i);
       if (current.compareExcludingSensitivity(last) == 0) {
         mutable.set(i - 1, last.withSensitivity(last.getSensitivity() + current.getSensitivity()));
         mutable.remove(i);
@@ -163,34 +173,34 @@ public final class CurveGroupSensitivity
       }
       last = current;
     }
-    return new CurveGroupSensitivity(mutable);
+    return new PointSensitivities(mutable);
   }
 
   //-----------------------------------------------------------------------
   /**
    * Returns a mutable version of this object.
    * <p>
-   * The result is the mutable {@link MutableCurveGroupSensitivity} class.
+   * The result is the mutable {@link MutablePointSensitivities} class.
    * It will contain the same individual point sensitivities.
    * 
    * @return the mutable sensitivity instance, not null
    */
-  public MutableCurveGroupSensitivity toMutable() {
-    return new MutableCurveGroupSensitivity(sensitivities);
+  public MutablePointSensitivities toMutable() {
+    return new MutablePointSensitivities(sensitivities);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code CurveGroupSensitivity}.
+   * The meta-bean for {@code PointSensitivities}.
    * @return the meta-bean, not null
    */
-  public static CurveGroupSensitivity.Meta meta() {
-    return CurveGroupSensitivity.Meta.INSTANCE;
+  public static PointSensitivities.Meta meta() {
+    return PointSensitivities.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(CurveGroupSensitivity.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(PointSensitivities.Meta.INSTANCE);
   }
 
   /**
@@ -198,15 +208,15 @@ public final class CurveGroupSensitivity
    */
   private static final long serialVersionUID = 1L;
 
-  private CurveGroupSensitivity(
-      List<CurveSensitivity> sensitivities) {
+  private PointSensitivities(
+      List<PointSensitivity> sensitivities) {
     JodaBeanUtils.notNull(sensitivities, "sensitivities");
     this.sensitivities = ImmutableList.copyOf(sensitivities);
   }
 
   @Override
-  public CurveGroupSensitivity.Meta metaBean() {
-    return CurveGroupSensitivity.Meta.INSTANCE;
+  public PointSensitivities.Meta metaBean() {
+    return PointSensitivities.Meta.INSTANCE;
   }
 
   @Override
@@ -226,7 +236,7 @@ public final class CurveGroupSensitivity
    * Each entry includes details of the curve it relates to.
    * @return the value of the property, not null
    */
-  public ImmutableList<CurveSensitivity> getSensitivities() {
+  public ImmutableList<PointSensitivity> getSensitivities() {
     return sensitivities;
   }
 
@@ -237,7 +247,7 @@ public final class CurveGroupSensitivity
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurveGroupSensitivity other = (CurveGroupSensitivity) obj;
+      PointSensitivities other = (PointSensitivities) obj;
       return JodaBeanUtils.equal(getSensitivities(), other.getSensitivities());
     }
     return false;
@@ -253,7 +263,7 @@ public final class CurveGroupSensitivity
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
-    buf.append("CurveGroupSensitivity{");
+    buf.append("PointSensitivities{");
     buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(getSensitivities()));
     buf.append('}');
     return buf.toString();
@@ -261,7 +271,7 @@ public final class CurveGroupSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurveGroupSensitivity}.
+   * The meta-bean for {@code PointSensitivities}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -273,8 +283,8 @@ public final class CurveGroupSensitivity
      * The meta-property for the {@code sensitivities} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<CurveSensitivity>> sensitivities = DirectMetaProperty.ofImmutable(
-        this, "sensitivities", CurveGroupSensitivity.class, (Class) ImmutableList.class);
+    private final MetaProperty<ImmutableList<PointSensitivity>> sensitivities = DirectMetaProperty.ofImmutable(
+        this, "sensitivities", PointSensitivities.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
@@ -298,13 +308,13 @@ public final class CurveGroupSensitivity
     }
 
     @Override
-    public BeanBuilder<? extends CurveGroupSensitivity> builder() {
-      return new CurveGroupSensitivity.Builder();
+    public BeanBuilder<? extends PointSensitivities> builder() {
+      return new PointSensitivities.Builder();
     }
 
     @Override
-    public Class<? extends CurveGroupSensitivity> beanType() {
-      return CurveGroupSensitivity.class;
+    public Class<? extends PointSensitivities> beanType() {
+      return PointSensitivities.class;
     }
 
     @Override
@@ -317,7 +327,7 @@ public final class CurveGroupSensitivity
      * The meta-property for the {@code sensitivities} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<CurveSensitivity>> sensitivities() {
+    public MetaProperty<ImmutableList<PointSensitivity>> sensitivities() {
       return sensitivities;
     }
 
@@ -326,7 +336,7 @@ public final class CurveGroupSensitivity
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1226228605:  // sensitivities
-          return ((CurveGroupSensitivity) bean).getSensitivities();
+          return ((PointSensitivities) bean).getSensitivities();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -344,11 +354,11 @@ public final class CurveGroupSensitivity
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurveGroupSensitivity}.
+   * The bean-builder for {@code PointSensitivities}.
    */
-  private static final class Builder extends DirectFieldsBeanBuilder<CurveGroupSensitivity> {
+  private static final class Builder extends DirectFieldsBeanBuilder<PointSensitivities> {
 
-    private List<CurveSensitivity> sensitivities = ImmutableList.of();
+    private List<PointSensitivity> sensitivities = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -372,7 +382,7 @@ public final class CurveGroupSensitivity
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 1226228605:  // sensitivities
-          this.sensitivities = (List<CurveSensitivity>) newValue;
+          this.sensitivities = (List<PointSensitivity>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -405,8 +415,8 @@ public final class CurveGroupSensitivity
     }
 
     @Override
-    public CurveGroupSensitivity build() {
-      return new CurveGroupSensitivity(
+    public PointSensitivities build() {
+      return new PointSensitivities(
           sensitivities);
     }
 
@@ -414,7 +424,7 @@ public final class CurveGroupSensitivity
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
-      buf.append("CurveGroupSensitivity.Builder{");
+      buf.append("PointSensitivities.Builder{");
       buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
       buf.append('}');
       return buf.toString();
