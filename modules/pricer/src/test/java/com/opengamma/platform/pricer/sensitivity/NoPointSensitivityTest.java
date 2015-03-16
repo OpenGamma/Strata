@@ -59,7 +59,7 @@ public class NoPointSensitivityTest {
   //-------------------------------------------------------------------------
   public void test_toString() {
     PointSensitivityBuilder test = PointSensitivityBuilder.none();
-    assertEquals(test.toString(), "None");
+    assertEquals(test.toString(), "NoPointSensitivity");
   }
 
 }
