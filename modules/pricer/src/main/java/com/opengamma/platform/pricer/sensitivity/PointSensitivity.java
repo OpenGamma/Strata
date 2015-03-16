@@ -81,6 +81,9 @@ public interface PointSensitivity
    * must be based solely on the simple class name.
    * If the point sensitivity is of the same type, the comparison must
    * check the key, then the currency, then the date, then any other state.
+   * <p>
+   * The comparison by simple class name ensures that all instances of the same
+   * type are ordered together.
    * 
    * @param other  the other sensitivity
    * @return positive if greater, zero if equal, negative if less

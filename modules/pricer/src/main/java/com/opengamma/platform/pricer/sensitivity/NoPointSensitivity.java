@@ -49,7 +49,7 @@ final class NoPointSensitivity
 
   @Override
   public String toString() {
-    return "None";
+    return "NoPointSensitivity";
   }
 
 }
