@@ -6,8 +6,10 @@
 package com.opengamma.platform.pricer.sensitivity;
 
 import static com.opengamma.basics.currency.Currency.GBP;
+import static com.opengamma.basics.currency.Currency.USD;
 import static com.opengamma.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 import java.util.ArrayList;
 
@@ -15,41 +17,21 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.opengamma.platform.pricer.sensitivity.CurveGroupSensitivity;
-import com.opengamma.platform.pricer.sensitivity.CurveSensitivity;
-import com.opengamma.platform.pricer.sensitivity.MutableCurveGroupSensitivity;
-import com.opengamma.platform.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
  * Test.
  */
 @Test
-public class MutableCurveGroupSensitivityTest {
+public class MutablePointSensitivitiesTest {
 
-  private static final CurveSensitivity CS1 = ZeroRateSensitivity.builder()
-      .currency(GBP)
-      .date(date(2015, 6, 30))
-      .sensitivity(12d)
-      .build();
-  private static final CurveSensitivity CS2 = ZeroRateSensitivity.builder()
-      .currency(GBP)
-      .date(date(2015, 7, 30))
-      .sensitivity(22d)
-      .build();
-  private static final CurveSensitivity CS3 = ZeroRateSensitivity.builder()
-      .currency(GBP)
-      .date(date(2015, 8, 30))
-      .sensitivity(32d)
-      .build();
-  private static final CurveSensitivity CS3B = ZeroRateSensitivity.builder()
-      .currency(GBP)
-      .date(date(2015, 8, 30))
-      .sensitivity(3d)
-      .build();
+  private static final PointSensitivity CS1 = ZeroRateSensitivity.of(GBP, date(2015, 6, 30), 12d);
+  private static final PointSensitivity CS2 = ZeroRateSensitivity.of(GBP, date(2015, 7, 30), 22d);
+  private static final PointSensitivity CS3 = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 32d);
+  private static final PointSensitivity CS3B = ZeroRateSensitivity.of(GBP, date(2015, 8, 30), 3d);
 
   //-------------------------------------------------------------------------
   public void test_size_add_getSensitivities() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test = new MutablePointSensitivities();
     assertEquals(test.size(), 0);
     assertEquals(test.getSensitivities(), ImmutableList.of());
     test.add(CS1);
@@ -61,7 +43,7 @@ public class MutableCurveGroupSensitivityTest {
   }
 
   public void test_size_addAll_getSensitivities() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test = new MutablePointSensitivities();
     assertEquals(test.getSensitivities(), ImmutableList.of());
     test.addAll(Lists.newArrayList(CS2, CS1));
     assertEquals(test.size(), 2);
@@ -69,50 +51,92 @@ public class MutableCurveGroupSensitivityTest {
   }
 
   public void test_construcor_getSensitivities() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity(Lists.newArrayList(CS2, CS1));
+    MutablePointSensitivities test = new MutablePointSensitivities(Lists.newArrayList(CS2, CS1));
     assertEquals(test.size(), 2);
     assertEquals(test.getSensitivities(), ImmutableList.of(CS2, CS1));
   }
 
   //-------------------------------------------------------------------------
   public void test_addAll() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(Lists.newArrayList(CS2, CS1));
-    MutableCurveGroupSensitivity test2 = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test2 = new MutablePointSensitivities();
     test2.addAll(Lists.newArrayList(CS3));
     test.addAll(test2);
     assertEquals(test.getSensitivities(), ImmutableList.of(CS2, CS1, CS3));
   }
 
   //-------------------------------------------------------------------------
-  public void test_multiplyBy() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+  public void test_withCurrency() {
+    MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1));
-    test.multiplyBy(2d);
+    test.withCurrency(USD);
+    assertEquals(
+        test.getSensitivities(),
+        ImmutableList.of(CS3.withCurrency(USD), CS2.withCurrency(USD), CS1.withCurrency(USD)));
+  }
+
+  public void test_multiplyBy() {
+    MutablePointSensitivities test = new MutablePointSensitivities();
+    test.addAll(Lists.newArrayList(CS3, CS2, CS1));
+    test.multipliedBy(2d);
     assertEquals(
         test.getSensitivities(),
         ImmutableList.of(CS3.withSensitivity(64d), CS2.withSensitivity(44d), CS1.withSensitivity(24d)));
   }
 
   public void test_mapSensitivities() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1));
-    test.mapSensitivities(s -> s / 2);
+    test.mapSensitivity(s -> s / 2);
     assertEquals(
         test.getSensitivities(),
         ImmutableList.of(CS3.withSensitivity(16d), CS2.withSensitivity(11d), CS1.withSensitivity(6d)));
   }
 
   //-------------------------------------------------------------------------
+  public void test_combinedWith() {
+    MutablePointSensitivities base1 = new MutablePointSensitivities(CS1);
+    MutablePointSensitivities base2 = new MutablePointSensitivities(CS2);
+    MutablePointSensitivities expected = new MutablePointSensitivities();
+    expected.addAll(base1).addAll(base2);
+    PointSensitivityBuilder test = base1.combinedWith(base2);
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_buildInto() {
+    MutablePointSensitivities base = new MutablePointSensitivities(CS1);
+    MutablePointSensitivities combo = new MutablePointSensitivities();
+    MutablePointSensitivities test = base.buildInto(combo);
+    assertSame(test, combo);
+    assertEquals(test.getSensitivities(), ImmutableList.of(CS1));
+  }
+
+  public void test_buildInto_same() {
+    MutablePointSensitivities base = new MutablePointSensitivities(CS1);
+    MutablePointSensitivities test = base.buildInto(base);
+    assertSame(test, base);
+    assertEquals(test.getSensitivities(), ImmutableList.of(CS1));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_build() {
+    MutablePointSensitivities base = new MutablePointSensitivities();
+    PointSensitivities test = base.build();
+    assertEquals(test, base.toImmutable());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_sort() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1));
     test.sort();
     assertEquals(test.getSensitivities(), ImmutableList.of(CS1, CS2, CS3));
   }
 
   public void test_normalize() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1, CS3B));
     test.normalize();
     assertEquals(test.getSensitivities(), ImmutableList.of(CS1, CS2, CS3.withSensitivity(35d)));
@@ -120,18 +144,18 @@ public class MutableCurveGroupSensitivityTest {
 
   //-------------------------------------------------------------------------
   public void test_toImmutable() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1));
-    assertEquals(test.toImmutable(), CurveGroupSensitivity.of(ImmutableList.of(CS3, CS2, CS1)));
+    assertEquals(test.toImmutable(), PointSensitivities.of(ImmutableList.of(CS3, CS2, CS1)));
   }
 
   //-------------------------------------------------------------------------
   public void test_equals() {
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(Lists.newArrayList(CS3, CS2, CS1));
-    MutableCurveGroupSensitivity test2 = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test2 = new MutablePointSensitivities();
     test2.addAll(Lists.newArrayList(CS3, CS2, CS1));
-    MutableCurveGroupSensitivity test3 = new MutableCurveGroupSensitivity();
+    MutablePointSensitivities test3 = new MutablePointSensitivities();
     test3.addAll(Lists.newArrayList(CS3, CS1));
     assertEquals(test.equals(test), true);
     assertEquals(test.equals(test2), true);
@@ -142,8 +166,8 @@ public class MutableCurveGroupSensitivityTest {
   }
 
   public void test_toString() {
-    ArrayList<CurveSensitivity> list = Lists.newArrayList(CS3, CS2, CS1);
-    MutableCurveGroupSensitivity test = new MutableCurveGroupSensitivity();
+    ArrayList<PointSensitivity> list = Lists.newArrayList(CS3, CS2, CS1);
+    MutablePointSensitivities test = new MutablePointSensitivities();
     test.addAll(list);
     assertEquals(test.toString().contains(list.toString()), true);
   }

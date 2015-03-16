@@ -65,7 +65,7 @@ public interface PricingEnvironment {
    * <p>
    * If the valuation date is on or after the specified date, the discount factor is 1.
    * 
-   * @param currency  the currency to apply the discount factor in
+   * @param currency  the currency to get the discount factor for
    * @param date  the date to discount to
    * @return the discount factor
    */
@@ -145,7 +145,7 @@ public interface PricingEnvironment {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the historic or forward rate of an overnight index.
+   * Gets the historic or forward rate of an Overnight index.
    * <p>
    * The rate of the overnight index, such as 'EUR-EONIA', varies over time.
    * This method obtains the actual or estimated rate for the fixing date.
@@ -161,6 +161,7 @@ public interface PricingEnvironment {
    */
   public abstract double overnightIndexRate(OvernightIndex index, LocalDate fixingDate);
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the forward rate of an overnight index on a given period, potentially different from an overnight period.
    * <p>
