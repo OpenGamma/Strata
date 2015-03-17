@@ -115,7 +115,7 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
   }
 
   //-------------------------------------------------------------------------

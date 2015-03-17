@@ -134,7 +134,7 @@ public interface PricingEnvironment {
    * To convert an amount in the specified base currency to the other currency,
    * multiply it by the returned FX rate.
    * 
-   * @param index  the index to lookup
+   * @param index  the index to find the rate for
    * @param baseCurrency  the base currency that the rate should be expressed against
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
@@ -152,7 +152,7 @@ public interface PricingEnvironment {
    * or the estimated rate if the fixing date is after the valuation date.
    * If the fixing date equals the valuation date, then the best available rate is returned.
    * 
-   * @param index  the index to lookup
+   * @param index  the index to find the rate for
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
    */
@@ -166,8 +166,8 @@ public interface PricingEnvironment {
    * Otherwise, the sensitivity has the value 1.
    * The sensitivity refers to the result of {@link #iborIndexRate(IborIndex, LocalDate)}.
    * 
-   * @param index  the index to lookup
-   * @param fixingDate  the fixing date to query the rate for
+   * @param index  the index to find the sensitivity for
+   * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
    */
   public abstract PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate);
@@ -184,13 +184,12 @@ public interface PricingEnvironment {
    * If the fixing date equals the valuation date, then the best available rate is returned.
    * The reference period for the underlying deposit is computed from the index conventions.
    * 
-   * @param index  the overnight index to lookup
+   * @param index  the index to find the rate for
    * @param fixingDate  the fixing date to query the rate for
    * @return the rate of the index, either historic or forward
    */
   public abstract double overnightIndexRate(OvernightIndex index, LocalDate fixingDate);
 
-  //-------------------------------------------------------------------------
   /**
    * Gets the basic curve sensitivity for the forward rate of an Overnight index.
    * <p>
@@ -199,8 +198,8 @@ public interface PricingEnvironment {
    * Otherwise, the sensitivity has the value 1.
    * The sensitivity refers to the result of {@link #overnightIndexRate(OvernightIndex, LocalDate)}.
    * 
-   * @param index  the overnight index to lookup
-   * @param fixingDate  the fixing date to query the rate for
+   * @param index  the index to find the sensitivity for
+   * @param fixingDate  the fixing date to find the sensitivity for
    * @return the point sensitivity of the rate
    */
   public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate);
@@ -216,7 +215,7 @@ public interface PricingEnvironment {
    * overnight rate. When data related to the overnight index rate are stored based on the fixing date and not
    * the start and end date of the period, the call may return an {@code IllegalArgumentException}.
    * 
-   * @param index  the overnight index to lookup
+   * @param index  the index to find the rate for
    * @param startDate  the start or effective date of the period on which the rate is computed
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the simply compounded rate associated to the period for the index
@@ -232,7 +231,7 @@ public interface PricingEnvironment {
    * The sensitivity will have the value 1.
    * The sensitivity refers to the result of {@link #overnightIndexRatePeriod(OvernightIndex, LocalDate, LocalDate)}.
    * 
-   * @param index  the overnight index to lookup
+   * @param index  the index to find the sensitivity for
    * @param startDate  the start or effective date of the period on which the rate is computed
    * @param endDate  the end or maturity date of the period on which the rate is computed
    * @return the point sensitivity of the rate

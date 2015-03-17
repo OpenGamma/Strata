@@ -122,11 +122,15 @@ public final class ImmutablePricingEnvironment
   //-------------------------------------------------------------------------
   @Override
   public double discountFactor(Currency currency, LocalDate date) {
+    ArgChecker.notNull(currency, "currency");
+    ArgChecker.notNull(date, "date");
     return multicurve.getDiscountFactor(Legacy.currency(currency), relativeTime(date));
   }
 
   @Override
   public PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date) {
+    ArgChecker.notNull(currency, "currency");
+    ArgChecker.notNull(date, "date");
     double relativeTime = relativeTime(date);
     double discountFactor = multicurve.getDiscountFactor(Legacy.currency(currency), relativeTime);
     return ZeroRateSensitivity.of(currency, date, -discountFactor * relativeTime);

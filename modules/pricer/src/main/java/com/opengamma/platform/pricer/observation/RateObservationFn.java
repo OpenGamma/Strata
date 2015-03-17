@@ -47,7 +47,7 @@ public interface RateObservationFn<T extends RateObservation> {
    * each forward rate.
    * 
    * @param env  the pricing environment
-   * @param observation  the rate to be observed
+   * @param observation  the rate that the sensitivity is for
    * @param startDate  the start date of the accrual period
    * @param endDate  the end date of the accrual period
    * @return the point sensitivity
