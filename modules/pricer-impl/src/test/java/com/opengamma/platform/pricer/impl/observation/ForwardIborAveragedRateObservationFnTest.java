@@ -46,7 +46,7 @@ public class ForwardIborAveragedRateObservationFnTest {
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 11, 2);
   private static final double TOLERANCE_RATE = 1.0E-10;
 
-  public void rate() {
+  public void test_rate() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     List<IborAveragedFixing> fixings = new ArrayList<>();
     double totalWeightedRate = 0.0d;
@@ -69,7 +69,7 @@ public class ForwardIborAveragedRateObservationFnTest {
     assertEquals(rateComputed, rateExpected, TOLERANCE_RATE);
   }
 
-  public void rateSensitivity() {
+  public void test_rateSensitivity() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     List<IborAveragedFixing> fixings = new ArrayList<>();
     double totalWeight = 0.0d;
@@ -92,6 +92,43 @@ public class ForwardIborAveragedRateObservationFnTest {
     ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
     PointSensitivityBuilder test = obsFn.rateSensitivity(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
     assertEquals(test.build(), expected);
+  }
+
+  public void test_rateSensitivity_finiteDifference() {
+    double eps = 1.0e-7;
+    int nDates = FIXING_DATES.length;
+    PricingEnvironment mockEnvBase = mock(PricingEnvironment.class);
+
+    List<IborAveragedFixing> fixings = new ArrayList<>();
+    for (int i = 0; i < nDates; i++) {
+      IborAveragedFixing fixing = IborAveragedFixing.builder()
+          .fixingDate(FIXING_DATES[i])
+          .weight(WEIGHTS[i])
+          .build();
+      fixings.add(fixing);
+      when(mockEnvBase.iborIndexRateSensitivity(GBP_LIBOR_3M, FIXING_DATES[i])).thenReturn(SENSITIVITIES[i]);
+    }
+    IborAveragedRateObservation ro = IborAveragedRateObservation.of(GBP_LIBOR_3M, fixings);
+    ForwardIborAveragedRateObservationFn obsFn = ForwardIborAveragedRateObservationFn.DEFAULT;
+    PointSensitivityBuilder test = obsFn.rateSensitivity(mockEnvBase, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    for (int i = 0; i < nDates; ++i) {
+      PricingEnvironment mockEnvUp = mock(PricingEnvironment.class);
+      PricingEnvironment mockEnvDw = mock(PricingEnvironment.class);
+      for (int j = 0; j < nDates; ++j) {
+        if (i == j) {
+          when(mockEnvUp.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j] + eps);
+          when(mockEnvDw.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j] - eps);
+        } else {
+          when(mockEnvUp.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
+          when(mockEnvDw.iborIndexRate(GBP_LIBOR_3M, FIXING_DATES[j])).thenReturn(FIXING_VALUES[j]);
+        }
+      }
+      double rateUp = obsFn.rate(mockEnvUp, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+      double rateDw = obsFn.rate(mockEnvDw, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+      double resExpected = 0.5 * (rateUp - rateDw) / eps;
+      assertEquals(test.build().getSensitivities().get(i).getSensitivity(), resExpected, eps);
+    }
+
   }
 
 }

@@ -82,4 +82,37 @@ public class ForwardIborInterpolatedRateObservationFnTest {
     assertEquals(test.build(), expected);
   }
 
+  public void test_rateSensitivity_finiteDifference() {
+    double eps = 1.0e-7;
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.iborIndexRateSensitivity(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(SENSITIVITY3);
+    when(mockEnv.iborIndexRateSensitivity(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(SENSITIVITY6);
+    IborInterpolatedRateObservation ro = IborInterpolatedRateObservation.of(GBP_LIBOR_3M, GBP_LIBOR_6M, FIXING_DATE);
+    ForwardIborInterpolatedRateObservationFn obs = ForwardIborInterpolatedRateObservationFn.DEFAULT;
+    PointSensitivityBuilder test = obs.rateSensitivity(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+
+    PricingEnvironment mockEnvUp3M = mock(PricingEnvironment.class);
+    when(mockEnvUp3M.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3 + eps);
+    when(mockEnvUp3M.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6);
+    double rateUp3M = obs.rate(mockEnvUp3M, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    PricingEnvironment mockEnvDw3M = mock(PricingEnvironment.class);
+    when(mockEnvDw3M.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3 - eps);
+    when(mockEnvDw3M.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6);
+    double rateDw3M = obs.rate(mockEnvDw3M, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    double senseExpected3M = 0.5 * (rateUp3M - rateDw3M) / eps;
+
+    PricingEnvironment mockEnvUp6M = mock(PricingEnvironment.class);
+    when(mockEnvUp6M.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3);
+    when(mockEnvUp6M.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6 + eps);
+    double rateUp6M = obs.rate(mockEnvUp6M, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    PricingEnvironment mockEnvDw6M = mock(PricingEnvironment.class);
+    when(mockEnvDw6M.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE)).thenReturn(RATE3);
+    when(mockEnvDw6M.iborIndexRate(GBP_LIBOR_6M, FIXING_DATE)).thenReturn(RATE6 - eps);
+    double rateDw6M = obs.rate(mockEnvDw6M, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE);
+    double senseExpected6M = 0.5 * (rateUp6M - rateDw6M) / eps;
+
+    assertEquals(test.build().getSensitivities().get(0).getSensitivity(), senseExpected3M, eps);
+    assertEquals(test.build().getSensitivities().get(1).getSensitivity(), senseExpected6M, eps);
+  }
+
 }
