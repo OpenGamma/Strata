@@ -18,6 +18,7 @@ import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
 * Rate observation implementation for a rate based on a single overnight index that is arithmetically averaged.
@@ -106,6 +107,15 @@ public class ApproxForwardOvernightAveragedRateObservationFn
     double remainingFixingAccrualFactor = index.getDayCount().yearFraction(startDate, endDate);
     double forwardRate = env.overnightIndexRatePeriod(index, startDate, endDate);
     return Math.log(1.0 + forwardRate * remainingFixingAccrualFactor);
+  }
+
+  @Override
+  public PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      OvernightAveragedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+    throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
   }
 
   //-------------------------------------------------------------------------

@@ -11,6 +11,7 @@ import com.opengamma.basics.index.IborIndex;
 import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Rate observation implementation for rate based on the weighted average of the fixing
@@ -40,6 +41,7 @@ public class ForwardIborInterpolatedRateObservationFn
       IborInterpolatedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
+
     LocalDate fixingDate = observation.getFixingDate();
     // computes the dates related to the underlying deposits associated to the indices
     IborIndex index1 = observation.getShortIndex();
@@ -60,6 +62,35 @@ public class ForwardIborInterpolatedRateObservationFn
     double weight1 = (days2 - daysN) / (days2 - days1);
     double weight2 = (daysN - days1) / (days2 - days1);
     return ((rate1 * weight1) + (rate2 * weight2)) / (weight1 + weight2);
+  }
+
+  @Override
+  public PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      IborInterpolatedRateObservation observation,
+      LocalDate startDate,
+      LocalDate endDate) {
+
+    LocalDate fixingDate = observation.getFixingDate();
+    // computes the dates related to the underlying deposits associated to the indices
+    IborIndex index1 = observation.getShortIndex();
+    IborIndex index2 = observation.getLongIndex();
+    LocalDate fixingStartDate1 = index1.calculateEffectiveFromFixing(fixingDate);
+    LocalDate fixingEndDate1 = index1.calculateMaturityFromEffective(fixingStartDate1);
+    LocalDate fixingStartDate2 = index2.calculateEffectiveFromFixing(fixingDate);
+    LocalDate fixingEndDate2 = index2.calculateMaturityFromEffective(fixingStartDate2);
+    // weights: linear interpolation on the number of days between the fixing date and the maturity dates of the 
+    //   actual coupons on one side and the maturity dates of the underlying deposit on the other side.
+    long fixingEpochDay = fixingDate.toEpochDay();
+    double days1 = fixingEndDate1.toEpochDay() - fixingEpochDay;
+    double days2 = fixingEndDate2.toEpochDay() - fixingEpochDay;
+    double daysN = endDate.toEpochDay() - fixingEpochDay;
+    double weight1 = (days2 - daysN) / (days2 - days1);
+    double weight2 = (daysN - days1) / (days2 - days1);
+    double totalWeight = weight1 + weight2;
+    PointSensitivityBuilder sens1 = env.iborIndexRateSensitivity(index1, fixingDate).multipliedBy(weight1 / totalWeight);
+    PointSensitivityBuilder sens2 = env.iborIndexRateSensitivity(index2, fixingDate).multipliedBy(weight2 / totalWeight);
+    return sens1.combinedWith(sens2);
   }
 
 }

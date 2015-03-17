@@ -39,6 +39,10 @@ import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Messages;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
+import com.opengamma.platform.pricer.sensitivity.OvernightRateSensitivity;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
+import com.opengamma.platform.pricer.sensitivity.ZeroRateSensitivity;
 
 /**
  * The default immutable pricing environment used to calculate analytic measures.
@@ -100,20 +104,11 @@ public final class ImmutablePricingEnvironment
 
   //-------------------------------------------------------------------------
   @Override
-  public double discountFactor(Currency currency, LocalDate date) {
-    ArgChecker.notNull(currency, "currency");
-    ArgChecker.notNull(date, "date");
-    return multicurve.getDiscountFactor(Legacy.currency(currency), relativeTime(date));
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public double fxRate(CurrencyPair currencyPair) {
     ArgChecker.notNull(currencyPair, "currencyPair");
     return multicurve.getFxRate(Legacy.currency(currencyPair.getBase()), Legacy.currency(currencyPair.getCounter()));
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency currency) {
     ArgChecker.notNull(amount, "amount");
@@ -122,6 +117,23 @@ public final class ImmutablePricingEnvironment
         .mapToDouble(ca -> multicurve.getFxRate(
             Legacy.currency(ca.getCurrency()), Legacy.currency(currency)) * ca.getAmount())
         .sum());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double discountFactor(Currency currency, LocalDate date) {
+    ArgChecker.notNull(currency, "currency");
+    ArgChecker.notNull(date, "date");
+    return multicurve.getDiscountFactor(Legacy.currency(currency), relativeTime(date));
+  }
+
+  @Override
+  public PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date) {
+    ArgChecker.notNull(currency, "currency");
+    ArgChecker.notNull(date, "date");
+    double relativeTime = relativeTime(date);
+    double discountFactor = multicurve.getDiscountFactor(Legacy.currency(currency), relativeTime);
+    return ZeroRateSensitivity.of(currency, date, -discountFactor * relativeTime);
   }
 
   //-------------------------------------------------------------------------
@@ -197,6 +209,16 @@ public final class ImmutablePricingEnvironment
         Legacy.iborIndex(index), relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
   }
 
+  @Override
+  public PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(fixingDate, "fixingDate");
+    if (!fixingDate.isAfter(valuationDate) && timeSeries(index).get(fixingDate).isPresent()) {
+      return PointSensitivityBuilder.none();
+    }
+    return IborRateSensitivity.of(index, fixingDate, 1d);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
@@ -230,17 +252,39 @@ public final class ImmutablePricingEnvironment
         Legacy.overnightIndex(index), relativeTime(fixingStartDate), relativeTime(fixingEndDate), fixingYearFraction);
   }
 
+  @Override
+  public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(fixingDate, "fixingDate");
+    if (!fixingDate.isAfter(valuationDate) && timeSeries(index).get(fixingDate).isPresent()) {
+      return PointSensitivityBuilder.none();
+    }
+    LocalDate fixingStartDate = index.calculateEffectiveFromFixing(fixingDate);
+    LocalDate fixingEndDate = index.calculateMaturityFromEffective(fixingStartDate);
+    return OvernightRateSensitivity.of(index, index.getCurrency(), fixingDate, fixingEndDate, 1d);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
     ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(startDate, "startDate");
-    ArgChecker.notNull(endDate, "endDate");
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
     double fixingYearFraction = index.getDayCount().yearFraction(startDate, endDate);
     return multicurve.getSimplyCompoundForwardRate(
         Legacy.overnightIndex(index), relativeTime(startDate), relativeTime(endDate), fixingYearFraction);
+  }
+
+  @Override
+  public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(
+      OvernightIndex index,
+      LocalDate startDate,
+      LocalDate endDate) {
+
+    ArgChecker.notNull(index, "index");
+    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+    ArgChecker.inOrderOrEqual(valuationDate, startDate, "valuationDate", "startDate");
+    return OvernightRateSensitivity.of(index, index.getCurrency(), startDate, endDate, 1d);
   }
 
   //-------------------------------------------------------------------------

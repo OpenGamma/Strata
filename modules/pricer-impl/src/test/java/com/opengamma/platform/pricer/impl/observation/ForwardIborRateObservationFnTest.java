@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.platform.finance.observation.IborRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
 
 /**
  * Test.
@@ -27,14 +28,25 @@ public class ForwardIborRateObservationFnTest {
   private static final LocalDate FIXING_DATE = date(2014, 6, 30);
   private static final LocalDate ACCRUAL_START_DATE = date(2014, 7, 2);
   private static final LocalDate ACCRUAL_END_DATE = date(2014, 10, 2);
+  private static final double RATE = 0.0123d;
+  private static final IborRateSensitivity SENSITIVITY = IborRateSensitivity.of(GBP_LIBOR_3M, FIXING_DATE, 1d);
 
   public void test_rate() {
     PricingEnvironment mockEnv = mock(PricingEnvironment.class);
     when(mockEnv.iborIndexRate(GBP_LIBOR_3M, FIXING_DATE))
-        .thenReturn(0.0123d);
+        .thenReturn(RATE);
     IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
-    ForwardIborRateObservationFn test = ForwardIborRateObservationFn.DEFAULT;
-    assertEquals(test.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), 0.0123d, 0d);
+    ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
+    assertEquals(obsFn.rate(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), RATE);
+  }
+
+  public void test_rateSensitivity() {
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+    when(mockEnv.iborIndexRateSensitivity(GBP_LIBOR_3M, FIXING_DATE))
+        .thenReturn(SENSITIVITY);
+    IborRateObservation ro = IborRateObservation.of(GBP_LIBOR_3M, FIXING_DATE);
+    ForwardIborRateObservationFn obsFn = ForwardIborRateObservationFn.DEFAULT;
+    assertEquals(obsFn.rateSensitivity(mockEnv, ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE), SENSITIVITY);
   }
 
 }

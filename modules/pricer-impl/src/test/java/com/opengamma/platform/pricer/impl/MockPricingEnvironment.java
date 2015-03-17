@@ -17,6 +17,7 @@ import com.opengamma.basics.index.Index;
 import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Mock implementation of pricing environment.
@@ -61,12 +62,6 @@ public class MockPricingEnvironment
 
   //-------------------------------------------------------------------------
   @Override
-  public double discountFactor(Currency currency, LocalDate date) {
-    throw new UnsupportedOperationException();
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
   public double fxRate(CurrencyPair currencyPair) {
     throw new UnsupportedOperationException();
   }
@@ -74,6 +69,17 @@ public class MockPricingEnvironment
   //-------------------------------------------------------------------------
   @Override
   public CurrencyAmount fxConvert(MultiCurrencyAmount amount, Currency currency) {
+    throw new UnsupportedOperationException();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double discountFactor(Currency currency, LocalDate date) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PointSensitivityBuilder discountFactorZeroRateSensitivity(Currency currency, LocalDate date) {
     throw new UnsupportedOperationException();
   }
 
@@ -89,15 +95,30 @@ public class MockPricingEnvironment
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public PointSensitivityBuilder iborIndexRateSensitivity(IborIndex index, LocalDate fixingDate) {
+    throw new UnsupportedOperationException();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double overnightIndexRate(OvernightIndex index, LocalDate fixingDate) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public PointSensitivityBuilder overnightIndexRateSensitivity(OvernightIndex index, LocalDate fixingDate) {
+    throw new UnsupportedOperationException();
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public double overnightIndexRatePeriod(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PointSensitivityBuilder overnightIndexRatePeriodSensitivity(OvernightIndex index, LocalDate startDate, LocalDate endDate) {
     throw new UnsupportedOperationException();
   }
 

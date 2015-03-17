@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.opengamma.platform.finance.observation.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Observes a rate from an index.
@@ -38,5 +39,23 @@ public interface RateObservationFn<T extends RateObservation> {
    * @return the applicable rate
    */
   public abstract double rate(PricingEnvironment env, T observation, LocalDate startDate, LocalDate endDate);
+
+  /**
+   * Determines the point sensitivity for the rate observation.
+   * <p>
+   * This returns a sensitivity instance referring to the curves used to determine
+   * each forward rate.
+   * 
+   * @param env  the pricing environment
+   * @param observation  the rate that the sensitivity is for
+   * @param startDate  the start date of the accrual period
+   * @param endDate  the end date of the accrual period
+   * @return the point sensitivity
+   */
+  public abstract PointSensitivityBuilder rateSensitivity(
+      PricingEnvironment env,
+      T observation,
+      LocalDate startDate,
+      LocalDate endDate);
 
 }
