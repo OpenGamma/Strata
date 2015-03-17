@@ -12,6 +12,9 @@
  * The {@code ValueAdjustment} class expressed a single change in a value, such as adding 20%.
  * The {@code ValueSchedule} and {@code ValueStep} classes allow an initial value to be changed
  * over time according to a schedule.
+ * <p>
+ * The {@code Rounding} interface expresses the convention for rounding a value.
+ * The standard implementation is {@code HalfUpRounding}.
  */
 @javax.annotation.ParametersAreNonnullByDefault
 package com.opengamma.basics.value;
