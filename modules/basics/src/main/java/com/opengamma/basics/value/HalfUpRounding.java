@@ -32,7 +32,7 @@ import com.opengamma.collect.ArgChecker;
 /**
  * Standard implementation of {@code Rounding} that uses the half-up convention.
  * <p>
- * This class implements {@link Rounding} to provide the ability to round a number,
+ * This class implements {@link Rounding} to provide the ability to round a number.
  * Rounding follows the normal {@link RoundingMode#HALF_UP} convention.
  * For example, this could be used to round a price to the appropriate market convention.
  * <p>
@@ -40,16 +40,14 @@ import com.opengamma.collect.ArgChecker;
  * numbers are based on a binary representation, not a decimal one.
  * For example, the value 0.1 cannot be exactly represented in a {@code double}.
  */
-@BeanDefinition(builderScope = "private", cacheHashCode = true)
+@BeanDefinition(builderScope = "private")
 public final class HalfUpRounding
     implements Rounding, ImmutableBean, Serializable {
 
   /**
-   * The 'None' rounding convention, which applies no rounding.
-   */
-  public static final HalfUpRounding NONE = new HalfUpRounding(256, 1);
-  /**
    * Cache common roundings.
+   * Roundings will be commonly used in trades, which are relatively long-lived,
+   * so some limited caching makes sense.
    */
   private static final HalfUpRounding[] CACHE = new HalfUpRounding[16];
   static {
@@ -63,7 +61,7 @@ public final class HalfUpRounding
    * <p>
    * Rounding follows the normal {@link RoundingMode#HALF_UP} convention.
    * <p>
-   * The value must be from 0 to 256 inclusive. 256 is used to indicate no rounding.
+   * The value must be from 0 to 255 inclusive.
    */
   @PropertyDefinition
   private final int decimalPlaces;
@@ -82,7 +80,13 @@ public final class HalfUpRounding
    * The fraction, as a {@code BigDecimal}.
    * Not a Joda-Beans property.
    */
-  private final BigDecimal fractionDecimal;
+  private transient final BigDecimal fractionDecimal;
+  /**
+   * The hash code.
+   * Uniquely identifies the state of the object.
+   * Not a Joda-Beans property.
+   */
+  private transient final int uniqueHashCode;
 
   //-------------------------------------------------------------------------
   /**
@@ -112,7 +116,7 @@ public final class HalfUpRounding
    * this method with the arguments 4 and 32.
    * 
    * @param decimalPlaces  the number of decimal places to round to, from 0 to 255 inclusive
-   * @param fraction  the fraction of the last decimal place, such as 32 for 1/32, from 0 to 255 inclusive
+   * @param fraction  the fraction of the last decimal place, such as 32 for 1/32, from 0 to 256 inclusive
    * @return the rounding convention
    * @throws IllegalArgumentException if the decimal places or fraction is invalid
    */
@@ -127,21 +131,16 @@ public final class HalfUpRounding
       int decimalPlaces,
       int fraction) {
 
-    if (decimalPlaces == 256) {
-      this.decimalPlaces = ArgChecker.notNegative(decimalPlaces, "decimalPlaces");
-      this.fraction = 0;
-      this.fractionDecimal = null;
-    } else {
-      if (decimalPlaces < 0 || decimalPlaces > 256) {
-        throw new IllegalArgumentException("Invalid decimal places, must be from 0 to 256 inclusive");
-      }
-      if (fraction < 0 || fraction > 256) {
-        throw new IllegalArgumentException("Invalid fraction, must be from 0 to 256 inclusive");
-      }
-      this.decimalPlaces = ArgChecker.notNegative(decimalPlaces, "decimalPlaces");
-      this.fraction = (fraction == 1 ? 0 : fraction);
-      this.fractionDecimal = (fraction > 1 ? BigDecimal.valueOf(this.fraction) : null);
+    if (decimalPlaces < 0 || decimalPlaces > 255) {
+      throw new IllegalArgumentException("Invalid decimal places, must be from 0 to 255 inclusive");
     }
+    if (fraction < 0 || fraction > 256) {
+      throw new IllegalArgumentException("Invalid fraction, must be from 0 to 256 inclusive");
+    }
+    this.decimalPlaces = ArgChecker.notNegative(decimalPlaces, "decimalPlaces");
+    this.fraction = (fraction <= 1 ? 0 : fraction);
+    this.fractionDecimal = (fraction <= 1 ? null : BigDecimal.valueOf(this.fraction));
+    this.uniqueHashCode = (this.decimalPlaces << 16) + this.fraction;
   }
 
   // deserialize transient
@@ -152,17 +151,11 @@ public final class HalfUpRounding
   //-------------------------------------------------------------------------
   @Override
   public double round(double value) {
-    if (decimalPlaces == 256) {
-      return value;
-    }
     return Rounding.super.round(value);
   }
 
   @Override
   public BigDecimal round(BigDecimal value) {
-    if (decimalPlaces == 256) {
-      return value;
-    }
     if (fraction > 1) {
       return value
           .multiply(fractionDecimal)
@@ -172,12 +165,27 @@ public final class HalfUpRounding
     return value.setScale(decimalPlaces, BigDecimal.ROUND_HALF_UP);
   }
 
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof HalfUpRounding) {
+      // hash code is unique so can be used to compare
+      return (uniqueHashCode == ((HalfUpRounding) obj).uniqueHashCode);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return uniqueHashCode;
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    if (decimalPlaces == 256) {
-      return "No rounding";
-    }
     return "Round to " + (fraction > 1 ? "1/" + fraction + " of " : "") + decimalPlaces + "dp";
   }
 
@@ -200,11 +208,6 @@ public final class HalfUpRounding
    */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * The cached hash code, using the racy single-check idiom.
-   */
-  private int cachedHashCode;
-
   @Override
   public HalfUpRounding.Meta metaBean() {
     return HalfUpRounding.Meta.INSTANCE;
@@ -226,7 +229,7 @@ public final class HalfUpRounding
    * <p>
    * Rounding follows the normal {@link RoundingMode#HALF_UP} convention.
    * <p>
-   * The value must be from 0 to 256 inclusive. 256 is used to indicate no rounding.
+   * The value must be from 0 to 255 inclusive.
    * @return the value of the property
    */
   public int getDecimalPlaces() {
@@ -246,32 +249,6 @@ public final class HalfUpRounding
    */
   public int getFraction() {
     return fraction;
-  }
-
-  //-----------------------------------------------------------------------
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HalfUpRounding other = (HalfUpRounding) obj;
-      return (getDecimalPlaces() == other.getDecimalPlaces()) &&
-          (getFraction() == other.getFraction());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = cachedHashCode;
-    if (hash == 0) {
-      hash = getClass().hashCode();
-      hash = hash * 31 + JodaBeanUtils.hashCode(getDecimalPlaces());
-      hash = hash * 31 + JodaBeanUtils.hashCode(getFraction());
-      cachedHashCode = hash;
-    }
-    return hash;
   }
 
   //-----------------------------------------------------------------------

@@ -34,7 +34,7 @@ public interface Rounding
    * @return the rounding convention
    */
   public static Rounding none() {
-    return HalfUpRounding.NONE;
+    return NoRounding.INSTANCE;
   }
 
   /**

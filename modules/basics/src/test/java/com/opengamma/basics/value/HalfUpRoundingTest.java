@@ -22,14 +22,6 @@ import org.testng.annotations.Test;
 @Test
 public class HalfUpRoundingTest {
 
-  public void test_none() {
-    HalfUpRounding test = HalfUpRounding.NONE;
-    assertEquals(test.getDecimalPlaces(), 256);
-    assertEquals(test.getFraction(), 0);
-    assertEquals(test.toString(), "No rounding");
-    assertEquals(Rounding.none(), test);
-  }
-
   public void test_ofDecimalPlaces() {
     HalfUpRounding test = HalfUpRounding.ofDecimalPlaces(4);
     assertEquals(test.getDecimalPlaces(), 4);
@@ -97,13 +89,6 @@ public class HalfUpRoundingTest {
   @DataProvider(name = "round")
   Object[][] data_round() {
     return new Object[][] {
-        {HalfUpRounding.NONE, 12.3449, 12.3449},
-        {HalfUpRounding.NONE, 12.3450, 12.3450},
-        {HalfUpRounding.NONE, 12.3451, 12.3451},
-        {HalfUpRounding.NONE, 12.3500, 12.3500},
-        {HalfUpRounding.NONE, 12.3549, 12.3549},
-        {HalfUpRounding.NONE, 12.3550, 12.3550},
-
         {HalfUpRounding.ofDecimalPlaces(2), 12.3449, 12.34},
         {HalfUpRounding.ofDecimalPlaces(2), 12.3450, 12.35},
         {HalfUpRounding.ofDecimalPlaces(2), 12.3451, 12.35},
