@@ -13,6 +13,7 @@ import static org.testng.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
@@ -40,6 +41,16 @@ public class GuavateTest {
     List<String> test = Guavate.stream(iterable)
         .collect(Collectors.toList());
     assertEquals(test, ImmutableList.of("a", "b", "c"));
+  }
+
+  public void test_stream_Optional() {
+    Optional<String> optional = Optional.of("foo");
+    List<String> test1 = Guavate.stream(optional).collect(Collectors.toList());
+    assertEquals(test1, ImmutableList.of("foo"));
+
+    Optional<String> empty = Optional.empty();
+    List<String> test2 = Guavate.stream(empty).collect(Collectors.toList());
+    assertEquals(test2, ImmutableList.of());
   }
 
   //-------------------------------------------------------------------------

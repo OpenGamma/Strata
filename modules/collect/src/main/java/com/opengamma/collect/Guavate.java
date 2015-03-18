@@ -7,6 +7,7 @@ package com.opengamma.collect;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -49,12 +50,25 @@ public final class Guavate {
    * This is harder than it should be, a method {@code Stream.of(Iterable)}
    * would have been appropriate, but cannot be added now.
    * 
-   * @param <T>  the type of element in the list
+   * @param <T>  the type of element in the iterable
    * @param iterable  the iterable to convert
-   * @return the immutable list collector
+   * @return a stream of the elements in the iterable
    */
   public static <T> Stream<T> stream(Iterable<T> iterable) {
     return StreamSupport.stream(iterable.spliterator(), false);
+  }
+
+  /**
+   * Converts an {@link Optional} to a stream with zero or one elements.
+   *
+   * @param <T>  the type of optional element
+   * @param optional  the optional
+   * @return a stream containing a single value if the optional has a value, else a stream with no values.
+   */
+  public static <T> Stream<T> stream(Optional<T> optional) {
+    return optional.isPresent() ?
+        Stream.of(optional.get()) :
+        Stream.empty();
   }
 
   //-------------------------------------------------------------------------
