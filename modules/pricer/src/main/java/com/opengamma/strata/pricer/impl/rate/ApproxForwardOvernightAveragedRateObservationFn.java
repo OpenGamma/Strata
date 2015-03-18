@@ -18,6 +18,7 @@ import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.PricingException;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
+import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
@@ -115,8 +116,13 @@ public class ApproxForwardOvernightAveragedRateObservationFn
       OvernightAveragedRateObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
-    // TODO
-    throw new UnsupportedOperationException("Rate sensitivity for OvernightIndex not currently supported");
+    // TODO startDate, endDate are the same as those stored in observation?
+    LocalDate start = observation.getStartDate();
+    LocalDate end = observation.getEndDate();
+    OvernightIndex index = observation.getIndex();
+    // TODO fixing date is the best parameter to pass?
+    LocalDate fixing = index.calculateFixingFromEffective(start);
+    return OvernightRateSensitivity.of(index, index.getCurrency(), fixing, end, 1.0);
   }
 
   //-------------------------------------------------------------------------

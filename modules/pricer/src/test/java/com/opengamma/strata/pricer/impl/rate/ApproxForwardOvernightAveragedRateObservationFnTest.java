@@ -22,6 +22,8 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.PricingException;
+import com.opengamma.strata.pricer.sensitivity.OvernightRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Test {@link ApproxForwardOvernightAveragedRateObservationFn}.
@@ -400,6 +402,21 @@ public class ApproxForwardOvernightAveragedRateObservationFnTest {
       double rateComputed = OBS_FN_APPROX_FWD.rate(mockEnv, ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE);
       assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
     }
+  }
+
+  @Test
+  public void rateSensitivityTest() {
+    OvernightAveragedRateObservation ro =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0);
+    PricingEnvironment mockEnv = mock(PricingEnvironment.class);
+
+    PointSensitivityBuilder builder = OBS_FN_APPROX_FWD.rateSensitivity(mockEnv, ro, DUMMY_ACCRUAL_START_DATE,
+        DUMMY_ACCRUAL_END_DATE);
+    OvernightRateSensitivity senseComputed = (OvernightRateSensitivity) builder.build().getSensitivities().get(0);
+    assertEquals(senseComputed.getSensitivity(), 1.0);
+    assertEquals(senseComputed.getDate(), FIXING_START_DATE);
+    assertEquals(senseComputed.getIndex(), USD_FED_FUND);
+    assertEquals(senseComputed.getFixingDate(), USD_FED_FUND.calculateFixingFromEffective(FIXING_START_DATE));
   }
 
 }
