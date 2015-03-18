@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.basics.Traded;
 import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.ProductTrade;
 import com.opengamma.platform.finance.TradeInfo;
@@ -37,7 +38,7 @@ import com.opengamma.platform.finance.TradeInfo;
  */
 @BeanDefinition
 public final class SwapTrade
-    implements ProductTrade<Swap>, ImmutableBean, Serializable {
+    implements ProductTrade<Swap>, Traded, ImmutableBean, Serializable {
 
   /**
    * The primary standard identifier for the trade.
