@@ -7,6 +7,7 @@ package com.opengamma.platform.finance;
 
 import org.joda.beans.ImmutableBean;
 
+import com.opengamma.basics.CalculationTarget;
 import com.opengamma.collect.id.IdentifiableBean;
 import com.opengamma.collect.id.StandardId;
 
@@ -20,7 +21,7 @@ import com.opengamma.collect.id.StandardId;
  * Implementations of this interface must be immutable beans.
  */
 public interface Trade
-    extends IdentifiableBean, ImmutableBean {
+    extends CalculationTarget, IdentifiableBean, ImmutableBean {
 
   /**
    * The primary standard identifier for the trade.

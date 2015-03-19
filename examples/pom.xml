@@ -9,7 +9,7 @@
     <groupId>com.opengamma.platform</groupId>
     <artifactId>ogp-core-parent</artifactId>
     <version>3.0.0-SNAPSHOT</version>
-    <relativePath></relativePath>
+    <relativePath>../modules</relativePath>
   </parent>  
   <artifactId>ogp-core-examples</artifactId>
   <version>3.0.0-SNAPSHOT</version>
