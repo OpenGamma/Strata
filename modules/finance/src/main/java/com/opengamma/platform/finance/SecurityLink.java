@@ -221,7 +221,7 @@ public final class SecurityLink<P extends Product>
    * @return the security
    * @throws IllegalStateException if the link is not in the resolved state
    */
-  Security<P> resolvedTarget() {
+  public Security<P> resolvedTarget() {
     if (!isResolved()) {
       throw new IllegalStateException(resolvedTargetMsg());
     }
