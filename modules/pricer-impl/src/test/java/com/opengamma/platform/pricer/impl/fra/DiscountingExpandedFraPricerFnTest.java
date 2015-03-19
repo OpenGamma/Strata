@@ -16,6 +16,7 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.platform.finance.fra.ExpandedFra;
@@ -25,6 +26,7 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivity;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 import com.opengamma.platform.pricer.sensitivity.ZeroRateSensitivity;
 
@@ -164,9 +166,9 @@ public class DiscountingExpandedFraPricerFnTest {
     ExpandedFra fraExp = FRA.expand();
     double forwardRate = 0.05;
     LocalDate fixingDate = FRA.getStartDate();
-    PointSensitivityBuilder snese = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
     when(mockObs.rateSensitivity(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
-        .thenReturn(snese);
+        .thenReturn(sens);
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), FRA.getStartDate(), FRA.getEndDate()))
         .thenReturn(forwardRate);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
@@ -174,10 +176,12 @@ public class DiscountingExpandedFraPricerFnTest {
     double eps = 1.e-7;
     double fdSense = futureValueFwdSensitivity(FRA, forwardRate, eps);
 
-    assertEquals(sensitivity.getSensitivities().size(), 1);
-    assertEquals(sensitivity.getSensitivities().get(0).getCurveKey(), FRA.getIndex());
-    assertEquals(sensitivity.getSensitivities().get(0).getDate(), fixingDate);
-    assertEquals(sensitivity.getSensitivities().get(0).getSensitivity(), fdSense, FRA.getNotional() * eps);
+    ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
+    assertEquals(sensitivities.size(), 1);
+    PointSensitivity sensitivity0 = sensitivities.get(0);
+    assertEquals(sensitivity0.getCurveKey(), FRA.getIndex());
+    assertEquals(sensitivity0.getDate(), fixingDate);
+    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
   }
 
   /**
@@ -189,9 +193,9 @@ public class DiscountingExpandedFraPricerFnTest {
     ExpandedFra fraExp = FRA_NONE.expand();
     double forwardRate = 0.035;
     LocalDate fixingDate = FRA_NONE.getStartDate();
-    PointSensitivityBuilder snese = IborRateSensitivity.of(FRA_NONE.getIndex(), fixingDate, 1d);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA_NONE.getIndex(), fixingDate, 1d);
     when(mockObs.rateSensitivity(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
-        .thenReturn(snese);
+        .thenReturn(sens);
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), FRA_NONE.getStartDate(), FRA_NONE.getEndDate()))
         .thenReturn(forwardRate);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
@@ -199,10 +203,12 @@ public class DiscountingExpandedFraPricerFnTest {
     double eps = 1.e-7;
     double fdSense = futureValueFwdSensitivity(FRA_NONE, forwardRate, eps);
 
-    assertEquals(sensitivity.getSensitivities().size(), 1);
-    assertEquals(sensitivity.getSensitivities().get(0).getCurveKey(), FRA_NONE.getIndex());
-    assertEquals(sensitivity.getSensitivities().get(0).getDate(), fixingDate);
-    assertEquals(sensitivity.getSensitivities().get(0).getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
+    ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
+    assertEquals(sensitivities.size(), 1);
+    PointSensitivity sensitivity0 = sensitivities.get(0);
+    assertEquals(sensitivity0.getCurveKey(), FRA_NONE.getIndex());
+    assertEquals(sensitivity0.getDate(), fixingDate);
+    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
   }
 
   /**
@@ -214,9 +220,9 @@ public class DiscountingExpandedFraPricerFnTest {
     ExpandedFra fraExp = FRA_AFMA.expand();
     double forwardRate = 0.04;
     LocalDate fixingDate = FRA_AFMA.getStartDate();
-    PointSensitivityBuilder snese = IborRateSensitivity.of(FRA_AFMA.getIndex(), fixingDate, 1d);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA_AFMA.getIndex(), fixingDate, 1d);
     when(mockObs.rateSensitivity(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
-        .thenReturn(snese);
+        .thenReturn(sens);
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), FRA_AFMA.getStartDate(), FRA_AFMA.getEndDate()))
         .thenReturn(forwardRate);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
@@ -224,10 +230,12 @@ public class DiscountingExpandedFraPricerFnTest {
     double eps = 1.e-7;
     double fdSense = futureValueFwdSensitivity(FRA_AFMA, forwardRate, eps);
 
-    assertEquals(sensitivity.getSensitivities().size(), 1);
-    assertEquals(sensitivity.getSensitivities().get(0).getCurveKey(), FRA_AFMA.getIndex());
-    assertEquals(sensitivity.getSensitivities().get(0).getDate(), fixingDate);
-    assertEquals(sensitivity.getSensitivities().get(0).getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
+    ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
+    assertEquals(sensitivities.size(), 1);
+    PointSensitivity sensitivity0 = sensitivities.get(0);
+    assertEquals(sensitivity0.getCurveKey(), FRA_AFMA.getIndex());
+    assertEquals(sensitivity0.getDate(), fixingDate);
+    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
   }
 
   /**
@@ -242,14 +250,14 @@ public class DiscountingExpandedFraPricerFnTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA.getStartDate();
-    PointSensitivityBuilder snese = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
     when(mockEnv.discountFactor(FRA.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockEnv.discountFactorZeroRateSensitivity(FRA.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(ZeroRateSensitivity.of(
             fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
     when(mockObs.rateSensitivity(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
-        .thenReturn(snese);
+        .thenReturn(sens);
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), FRA.getStartDate(), FRA.getEndDate()))
         .thenReturn(forwardRate);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
@@ -258,13 +266,16 @@ public class DiscountingExpandedFraPricerFnTest {
     double fdDscSense = dscSensitivity(FRA, forwardRate, discountFactor, paymentTime, eps);
     double fdSense = presentValueFwdSensitivity(FRA, forwardRate, discountFactor, paymentTime, eps);
 
-    assertEquals(sensitivity.getSensitivities().size(), 2);
-    assertEquals(sensitivity.getSensitivities().get(0).getCurveKey(), FRA.getIndex());
-    assertEquals(sensitivity.getSensitivities().get(0).getDate(), fixingDate);
-    assertEquals(sensitivity.getSensitivities().get(0).getSensitivity(), fdSense, FRA.getNotional() * eps);
-    assertEquals(sensitivity.getSensitivities().get(1).getCurveKey(), FRA.getCurrency());
-    assertEquals(sensitivity.getSensitivities().get(1).getDate(), fraExp.getPaymentDate());
-    assertEquals(sensitivity.getSensitivities().get(1).getSensitivity(), fdDscSense, FRA.getNotional() * eps);
+    ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
+    assertEquals(sensitivities.size(), 2);
+    PointSensitivity sensitivity0 = sensitivities.get(0);
+    assertEquals(sensitivity0.getCurveKey(), FRA.getIndex());
+    assertEquals(sensitivity0.getDate(), fixingDate);
+    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
+    PointSensitivity sensitivity1 = sensitivities.get(1);
+    assertEquals(sensitivity1.getCurveKey(), FRA.getCurrency());
+    assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
+    assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA.getNotional() * eps);
   }
 
   /**
@@ -279,14 +290,14 @@ public class DiscountingExpandedFraPricerFnTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA_NONE.getStartDate();
-    PointSensitivityBuilder snese = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
     when(mockEnv.discountFactor(FRA_NONE.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockEnv.discountFactorZeroRateSensitivity(FRA.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(ZeroRateSensitivity.of(
             fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
     when(mockObs.rateSensitivity(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
-        .thenReturn(snese);
+        .thenReturn(sens);
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), FRA_NONE.getStartDate(), FRA_NONE.getEndDate()))
         .thenReturn(forwardRate);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
@@ -295,13 +306,16 @@ public class DiscountingExpandedFraPricerFnTest {
     double fdDscSense = dscSensitivity(FRA_NONE, forwardRate, discountFactor, paymentTime, eps);
     double fdSense = presentValueFwdSensitivity(FRA_NONE, forwardRate, discountFactor, paymentTime, eps);
 
-    assertEquals(sensitivity.getSensitivities().size(), 2);
-    assertEquals(sensitivity.getSensitivities().get(0).getCurveKey(), FRA_NONE.getIndex());
-    assertEquals(sensitivity.getSensitivities().get(0).getDate(), fixingDate);
-    assertEquals(sensitivity.getSensitivities().get(0).getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
-    assertEquals(sensitivity.getSensitivities().get(1).getCurveKey(), FRA_NONE.getCurrency());
-    assertEquals(sensitivity.getSensitivities().get(1).getDate(), fraExp.getPaymentDate());
-    assertEquals(sensitivity.getSensitivities().get(1).getSensitivity(), fdDscSense, FRA_NONE.getNotional() * eps);
+    ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
+    assertEquals(sensitivities.size(), 2);
+    PointSensitivity sensitivity0 = sensitivities.get(0);
+    assertEquals(sensitivity0.getCurveKey(), FRA_NONE.getIndex());
+    assertEquals(sensitivity0.getDate(), fixingDate);
+    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
+    PointSensitivity sensitivity1 = sensitivities.get(1);
+    assertEquals(sensitivity1.getCurveKey(), FRA_NONE.getCurrency());
+    assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
+    assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_NONE.getNotional() * eps);
   }
 
   /**
@@ -316,14 +330,14 @@ public class DiscountingExpandedFraPricerFnTest {
     double paymentTime = 0.3;
     double discountFactor = Math.exp(-discountRate * paymentTime);
     LocalDate fixingDate = FRA_AFMA.getStartDate();
-    PointSensitivityBuilder snese = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
+    PointSensitivityBuilder sens = IborRateSensitivity.of(FRA.getIndex(), fixingDate, 1d);
     when(mockEnv.discountFactor(FRA_AFMA.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
     when(mockEnv.discountFactorZeroRateSensitivity(FRA.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(ZeroRateSensitivity.of(
             fraExp.getCurrency(), fraExp.getPaymentDate(), -discountFactor * paymentTime));
     when(mockObs.rateSensitivity(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
-        .thenReturn(snese);
+        .thenReturn(sens);
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), FRA_AFMA.getStartDate(), FRA_AFMA.getEndDate()))
         .thenReturn(forwardRate);
     DiscountingExpandedFraPricerFn test = new DiscountingExpandedFraPricerFn(mockObs);
@@ -332,13 +346,16 @@ public class DiscountingExpandedFraPricerFnTest {
     double fdDscSense = dscSensitivity(FRA_AFMA, forwardRate, discountFactor, paymentTime, eps);
     double fdSense = presentValueFwdSensitivity(FRA_AFMA, forwardRate, discountFactor, paymentTime, eps);
 
-    assertEquals(sensitivity.getSensitivities().size(), 2);
-    assertEquals(sensitivity.getSensitivities().get(0).getCurveKey(), FRA_AFMA.getIndex());
-    assertEquals(sensitivity.getSensitivities().get(0).getDate(), fixingDate);
-    assertEquals(sensitivity.getSensitivities().get(0).getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
-    assertEquals(sensitivity.getSensitivities().get(1).getCurveKey(), FRA_AFMA.getCurrency());
-    assertEquals(sensitivity.getSensitivities().get(1).getDate(), fraExp.getPaymentDate());
-    assertEquals(sensitivity.getSensitivities().get(1).getSensitivity(), fdDscSense, FRA_AFMA.getNotional() * eps);
+    ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
+    assertEquals(sensitivities.size(), 2);
+    PointSensitivity sensitivity0 = sensitivities.get(0);
+    assertEquals(sensitivity0.getCurveKey(), FRA_AFMA.getIndex());
+    assertEquals(sensitivity0.getDate(), fixingDate);
+    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
+    PointSensitivity sensitivity1 = sensitivities.get(1);
+    assertEquals(sensitivity1.getCurveKey(), FRA_AFMA.getCurrency());
+    assertEquals(sensitivity1.getDate(), fraExp.getPaymentDate());
+    assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_AFMA.getNotional() * eps);
   }
 
   //-------------------------------------------------------------------------
