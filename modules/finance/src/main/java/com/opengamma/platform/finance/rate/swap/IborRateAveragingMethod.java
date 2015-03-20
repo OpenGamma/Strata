@@ -39,10 +39,10 @@ public enum IborRateAveragingMethod {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the averaging method from a unique name.
+   * Obtains the type from a unique name.
    * 
    * @param uniqueName  the unique name
-   * @return the averaging method
+   * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
@@ -52,9 +52,9 @@ public enum IborRateAveragingMethod {
   }
 
   /**
-   * Returns the formatted unique name of the averaging method.
+   * Returns the formatted unique name of the type.
    * 
-   * @return the formatted string representing the averaging method
+   * @return the formatted string representing the type
    */
   @ToString
   @Override

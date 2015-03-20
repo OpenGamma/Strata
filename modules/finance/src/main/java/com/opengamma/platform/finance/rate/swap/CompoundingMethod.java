@@ -60,10 +60,10 @@ public enum CompoundingMethod {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains the compounding method from a unique name.
+   * Obtains the type from a unique name.
    * 
    * @param uniqueName  the unique name
-   * @return the compounding method
+   * @return the type
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
@@ -73,9 +73,9 @@ public enum CompoundingMethod {
   }
 
   /**
-   * Returns the formatted unique name of the compounding method.
+   * Returns the formatted unique name of the type.
    * 
-   * @return the formatted string representing the compounding method
+   * @return the formatted string representing the type
    */
   @ToString
   @Override
