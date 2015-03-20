@@ -34,9 +34,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.BusinessDayAdjustment;
-import com.opengamma.platform.finance.observation.FixedRateObservation;
-import com.opengamma.platform.finance.observation.IborRateObservation;
-import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
+import com.opengamma.platform.finance.rate.FixedRateObservation;
+import com.opengamma.platform.finance.rate.IborRateObservation;
+import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
 
 /**
  * A rate swap leg defined using payment and accrual periods.

@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.CurrencyAmount;
-import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.rate.IborRateObservation;
 
 /**
  * Test.

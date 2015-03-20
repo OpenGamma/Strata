@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.platform.finance.observation.FixedRateObservation;
+import com.opengamma.platform.finance.rate.FixedRateObservation;
 import com.opengamma.platform.finance.rate.swap.CompoundingMethod;
 import com.opengamma.platform.finance.rate.swap.FxReset;
 import com.opengamma.platform.finance.rate.swap.NegativeRateMethod;

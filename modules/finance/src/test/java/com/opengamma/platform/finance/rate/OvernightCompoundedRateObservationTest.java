@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.observation;
+package com.opengamma.platform.finance.rate;
 
 import static com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.basics.index.OvernightIndices.USD_FED_FUND;

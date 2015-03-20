@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.observation;
+package com.opengamma.platform.finance.rate;
 
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;

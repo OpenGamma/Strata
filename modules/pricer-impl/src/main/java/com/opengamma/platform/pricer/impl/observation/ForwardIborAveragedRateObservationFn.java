@@ -8,8 +8,8 @@ package com.opengamma.platform.pricer.impl.observation;
 import java.time.LocalDate;
 
 import com.opengamma.basics.index.IborIndex;
-import com.opengamma.platform.finance.observation.IborAveragedFixing;
-import com.opengamma.platform.finance.observation.IborAveragedRateObservation;
+import com.opengamma.platform.finance.rate.IborAveragedFixing;
+import com.opengamma.platform.finance.rate.IborAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;

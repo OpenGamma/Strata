@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.observation;
+package com.opengamma.platform.finance.rate;
 
 import static com.opengamma.collect.TestHelper.assertSerialization;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;

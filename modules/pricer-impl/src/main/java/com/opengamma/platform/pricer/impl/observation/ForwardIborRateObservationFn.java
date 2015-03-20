@@ -7,7 +7,7 @@ package com.opengamma.platform.pricer.impl.observation;
 
 import java.time.LocalDate;
 
-import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.rate.IborRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;

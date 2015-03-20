@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.basics.schedule.SchedulePeriod;
-import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.rate.IborRateObservation;
 
 /**
  * Test.

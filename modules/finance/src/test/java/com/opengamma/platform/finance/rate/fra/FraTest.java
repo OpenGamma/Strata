@@ -37,8 +37,8 @@ import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.date.TenorAdjustment;
 import com.opengamma.basics.index.ImmutableIborIndex;
-import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
-import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
+import com.opengamma.platform.finance.rate.IborRateObservation;
 
 /**
  * Test.

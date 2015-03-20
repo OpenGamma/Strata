@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.observation;
+package com.opengamma.platform.finance.rate;
 
 import static com.opengamma.basics.index.IborIndices.EUR_EURIBOR_1W;
 import static com.opengamma.basics.index.IborIndices.EUR_EURIBOR_2W;

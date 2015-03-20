@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.platform.finance.observation.RateObservation;
+import com.opengamma.platform.finance.rate.RateObservation;
 import com.opengamma.platform.finance.rate.fra.ExpandedFra;
 import com.opengamma.platform.finance.rate.fra.Fra;
 import com.opengamma.platform.pricer.PricingEnvironment;

@@ -7,7 +7,7 @@ package com.opengamma.platform.pricer.observation;
 
 import java.time.LocalDate;
 
-import com.opengamma.platform.finance.observation.RateObservation;
+import com.opengamma.platform.finance.rate.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;
 

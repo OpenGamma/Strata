@@ -12,7 +12,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.basics.date.HolidayCalendar;
 import com.opengamma.basics.index.OvernightIndex;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
-import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
+import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;

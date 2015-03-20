@@ -37,9 +37,9 @@ import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
-import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
-import com.opengamma.platform.finance.observation.RateObservation;
+import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
+import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
+import com.opengamma.platform.finance.rate.RateObservation;
 
 /**
  * Defines the calculation of a floating rate swap leg based on an Overnight index.

@@ -20,14 +20,14 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.platform.finance.observation.FixedRateObservation;
-import com.opengamma.platform.finance.observation.IborAveragedFixing;
-import com.opengamma.platform.finance.observation.IborAveragedRateObservation;
-import com.opengamma.platform.finance.observation.IborInterpolatedRateObservation;
-import com.opengamma.platform.finance.observation.IborRateObservation;
-import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
-import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
-import com.opengamma.platform.finance.observation.RateObservation;
+import com.opengamma.platform.finance.rate.FixedRateObservation;
+import com.opengamma.platform.finance.rate.IborAveragedFixing;
+import com.opengamma.platform.finance.rate.IborAveragedRateObservation;
+import com.opengamma.platform.finance.rate.IborInterpolatedRateObservation;
+import com.opengamma.platform.finance.rate.IborRateObservation;
+import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
+import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
+import com.opengamma.platform.finance.rate.RateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;

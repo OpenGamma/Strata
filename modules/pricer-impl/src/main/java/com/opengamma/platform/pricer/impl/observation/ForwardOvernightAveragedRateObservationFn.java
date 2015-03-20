@@ -8,7 +8,7 @@ package com.opengamma.platform.pricer.impl.observation;
 import java.time.LocalDate;
 
 import com.opengamma.basics.index.OvernightIndex;
-import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
+import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.observation.RateObservationFn;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivityBuilder;

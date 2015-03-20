@@ -30,7 +30,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.observation.RateObservation;
+import com.opengamma.platform.finance.rate.RateObservation;
 
 /**
  * A period over which a fixed or floating rate is accrued.

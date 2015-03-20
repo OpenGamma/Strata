@@ -34,8 +34,8 @@ import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueAdjustment;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
-import com.opengamma.platform.finance.observation.OvernightAveragedRateObservation;
-import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
+import com.opengamma.platform.finance.rate.OvernightAveragedRateObservation;
+import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
 
 /**
  * Test.

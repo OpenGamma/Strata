@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.currency.Currency;
-import com.opengamma.platform.finance.observation.FixedRateObservation;
+import com.opengamma.platform.finance.rate.FixedRateObservation;
 
 /**
  * Mock.

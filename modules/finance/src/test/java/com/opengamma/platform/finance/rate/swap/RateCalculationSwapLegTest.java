@@ -37,8 +37,8 @@ import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueAdjustment;
 import com.opengamma.basics.value.ValueSchedule;
 import com.opengamma.basics.value.ValueStep;
-import com.opengamma.platform.finance.observation.FixedRateObservation;
-import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.rate.FixedRateObservation;
+import com.opengamma.platform.finance.rate.IborRateObservation;
 
 /**
  * Test.

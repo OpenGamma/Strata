@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import com.opengamma.basics.date.AdjustableDate;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
-import com.opengamma.platform.finance.observation.IborRateObservation;
+import com.opengamma.platform.finance.rate.IborRateObservation;
 
 /**
  * Test.

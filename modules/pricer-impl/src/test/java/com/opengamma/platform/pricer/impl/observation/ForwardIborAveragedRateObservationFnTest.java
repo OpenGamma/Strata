@@ -18,8 +18,8 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.platform.finance.observation.IborAveragedFixing;
-import com.opengamma.platform.finance.observation.IborAveragedRateObservation;
+import com.opengamma.platform.finance.rate.IborAveragedFixing;
+import com.opengamma.platform.finance.rate.IborAveragedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.sensitivity.IborRateSensitivity;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivities;

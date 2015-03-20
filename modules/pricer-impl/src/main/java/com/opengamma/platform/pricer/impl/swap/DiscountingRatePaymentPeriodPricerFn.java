@@ -6,7 +6,7 @@
 package com.opengamma.platform.pricer.impl.swap;
 
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.observation.RateObservation;
+import com.opengamma.platform.finance.rate.RateObservation;
 import com.opengamma.platform.finance.rate.swap.FxReset;
 import com.opengamma.platform.finance.rate.swap.RateAccrualPeriod;
 import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;

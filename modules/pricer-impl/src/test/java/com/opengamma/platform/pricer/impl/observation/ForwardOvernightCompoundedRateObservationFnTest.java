@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
-import com.opengamma.platform.finance.observation.OvernightCompoundedRateObservation;
+import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
