@@ -15,7 +15,7 @@ import com.opengamma.collect.result.Result;
  * An assert helper that provides useful AssertJ assertion
  * methods for {@link Result} instances.
  * <p>
- * These allow {code Result}s to be inspected in tests in the
+ * These allow {code Result} instances to be inspected in tests in the
  * same fluent style as other basic classes.
  * <p>
  * So the following:
@@ -46,29 +46,30 @@ import com.opengamma.collect.result.Result;
 public class ResultAssert extends AbstractAssert<ResultAssert, Result<?>> {
 
   /**
-   * Private constructor, use {@link #assertThat(Result)} to
-   * construct an instance.
-   *
-   * @param actual the result to create an {@code Assert} for
-   */
-  private ResultAssert(Result<?> actual) {
-    super(actual, ResultAssert.class);
-  }
-
-  /**
    * Create an {@code Assert} instance for the supplied {@code Result}.
    *
-   * @param result  the result to create an {@code Assert} for
-   * @return an {@code Assert} instance
+   * @param result  the result instance to wrap
+   * @return an instance of {@code ResultAssert}
    */
   public static ResultAssert assertThat(Result<?> result) {
     return new ResultAssert(result);
   }
 
   /**
+   * Private constructor, use {@link #assertThat(Result)} to construct an instance.
+   *
+   * @param actual  the instance of {@code Result} to create an {@code Assert} for
+   */
+  private ResultAssert(Result<?> actual) {
+    super(actual, ResultAssert.class);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Assert that the {@code Result} is a Success.
    *
-   * @return this if a failure, else throw an {@code AssertionError}
+   * @return this, if the wrapped object is a success
+   * @throws AssertionError if the wrapped object is a failure
    */
   public ResultAssert isSuccess() {
     isNotNull();
@@ -82,12 +83,11 @@ public class ResultAssert extends AbstractAssert<ResultAssert, Result<?>> {
   }
 
   /**
-   * Assert that the {@code Result} is a success and contains the
-   * specified value.
+   * Assert that the {@code Result} is a success and contains the specified value.
    *
    * @param value  the value the {@code Result} is expected to contain
-   * @return this if a success with the specified value, else
-   *   throw an {@code AssertionError}
+   * @return this, if the wrapped object is a success and has the specified value
+   * @throws AssertionError if the wrapped object is a failure, or does not have the specified value
    */
   public ResultAssert hasValue(Object value) {
     isSuccess();
@@ -102,7 +102,8 @@ public class ResultAssert extends AbstractAssert<ResultAssert, Result<?>> {
   /**
    * Assert that the {@code Result} is a Failure.
    *
-   * @return this if a failure, else throw an {@code AssertionError}
+   * @return this, if the wrapped object is a failure
+   * @throws AssertionError if the wrapped object is a success
    */
   public ResultAssert isFailure() {
     isNotNull();
@@ -114,12 +115,11 @@ public class ResultAssert extends AbstractAssert<ResultAssert, Result<?>> {
   }
 
   /**
-   * Assert that the {@code Result} is a failure with the
-   * specified {@link FailureReason}.
+   * Assert that the {@code Result} is a failure with the specified reason.
    *
    * @param expected  the expected failure reason
-   * @return this if a failure with the specified reason, else
-   *   throw an {@code AssertionError}
+   * @return this, if the wrapped object is a failure with the specified reason
+   * @throws AssertionError if the wrapped object is a success, or does not have the expected reason
    */
   public ResultAssert isFailure(FailureReason expected) {
     isFailure();
@@ -133,12 +133,13 @@ public class ResultAssert extends AbstractAssert<ResultAssert, Result<?>> {
   }
 
   /**
-   * Assert that the {@code Result} is a failure with the
-   * specified message.
+   * Assert that the {@code Result} is a failure with the specified message.
    *
    * @param regex  the regex that the failure message is expected to match
+   * @return this, if the wrapped object is a failure with the specified message
+   * @throws AssertionError if the wrapped object is a success, or does not have the expected message
    */
-  public void hasFailureMessageMatching(String regex) {
+  public ResultAssert hasFailureMessageMatching(String regex) {
     isFailure();
 
     String message = actual.getFailure().getMessage();
@@ -146,5 +147,7 @@ public class ResultAssert extends AbstractAssert<ResultAssert, Result<?>> {
       failWithMessage("Expected Failure with message matching: <%s> but was Failure with message: <%s>",
           regex, message);
     }
+    return this;
   }
+
 }

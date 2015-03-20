@@ -31,32 +31,39 @@ import org.assertj.core.api.AbstractAssert;
  * </pre>
  * In order to be able to use a statically imported assertThat()
  * method for both {@code Optional} and other types, statically
- * import {@link CollectProjectAssertions#assertThat}
+ * import {@link CollectProjectAssertions#assertThat(Optional)}
  * rather than this class.
  *
  * @param <T> the type of the value in the {@code Optional}.
  */
 public class OptionalAssert<T> extends AbstractAssert<OptionalAssert<T>, Optional<T>> {
 
-  private OptionalAssert(Optional<T> actual) {
-    super(actual, OptionalAssert.class);
-  }
-
   /**
    * Create an {@code Assert} instance for the supplied {@code Optional}.
    *
-   * @param optional  the optional to create an {@code Assert} for
+   * @param optional  the optional instance to wrap
    * @param <T>  the type of the optional value
-   * @return an {@code Assert} instance
+   * @return an instance of {@code OptionalAssert}
    */
   public static <T> OptionalAssert<T> assertThat(Optional<T> optional) {
     return new OptionalAssert<>(optional);
   }
 
   /**
+   * Private constructor, use {@link #assertThat(Optional)} to construct an instance.
+   *
+   * @param actual  the instance of {@code Optional} to create an {@code Assert} for
+   */
+  private OptionalAssert(Optional<T> actual) {
+    super(actual, OptionalAssert.class);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Assert that the {@code Optional} contains a value.
    *
-   * @return this if the {@code Optional} contains a value, else throw an {@code AssertionError}
+   * @return this, if the wrapped object contains a value
+   * @throws AssertionError if the wrapped object does not contain a value
    */
   public OptionalAssert<T> isPresent() {
     isNotNull();
@@ -70,7 +77,8 @@ public class OptionalAssert<T> extends AbstractAssert<OptionalAssert<T>, Optiona
   /**
    * Assert that the {@code Optional} is empty.
    *
-   * @return this if the {@code Optional} is empty, else throw an {@code AssertionError}
+   * @return this, if the wrapped object does not contain a value
+   * @throws AssertionError if the wrapped object contains a value
    */
   public OptionalAssert<T> isEmpty() {
     isNotNull();
@@ -84,7 +92,9 @@ public class OptionalAssert<T> extends AbstractAssert<OptionalAssert<T>, Optiona
   /**
    * Assert that the {@code Optional} contains a particular value.
    *
-   * @return this if the {@code Optional} contains the specified value, else throw an {@code AssertionError}
+   * @param value  the value to check
+   * @return this, if the wrapped object contains the specified value
+   * @throws AssertionError if the wrapped object does not contain a value, or the value is not the specified value
    */
   public OptionalAssert<T> hasValue(T value) {
     isPresent();
@@ -94,4 +104,5 @@ public class OptionalAssert<T> extends AbstractAssert<OptionalAssert<T>, Optiona
     }
     return this;
   }
+
 }
