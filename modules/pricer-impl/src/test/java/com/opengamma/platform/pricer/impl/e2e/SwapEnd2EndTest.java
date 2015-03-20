@@ -60,8 +60,8 @@ import com.opengamma.platform.finance.rate.swap.Swap;
 import com.opengamma.platform.finance.rate.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.ImmutablePricingEnvironment;
-import com.opengamma.platform.pricer.impl.swap.ExpandingSwapTradePricerFn;
-import com.opengamma.platform.pricer.swap.SwapTradePricerFn;
+import com.opengamma.platform.pricer.impl.rate.swap.ExpandingSwapTradePricerFn;
+import com.opengamma.platform.pricer.rate.swap.SwapTradePricerFn;
 import com.opengamma.util.tuple.Pair;
 
 /**
