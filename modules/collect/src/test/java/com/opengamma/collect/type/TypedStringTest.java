@@ -32,7 +32,7 @@ public class TypedStringTest {
     MockType a1 = MockType.of("A");
     MockType a2 = MockType.of("A");
     MockType b = MockType.of("B");
-    
+
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
@@ -45,15 +45,15 @@ public class TypedStringTest {
     MockType a = MockType.of("A");
     MockType b = MockType.of("B");
     MockType c = MockType.of("C");
-    
+
     assertEquals(a.compareTo(a) == 0, true);
     assertEquals(a.compareTo(b) < 0, true);
     assertEquals(a.compareTo(c) < 0, true);
-    
+
     assertEquals(b.compareTo(a) > 0, true);
     assertEquals(b.compareTo(b) == 0, true);
     assertEquals(b.compareTo(c) < 0, true);
-    
+
     assertEquals(c.compareTo(a) > 0, true);
     assertEquals(c.compareTo(b) > 0, true);
     assertEquals(c.compareTo(c) == 0, true);

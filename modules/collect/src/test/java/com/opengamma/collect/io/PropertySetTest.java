@@ -28,7 +28,7 @@ public class PropertySetTest {
   public void test_of_map() {
     Map<String, String> keyValues = ImmutableMap.of("a", "x", "b", "y");
     PropertySet test = PropertySet.of(keyValues);
-    
+
     assertEquals(test.contains("a"), true);
     assertEquals(test.getValue("a"), "x");
     assertEquals(test.getValueList("a"), ImmutableList.of("x"));
@@ -38,7 +38,7 @@ public class PropertySetTest {
     assertEquals(test.contains("c"), false);
     assertEquals(test.getKeys(), ImmutableSet.of("a", "b"));
     assertEquals(test.getKeyValues(), ImmutableListMultimap.of("a", "x", "b", "y"));
-    
+
     assertThrows(() -> test.getValue("rubbish"), IllegalArgumentException.class);
     assertThrows(() -> test.getValueList("rubbish"), IllegalArgumentException.class);
     assertEquals(test.toString(), "{a=[x], b=[y]}");
@@ -47,7 +47,7 @@ public class PropertySetTest {
   public void test_of_multimap() {
     Multimap<String, String> keyValues = ImmutableMultimap.of("a", "x", "a", "y", "b", "z");
     PropertySet test = PropertySet.of(keyValues);
-    
+
     assertEquals(test.contains("a"), true);
     assertThrows(() -> test.getValue("a"), IllegalArgumentException.class);
     assertEquals(test.getValueList("a"), ImmutableList.of("x", "y"));
@@ -57,7 +57,7 @@ public class PropertySetTest {
     assertEquals(test.contains("c"), false);
     assertEquals(test.getKeys(), ImmutableSet.of("a", "b"));
     assertEquals(test.getKeyValues(), ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
-    
+
     assertThrows(() -> test.getValue("rubbish"), IllegalArgumentException.class);
     assertThrows(() -> test.getValueList("rubbish"), IllegalArgumentException.class);
     assertEquals(test.toString(), "{a=[x, y], b=[z]}");
@@ -69,7 +69,7 @@ public class PropertySetTest {
     PropertySet a1 = PropertySet.of(keyValues);
     PropertySet a2 = PropertySet.of(keyValues);
     PropertySet b = PropertySet.of(ImmutableMap.of("a", "x", "b", "z"));
-    
+
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);

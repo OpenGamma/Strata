@@ -59,7 +59,7 @@ public final class Guavate {
   }
 
   /**
-   * Converts an {@link Optional} to a stream with zero or one elements.
+   * Converts an optional to a stream with zero or one elements.
    *
    * @param <T>  the type of optional element
    * @param optional  the optional
@@ -208,7 +208,7 @@ public final class Guavate {
    */
   public static <T, K> Collector<T, ?, ImmutableMap<K, T>> toImmutableMap(
       Function<? super T, ? extends K> keyExtractor) {
-    
+
     return toImmutableMap(keyExtractor, Function.identity());
   }
 
@@ -264,7 +264,7 @@ public final class Guavate {
    */
   public static <T, K extends Comparable<?>> Collector<T, ?, ImmutableSortedMap<K, T>> toImmutableSortedMap(
       Function<? super T, ? extends K> keyExtractor) {
-    
+
     return toImmutableSortedMap(keyExtractor, Function.identity());
   }
 
@@ -319,7 +319,7 @@ public final class Guavate {
    */
   public static <T, K> Collector<T, ?, ImmutableListMultimap<K, T>> toImmutableListMultimap(
       Function<? super T, ? extends K> keyExtractor) {
-    
+
     return toImmutableListMultimap(keyExtractor, Function.identity());
   }
 
@@ -372,7 +372,7 @@ public final class Guavate {
    */
   public static <T, K> Collector<T, ?, ImmutableSetMultimap<K, T>> toImmutableSetMultimap(
       Function<? super T, ? extends K> keyExtractor) {
-    
+
     return toImmutableSetMultimap(keyExtractor, Function.identity());
   }
 

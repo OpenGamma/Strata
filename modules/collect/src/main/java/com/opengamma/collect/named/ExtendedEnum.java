@@ -54,7 +54,7 @@ import com.opengamma.collect.io.ResourceLocator;
  * @param <T>  the type of the enum
  */
 public final class ExtendedEnum<T extends Named> {
-  
+
   /**
    * The enum type.
    */
@@ -101,7 +101,7 @@ public final class ExtendedEnum<T extends Named> {
         }
       }
       return new ExtendedEnum<>(type, ImmutableList.copyOf(lookups), ImmutableMap.copyOf(alternateNames));
-      
+
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }

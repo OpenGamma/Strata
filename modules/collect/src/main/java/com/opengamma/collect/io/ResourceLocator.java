@@ -62,11 +62,11 @@ public final class ResourceLocator {
       if (locator.startsWith(CLASSPATH_URL_PREFIX)) {
         String urlStr = locator.substring(CLASSPATH_URL_PREFIX.length());
         return ofClasspathUrl(Resources.getResource(urlStr));
-        
+
       } else if (locator.startsWith(FILE_URL_PREFIX)) {
         String fileStr = locator.substring(FILE_URL_PREFIX.length());
         return ofFile(new File(fileStr));
-        
+
       } else {
         return ofFile(new File(locator));
       }

@@ -558,7 +558,7 @@ public class TestHelper {
       m.setAccessible(true);
       m.invoke(null, String.class, String.class, String.class);
     });
-    
+
     ignoreThrows(() -> {
       Method m = bean.getClass().getDeclaredMethod("builder");
       m.setAccessible(true);
@@ -569,7 +569,7 @@ public class TestHelper {
       m.setAccessible(true);
       m.invoke(bean);
     });
-    
+
     assertNotNull(bean.toString());
     assertNotNull(metaBean.toString());
     assertNotNull(metaBean.builder().toString());

@@ -391,7 +391,7 @@ public class LocalDateRangeTest {
   @Test(dataProvider = "intersection")
   public void test_intersection(
       LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
-    
+
     LocalDateRange test1 = LocalDateRange.of(start1, end1);
     LocalDateRange test2 = LocalDateRange.of(start2, end2);
     LocalDateRange expected = LocalDateRange.of(expStart, expEnd);
@@ -402,7 +402,7 @@ public class LocalDateRangeTest {
   @Test(dataProvider = "intersection")
   public void test_intersection_reverse(
       LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
-    
+
     LocalDateRange test1 = LocalDateRange.of(start1, end1);
     LocalDateRange test2 = LocalDateRange.of(start2, end2);
     LocalDateRange expected = LocalDateRange.of(expStart, expEnd);
@@ -430,7 +430,7 @@ public class LocalDateRangeTest {
   @Test(dataProvider = "union")
   public void test_union(
       LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
-    
+
     LocalDateRange test1 = LocalDateRange.of(start1, end1);
     LocalDateRange test2 = LocalDateRange.of(start2, end2);
     LocalDateRange expected = LocalDateRange.of(expStart, expEnd);
@@ -441,7 +441,7 @@ public class LocalDateRangeTest {
   @Test(dataProvider = "union")
   public void test_union_reverse(
       LocalDate start1, LocalDate end1, LocalDate start2, LocalDate end2, LocalDate expStart, LocalDate expEnd) {
-    
+
     LocalDateRange test1 = LocalDateRange.of(start1, end1);
     LocalDateRange test2 = LocalDateRange.of(start2, end2);
     LocalDateRange expected = LocalDateRange.of(expStart, expEnd);
@@ -660,23 +660,23 @@ public class LocalDateRangeTest {
     LocalDateRange a2 = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_31);
     LocalDateRange b = LocalDateRange.of(DATE_2012_07_28, DATE_2012_07_30);
     LocalDateRange c = LocalDateRange.of(DATE_2012_07_30, DATE_2012_07_31);
-    
+
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(c), false);
-    
+
     assertEquals(b.equals(a1), false);
     assertEquals(b.equals(b), true);
     assertEquals(b.equals(c), false);
-    
+
     assertEquals(c.equals(a1), false);
     assertEquals(c.equals(b), false);
     assertEquals(c.equals(c), true);
-    
+
     assertEquals(a1.equals(""), false);
     assertEquals(a1.equals(null), false);
-    
+
     assertEquals(a2.hashCode(), a1.hashCode());
   }
 

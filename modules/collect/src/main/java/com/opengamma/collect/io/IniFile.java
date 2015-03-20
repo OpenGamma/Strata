@@ -103,10 +103,10 @@ public final class IniFile {
         }
         currentSection = ArrayListMultimap.create();
         ini.put(sectionName, currentSection);
-        
+
       } else if (currentSection == null) {
         throw new IllegalArgumentException("Invalid INI file, properties must be within a [section], line " + lineNum);
-        
+
       } else {
         int equalsPosition = line.indexOf('=');
         if (equalsPosition < 0) {

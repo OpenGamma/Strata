@@ -86,7 +86,7 @@ public class ResourceLocatorTest {
     ResourceLocator a1 = ResourceLocator.ofFile(file1);
     ResourceLocator a2 = ResourceLocator.ofFile(file1);
     ResourceLocator b = ResourceLocator.ofFile(file2);
-    
+
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);

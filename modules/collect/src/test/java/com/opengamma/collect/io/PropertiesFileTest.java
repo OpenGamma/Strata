@@ -74,7 +74,7 @@ public class PropertiesFileTest {
     PropertiesFile a1 = PropertiesFile.of(CharSource.wrap(FILE1));
     PropertiesFile a2 = PropertiesFile.of(CharSource.wrap(FILE1));
     PropertiesFile b = PropertiesFile.of(CharSource.wrap(FILE2));
-    
+
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);

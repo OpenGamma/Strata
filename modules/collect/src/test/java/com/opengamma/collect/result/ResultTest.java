@@ -44,7 +44,7 @@ public class ResultTest {
   private static final BiFunction<String, String, Result<String>> FUNCTION_MERGE =
       (t, u) -> Result.success(t + " " + u);
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   public void success() {
     Result<String> test = Result.success("success");
     assertEquals(test.isSuccess(), true);
@@ -95,7 +95,9 @@ public class ResultTest {
   public void success_combineWith_success_throws() {
     Result<String> success1 = Result.success("Hello");
     Result<String> success2 = Result.success("World");
-    Result<String> test = success1.combineWith(success2, (s1, s2) -> {throw new IllegalArgumentException("Ooops");});
+    Result<String> test = success1.combineWith(success2, (s1, s2) -> {
+      throw new IllegalArgumentException("Ooops");
+    });
     assertThat(test)
         .isFailure()
         .hasFailureMessageMatching(".*Error.*combine.*ith.*");
@@ -186,7 +188,9 @@ public class ResultTest {
 
   public void failure_map_throwing() {
     Result<String> success = Result.failure(new IllegalArgumentException("failure"));
-    Result<Integer> test = success.map(r -> {throw new IllegalArgumentException("Big bad error");});
+    Result<Integer> test = success.map(r -> {
+      throw new IllegalArgumentException("Big bad error");
+    });
     assertEquals(test.isSuccess(), false);
     assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure");
@@ -276,7 +280,9 @@ public class ResultTest {
 
   public void of_with_exception() {
 
-    Result<String> test = Result.of(() -> {throw new IllegalArgumentException("Big bad error");});
+    Result<String> test = Result.of(() -> {
+      throw new IllegalArgumentException("Big bad error");
+    });
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
     assertThrows(test::getValue, IllegalStateException.class);
@@ -404,7 +410,9 @@ public class ResultTest {
 
     Result<String> combined = Result.combine(
         results,
-        s -> {throw new IllegalArgumentException("Ooops");});
+        s -> {
+          throw new IllegalArgumentException("Ooops");
+        });
 
     assertThat(combined)
         .isFailure(ERROR)
@@ -464,7 +472,9 @@ public class ResultTest {
 
     Result<String> combined = Result.flatCombine(
         results,
-        s -> {throw new IllegalArgumentException("Ooops");});
+        s -> {
+          throw new IllegalArgumentException("Ooops");
+        });
 
     assertThat(combined)
         .isFailure(ERROR)
@@ -606,25 +616,25 @@ public class ResultTest {
     Result<Object> b = Result.failure(ERROR, "message 2");
     Result<Object> c = Result.success("Foo");
     Result<Object> d = Result.success("Bar");
-    
+
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(c), false);
     assertEquals(a1.equals(d), false);
-    
+
     assertEquals(b.equals(a1), false);
     assertEquals(b.equals(a2), false);
     assertEquals(b.equals(b), true);
     assertEquals(b.equals(c), false);
     assertEquals(b.equals(d), false);
-    
+
     assertEquals(c.equals(a1), false);
     assertEquals(c.equals(a2), false);
     assertEquals(c.equals(b), false);
     assertEquals(c.equals(c), true);
     assertEquals(c.equals(d), false);
-    
+
     assertEquals(d.equals(a1), false);
     assertEquals(d.equals(a2), false);
     assertEquals(d.equals(b), false);

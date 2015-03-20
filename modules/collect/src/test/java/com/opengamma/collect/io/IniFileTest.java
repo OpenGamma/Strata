@@ -56,7 +56,7 @@ public class IniFileTest {
     keyValues2.put("a", "m");
     keyValues2.put("b", "n");
     assertEquals(test.getSections(), ImmutableMap.of("section", PropertySet.of(keyValues1), "name", PropertySet.of(keyValues2)));
-    
+
     assertEquals(test.contains("section"), true);
     assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
     assertEquals(test.getSection("section").contains("a"), true);
@@ -67,7 +67,7 @@ public class IniFileTest {
     assertEquals(test.getSection("section").getValueList("b"), ImmutableList.of("y"));
     assertEquals(test.getSection("section").contains("c"), false);
     assertEquals(test.getSection("section").getKeyValues(), ImmutableListMultimap.of("a", "x", "b", "y"));
-    
+
     assertEquals(test.contains("name"), true);
     assertEquals(test.getSection("name"), PropertySet.of(keyValues2));
     assertEquals(test.getSection("name").contains("a"), true);
@@ -78,7 +78,7 @@ public class IniFileTest {
     assertEquals(test.getSection("name").getValueList("b"), ImmutableList.of("n"));
     assertEquals(test.getSection("name").contains("c"), false);
     assertEquals(test.getSection("name").getKeyValues(), ImmutableListMultimap.of("a", "m", "b", "n"));
-    
+
     assertEquals(test.contains("rubbish"), false);
     assertThrows(() -> test.getSection("rubbish"), IllegalArgumentException.class);
     assertThrows(() -> test.getSection("section").getValue("rubbish"), IllegalArgumentException.class);
@@ -92,7 +92,7 @@ public class IniFileTest {
     keyValues1.put("a", "x");
     keyValues1.put("a", "y");
     assertEquals(test.getSections(), ImmutableMap.of("section", PropertySet.of(keyValues1)));
-    
+
     assertEquals(test.getSection("section"), PropertySet.of(keyValues1));
     assertEquals(test.getSection("section").contains("a"), true);
     assertThrows(() -> test.getSection("section").getValue("a"), IllegalArgumentException.class);
@@ -154,7 +154,7 @@ public class IniFileTest {
     IniFile a1 = IniFile.of(CharSource.wrap(INI1));
     IniFile a2 = IniFile.of(CharSource.wrap(INI1));
     IniFile b = IniFile.of(CharSource.wrap(INI2));
-    
+
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
@@ -167,7 +167,7 @@ public class IniFileTest {
     IniFile a1 = IniFile.of(CharSource.wrap(INI1));
     IniFile a2 = IniFile.of(CharSource.wrap(INI1));
     IniFile b = IniFile.of(CharSource.wrap(INI2));
-    
+
     assertEquals(a1.getSection("name").equals(a1.getSection("name")), true);
     assertEquals(a1.getSection("name").equals(a2.getSection("name")), true);
     assertEquals(a1.getSection("name").equals(b.getSection("section")), false);
