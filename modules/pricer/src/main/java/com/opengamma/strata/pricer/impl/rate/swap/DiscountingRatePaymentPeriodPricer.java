@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
+import java.time.LocalDate;
+
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.RateObservation;
 import com.opengamma.strata.finance.rate.swap.FxReset;
@@ -13,6 +16,7 @@ import com.opengamma.strata.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.rate.RateObservationFn;
 import com.opengamma.strata.pricer.rate.swap.PaymentPeriodPricer;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer implementation for swap payment periods based on a rate.
@@ -153,6 +157,60 @@ public class DiscountingRatePaymentPeriodPricer
     return paymentPeriod.getAccrualPeriods().stream()
         .mapToDouble(accrualPeriod -> unitNotionalAccrual(env, accrualPeriod, accrualPeriod.getSpread()) * notional)
         .sum();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, RatePaymentPeriod period) {
+    Currency ccy = period.getCurrency();
+    LocalDate paymentDate = period.getPaymentDate();
+    double df = env.discountFactor(period.getCurrency(), paymentDate);
+    PointSensitivityBuilder fwdSensitivity = futureValueSensitivity(env, period);
+    fwdSensitivity = fwdSensitivity.multipliedBy(df);
+    double futureValue = futureValue(env, period);
+    PointSensitivityBuilder dscSensitivity = env.discountFactorZeroRateSensitivity(ccy, paymentDate);
+    dscSensitivity = dscSensitivity.multipliedBy(futureValue);
+    return fwdSensitivity.combinedWith(dscSensitivity);
+  }
+
+  @Override
+  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env,
+      RatePaymentPeriod period) {
+    // historic payments have zero sensi
+    if (period.getPaymentDate().isBefore(env.getValuationDate())) {
+      return PointSensitivityBuilder.none();
+    }
+    // TODO find FX rate, using 1 if no FX reset occurs
+    double fxRate = 1d;
+    if (period.getFxReset().isPresent()) {
+      throw new UnsupportedOperationException("FX Reset not yet implemented for futureValueSensitivity");
+    }
+    double notional = period.getNotional() * fxRate;
+    // TODO handle compounding
+    PointSensitivityBuilder unitAccrual;
+    if (period.isCompoundingApplicable()) {
+      throw new UnsupportedOperationException("compounding not yet implemented for futureValueSensitivity");
+    } else {
+      unitAccrual = unitNotionalSensiNoCompounding(env, period);
+    }
+    return unitAccrual.multipliedBy(notional);
+  }
+
+  private PointSensitivityBuilder unitNotionalSensiNoCompounding(PricingEnvironment env, RatePaymentPeriod period) {
+    Currency ccy = period.getCurrency();
+    PointSensitivityBuilder sensi = PointSensitivityBuilder.none();
+    for (RateAccrualPeriod accrualPeriod : period.getAccrualPeriods()) {
+      sensi = sensi.combinedWith(unitNotionalSensiAccrual3LD(env, accrualPeriod, ccy));
+    }
+    return sensi;
+  }
+
+  private PointSensitivityBuilder unitNotionalSensiAccrual3LD(PricingEnvironment env,
+      RateAccrualPeriod period, Currency ccy) {
+    PointSensitivityBuilder sensi = rateObservationFn.rateSensitivity(
+        env, period.getRateObservation(), period.getStartDate(), period.getEndDate());
+    //FIXME: need to adjust also the sensitivity
+    return sensi.multipliedBy(period.getGearing() * period.getYearFraction());
   }
 
 }

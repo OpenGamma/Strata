@@ -12,6 +12,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.finance.rate.swap.SwapProduct;
 import com.opengamma.strata.finance.rate.swap.SwapTrade;
 import com.opengamma.strata.pricer.PricingEnvironment;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivities;
 
 /**
  * Pricer for for rate swap trades.
@@ -74,6 +75,21 @@ public class DiscountingSwapTradePricer {
   }
 
   /**
+   * Calculates the present value sensitivity of the swap trade.
+   * <p>
+   * The present value sensitivity of the trade is the sensitivity of the present value to
+   * the underlying curves.
+   * 
+   * @param env  the pricing environment
+   * @param trade  the trade to price
+   * @return the present value curve sensitivity of the swap trade
+   */
+  public PointSensitivities presentValueSensitivity(PricingEnvironment env, SwapTrade trade) {
+    return productPricer.presentValueSensitivity(env, trade.getProduct().expand()).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the future value of the swap trade.
    * <p>
    * The future value of the trade is the value on the valuation date without present value discounting.
@@ -85,6 +101,20 @@ public class DiscountingSwapTradePricer {
    */
   public MultiCurrencyAmount futureValue(PricingEnvironment env, SwapTrade trade) {
     return productPricer.futureValue(env, trade.getProduct());
+  }
+
+  /**
+   * Calculates the future value sensitivity of the swap trade.
+   * <p>
+   * The future value sensitivity of the trade is the sensitivity of the future value to
+   * the underlying curves.
+   * 
+   * @param env  the pricing environment
+   * @param trade  the trade to price
+   * @return the future value curve sensitivity of the swap trade
+   */
+  public PointSensitivities futureValueSensitivity(PricingEnvironment env, SwapTrade trade) {
+    return productPricer.futureValueSensitivity(env, trade.getProduct().expand()).build();
   }
 
 }

@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.impl.rate.swap;
 import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer implementation for the exchange of notionals.
@@ -37,9 +38,21 @@ public class DiscountingNotionalExchangePricer
   }
 
   @Override
+  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, NotionalExchange event) {
+    PointSensitivityBuilder sensi = env.discountFactorZeroRateSensitivity(event.getCurrency(), event.getPaymentDate());
+    return sensi.multipliedBy(event.getPaymentAmount().getAmount());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public double futureValue(PricingEnvironment env, NotionalExchange event) {
     // paymentAmount
     return event.getPaymentAmount().getAmount();
+  }
+
+  @Override
+  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, NotionalExchange event) {
+    return PointSensitivityBuilder.none();
   }
 
 }

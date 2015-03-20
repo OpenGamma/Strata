@@ -11,6 +11,7 @@ import com.opengamma.strata.finance.rate.swap.NotionalExchange;
 import com.opengamma.strata.finance.rate.swap.PaymentEvent;
 import com.opengamma.strata.pricer.PricingEnvironment;
 import com.opengamma.strata.pricer.rate.swap.PaymentEventPricer;
+import com.opengamma.strata.pricer.sensitivity.PointSensitivityBuilder;
 
 /**
  * Pricer implementation for payment events using multiple dispatch.
@@ -64,12 +65,37 @@ public class DispatchingPaymentEventPricer
   }
 
   @Override
+  public PointSensitivityBuilder presentValueSensitivity(PricingEnvironment env, PaymentEvent paymentEvent) {
+    // dispatch by runtime type
+    if (paymentEvent instanceof NotionalExchange) {
+      return notionalExchangePricer.presentValueSensitivity(env, (NotionalExchange) paymentEvent);
+    } else if (paymentEvent instanceof FxResetNotionalExchange) {
+      return fxResetNotionalExchangePricer.presentValueSensitivity(env, (FxResetNotionalExchange) paymentEvent);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public double futureValue(PricingEnvironment env, PaymentEvent paymentEvent) {
     // dispatch by runtime type
     if (paymentEvent instanceof NotionalExchange) {
       return notionalExchangePricer.futureValue(env, (NotionalExchange) paymentEvent);
     } else if (paymentEvent instanceof FxResetNotionalExchange) {
       return fxResetNotionalExchangePricer.futureValue(env, (FxResetNotionalExchange) paymentEvent);
+    } else {
+      throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
+    }
+  }
+
+  @Override
+  public PointSensitivityBuilder futureValueSensitivity(PricingEnvironment env, PaymentEvent paymentEvent) {
+    // dispatch by runtime type
+    if (paymentEvent instanceof NotionalExchange) {
+      return notionalExchangePricer.futureValueSensitivity(env, (NotionalExchange) paymentEvent);
+    } else if (paymentEvent instanceof FxResetNotionalExchange) {
+      return fxResetNotionalExchangePricer.futureValueSensitivity(env, (FxResetNotionalExchange) paymentEvent);
     } else {
       throw new IllegalArgumentException("Unknown PaymentEvent type: " + paymentEvent.getClass().getSimpleName());
     }
