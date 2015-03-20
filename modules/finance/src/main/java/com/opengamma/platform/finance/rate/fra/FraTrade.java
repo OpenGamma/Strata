@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.fra;
+package com.opengamma.platform.finance.rate.fra;
 
 import java.io.Serializable;
 import java.util.Map;

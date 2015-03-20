@@ -11,5 +11,5 @@
  * the difference between a fixed and floating rate of interest at a future date.
  */
 @javax.annotation.ParametersAreNonnullByDefault
-package com.opengamma.platform.finance.fra;
+package com.opengamma.platform.finance.rate.fra;
 

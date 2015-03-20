@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.fra;
+package com.opengamma.platform.finance.rate.fra;
 
 import static com.opengamma.basics.BuySell.BUY;
 import static com.opengamma.basics.currency.Currency.GBP;
@@ -17,7 +17,7 @@ import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.collect.TestHelper.date;
-import static com.opengamma.platform.finance.fra.FraDiscountingMethod.ISDA;
+import static com.opengamma.platform.finance.rate.fra.FraDiscountingMethod.ISDA;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 

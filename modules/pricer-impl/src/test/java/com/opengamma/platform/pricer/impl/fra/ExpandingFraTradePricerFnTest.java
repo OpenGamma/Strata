@@ -9,11 +9,10 @@ import static com.opengamma.basics.currency.Currency.GBP;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.platform.finance.fra.ExpandedFra;
+import com.opengamma.platform.finance.rate.fra.ExpandedFra;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
 import com.opengamma.platform.pricer.impl.MockPricingEnvironment;

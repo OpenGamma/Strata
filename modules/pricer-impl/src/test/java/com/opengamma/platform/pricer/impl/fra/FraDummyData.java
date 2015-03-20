@@ -18,9 +18,9 @@ import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.TradeInfo;
-import com.opengamma.platform.finance.fra.Fra;
-import com.opengamma.platform.finance.fra.FraDiscountingMethod;
-import com.opengamma.platform.finance.fra.FraTrade;
+import com.opengamma.platform.finance.rate.fra.Fra;
+import com.opengamma.platform.finance.rate.fra.FraDiscountingMethod;
+import com.opengamma.platform.finance.rate.fra.FraTrade;
 
 /**
  * Basic dummy objects used when the data within is not important.

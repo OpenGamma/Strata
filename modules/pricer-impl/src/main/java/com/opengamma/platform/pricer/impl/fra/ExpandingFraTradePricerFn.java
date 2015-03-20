@@ -7,8 +7,8 @@ package com.opengamma.platform.pricer.impl.fra;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.fra.ExpandedFra;
-import com.opengamma.platform.finance.fra.FraTrade;
+import com.opengamma.platform.finance.rate.fra.ExpandedFra;
+import com.opengamma.platform.finance.rate.fra.FraTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
 import com.opengamma.platform.pricer.fra.FraTradePricerFn;

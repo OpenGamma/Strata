@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.fra;
+package com.opengamma.platform.finance.rate.fra;
 
 import static com.opengamma.basics.BuySell.BUY;
 import static com.opengamma.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;

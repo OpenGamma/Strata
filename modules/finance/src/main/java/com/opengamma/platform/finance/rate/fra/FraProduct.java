@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.fra;
+package com.opengamma.platform.finance.rate.fra;
 
 import org.joda.beans.ImmutableBean;
 

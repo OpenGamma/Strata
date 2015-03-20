@@ -3,12 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.platform.finance.fra;
+package com.opengamma.platform.finance.rate.fra;
 
 import static com.opengamma.basics.currency.Currency.AUD;
 import static com.opengamma.basics.currency.Currency.NZD;
-import static com.opengamma.platform.finance.fra.FraDiscountingMethod.AFMA;
-import static com.opengamma.platform.finance.fra.FraDiscountingMethod.ISDA;
+import static com.opengamma.platform.finance.rate.fra.FraDiscountingMethod.AFMA;
+import static com.opengamma.platform.finance.rate.fra.FraDiscountingMethod.ISDA;
 
 import java.io.Serializable;
 import java.time.LocalDate;

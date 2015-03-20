@@ -6,7 +6,7 @@
 package com.opengamma.platform.pricer.fra;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.platform.finance.fra.FraProduct;
+import com.opengamma.platform.finance.rate.fra.FraProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
 
