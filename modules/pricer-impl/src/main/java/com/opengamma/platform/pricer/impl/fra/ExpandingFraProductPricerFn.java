@@ -11,6 +11,7 @@ import com.opengamma.platform.finance.fra.ExpandedFra;
 import com.opengamma.platform.finance.fra.FraProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.fra.FraProductPricerFn;
+import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
 
 /**
  * Pricer implementation for forward rate agreement (FRA) products.
@@ -48,8 +49,18 @@ public class ExpandingFraProductPricerFn
   }
 
   @Override
+  public PointSensitivities presentValueSensitivity(PricingEnvironment env, FraProduct product) {
+    return expandedFraPricerFn.presentValueSensitivity(env, product.expand());
+  }
+
+  @Override
   public MultiCurrencyAmount futureValue(PricingEnvironment env, FraProduct product) {
     return expandedFraPricerFn.futureValue(env, product.expand());
+  }
+
+  @Override
+  public PointSensitivities futureValueSensitivity(PricingEnvironment env, FraProduct product) {
+    return expandedFraPricerFn.futureValueSensitivity(env, product.expand());
   }
 
 }
