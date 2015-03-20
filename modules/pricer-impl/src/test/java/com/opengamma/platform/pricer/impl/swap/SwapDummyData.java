@@ -24,18 +24,18 @@ import com.opengamma.collect.id.StandardId;
 import com.opengamma.platform.finance.TradeInfo;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
 import com.opengamma.platform.finance.observation.IborRateObservation;
-import com.opengamma.platform.finance.swap.ExpandedSwapLeg;
-import com.opengamma.platform.finance.swap.FixedRateCalculation;
-import com.opengamma.platform.finance.swap.FxResetNotionalExchange;
-import com.opengamma.platform.finance.swap.IborRateCalculation;
-import com.opengamma.platform.finance.swap.NotionalExchange;
-import com.opengamma.platform.finance.swap.NotionalSchedule;
-import com.opengamma.platform.finance.swap.PaymentSchedule;
-import com.opengamma.platform.finance.swap.RateAccrualPeriod;
-import com.opengamma.platform.finance.swap.RateCalculationSwapLeg;
-import com.opengamma.platform.finance.swap.RatePaymentPeriod;
-import com.opengamma.platform.finance.swap.Swap;
-import com.opengamma.platform.finance.swap.SwapTrade;
+import com.opengamma.platform.finance.rate.swap.ExpandedSwapLeg;
+import com.opengamma.platform.finance.rate.swap.FixedRateCalculation;
+import com.opengamma.platform.finance.rate.swap.FxResetNotionalExchange;
+import com.opengamma.platform.finance.rate.swap.IborRateCalculation;
+import com.opengamma.platform.finance.rate.swap.NotionalExchange;
+import com.opengamma.platform.finance.rate.swap.NotionalSchedule;
+import com.opengamma.platform.finance.rate.swap.PaymentSchedule;
+import com.opengamma.platform.finance.rate.swap.RateAccrualPeriod;
+import com.opengamma.platform.finance.rate.swap.RateCalculationSwapLeg;
+import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
+import com.opengamma.platform.finance.rate.swap.Swap;
+import com.opengamma.platform.finance.rate.swap.SwapTrade;
 
 /**
  * Basic dummy objects used when the data within is not important.

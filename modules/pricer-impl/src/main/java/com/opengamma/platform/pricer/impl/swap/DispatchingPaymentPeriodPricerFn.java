@@ -6,8 +6,8 @@
 package com.opengamma.platform.pricer.impl.swap;
 
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.swap.PaymentPeriod;
-import com.opengamma.platform.finance.swap.RatePaymentPeriod;
+import com.opengamma.platform.finance.rate.swap.PaymentPeriod;
+import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;
 

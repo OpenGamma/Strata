@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.pricer.impl.swap;
 
-import com.opengamma.platform.finance.swap.NotionalExchange;
+import com.opengamma.platform.finance.rate.swap.NotionalExchange;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.swap.PaymentEventPricerFn;
 

@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.pricer.swap;
 
-import com.opengamma.platform.finance.swap.SwapLeg;
+import com.opengamma.platform.finance.rate.swap.SwapLeg;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**

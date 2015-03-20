@@ -9,10 +9,9 @@ import static com.opengamma.platform.pricer.impl.swap.SwapDummyData.FX_RESET_NOT
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
-import com.opengamma.platform.finance.swap.FxResetNotionalExchange;
+import com.opengamma.platform.finance.rate.swap.FxResetNotionalExchange;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**

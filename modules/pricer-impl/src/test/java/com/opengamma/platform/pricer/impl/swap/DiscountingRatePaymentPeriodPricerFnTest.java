@@ -18,11 +18,11 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.platform.finance.observation.FixedRateObservation;
-import com.opengamma.platform.finance.swap.CompoundingMethod;
-import com.opengamma.platform.finance.swap.FxReset;
-import com.opengamma.platform.finance.swap.NegativeRateMethod;
-import com.opengamma.platform.finance.swap.RateAccrualPeriod;
-import com.opengamma.platform.finance.swap.RatePaymentPeriod;
+import com.opengamma.platform.finance.rate.swap.CompoundingMethod;
+import com.opengamma.platform.finance.rate.swap.FxReset;
+import com.opengamma.platform.finance.rate.swap.NegativeRateMethod;
+import com.opengamma.platform.finance.rate.swap.RateAccrualPeriod;
+import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**

@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.pricer.swap;
 
-import com.opengamma.platform.finance.swap.PaymentPeriod;
+import com.opengamma.platform.finance.rate.swap.PaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**

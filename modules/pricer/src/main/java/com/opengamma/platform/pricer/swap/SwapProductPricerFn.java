@@ -6,7 +6,7 @@
 package com.opengamma.platform.pricer.swap;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
-import com.opengamma.platform.finance.swap.SwapProduct;
+import com.opengamma.platform.finance.rate.swap.SwapProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**

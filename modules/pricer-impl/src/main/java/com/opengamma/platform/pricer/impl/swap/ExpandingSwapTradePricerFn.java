@@ -7,8 +7,8 @@ package com.opengamma.platform.pricer.impl.swap;
 
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.collect.ArgChecker;
-import com.opengamma.platform.finance.swap.ExpandedSwap;
-import com.opengamma.platform.finance.swap.SwapTrade;
+import com.opengamma.platform.finance.rate.swap.ExpandedSwap;
+import com.opengamma.platform.finance.rate.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.swap.SwapProductPricerFn;
 import com.opengamma.platform.pricer.swap.SwapTradePricerFn;

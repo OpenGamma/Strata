@@ -9,11 +9,10 @@ import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
-
 import org.testng.annotations.Test;
 
-import com.opengamma.platform.finance.swap.PaymentPeriod;
-import com.opengamma.platform.finance.swap.RatePaymentPeriod;
+import com.opengamma.platform.finance.rate.swap.PaymentPeriod;
+import com.opengamma.platform.finance.rate.swap.RatePaymentPeriod;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
 import com.opengamma.platform.pricer.swap.PaymentPeriodPricerFn;

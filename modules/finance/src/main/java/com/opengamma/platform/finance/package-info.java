@@ -36,7 +36,7 @@
  * <p>
  * For example, consider an OTC instrument such as an interest rate swap.
  * The object model will consist of an {@code OtcTrade} that contains a
- * {@link com.opengamma.platform.finance.swap.Swap Swap}, creating an object of type
+ * {@link com.opengamma.platform.finance.rate.swap.Swap Swap}, creating an object of type
  * {@code OtcTrade<Swap>}.
  * <p>
  * An another example, consider a trade in a listed equity.
