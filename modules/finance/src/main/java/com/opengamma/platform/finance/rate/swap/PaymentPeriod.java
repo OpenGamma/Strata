@@ -10,8 +10,10 @@ import java.time.temporal.TemporalAdjuster;
 
 import org.joda.beans.ImmutableBean;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.BusinessDayAdjustment;
+import com.opengamma.basics.index.Index;
 
 /**
  * A period over which interest is accrued with a single payment.
@@ -69,6 +71,16 @@ public interface PaymentPeriod
   public abstract LocalDate getEndDate();
 
   //-------------------------------------------------------------------------
+  /**
+   * Collects all the indices referred to by this period.
+   * <p>
+   * A period will typically refer to at least one index, such as 'GBP-LIBOR-3M'.
+   * Each index that is referred to must be added to the specified builder.
+   * 
+   * @param builder  the builder to use
+   */
+  public abstract void collectIndices(ImmutableSet.Builder<Index> builder);
+
   /**
    * Adjusts the payment date using the rules of the specified adjuster.
    * <p>

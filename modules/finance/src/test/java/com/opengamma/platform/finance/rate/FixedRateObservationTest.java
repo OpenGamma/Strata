@@ -11,6 +11,9 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.index.Index;
+
 /**
  * Test.
  */
@@ -23,6 +26,14 @@ public class FixedRateObservationTest {
         .rate(0.05)
         .build();
     assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices() {
+    FixedRateObservation test = FixedRateObservation.of(0.05);
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of());
   }
 
   //-------------------------------------------------------------------------

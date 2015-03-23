@@ -25,8 +25,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.PayReceive;
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.schedule.Schedule;
 
@@ -130,6 +132,12 @@ public final class RateCalculationSwapLeg
   @Override
   public Currency getCurrency() {
     return notionalSchedule.getCurrency();
+  }
+
+  @Override
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
+    calculation.collectIndices(builder);
+    notionalSchedule.getFxReset().ifPresent(fxReset -> builder.add(fxReset.getIndex()));
   }
 
   /**

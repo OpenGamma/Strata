@@ -21,6 +21,9 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.index.Index;
+
 /**
  * Test.
  */
@@ -108,6 +111,15 @@ public class IborInterpolatedRateObservationTest {
     assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(GBP_LIBOR_1M, null, date(2014, 6, 30)));
     assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, null));
     assertThrowsIllegalArg(() -> IborInterpolatedRateObservation.of(null, null, null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices() {
+    IborInterpolatedRateObservation test =
+        IborInterpolatedRateObservation.of(GBP_LIBOR_1M, GBP_LIBOR_3M, date(2014, 6, 30));
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_3M));
   }
 
   //-------------------------------------------------------------------------

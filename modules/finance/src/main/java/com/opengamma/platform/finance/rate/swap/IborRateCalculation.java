@@ -34,9 +34,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.date.DayCount;
 import com.opengamma.basics.date.DaysAdjustment;
 import com.opengamma.basics.index.IborIndex;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.RollConvention;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
@@ -212,6 +214,19 @@ public final class IborRateCalculation
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
+    builder.add(index);
+    if (initialStub != null) {
+      initialStub.getIndex().ifPresent(idx -> builder.add(idx));
+      initialStub.getIndexInterpolated().ifPresent(idx -> builder.add(idx));
+    }
+    if (finalStub != null) {
+      finalStub.getIndex().ifPresent(idx -> builder.add(idx));
+      finalStub.getIndexInterpolated().ifPresent(idx -> builder.add(idx));
+    }
+  }
+
   @Override
   public ImmutableList<RateAccrualPeriod> expand(Schedule accrualSchedule, Schedule paymentSchedule) {
     ArgChecker.notNull(accrualSchedule, "accrualSchedule");

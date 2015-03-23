@@ -17,6 +17,8 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.RollConventions;
 import com.opengamma.basics.schedule.Schedule;
@@ -39,6 +41,17 @@ public class FixedRateCalculationTest {
         .build();
     assertEquals(test.getRate(), ValueSchedule.of(0.025d));
     assertEquals(test.getDayCount(), ACT_365F);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices() {
+    FixedRateCalculation test = FixedRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .rate(ValueSchedule.of(0.025d))
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of());
   }
 
   //-------------------------------------------------------------------------

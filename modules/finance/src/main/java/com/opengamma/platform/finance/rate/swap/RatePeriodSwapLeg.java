@@ -31,9 +31,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.date.BusinessDayAdjustment;
+import com.opengamma.basics.index.Index;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
 import com.opengamma.platform.finance.rate.IborRateObservation;
 import com.opengamma.platform.finance.rate.OvernightCompoundedRateObservation;
@@ -198,6 +200,12 @@ public final class RatePeriodSwapLeg
   @Override
   public Currency getCurrency() {
     return currency;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
+    paymentPeriods.stream().forEach(period -> period.collectIndices(builder));
   }
 
   /**
