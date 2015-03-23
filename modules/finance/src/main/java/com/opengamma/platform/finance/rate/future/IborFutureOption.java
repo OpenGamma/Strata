@@ -17,6 +17,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableDefaults;
 import org.joda.beans.ImmutableValidator;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
@@ -28,6 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.basics.PutCall;
+import com.opengamma.basics.value.Rounding;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.id.LinkResolutionException;
 import com.opengamma.collect.id.LinkResolver;
@@ -99,6 +101,16 @@ public class IborFutureOption
   @PropertyDefinition(validate = "notNull")
   private final FutureOptionPremiumStyle premiumStyle;
   /**
+   * The definition of how to round the option price, defaulted to no rounding.
+   * <p>
+   * The price is represented in decimal form, not percentage form.
+   * As such, the decimal places expressed by the rounding refers to this decimal form.
+   * For example, the common market price of 99.7125 is represented as 0.997125 which
+   * has 6 decimal places.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Rounding rounding;
+  /**
    * The link to the underlying future.
    * <p>
    * This property returns a link to the security via a {@link StandardId}.
@@ -114,6 +126,11 @@ public class IborFutureOption
       LocalDate lastTradeDate = underlyingLink.resolve(null).getProduct().getLastTradeDate();
       ArgChecker.inOrderOrEqual(expirationDate, lastTradeDate, "expirationDate", "lastTradeDate");
     }
+  }
+
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.rounding(Rounding.none());
   }
 
   //-------------------------------------------------------------------------
@@ -195,6 +212,7 @@ public class IborFutureOption
     JodaBeanUtils.notNull(builder.expirationTime, "expirationTime");
     JodaBeanUtils.notNull(builder.expirationZone, "expirationZone");
     JodaBeanUtils.notNull(builder.premiumStyle, "premiumStyle");
+    JodaBeanUtils.notNull(builder.rounding, "rounding");
     JodaBeanUtils.notNull(builder.underlyingLink, "underlyingLink");
     this.putCall = builder.putCall;
     this.strikePrice = builder.strikePrice;
@@ -202,6 +220,7 @@ public class IborFutureOption
     this.expirationTime = builder.expirationTime;
     this.expirationZone = builder.expirationZone;
     this.premiumStyle = builder.premiumStyle;
+    this.rounding = builder.rounding;
     this.underlyingLink = builder.underlyingLink;
     validate();
   }
@@ -294,6 +313,20 @@ public class IborFutureOption
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the definition of how to round the option price, defaulted to no rounding.
+   * <p>
+   * The price is represented in decimal form, not percentage form.
+   * As such, the decimal places expressed by the rounding refers to this decimal form.
+   * For example, the common market price of 99.7125 is represented as 0.997125 which
+   * has 6 decimal places.
+   * @return the value of the property, not null
+   */
+  public Rounding getRounding() {
+    return rounding;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the link to the underlying future.
    * <p>
    * This property returns a link to the security via a {@link StandardId}.
@@ -326,6 +359,7 @@ public class IborFutureOption
           JodaBeanUtils.equal(getExpirationTime(), other.getExpirationTime()) &&
           JodaBeanUtils.equal(getExpirationZone(), other.getExpirationZone()) &&
           JodaBeanUtils.equal(getPremiumStyle(), other.getPremiumStyle()) &&
+          JodaBeanUtils.equal(getRounding(), other.getRounding()) &&
           JodaBeanUtils.equal(getUnderlyingLink(), other.getUnderlyingLink());
     }
     return false;
@@ -340,13 +374,14 @@ public class IborFutureOption
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationTime());
     hash = hash * 31 + JodaBeanUtils.hashCode(getExpirationZone());
     hash = hash * 31 + JodaBeanUtils.hashCode(getPremiumStyle());
+    hash = hash * 31 + JodaBeanUtils.hashCode(getRounding());
     hash = hash * 31 + JodaBeanUtils.hashCode(getUnderlyingLink());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("IborFutureOption{");
     int len = buf.length();
     toString(buf);
@@ -364,6 +399,7 @@ public class IborFutureOption
     buf.append("expirationTime").append('=').append(JodaBeanUtils.toString(getExpirationTime())).append(',').append(' ');
     buf.append("expirationZone").append('=').append(JodaBeanUtils.toString(getExpirationZone())).append(',').append(' ');
     buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(getPremiumStyle())).append(',').append(' ');
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(getRounding())).append(',').append(' ');
     buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(getUnderlyingLink())).append(',').append(' ');
   }
 
@@ -408,6 +444,11 @@ public class IborFutureOption
     private final MetaProperty<FutureOptionPremiumStyle> premiumStyle = DirectMetaProperty.ofImmutable(
         this, "premiumStyle", IborFutureOption.class, FutureOptionPremiumStyle.class);
     /**
+     * The meta-property for the {@code rounding} property.
+     */
+    private final MetaProperty<Rounding> rounding = DirectMetaProperty.ofImmutable(
+        this, "rounding", IborFutureOption.class, Rounding.class);
+    /**
      * The meta-property for the {@code underlyingLink} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -424,6 +465,7 @@ public class IborFutureOption
         "expirationTime",
         "expirationZone",
         "premiumStyle",
+        "rounding",
         "underlyingLink");
 
     /**
@@ -447,6 +489,8 @@ public class IborFutureOption
           return expirationZone;
         case -1257652838:  // premiumStyle
           return premiumStyle;
+        case -142444:  // rounding
+          return rounding;
         case 1497199863:  // underlyingLink
           return underlyingLink;
       }
@@ -518,6 +562,14 @@ public class IborFutureOption
     }
 
     /**
+     * The meta-property for the {@code rounding} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Rounding> rounding() {
+      return rounding;
+    }
+
+    /**
      * The meta-property for the {@code underlyingLink} property.
      * @return the meta-property, not null
      */
@@ -541,6 +593,8 @@ public class IborFutureOption
           return ((IborFutureOption) bean).getExpirationZone();
         case -1257652838:  // premiumStyle
           return ((IborFutureOption) bean).getPremiumStyle();
+        case -142444:  // rounding
+          return ((IborFutureOption) bean).getRounding();
         case 1497199863:  // underlyingLink
           return ((IborFutureOption) bean).getUnderlyingLink();
       }
@@ -570,12 +624,14 @@ public class IborFutureOption
     private LocalTime expirationTime;
     private ZoneId expirationZone;
     private FutureOptionPremiumStyle premiumStyle;
+    private Rounding rounding;
     private SecurityLink<IborFuture> underlyingLink;
 
     /**
      * Restricted constructor.
      */
     protected Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -589,6 +645,7 @@ public class IborFutureOption
       this.expirationTime = beanToCopy.getExpirationTime();
       this.expirationZone = beanToCopy.getExpirationZone();
       this.premiumStyle = beanToCopy.getPremiumStyle();
+      this.rounding = beanToCopy.getRounding();
       this.underlyingLink = beanToCopy.getUnderlyingLink();
     }
 
@@ -608,6 +665,8 @@ public class IborFutureOption
           return expirationZone;
         case -1257652838:  // premiumStyle
           return premiumStyle;
+        case -142444:  // rounding
+          return rounding;
         case 1497199863:  // underlyingLink
           return underlyingLink;
         default:
@@ -636,6 +695,9 @@ public class IborFutureOption
           break;
         case -1257652838:  // premiumStyle
           this.premiumStyle = (FutureOptionPremiumStyle) newValue;
+          break;
+        case -142444:  // rounding
+          this.rounding = (Rounding) newValue;
           break;
         case 1497199863:  // underlyingLink
           this.underlyingLink = (SecurityLink<IborFuture>) newValue;
@@ -741,6 +803,17 @@ public class IborFutureOption
     }
 
     /**
+     * Sets the {@code rounding} property in the builder.
+     * @param rounding  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder rounding(Rounding rounding) {
+      JodaBeanUtils.notNull(rounding, "rounding");
+      this.rounding = rounding;
+      return this;
+    }
+
+    /**
      * Sets the {@code underlyingLink} property in the builder.
      * @param underlyingLink  the new value, not null
      * @return this, for chaining, not null
@@ -754,7 +827,7 @@ public class IborFutureOption
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(256);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("IborFutureOption.Builder{");
       int len = buf.length();
       toString(buf);
@@ -772,6 +845,7 @@ public class IborFutureOption
       buf.append("expirationTime").append('=').append(JodaBeanUtils.toString(expirationTime)).append(',').append(' ');
       buf.append("expirationZone").append('=').append(JodaBeanUtils.toString(expirationZone)).append(',').append(' ');
       buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(premiumStyle)).append(',').append(' ');
+      buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
       buf.append("underlyingLink").append('=').append(JodaBeanUtils.toString(underlyingLink)).append(',').append(' ');
     }
 

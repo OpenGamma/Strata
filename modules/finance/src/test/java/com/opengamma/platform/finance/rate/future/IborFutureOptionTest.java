@@ -72,14 +72,16 @@ public class IborFutureOptionTest {
         .expirationTime(EXPIRY_TIME)
         .expirationZone(EXPIRY_ZONE)
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
+        .rounding(ROUNDING)
         .underlyingLink(SecurityLink.resolvable(ID_1, IborFuture.class))
         .build();
     assertEquals(test.getPutCall(), CALL);
+    assertEquals(test.getStrikePrice(), STRIKE_PRICE);
     assertEquals(test.getExpirationDate(), EXPIRY_DATE);
     assertEquals(test.getExpirationTime(), EXPIRY_TIME);
     assertEquals(test.getExpirationZone(), EXPIRY_ZONE);
     assertEquals(test.getExpirationDateTime(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
-    assertEquals(test.getStrikePrice(), STRIKE_PRICE);
+    assertEquals(test.getRounding(), ROUNDING);
     assertEquals(test.getUnderlyingLink(), SecurityLink.resolvable(ID_1, IborFuture.class));
     assertThrows(() -> test.getUnderlying(), IllegalStateException.class);
   }
@@ -95,11 +97,12 @@ public class IborFutureOptionTest {
         .underlyingLink(SecurityLink.resolved(IBOR_FUTURE_SECURITY_1))
         .build();
     assertEquals(test.getPutCall(), CALL);
+    assertEquals(test.getStrikePrice(), STRIKE_PRICE);
     assertEquals(test.getExpirationDate(), EXPIRY_DATE);
     assertEquals(test.getExpirationTime(), EXPIRY_TIME);
     assertEquals(test.getExpirationZone(), EXPIRY_ZONE);
     assertEquals(test.getExpirationDateTime(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
-    assertEquals(test.getStrikePrice(), STRIKE_PRICE);
+    assertEquals(test.getRounding(), Rounding.none());
     assertEquals(test.getUnderlyingLink(), SecurityLink.resolved(IBOR_FUTURE_SECURITY_1));
     assertEquals(test.getUnderlying(), IBOR_FUTURE_SECURITY_1);
   }
@@ -185,6 +188,7 @@ public class IborFutureOptionTest {
         .expirationTime(LocalTime.of(12, 0))
         .expirationZone(ZoneId.of("Europe/Paris"))
         .premiumStyle(FutureOptionPremiumStyle.UPFRONT_PREMIUM)
+        .rounding(ROUNDING)
         .underlyingLink(SecurityLink.resolvable(ID_1, IborFuture.class))
         .build();
     coverBeanEquals(test, test2);

@@ -88,7 +88,7 @@ public final class IborFuture
   /**
    * The definition of how to round the futures price, defaulted to no rounding.
    * <p>
-   * The price is represented in decimal form, {@code (1.0 - decimalRate)}.
+   * The price is represented in decimal form, not percentage form.
    * As such, the decimal places expressed by the rounding refers to this decimal form.
    * For example, the common market price of 99.7125 for a 0.2875% rate is
    * represented as 0.997125 which has 6 decimal places.
@@ -240,7 +240,7 @@ public final class IborFuture
   /**
    * Gets the definition of how to round the futures price, defaulted to no rounding.
    * <p>
-   * The price is represented in decimal form, {@code (1.0 - decimalRate)}.
+   * The price is represented in decimal form, not percentage form.
    * As such, the decimal places expressed by the rounding refers to this decimal form.
    * For example, the common market price of 99.7125 for a 0.2875% rate is
    * represented as 0.997125 which has 6 decimal places.
