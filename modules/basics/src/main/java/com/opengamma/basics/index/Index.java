@@ -5,6 +5,8 @@
  */
 package com.opengamma.basics.index;
 
+import com.opengamma.collect.id.StandardId;
+import com.opengamma.collect.id.StandardIdentifiable;
 import com.opengamma.collect.named.Named;
 
 /**
@@ -19,6 +21,19 @@ import com.opengamma.collect.named.Named;
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface Index
-    extends Named {
+    extends Named, StandardIdentifiable {
+
+  /**
+   * Returns the standard identifier of the index.
+   * <p>
+   * The standard identifier has a scheme of "OG-Index".
+   * The value is the {@linkplain #getName() name} of the index.
+   * 
+   * @return the standard identifier
+   */
+  @Override
+  public default StandardId getStandardId() {
+    return StandardId.of("OG-Index", getName());
+  }
 
 }
