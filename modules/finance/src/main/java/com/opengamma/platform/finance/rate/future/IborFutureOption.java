@@ -35,6 +35,7 @@ import com.opengamma.collect.id.LinkResolutionException;
 import com.opengamma.collect.id.LinkResolver;
 import com.opengamma.collect.id.Resolvable;
 import com.opengamma.collect.id.StandardId;
+import com.opengamma.platform.finance.Product;
 import com.opengamma.platform.finance.Security;
 import com.opengamma.platform.finance.SecurityLink;
 import com.opengamma.platform.finance.common.FutureOptionPremiumStyle;
@@ -51,7 +52,7 @@ import com.opengamma.platform.finance.common.FutureOptionPremiumStyle;
  */
 @BeanDefinition
 public class IborFutureOption
-    implements IborFutureOptionProduct, Resolvable<IborFutureOption>, ImmutableBean, Serializable {
+    implements Product, Resolvable<IborFutureOption>, ImmutableBean, Serializable {
 
   /**
    * Whether the option is put or call.
@@ -62,12 +63,12 @@ public class IborFutureOption
   @PropertyDefinition
   private final PutCall putCall;
   /**
-   * The strike price of the option, represented in decimal form.
+   * The strike price, represented in decimal form.
    * <p>
-   * This is the price at which the option applies.
+   * This is the price at which the option applies and refers to the price of the underlying future.
    * This must be represented in decimal form, {@code (1.0 - decimalRate)}. 
    * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
-   * The strike rate can take negative values.
+   * The strike price can take negative values.
    */
   @PropertyDefinition
   private final double strikePrice;
@@ -254,12 +255,12 @@ public class IborFutureOption
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the strike price of the option, represented in decimal form.
+   * Gets the strike price, represented in decimal form.
    * <p>
-   * This is the price at which the option applies.
+   * This is the price at which the option applies and refers to the price of the underlying future.
    * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
    * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
-   * The strike rate can take negative values.
+   * The strike price can take negative values.
    * @return the value of the property
    */
   public double getStrikePrice() {

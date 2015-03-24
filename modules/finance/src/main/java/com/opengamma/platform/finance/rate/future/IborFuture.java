@@ -29,6 +29,7 @@ import com.opengamma.basics.currency.Currency;
 import com.opengamma.basics.index.IborIndex;
 import com.opengamma.basics.value.Rounding;
 import com.opengamma.collect.ArgChecker;
+import com.opengamma.platform.finance.Product;
 
 /**
  * A futures contract, based on an IBOR-like index.
@@ -39,12 +40,12 @@ import com.opengamma.collect.ArgChecker;
  * This class represents the structure of a single futures contract.
  * <p>
  * For example, the widely traded "CME Eurodollar futures contract" has a notional
- * of 1 million USD, is based on the USD Libor 3 month rate 'USD-LIBOR-3M' and expires
- * on the IMM date, the 3rd Wednesday of the month.
+ * of 1 million USD, is based on the USD Libor 3 month rate 'USD-LIBOR-3M', expiring
+ * two business days before an IMM date (the 3rd Wednesday of the month).
  */
 @BeanDefinition
 public final class IborFuture
-    implements IborFutureProduct, ImmutableBean, Serializable {
+    implements Product, ImmutableBean, Serializable {
 
   /**
    * The currency that the future is quoted in.
