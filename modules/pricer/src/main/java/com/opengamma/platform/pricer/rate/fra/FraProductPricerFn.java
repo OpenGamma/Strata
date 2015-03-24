@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.pricer.rate.fra;
 
-import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.rate.fra.FraProduct;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.sensitivity.PointSensitivities;
@@ -31,7 +31,7 @@ public interface FraProductPricerFn<T extends FraProduct> {
    * @param product  the product to price
    * @return the present value of the product
    */
-  public abstract MultiCurrencyAmount presentValue(PricingEnvironment env, T product);
+  public abstract CurrencyAmount presentValue(PricingEnvironment env, T product);
 
   /**
    * Calculates the present value sensitivity of the FRA product.
@@ -54,7 +54,7 @@ public interface FraProductPricerFn<T extends FraProduct> {
    * @param product  the product to price
    * @return the future value of the product
    */
-  public abstract MultiCurrencyAmount futureValue(PricingEnvironment env, T product);
+  public abstract CurrencyAmount futureValue(PricingEnvironment env, T product);
 
   /**
    * Calculates the future value sensitivity of the FRA product.

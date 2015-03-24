@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.basics.currency.Currency;
-import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.rate.RateObservation;
 import com.opengamma.platform.finance.rate.fra.ExpandedFra;
 import com.opengamma.platform.finance.rate.fra.Fra;
@@ -52,9 +52,9 @@ public class DiscountingExpandedFraPricerFnTest {
     double notional = fraExp.getNotional();
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
         .thenReturn(forwardRate);
-    MultiCurrencyAmount computed = test.futureValue(mockEnv, fraExp);
+    CurrencyAmount computed = test.futureValue(mockEnv, fraExp);
     double expected = notional * yearFraction * (forwardRate - fixedRate) / (1.0 + yearFraction * forwardRate);
-    assertEquals(computed.getAmount(FRA.getCurrency()).getAmount(), expected, TOLERANCE);
+    assertEquals(computed.getAmount(), expected, TOLERANCE);
   }
 
   /**
@@ -71,9 +71,9 @@ public class DiscountingExpandedFraPricerFnTest {
     double notional = fraExp.getNotional();
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
         .thenReturn(forwardRate);
-    MultiCurrencyAmount computed = test.futureValue(mockEnv, fraExp);
+    CurrencyAmount computed = test.futureValue(mockEnv, fraExp);
     double expected = notional * yearFraction * (forwardRate - fixedRate);
-    assertEquals(computed.getAmount(FRA_NONE.getCurrency()).getAmount(), expected, TOLERANCE);
+    assertEquals(computed.getAmount(), expected, TOLERANCE);
   }
 
   /**
@@ -90,9 +90,9 @@ public class DiscountingExpandedFraPricerFnTest {
     double notional = fraExp.getNotional();
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
         .thenReturn(forwardRate);
-    MultiCurrencyAmount computed = test.futureValue(mockEnv, fraExp);
+    CurrencyAmount computed = test.futureValue(mockEnv, fraExp);
     double expected = -notional * (1.0 / (1.0 + yearFraction * forwardRate) - 1.0 / (1.0 + yearFraction * fixedRate));
-    assertEquals(computed.getAmount(FRA_AFMA.getCurrency()).getAmount(), expected, TOLERANCE);
+    assertEquals(computed.getAmount(), expected, TOLERANCE);
   }
 
   /**
@@ -109,10 +109,9 @@ public class DiscountingExpandedFraPricerFnTest {
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
         .thenReturn(forwardRate);
     when(mockEnv.discountFactor(currency, fraExp.getPaymentDate())).thenReturn(discountFactor);
-    MultiCurrencyAmount pvComputed = test.presentValue(mockEnv, fraExp);
-    MultiCurrencyAmount pvExpected = test.futureValue(mockEnv, fraExp).multipliedBy(discountFactor);
-    assertEquals(pvComputed.getAmount(FRA_NONE.getCurrency()).getAmount(), 
-        pvExpected.getAmount(FRA_NONE.getCurrency()).getAmount(), TOLERANCE);
+    CurrencyAmount pvComputed = test.presentValue(mockEnv, fraExp);
+    CurrencyAmount pvExpected = test.futureValue(mockEnv, fraExp).multipliedBy(discountFactor);
+    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
   }
 
   /**
@@ -129,10 +128,9 @@ public class DiscountingExpandedFraPricerFnTest {
     when(mockObs.rate(mockEnv, fraExp.getFloatingRate(), fraExp.getStartDate(), fraExp.getEndDate()))
         .thenReturn(forwardRate);
     when(mockEnv.discountFactor(currency, fraExp.getPaymentDate())).thenReturn(discountFactor);
-    MultiCurrencyAmount pvComputed = test.presentValue(mockEnv, fraExp);
-    MultiCurrencyAmount pvExpected = test.futureValue(mockEnv, fraExp).multipliedBy(discountFactor);
-    assertEquals(pvComputed.getAmount(FRA.getCurrency()).getAmount(), 
-        pvExpected.getAmount(FRA.getCurrency()).getAmount(), TOLERANCE);
+    CurrencyAmount pvComputed = test.presentValue(mockEnv, fraExp);
+    CurrencyAmount pvExpected = test.futureValue(mockEnv, fraExp).multipliedBy(discountFactor);
+    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
   }
 
   /**
@@ -150,10 +148,9 @@ public class DiscountingExpandedFraPricerFnTest {
         .thenReturn(forwardRate);
     when(mockEnv.discountFactor(currency, fraExp.getPaymentDate()))
         .thenReturn(discountFactor);
-    MultiCurrencyAmount pvComputed = test.presentValue(mockEnv, fraExp);
-    MultiCurrencyAmount pvExpected = test.futureValue(mockEnv, fraExp).multipliedBy(discountFactor);
-    assertEquals(pvComputed.getAmount(FRA_AFMA.getCurrency()).getAmount(), 
-        pvExpected.getAmount(FRA_AFMA.getCurrency()).getAmount(), TOLERANCE);
+    CurrencyAmount pvComputed = test.presentValue(mockEnv, fraExp);
+    CurrencyAmount pvExpected = test.futureValue(mockEnv, fraExp).multipliedBy(discountFactor);
+    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
   }
 
   //-------------------------------------------------------------------------
@@ -366,11 +363,11 @@ public class DiscountingExpandedFraPricerFnTest {
     ExpandedFra fraExp = fra.expand();
     when(obsFuncNew.rate(envNew, fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate()))
         .thenReturn(forwardRate + eps);
-    MultiCurrencyAmount upValue = new DiscountingExpandedFraPricerFn(obsFuncNew).futureValue(envNew, fraExp);
+    CurrencyAmount upValue = new DiscountingExpandedFraPricerFn(obsFuncNew).futureValue(envNew, fraExp);
     when(obsFuncNew.rate(envNew, fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate()))
         .thenReturn(forwardRate - eps);
-    MultiCurrencyAmount downValue = new DiscountingExpandedFraPricerFn(obsFuncNew).futureValue(envNew, fraExp);
-    return upValue.minus(downValue).multipliedBy(0.5 / eps).getAmount(fra.getCurrency()).getAmount();
+    CurrencyAmount downValue = new DiscountingExpandedFraPricerFn(obsFuncNew).futureValue(envNew, fraExp);
+    return upValue.minus(downValue).multipliedBy(0.5 / eps).getAmount();
   }
 
   private double presentValueFwdSensitivity(
@@ -385,11 +382,11 @@ public class DiscountingExpandedFraPricerFnTest {
         .thenReturn(paymentTime);
     when(obsFuncNew.rate(envNew, fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate()))
         .thenReturn(forwardRate + eps);
-    MultiCurrencyAmount upValue = new DiscountingExpandedFraPricerFn(obsFuncNew).presentValue(envNew, fraExp);
+    CurrencyAmount upValue = new DiscountingExpandedFraPricerFn(obsFuncNew).presentValue(envNew, fraExp);
     when(obsFuncNew.rate(envNew, fraExp.getFloatingRate(), fra.getStartDate(), fra.getEndDate()))
         .thenReturn(forwardRate - eps);
-    MultiCurrencyAmount downValue = new DiscountingExpandedFraPricerFn(obsFuncNew).presentValue(envNew, fraExp);
-    return upValue.minus(downValue).multipliedBy(0.5 / eps).getAmount(fra.getCurrency()).getAmount();
+    CurrencyAmount downValue = new DiscountingExpandedFraPricerFn(obsFuncNew).presentValue(envNew, fraExp);
+    return upValue.minus(downValue).multipliedBy(0.5 / eps).getAmount();
   }
 
   private double dscSensitivity(
@@ -402,11 +399,11 @@ public class DiscountingExpandedFraPricerFnTest {
         .thenReturn(forwardRate);
     when(envNew.discountFactor(fra.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(discountFactor * Math.exp(-eps * paymentTime));
-    MultiCurrencyAmount upDscValue = new DiscountingExpandedFraPricerFn(obsFuncNew).presentValue(envNew, fraExp);
+    CurrencyAmount upDscValue = new DiscountingExpandedFraPricerFn(obsFuncNew).presentValue(envNew, fraExp);
     when(envNew.discountFactor(fra.getCurrency(), fraExp.getPaymentDate()))
         .thenReturn(discountFactor * Math.exp(eps * paymentTime));
-    MultiCurrencyAmount downDscValue = new DiscountingExpandedFraPricerFn(obsFuncNew).presentValue(envNew, fraExp);
-    return upDscValue.minus(downDscValue).multipliedBy(0.5 / eps).getAmount(fra.getCurrency()).getAmount();
+    CurrencyAmount downDscValue = new DiscountingExpandedFraPricerFn(obsFuncNew).presentValue(envNew, fraExp);
+    return upDscValue.minus(downDscValue).multipliedBy(0.5 / eps).getAmount();
   }
 
 }

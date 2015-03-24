@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.pricer.rate.fra;
 
-import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.rate.fra.FraTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
@@ -28,7 +28,7 @@ public interface FraTradePricerFn {
    * @param trade  the trade to price
    * @return the present value of the trade
    */
-  public abstract MultiCurrencyAmount presentValue(PricingEnvironment env, FraTrade trade);
+  public abstract CurrencyAmount presentValue(PricingEnvironment env, FraTrade trade);
 
   /**
    * Calculates the future value of the FRA trade.
@@ -39,6 +39,6 @@ public interface FraTradePricerFn {
    * @param trade  the trade to price
    * @return the future value of the trade
    */
-  public abstract MultiCurrencyAmount futureValue(PricingEnvironment env, FraTrade trade);
+  public abstract CurrencyAmount futureValue(PricingEnvironment env, FraTrade trade);
 
 }

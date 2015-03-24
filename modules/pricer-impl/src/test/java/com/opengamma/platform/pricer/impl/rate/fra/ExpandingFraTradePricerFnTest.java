@@ -12,7 +12,7 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.platform.finance.rate.fra.ExpandedFra;
 import com.opengamma.platform.pricer.PricingEnvironment;
 import com.opengamma.platform.pricer.impl.MockPricingEnvironment;
@@ -27,7 +27,7 @@ public class ExpandingFraTradePricerFnTest {
   private static final PricingEnvironment MOCK_ENV = new MockPricingEnvironment();
 
   public void test_presentValue() {
-    MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
+    CurrencyAmount expected = CurrencyAmount.of(GBP, 1000d);
     FraProductPricerFn<ExpandedFra> mockFraProductFn = mock(FraProductPricerFn.class);
     when(mockFraProductFn.presentValue(MOCK_ENV, FraDummyData.FRA_TRADE.getProduct().expand()))
         .thenReturn(expected);
@@ -36,7 +36,7 @@ public class ExpandingFraTradePricerFnTest {
   }
 
   public void test_futureValue() {
-    MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 1000d);
+    CurrencyAmount expected = CurrencyAmount.of(GBP, 1000d);
     FraProductPricerFn<ExpandedFra> mockFraProductFn = mock(FraProductPricerFn.class);
     when(mockFraProductFn.futureValue(MOCK_ENV, FraDummyData.FRA_TRADE.getProduct().expand()))
         .thenReturn(expected);
