@@ -27,6 +27,8 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.Frequency;
 import com.opengamma.basics.schedule.RollConventions;
 import com.opengamma.basics.schedule.Schedule;
@@ -77,6 +79,17 @@ public class OvernightRateCalculationTest {
     assertEquals(test.getRateCutOffDays(), 0);
     assertEquals(test.getGearing(), Optional.empty());
     assertEquals(test.getSpread(), Optional.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices() {
+    OvernightRateCalculation test = OvernightRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .index(GBP_SONIA)
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_SONIA));
   }
 
   //-------------------------------------------------------------------------

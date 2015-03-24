@@ -25,7 +25,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.index.Index;
 import com.opengamma.platform.finance.rate.FixedRateObservation;
 
 /**
@@ -68,6 +70,10 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   private final LocalDate endDate;
   @PropertyDefinition(overrideGet = true)
   private final Currency currency;
+
+  @Override
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
+  }
 
   @Override
   public ExpandedSwapLeg expand() {

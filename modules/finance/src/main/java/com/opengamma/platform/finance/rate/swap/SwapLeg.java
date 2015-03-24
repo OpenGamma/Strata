@@ -9,7 +9,9 @@ import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.index.Index;
 
 /**
  * A single leg of a swap.
@@ -60,6 +62,16 @@ public interface SwapLeg
    * @return the currency of the leg
    */
   public abstract Currency getCurrency();
+
+  /**
+   * Collects all the indices referred to by this leg.
+   * <p>
+   * A swap leg will typically refer to at least one index, such as 'GBP-LIBOR-3M'.
+   * Each index that is referred to must be added to the specified builder.
+   * 
+   * @param builder  the builder to use
+   */
+  public abstract void collectIndices(ImmutableSet.Builder<Index> builder);
 
   /**
    * Expands this swap leg.

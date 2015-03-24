@@ -15,6 +15,7 @@ import static com.opengamma.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.basics.date.HolidayCalendars.GBLO;
 import static com.opengamma.basics.index.FxIndices.ECB_EUR_GBP;
 import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_1M;
+import static com.opengamma.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.basics.schedule.Frequency.P1M;
 import static com.opengamma.basics.schedule.Frequency.P2M;
 import static com.opengamma.basics.schedule.Frequency.P3M;
@@ -29,10 +30,12 @@ import java.time.LocalDate;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DayCounts;
 import com.opengamma.basics.date.DaysAdjustment;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.PeriodicSchedule;
 import com.opengamma.basics.value.ValueAdjustment;
 import com.opengamma.basics.value.ValueSchedule;
@@ -101,6 +104,65 @@ public class RateCalculationSwapLegTest {
     assertEquals(test.getPaymentSchedule(), paymentSchedule);
     assertEquals(test.getNotionalSchedule(), notionalSchedule);
     assertEquals(test.getCalculation(), rateCalc);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices_simple() {
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_04_05)
+            .frequency(P1M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, 1000d))
+        .calculation(IborRateCalculation.builder()
+            .dayCount(DayCounts.ACT_365F)
+            .index(GBP_LIBOR_3M)
+            .fixingOffset(MINUS_TWO_DAYS)
+            .build())
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
+  }
+
+  public void test_collectIndices_fxReset() {
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_04_05)
+            .frequency(P1M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.builder()
+            .currency(GBP)
+            .amount(ValueSchedule.of(1000d))
+            .fxReset(FxResetCalculation.builder()
+                .referenceCurrency(EUR)
+                .index(ECB_EUR_GBP)
+                .fixingOffset(MINUS_TWO_DAYS)
+                .build())
+            .build())
+        .calculation(IborRateCalculation.builder()
+            .dayCount(DayCounts.ACT_365F)
+            .index(GBP_LIBOR_3M)
+            .fixingOffset(MINUS_TWO_DAYS)
+            .build())
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, ECB_EUR_GBP));
   }
 
   //-------------------------------------------------------------------------

@@ -24,6 +24,8 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.index.Index;
 import com.opengamma.platform.finance.rate.IborRateObservation;
 
 /**
@@ -146,6 +148,34 @@ public class RatePaymentPeriodTest {
         .build();
     assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0))), test);
     assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2))), expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices_simple() {
+    RatePaymentPeriod test = RatePaymentPeriod.builder()
+        .paymentDate(DATE_2014_10_01)
+        .accrualPeriods(RAP2)
+        .currency(GBP)
+        .notional(1000d)
+        .compoundingMethod(CompoundingMethod.STRAIGHT)
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
+  }
+
+  public void test_collectIndices_fxReset() {
+    RatePaymentPeriod test = RatePaymentPeriod.builder()
+        .paymentDate(DATE_2014_10_01)
+        .accrualPeriods(RAP2)
+        .currency(GBP)
+        .notional(1000d)
+        .fxReset(FX_RESET_USD)
+        .compoundingMethod(CompoundingMethod.STRAIGHT)
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, WM_GBP_USD));
   }
 
   //-------------------------------------------------------------------------

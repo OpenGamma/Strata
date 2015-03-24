@@ -23,8 +23,10 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.date.BusinessDayAdjustment;
+import com.opengamma.basics.index.Index;
 import com.opengamma.platform.finance.rate.IborRateObservation;
 
 /**
@@ -124,6 +126,16 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP3)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices() {
+    RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .paymentPeriods(RPP1)
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
   }
 
   //-------------------------------------------------------------------------

@@ -19,7 +19,9 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.index.IborIndices;
+import com.opengamma.basics.index.Index;
 
 /**
  * Test.
@@ -45,6 +47,14 @@ public class IborAveragedRateObservationTest {
     assertThrowsIllegalArg(() -> IborAveragedRateObservation.of(null, FIXINGS));
     assertThrowsIllegalArg(() -> IborAveragedRateObservation.of(GBP_LIBOR_3M, (List<IborAveragedFixing>) null));
     assertThrowsIllegalArg(() -> IborAveragedRateObservation.of(null, (List<IborAveragedFixing>) null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices() {
+    IborAveragedRateObservation test = IborAveragedRateObservation.of(GBP_LIBOR_3M, FIXINGS);
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
   }
 
   //-------------------------------------------------------------------------

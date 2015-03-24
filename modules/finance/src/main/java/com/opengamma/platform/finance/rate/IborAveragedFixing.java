@@ -38,7 +38,7 @@ import com.opengamma.collect.ArgChecker;
  */
 @BeanDefinition
 public final class IborAveragedFixing
-    implements RateObservation, ImmutableBean, Serializable {
+    implements ImmutableBean, Serializable {
 
   /**
    * The fixing date to use to determine a rate for the reset period.

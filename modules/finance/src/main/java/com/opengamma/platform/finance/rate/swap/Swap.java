@@ -6,6 +6,7 @@
 package com.opengamma.platform.finance.rate.swap;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -22,7 +23,10 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.index.Index;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.Guavate;
 
@@ -46,15 +50,11 @@ public final class Swap
    * The legs of the swap.
    * <p>
    * A swap consists of one or more legs.
-   * <p>
-   * The legs of a swap are essentially unordered and it is desirable to have
-   * two swaps with the same legs be considered equal no matter what order the
-   * legs were passed in during construction. The use of {@link ImmutableSet}
-   * ensures that the order remains consistent during processing without
-   * compromising the definition of equals.
+   * The legs of a swap are essentially unordered, however it is more efficient
+   * and closer to user expectation to treat them as being ordered.
    */
   @PropertyDefinition(validate = "notEmpty")
-  private final ImmutableSet<SwapLeg> legs;
+  private final ImmutableList<SwapLeg> legs;
 
   //-------------------------------------------------------------------------
   /**
@@ -67,7 +67,7 @@ public final class Swap
    */
   public static Swap of(SwapLeg... legs) {
     ArgChecker.notEmpty(legs, "legs");
-    return new Swap(ImmutableSet.copyOf(legs));
+    return new Swap(ImmutableList.copyOf(legs));
   }
 
   //-------------------------------------------------------------------------
@@ -79,10 +79,30 @@ public final class Swap
    * @return true if cross currency
    */
   public boolean isCrossCurrency() {
-    return legs.stream()
-        .map(SwapLeg::getCurrency)
-        .distinct()
-        .count() > 1;
+    // optimized for performance
+    Currency firstCurrency = legs.get(0).getCurrency();
+    for (int i = 1; i < legs.size(); i++) {
+      if (!legs.get(i).getCurrency().equals(firstCurrency)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the set of indices referred to by the swap.
+   * <p>
+   * A swap will typically refer to at least one index, such as 'GBP-LIBOR-3M'.
+   * Calling this method will return the complete list of indices, including
+   * any associated with FX reset.
+   * 
+   * @return the set of indices referred to by this swap
+   */
+  public ImmutableSet<Index> allIndices() {
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    legs.stream().forEach(leg -> leg.collectIndices(builder));
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
@@ -132,9 +152,9 @@ public final class Swap
   }
 
   private Swap(
-      Set<SwapLeg> legs) {
+      List<SwapLeg> legs) {
     JodaBeanUtils.notEmpty(legs, "legs");
-    this.legs = ImmutableSet.copyOf(legs);
+    this.legs = ImmutableList.copyOf(legs);
   }
 
   @Override
@@ -157,15 +177,11 @@ public final class Swap
    * Gets the legs of the swap.
    * <p>
    * A swap consists of one or more legs.
-   * <p>
-   * The legs of a swap are essentially unordered and it is desirable to have
-   * two swaps with the same legs be considered equal no matter what order the
-   * legs were passed in during construction. The use of {@link ImmutableSet}
-   * ensures that the order remains consistent during processing without
-   * compromising the definition of equals.
+   * The legs of a swap are essentially unordered, however it is more efficient
+   * and closer to user expectation to treat them as being ordered.
    * @return the value of the property, not empty
    */
-  public ImmutableSet<SwapLeg> getLegs() {
+  public ImmutableList<SwapLeg> getLegs() {
     return legs;
   }
 
@@ -220,8 +236,8 @@ public final class Swap
      * The meta-property for the {@code legs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<SwapLeg>> legs = DirectMetaProperty.ofImmutable(
-        this, "legs", Swap.class, (Class) ImmutableSet.class);
+    private final MetaProperty<ImmutableList<SwapLeg>> legs = DirectMetaProperty.ofImmutable(
+        this, "legs", Swap.class, (Class) ImmutableList.class);
     /**
      * The meta-properties.
      */
@@ -264,7 +280,7 @@ public final class Swap
      * The meta-property for the {@code legs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<SwapLeg>> legs() {
+    public MetaProperty<ImmutableList<SwapLeg>> legs() {
       return legs;
     }
 
@@ -295,7 +311,7 @@ public final class Swap
    */
   public static final class Builder extends DirectFieldsBeanBuilder<Swap> {
 
-    private Set<SwapLeg> legs = ImmutableSet.of();
+    private List<SwapLeg> legs = ImmutableList.of();
 
     /**
      * Restricted constructor.
@@ -327,7 +343,7 @@ public final class Swap
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3317797:  // legs
-          this.legs = (Set<SwapLeg>) newValue;
+          this.legs = (List<SwapLeg>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -371,7 +387,7 @@ public final class Swap
      * @param legs  the new value, not empty
      * @return this, for chaining, not null
      */
-    public Builder legs(Set<SwapLeg> legs) {
+    public Builder legs(List<SwapLeg> legs) {
       JodaBeanUtils.notEmpty(legs, "legs");
       this.legs = legs;
       return this;
@@ -384,7 +400,7 @@ public final class Swap
      * @return this, for chaining, not null
      */
     public Builder legs(SwapLeg... legs) {
-      return legs(ImmutableSet.copyOf(legs));
+      return legs(ImmutableList.copyOf(legs));
     }
 
     //-----------------------------------------------------------------------

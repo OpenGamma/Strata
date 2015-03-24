@@ -24,7 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.date.DayCount;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueSchedule;
@@ -59,6 +61,11 @@ public final class FixedRateCalculation
   private final ValueSchedule rate;
 
   //-------------------------------------------------------------------------
+  @Override
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
+    // no indices
+  }
+
   @Override
   public ImmutableList<RateAccrualPeriod> expand(Schedule accrualSchedule, Schedule paymentSchedule) {
     ArgChecker.notNull(accrualSchedule, "accrualSchedule");

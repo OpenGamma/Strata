@@ -5,6 +5,9 @@
  */
 package com.opengamma.platform.finance.rate;
 
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.index.Index;
+
 import org.joda.beans.ImmutableBean;
 
 /**
@@ -23,5 +26,15 @@ import org.joda.beans.ImmutableBean;
  */
 public interface RateObservation
     extends ImmutableBean {
+
+  /**
+   * Collects all the indices referred to by this observation.
+   * <p>
+   * An observation will typically refer to one index, such as 'GBP-LIBOR-3M'.
+   * Each index that is referred to must be added to the specified builder.
+   * 
+   * @param builder  the builder to use
+   */
+  public abstract void collectIndices(ImmutableSet.Builder<Index> builder);
 
 }

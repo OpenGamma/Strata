@@ -36,8 +36,10 @@ import java.util.OptionalDouble;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.basics.date.BusinessDayAdjustment;
 import com.opengamma.basics.date.DaysAdjustment;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.Schedule;
 import com.opengamma.basics.schedule.SchedulePeriod;
 import com.opengamma.basics.value.ValueAdjustment;
@@ -143,6 +145,44 @@ public class IborRateCalculationTest {
     assertEquals(test.getFinalStub(), Optional.empty());
     assertEquals(test.getGearing(), Optional.empty());
     assertEquals(test.getSpread(), Optional.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices_simple() {
+    IborRateCalculation test = IborRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .index(GBP_LIBOR_1M)
+        .fixingOffset(MINUS_TWO_DAYS)
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_1M));
+  }
+
+  public void test_collectIndices_stubCalcsTwoStubs() {
+    IborRateCalculation test = IborRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .index(GBP_LIBOR_1M)
+        .fixingOffset(MINUS_TWO_DAYS)
+        .initialStub(StubCalculation.ofIborRate(GBP_LIBOR_1W))
+        .finalStub(StubCalculation.ofIborRate(GBP_LIBOR_3M))
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_1W, GBP_LIBOR_3M));
+  }
+
+  public void test_collectIndices_stubCalcsTwoStubs_interpolated() {
+    IborRateCalculation test = IborRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .index(GBP_LIBOR_1M)
+        .fixingOffset(MINUS_TWO_DAYS)
+        .initialStub(StubCalculation.ofIborInterpolatedRate(GBP_LIBOR_1W, GBP_LIBOR_1M))
+        .finalStub(StubCalculation.ofIborInterpolatedRate(GBP_LIBOR_3M, GBP_LIBOR_1M))
+        .build();
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_1W, GBP_LIBOR_3M));
   }
 
   //-------------------------------------------------------------------------

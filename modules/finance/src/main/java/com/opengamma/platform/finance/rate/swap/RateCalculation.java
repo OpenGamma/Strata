@@ -8,6 +8,8 @@ package com.opengamma.platform.finance.rate.swap;
 import org.joda.beans.ImmutableBean;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.index.Index;
 import com.opengamma.basics.schedule.Schedule;
 
 /**
@@ -20,6 +22,16 @@ import com.opengamma.basics.schedule.Schedule;
  */
 public interface RateCalculation
     extends ImmutableBean {
+
+  /**
+   * Collects all the indices referred to by this calculation.
+   * <p>
+   * A calculation will typically refer to at least one index, such as 'GBP-LIBOR-3M'.
+   * Each index that is referred to must be added to the specified builder.
+   * 
+   * @param builder  the builder to use
+   */
+  public abstract void collectIndices(ImmutableSet.Builder<Index> builder);
 
   /**
    * Expands this calculation to accrual periods based on the specified schedule.

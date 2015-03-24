@@ -16,6 +16,9 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.basics.index.Index;
+
 /**
  * Test.
  */
@@ -69,6 +72,15 @@ public class OvernightAveragedRateObservationTest {
     assertThrowsIllegalArg(() -> OvernightAveragedRateObservation.of(USD_FED_FUND, null, date(2014, 7, 1)));
     assertThrowsIllegalArg(() -> OvernightAveragedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), null));
     assertThrowsIllegalArg(() -> OvernightAveragedRateObservation.of(null, null, null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_collectIndices() {
+    OvernightAveragedRateObservation test =
+        OvernightAveragedRateObservation.of(USD_FED_FUND, date(2014, 6, 1), date(2014, 7, 1));
+    ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
+    test.collectIndices(builder);
+    assertEquals(builder.build(), ImmutableSet.of(USD_FED_FUND));
   }
 
   //-------------------------------------------------------------------------

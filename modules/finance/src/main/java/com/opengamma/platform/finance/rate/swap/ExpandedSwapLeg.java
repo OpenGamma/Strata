@@ -28,8 +28,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.index.Index;
 
 /**
  * An expanded swap leg, with dates calculated ready for pricing.
@@ -134,6 +136,11 @@ public final class ExpandedSwapLeg
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public void collectIndices(ImmutableSet.Builder<Index> builder) {
+    paymentPeriods.stream().forEach(period -> period.collectIndices(builder));
+  }
+
   /**
    * Expands this swap leg, trivially returning {@code this}.
    * 
