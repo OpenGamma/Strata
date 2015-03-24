@@ -176,7 +176,7 @@ public final class Country
    */
   public static final Country HK = of("HK");
   /**
-   * The country 'IN' - Indonesia.
+   * The country 'ID' - Indonesia.
    */
   public static final Country ID = of("ID");
   /**
