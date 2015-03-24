@@ -5,13 +5,15 @@
  */
 package com.opengamma.platform.pricer.rate.swap;
 
+import com.opengamma.basics.currency.Currency;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.basics.currency.MultiCurrencyAmount;
 import com.opengamma.platform.finance.rate.swap.Swap;
 import com.opengamma.platform.finance.rate.swap.SwapTrade;
 import com.opengamma.platform.pricer.PricingEnvironment;
 
 /**
- * Pricer for Swap trades.
+ * Pricer for swap trades.
  * <p>
  * This function provides the ability to price a {@link Swap}.
  * <p>
@@ -20,7 +22,23 @@ import com.opengamma.platform.pricer.PricingEnvironment;
 public interface SwapTradePricerFn {
 
   /**
-   * Calculates the present value of the Swap trade.
+   * Calculates the present value of the swap trade in a single currency.
+   * <p>
+   * The present value of the trade is the value on the valuation date.
+   * This is typically implemented as the discounted future value.
+   * The result is converted to the specified currency.
+   * 
+   * @param env  the pricing environment
+   * @param trade  the trade to price
+   * @param currency  the currency to convert to
+   * @return the present value of the trade in the specified currency
+   */
+  public default CurrencyAmount presentValue(PricingEnvironment env, SwapTrade trade, Currency currency) {
+    return env.fxConvert(presentValue(env, trade), currency);
+  }
+
+  /**
+   * Calculates the present value of the swap trade.
    * <p>
    * The present value of the trade is the value on the valuation date.
    * This is typically implemented as the discounted future value.
@@ -32,7 +50,7 @@ public interface SwapTradePricerFn {
   public abstract MultiCurrencyAmount presentValue(PricingEnvironment env, SwapTrade trade);
 
   /**
-   * Calculates the future value of the Swap trade.
+   * Calculates the future value of the swap trade.
    * <p>
    * The future value of the trade is the value on the valuation date without discounting.
    * 

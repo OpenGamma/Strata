@@ -49,6 +49,16 @@ public class DefaultExpandedSwapPricerFn
 
   //-------------------------------------------------------------------------
   @Override
+  public CurrencyAmount presentValue(PricingEnvironment env, ExpandedSwap swap, Currency currency) {
+    double totalPv = 0;
+    for (ExpandedSwapLeg leg : swap.getLegs()) {
+      double pv = swapLegPricerFn.presentValue(env, leg);
+      totalPv += (pv * env.fxRate(leg.getCurrency(), currency));
+    }
+    return CurrencyAmount.of(currency, totalPv);
+  }
+
+  @Override
   public MultiCurrencyAmount presentValue(PricingEnvironment env, ExpandedSwap swap) {
     return value(env, swap, swapLegPricerFn::presentValue);
   }

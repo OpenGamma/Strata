@@ -119,7 +119,19 @@ public class ImmutablePricingEnvironmentTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_fxRate() {
+  public void test_fxRate_separate() {
+    MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
+    Mockito.when(mock.getFxRate(OLD_USD, OLD_GBP)).thenReturn(0.62d);
+    ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
+        .valuationDate(VAL_DATE)
+        .multicurve(mock)
+        .timeSeries(SwapMockData.TIME_SERIES)
+        .dayCount(ACT_ACT_ISDA)
+        .build();
+    assertEquals(test.fxRate(USD, GBP), 0.62d, 0d);
+  }
+
+  public void test_fxRate_pair() {
     MulticurveProviderInterface mock = Mockito.mock(MulticurveProviderInterface.class);
     Mockito.when(mock.getFxRate(OLD_USD, OLD_GBP)).thenReturn(0.62d);
     ImmutablePricingEnvironment test = ImmutablePricingEnvironment.builder()
