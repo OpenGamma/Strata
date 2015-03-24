@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.pricer.impl.rate.fra;
 
-import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.fra.ExpandedFra;
 import com.opengamma.platform.finance.rate.fra.FraTrade;
@@ -44,12 +44,12 @@ public class ExpandingFraTradePricerFn
 
   //-------------------------------------------------------------------------
   @Override
-  public MultiCurrencyAmount presentValue(PricingEnvironment env, FraTrade trade) {
+  public CurrencyAmount presentValue(PricingEnvironment env, FraTrade trade) {
     return expandedFraPricerFn.presentValue(env, trade.getProduct().expand());
   }
 
   @Override
-  public MultiCurrencyAmount futureValue(PricingEnvironment env, FraTrade trade) {
+  public CurrencyAmount futureValue(PricingEnvironment env, FraTrade trade) {
     return expandedFraPricerFn.futureValue(env, trade.getProduct().expand());
   }
 

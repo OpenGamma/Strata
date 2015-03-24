@@ -5,7 +5,7 @@
  */
 package com.opengamma.platform.pricer.impl.rate.fra;
 
-import com.opengamma.basics.currency.MultiCurrencyAmount;
+import com.opengamma.basics.currency.CurrencyAmount;
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.platform.finance.rate.RateObservation;
 import com.opengamma.platform.finance.rate.fra.ExpandedFra;
@@ -47,12 +47,12 @@ public class DiscountingExpandedFraPricerFn
 
   //-------------------------------------------------------------------------
   @Override
-  public MultiCurrencyAmount presentValue(PricingEnvironment env, ExpandedFra fra) {
+  public CurrencyAmount presentValue(PricingEnvironment env, ExpandedFra fra) {
     double df = env.discountFactor(fra.getCurrency(), fra.getPaymentDate());
     double notional = fra.getNotional();
     double unitAmount = unitAmount(env, fra);
     double pv = notional * unitAmount * df;
-    return MultiCurrencyAmount.of(fra.getCurrency(), pv);
+    return CurrencyAmount.of(fra.getCurrency(), pv);
   }
 
   @Override
@@ -70,11 +70,11 @@ public class DiscountingExpandedFraPricerFn
 
   //-------------------------------------------------------------------------
   @Override
-  public MultiCurrencyAmount futureValue(PricingEnvironment env, ExpandedFra fra) {
+  public CurrencyAmount futureValue(PricingEnvironment env, ExpandedFra fra) {
     double notional = fra.getNotional();
     double unitAmount = unitAmount(env, fra);
     double fv = notional * unitAmount;
-    return MultiCurrencyAmount.of(fra.getCurrency(), fv);
+    return CurrencyAmount.of(fra.getCurrency(), fv);
   }
 
   @Override
