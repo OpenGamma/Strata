@@ -5,12 +5,12 @@
  */
 package com.opengamma.collect.timeseries;
 
+import static com.opengamma.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.INCLUDE_WEEKENDS;
 import static com.opengamma.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.SKIP_WEEKENDS;
 import static com.opengamma.collect.timeseries.LocalDateDoubleTimeSeries.empty;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 
@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.collect.Guavate;
 import com.opengamma.collect.TestHelper;
+import com.opengamma.collect.tuple.Pair;
 
 @Test
 public class DenseLocalDateDoubleTimeSeriesTest {
@@ -742,19 +743,19 @@ public class DenseLocalDateDoubleTimeSeriesTest {
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(map).build();
-    assertThat(ts.get(dt(2014, 12, 26))).isEqualTo(OptionalDouble.of(14d));
+    assertThat(ts.get(dt(2014, 12, 26))).hasValue(14d);
     assertThat(ts.get(dt(2014, 12, 27))).isEqualTo(OptionalDouble.empty());
     assertThat(ts.get(dt(2014, 12, 28))).isEqualTo(OptionalDouble.empty());
-    assertThat(ts.get(dt(2014, 12, 29))).isEqualTo(OptionalDouble.of(13d));
-    assertThat(ts.get(dt(2014, 12, 30))).isEqualTo(OptionalDouble.of(12d));
-    assertThat(ts.get(dt(2014, 12, 31))).isEqualTo(OptionalDouble.of(11d));
+    assertThat(ts.get(dt(2014, 12, 29))).hasValue(13d);
+    assertThat(ts.get(dt(2014, 12, 30))).hasValue(12d);
+    assertThat(ts.get(dt(2014, 12, 31))).hasValue(11d);
     assertThat(ts.get(dt(2015, 1, 1))).isEqualTo(OptionalDouble.empty());
-    assertThat(ts.get(dt(2015, 1, 2))).isEqualTo(OptionalDouble.of(11d));
+    assertThat(ts.get(dt(2015, 1, 2))).hasValue(11d);
     assertThat(ts.get(dt(2015, 1, 3))).isEqualTo(OptionalDouble.empty());
     assertThat(ts.get(dt(2015, 1, 4))).isEqualTo(OptionalDouble.empty());
-    assertThat(ts.get(dt(2015, 1, 5))).isEqualTo(OptionalDouble.of(12d));
-    assertThat(ts.get(dt(2015, 1, 6))).isEqualTo(OptionalDouble.of(13d));
-    assertThat(ts.get(dt(2015, 1, 7))).isEqualTo(OptionalDouble.of(14d));
+    assertThat(ts.get(dt(2015, 1, 5))).hasValue(12d);
+    assertThat(ts.get(dt(2015, 1, 6))).hasValue(13d);
+    assertThat(ts.get(dt(2015, 1, 7))).hasValue(14d);
   }
 
   //-------------------------------------------------------------------------
@@ -794,17 +795,17 @@ public class DenseLocalDateDoubleTimeSeriesTest {
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(map).build();
-    assertThat(ts.get(dt(2014, 12, 26))).isEqualTo(OptionalDouble.of(14d));
-    assertThat(ts.get(dt(2014, 12, 29))).isEqualTo(OptionalDouble.of(13d));
-    assertThat(ts.get(dt(2014, 12, 30))).isEqualTo(OptionalDouble.of(12d));
-    assertThat(ts.get(dt(2014, 12, 31))).isEqualTo(OptionalDouble.of(11d));
+    assertThat(ts.get(dt(2014, 12, 26))).hasValue(14d);
+    assertThat(ts.get(dt(2014, 12, 29))).hasValue(13d);
+    assertThat(ts.get(dt(2014, 12, 30))).hasValue(12d);
+    assertThat(ts.get(dt(2014, 12, 31))).hasValue(11d);
     assertThat(ts.get(dt(2015, 1, 1))).isEqualTo(OptionalDouble.empty());
-    assertThat(ts.get(dt(2015, 1, 2))).isEqualTo(OptionalDouble.of(11d));
+    assertThat(ts.get(dt(2015, 1, 2))).hasValue(11d);
     assertThat(ts.get(dt(2015, 1, 3))).isEqualTo(OptionalDouble.empty());
     assertThat(ts.get(dt(2015, 1, 4))).isEqualTo(OptionalDouble.empty());
-    assertThat(ts.get(dt(2015, 1, 5))).isEqualTo(OptionalDouble.of(12d));
-    assertThat(ts.get(dt(2015, 1, 6))).isEqualTo(OptionalDouble.of(13d));
-    assertThat(ts.get(dt(2015, 1, 7))).isEqualTo(OptionalDouble.of(14d));
+    assertThat(ts.get(dt(2015, 1, 5))).hasValue(12d);
+    assertThat(ts.get(dt(2015, 1, 6))).hasValue(13d);
+    assertThat(ts.get(dt(2015, 1, 7))).hasValue(14d);
   }
 
   public void underOneWeekNoWeekend() {
@@ -818,8 +819,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(map).build();
-    assertThat(ts.get(dt(2015, 1, 5))).isEqualTo(OptionalDouble.of(12d));
-    assertThat(ts.get(dt(2015, 1, 9))).isEqualTo(OptionalDouble.of(16d));
+    assertThat(ts.get(dt(2015, 1, 5))).hasValue(12d);
+    assertThat(ts.get(dt(2015, 1, 9))).hasValue(16d);
   }
 
   public void underOneWeekWithWeekend() {
@@ -835,13 +836,13 @@ public class DenseLocalDateDoubleTimeSeriesTest {
         .build();
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(map).build();
-    assertThat(ts.get(dt(2015, 1, 1))).isEqualTo(OptionalDouble.of(10d));
-    assertThat(ts.get(dt(2015, 1, 2))).isEqualTo(OptionalDouble.of(11d));
-    assertThat(ts.get(dt(2015, 1, 5))).isEqualTo(OptionalDouble.of(12d));
-    assertThat(ts.get(dt(2015, 1, 6))).isEqualTo(OptionalDouble.of(13d));
-    assertThat(ts.get(dt(2015, 1, 7))).isEqualTo(OptionalDouble.of(14d));
-    assertThat(ts.get(dt(2015, 1, 8))).isEqualTo(OptionalDouble.of(15d));
-    assertThat(ts.get(dt(2015, 1, 9))).isEqualTo(OptionalDouble.of(16d));
+    assertThat(ts.get(dt(2015, 1, 1))).hasValue(10d);
+    assertThat(ts.get(dt(2015, 1, 2))).hasValue(11d);
+    assertThat(ts.get(dt(2015, 1, 5))).hasValue(12d);
+    assertThat(ts.get(dt(2015, 1, 6))).hasValue(13d);
+    assertThat(ts.get(dt(2015, 1, 7))).hasValue(14d);
+    assertThat(ts.get(dt(2015, 1, 8))).hasValue(15d);
+    assertThat(ts.get(dt(2015, 1, 9))).hasValue(16d);
   }
 
   public void roundTrip() {
@@ -860,6 +861,88 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     Map<LocalDate, Double> out = ts.stream()
         .collect(Guavate.toImmutableMap(LocalDateDoublePoint::getDate, LocalDateDoublePoint::getValue));
     assertThat(out).isEqualTo(in);
+  }
+
+  public void partitionEmptySeries() {
+
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned =
+        LocalDateDoubleTimeSeries.empty().partition((ld, d) -> ld.getYear() == 2015);
+
+    assertThat(partitioned.getFirst()).isEqualTo(LocalDateDoubleTimeSeries.empty());
+    assertThat(partitioned.getSecond()).isEqualTo(LocalDateDoubleTimeSeries.empty());
+  }
+
+  public void partitionSeries() {
+
+    Map<LocalDate, Double> in = ImmutableMap.<LocalDate, Double>builder()
+        .put(dt(2015, 1, 1), 10d) // Thursday
+        .put(dt(2015, 1, 2), 11d) // Friday
+        .put(dt(2015, 1, 5), 12d)
+        .put(dt(2015, 1, 6), 13d)
+        .put(dt(2015, 1, 7), 14d)
+        .put(dt(2015, 1, 8), 15d) // Thursday
+        .put(dt(2015, 1, 9), 16d) // Friday
+        .build();
+
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(in).build();
+
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned =
+        ts.partition((ld, d) -> ld.getDayOfMonth() % 2 == 0);
+
+    LocalDateDoubleTimeSeries even = partitioned.getFirst();
+    LocalDateDoubleTimeSeries odd = partitioned.getSecond();
+
+    assertThat(even.size()).isEqualTo(3);
+    assertThat(even.get(dt(2015, 1, 2))).hasValue(11d);
+    assertThat(even.get(dt(2015, 1, 6))).hasValue(13d);
+    assertThat(even.get(dt(2015, 1, 8))).hasValue(15d);
+
+    assertThat(odd.size()).isEqualTo(4);
+    assertThat(odd.get(dt(2015, 1, 1))).hasValue(10d);
+    assertThat(odd.get(dt(2015, 1, 5))).hasValue(12d);
+    assertThat(odd.get(dt(2015, 1, 7))).hasValue(14d);
+    assertThat(odd.get(dt(2015, 1, 9))).hasValue(16d);
+  }
+
+  public void partitionByValueEmptySeries() {
+
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned =
+        LocalDateDoubleTimeSeries.empty().partitionByValue(d -> d > 10);
+
+    assertThat(partitioned.getFirst()).isEqualTo(LocalDateDoubleTimeSeries.empty());
+    assertThat(partitioned.getSecond()).isEqualTo(LocalDateDoubleTimeSeries.empty());
+  }
+
+  public void partitionByValueSeries() {
+
+    Map<LocalDate, Double> in = ImmutableMap.<LocalDate, Double>builder()
+        .put(dt(2015, 1, 1), 10d) // Thursday
+        .put(dt(2015, 1, 2), 11d) // Friday
+        .put(dt(2015, 1, 5), 12d)
+        .put(dt(2015, 1, 6), 13d)
+        .put(dt(2015, 1, 7), 14d)
+        .put(dt(2015, 1, 8), 15d) // Thursday
+        .put(dt(2015, 1, 9), 16d) // Friday
+        .build();
+
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(in).build();
+
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitioned =
+        ts.partitionByValue(d -> d < 12 || d > 15);
+
+    LocalDateDoubleTimeSeries extreme = partitioned.getFirst();
+    LocalDateDoubleTimeSeries mid = partitioned.getSecond();
+
+    assertThat(extreme.size()).isEqualTo(3);
+    assertThat(extreme.get(dt(2015, 1, 1))).hasValue(10d);
+    assertThat(extreme.get(dt(2015, 1, 2))).hasValue(11d);
+    assertThat(extreme.get(dt(2015, 1, 9))).hasValue(16d);
+
+    assertThat(mid.size()).isEqualTo(4);
+    assertThat(mid.get(dt(2015, 1, 5))).hasValue(12d);
+    assertThat(mid.get(dt(2015, 1, 6))).hasValue(13d);
+    assertThat(mid.get(dt(2015, 1, 7))).hasValue(14d);
+    assertThat(mid.get(dt(2015, 1, 8))).hasValue(15d);
   }
 
   private LocalDate dt(int yr, int mth, int day) {

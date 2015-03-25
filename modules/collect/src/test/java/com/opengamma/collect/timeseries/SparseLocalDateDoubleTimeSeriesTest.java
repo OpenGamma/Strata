@@ -5,6 +5,7 @@
  */
 package com.opengamma.collect.timeseries;
 
+import static com.opengamma.collect.CollectProjectAssertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 
@@ -25,6 +26,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Doubles;
 import com.opengamma.collect.TestHelper;
+import com.opengamma.collect.tuple.Pair;
 
 /**
  * Test LocalDateDoubleTimeSeries.
@@ -563,6 +565,48 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d);
     assertEquals(test.equals(""), false);
     assertEquals(test.equals(null), false);
+  }
+
+  public void partition() {
+    List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
+    LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder().putAll(dates, VALUES_10_14).build();
+
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition =
+        series.partition((ld, d) -> ld.getYear() % 2 == 0);
+
+    LocalDateDoubleTimeSeries even = partition.getFirst();
+    LocalDateDoubleTimeSeries odd = partition.getSecond();
+
+    assertThat(even.size()).isEqualTo(3);
+    assertThat(odd.size()).isEqualTo(2);
+
+    assertThat(even.get(DATE_2010_01_01)).hasValue(10);
+    assertThat(even.get(DATE_2012_01_01)).hasValue(12);
+    assertThat(even.get(DATE_2014_01_01)).hasValue(14);
+
+    assertThat(odd.get(DATE_2011_06_01)).hasValue(11);
+    assertThat(odd.get(DATE_2013_06_01)).hasValue(13);
+  }
+
+  public void partitionByValue() {
+    List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
+    LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder().putAll(dates, VALUES_10_14).build();
+
+    Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition =
+        series.partitionByValue(d -> d > 10 && d < 14);
+
+    LocalDateDoubleTimeSeries mid = partition.getFirst();
+    LocalDateDoubleTimeSeries extreme = partition.getSecond();
+
+    assertThat(mid.size()).isEqualTo(3);
+    assertThat(extreme.size()).isEqualTo(2);
+
+    assertThat(mid.get(DATE_2011_06_01)).hasValue(11);
+    assertThat(mid.get(DATE_2012_01_01)).hasValue(12);
+    assertThat(mid.get(DATE_2013_06_01)).hasValue(13);
+
+    assertThat(extreme.get(DATE_2010_01_01)).hasValue(10);
+    assertThat(extreme.get(DATE_2014_01_01)).hasValue(14);
   }
 
   //-------------------------------------------------------------------------
