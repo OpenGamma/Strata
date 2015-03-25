@@ -1,13 +1,13 @@
 /**
- * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
 package com.opengamma.collect;
 
 import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.data.Offset;
 
-import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
@@ -21,14 +21,14 @@ import java.util.OptionalDouble;
  * <pre>
  *   OptionalDouble optional = someMethodCall();
  *   assertTrue(optional.isPresent());
- *   assertEquals(optional.get(), 12.345);
+ *   assertEquals(optional.getAsDouble(), 12.345, TOLERANCE);
  * </pre>
  * can be replaced with:
  * <pre>
  *   OptionalDouble optional = someMethodCall();
  *   assertThat(optional)
  *     .isPresent()
- *     .hasValue(12.345);
+ *     .hasValue(12.345, TOLERANCE);
  * </pre>
  * In order to be able to use a statically imported assertThat()
  * method for both {@code OptionalDouble} and other types, statically
@@ -90,17 +90,49 @@ public class OptionalDoubleAssert extends AbstractAssert<OptionalDoubleAssert, O
   /**
    * Assert that the {@code OptionalDouble} contains a particular value.
    *
-   * @param value  the value to check
+   * @param expected  the value to check
    * @return this, if the wrapped object contains the specified value
    * @throws AssertionError if the wrapped object does not contain a value, or the value is not the specified value
    */
-  public OptionalDoubleAssert hasValue(double value) {
+  public OptionalDoubleAssert hasValue(double expected) {
     isPresent();
 
-    if (actual.getAsDouble() != value) {
-      failWithMessage("Expected OptionalDouble with value: <%s> but was <%s>", value, actual.getAsDouble());
+    if (actual.getAsDouble() != expected) {
+      failWithMessage("Expected OptionalDouble with value: <%s> but was <%s>", expected, actual.getAsDouble());
     }
     return this;
+  }
+
+  /**
+   * Assert that the {@code OptionalDouble} contains a particular value
+   * within the specified tolerance.
+   *
+   * @param expected  the value to check
+   * @return this, if the wrapped object contains the specified value
+   * @throws AssertionError if the wrapped object does not contain a value,
+   * or the value is not within tolerance of the specified value
+   */
+  public OptionalDoubleAssert hasValue(double expected, Offset<Double> tolerance) {
+    isPresent();
+
+    if (Math.abs(expected - actual.getAsDouble()) > tolerance.value) {
+      failWithMessage(
+          "Expected OptionalDouble within <%s> of value: <%s> but was <%s>", tolerance, expected, actual.getAsDouble());
+    }
+    return this;
+  }
+
+  /**
+   * Assert that the {@code OptionalDouble} contains a particular value
+   * within the specified tolerance.
+   *
+   * @param expected  the value to check
+   * @return this, if the wrapped object contains the specified value
+   * @throws AssertionError if the wrapped object does not contain a value,
+   * or the value is not within tolerance of the specified value
+   */
+  public OptionalDoubleAssert hasValue(double expected, double tolerance) {
+    return hasValue(expected, Offset.offset(tolerance));
   }
 
 }
