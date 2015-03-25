@@ -6,6 +6,7 @@
 package com.opengamma.collect;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import org.assertj.core.api.Assertions;
 
@@ -41,5 +42,16 @@ public class CollectProjectAssertions extends Assertions {
    */
   public static <T> OptionalAssert<T> assertThat(Optional<T> optional) {
     return OptionalAssert.assertThat(optional);
+  }
+
+  /**
+   * Create an {@code Assert} instance that enables
+   * assertions on {@code OptionalDouble} objects.
+   *
+   * @param optional  the optional to create an {@code Assert} for
+   * @return an {@code Assert} instance
+   */
+  public static OptionalDoubleAssert assertThat(OptionalDouble optional) {
+    return OptionalDoubleAssert.assertThat(optional);
   }
 }
