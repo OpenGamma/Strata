@@ -7,12 +7,15 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -21,6 +24,13 @@ import com.opengamma.strata.collect.ArgChecker;
  * This could be used to identify a pair of currencies for quoting rates in FX deals.
  * See {@link FxRate} for the representation that contains a rate.
  * <p>
+ * It is recommended to define currencies in advance using the {@code CurrencyPair.ini} file.
+ * Standard configuration includes many commonly used currency pairs.
+ * <p>
+ * Only currencies listed in configuration will be returned by {@link #getAvailablePairs()}.
+ * If a pair is requested that is not defined in configuration, it will still be created,
+ * however the market convention information will not be available.
+ * <p>
  * This class is immutable and thread-safe.
  */
 public final class CurrencyPair
@@ -28,10 +38,15 @@ public final class CurrencyPair
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
+
   /**
    * Regular expression to parse the textual format.
    */
   private static final Pattern REGEX_FORMAT = Pattern.compile("([A-Z]{3})[/]([A-Z]{3})");
+  /**
+   * The configured instances and associated rate digits.
+   */
+  private static final ImmutableMap<CurrencyPair, Integer> CONFIGURED = CurrencyDataLoader.loadPairs();
 
   /**
    * The base currency of the pair.
@@ -43,6 +58,19 @@ public final class CurrencyPair
    * In the pair 'AAA/BBB' the counter is 'BBB'.
    */
   private final Currency counter;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains the set of configured currency pairs.
+   * <p>
+   * This contains all the currency pairs that have been defined in configuration.
+   * Any currency pair instances that have been dynamically created are not included.
+   * 
+   * @return an immutable set containing all registered currency pairs
+   */
+  public static Set<CurrencyPair> getAvailablePairs() {
+    return CONFIGURED.keySet();
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -143,6 +171,36 @@ public final class CurrencyPair
   public boolean isRelated(CurrencyPair other) {
     ArgChecker.notNull(other, "currencyPair");
     return contains(other.base) || contains(other.counter);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if this currency pair is a conventional currency pair.
+   * <p>
+   * A market convention determines that 'EUR/USD' should be used and not 'USD/EUR'.
+   * This knowledge is encoded in configuration.
+   * For those currency pairs that are in configuration, this method checks if
+   * the pair is the conventional way round.
+   * 
+   * @param other  the other currency pair
+   * @return true if the currency pair follows the convention, false if it does not,
+   *  or the data is not available
+   */
+  public boolean isConventional() {
+    return CONFIGURED.containsKey(this);
+  }
+
+  /**
+   * Gets the number of digits in the rate.
+   * <p>
+   * If this rate is a conventional currency pair defined in configuration,
+   * then the number of digits in a market FX rate quote is returned.
+   * 
+   * @return the number of digits in the FX rate, empty if not known
+   */
+  public OptionalInt getRateDigits() {
+    Integer result = CONFIGURED.get(this);
+    return (result == null ? OptionalInt.empty() : OptionalInt.of(result));
   }
 
   //-------------------------------------------------------------------------

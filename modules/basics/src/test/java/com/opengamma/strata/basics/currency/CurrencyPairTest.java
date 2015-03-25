@@ -17,6 +17,10 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+
+import java.util.OptionalInt;
+import java.util.Set;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -26,6 +30,14 @@ import org.testng.annotations.Test;
  */
 @Test
 public class CurrencyPairTest {
+
+  //-----------------------------------------------------------------------
+  public void test_getAvailable() {
+    Set<CurrencyPair> available = CurrencyPair.getAvailablePairs();
+    assertTrue(available.contains(CurrencyPair.of(EUR, USD)));
+    assertTrue(available.contains(CurrencyPair.of(EUR, GBP)));
+    assertTrue(available.contains(CurrencyPair.of(GBP, USD)));
+  }
 
   //-------------------------------------------------------------------------
   public void test_of_CurrencyCurrency() {
@@ -154,6 +166,19 @@ public class CurrencyPairTest {
   public void test_isRelatedTo_CurrencyPair_null() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
     assertThrowsIllegalArg(() -> test.isRelated(null));
+  }
+
+  //-----------------------------------------------------------------------
+  public void test_isConventional() {
+    assertEquals(CurrencyPair.of(GBP, USD).isConventional(), true);
+    assertEquals(CurrencyPair.of(USD, GBP).isConventional(), false);
+    assertEquals(CurrencyPair.of(Currency.BRL, GBP).isConventional(), false);
+  }
+
+  public void test_rateDigits() {
+    assertEquals(CurrencyPair.of(GBP, USD).getRateDigits(), OptionalInt.of(4));
+    assertEquals(CurrencyPair.of(USD, GBP).getRateDigits(), OptionalInt.empty());
+    assertEquals(CurrencyPair.of(Currency.BRL, GBP).getRateDigits(), OptionalInt.empty());
   }
 
   //-------------------------------------------------------------------------
