@@ -305,7 +305,7 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
 
   /**
    * Partition the timeseries into a pair of distinct series using a predicate.
-   *
+   * <p>
    * Points in the timeseries which match the predicate will be put into the
    * first series, whilst those points which do not match will be put into the
    * second.
@@ -329,15 +329,15 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
 
   /**
    * Partition the timeseries into a pair of distinct series using a predicate.
-   *
+   * <p>
    * Points in the timeseries whose values match the predicate will be put into the
    * first series, whilst those points whose values do not match will be put into the
    * second.
    *
    * @param predicate  predicate used to test the points in the timeseries
    * @return a {@code Pair} containing two timeseries. The first is a series
-   * made of all the points in this series which match the predicate. The
-   * second is a series made of the points which do not match.
+   *   made of all the points in this series which match the predicate. The
+   *   second is a series made of the points which do not match.
    */
   public default Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitionByValue(
       DoublePredicate predicate) {

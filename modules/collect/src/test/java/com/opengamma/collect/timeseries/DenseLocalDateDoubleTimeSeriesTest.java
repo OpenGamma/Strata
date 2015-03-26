@@ -744,15 +744,15 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder().putAll(map).build();
     assertThat(ts.get(dt(2014, 12, 26))).hasValue(14d);
-    assertThat(ts.get(dt(2014, 12, 27))).isEqualTo(OptionalDouble.empty());
-    assertThat(ts.get(dt(2014, 12, 28))).isEqualTo(OptionalDouble.empty());
+    assertThat(ts.get(dt(2014, 12, 27))).isEmpty();
+    assertThat(ts.get(dt(2014, 12, 28))).isEmpty();
     assertThat(ts.get(dt(2014, 12, 29))).hasValue(13d);
     assertThat(ts.get(dt(2014, 12, 30))).hasValue(12d);
     assertThat(ts.get(dt(2014, 12, 31))).hasValue(11d);
-    assertThat(ts.get(dt(2015, 1, 1))).isEqualTo(OptionalDouble.empty());
+    assertThat(ts.get(dt(2015, 1, 1))).isEmpty();
     assertThat(ts.get(dt(2015, 1, 2))).hasValue(11d);
-    assertThat(ts.get(dt(2015, 1, 3))).isEqualTo(OptionalDouble.empty());
-    assertThat(ts.get(dt(2015, 1, 4))).isEqualTo(OptionalDouble.empty());
+    assertThat(ts.get(dt(2015, 1, 3))).isEmpty();
+    assertThat(ts.get(dt(2015, 1, 4))).isEmpty();
     assertThat(ts.get(dt(2015, 1, 5))).hasValue(12d);
     assertThat(ts.get(dt(2015, 1, 6))).hasValue(13d);
     assertThat(ts.get(dt(2015, 1, 7))).hasValue(14d);
@@ -799,10 +799,10 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     assertThat(ts.get(dt(2014, 12, 29))).hasValue(13d);
     assertThat(ts.get(dt(2014, 12, 30))).hasValue(12d);
     assertThat(ts.get(dt(2014, 12, 31))).hasValue(11d);
-    assertThat(ts.get(dt(2015, 1, 1))).isEqualTo(OptionalDouble.empty());
+    assertThat(ts.get(dt(2015, 1, 1))).isEmpty();
     assertThat(ts.get(dt(2015, 1, 2))).hasValue(11d);
-    assertThat(ts.get(dt(2015, 1, 3))).isEqualTo(OptionalDouble.empty());
-    assertThat(ts.get(dt(2015, 1, 4))).isEqualTo(OptionalDouble.empty());
+    assertThat(ts.get(dt(2015, 1, 3))).isEmpty();
+    assertThat(ts.get(dt(2015, 1, 4))).isEmpty();
     assertThat(ts.get(dt(2015, 1, 5))).hasValue(12d);
     assertThat(ts.get(dt(2015, 1, 6))).hasValue(13d);
     assertThat(ts.get(dt(2015, 1, 7))).hasValue(14d);
