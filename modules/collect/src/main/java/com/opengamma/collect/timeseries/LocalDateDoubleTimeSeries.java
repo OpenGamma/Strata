@@ -5,10 +5,14 @@
  */
 package com.opengamma.collect.timeseries;
 
+import static java.util.stream.Collectors.partitioningBy;
+
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoublePredicate;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ObjDoubleConsumer;
 import java.util.stream.Collector;
@@ -19,6 +23,8 @@ import org.joda.beans.ImmutableBean;
 
 import com.opengamma.collect.ArgChecker;
 import com.opengamma.collect.function.ObjDoublePredicate;
+import com.opengamma.collect.tuple.Pair;
+
 
 /**
  * Interface for all local date time-series types containing
@@ -295,6 +301,47 @@ public interface LocalDateDoubleTimeSeries extends ImmutableBean {
                 pt.getDate(),
                 mapper.applyAsDouble(pt.getValue(), other.get(pt.getDate()).getAsDouble()))))
         .build();
+  }
+
+  /**
+   * Partition the timeseries into a pair of distinct series using a predicate.
+   * <p>
+   * Points in the timeseries which match the predicate will be put into the
+   * first series, whilst those points which do not match will be put into the
+   * second.
+   *
+   * @param predicate  predicate used to test the points in the timeseries
+   * @return a {@code Pair} containing two timeseries. The first is a series
+   *   made of all the points in this series which match the predicate. The
+   *   second is a series made of the points which do not match.
+   */
+  public default Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partition(
+      ObjDoublePredicate<LocalDate> predicate) {
+
+    Map<Boolean, LocalDateDoubleTimeSeries> partitioned = stream()
+        .collect(
+            partitioningBy(
+                pt -> predicate.test(pt.getDate(), pt.getValue()),
+                LocalDateDoubleTimeSeries.collector()));
+
+    return Pair.of(partitioned.get(true), partitioned.get(false));
+  }
+
+  /**
+   * Partition the timeseries into a pair of distinct series using a predicate.
+   * <p>
+   * Points in the timeseries whose values match the predicate will be put into the
+   * first series, whilst those points whose values do not match will be put into the
+   * second.
+   *
+   * @param predicate  predicate used to test the points in the timeseries
+   * @return a {@code Pair} containing two timeseries. The first is a series
+   *   made of all the points in this series which match the predicate. The
+   *   second is a series made of the points which do not match.
+   */
+  public default Pair<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> partitionByValue(
+      DoublePredicate predicate) {
+    return partition((obj, value) -> predicate.test(value));
   }
 
   /**
