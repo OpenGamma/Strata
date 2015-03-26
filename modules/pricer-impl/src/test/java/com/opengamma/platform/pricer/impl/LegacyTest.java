@@ -35,11 +35,11 @@ public class LegacyTest {
       com.opengamma.basics.index.IborIndices.CHF_LIBOR_1W;
   private static final com.opengamma.basics.index.OvernightIndex NEW_GBP_SONIA =
       com.opengamma.basics.index.OvernightIndices.GBP_SONIA;
-  private static final com.opengamma.basics.index.OvernightIndex NEW_FRF_NONE =
+  private static final com.opengamma.basics.index.OvernightIndex NEW_USD_NONE =
       ImmutableOvernightIndex.builder()
-          .name("FRF_NONE")
-          .currency(com.opengamma.basics.currency.Currency.FRF)
-          .fixingCalendar(HolidayCalendars.FRPA)
+          .name("USD_NONE")
+          .currency(com.opengamma.basics.currency.Currency.USD)
+          .fixingCalendar(HolidayCalendars.USNY)
           .dayCount(DayCounts.ACT_360)
           .effectiveDateOffset(2)
           .publicationDateOffset(0)
@@ -71,7 +71,7 @@ public class LegacyTest {
   }
 
   public void test_overnightIndex_bad() {
-    assertThrowsIllegalArg(() -> Legacy.overnightIndex(NEW_FRF_NONE));
+    assertThrowsIllegalArg(() -> Legacy.overnightIndex(NEW_USD_NONE));
   }
 
   //-------------------------------------------------------------------------
