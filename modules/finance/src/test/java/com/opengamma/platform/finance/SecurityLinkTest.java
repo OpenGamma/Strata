@@ -6,6 +6,7 @@
 package com.opengamma.platform.finance;
 
 import static com.opengamma.collect.TestHelper.assertSerialization;
+import static com.opengamma.collect.TestHelper.assertThrows;
 import static com.opengamma.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.collect.TestHelper.coverImmutableBean;
@@ -15,7 +16,6 @@ import static com.opengamma.platform.finance.MockSimpleProduct.MOCK1_SECURITY;
 import static com.opengamma.platform.finance.MockSimpleProduct.MOCK2_SECURITY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.fail;
-
 import org.joda.beans.BeanBuilder;
 import org.testng.annotations.Test;
 
@@ -43,6 +43,7 @@ public class SecurityLinkTest {
     assertThat(test.getTargetType()).isEqualTo(Security.class);
     assertThat(test.getTargetTypeToken()).isEqualTo(TYPE_TOKEN);
     assertThat(test.getProductType()).isEqualTo(MockSimpleProduct.class);
+    assertThrows(() -> test.resolvedTarget(), IllegalStateException.class);
   }
 
   public void test_resolvable_null() {
@@ -57,6 +58,7 @@ public class SecurityLinkTest {
     assertThat(test.getTargetType()).isEqualTo(Security.class);
     assertThat(test.getTargetTypeToken()).isEqualTo(TYPE_TOKEN);
     assertThat(test.getProductType()).isEqualTo(MockSimpleProduct.class);
+    assertThat(test.resolvedTarget()).isEqualTo(MOCK1_SECURITY);
   }
 
   public void test_resolved_null() {
