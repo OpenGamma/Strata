@@ -339,6 +339,23 @@ public final class Result<T>
     }
   }
 
+  /**
+   * Returns a success result containing the value if it is non-null, else returns a failure result
+   * with a reason of {@link FailureReason#MISSING_DATA} and message to say an unexpected null was found.
+   * <p>
+   * This is useful for interoperability with APIs that can return {@code null} but where null is not expected.
+   *
+   * @param <R> the expected type of the result
+   * @return a success result if the value is non-null, else a failure result
+   */
+  public static <R> Result<R> ofNullable(@Nullable R value) {
+    if (value != null) {
+      return success(value);
+    } else {
+      return failure(FailureReason.MISSING_DATA, "Found null where a value was expected");
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if all the results are successful.
