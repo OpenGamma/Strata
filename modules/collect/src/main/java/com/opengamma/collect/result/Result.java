@@ -16,6 +16,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -302,6 +304,39 @@ public final class Result<T>
       throw new IllegalArgumentException("All results were successes");
     }
     return new Result<>(Failure.of(items));
+  }
+
+  /**
+   * Returns a success result containing the value if it is non-null, else returns a failure result
+   * with the specified reason and message.
+   * <p>
+   * This is useful for interoperability with APIs that return {@code null}, for example {@code Map.get()}, where
+   * a missing value should be treated as a failure.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   *
+   * @param <R> the expected type of the result
+   * @param reason  the reason for the failure
+   * @param message  a message explaining the failure, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
+   * @return a success result if the value is non-null, else a failure result
+   */
+  public static <R> Result<R> ofNullable(
+      @Nullable R value,
+      FailureReason reason,
+      String message,
+      Object... messageArgs) {
+
+    if (value != null) {
+      return success(value);
+    } else {
+      return failure(reason, message, messageArgs);
+    }
   }
 
   //-------------------------------------------------------------------------
