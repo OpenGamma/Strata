@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.commons.example;
+package com.opengamma.strata.examples.basics;
 
 import java.time.LocalDate;
 
