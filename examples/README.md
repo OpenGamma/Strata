@@ -1,16 +1,16 @@
-OG-Platform-Core-Examples
--------------------------
-This directory contains the `ogp-core-examples` project.
+Strata-Examples
+---------------
+This directory contains the `strata-examples` project.
 
 ### Overview
 
-This project provides example code for the OG-PlatformCore repository.
+This project provides example code for the Strata repository.
 This is useful for understanding what the project does and for demonstrations.
 
 
 ### Source code
 
-OG-Platform-Core-Examples is released as Open Source Software using the
+This project is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 

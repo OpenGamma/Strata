@@ -1,10 +1,10 @@
-OG-Platform-Finance
--------------------
-This directory contains the `ogp-finance` project.
+Strata-Finance
+--------------
+This directory contains the `strata-finance` project.
 
 ### Overview
 
-This project provides a domain model for entities in finance used by OpenGamma:
+This project provides a domain model for entities in finance used by OpenGamma Strata:
 
 * trades
 * securities

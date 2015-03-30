@@ -6,23 +6,22 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <groupId>com.opengamma.platform</groupId>
-    <artifactId>ogp-core-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <groupId>com.opengamma.strata</groupId>
+    <artifactId>strata-parent</artifactId>
+    <version>0.9.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>  
-  <artifactId>ogp-source</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <artifactId>strata-source</artifactId>
   <packaging>jar</packaging>
-  <name>OG-Platform-Source</name>
-  <description>OpenGamma Platform - Source, entity identifiers and links</description>
+  <name>Strata-Source</name>
+  <description>Source, entity identifiers and links</description>
 
   <!-- ==================================================================== -->
   <dependencies>
     <!-- OpenGamma -->
     <dependency>
-      <groupId>com.opengamma.commons</groupId>
-      <artifactId>og-collect</artifactId>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-collect</artifactId>
     </dependency>
     <!-- Third Party -->
     <dependency>
@@ -43,8 +42,8 @@
     </dependency>
     <!-- Testing -->
     <dependency>
-      <groupId>com.opengamma.commons</groupId>
-      <artifactId>og-collect</artifactId>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-collect</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -53,8 +52,8 @@
   <!-- ==================================================================== -->
   <properties>
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OG-Platform Source</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma Platform Source API</h1>]]></doctitle>
+    <windowtitle>OpenGamma Strata Source</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Strata Source API</h1>]]></doctitle>
   </properties>
 
 </project>

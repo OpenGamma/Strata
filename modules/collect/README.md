@@ -1,19 +1,21 @@
-OG-Collect
-----------
-This directory contains the `og-collect` project.
+Strata-Collect
+--------------
+This directory contains the `strata-collect` project.
 
 ### Overview
 
-This project provides data structures used by OpenGamma:
+This project provides data structures used by OpenGamma Strata:
 
-* tuple - an implementation of the "pair" concept
-* timeseries - hold a value that changes over time
+* identifier - standard identifier with scheme and value
 * range - holds representations of ranges
+* result - a success or failure result wrapper
+* timeseries - hold a value that changes over time
+* tuple - an implementation of the "pair" concept
 
 
 ### Source code
 
-OG-Collect is released as Open Source Software using the
+This project is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 

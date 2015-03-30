@@ -23,7 +23,7 @@ To manage this complexity, a *schedule builder* is used.
 Schedule Builder
 ================
 
-The OG-Basics project includes a schedule builder that provides a powerful mechanism to create schedules.
+The Strata-Basics project includes a schedule builder that provides a powerful mechanism to create schedules.
 The key class is ``PeriodicSchedule`` which is used to create a ``Schedule``.
 
 The difference between the two is that ``PeriodicSchedule`` describes the schedule in terms

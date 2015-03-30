@@ -1,6 +1,6 @@
-OG-Platform-Pricer-Impl
------------------------
-This directory contains the `ogp-pricer-impl` project.
+Strata-Pricer-Impl
+------------------
+This directory contains the `strata-pricer-impl` project.
 
 ### Overview
 

@@ -1,6 +1,6 @@
-OG-Platform-Curves
-------------------
-This directory contains the `ogp-curves` project.
+Strata-Curves
+-------------
+This directory contains the `strata-curves` project.
 
 ### Overview
 

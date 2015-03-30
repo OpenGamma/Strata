@@ -14,7 +14,7 @@ To manage a value that can change over time with the schedule, a *value schedule
 Value Schedule
 ==============
 
-The OG-Basics project includes a value schedule handles values that change over time.
+The Strata-Basics project includes a value schedule handles values that change over time.
 The key class is ``ValueSchedule``.
 
 The ``ValueSchedule`` class contains two items:

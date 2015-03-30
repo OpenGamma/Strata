@@ -1,14 +1,12 @@
-OG-Platform-Source
-------------------
-This directory contains the `ogp-source` project.
+Strata-Source
+-------------
+This directory contains the `strata-source` project.
 
 ### Overview
 
-This project provides source interfaces and the associated identifiers and links.
+This project provides interfaces to enable external data sources.
 
 A *source* interface provides simple, straightforward access to an entity using a standard identifier.
-A *standard identifier* consists of two elements, a scheme and a value.
-A *link* is a high level representation of a link between two entities.
 
 
 ### Source code

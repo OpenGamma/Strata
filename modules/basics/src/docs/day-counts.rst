@@ -26,7 +26,7 @@ See `Wikipedia <http://en.wikipedia.org/wiki/Day_count_convention>`_ for more ba
 Day Count
 =========
 
-The OG-Basics project includes a comprehensive implementation of day count conventions.
+The Strata-Basics project includes a comprehensive implementation of day count conventions.
 The key interface is ``DayCount`` which defines methods to obtain and query a specific day count.
 
 Each day count implementation has a unique name.

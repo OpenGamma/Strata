@@ -6,24 +6,22 @@
   <modelVersion>4.0.0</modelVersion>
   
   <parent>
-    <groupId>com.opengamma.platform</groupId>
-    <artifactId>ogp-core-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <groupId>com.opengamma.strata</groupId>
+    <artifactId>strata-parent</artifactId>
+    <version>0.9.0-SNAPSHOT</version>
     <relativePath>../modules</relativePath>
   </parent>  
-  <artifactId>ogp-core-examples</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <artifactId>strata-examples</artifactId>
   <packaging>jar</packaging>
-  <name>OG-Platform-Core-Examples</name>
-  <description>Example code to demonstrate use of OG-PlatformCore</description>
+  <name>Strata-Examples</name>
+  <description>Example code to demonstrate use of Strata</description>
 
   <!-- ==================================================================== -->
   <dependencies>
     <!-- OpenGamma, relying on transitive dependencies -->
     <dependency>
-      <groupId>com.opengamma.platform</groupId>
-      <artifactId>ogp-finance</artifactId>
-      <version>3.0.0-SNAPSHOT</version>
+      <groupId>com.opengamma.strata</groupId>
+      <artifactId>strata-finance</artifactId>
     </dependency>
   </dependencies>
 
@@ -33,8 +31,8 @@
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OG-Platform Core Examples</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma Platform Core Examples</h1>]]></doctitle>
+    <windowtitle>OpenGamma Strata Examples</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Strata Examples</h1>]]></doctitle>
   </properties>
 
 </project>

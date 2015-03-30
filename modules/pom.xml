@@ -11,12 +11,12 @@
     <version>2.0.0-RC2</version>
     <relativePath></relativePath>
   </parent>  
-  <groupId>com.opengamma.platform</groupId>
-  <artifactId>ogp-core-parent</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <groupId>com.opengamma.strata</groupId>
+  <artifactId>strata-parent</artifactId>
+  <version>0.9.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>OG-Platform-Core-Parent</name>
-  <description>OpenGamma Platform - Core Parent</description>
+  <name>Strata-Parent</name>
+  <description>OpenGamma Strata Parent</description>
 
   <!-- ==================================================================== -->
   <licenses>
@@ -30,7 +30,7 @@
   <!-- ==================================================================== -->
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/OpenGamma/OG-PlatformCore/issues</url>
+    <url>https://github.com/OpenGamma/Strata/issues</url>
   </issueManagement>
   <inceptionYear>2009</inceptionYear>
   <mailingLists>
@@ -40,9 +40,9 @@
     </mailingList>
   </mailingLists>
   <scm>
-    <connection>scm:git:https://github.com/OpenGamma/OG-PlatformCore.git</connection>
-    <developerConnection>scm:git:https://github.com/OpenGamma/OG-PlatformCore.git</developerConnection>
-    <url>https://github.com/OpenGamma/OG-PlatformCore</url>
+    <connection>scm:git:https://github.com/OpenGamma/Strata.git</connection>
+    <developerConnection>scm:git:https://github.com/OpenGamma/Strata.git</developerConnection>
+    <url>https://github.com/OpenGamma/Strata</url>
   </scm>
 
   <!-- ==================================================================== -->
@@ -187,14 +187,29 @@
     <dependencies>
       <!-- OpenGamma -->
       <dependency>
-        <groupId>com.opengamma.commons</groupId>
-        <artifactId>og-collect</artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-collect</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.opengamma.commons</groupId>
-        <artifactId>og-basics</artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-basics</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-finance</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-pricer</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-pricer-impl</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.platform</groupId>
@@ -243,9 +258,16 @@
       </dependency>
       <!-- Testing -->
       <dependency>
-        <groupId>com.opengamma.commons</groupId>
-        <artifactId>og-collect</artifactId>
-        <version>0.9.0-SNAPSHOT</version>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-collect</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-finance</artifactId>
+        <version>${project.version}</version>
         <type>test-jar</type>
         <scope>test</scope>
       </dependency>
@@ -266,19 +288,19 @@
   <!-- ==================================================================== -->
   <distributionManagement>
     <repository>
-      <id>og-platform-private-release</id>
-      <name>OpenGamma platform maven repository</name>
-      <url>${og-platform-private-release.url}</url>
+      <id>strata-private-release</id>
+      <name>Strata maven repository</name>
+      <url>${strata-private-release.url}</url>
     </repository>
     <snapshotRepository>
-      <id>og-platform-private-snapshot</id>
-      <name>OpenGamma platform snapshot maven repository</name>
-      <url>${og-platform-private-snapshot.url}</url>
+      <id>strata-private-snapshot</id>
+      <name>Strata snapshot maven repository</name>
+      <url>${strata-private-snapshot.url}</url>
     </snapshotRepository>
     <site>
-      <id>og-public-site</id>
-      <name>OpenGamma public site</name>
-      <url>http://developers.opengamma.com/og-platformcore</url>
+      <id>strata-public-site</id>
+      <name>Strata public site</name>
+      <url>http://developers.opengamma.com/strata</url>
     </site>
   </distributionManagement>
 
@@ -383,8 +405,8 @@
     <testng.version>6.8.13</testng.version>
     <opengamma-legacy.version>2.8.0</opengamma-legacy.version>
     <!-- Properties for maven-javadoc-plugin -->
-    <windowtitle>OpenGamma Platform Core</windowtitle>
-    <doctitle><![CDATA[<h1>OpenGamma Platform Core</h1>]]></doctitle>
+    <windowtitle>OpenGamma Strata</windowtitle>
+    <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
     <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
     <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>${javadoc.footer.license}</i><br/><i>Additional documentation can be found at <a href="http://docs.opengamma.com">docs.opengamma.com</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
     <javadoc.footer.license></javadoc.footer.license>

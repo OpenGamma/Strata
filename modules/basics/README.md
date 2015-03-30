@@ -1,19 +1,21 @@
-OG-Basics
------------------
-This directory contains the `og-basics` project.
+Strata-Basics
+-------------
+This directory contains the `strata-basics` project.
 
 ### Overview
 
-This project provides common financial concepts used by OpenGamma:
+This project provides common financial concepts used by OpenGamma Strata:
 
 * money and currency
 * day counts
 * day rolling
+* schedule generation
+* indices
 
 
 ### Source code
 
-OG-Basics is released as Open Source Software using the
+This project is released as Open Source Software using the
 [Apache v2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).  
 Commercial support is [available](http://www.opengamma.com/) from the authors.
 

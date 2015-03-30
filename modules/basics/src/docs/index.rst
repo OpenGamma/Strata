@@ -1,8 +1,8 @@
 Basic Finance
 =============
 
-OpenGamma Basic Finance provides a standard library for common concepts in finance.
-Other OpenGamma project build on these concepts.
+OpenGamma Strata Basic Finance provides a standard library for common concepts in finance.
+Other OpenGamma projects build on these concepts.
 
 .. toctree::
    :maxdepth: 1

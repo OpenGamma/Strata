@@ -16,7 +16,7 @@ It is not unusual for individual exchanges or other financial entities to have t
 Holiday Calendar
 ================
 
-The OG-Basics project includes a holiday calendar interface and some common implementations.
+The Strata-Basics project includes a holiday calendar interface and some common implementations.
 The key interface is ``HolidayCalendar`` which defines methods to query the calendar.
 
 Each holiday calendar implementation has a unique name.

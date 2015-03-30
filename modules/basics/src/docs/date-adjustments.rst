@@ -13,7 +13,7 @@ To handle this, a set of date manipulation classes are provided.
 Date adjustment
 ===============
 
-The OG-Basics project includes a number of key classes for adjusting dates:
+The Strata-Basics project includes a number of key classes for adjusting dates:
 
 * `Business Day Adjustment`_
 * `Days Adjustment`_
